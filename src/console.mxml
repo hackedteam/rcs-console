@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx">
+					   xmlns:mx="library://ns.adobe.com/flex/mx" 
+             xmlns:console="it.ht.rcs.console.*"
+             currentState="LoggedOut" 
+             backgroundColor.LoggedOut="#6FA0BF" 
+             backgroundAlpha.LoggedOut="0.7"
+             showStatusBar="false" backgroundColor.LoggedIn="#CCCCCC">
+<fx:Script>
+  <![CDATA[
+    import mx.core.FlexGlobals;
+    import it.ht.rcs.console.Login;
+    
+  ]]>
+</fx:Script>
+  <s:states>
+		<s:State name="LoggedIn" enterState="{FlexGlobals.topLevelApplication.showStatusBar = true}" />
+		<s:State name="LoggedOut" enterState="{FlexGlobals.topLevelApplication.showStatusBar = false}"/>
+	</s:states>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
+
+  <s:Panel includeIn="LoggedOut" width="400" height="180" horizontalCenter="0" verticalCenter="-33" title="RCS Console 8.0" cornerRadius="0" >
+    <console:Login />
+  </s:Panel>
 </s:WindowedApplication>

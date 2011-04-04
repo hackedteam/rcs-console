@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="160" height="20">
+<fx:Script>
+  <![CDATA[
+    import mx.core.FlexGlobals;
+    import flash.filters.GlowFilter;
+    
+    private function exit():void
+    {
+      /* TODO: cleanup functions */
+      FlexGlobals.topLevelApplication.close();
+    }
+    
+    private function logout():void
+    {
+      /* TODO: cleanup functions */
+      FlexGlobals.topLevelApplication.currentState = "LoggedOut" 
+    }
+    
+    [Bindable]
+    private var fullscreenFilters: Array = [];
+    private var _fullscreenState:Boolean = false;
+    
+    private function fullscreen():void {			
+      switch (_fullscreenState) {
+        case true:
+          fullscreenFilters = [];
+          stage.displayState = StageDisplayState.NORMAL;
+          //FlexGlobals.topLevelApplication.nativeWindow.maximize();
+          break;
+        case false:
+          var bevel:GlowFilter = new GlowFilter();
+          bevel.color = 0xffffff;
+          bevel.strength = 8;
+          fullscreenFilters = [bevel];
+          stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
+          break;
+      }
+       // invert the state
+      _fullscreenState = !_fullscreenState;
+    }
+    
+    private function refresh():void
+    {
+      
+    }
+  ]]>
+</fx:Script>
+  
+  <s:Button x="0" y="0" label="E" width="30" height="20" id="ExitButton" click="exit()"/>
+  <s:Button y="0" label="L" width="30" height="20" left="40" id="LogoutButton" click="logout()"/>
+  <s:Button y="0" label="F" width="30" height="20" id="FullscreenButton" left="80" click="fullscreen()" filters="{fullscreenFilters}"/>
+  <s:Button label="R" width="30" height="20" left="130" id="RefreshButton" click="refresh()"/>
+</s:Group>

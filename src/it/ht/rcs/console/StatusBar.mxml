@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" creationComplete="{init()}">
+  <fx:Script>
+    <![CDATA[
+      [Bindable]
+      public static var clockstring:String;
+      
+      private function init():void
+      {
+        // every second update the UTC clock
+        var interval:int = 1000;	
+        var t:Timer = new Timer(interval);
+        t.addEventListener(TimerEvent.TIMER, updateClock);
+        t.start();
+      }
+      
+      private function updateClock(evt:TimerEvent):void 
+      {
+        var date: Date = new Date();
+        var hour : int = date.hoursUTC;
+        var min : int = date.minutesUTC;
+        var sec : int = date.secondsUTC;
+        var year : int = date.fullYearUTC;
+        var month : int = date.monthUTC + 1;
+        var day : int = date.dateUTC;
+        
+        clockstring = "UTC: " + year + "-"
+          + ((month < 10) ? "0" + month : month) + "-"
+          + ((day < 10) ? "0" + day : day) + " "
+          + ((hour < 10) ? "0" + hour : hour) + ":" 
+          + ((min < 10) ? "0" + min : min) + ":" 
+          + ((sec < 10) ? "0" + sec : sec);
+        
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:layout>
+    <s:HorizontalLayout/>
+  </s:layout>
+  <fx:Declarations>
+    <!-- Place non-visual elements (e.g., services, value objects) here -->
+  </fx:Declarations>
+    <s:Label text="user@server" paddingLeft="7"/>
+    <s:HGroup width="100%" horizontalAlign="right" paddingRight="7">
+      <s:Label text="{clockstring}"/>
+    </s:HGroup>
+</s:Group>

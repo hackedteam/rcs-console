@@ -4,13 +4,26 @@
 					   xmlns:mx="library://ns.adobe.com/flex/mx" 
              xmlns:console="it.ht.rcs.console.*"
              currentState="LoggedOut" 
-             backgroundColor.LoggedOut="#6FA0BF" 
+             backgroundColor.LoggedOut="#6FA0BF"
              backgroundAlpha.LoggedOut="0.7"
-             showStatusBar="false" backgroundColor.LoggedIn="#CCCCCC">
+             backgroundColor.LoggedIn="#CCCCCC"
+             applicationComplete="init()" 
+             title="RCS Console" 
+             showStatusBar="false">
 <fx:Script>
   <![CDATA[
     import mx.core.FlexGlobals;
-    import it.ht.rcs.console.Login;
+    
+    /* This variable contains the version number, the value is take dynamically from console-app.xml */ 
+    public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
+    public static var ns:Namespace = appDescriptor.namespace();
+    [Bindable]
+    public static var appVersion:String = appDescriptor.ns::version;
+    
+    private function init():void
+    {
+      /* INIT STUFF */
+    }
     
   ]]>
 </fx:Script>
@@ -18,11 +31,24 @@
 		<s:State name="LoggedIn" enterState="{FlexGlobals.topLevelApplication.showStatusBar = true}" />
 		<s:State name="LoggedOut" enterState="{FlexGlobals.topLevelApplication.showStatusBar = false}"/>
 	</s:states>
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
 
-  <s:Panel includeIn="LoggedOut" width="400" height="180" horizontalCenter="0" verticalCenter="-33" title="RCS Console 8.0" cornerRadius="0" >
+  <!-- transition from state to state -->
+  <s:transitions>
+    <s:Transition>
+      <s:Parallel targets="{[LoginPanel, MainPanel]}">
+        <s:Fade />
+      </s:Parallel>
+    </s:Transition> 
+  </s:transitions>
+  
+  <!-- LoggedOut state -->
+  <s:Panel id="LoginPanel" includeIn="LoggedOut" width="400" height="180" horizontalCenter="0" verticalCenter="-33" title="RCS Console 8.0" cornerRadius="0" >
     <console:Login />
   </s:Panel>
+  
+  <!-- LoggedIn state -->
+  <s:Group id="MainPanel" includeIn="LoggedIn" width="100%" height="100%">
+    <console:Main />
+  </s:Group>
+  
 </s:WindowedApplication>

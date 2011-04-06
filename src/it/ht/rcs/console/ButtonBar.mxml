@@ -5,16 +5,17 @@
 <fx:Script>
   <![CDATA[
     import mx.core.FlexGlobals;
-    import flash.filters.GlowFilter;
     
     private function exit():void
     {
       /* TODO: cleanup functions */
-      FlexGlobals.topLevelApplication.close();
+      console.applicationExit();
     }
     
     private function logout():void
     {
+      /* dispatch the event for all */
+      FlexGlobals.topLevelApplication.dispatchEvent(new Event("LOGGING_OUT"));
       /* TODO: cleanup functions */
       FlexGlobals.topLevelApplication.currentState = "LoggedOut" 
     }
@@ -31,14 +32,11 @@
           //FlexGlobals.topLevelApplication.nativeWindow.maximize();
           break;
         case false:
-          var bevel:GlowFilter = new GlowFilter();
-          bevel.color = 0xffffff;
-          bevel.strength = 8;
-          fullscreenFilters = [bevel];
+          fullscreenFilters = [glow];
           stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
           break;
       }
-       // invert the state
+       /* invert the state */
       _fullscreenState = !_fullscreenState;
     }
     
@@ -49,6 +47,10 @@
   ]]>
 </fx:Script>
   
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="0xffffff" strength="8" />
+  </fx:Declarations>  
+
   <s:Button x="0" y="0" label="E" width="30" height="20" id="ExitButton" click="exit()"/>
   <s:Button y="0" label="L" width="30" height="20" left="40" id="LogoutButton" click="logout()"/>
   <s:Button y="0" label="F" width="30" height="20" id="FullscreenButton" left="80" click="fullscreen()" filters="{fullscreenFilters}"/>

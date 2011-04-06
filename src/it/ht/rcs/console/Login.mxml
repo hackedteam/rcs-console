@@ -4,21 +4,23 @@
          xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="150">
   <fx:Script>
     <![CDATA[
-      import mx.core.FlexGlobals;
-      import mx.controls.Alert;
       import it.ht.rcs.console.Login;
+      
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
       
       private function login():void 
       {
+        FlexGlobals.topLevelApplication.dispatchEvent(new Event("LOGGING_IN"));
         /* TODO: do the login stuff here */
-        parentDocument.currentState = "LoggedIn"  
+        FlexGlobals.topLevelApplication.currentState = "LoggedIn"  
       }
       
     ]]>
   </fx:Script>
   <mx:Form horizontalCenter="0" verticalCenter="-20" defaultButton="{LoginButton}">
     <mx:FormItem label="Username">
-      <s:TextInput width="200" id="UserNameText" creationComplete="focusManager.setFocus(UserNameText)" />
+      <s:TextInput width="200" id="UserNameText" addedToStage="focusManager.setFocus(UserNameText)" />
     </mx:FormItem>
     <mx:FormItem label="Password">
       <s:TextInput width="200" displayAsPassword="true" id="PasswordText"/>
@@ -28,5 +30,5 @@
     </mx:FormItem>
   </mx:Form>
   <s:Button label="Login" bottom="20" right="110" click="login()" id="LoginButton"/>
-  <s:Button label="Cancel" bottom="20" right="30" click="FlexGlobals.topLevelApplication.close()" id="CancelButton"/>
+  <s:Button label="Cancel" bottom="20" right="30" click="console.applicationExit()" id="CancelButton"/>
 </s:Group>

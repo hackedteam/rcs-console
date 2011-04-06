@@ -1,26 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:console="it.ht.rcs.console.*">
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:console="it.ht.rcs.console.*" currentState="Console">
+<fx:Script>
+  <![CDATA[
+    import mx.core.FlexGlobals;
+    import mx.controls.Alert;
+    import mx.events.ItemClickEvent;    
+    
+    private function mainButtonClickHandler(event:ItemClickEvent):void {
+      /* dispatch the event for all */
+      FlexGlobals.topLevelApplication.dispatchEvent(new Event("SECTION_" + event.label.toUpperCase()));
+      /* change the state to the current section */
+      currentState = event.label;
+    }
+  ]]>
+</fx:Script>
+  
   <fx:Declarations>
-    <!-- Place non-visual elements (e.g., services, value objects) here -->
+    <fx:Array id="main_sections">
+      <fx:String>Console</fx:String>
+      <fx:String>Dashboard</fx:String>
+      <fx:String>Network</fx:String>
+      <fx:String>Alerting</fx:String>
+      <fx:String>Audit</fx:String>
+      <fx:String>Monitor</fx:String>
+    </fx:Array>
   </fx:Declarations>
 
-  <mx:TabNavigator height="100%" horizontalAlign="right" horizontalGap="7" left="10" right="10" dropShadowVisible="true" top="50">
-    <s:NavigatorContent label="Console" width="100%" height="100%">
-    </s:NavigatorContent>
-    <s:NavigatorContent label="Dashboard" width="100%" height="100%" >
-    </s:NavigatorContent>
-    <s:NavigatorContent label="Network" width="100%" height="100%">
-    </s:NavigatorContent>
-    <s:NavigatorContent label="Alerting" width="100%" height="100%">
-    </s:NavigatorContent>
-    <s:NavigatorContent label="Audit" width="100%" height="100%">
-    </s:NavigatorContent>
-    <s:NavigatorContent label="Monitor" width="100%" height="100%">
-    </s:NavigatorContent>
-  </mx:TabNavigator>   
-  <console:ButtonBar left="10" top="45">
-  </console:ButtonBar>
+  <s:states>
+    <s:State name="Console"/>
+    <s:State name="Dashboard"/>
+    <s:State name="Network"/>
+    <s:State name="Alerting"/>
+    <s:State name="Audit"/>
+    <s:State name="Monitor"/>
+  </s:states>
+
+  <!-- tool bar on top -->
+  <console:ButtonBar left="10" top="45" />
+  <mx:ToggleButtonBar itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" top="45" right="10" horizontalGap="10"/>
+  
+  <!-- all the sections -->
+  <s:Panel includeIn="Console" height="100%" top="75" left="5" right="5" addedToStage="{Alert.show('entering console')}" removedFromStage="{Alert.show('exiting console')}">
+  </s:Panel>
+
+  <s:Panel includeIn="Dashboard" height="100%" top="75" left="5" right="5">
+  </s:Panel>
+
+  <s:Panel includeIn="Network" height="100%" top="75" left="5" right="5">
+  </s:Panel>
+  
+  <s:Panel includeIn="Alerting" height="100%" top="75" left="5" right="5">
+  </s:Panel>
+  
+  <s:Panel includeIn="Audit" height="100%" top="75" left="5" right="5">
+  </s:Panel>
+  
+  <s:Panel includeIn="Monitor" height="100%" top="75" left="5" right="5">
+  </s:Panel>
+  
  
 </s:Group>

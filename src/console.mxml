@@ -9,10 +9,15 @@
              backgroundColor.LoggedIn="#CCCCCC"
              applicationComplete="init()" 
              title="RCS Console" 
-             showStatusBar="false">
+             showStatusBar="false"
+             skinClass="it.ht.rcs.console.skins.ApplicationSkin">
+  <fx:Style source="it/ht/rcs/console/styles/style.css"/>
 <fx:Script>
   <![CDATA[
+    import it.ht.rcs.console.StatusBar;
+    
     import mx.core.FlexGlobals;
+    import mx.controls.Alert;
     
     /* This variable contains the version number, the value is take dynamically from console-app.xml */ 
     public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
@@ -25,6 +30,16 @@
       /* INIT STUFF */
     }
     
+    
+    public static function applicationExit():void {
+      var exitingEvent:Event = new Event(Event.EXITING, false, true);
+      NativeApplication.nativeApplication.dispatchEvent(exitingEvent);
+      if (!exitingEvent.isDefaultPrevented()) {
+        NativeApplication.nativeApplication.exit();
+      }
+    }
+
+    
   ]]>
 </fx:Script>
   <s:states>
@@ -33,6 +48,7 @@
 	</s:states>
 
   <!-- transition from state to state -->
+  <!--
   <s:transitions>
     <s:Transition>
       <s:Parallel targets="{[LoginPanel, MainPanel]}">
@@ -40,6 +56,7 @@
       </s:Parallel>
     </s:Transition> 
   </s:transitions>
+  -->
   
   <!-- LoggedOut state -->
   <s:Panel id="LoginPanel" includeIn="LoggedOut" width="400" height="180" horizontalCenter="0" verticalCenter="-33" title="RCS Console 8.0" cornerRadius="0" >

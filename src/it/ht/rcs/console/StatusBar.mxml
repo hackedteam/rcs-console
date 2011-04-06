@@ -9,30 +9,20 @@
       
       private function init():void
       {
+        // first time
+        updateClock(null);
         // every second update the UTC clock
-        var interval:int = 1000;	
-        var t:Timer = new Timer(interval);
-        t.addEventListener(TimerEvent.TIMER, updateClock);
-        t.start();
+        var clock:Timer = new Timer(1000);
+        clock.addEventListener(TimerEvent.TIMER, updateClock);
+        clock.start();
       }
       
       private function updateClock(evt:TimerEvent):void 
       {
         var date: Date = new Date();
-        var hour : int = date.hoursUTC;
-        var min : int = date.minutesUTC;
-        var sec : int = date.secondsUTC;
-        var year : int = date.fullYearUTC;
-        var month : int = date.monthUTC + 1;
-        var day : int = date.dateUTC;
+        var date_utc: Date = new Date(date.fullYearUTC, date.monthUTC, date.dateUTC, date.hoursUTC, date.minutesUTC, date.secondsUTC);
         
-        clockstring = "UTC: " + year + "-"
-          + ((month < 10) ? "0" + month : month) + "-"
-          + ((day < 10) ? "0" + day : day) + " "
-          + ((hour < 10) ? "0" + hour : hour) + ":" 
-          + ((min < 10) ? "0" + min : min) + ":" 
-          + ((sec < 10) ? "0" + sec : sec);
-        
+        clockstring = clockFormatter.format(date_utc);
       }
       
     ]]>
@@ -41,10 +31,13 @@
     <s:HorizontalLayout/>
   </s:layout>
   <fx:Declarations>
-    <!-- Place non-visual elements (e.g., services, value objects) here -->
+    <mx:DateFormatter id="clockFormatter" formatString="UTC: YYYY-MM-DD JJ:NN:SS" />
   </fx:Declarations>
-    <s:Label text="user@server" paddingLeft="7"/>
-    <s:HGroup width="100%" horizontalAlign="right" paddingRight="7">
-      <s:Label text="{clockstring}"/>
+    <s:Label text="user@server" paddingLeft="10"/>
+  
+    <!-- TODO: download manager here... -->
+  
+    <s:HGroup width="100%" horizontalAlign="right" paddingRight="12">
+      <s:Label text="{clockstring}" color="#454545"/>
     </s:HGroup>
 </s:Group>

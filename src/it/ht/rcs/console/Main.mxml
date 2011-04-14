@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:console="it.ht.rcs.console.*" currentState="Console">
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:console="it.ht.rcs.console.*" 
+         width="100%" height="100%" currentState="Console">
 <fx:Script>
   <![CDATA[
     import mx.core.FlexGlobals;
@@ -11,6 +13,7 @@
     private function mainButtonClickHandler(event:ItemClickEvent):void {
       /* dispatch the event for all */
       FlexGlobals.topLevelApplication.dispatchEvent(new Event("SECTION_" + event.label.toUpperCase()));
+      trace("SECTION_" + event.label.toUpperCase());
       /* change the state to the current section */
       currentState = event.label;
     }
@@ -21,6 +24,7 @@
     <fx:Array id="main_sections">
       <fx:String>Console</fx:String>
       <fx:String>Dashboard</fx:String>
+      <fx:String>Correlation</fx:String>
       <fx:String>Network</fx:String>
       <fx:String>Alerting</fx:String>
       <fx:String>Audit</fx:String>
@@ -31,23 +35,30 @@
   <s:states>
     <s:State name="Console"/>
     <s:State name="Dashboard"/>
+    <s:State name="Correlation"/>
     <s:State name="Network"/>
     <s:State name="Alerting"/>
     <s:State name="Audit"/>
     <s:State name="Monitor"/>
   </s:states>
 
+  <!-- title bar (the banner) -->
+  <console:TitleBar />
+  
   <!-- tool bar on top -->
-  <console:ButtonBar left="10" top="45" />
-  <mx:ToggleButtonBar itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" top="45" right="10" horizontalGap="10"/>
+  <console:ButtonBar top="50" left="10" />
+  <mx:ToggleButtonBar top="50" right="10" horizontalGap="10" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}"/>
   
   <!-- all the sections -->
-  <s:Panel includeIn="Console" height="100%" top="75" left="5" right="5" addedToStage="{Alert.show('entering console')}" removedFromStage="{Alert.show('exiting console')}">
+  <s:Panel includeIn="Console" height="100%" top="75" left="5" right="5" addedToStage="{trace('entering console')}" removedFromStage="{trace('exiting console')}">
   </s:Panel>
 
   <s:Panel includeIn="Dashboard" height="100%" top="75" left="5" right="5">
   </s:Panel>
 
+  <s:Panel includeIn="Correlation" height="100%" top="75" left="5" right="5">
+  </s:Panel>
+  
   <s:Panel includeIn="Network" height="100%" top="75" left="5" right="5">
   </s:Panel>
   
@@ -60,5 +71,4 @@
   <s:Panel includeIn="Monitor" height="100%" top="75" left="5" right="5">
   </s:Panel>
   
- 
 </s:Group>

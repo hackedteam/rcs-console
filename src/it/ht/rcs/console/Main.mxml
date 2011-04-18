@@ -2,37 +2,60 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:console="it.ht.rcs.console.*" 
-         width="100%" height="100%" currentState="Console">
+         xmlns:main="it.ht.rcs.console.*"
+         xmlns:accounting="it.ht.rcs.console.accounting.*"
+         xmlns:alerting="it.ht.rcs.console.alerting.*"
+         xmlns:audit="it.ht.rcs.console.audit.*" 
+         xmlns:console="it.ht.rcs.console.console.*"
+         xmlns:correlation="it.ht.rcs.console.correlation.*"
+         xmlns:dashboard="it.ht.rcs.console.dashboard.*"
+         xmlns:monitor="it.ht.rcs.console.monitor.*"
+         xmlns:network="it.ht.rcs.console.network.*" 
+         width="100%" height="100%" 
+         addedToStage="init()"
+         removedFromStage="cleanup()">
 <fx:Script>
   <![CDATA[
-    import mx.core.FlexGlobals;
     import mx.controls.Alert;
+    import mx.core.FlexGlobals;
     import mx.events.ItemClickEvent;    
     
-    private function mainButtonClickHandler(event:ItemClickEvent):void {
+    [Bindable]
+    private var main_sections:Array;
+    [Bindable]
+    private var main_section_default:int;
+    
+    private function mainButtonClickHandler(event:ItemClickEvent):void 
+    {
       /* dispatch the event for all */
       FlexGlobals.topLevelApplication.dispatchEvent(new Event("SECTION_" + event.label.toUpperCase()));
       trace("SECTION_" + event.label.toUpperCase());
       /* change the state to the current section */
       currentState = event.label;
     }
+    
+    private function init():void 
+    {
+      /* TODO: different view based on privileges */
+      currentState = "Console";
+      main_sections = ['Accounting', 'Console', 'Dashboard', 'Correlation', 'Network', 'Alerting', 'Audit', 'Monitor'];
+      main_section_default = 1;
+      
+      trace("Entering main section...")  
+    }
+    
+    private function cleanup():void 
+    {
+      trace("Exiting main section...")  
+    }
   ]]>
 </fx:Script>
   
   <fx:Declarations>
-    <fx:Array id="main_sections">
-      <fx:String>Console</fx:String>
-      <fx:String>Dashboard</fx:String>
-      <fx:String>Correlation</fx:String>
-      <fx:String>Network</fx:String>
-      <fx:String>Alerting</fx:String>
-      <fx:String>Audit</fx:String>
-      <fx:String>Monitor</fx:String>
-    </fx:Array>
   </fx:Declarations>
 
   <s:states>
+    <s:State name="Accounting"/>
     <s:State name="Console"/>
     <s:State name="Dashboard"/>
     <s:State name="Correlation"/>
@@ -43,32 +66,27 @@
   </s:states>
 
   <!-- title bar (the banner) -->
-  <console:TitleBar />
+  <main:TitleBar />
   
   <!-- tool bar on top -->
-  <console:ButtonBar top="50" left="10" />
-  <mx:ToggleButtonBar top="50" right="10" horizontalGap="10" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}"/>
+  <main:ButtonBar top="50" left="10" />
+  <mx:ToggleButtonBar top="50" right="10" horizontalGap="10" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" selectedIndex="{main_section_default}"/>
   
   <!-- all the sections -->
-  <s:Panel includeIn="Console" height="100%" top="75" left="5" right="5" addedToStage="{trace('entering console')}" removedFromStage="{trace('exiting console')}">
-  </s:Panel>
+  <accounting:Accounting includeIn="Accounting" height="100%" top="75" left="5" right="5" />
+  
+  <console:Console includeIn="Console" height="100%" top="75" left="5" right="5" />
 
-  <s:Panel includeIn="Dashboard" height="100%" top="75" left="5" right="5">
-  </s:Panel>
+  <dashboard:Dashboard includeIn="Dashboard" height="100%" top="75" left="5" right="5" />
 
-  <s:Panel includeIn="Correlation" height="100%" top="75" left="5" right="5">
-  </s:Panel>
+  <correlation:Correlation includeIn="Correlation" height="100%" top="75" left="5" right="5" />
   
-  <s:Panel includeIn="Network" height="100%" top="75" left="5" right="5">
-  </s:Panel>
+  <network:Network includeIn="Network" height="100%" top="75" left="5" right="5" />
   
-  <s:Panel includeIn="Alerting" height="100%" top="75" left="5" right="5">
-  </s:Panel>
+  <alerting:Alerting includeIn="Alerting" height="100%" top="75" left="5" right="5" />
   
-  <s:Panel includeIn="Audit" height="100%" top="75" left="5" right="5">
-  </s:Panel>
+  <audit:Audit includeIn="Audit" height="100%" top="75" left="5" right="5" />
   
-  <s:Panel includeIn="Monitor" height="100%" top="75" left="5" right="5">
-  </s:Panel>
+  <monitor:Monitor includeIn="Monitor" height="100%" top="75" left="5" right="5" />
   
 </s:Group>

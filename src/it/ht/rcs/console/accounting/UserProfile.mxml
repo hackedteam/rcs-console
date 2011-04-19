@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" 
+               width="400" height="300" 
+               close="closeMe()"
+               title="USER PROFILE"
+               creationComplete="init()">
+  <fx:Script>
+    <![CDATA[
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _user:String;
+      [Bindable]
+      private var _contact:String;
+      [Bindable]
+      private var _privs:String;
+      
+      private function init():void
+      {
+        /* TODO: retrieve the info from the Session */
+        _user = "alor";
+        _contact = "alor@hackingteam.it";
+        _privs = "ADMIN | TECH | VIEW"; 
+      }
+      
+      private function closeMe():void
+      {
+        PopUpManager.removePopUp(this);  
+      }
+    ]]>
+  </fx:Script>
+  <fx:Declarations>
+    <!-- Place non-visual elements (e.g., services, value objects) here -->
+    <s:ArrayCollection id="locales">
+      <fx:String>EN</fx:String>
+      <fx:String>IT</fx:String>
+      <fx:String>ES</fx:String>
+    </s:ArrayCollection>
+
+  </fx:Declarations>
+  
+  <!-- labels -->
+  <s:Label text="User:" top="20" left="20" styleName="UserProfile"/>
+  <s:Label text="Privileges:" left="20" top="80" styleName="UserProfile"/>
+  <s:Label text="Contact:" left="20" top="50" styleName="UserProfile"/>
+  <s:Label text="Language:" left="20" top="110" styleName="UserProfile"/>
+  <s:Label text="Password:" left="20" top="140" styleName="UserProfile"/>
+  <s:Label text="Groups:" left="20" top="170" styleName="UserProfile"/>
+  
+  <!-- data -->
+  <s:Label text="{_user}" left="120" top="20"/>
+  <s:Label text="{_contact}" left="120" top="50"/>
+  <s:Label text="{_privs}" left="120" top="80"/>
+  <s:DropDownList left="120" top="110" dataProvider="{locales}"  selectedIndex="0" width="75"/>
+  <s:Button label="Change..." left="120" top="140" width="75"/>
+  <s:List width="244" height="87" left="120" top="170">
+    <s:layout>
+      <s:VerticalLayout/>
+    </s:layout>
+  </s:List>
+  
+</s:TitleWindow>

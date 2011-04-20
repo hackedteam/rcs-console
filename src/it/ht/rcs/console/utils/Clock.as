@@ -27,7 +27,7 @@ package it.ht.rcs.console.utils
     public function Clock()
     {
       trace('UTC clock initialization...');
-      /* TODO: initialize from the user session */
+      /* initialize to UTC, the profile value will be set on currentSession creation */
       consoleOffset = 0;
       
       /* initialize the first time */

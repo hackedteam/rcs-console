@@ -2,36 +2,87 @@
 <s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="400" height="180"
+         width="400" height="200"
          title="RCS Console {console.rcsVersion.substring(0, console.rcsVersion.length-2)}" 
-         horizontalCenter="0" verticalCenter="-33" cornerRadius="0" >
+         verticalCenter="-33" cornerRadius="0" addedToStage="init()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.Login;
+      import it.ht.rcs.console.model.Account;
       
       import mx.controls.Alert;
       import mx.core.FlexGlobals;
       
+      [Bindable]
+      private var account:Account;
+      
+      private function init():void
+      {
+        /* create the object and load the previous login info */
+        account = new Account();
+        /* reset the error message */
+        ErrorMessage.text = '';
+        /* center on screen */
+        this.x = (parent.width / 2) - (this.width / 2);
+      }
+      
       private function login():void 
       {
+        /* reset the error message */
+        ErrorMessage.text = '';
+        /* perform login to the server */
+        account.login(UserNameText.text, PasswordText.text, ServerText.text, onSuccess, onFailure);
+      }
+      
+      private function onSuccess():void
+      {
+        /* reset the password field (if someone logout, he will not find the password already filled */
+        PasswordText.text = '';
+        /* set the locale of the current user */
+        resourceManager.localeChain = [console.currentSession.locale];
+        /* send a global event */
         FlexGlobals.topLevelApplication.dispatchEvent(new Event("LOGGING_IN"));
-        /* TODO: do the login stuff here */
-        FlexGlobals.topLevelApplication.currentState = "LoggedIn"  
+        /* switch to the main stage */
+        FlexGlobals.topLevelApplication.currentState = "LoggedIn"
+      }
+      
+      private function onFailure(message:String):void
+      {
+        /* display the error message */
+        ErrorMessage.text = message;
+        /* shake the login window */
+        shake.play();
       }
       
     ]]>
   </fx:Script>
+  <fx:Declarations>
+    <s:Sequence id="shake" target="{this}" duration="70">
+      <s:Move xBy="20" />
+      <s:Move xBy="-20" />            
+      <s:Move xBy="20" />       
+      <s:Move xBy="-20" />      
+      <s:Move xBy="20" />            
+      <s:Move xBy="-20" />            
+      <s:Move xBy="20" />            
+      <s:Move xBy="-20" />            
+    </s:Sequence>
+  </fx:Declarations>
+
   <mx:Form horizontalCenter="0" verticalCenter="-20" defaultButton="{LoginButton}">
     <mx:FormItem label="Username">
-      <s:TextInput width="200" id="UserNameText" addedToStage="focusManager.setFocus(UserNameText)" />
+      <s:TextInput width="200" id="UserNameText" addedToStage="focusManager.setFocus(UserNameText)" text="{account.username}"/>
     </mx:FormItem>
     <mx:FormItem label="Password">
       <s:TextInput width="200" displayAsPassword="true" id="PasswordText"/>
     </mx:FormItem>
     <mx:FormItem label="Server">
-      <s:TextInput width="200" id="ServerText" />
+      <s:TextInput width="200" id="ServerText" text="{account.server}" />
     </mx:FormItem>
   </mx:Form>
-  <s:Button label="Login" bottom="20" right="110" click="login()" id="LoginButton"/>
-  <s:Button label="Cancel" bottom="20" right="30" click="console.applicationExit()" id="CancelButton"/>    
+  <s:Label id="ErrorMessage" text="Error message..." color="#FF0000" bottom="43" left="137"/>
+  <s:Button label="Login" bottom="15" right="110" click="login()" id="LoginButton"/>
+  <s:Button label="Cancel" bottom="15" right="30" click="console.applicationExit()" id="CancelButton"/>    
+  
+
 </s:Panel>

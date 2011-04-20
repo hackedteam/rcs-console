@@ -10,20 +10,9 @@
     <![CDATA[
       import mx.managers.PopUpManager;
       
-      [Bindable]
-      private var _user:String;
-      [Bindable]
-      private var _contact:String;
-      [Bindable]
-      private var _privs:String;
-      
       private function init():void
       {
-        /* TODO: retrieve the info from the Session */
-        _user = "alor";
-        _contact = "alor@hackingteam.it";
-        _privs = "ADMIN | TECH | VIEW";
-        resourceManager.localeChain = ['en_US'];
+
       }
       
       private function closeMe():void
@@ -34,7 +23,8 @@
       private function changeLocale():void
       {
         resourceManager.localeChain = [locale.selectedItem];
-        /* TODO: save the pref in the user profile */
+        console.currentSession.locale = locale.selectedItem;
+        // TODO: save the pref in the user profile
       }
       
     ]]>
@@ -58,10 +48,10 @@
   <s:Label text="{resourceManager.getString('localized_main', 'GROUPS')}:" left="20" top="170" styleName="UserProfile"/>
   
   <!-- data -->
-  <s:Label text="{_user}" left="120" top="20"/>
-  <s:Label text="{_contact}" left="120" top="50"/>
-  <s:Label text="{_privs}" left="120" top="80"/>
-  <s:DropDownList id="locale" left="120" top="110" dataProvider="{locales}" selectedIndex="0" width="75" change="changeLocale()"/>
+  <s:Label text="{console.currentSession.user}" left="120" top="20"/>
+  <s:Label text="{console.currentSession.contact}" left="120" top="50"/>
+  <s:Label text="{console.currentSession.privs.join(' | ')}" left="120" top="80"/>
+  <s:DropDownList id="locale" left="120" top="110" dataProvider="{locales}" selectedIndex="{locales.toArray().indexOf(console.currentSession.locale)}" width="75" change="changeLocale()"/>
   <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75"/>
   <s:List width="244" height="87" left="120" top="170">
     <s:layout>

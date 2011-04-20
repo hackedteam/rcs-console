@@ -4,7 +4,7 @@
                xmlns:mx="library://ns.adobe.com/flex/mx" 
                width="400" height="300" 
                close="closeMe()"
-               title="USER PROFILE"
+               title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}"
                creationComplete="init()">
   <fx:Script>
     <![CDATA[
@@ -34,6 +34,7 @@
       private function changeLocale():void
       {
         resourceManager.localeChain = [locale.selectedItem];
+        /* TODO: save the pref in the user profile */
       }
       
     ]]>
@@ -49,19 +50,19 @@
   </fx:Declarations>
   
   <!-- labels -->
-  <s:Label text="{resourceManager.getString('main', 'user')}:" top="20" left="20" styleName="UserProfile"/>
-  <s:Label text="Privileges:" left="20" top="80" styleName="UserProfile"/>
-  <s:Label text="Contact:" left="20" top="50" styleName="UserProfile"/>
-  <s:Label text="Language:" left="20" top="110" styleName="UserProfile"/>
-  <s:Label text="Password:" left="20" top="140" styleName="UserProfile"/>
-  <s:Label text="Groups:" left="20" top="170" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'USER')}:" top="20" left="20" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'PRIVILEGES')}:" left="20" top="80" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONTACT')}:" left="20" top="50" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'LANGUAGE')}:" left="20" top="110" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'PASSWORD')}:" left="20" top="140" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'GROUPS')}:" left="20" top="170" styleName="UserProfile"/>
   
   <!-- data -->
   <s:Label text="{_user}" left="120" top="20"/>
   <s:Label text="{_contact}" left="120" top="50"/>
   <s:Label text="{_privs}" left="120" top="80"/>
   <s:DropDownList id="locale" left="120" top="110" dataProvider="{locales}" selectedIndex="0" width="75" change="changeLocale()"/>
-  <s:Button label="Change..." left="120" top="140" width="75"/>
+  <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75"/>
   <s:List width="244" height="87" left="120" top="170">
     <s:layout>
       <s:VerticalLayout/>

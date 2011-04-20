@@ -2,9 +2,9 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
                xmlns:mx="library://ns.adobe.com/flex/mx" 
-               width="400" height="175" 
+               width="300" height="175" 
                close="closeMe()"
-               title="CLOCK SETTINGS">
+               title="{resourceManager.getString('localized_main', 'CLOCK_SETTINGS').toUpperCase()}">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.utils.Clock;
@@ -18,6 +18,7 @@
       private function changeTimeZone():void
       {
         Clock.instance.setConsoleTimezone(dropTimeList.selectedIndex - 12);
+        /* TODO: save the timezone in the user profile */
       }
     ]]>
   </fx:Script>
@@ -36,7 +37,7 @@
       <fx:String>GMT -2</fx:String>
       <fx:String>GMT -1</fx:String>
       <fx:String>GMT (UTC)</fx:String>
-      <fx:String>GMT +1 (CET)</fx:String>
+      <fx:String>GMT +1</fx:String>
       <fx:String>GMT +2</fx:String>
       <fx:String>GMT +3</fx:String>
       <fx:String>GMT +4</fx:String>
@@ -51,10 +52,10 @@
     </s:ArrayCollection>
   </fx:Declarations>
   <!-- labels -->
-  <s:Label text="UTC Time:" top="20" left="20" styleName="ClockProfile"/>
-  <s:Label text="Local Time:" left="20" top="50" styleName="ClockProfile"/>
-  <s:Label text="Console Time:" left="20" top="80" styleName="ClockProfile"/>
-  <s:Label text="Console Timezone:" left="20" top="113" styleName="ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'UTC_TIME')}:" top="20" left="20" styleName="ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'LOCAL_TIME')}:" left="20" top="50" styleName="ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}:" left="20" top="80" styleName="ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}:" left="20" top="113" styleName="ClockProfile"/>
   
   <!-- data -->
   <s:Label left="170" top="20" text="{Clock.instance.currentUTCTime}"/>

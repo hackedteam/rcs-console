@@ -9,7 +9,9 @@
     
     private function exit():void
     {
-      // TODO: cleanup functions
+      /* destroy the current session */
+      console.currentSession.destroy();
+      /* close the AIR application */
       console.applicationExit();
     }
     
@@ -17,7 +19,10 @@
     {
       /* dispatch the event for all */
       FlexGlobals.topLevelApplication.dispatchEvent(new Event("LOGGING_OUT"));
-      // TODO: cleanup functions 
+      /* destroy the current session */
+      console.currentSession.destroy();
+      console.currentSession = null;
+      /* back to the login screen */ 
       FlexGlobals.topLevelApplication.currentState = "LoggedOut" 
     }
     

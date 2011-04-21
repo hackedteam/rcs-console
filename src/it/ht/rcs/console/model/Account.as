@@ -3,6 +3,8 @@ package it.ht.rcs.console.model
   import flash.filesystem.File;
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
+  
+  import it.ht.rcs.console.accounting.User;
 
   public class Account
   {
@@ -31,7 +33,9 @@ package it.ht.rcs.console.model
         /* save the info for the next login */
         save_previous(user, server);
         /* instantiate the global currentSession object for the logged in user */
-        console.currentSession = new Session();
+        var u:User = new User();
+        // FIXME: remove the fake
+        console.currentSession = new Session(u, true);
         /* invoke the callback */
         callback();
         return;

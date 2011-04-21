@@ -1,31 +1,35 @@
 package it.ht.rcs.console.model
 {
+  import it.ht.rcs.console.accounting.User;
   import it.ht.rcs.console.utils.Clock;
 
   public class Session
   {
     [Bindable]
-    public var user:String;
-    [Bindable]
-    public var contact:String;
-    [Bindable]
-    public var privs:Array;
-    [Bindable]
-    public var locale:String;
-
-    public function Session()
+    public var user:User;
+    
+    public var fake:Boolean;
+    
+    public function Session(user:User, fake:Boolean = false)
     {
-     // TODO fill in with real info
-      user = "alor";
-      contact = "alor@hackingteam.it";
-      privs = ['ADMIN', 'TECH', 'VIEW'];
-      locale = 'it_IT';
+      /* is it a real session */
+      this.fake = fake;
       
+      /* the user of this session */
+      this.user = user;
+
       /* set the locale of the current user */
       // FIXME: for some reason we cannot do this here, since the ResourceManager singleton is returing a sort of "read-only" impl
-      //ResourceManager.getInstance().localeChain = [console.currentSession.locale];
+      //ResourceManager.getInstance().localeChain = [user.locale];
+      
       /* update the clock timezone */
-      Clock.instance.setConsoleTimezone(0);
+      Clock.instance.setConsoleTimezone(user.time_offset);
+    }
+    
+    public function destroy():void
+    {
+      // TODO: logout the user from the db
+      user = null;
     }
     
     

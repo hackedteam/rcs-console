@@ -4,16 +4,11 @@
                xmlns:mx="library://ns.adobe.com/flex/mx" 
                width="400" height="300" 
                close="closeMe()"
-               title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}"
-               creationComplete="init()">
+               title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}">
   <fx:Script>
     <![CDATA[
+      import mx.collections.ArrayCollection;
       import mx.managers.PopUpManager;
-      
-      private function init():void
-      {
-
-      }
       
       private function closeMe():void
       {
@@ -22,22 +17,16 @@
       
       private function changeLocale():void
       {
+        /* change on the fly the locale of the console */
         resourceManager.localeChain = [locale.selectedItem];
-        console.currentSession.locale = locale.selectedItem;
-        // TODO: save the pref in the user profile
+       
+        /* save the pref in the user profile */
+        console.currentSession.user.locale = locale.selectedItem;
+        console.currentSession.user.save();
       }
       
     ]]>
   </fx:Script>  
-  
-  <fx:Declarations>
-
-    <s:ArrayCollection id="locales">
-      <fx:String>en_US</fx:String>
-      <fx:String>it_IT</fx:String>
-    </s:ArrayCollection>
-
-  </fx:Declarations>
   
   <!-- labels -->
   <s:Label text="{resourceManager.getString('localized_main', 'USER')}:" top="20" left="20" styleName="UserProfile"/>
@@ -48,15 +37,12 @@
   <s:Label text="{resourceManager.getString('localized_main', 'GROUPS')}:" left="20" top="170" styleName="UserProfile"/>
   
   <!-- data -->
-  <s:Label text="{console.currentSession.user}" left="120" top="20"/>
-  <s:Label text="{console.currentSession.contact}" left="120" top="50"/>
-  <s:Label text="{console.currentSession.privs.join(' | ')}" left="120" top="80"/>
-  <s:DropDownList id="locale" left="120" top="110" dataProvider="{locales}" selectedIndex="{locales.toArray().indexOf(console.currentSession.locale)}" width="75" change="changeLocale()"/>
+  <s:Label text="{console.currentSession.user.username}" left="120" top="20"/>
+  <s:Label text="{console.currentSession.user.contact}" left="120" top="50"/>
+  <s:Label text="{console.currentSession.user.privs.join(' | ')}" left="120" top="80"/>
+  <s:DropDownList id="locale" left="120" top="110" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(console.currentSession.user.locale)}" width="75" change="changeLocale()"/>
   <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75"/>
-  <s:List width="244" height="87" left="120" top="170">
-    <s:layout>
-      <s:VerticalLayout/>
-    </s:layout>
+  <s:List id="groups" width="244" height="87" left="120" top="170" dataProvider="{new ArrayCollection(console.currentSession.user.groups)}" click="{groups.selectedIndex = -1}">
   </s:List>
   
 </s:TitleWindow>

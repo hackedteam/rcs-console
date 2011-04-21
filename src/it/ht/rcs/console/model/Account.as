@@ -23,13 +23,13 @@ package it.ht.rcs.console.model
     public function login(user:String, pass:String, server:String, callback:Function, errback:Function):void
     {
       // FIXME: remove the mock
-      if (server != 'local') {
+      if (server != 'demo') {
         errback('Cannot connect to server (not yet)');
         return;
       }
       
       // FIXME: remove the mock
-      if (user == 'alor' && pass == '') {  
+      if (user == 'demo' && pass == '') {  
         /* save the info for the next login */
         save_previous(user, server);
         /* instantiate the global currentSession object for the logged in user */

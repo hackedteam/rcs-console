@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                xmlns:s="library://ns.adobe.com/flex/spark" 
+                xmlns:mx="library://ns.adobe.com/flex/mx" 
+                autoDrawBackground="true">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.Size;
+      
+      private function byteprogress(data:Object):String
+      {
+        var str:String;
+        
+        /* if creation is completed, display the download */
+        if (data.creation_percentage.bytesLoaded < data.creation_percentage.bytesTotal) {
+          str = Size.toHumanBytes(data.creation_percentage.bytesLoaded)
+          if (data.creation_percentage.bytesTotal != 0)
+            str += " of " + Size.toHumanBytes(data.creation_percentage.bytesTotal);
+        } else {
+          str = Size.toHumanBytes(data.download_percentage.bytesLoaded) 
+          if (data.download_percentage.bytesTotal != 0) 
+            str += " of " + Size.toHumanBytes(data.download_percentage.bytesTotal);
+        }
+         
+        return str;
+      }
+      
+    ]]>
+  </fx:Script>
+    
+  <s:layout>
+    <s:HorizontalLayout/>
+  </s:layout>
+  
+  <s:SkinnableContainer width="100%" height="60" toolTip="{data.time}">
+    <s:HGroup top="7" left="5" right="50">
+      <s:Label text="{data.title}" fontWeight="bold"/>
+      <s:Label text="{byteprogress(data)}" textAlign="right" width="100%"/>
+    </s:HGroup>
+    <mx:ProgressBar mode="polled" indeterminate="{data.creation_undefined}" source="{(data.creation_undefined) ? null : data.creation_percentage}" label="%3%%" labelPlacement="right" top="20" left="5" right="10"/>
+    <mx:ProgressBar mode="polled" source="{data.download_percentage}" label="%3%%" labelPlacement="right" top="30" left="5" right="10"/>
+    <mx:LinkButton label="X" paddingLeft="0" paddingRight="0" right="3" top="3" fontWeight="bold" fontFamily="Verdana" click="data.cancel()" toolTip="{resourceManager.getString('localized_main', 'CANCEL')}"/>
+  </s:SkinnableContainer>
+</s:ItemRenderer>

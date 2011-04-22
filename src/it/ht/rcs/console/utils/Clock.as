@@ -24,6 +24,10 @@ package it.ht.rcs.console.utils
     
     private var _consoleTimeZone:int = 0;
     
+    /* singleton */
+    private static var _instance:Clock = new Clock();
+    public static function get instance():Clock { return _instance; } 
+    
     public function Clock()
     {
       trace('UTC clock initialization...');
@@ -59,11 +63,5 @@ package it.ht.rcs.console.utils
       updateClock(null);
     }
     
-    private static var _instance:Clock = new Clock();
-    
-    public static function get instance():Clock 
-    {
-      return _instance;
-    } 
   }
 }

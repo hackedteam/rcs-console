@@ -26,6 +26,7 @@ package it.ht.rcs.console.accounting
       groups = ['developers', 'investigators', 'lamers', 'a', 'b', 'c', 'd'];
       time_offset = 0;
     }
+    
     public function is_admin():Boolean
     {
       return privs.indexOf('ADMIN') != -1
@@ -43,6 +44,10 @@ package it.ht.rcs.console.accounting
       return privs.length != 0
     }
     
+    public function change_password(new_pass:String):void
+    {
+      // TODO: save to the db      
+    }
     
     public function save():void
     {

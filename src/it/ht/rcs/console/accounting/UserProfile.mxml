@@ -25,6 +25,11 @@
         console.currentSession.user.save();
       }
       
+      private function changePass():void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, ChangePassword, true));
+      } 
+      
     ]]>
   </fx:Script>  
   
@@ -41,7 +46,7 @@
   <s:Label text="{console.currentSession.user.contact}" left="120" top="50"/>
   <s:Label text="{console.currentSession.user.privs.join(' | ')}" left="120" top="80"/>
   <s:DropDownList id="locale" left="120" top="110" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(console.currentSession.user.locale)}" width="75" change="changeLocale()"/>
-  <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75"/>
+  <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75" click="changePass()"/>
   <s:List id="groups" width="244" height="87" left="120" top="170" dataProvider="{new ArrayCollection(console.currentSession.user.groups)}" click="{groups.selectedIndex = -1}">
   </s:List>
   

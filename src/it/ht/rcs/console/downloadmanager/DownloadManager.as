@@ -26,6 +26,7 @@ package it.ht.rcs.console.downloadmanager
       active = false;
 
    
+      // FIXME: MOCK:  remove this
       var p:int = 1000;
       var t:Task = new Task();
       
@@ -34,12 +35,22 @@ package it.ht.rcs.console.downloadmanager
       t.set_creation_size(1000000);
       t.set_download_size(500000);
 
+      var t2:Task = new Task();
+      
+      t2.title = "task 2";
+      t2.time = Clock.instance.currentConsoleTime;
+      t2.set_creation_size(500000);
+      t2.set_download_size(500000);
+
+      
       addTask(t);
+      addTask(t2);      
       
       var tc:Timer = new Timer(100);
       tc.addEventListener(TimerEvent.TIMER, function updateProgress(evt:TimerEvent):void {
         p += 1000;
         t.update_creation(p);
+        t2.update_creation(p);
       });
       
       tc.start();

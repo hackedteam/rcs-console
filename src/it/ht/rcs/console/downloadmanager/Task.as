@@ -1,8 +1,11 @@
 package it.ht.rcs.console.downloadmanager
 {
+  import flash.events.Event;
+  import flash.events.EventDispatcher;
   import flash.net.URLStream;
   
-  public class Task 
+  [Bindable(event="percentageChanged")]
+  public class Task extends EventDispatcher
   {
     public function Task() 
     {
@@ -15,14 +18,11 @@ package it.ht.rcs.console.downloadmanager
     public var time:String;
     [Bindable]
     public var creation_undefined:Boolean = true;
-    // FIXME: this is a dirty hack to fire the bindable event so the renderer knows that the two Objects below changed their internal values 
-    [Bindable]
-    public var change:Number;
     
-    [Bindable]
-    public var creation_percentage:Object = new Object();
-    [Bindable]
-    public var download_percentage:Object = new Object();
+    [Bindable(event="percentageChanged")]
+    public var creation_percentage:Object = {bytesLoaded:0, bytesTotal:0};
+    [Bindable(event="percentageChanged")]
+    public var download_percentage:Object = {bytesLoaded:0, bytesTotal:0};
     
     
     //public var stream : URLStream;
@@ -41,13 +41,13 @@ package it.ht.rcs.console.downloadmanager
     public function update_creation(cur:Number):void 
     {
       creation_percentage.bytesLoaded = cur;
-      change = cur;
+      dispatchEvent(new Event("percentageChanged"));
     }
     
     public function update_download(cur:Number):void 
     {
       download_percentage.bytesLoaded = cur;
-      change = cur;
+      dispatchEvent(new Event("percentageChanged"));
     }
     
     public function complete():void 

@@ -2,11 +2,42 @@
 <s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         title="MONITOR">
+         title="MONITOR" width="100%" height="100%" xmlns:monitor="it.ht.rcs.console.monitor.*">
 
   <fx:Declarations>
-
+    <s:ArrayCollection id="monitor_data">
+      <fx:String>Uno</fx:String>
+      <fx:String>Due</fx:String>
+      <fx:String>Tre</fx:String>
+    </s:ArrayCollection>
   </fx:Declarations>
+  
+  <fx:Metadata>
+    [ResourceBundle("localized_main")] 
+  </fx:Metadata>
+  
+  <!-- sidebar -->
+  <mx:Accordion width="200" left="5" top="5" bottom="5" >
+    <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE')}" width="100%" height="100%">
+      <monitor:License />
+    </s:NavigatorContent>
+    <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE_VERSIONS')}" width="100%" height="100%">
+      <monitor:Versions />
+    </s:NavigatorContent>
+  </mx:Accordion>
+  
+  <!-- button bar (transparent container) -->  
+  <s:BorderContainer borderVisible="false" top="5" left="215" right="5" height="20" backgroundAlpha="0.0">
+    <s:Button x="0" y="0" label="G" width="30" height="20" toolTip="Select alerting group..."/>
+    <s:Button x="90" y="0" label="S" width="30" height="20" toolTip="Sort by status"/>
+    <s:Button x="130" y="0" label="S" width="30" height="20" toolTip="Sort by name"/>
+  </s:BorderContainer>
 
+  <!-- monitor list -->
+  <s:List id="monitors" left="215" top="30" bottom="5" right="5" 
+          itemRenderer="it.ht.rcs.console.monitor.StatusRenderer" 
+          dataProvider="{monitor_data}" 
+          click="{monitors.selectedIndex = -1}"/>
+  
 
 </s:Panel>

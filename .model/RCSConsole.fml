@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <service name="DB">
+    <annotation name="ActionScriptGeneration">
+      <item name="ServiceType">HTTPMultiService</item>
+      <item name="Package">it.ht.rcs.services.db</item>
+      <item name="rootURL">http://localhost:4444</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">HTTPService</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="LINKED_FILE"></item>
+    </annotation>
+    <function name="login" arguments="strXml:string" return-type="DBSession">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
+        <item name="url">/auth/login</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/auth/login</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">cookie,uid,time,level,user</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">strXml</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="logout" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="method">POST</item>
+        <item name="contentType">application/x-www-form-urlencoded</item>
+        <item name="requestBodyParameter">false</item>
+        <item name="url">/auth/logout</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/auth/logout</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+  </service>
+  <entity name="DBSession">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">DBSession</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">DB</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="login">
+      <item name="propertySpecifier">cookie,uid,time,level,user</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="cookie" type="string" required="true"/>
+    <property name="uid" type="integer" required="true"/>
+    <property name="time" type="string" required="true"/>
+    <property name="level" type="string[]" required="true"/>
+    <property name="user" type="string" required="true"/>
+  </entity>
+</model>

@@ -3,6 +3,7 @@
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
 					   xmlns:mx="library://ns.adobe.com/flex/mx" 
              xmlns:main="it.ht.rcs.console.*"
+             xmlns:effects="it.ht.rcs.console.effects.*" 
              currentState="LoggedOut" 
              backgroundColor.LoggedOut="#6FA0BF"
              backgroundAlpha.LoggedOut="0.7"
@@ -28,7 +29,7 @@
     public static var appVersion:String = appDescriptor.ns::version;
     [Bindable]
     public static var rcsVersion:String = "8.0.0";
-    
+
     /* current session once logged in */
     [Bindable]
     public static var currentSession:Session;
@@ -36,6 +37,8 @@
     /* supported locales for the application */
     [Bindable]
     public static var locales:ArrayCollection = new ArrayCollection(['en_US', 'it_IT']); 
+    
+
     
     private function init():void
     {
@@ -76,6 +79,7 @@
   
   <!-- LoggedOut state -->
   <main:Login id="LoginPanel" includeIn="LoggedOut" />
+  <effects:Reflector target="{LoginPanel}" alpha="0.5" falloff="0.5" blurAmount="0.5"/>
   
   <!-- LoggedIn state -->
   <main:Main id="MainPanel" includeIn="LoggedIn" width="100%" height="100%" />

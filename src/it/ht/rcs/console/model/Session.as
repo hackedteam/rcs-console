@@ -7,10 +7,12 @@ package it.ht.rcs.console.model
   {
     [Bindable]
     public var user:User;
+    [Bindable]
+    public var server:String;
     
     public var fake:Boolean;
     
-    public function Session(user:User, fake:Boolean = false)
+    public function Session(user:User, server:String, fake:Boolean = false)
     {
       /* is it a real session */
       this.fake = fake;
@@ -18,6 +20,9 @@ package it.ht.rcs.console.model
       /* the user of this session */
       this.user = user;
 
+      /* the connected server */
+      this.server = server;
+      
       /* set the locale of the current user */
       // FIXME: for some reason we cannot do this here, since the ResourceManager singleton is returing a sort of "read-only" impl
       //ResourceManager.getInstance().localeChain = [user.locale];
@@ -28,7 +33,10 @@ package it.ht.rcs.console.model
     
     public function destroy():void
     {
-      // TODO: logout the user from the db
+      /* logout the user from the db */
+      new Account().logout();
+      
+      /* current user is released */
       user = null;
     }
     

@@ -1,4 +1,4 @@
-package it.ht.rcs.console.utils
+package it.ht.rcs.console.model
 {
   import flash.events.TimerEvent;
   import flash.utils.Timer;
@@ -24,6 +24,9 @@ package it.ht.rcs.console.utils
     
     private var _consoleTimeZone:int = 0;
     
+    /* everyone can listen to this for events every second */
+    public var timer:Timer = new Timer(1000);
+    
     /* singleton */
     private static var _instance:Clock = new Clock();
     public static function get instance():Clock { return _instance; } 
@@ -38,9 +41,8 @@ package it.ht.rcs.console.utils
       setConsoleTimezone(consoleOffset);
       
       /* every second update the UTC clock */
-      var tc:Timer = new Timer(1000);
-      tc.addEventListener(TimerEvent.TIMER, updateClock);
-      tc.start();
+      timer.addEventListener(TimerEvent.TIMER, updateClock);
+      timer.start();
     }
     
     private function updateClock(evt:TimerEvent):void 

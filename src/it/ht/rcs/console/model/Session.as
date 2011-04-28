@@ -1,7 +1,9 @@
 package it.ht.rcs.console.model
 {
   import it.ht.rcs.console.accounting.User;
-  import it.ht.rcs.console.utils.Clock;
+  
+  import mx.resources.ResourceManager;
+  import mx.core.FlexGlobals;
 
   public class Session
   {
@@ -26,7 +28,7 @@ package it.ht.rcs.console.model
       /* set the locale of the current user */
       // FIXME: for some reason we cannot do this here, since the ResourceManager singleton is returing a sort of "read-only" impl
       //ResourceManager.getInstance().localeChain = [user.locale];
-      
+
       /* update the clock timezone */
       Clock.instance.setConsoleTimezone(user.time_offset);
     }

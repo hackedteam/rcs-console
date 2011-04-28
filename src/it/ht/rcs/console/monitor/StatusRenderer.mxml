@@ -2,8 +2,88 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
                 xmlns:s="library://ns.adobe.com/flex/spark" 
                 xmlns:mx="library://ns.adobe.com/flex/mx" 
-                autoDrawBackground="true">
+                xmlns:monitor="it.ht.rcs.console.monitor.*"
+                autoDrawBackground="true" width="100%" height="100"  
+                creationComplete="init()"
+                addedToStage="added()"
+                removedFromStage="removed()">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.model.Clock;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      private function init():void
+      {
+        /* only ADMIN can delete an element from the list */
+        monitorrender.closeButton.visible = console.currentSession.user.is_admin();
+        monitorrender.closeButton.toolTip = resourceManager.getString('localized_main', 'REMOVE_MONITOR');
+        /* for the first time, then updated every second */
+        difftime = TimeUtils.diffTimeString(data.time);
+      }
+      
+      private function added():void
+      {
+        Clock.instance.timer.addEventListener(TimerEvent.TIMER, onTimer);
+      }
+ 
+      private function removed():void
+      {
+        Clock.instance.timer.removeEventListener(TimerEvent.TIMER, onTimer);
+      }
+      
+      [Bindable]
+      private var difftime:String;
+      
+      private function onTimer(evt:TimerEvent):void
+      {
+        difftime = TimeUtils.diffTimeString(data.time);
+      }
+      
+      private function diskColor(disk:int):uint {
+        var color:uint = 0x000000;
+        
+        if (disk <= 20)
+          color = 0xb96d15;
+        
+        if (disk <= 10)
+          color = 0xff0000;
+        
+        return color;
+      } 
+      
+      private function cpuColor(cpu:int):uint {
+        var color:uint = 0x000000;
+        
+        if (cpu >= 70)
+          color = 0xb96d15;
+        
+        if (cpu >= 90)
+          color = 0xff0000;
+        
+        return color;
+      } 
+    ]]>
+  </fx:Script>
   
-  <s:Label text="{data}"/>
+  <fx:Metadata>
+    [ResourceBundle("localized_main")] 
+  </fx:Metadata>
+  
+  <s:TitleWindow id="monitorrender" skinClass="it.ht.rcs.console.monitor.skins.MonitorSkin" left="5" right="5" top="5" bottom="5" title="{data.title}" backgroundColor="#EAEAEA" >
+    <monitor:StatusImage currentState="{data.status}" top="3" left="3"/>
+    <s:Label text="{difftime}" top="-15" right="30" width="100" fontSize="11"/>
+    <s:BorderContainer right="5" bottom="5" top="5" left="80" minHeight="20" cornerRadius="10" backgroundColor="#EAEAEA">
+      <s:Label text="CPU" top="10" width="60" left="5" styleName="MonitorStatus"/>
+      <s:Label text="{(data.cpu != -1) ? data.cpu : 'N/A'} %" color="{cpuColor(data.cpu)}" top="30" width="60" left="5" styleName="MonitorStatus"/>
+      
+      <s:Label text="CPU total" top="10" width="60" left="65" styleName="MonitorStatus"/>
+      <s:Label text="{(data.cput != -1) ? data.cput : 'N/A'} %" color="{cpuColor(data.cput)}" top="30" width="60" left="65" styleName="MonitorStatus"/>
+      
+      <s:Label text="Disk Free" top="10" width="60" styleName="MonitorStatus" left="125"/>
+      <s:Label text="{(data.df != -1) ? data.df : 'N/A'} %" color="{diskColor(data.df)}" top="30" width="60" styleName="MonitorStatus" left="125"/>
+      
+      <s:TextArea contentBackgroundAlpha="0.0" editable="false" enabled="true" text="{data.desc}" top="5" right="5" bottom="5" left="200"/>
+    </s:BorderContainer>
+  </s:TitleWindow>
   
 </s:ItemRenderer>

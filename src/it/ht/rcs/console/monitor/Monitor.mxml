@@ -9,10 +9,11 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.model.LicenseManager;
+      import mx.collections.ArrayCollection;
       
       private function init():void
       {
-        trace(LicenseManager.instance.serial);
+
       }
       
       private function cleanup():void
@@ -22,14 +23,6 @@
       
     ]]>
   </fx:Script>
-
-  <fx:Declarations>
-    <s:ArrayCollection id="monitor_data">
-      <fx:String>Uno</fx:String>
-      <fx:String>Due</fx:String>
-      <fx:String>Tre</fx:String>
-    </s:ArrayCollection>
-  </fx:Declarations>
   
   <fx:Metadata>
     [ResourceBundle("localized_main")] 
@@ -55,8 +48,7 @@
   <!-- monitor list -->
   <s:List id="monitors" left="215" top="30" bottom="5" right="5" 
           itemRenderer="it.ht.rcs.console.monitor.StatusRenderer" 
-          dataProvider="{monitor_data}" 
+          dataProvider="{new ArrayCollection(StatusManager.instance.statuses)}" 
           click="{monitors.selectedIndex = -1}"/>
   
-
 </s:Panel>

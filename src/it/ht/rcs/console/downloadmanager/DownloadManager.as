@@ -3,7 +3,7 @@ package it.ht.rcs.console.downloadmanager
   import flash.events.TimerEvent;
   import flash.utils.Timer;
   
-  import it.ht.rcs.console.utils.Clock;
+  import it.ht.rcs.console.model.Clock;
   
   import mx.collections.ArrayCollection;
   

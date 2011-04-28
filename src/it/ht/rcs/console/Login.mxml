@@ -4,15 +4,16 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          width="400" height="200"
          title="RCS Console {console.rcsVersion.substring(0, console.rcsVersion.length-2)}" 
-         verticalCenter="-33" cornerRadius="0" addedToStage="init()">
+         verticalCenter="-33" cornerRadius="0" addedToStage="init()" removedFromStage="cleanup()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.Login;
-      import it.ht.rcs.console.model.Account;
       import it.ht.rcs.console.events.LogonEvent;
+      import it.ht.rcs.console.model.Account;
       
       import mx.controls.Alert;
       import mx.core.FlexGlobals;
+      import mx.events.ResizeEvent;
       
       [Bindable]
       private var account:Account;
@@ -24,7 +25,21 @@
         /* reset the error message */
         ErrorMessage.text = '';
         /* center on screen */
-        this.x = (parent.width / 2) - (this.width / 2);
+        onResize(null);
+        /* monitor the resize event */
+        FlexGlobals.topLevelApplication.addEventListener(ResizeEvent.RESIZE, onResize);
+      }
+      
+      private function cleanup():void
+      {
+        /* don't monitor when not on stage */
+        FlexGlobals.topLevelApplication.removeEventListener(ResizeEvent.RESIZE, onResize);
+      }
+      
+      private function onResize(e:Event):void
+      {
+        /* keep the window centered on screen */
+        this.x = (parent.width / 2) - (this.width / 2);      
       }
       
       private function login():void 

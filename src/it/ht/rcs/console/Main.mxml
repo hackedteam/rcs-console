@@ -20,14 +20,16 @@
     import mx.core.FlexGlobals;
     import mx.events.ItemClickEvent;
     
+    import it.ht.rcs.console.events.SectionEvent;
+    
     [Bindable]
     private var main_sections:Array;
     
     private function mainButtonClickHandler(event:ItemClickEvent):void 
     {
+      trace("SECTION: " + event.label.toUpperCase());
       /* dispatch the event for all */
-      FlexGlobals.topLevelApplication.dispatchEvent(new Event("SECTION_" + event.label.toUpperCase()));
-      trace("SECTION_" + event.label.toUpperCase());
+      FlexGlobals.topLevelApplication.dispatchEvent(new SectionEvent(event.label.toLowerCase()));
       /* change the state to the current section */
       currentState = event.label;
     }

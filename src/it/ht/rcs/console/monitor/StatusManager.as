@@ -2,6 +2,7 @@ package it.ht.rcs.console.monitor
 {
   import flash.events.TimerEvent;
   import flash.utils.Timer;
+  
   import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayCollection;
@@ -30,7 +31,8 @@ package it.ht.rcs.console.monitor
       trace('Init StatusManager');
       
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-    
+      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefreshCounter);
+      
       // FIXME: MOCK remove this
       addEntry(new StatusEntry({title: 'uno', status:'OK', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
       addEntry(new StatusEntry({title: 'due', status:'WARN', address: '1.2.3.4', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
@@ -74,8 +76,10 @@ package it.ht.rcs.console.monitor
     public function add_counters():void
     {
       // TODO: get the position of the Monitor button
-      _counterBaloon.right = 0;
-      _counterBaloon.top = 40;
+      var buttons:Object = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar;
+      
+      _counterBaloon.right = 3;
+      _counterBaloon.top = 43;
       _counterBaloon.visible = false;
       
       FlexGlobals.topLevelApplication.addElement(_counterBaloon);
@@ -100,9 +104,11 @@ package it.ht.rcs.console.monitor
     private function onRefreshCounter(e:Event):void
     {
       trace('StatusManager -- Refresh Counters');
+      // TODO: get the position of the Monitor button
+      var buttons:Object = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar;
       
       // FIXME: MOCK remove this
-      _counterBaloon.value = (Math.round( Math.random() * 10 ));
+      _counterBaloon.value = (Math.round( Math.random() * 100 ));
       _counterBaloon.style = "alert";
       _counterBaloon.visible = true;
       

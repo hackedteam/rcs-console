@@ -4,7 +4,7 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          width="400" height="200"
          title="RCS Console {console.rcsVersion.substring(0, console.rcsVersion.length-2)}" 
-         verticalCenter="-33" cornerRadius="0" addedToStage="init()" removedFromStage="cleanup()">
+         verticalCenter="-33" cornerRadius="0" addedToStage="added()" removedFromStage="removed()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.Login;
@@ -18,7 +18,7 @@
       [Bindable]
       private var account:Account;
       
-      private function init():void
+      private function added():void
       {
         /* create the object and load the previous login info */
         account = new Account();
@@ -30,7 +30,7 @@
         FlexGlobals.topLevelApplication.addEventListener(ResizeEvent.RESIZE, onResize);
       }
       
-      private function cleanup():void
+      private function removed():void
       {
         /* don't monitor when not on stage */
         FlexGlobals.topLevelApplication.removeEventListener(ResizeEvent.RESIZE, onResize);

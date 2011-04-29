@@ -26,7 +26,7 @@ package it.ht.rcs.console.downloadmanager
       active = false;
 
    
-      // FIXME: MOCK:  remove this
+      // FIXME: MOCK remove this
       var p:int = 1000;
       var t:Task = new Task();
       

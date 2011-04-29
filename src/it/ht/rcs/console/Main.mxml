@@ -16,11 +16,12 @@
          removedFromStage="removed()">
 <fx:Script>
   <![CDATA[
+    import it.ht.rcs.console.events.SectionEvent;
+    import it.ht.rcs.console.monitor.StatusManager;
+    
     import mx.controls.Alert;
     import mx.core.FlexGlobals;
     import mx.events.ItemClickEvent;
-    
-    import it.ht.rcs.console.events.SectionEvent;
     
     [Bindable]
     private var main_sections:Array;
@@ -36,6 +37,8 @@
   
     private function added():void 
     {
+      trace("Entering main section...")  
+      
       /* different view based on privileges */
       main_sections = new Array();
       if (console.currentSession.user.is_admin()) main_sections.push('Accounting');
@@ -52,13 +55,20 @@
         currentState = "Console";
       else
         currentState = "Nothing";
-      
-      trace("Entering main section...")  
+
+      /* initialize the monitor counter */
+      if (console.currentSession.user.is_any()) {
+        StatusManager.instance.add_counters();
+      }
+
     }
     
     private function removed():void 
     {
-      trace("Exiting main section...")  
+      trace("Exiting main section...")
+
+      /* remove the monitor counter */
+      StatusManager.instance.remove_counters();
     }
   ]]>
 </fx:Script>
@@ -79,11 +89,11 @@
   </s:states>
 
   <!-- title bar (the banner) -->
-  <main:TitleBar />
+  <main:TitleBar id="titleBar"/>
   
   <!-- tool bar on top -->
-  <main:ButtonBar top="50" left="10" />
-  <mx:ToggleButtonBar top="50" right="10" height="20" horizontalGap="10" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" selectedIndex="{main_sections.indexOf(currentState)}"/>
+  <main:ButtonBar id="mainButtonBar" top="50" left="10" />
+  <mx:ToggleButtonBar id="sectionsButtonBar" top="50" right="10" height="20" horizontalGap="10" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" selectedIndex="{main_sections.indexOf(currentState)}"/>
   
   <!-- all the sections -->
   <accounting:Accounting includeIn="Accounting" height="100%" top="75" left="5" right="5" bottom="5"/>

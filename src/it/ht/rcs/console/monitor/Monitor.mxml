@@ -10,21 +10,16 @@
     <![CDATA[
       import it.ht.rcs.console.model.LicenseManager;
       
-      /* for the auto refresh every 15 seconds */
-      private var autorefresh:Timer = new Timer(15000);
-      
       private function added():void
       {
         /* start the auto refresh when the section is open */
-        autorefresh.addEventListener(TimerEvent.TIMER, StatusManager.instance.onRefresh);
-        autorefresh.start();
+        StatusManager.instance.autorefresh_start();
       }
       
       private function removed():void
       {
         /* stop the auto refresh when going away */
-        autorefresh.removeEventListener(TimerEvent.TIMER, StatusManager.instance.onRefresh);
-        autorefresh.stop();
+        StatusManager.instance.autorefresh_stop();
       }
     ]]>
   </fx:Script>
@@ -36,10 +31,10 @@
   <!-- sidebar -->
   <mx:Accordion width="200" left="5" top="5" bottom="5" >
     <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE')}" width="100%" height="100%">
-      <monitor:License />
+      <monitor:LicenseView />
     </s:NavigatorContent>
     <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE_VERSIONS')}" width="100%" height="100%">
-      <monitor:Versions />
+      <monitor:VersionsView />
     </s:NavigatorContent>
   </mx:Accordion>
   

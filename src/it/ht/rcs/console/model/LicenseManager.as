@@ -45,7 +45,7 @@ package it.ht.rcs.console.model
     {
       trace('LicenseManager -- Refresh');
       
-      // FIXME: remove the mock
+      // FIXME: MOCK remove this
       users.curr = (Math.round( Math.random() * 100 )).toString();
 
     }

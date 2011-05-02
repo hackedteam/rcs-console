@@ -75,13 +75,7 @@ package it.ht.rcs.console.monitor
     
     public function add_counters():void
     {
-      // TODO: get the position of the Monitor button
-      var buttons:Object = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar;
-      
-      _counterBaloon.right = 3;
-      _counterBaloon.top = 43;
-      _counterBaloon.visible = false;
-      
+      /* add the baloon to the screen */
       FlexGlobals.topLevelApplication.addElement(_counterBaloon);
       
       /* start the auto refresh when the section is open */
@@ -104,8 +98,15 @@ package it.ht.rcs.console.monitor
     private function onRefreshCounter(e:Event):void
     {
       trace('StatusManager -- Refresh Counters');
-      // TODO: get the position of the Monitor button
-      var buttons:Object = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar;
+      /* get the position of the Monitor button */
+      var buttons:ArrayCollection = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar.dataProvider;
+      var len:int = buttons.length;
+      var index:int = buttons.toArray().indexOf("Monitor") + 1;
+      
+      /* find the correct displacement (starting from right) */
+      _counterBaloon.right = 3 + ((len - index) * 90);
+      _counterBaloon.top = 43;
+      _counterBaloon.visible = false;
       
       // FIXME: MOCK remove this
       _counterBaloon.value = (Math.round( Math.random() * 100 ));

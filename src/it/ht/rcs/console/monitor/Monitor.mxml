@@ -8,18 +8,28 @@
          removedFromStage="removed()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.StatusBar;
       import it.ht.rcs.console.model.LicenseManager;
+      import it.ht.rcs.console.monitor.AlertingGroup;
+      import mx.managers.PopUpManager;
       
       private function added():void
       {
         /* start the auto refresh when the section is open */
         StatusManager.instance.autorefresh_start();
+        /* by default sort by status */
+        StatusManager.instance.sort_by_status();
       }
       
       private function removed():void
       {
         /* stop the auto refresh when going away */
         StatusManager.instance.autorefresh_stop();
+      }
+      
+      private function showAlertingGroup():void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, AlertingGroup, true));
       }
     ]]>
   </fx:Script>
@@ -40,9 +50,9 @@
   
   <!-- button bar (transparent container) -->  
   <s:BorderContainer borderVisible="false" top="5" left="215" right="5" height="20" backgroundAlpha="0.0">
-    <s:Button x="0" y="0" label="G" width="30" height="20" toolTip="Select alerting group..."/>
-    <s:Button x="90" y="0" label="S" width="30" height="20" toolTip="Sort by status"/>
-    <s:Button x="130" y="0" label="S" width="30" height="20" toolTip="Sort by name"/>
+    <s:Button x="0" y="0" label="G" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SELECT_ALERTING_GROUP')}" click="showAlertingGroup()" skinClass="it.ht.rcs.console.skins.ContactButton"/>
+    <s:Button x="90" y="0" label="S" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SORT_BY_STATUS')}" click="StatusManager.instance.sort_by_status()" skinClass="it.ht.rcs.console.skins.SortButton"/>
+    <s:Button x="130" y="0" label="S" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SORT_BY_NAME')}" click="StatusManager.instance.sort_by_name()" skinClass="it.ht.rcs.console.skins.SortNameButton"/>
   </s:BorderContainer>
 
   <!-- monitor list -->

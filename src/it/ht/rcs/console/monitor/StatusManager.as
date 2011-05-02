@@ -6,18 +6,18 @@ package it.ht.rcs.console.monitor
   import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayCollection;
+  import mx.collections.Sort;
+  import mx.collections.SortField;
   import mx.core.FlexGlobals;
-  import mx.graphics.shaderClasses.SaturationShader;
+  import it.ht.rcs.console.utils.CounterBaloon;
 
   public class StatusManager
   {
     
     [Bindable]
     public var statuses:ArrayCollection = new ArrayCollection();
-    [Bindable]
-    public var counters:Object = {ok: 1, warn:1, ko:1};
     
-    private var _counterBaloon:MonitorCounter = new MonitorCounter();
+    private var _counterBaloon:CounterBaloon = new CounterBaloon();
     
     /* for the auto refresh every 15 seconds */
     private var _autorefresh:Timer = new Timer(15000);
@@ -33,18 +33,23 @@ package it.ht.rcs.console.monitor
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefreshCounter);
       
-      // FIXME: MOCK remove this
-      addEntry(new StatusEntry({title: 'uno', status:'OK', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
-      addEntry(new StatusEntry({title: 'due', status:'WARN', address: '1.2.3.4', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
-      addEntry(new StatusEntry({title: 'tre', status:'KO', address: '1.2.3.4', desc: 'huston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));
+      /* DEMO MOCK */
+      if (console.currentSession.fake) {
+        addEntry(new StatusEntry({title: 'Collector', status:'0', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
+        addEntry(new StatusEntry({title: 'Database', status:'1', address: '127.0.0.1', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
+        addEntry(new StatusEntry({title: 'Collector', status:'2', address: '5.6.7.8', desc: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));
+      }
     }
     
     private function onRefresh(e:Event):void
     {
       trace('StatusManager -- Refresh');
       
-      // FIXME: MOCK remove this
-      statuses.getItemAt(0).time = new Date().time;
+      /* DEMO MOCK */
+      if (console.currentSession.fake) {
+        if (statuses.length > 0)
+          statuses.getItemAt(0).time = new Date().time;
+      }
       
       // TODO: get from db
     }
@@ -106,14 +111,37 @@ package it.ht.rcs.console.monitor
       /* find the correct displacement (starting from right) */
       _counterBaloon.right = 3 + ((len - index) * 90);
       _counterBaloon.top = 43;
-      _counterBaloon.visible = false;
       
-      // FIXME: MOCK remove this
-      _counterBaloon.value = (Math.round( Math.random() * 100 ));
-      _counterBaloon.style = "alert";
-      _counterBaloon.visible = true;
+      /* DEMO MOCK */
+      if (console.currentSession.fake) {
+        _counterBaloon.value = (Math.round( Math.random() * 3 ));
+        _counterBaloon.style = "alert";
+      }
       
-      // TODO: get from db
+      // TODO: get counters from db
+
+      /* display it or not */
+      if (_counterBaloon.value > 0)
+        _counterBaloon.visible = true;
+      else
+        _counterBaloon.visible = false;
     }
+    
+    public function sort_by_status():void
+    {
+      var sort:Sort = new Sort();
+      sort.fields = [new SortField('status', true, true, true)];
+      statuses.sort = sort;
+      statuses.refresh();
+    }
+
+    public function sort_by_name():void
+    {
+      var sort:Sort = new Sort();
+      sort.fields = [new SortField('title', true, false, false)];
+      statuses.sort = sort;
+      statuses.refresh();
+    }
+    
   }
 }

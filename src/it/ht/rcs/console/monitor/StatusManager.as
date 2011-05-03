@@ -30,8 +30,14 @@ package it.ht.rcs.console.monitor
     {
       trace('Init StatusManager');
       
-      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefreshCounter);
+    }
+    
+    private function onRefresh(e:Event):void
+    {
+      trace('StatusManager -- Refresh');
+
+      statuses.removeAll();
       
       /* DEMO MOCK */
       if (console.currentSession.fake) {
@@ -39,18 +45,7 @@ package it.ht.rcs.console.monitor
         addEntry(new StatusEntry({title: 'Database', status:'1', address: '127.0.0.1', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
         addEntry(new StatusEntry({title: 'Collector', status:'2', address: '5.6.7.8', desc: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));
       }
-    }
-    
-    private function onRefresh(e:Event):void
-    {
-      trace('StatusManager -- Refresh');
-      
-      /* DEMO MOCK */
-      if (console.currentSession.fake) {
-        if (statuses.length > 0)
-          statuses.getItemAt(0).time = new Date().time;
-      }
-      
+            
       // TODO: get from db
     }
    
@@ -68,12 +63,18 @@ package it.ht.rcs.console.monitor
       // TODO: remove from db
     }
     
-    public function autorefresh_start():void
+    public function start():void
     {
+      trace('Start StatusManager');
+      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       _autorefresh.addEventListener(TimerEvent.TIMER, onRefresh);
+      /* first refresh */
+      onRefresh(null);
     }
-    public function autorefresh_stop():void
+    public function stop():void
     {
+      trace('Stop StatusManager');
+      FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       _autorefresh.removeEventListener(TimerEvent.TIMER, onRefresh);
     }
 

@@ -1,7 +1,8 @@
 package it.ht.rcs.console.accounting
 {
   import mx.collections.ArrayCollection;
-
+  import mx.resources.ResourceManager;
+  
   public class User
   {
     [Bindable]
@@ -17,14 +18,25 @@ package it.ht.rcs.console.accounting
     [Bindable]
     public var groups:Array;
     
-    public function User()
+    public function User(data:Object = null)
     {
-      username = 'alor';
-      contact = "alor@hackingteam.it";
-      privs = ['ADMIN', 'TECH', 'VIEW'];
-      locale = 'en_US';
-      groups = ['developers', 'investigators', 'lamers', 'a', 'b', 'c', 'd'];
-      time_offset = 0;
+      /* default user (when creating new user) */
+      if (data == null) {
+        username = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
+        contact = '';
+        privs = [];
+        locale = 'en_US';
+        groups = [];
+        time_offset = 0;
+      } else {
+        /* existing user */        
+        username = data.username;
+        contact = data.contact;
+        privs = data.privs;
+        locale = data.locale;
+        groups = data.groups;
+        time_offset = data.time_offset;
+      }
     }
     
     public function is_admin():Boolean

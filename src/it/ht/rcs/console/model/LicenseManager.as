@@ -38,6 +38,7 @@ package it.ht.rcs.console.model
     
     public function LicenseManager()
     {
+      // TODO: initialize it on login
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
     }
     

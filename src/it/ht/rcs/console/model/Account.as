@@ -45,7 +45,7 @@ package it.ht.rcs.console.model
         /* save the info for the next login */
         save_previous();
         /* instantiate the global currentSession object for the logged in user */
-        var u:User = new User();
+        var u:User = new User({username: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:['demo'], time_offset:0});
         /* create a fake session */
         console.currentSession = new Session(u, server, true);
         /* invoke the callback */
@@ -79,7 +79,7 @@ package it.ht.rcs.console.model
       save_previous();
       /* instantiate the global currentSession object for the logged in user */
       // TODO: take the real users
-      var u:User = new User();
+      var u:User = new User({username: 'alor'});
       // TODO: parse the current session
       var sess:DBSession = e.result as DBSession;
       /* create the current session */

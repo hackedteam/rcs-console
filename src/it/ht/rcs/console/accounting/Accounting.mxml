@@ -4,14 +4,22 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          title="ACCOUNTING" width="100%" height="100%"
          addedToStage="added()"
-         removedFromStage="removed()">
+         removedFromStage="removed()"
+         creationComplete="init()">
   <fx:Script>
     <![CDATA[
-
+      import it.ht.rcs.console.events.EditEvent;
+      
       import mx.controls.Alert;
       import mx.events.CloseEvent;
       import mx.formatters.DateFormatter;
       import mx.managers.PopUpManager;
+      
+      private function init():void
+      {
+        /* this event is fired by the itemrenderer in the user list */
+        addEventListener(EditEvent.USER, onEditUser);
+      }
       
       private function added():void
       {
@@ -56,7 +64,12 @@
         editUser(new_user);
       }
       
-      public function editUser(u:User):void
+      private function onEditUser(e:EditEvent):void
+      {
+        editUser(e.user);
+      }
+      
+      private function editUser(u:User):void
       {
         var eu:UserEdit = PopUpManager.createPopUp(root, UserEdit, true) as UserEdit;
         eu.user = u;

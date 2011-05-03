@@ -6,13 +6,13 @@
                 doubleClickEnabled="true" doubleClick="edit()">
   <fx:Script>
     <![CDATA[
-      import mx.managers.PopUpManager;
+      import it.ht.rcs.console.events.EditEvent;
       
       private function edit():void
       {
-        var eu:UserEdit = PopUpManager.createPopUp(root, UserEdit, true) as UserEdit;
-        eu.user = data as User;
-        PopUpManager.centerPopUp(eu);
+        var evt:EditEvent = new EditEvent(EditEvent.USER, true);
+        evt.user = data as User;
+        dispatchEvent(evt);
       }
     ]]>
   </fx:Script>

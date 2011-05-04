@@ -22,7 +22,8 @@ package it.ht.rcs.console.model
     [Bindable]
     public var consoleOffset:int = 0;
     
-    private var _consoleTimeZone:int = 0;
+    [Bindable]
+    public var consoleTimeZoneOffset:int = 0;
     
     /* everyone can listen to this for events every second */
     public var timer:Timer = new Timer(1000);
@@ -49,7 +50,7 @@ package it.ht.rcs.console.model
     {
       now = new Date();
       now_utc = new Date(now.fullYearUTC, now.monthUTC, now.dateUTC, now.hoursUTC, now.minutesUTC, now.secondsUTC);
-      now_console = new Date(now_utc.getTime() + _consoleTimeZone);
+      now_console = new Date(now_utc.getTime() + consoleTimeZoneOffset);
       
       var clockFormatter:DateFormatter = new DateFormatter();
       clockFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
@@ -61,7 +62,7 @@ package it.ht.rcs.console.model
     public function setConsoleTimezone(offset:int):void
     {
       consoleOffset = offset;
-      _consoleTimeZone = offset * 3600 * 1000;
+      consoleTimeZoneOffset = offset * 3600 * 1000;
       updateClock(null);
     }
     

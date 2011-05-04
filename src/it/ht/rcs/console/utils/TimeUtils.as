@@ -10,9 +10,9 @@ package it.ht.rcs.console.utils
     {
     }
     
-    public static function diffTimeString(timestamp:Number):String
+    public static function timestampDiffFromNow(t:Number):String
     {
-      var diff:Number = Clock.instance.now.time - timestamp;
+      var diff:Number = Clock.instance.now.time - t;
       var days:int = diff / 1000 / 60 / 60 / 24;
       
       /* prevent negative differences */
@@ -31,8 +31,22 @@ package it.ht.rcs.console.utils
       if (days > 0)
         return days.toString() + ' ' + clockFormatter.format(time);
       else
-        return clockFormatter.format(time);
+        return clockFormatter.format(time); 
+    }
+    
+    public static function timestampFormatter(t:Number):String
+    {
+      var date:Date = new Date();
+      /* get the current offset from UTC */
+      var currentOffset:Number = date.timezoneOffset * 60 * 1000;
       
+      /* going back to UTC, then add the console offset */
+      date.setTime(t + currentOffset + Clock.instance.consoleTimeZoneOffset);
+      
+      /* format the date */
+      var clockFormatter:DateFormatter = new DateFormatter();
+      clockFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
+      return clockFormatter.format(date);
     }
   }
 }

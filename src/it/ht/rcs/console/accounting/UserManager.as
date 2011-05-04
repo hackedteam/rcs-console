@@ -57,9 +57,9 @@ package it.ht.rcs.console.accounting
         addUser(new User({username: 'fabio', enabled:false}));
         addUser(new User({username: 'br1', enabled:false}));
         
-        connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date(), privs: "A T V"},
-                                               {user:"demo", address:"demo", logon:new Date(), privs: "V"},
-                                               {user:"daniel", address:"5.6.7.8", logon:new Date(), privs: "T V"}]);
+        connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date().time, privs: "A T V"},
+                                               {user:"demo", address:"demo", logon:new Date().time, privs: "V"},
+                                               {user:"daniel", address:"5.6.7.8", logon:new Date().time, privs: "T V"}]);
       }
       
       //TODO: get the users from db

@@ -9,10 +9,10 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.EditEvent;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import mx.controls.Alert;
       import mx.events.CloseEvent;
-      import mx.formatters.DateFormatter;
       import mx.managers.PopUpManager;
       
       private function init():void
@@ -33,9 +33,7 @@
       
       private function formatdate(item:Object, column:DataGridColumn):String
       {
-        var clockFormatter:DateFormatter = new DateFormatter();
-        clockFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
-        return clockFormatter.format(item[column.dataField]);
+        return TimeUtils.timestampFormatter(item[column.dataField]);
       }
       
       private function deleteUser(user:User):void
@@ -82,10 +80,6 @@
   <fx:Metadata>
     [ResourceBundle("localized_main")] 
   </fx:Metadata>
-  
-  <fx:Declarations>
-    <!-- Place non-visual elements (e.g., services, value objects) here -->
-  </fx:Declarations>
 
   <mx:TabNavigator left="5" top="5" right="5" bottom="5" backgroundColor="#FFFFFF">
     

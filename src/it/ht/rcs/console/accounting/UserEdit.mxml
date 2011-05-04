@@ -56,8 +56,9 @@
   </fx:Metadata>
   
   <mx:Form top="0" right="10" left="10">
-    <mx:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}">      
-      <s:CheckBox selected="{_user.enabled}" id="formEnabled"/>
+    <mx:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}">     
+      <!-- the current user cannot disable himself -->
+      <s:CheckBox selected="{_user.enabled}" id="formEnabled" enabled="{_user.id != console.currentSession.user.id}"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'NAME')}">      
       <s:TextInput width="150" maxChars="20" text="{_user.username}" id="formName"/>

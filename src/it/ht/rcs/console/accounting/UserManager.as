@@ -47,15 +47,15 @@ package it.ht.rcs.console.accounting
       /* DEMO MOCK */
       if (console.currentSession.fake) {
         addUser(console.currentSession.user);
-        addUser(new User({username: 'alor', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
-        addUser(new User({username: 'daniel', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
-        addUser(new User({username: 'naga', enabled:true, privs:['VIEW']}));
-        addUser(new User({username: 'que', enabled:false}));
-        addUser(new User({username: 'zeno', enabled:true, privs:['TECH', 'VIEW']}));
-        addUser(new User({username: 'rev', enabled:false}));
-        addUser(new User({username: 'kiodo', enabled:false}));
-        addUser(new User({username: 'fabio', enabled:false}));
-        addUser(new User({username: 'br1', enabled:false}));
+        addUser(new User({id: 2, username: 'alor', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
+        addUser(new User({id: 3, username: 'daniel', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
+        addUser(new User({id: 4, username: 'naga', enabled:true, privs:['VIEW']}));
+        addUser(new User({id: 5, username: 'que', enabled:false}));
+        addUser(new User({id: 6, username: 'zeno', enabled:true, privs:['TECH', 'VIEW']}));
+        addUser(new User({id: 7, username: 'rev', enabled:false}));
+        addUser(new User({id: 8, username: 'kiodo', enabled:false}));
+        addUser(new User({id: 9, username: 'fabio', enabled:false}));
+        addUser(new User({id: 10, username: 'br1', enabled:false}));
         
         connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date().time, privs: "A T V"},
                                                {user:"demo", address:"demo", logon:new Date().time, privs: "V"},
@@ -88,6 +88,31 @@ package it.ht.rcs.console.accounting
         users.removeItemAt(idx);
       
       // TODO: remove from db
+    }
+    
+    public function disconnectUser(u:Object):void
+    {
+      var idx : int = connected_users.getItemIndex(u);
+      if (idx >= 0) 
+        connected_users.removeItemAt(idx);
+      
+      // TODO: disconnect call to db
+    }
+    
+    public function usersFromIds(ids:Array):ArrayCollection
+    {
+      var us:ArrayCollection = new ArrayCollection(users.source);
+      
+      us.filterFunction = function filter(o:Object):Boolean {
+        if (ids.indexOf(o.id) != -1)
+          return true;
+        
+        return false;
+      };
+      
+      us.refresh();
+      
+      return us;
     }
   }
 }

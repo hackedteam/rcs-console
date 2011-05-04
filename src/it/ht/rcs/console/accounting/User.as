@@ -6,7 +6,13 @@ package it.ht.rcs.console.accounting
   public class User
   {
     [Bindable]
+    public var id:Number;
+    [Bindable]
+    public var enabled:Boolean;
+    [Bindable]
     public var username:String;
+    [Bindable]
+    public var description:String;
     [Bindable]
     public var contact:String;
     [Bindable]
@@ -22,6 +28,8 @@ package it.ht.rcs.console.accounting
     {
       /* default user (when creating new user) */
       if (data == null) {
+        id = 0;
+        enabled = false;
         username = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
         contact = '';
         privs = [];
@@ -29,7 +37,9 @@ package it.ht.rcs.console.accounting
         groups = [];
         time_offset = 0;
       } else {
-        /* existing user */        
+        /* existing user */
+        id = data.id;
+        enabled = data.enabled;
         username = data.username;
         contact = data.contact;
         privs = data.privs;
@@ -64,6 +74,7 @@ package it.ht.rcs.console.accounting
     public function save():void
     {
       // TODO: save to the db
+      // TODO: updated the local id from the db
     }
   }
 }

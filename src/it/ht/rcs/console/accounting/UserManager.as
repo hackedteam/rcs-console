@@ -46,16 +46,16 @@ package it.ht.rcs.console.accounting
       
       /* DEMO MOCK */
       if (console.currentSession.fake) {
-        addUser(new User({username: 'alor'}));
-        addUser(new User({username: 'demo'}));
-        addUser(new User({username: 'daniel'}));
-        addUser(new User({username: 'naga'}));
-        addUser(new User({username: 'que'}));
-        addUser(new User({username: 'zeno'}));
-        addUser(new User({username: 'rev'}));
-        addUser(new User({username: 'kiodo'}));
-        addUser(new User({username: 'fabio'}));
-        addUser(new User({username: 'br1'}));
+        addUser(console.currentSession.user);
+        addUser(new User({username: 'alor', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
+        addUser(new User({username: 'daniel', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
+        addUser(new User({username: 'naga', enabled:true, privs:['VIEW']}));
+        addUser(new User({username: 'que', enabled:false}));
+        addUser(new User({username: 'zeno', enabled:true, privs:['TECH', 'VIEW']}));
+        addUser(new User({username: 'rev', enabled:false}));
+        addUser(new User({username: 'kiodo', enabled:false}));
+        addUser(new User({username: 'fabio', enabled:false}));
+        addUser(new User({username: 'br1', enabled:false}));
         
         connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date(), privs: "A T V"},
                                                {user:"demo", address:"demo", logon:new Date(), privs: "V"},
@@ -65,10 +65,10 @@ package it.ht.rcs.console.accounting
       //TODO: get the users from db
     }
     
-    public function newUser():User
+    public function newUser(data:Object=null):User
     {
       // TODO: create the user in the db
-      var u:User = new User();
+      var u:User = new User(data);
       users.addItem(u);
       return u;
     }

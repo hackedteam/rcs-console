@@ -45,7 +45,7 @@ package it.ht.rcs.console.model
         /* save the info for the next login */
         save_previous();
         /* instantiate the global currentSession object for the logged in user */
-        var u:User = new User({username: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:['demo'], time_offset:0});
+        var u:User = new User({id:1, username: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:['demo'], time_offset:0, enabled:true});
         /* create a fake session */
         console.currentSession = new Session(u, server, true);
         /* invoke the callback */

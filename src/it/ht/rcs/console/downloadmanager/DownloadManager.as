@@ -4,8 +4,10 @@ package it.ht.rcs.console.downloadmanager
   import flash.utils.Timer;
   
   import it.ht.rcs.console.model.Clock;
+  import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayCollection;
+  import mx.core.FlexGlobals;
   
   public class DownloadManager
   {
@@ -25,37 +27,46 @@ package it.ht.rcs.console.downloadmanager
       trace('Init Download Manager...');
       active = false;
 
-   
-      // FIXME: MOCK remove this
-      var p:int = 1000;
-      var t:Task = new Task();
-      
-      t.title = "task";
-      t.time = Clock.instance.currentConsoleTime;
-      t.set_creation_size(1000000);
-      t.set_download_size(500000);
-
-      var t2:Task = new Task();
-      
-      t2.title = "task 2";
-      t2.time = Clock.instance.currentConsoleTime;
-      t2.set_creation_size(500000);
-      t2.set_download_size(500000);
-
-      
-      addTask(t);
-      addTask(t2);      
-      
-      var tc:Timer = new Timer(100);
-      tc.addEventListener(TimerEvent.TIMER, function updateProgress(evt:TimerEvent):void {
-        p += 1000;
-        t.update_creation(p);
-        t2.update_creation(p);
-      });
-      
-      tc.start();
+      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
     }
    
+    private function onRefresh(e:Event):void
+    {
+      trace('DownloadManager -- Refresh');
+      
+      tasks.removeAll();
+      
+      /* DEMO MOCK */
+      if (console.currentSession.fake) {
+        var p:int = 1000;
+        var t:Task = new Task();
+        
+        t.title = "Blotter";
+        t.time = Clock.instance.currentConsoleTime;
+        t.set_creation_size(1000000);
+        t.set_download_size(500000);
+        
+        var t2:Task = new Task();
+        
+        t2.title = "Offline CD ";
+        t2.time = Clock.instance.currentConsoleTime;
+        t2.set_creation_size(500000);
+        t2.set_download_size(500000);
+        
+        
+        addTask(t);
+        addTask(t2);      
+        
+        var tc:Timer = new Timer(100);
+        tc.addEventListener(TimerEvent.TIMER, function updateProgress(evt:TimerEvent):void {
+          p += 1000;
+          t.update_creation(p);
+          t2.update_creation(p);
+        });
+        
+        tc.start();
+      }
+    }
     
     public function addTask(t:Task):void
     { 

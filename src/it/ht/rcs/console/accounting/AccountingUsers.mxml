@@ -42,13 +42,18 @@
         /* create the new user */
         var new_user:User = UserManager.instance.newUser();
         
-        /* select the last item (the newly created one) */
-        var index:Vector.<int> = new Vector.<int>(1);
-        index[0] = UserManager.instance.users.length - 1;
-        userslist.selectedIndices = index;
+        /* select the item (the newly created one) */
+        selectUser(new_user);
         
         /* edit the new user */
         editUser(new_user);
+      }
+      
+      private function selectUser(u:User):void
+      {
+        var index:Vector.<int> = new Vector.<int>(1);
+        index[0] = UserManager.instance.users.getItemIndex(u);
+        userslist.selectedIndices = index;
       }
       
       private function onEditUser(e:EditEvent):void
@@ -60,6 +65,10 @@
       {
         var eu:UserEdit = PopUpManager.createPopUp(root, UserEdit, true) as UserEdit;
         eu.user = u;
+        /* keep the user selected even if it changes position (due to alphabetical sorting) */
+        eu.callback = function select():void {
+          selectUser(u);
+        };
         PopUpManager.centerPopUp(eu);
       }
     ]]>

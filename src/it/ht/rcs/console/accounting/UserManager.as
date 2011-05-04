@@ -2,6 +2,8 @@ package it.ht.rcs.console.accounting
 {
   import it.ht.rcs.console.events.RefreshEvent;
   
+  import mx.collections.Sort;
+  import mx.collections.SortField;
   import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
   
@@ -47,20 +49,25 @@ package it.ht.rcs.console.accounting
       /* DEMO MOCK */
       if (console.currentSession.fake) {
         addUser(console.currentSession.user);
-        addUser(new User({id: 2, username: 'alor', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
-        addUser(new User({id: 3, username: 'daniel', enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
-        addUser(new User({id: 4, username: 'naga', enabled:true, privs:['VIEW']}));
-        addUser(new User({id: 5, username: 'que', enabled:false}));
-        addUser(new User({id: 6, username: 'zeno', enabled:true, privs:['TECH', 'VIEW']}));
-        addUser(new User({id: 7, username: 'rev', enabled:false}));
-        addUser(new User({id: 8, username: 'kiodo', enabled:false}));
-        addUser(new User({id: 9, username: 'fabio', enabled:false}));
-        addUser(new User({id: 10, username: 'br1', enabled:false}));
+        addUser(new User({id: 2, username: 'alor', locale:'en_US', groups:[1,2], enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
+        addUser(new User({id: 3, username: 'daniel', locale:'it_IT', groups:[1,2], enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
+        addUser(new User({id: 4, username: 'naga', groups:[2], enabled:true, privs:['VIEW']}));
+        addUser(new User({id: 5, username: 'que', groups:[2], enabled:false}));
+        addUser(new User({id: 6, username: 'zeno', groups:[2], enabled:true, privs:['TECH', 'VIEW']}));
+        addUser(new User({id: 7, username: 'rev', groups:[2], enabled:false}));
+        addUser(new User({id: 8, username: 'kiodo', groups:[2], enabled:false}));
+        addUser(new User({id: 9, username: 'fabio', groups:[2], enabled:false}));
+        addUser(new User({id: 10, username: 'br1', groups:[3], enabled:false}));
         
         connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date().time, privs: "A T V"},
                                                {user:"demo", address:"demo", logon:new Date().time, privs: "V"},
                                                {user:"daniel", address:"5.6.7.8", logon:new Date().time, privs: "T V"}]);
       }
+
+      var sort:Sort = new Sort();
+      sort.fields = [new SortField('username', true, false, false)];
+      users.sort = sort;
+      users.refresh();
       
       //TODO: get the users from db
     }

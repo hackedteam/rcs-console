@@ -28,6 +28,18 @@ package it.ht.rcs.console.accounting
       }
     }
     
+    public function addUser(u:User):void
+    {
+      users.push(u.id);
+    }
+    
+    public function removeUser(u:User):void
+    {
+      var idx:int = users.indexOf(u.id);
+      if (idx >= 0)
+        users.splice(idx, 1);
+    }
+    
     public function save():void
     {
       // TODO: save to the db

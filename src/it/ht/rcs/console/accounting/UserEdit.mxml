@@ -11,6 +11,8 @@
       [Bindable]
       private var _user:User;
       
+      public var callback:Function;
+      
       private function closeMe():void
       {
         _user.enabled = formEnabled.selected;
@@ -34,6 +36,7 @@
         _user.save();
         
         PopUpManager.removePopUp(this);
+        callback();
       }
       
       public function set user(u:User):void
@@ -87,7 +90,7 @@
       <s:DropDownList dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.time_offset + 12}" id="formConsoletime"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}">
-      <s:List width="150"></s:List>
+      <s:List width="150" labelField="name" dataProvider="{GroupManager.instance.groupsFromIds(_user.groups)}"/>
     </mx:FormItem>
   </mx:Form>
 </s:TitleWindow>

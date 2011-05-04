@@ -2,13 +2,27 @@
 <s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx"
-          top="0" right="10" bottom="10" left="10">
+          top="0" right="10" bottom="10" left="10"
+          creationComplete="init()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.EditEvent;
+      
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      
+      private function init():void
+      {
+        /* this event is fired by the itemrenderer in the user list (when editing, doubleclick) */
+        addEventListener(EditEvent.GROUP, onEditGroup);
+      }
+      
+      private function onEditGroup(e:EditEvent):void
+      {
+        GroupManager.instance.groups.refresh();  
+      }
       
       private function deleteGroup(group:Group):void
       {
@@ -29,7 +43,7 @@
         
         /* select the last item (the newly created one) */
         var index:Vector.<int> = new Vector.<int>(1);
-        index[0] = GroupManager.instance.groups.length - 1;
+        index[0] = GroupManager.instance.groups.getItemIndex(new_group);
         groupslist.selectedIndices = index;
       }
       
@@ -42,6 +56,30 @@
           //groupcontainer.removeElement(rightpanels);
           rightpanels.visible = false;
         }
+      }
+      
+      private function removeUserFromGroup(u:User, g:Group):void
+      {
+        /* remove the user from the group */
+        g.removeUser(u);
+        g.save();
+        /* and viceversa */
+        u.removeGroup(g);
+        u.save();
+        /* refresh the dataprovider, since it is not bindable (is the result of a filter) */
+        usersingroup.dataProvider = UserManager.instance.usersFromIds(g.users);
+      }
+
+      private function addUserToGroup(u:User, g:Group):void
+      {
+        /* add the user to the group */
+        g.addUser(u);
+        g.save();
+        /* and viceversa */
+        u.addGroup(g);
+        u.save();
+        /* refresh the dataprovider, since it is not bindable (is the result of a filter) */
+        usersingroup.dataProvider = UserManager.instance.usersFromIds(g.users);
       }
       
     ]]>
@@ -78,10 +116,13 @@
       <s:VGroup left="0" top="0" right="0" bottom="0" horizontalAlign="right">
         <s:Label text="Users in this group" styleName="AccountingTitles"/>
         <s:BorderContainer width="100%" height="50%" dropShadowVisible="true" backgroundColor="#EAEAEA">
-          <s:List left="5" right="5" top="5" bottom="20" borderVisible="false" contentBackgroundColor="#EAEAEA" 
+          <s:List id="usersingroup" left="5" right="5" top="5" bottom="20" borderVisible="false" contentBackgroundColor="#EAEAEA" 
                   labelField="username" 
                   dataProvider="{UserManager.instance.usersFromIds((groupslist.selectedItem as Group).users)}"/>
-          <s:Button label="-" width="30" height="20" right="31" bottom="1" styleName="AddRemove"/>
+          <s:Button label="-" width="30" height="20" right="101" bottom="1" styleName="AddRemove"
+                    enabled="{usersingroup.selectedItem != null}"
+                    click="{removeUserFromGroup(usersingroup.selectedItem as User, groupslist.selectedItem as Group)}"/>
+          <s:DropDownList bottom="1" right="1" width="100" height="20" enabled="{groupslist.selectedItem != null}" dataProvider="{UserManager.instance.users}" labelField="username"/>
         </s:BorderContainer>
         <mx:Spacer height="5"/>
         <s:Label text="Activities associated to this group" styleName="AccountingTitles"/>

@@ -71,6 +71,18 @@ package it.ht.rcs.console.accounting
       // TODO: save to the db      
     }
     
+    public function addGroup(g:Group):void
+    {
+      groups.push(g.id);
+    }
+    
+    public function removeGroup(g:Group):void
+    {
+      var idx:int = groups.indexOf(g.id);
+      if (idx >= 0)
+        groups.splice(idx, 1);
+    }
+    
     public function save():void
     {
       // TODO: save to the db

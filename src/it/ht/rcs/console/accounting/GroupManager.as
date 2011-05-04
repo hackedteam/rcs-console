@@ -50,10 +50,10 @@ package it.ht.rcs.console.accounting
         addGroup(new Group({id:3, name: 'test', users:[10]}));
       }
       
-      //var sort:Sort = new Sort();
-      //sort.fields = [new SortField('name', true, false, false)];
-      //groups.sort = sort;
-      //groups.refresh();
+      var sort:Sort = new Sort();
+      sort.fields = [new SortField('name', true, false, false)];
+      groups.sort = sort;
+      groups.refresh();
       
       //TODO: get the users from db
     }

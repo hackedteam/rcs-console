@@ -6,6 +6,7 @@ package it.ht.rcs.console.accounting
   import mx.collections.SortField;
   import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
+  import mx.events.CollectionEvent;
   
   public class UserManager
   {
@@ -28,6 +29,7 @@ package it.ht.rcs.console.accounting
       trace('Start UserManager');
       
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+
       /* first time */
       onRefresh(null);
     }

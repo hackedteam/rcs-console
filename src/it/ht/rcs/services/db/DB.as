@@ -24,7 +24,7 @@ package it.ht.rcs.services.db
       //trace('Initialize the DB.baseURL to: ' + url);
       _serviceControl.baseURL = "https://" + url + ":4444/";      
     }
-    
+  
   }
 
 }

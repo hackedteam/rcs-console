@@ -9,14 +9,17 @@
       import it.ht.rcs.console.events.EditEvent;
       
       import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.controls.Alert;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
+      [Bindable]
+      private var _groups_view:ListCollectionView;
+      
       private function init():void
       {
-        /* this event is fired by the itemrenderer in the user list (when editing, doubleclick) */
-        groupslist.addEventListener(EditEvent.GROUP, onEditGroup);
+        _groups_view = GroupManager.instance.getGroupsView();
       }
       
       private function onEditGroup(e:EditEvent):void
@@ -51,7 +54,7 @@
       private function selectGroup(g:Group):void
       {
         var index:Vector.<int> = new Vector.<int>(1);
-        index[0] = GroupManager.instance.groups.getItemIndex(g);
+        index[0] = _groups_view.getItemIndex(g);
         groupslist.selectedIndices = index;
       }
       
@@ -102,8 +105,8 @@
     <s:Label text="{resourceManager.getString('localized_main', 'GROUPS')}" horizontalCenter="0" top="5" styleName="AccountingTitles"/>
     <s:BorderContainer top="30" right="0" bottom="0" left="0" dropShadowVisible="true" backgroundColor="#EAEAEA">
       <s:List id="groupslist" left="5" bottom="20" right="5" top="5" borderVisible="false" contentBackgroundColor="#EAEAEA" 
-              dataProvider="{GroupManager.instance.groups}" 
-              itemRenderer="it.ht.rcs.console.accounting.GroupRenderer" change="onSelectGroup()">
+              dataProvider="{_groups_view}" 
+              itemRenderer="it.ht.rcs.console.accounting.GroupRenderer" change="onSelectGroup()" >
         <s:layout>
           <s:TileLayout horizontalGap="10" verticalGap="10" />
         </s:layout>

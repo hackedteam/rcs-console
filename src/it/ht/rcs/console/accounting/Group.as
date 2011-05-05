@@ -42,6 +42,7 @@ package it.ht.rcs.console.accounting
     
     public function save():void
     {
+      trace('save group');
       // TODO: save to the db
       // TODO: updated the local id from the db
     }

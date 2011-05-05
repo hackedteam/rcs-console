@@ -16,13 +16,15 @@
       private function init():void
       {
         /* this event is fired by the itemrenderer in the user list (when editing, doubleclick) */
-        addEventListener(EditEvent.GROUP, onEditGroup);
+        groupslist.addEventListener(EditEvent.GROUP, onEditGroup);
       }
       
       private function onEditGroup(e:EditEvent):void
       {
         /* save to the db */
-        (groupslist.selectedItem as Group).save();
+        e.group.save();
+        /* keep the group selected even if it changes position (due to alphabetical sorting) */
+        selectGroup(e.group);
       }
       
       private function deleteGroup(group:Group):void
@@ -43,8 +45,13 @@
         var new_group:Group = GroupManager.instance.newGroup();
         
         /* select the last item (the newly created one) */
+        selectGroup(new_group);
+      }
+      
+      private function selectGroup(g:Group):void
+      {
         var index:Vector.<int> = new Vector.<int>(1);
-        index[0] = GroupManager.instance.groups.getItemIndex(new_group);
+        index[0] = GroupManager.instance.groups.getItemIndex(g);
         groupslist.selectedIndices = index;
       }
       
@@ -123,7 +130,7 @@
           <s:Button label="-" width="30" height="20" right="101" bottom="1" styleName="AddRemove"
                     enabled="{usersingroup.selectedItem != null}"
                     click="{removeUserFromGroup(usersingroup.selectedItem as User, groupslist.selectedItem as Group)}"/>
-          <s:DropDownList bottom="1" right="1" width="100" height="20" enabled="{groupslist.selectedItem != null}" dataProvider="{UserManager.instance.users}" labelField="username"/>
+          <mx:PopUpMenuButton label="+" bottom="2" right="1" width="60" height="19" enabled="{groupslist.selectedItem != null}" dataProvider="{UserManager.instance.users}" labelField="username"/>
         </s:BorderContainer>
         <mx:Spacer height="5"/>
         <s:Label text="Activities associated to this group" styleName="AccountingTitles"/>

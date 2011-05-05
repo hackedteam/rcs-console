@@ -1,12 +1,13 @@
 package it.ht.rcs.console.accounting
 {
-  import it.ht.rcs.console.events.RefreshEvent;
   import it.ht.rcs.console.accounting.Group;
+  import it.ht.rcs.console.events.RefreshEvent;
   
+  import mx.collections.ArrayCollection;
   import mx.collections.Sort;
   import mx.collections.SortField;
-  import mx.collections.ArrayCollection;
   import mx.core.FlexGlobals;
+  import mx.events.CollectionEvent;
   
   public class GroupManager
   {                                                     
@@ -26,8 +27,16 @@ package it.ht.rcs.console.accounting
       trace('Start GroupManager');
       
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      
+      groups.addEventListener(CollectionEvent.COLLECTION_CHANGE, collectionChanged);
+      
       /* first time */
       onRefresh(null);
+    }
+    
+    private function collectionChanged(event:CollectionEvent):void 
+    { 
+      trace(event.toString());
     }
     
     public function stop():void
@@ -50,6 +59,7 @@ package it.ht.rcs.console.accounting
         addGroup(new Group({id:3, name: 'test', users:[10]}));
       }
       
+      /* sorting */
       var sort:Sort = new Sort();
       sort.fields = [new SortField('name', true, false, false)];
       groups.sort = sort;

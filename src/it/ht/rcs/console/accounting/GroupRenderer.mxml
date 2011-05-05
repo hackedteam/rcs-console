@@ -8,26 +8,41 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.EditEvent;
-
+      
+      import spark.components.supportClasses.ListBase;
+      
       private function edit():void
       {
         /* visualize the textedit and give it the focus */
+        nameedit.text = data.name;
         nameedit.visible = true;
+        //nameedit.selectRange(nameedit.text.length, nameedit.text.length+1);
         nameedit.setFocus();
+      }
+      
+      private function cancel():void
+      {
+        /* back to the label visualization */
+        nameedit.visible = false; 
       }
       
       private function endEdit():void
       {
+        var old:String = data.name;
         /* update the name */
         data.name = nameedit.text;
 
-        /* back to the label visualization */
-        nameedit.visible = false; 
-        
-        /* send the event to update the db */
         var evt:EditEvent = new EditEvent(EditEvent.GROUP, true);
         evt.group = data as Group;
-        dispatchEvent(evt);
+        
+        /* dispatch the changed event */
+        var list:ListBase = this.owner as ListBase;
+        list.dispatchEvent(evt);
+
+        //list.dataProvider.itemUpdated(data, 'name', old, nameedit.text);
+          
+        /* back to the label visualization */
+        nameedit.visible = false; 
       }
       
     ]]>
@@ -35,7 +50,7 @@
   <s:SkinnableContainer x="0" y="0" width="70" height="80" >
     <mx:Image source="img/items/group.png" left="0" top="5" width="70" height="60"/>
     <s:Label id="namelabel" text="{data.name}" bottom="0" horizontalCenter="0"/>
-    <s:TextInput id="nameedit" text="{data.name}" bottom="0" horizontalCenter="0" width="70" visible="false" focusOut="endEdit()" enter="endEdit()" borderVisible="false"/>
+    <s:TextInput id="nameedit" text="{data.name}" bottom="0" horizontalCenter="0" width="70" visible="false" focusOut="cancel()" enter="endEdit()" borderVisible="false"/>
   </s:SkinnableContainer>
   
 </s:ItemRenderer>

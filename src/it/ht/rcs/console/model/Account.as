@@ -6,7 +6,6 @@ package it.ht.rcs.console.model
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
   
-  import it.ht.rcs.console.accounting.User;
   import it.ht.rcs.services.db.DB;
   
   import mx.controls.Alert;
@@ -45,7 +44,7 @@ package it.ht.rcs.console.model
         /* save the info for the next login */
         save_previous();
         /* instantiate the global currentSession object for the logged in user */
-        var u:User = new User({id:1, username: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:[1], time_offset:0, enabled:true});
+        var u:User = new User({id:1, name: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:[1], time_offset:0, enabled:true});
         /* create a fake session */
         console.currentSession = new Session(u, server, true);
         /* invoke the callback */
@@ -79,7 +78,7 @@ package it.ht.rcs.console.model
       save_previous();
       /* instantiate the global currentSession object for the logged in user */
       // TODO: take the real users
-      var u:User = new User({username: 'alor'});
+      var u:User = new User({name: 'alor'});
       // TODO: parse the current session
       var sess:DBSession = e.result as DBSession;
       /* create the current session */

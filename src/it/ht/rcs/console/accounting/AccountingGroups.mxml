@@ -6,9 +6,10 @@
           creationComplete="init()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.model.Group;
+      import it.ht.rcs.console.model.User;
       import it.ht.rcs.console.events.EditEvent;
       
-      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.controls.Alert;
       import mx.events.CloseEvent;
@@ -19,7 +20,7 @@
       
       private function init():void
       {
-        _groups_view = GroupManager.instance.getGroupsView();
+        _groups_view = GroupManager.instance.getView();
       }
       
       private function onEditGroup(e:EditEvent):void
@@ -38,7 +39,7 @@
         Alert.show(resourceManager.getString('localized_main', 'CONFIRM_GROUP_DELETION') + ' ' + group.name + ' ?', resourceManager.getString('localized_main', 'CONFIRM'), Alert.YES|Alert.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == Alert.YES) 
-              GroupManager.instance.removeGroup(group);
+              GroupManager.instance.removeItem(group);
           }, null, Alert.NO);
       }
       
@@ -77,8 +78,6 @@
         /* and viceversa */
         u.removeGroup(g);
         u.save();
-        /* refresh the dataprovider, since it is not bindable (is the result of a filter) */
-        usersingroup.dataProvider = UserManager.instance.usersFromIds(g.users);
       }
 
       private function addUserToGroup(u:User, g:Group):void
@@ -89,8 +88,6 @@
         /* and viceversa */
         u.addGroup(g);
         u.save();
-        /* refresh the dataprovider, since it is not bindable (is the result of a filter) */
-        usersingroup.dataProvider = UserManager.instance.usersFromIds(g.users);
       }
       
     ]]>
@@ -128,12 +125,12 @@
         <s:Label text="Users in this group" styleName="AccountingTitles"/>
         <s:BorderContainer width="100%" height="50%" dropShadowVisible="true" backgroundColor="#EAEAEA">
           <s:List id="usersingroup" left="5" right="5" top="5" bottom="20" borderVisible="false" contentBackgroundColor="#EAEAEA" 
-                  labelField="username" 
-                  dataProvider="{UserManager.instance.usersFromIds((groupslist.selectedItem as Group).users)}"/>
+                  labelField="name" 
+                  dataProvider="{UserManager.instance.getViewIds((groupslist.selectedItem as Group).users)}"/>
           <s:Button label="-" width="30" height="20" right="101" bottom="1" styleName="AddRemove"
                     enabled="{usersingroup.selectedItem != null}"
                     click="{removeUserFromGroup(usersingroup.selectedItem as User, groupslist.selectedItem as Group)}"/>
-          <mx:PopUpMenuButton label="+" bottom="2" right="1" width="60" height="19" enabled="{groupslist.selectedItem != null}" dataProvider="{UserManager.instance.users}" labelField="username"/>
+          <mx:PopUpMenuButton label="+" bottom="2" right="1" width="60" height="19" enabled="{groupslist.selectedItem != null}" dataProvider="{UserManager.instance.getView()}" labelField="name"/>
         </s:BorderContainer>
         <mx:Spacer height="5"/>
         <s:Label text="Activities associated to this group" styleName="AccountingTitles"/>

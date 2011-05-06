@@ -1,4 +1,4 @@
-package it.ht.rcs.console.accounting
+package it.ht.rcs.console.model
 {
   import mx.collections.ArrayCollection;
   import mx.resources.ResourceManager;
@@ -10,7 +10,7 @@ package it.ht.rcs.console.accounting
     [Bindable]
     public var enabled:Boolean;
     [Bindable]
-    public var username:String;
+    public var name:String;
     [Bindable]
     public var description:String;
     [Bindable]
@@ -30,7 +30,7 @@ package it.ht.rcs.console.accounting
       if (data == null) {
         id = 0;
         enabled = false;
-        username = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
+        name = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
         contact = '';
         privs = [];
         locale = 'en_US';
@@ -40,7 +40,7 @@ package it.ht.rcs.console.accounting
         /* existing user */
         id = data.id;
         enabled = data.enabled;
-        username = data.username;
+        name = data.name;
         contact = data.contact;
         privs = data.privs;
         locale = data.locale;

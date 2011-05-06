@@ -1,4 +1,4 @@
-package it.ht.rcs.console.accounting
+package it.ht.rcs.console.model
 {
   import mx.collections.ArrayCollection;
   import mx.resources.ResourceManager;

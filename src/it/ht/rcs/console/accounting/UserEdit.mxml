@@ -6,6 +6,7 @@
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.model.User;
       import mx.managers.PopUpManager;
       
       [Bindable]
@@ -16,7 +17,7 @@
       private function closeMe():void
       {
         _user.enabled = formEnabled.selected;
-        _user.username = formName.text;
+        _user.name = formName.text;
         _user.description = formDescription.text;
         _user.contact = formContact.text;
         _user.locale = formLocale.selectedItem;
@@ -64,7 +65,7 @@
       <s:CheckBox selected="{_user.enabled}" id="formEnabled" enabled="{_user.id != console.currentSession.user.id}"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'NAME')}">      
-      <s:TextInput width="150" maxChars="20" text="{_user.username}" id="formName"/>
+      <s:TextInput width="150" maxChars="20" text="{_user.name}" id="formName"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'DESCRIPTION')}">      
       <s:TextInput width="250" text="{_user.description}" id="formDescription"/>
@@ -90,7 +91,7 @@
       <s:DropDownList dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.time_offset + 12}" id="formConsoletime"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}">
-      <s:List width="150" labelField="name" dataProvider="{GroupManager.instance.groupsFromIds(_user.groups)}"/>
+      <s:List width="150" labelField="name" dataProvider="{GroupManager.instance.getViewIds(_user.groups)}"/>
     </mx:FormItem>
   </mx:Form>
 </s:TitleWindow>

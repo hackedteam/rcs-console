@@ -4,10 +4,22 @@
                xmlns:mx="library://ns.adobe.com/flex/mx" 
                width="300" height="130"
                close="closeMe()"
+               creationComplete="init()"
                title="{resourceManager.getString('localized_main', 'SELECT_ALERTING_GROUP')}">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.GroupManager;
+      
+      import mx.collections.ListCollectionView;
       import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _group_view:ListCollectionView;
+      
+      private function init():void
+      {
+        _group_view = GroupManager.instance.getView();
+      }
       
       // TODO: popolare la lista gruppi
       // TODO: salvare le pref nel db
@@ -19,6 +31,10 @@
     ]]>
   </fx:Script>
   <s:CheckBox id="noalert" label="No Alert" left="20" top="20" toolTip="{resourceManager.getString('localized_main', 'NO_ALERT_GROUP')}"/>
-  <s:DropDownList left="20" top="60" right="20" enabled="{noalert.selected == false}" toolTip="{resourceManager.getString('localized_main', 'ALERT_GROUP_LIST')}"></s:DropDownList>
+  <s:DropDownList left="20" top="60" right="20" enabled="{noalert.selected == false}" 
+                  toolTip="{resourceManager.getString('localized_main', 'ALERT_GROUP_LIST')}" 
+                  dataProvider="{_group_view}"
+                  labelField="name"
+                  selectedIndex="0"/>
 
 </s:TitleWindow>

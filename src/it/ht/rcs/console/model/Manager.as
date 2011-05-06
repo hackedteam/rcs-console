@@ -1,13 +1,17 @@
 package it.ht.rcs.console.model
 {
+  import flash.utils.getQualifiedClassName;
+  
   import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayList;
+  import mx.collections.ISort;
   import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
+  import mx.events.CollectionEventKind;
   
   public class Manager
   {
@@ -20,17 +24,16 @@ package it.ht.rcs.console.model
     
     public function Manager()
     {
+      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
+      trace(classname + ' -- Init');
       /* detect changes on the list */
       _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
     }
     
-    protected function onItemsChange(event:CollectionEvent):void 
-    { 
-      /* all the logic to the db is here, override this method */
-    }
-    
     public function start():void
     {
+      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
+      trace(classname + ' -- Start');
       /* react to the global refresh event */
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
     }
@@ -38,12 +41,39 @@ package it.ht.rcs.console.model
  
     public function stop():void
     {
+      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
+      trace(classname + ' -- Start');
       /* after stop, we don't want to refresh anymore */
       FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+    }
+
+    protected function onItemsChange(event:CollectionEvent):void 
+    { 
+      trace(event.toString());
+      /* all the logic to the db is here, override this method */
+      switch (event.kind) { 
+        case CollectionEventKind.ADD: 
+          onItemAdd();
+          break; 
+        
+        case CollectionEventKind.REMOVE: 
+          onItemRemove();
+          break; 
+        
+        case CollectionEventKind.UPDATE: 
+          onItemUpdate();
+          break; 
+        
+        case CollectionEventKind.RESET: 
+          onReset();
+          break; 
+      } 
     }
     
     protected function onRefresh(e:RefreshEvent):void
     {
+      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
+      trace(classname + ' -- Refresh');
       /* get the new items from the DB, override this function */
     }
     
@@ -60,6 +90,10 @@ package it.ht.rcs.console.model
       _items.addItem(o);
     }
     
+    protected function onItemAdd():void
+    {
+    }
+    
     public function removeItem(o:Object):void
     {
       /* remove an item from the list */
@@ -71,8 +105,19 @@ package it.ht.rcs.console.model
         _items.removeItemAt(idx);
     }
 
+    protected function onItemRemove():void
+    { 
+    }
+
+    protected function onItemUpdate():void
+    { 
+    }
     
-    public function getView(filterFunction:Function=null):ListCollectionView
+    protected function onReset():void
+    {
+    }
+    
+    public function getView(filterFunction:Function=null, sortCriteria:ISort=null):ListCollectionView
     {
       /* always return updated content when something requests a view */
       onRefresh(null);
@@ -81,10 +126,15 @@ package it.ht.rcs.console.model
       var lcv:ListCollectionView = new ListCollectionView();
       lcv.list = _items;
       
-      /* default sorting is alphabetical */
-      var sort:Sort = new Sort();
-      sort.fields = [new SortField('name', true, false, false)];
-      lcv.sort = sort;
+      if (sortCriteria == null) {
+        /* default sorting is alphabetical */
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('name', true, false, false)];
+        lcv.sort = sort;
+      } else {
+        lcv.sort = sortCriteria;
+      }
+      
       lcv.filterFunction = filterFunction;
       lcv.refresh();
       

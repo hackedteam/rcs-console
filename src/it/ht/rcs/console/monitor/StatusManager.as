@@ -1,21 +1,22 @@
 package it.ht.rcs.console.monitor
 {
+	import flash.events.Event;
   import flash.events.TimerEvent;
   import flash.utils.Timer;
   
   import it.ht.rcs.console.events.RefreshEvent;
+  import it.ht.rcs.console.model.Manager;
   
   import mx.collections.ArrayCollection;
+  import mx.events.CollectionEvent;
+  import mx.events.CollectionEventKind;
   import mx.collections.Sort;
   import mx.collections.SortField;
   import mx.core.FlexGlobals;
   import it.ht.rcs.console.utils.CounterBaloon;
 
-  public class StatusManager
+  public class StatusManager extends Manager
   {
-    
-    [Bindable]
-    public var statuses:ArrayCollection = new ArrayCollection();
     
     private var _counterBaloon:CounterBaloon = new CounterBaloon();
     
@@ -28,53 +29,40 @@ package it.ht.rcs.console.monitor
     
     public function StatusManager()
     {
-      trace('Init StatusManager');
-      
+      super();
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefreshCounter);
     }
     
-    private function onRefresh(e:Event):void
+    override protected function onRefresh(e:RefreshEvent):void
     {
-      trace('StatusManager -- Refresh');
+      super.onRefresh(e);
 
-      statuses.removeAll();
+      _items.removeAll();
       
       /* DEMO MOCK */
       if (console.currentSession.fake) {
-        addEntry(new StatusEntry({title: 'Collector', status:'0', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
-        addEntry(new StatusEntry({title: 'Database', status:'1', address: '127.0.0.1', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
-        addEntry(new StatusEntry({title: 'Collector', status:'2', address: '5.6.7.8', desc: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));
+        addItem(new StatusEntry({name: 'Collector', status:'0', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
+		    addItem(new StatusEntry({name: 'Database', status:'1', address: '127.0.0.1', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
+		    addItem(new StatusEntry({name: 'Collector', status:'2', address: '5.6.7.8', desc: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));
       }
             
       // TODO: get from db
     }
    
-    public function addEntry(e:StatusEntry):void
+    override protected function onItemRemove():void 
     { 
-      statuses.addItem(e);
-    }
-    
-    public function removeEntry(e:StatusEntry):void
-    {
-      var idx : int = statuses.getItemIndex(e);
-      if (idx >= 0) 
-        statuses.removeItemAt(idx);
-      
       // TODO: remove from db
     }
     
-    public function start():void
+    override public function start():void
     {
-      trace('Start StatusManager');
-      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      super.start();
       _autorefresh.addEventListener(TimerEvent.TIMER, onRefresh);
-      /* first refresh */
-      onRefresh(null);
     }
-    public function stop():void
+	
+    override public function stop():void
     {
-      trace('Stop StatusManager');
-      FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+      super.stop();
       _autorefresh.removeEventListener(TimerEvent.TIMER, onRefresh);
     }
 
@@ -127,22 +115,6 @@ package it.ht.rcs.console.monitor
       else
         _counterBaloon.visible = false;
     }
-    
-    public function sort_by_status():void
-    {
-      var sort:Sort = new Sort();
-      sort.fields = [new SortField('status', true, true, true)];
-      statuses.sort = sort;
-      statuses.refresh();
-    }
-
-    public function sort_by_name():void
-    {
-      var sort:Sort = new Sort();
-      sort.fields = [new SortField('title', true, false, false)];
-      statuses.sort = sort;
-      statuses.refresh();
-    }
-    
+        
   }
 }

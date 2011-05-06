@@ -3,7 +3,7 @@ package it.ht.rcs.console.monitor
   public class StatusEntry
   {
     [Bindable]
-    public var title:String;
+    public var name:String;
     [Bindable]
     public var status:String;
     [Bindable]
@@ -21,7 +21,7 @@ package it.ht.rcs.console.monitor
     
     public function StatusEntry(data:Object)
     {
-      this.title = data.title;
+      this.name = data.name;
       this.status = data.status;
       this.address = data.address;
       this.desc = data.desc;
@@ -31,9 +31,5 @@ package it.ht.rcs.console.monitor
       this.df = data.df;
     }
     
-    public function remove():void
-    {
-      StatusManager.instance.removeEntry(this);
-    }
   }
 }

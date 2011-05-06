@@ -23,29 +23,26 @@ package it.ht.rcs.console.accounting
     {
       super();
     }
-
-    override public function start():void
+    
+    override protected function onItemAdd():void
     {
-      trace('Start UserManager');
-      super.start();  
     }
     
-    override public function stop():void
-    {
-      trace('Stop UserManager');
-      super.stop();
-    }
-    
-    override protected function onItemsChange(event:CollectionEvent):void 
+    override protected function onItemRemove():void
     { 
-      trace(event.toString());
-      
-      // TODO : all the logic to the db !!!
+    }
+    
+    override protected function onItemUpdate():void
+    { 
+    }
+    
+    override protected function onReset():void
+    {
     }
 
     override protected function onRefresh(e:RefreshEvent):void
     {
-      trace('UserManager -- Refresh');
+      super.onRefresh(e);
       
       _items.removeAll();
       connected_users.removeAll();

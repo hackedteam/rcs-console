@@ -36,6 +36,18 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     }
 
     model_internal var _dminternal_model : _DBSessionEntityMetadata;
+    model_internal var _changedObjects:mx.collections.ArrayCollection = new ArrayCollection();
+
+    public function getChangedObjects() : Array
+    {
+        _changedObjects.addItemAt(this,0);
+        return _changedObjects.source;
+    }
+
+    public function clearChangedObjects() : void
+    {
+        _changedObjects.removeAll();
+    }
 
     /**
      * properties
@@ -60,7 +72,7 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     {
         _model = new _DBSessionEntityMetadata(this);
 
-        // Bind to own data properties for cache invalidation triggering
+        // Bind to own data or source properties for cache invalidation triggering
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "cookie", model_internal::setterListenerCookie));
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "time", model_internal::setterListenerTime));
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "level", model_internal::setterListenerLevel));
@@ -69,7 +81,7 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     }
 
     /**
-     * data property getters
+     * data/source property getters
      */
 
     [Bindable(event="propertyChange")]
@@ -102,8 +114,12 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
         return _internal_user;
     }
 
+    public function clearAssociations() : void
+    {
+    }
+
     /**
-     * data property setters
+     * data/source property setters
      */
 
     public function set cookie(value:String) : void
@@ -149,6 +165,10 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
             {
                 _internal_level = new ArrayCollection(value);
             }
+            else if (value == null)
+            {
+                _internal_level = null;
+            }
             else
             {
                 throw new Error("value of level must be a collection");
@@ -168,7 +188,7 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     }
 
     /**
-     * Data property setter listeners
+     * Data/source property setter listeners
      *
      * Each data property whose value affects other properties or the validity of the entity
      * needs to invalidate all previously calculated artifacts. These include:

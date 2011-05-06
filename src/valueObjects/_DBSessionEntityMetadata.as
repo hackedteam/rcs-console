@@ -10,6 +10,7 @@ import com.adobe.fiber.styles.StyleValidator;
 import com.adobe.fiber.valueobjects.AbstractEntityMetadata;
 import com.adobe.fiber.valueobjects.AvailablePropertyIterator;
 import com.adobe.fiber.valueobjects.IPropertyIterator;
+import mx.collections.ArrayCollection;
 import mx.events.ValidationResultEvent;
 import com.adobe.fiber.core.model_internal;
 import com.adobe.fiber.valueobjects.IModelType;
@@ -28,12 +29,15 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     model_internal static var allAlwaysAvailableProperties:Array = new Array("cookie", "uid", "time", "level", "user");
     model_internal static var guardedProperties:Array = new Array();
     model_internal static var dataProperties:Array = new Array("cookie", "uid", "time", "level", "user");
+    model_internal static var sourceProperties:Array = emptyArray
+    model_internal static var nonDerivedProperties:Array = new Array("cookie", "uid", "time", "level", "user");
     model_internal static var derivedProperties:Array = new Array();
     model_internal static var collectionProperties:Array = new Array("level");
     model_internal static var collectionBaseMap:Object;
     model_internal static var entityName:String = "DBSession";
     model_internal static var dependentsOnMap:Object;
     model_internal static var dependedOnServices:Array = new Array();
+    model_internal static var propertyTypeMap:Object;
 
     
     model_internal var _cookieIsValid:Boolean;
@@ -64,7 +68,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
         // initialize property maps
         if (model_internal::dependentsOnMap == null)
         {
-            // depenents map
+            // dependents map
             model_internal::dependentsOnMap = new Object();
             model_internal::dependentsOnMap["cookie"] = new Array();
             model_internal::dependentsOnMap["uid"] = new Array();
@@ -73,9 +77,17 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
             model_internal::dependentsOnMap["user"] = new Array();
 
             // collection base map
-            model_internal::collectionBaseMap = new Object()
+            model_internal::collectionBaseMap = new Object();
             model_internal::collectionBaseMap["level"] = "String";
         }
+
+        // Property type Map
+        model_internal::propertyTypeMap = new Object();
+        model_internal::propertyTypeMap["cookie"] = "String";
+        model_internal::propertyTypeMap["uid"] = "int";
+        model_internal::propertyTypeMap["time"] = "String";
+        model_internal::propertyTypeMap["level"] = "ArrayCollection";
+        model_internal::propertyTypeMap["user"] = "String";
 
         model_internal::_instance = value;
         model_internal::_cookieValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForCookie);
@@ -125,6 +137,16 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
         return model_internal::dataProperties;
     }
 
+    public function getSourceProperties():Array
+    {
+        return model_internal::sourceProperties;
+    }
+
+    public function getNonDerivedProperties():Array
+    {
+        return model_internal::nonDerivedProperties;
+    }
+
     override public function getGuardedProperties():Array
     {
         return model_internal::guardedProperties;
@@ -137,8 +159,8 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
 
     override public function getDependants(propertyName:String):Array
     {
-       if (model_internal::dataProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a data property of entity DBSession");  
+       if (model_internal::nonDerivedProperties.indexOf(propertyName) == -1)
+            throw new Error(propertyName + " is not a data property of entity DBSession");
             
        return model_internal::dependentsOnMap[propertyName] as Array;  
     }
@@ -156,9 +178,17 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     override public function getCollectionBase(propertyName:String):String
     {
         if (model_internal::collectionProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a collection property of entity DBSession");  
+            throw new Error(propertyName + " is not a collection property of entity DBSession");
 
         return model_internal::collectionBaseMap[propertyName];
+    }
+    
+    override public function getPropertyType(propertyName:String):String
+    {
+        if (model_internal::allProperties.indexOf(propertyName) == -1)
+            throw new Error(propertyName + " is not a property of DBSession");
+
+        return model_internal::propertyTypeMap[propertyName];
     }
 
     override public function getAvailableProperties():com.adobe.fiber.valueobjects.IPropertyIterator
@@ -178,9 +208,9 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
 
     override public function setValue(propertyName:String, value:*):void
     {
-        if (model_internal::dataProperties.indexOf(propertyName) == -1)
+        if (model_internal::nonDerivedProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " is not a data property of entity DBSession");
+            throw new Error(propertyName + " is not a modifiable property of entity DBSession");
         }
 
         model_internal::_instance[propertyName] = value;

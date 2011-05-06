@@ -46,9 +46,16 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          _serviceControl.operationList = operations;  
 
 
-
+         preInitializeService();
          model_internal::initialize();
     }
+    
+    //init initialization routine here, child class to override
+    protected function preInitializeService():void
+    {
+      
+    }
+    
 
     /**
       * This method is a generated wrapper used to call the 'login' operation. It returns an mx.rpc.AsyncToken whose 
@@ -64,8 +71,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function login(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("login");
-        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
-
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -83,8 +89,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function logout() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("logout");
-        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
-
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      

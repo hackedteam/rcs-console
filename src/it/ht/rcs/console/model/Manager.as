@@ -18,22 +18,23 @@ package it.ht.rcs.console.model
     [Bindable]
     protected var _items:ArrayList = new ArrayList();
     
+    private var _classname:String;
+    
     /* singleton */
     private static var _instance:Manager = new Manager();
     public static function get instance():Manager { return _instance; } 
     
     public function Manager()
     {
-      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
-      trace(classname + ' -- Init');
+      _classname = flash.utils.getQualifiedClassName(this).split('::')[1];
+      trace(_classname + ' -- Init');
       /* detect changes on the list */
       _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
     }
     
     public function start():void
     {
-      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
-      trace(classname + ' -- Start');
+      trace(_classname + ' -- Start');
       /* react to the global refresh event */
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
     }
@@ -41,15 +42,15 @@ package it.ht.rcs.console.model
  
     public function stop():void
     {
-      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
-      trace(classname + ' -- Start');
+      trace(_classname + ' -- Start');
       /* after stop, we don't want to refresh anymore */
       FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
     }
 
     protected function onItemsChange(event:CollectionEvent):void 
     { 
-      trace(event.toString());
+      //trace(_classname + ' -- ' + event.toString());
+      
       /* all the logic to the db is here, override this method */
       switch (event.kind) { 
         case CollectionEventKind.ADD: 

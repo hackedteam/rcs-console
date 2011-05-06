@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="400"
+               xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="420"
                close="closeMe()"
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
@@ -91,7 +91,12 @@
       <s:DropDownList dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.time_offset + 12}" id="formConsoletime"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}">
-      <s:List width="150" labelField="name" dataProvider="{GroupManager.instance.getViewIds(_user.groups)}"/>
+      <s:BorderContainer backgroundColor="#EAEAEA" borderVisible="false">
+        <s:List bottom="20" width="150"
+                dataProvider="{GroupManager.instance.getViewIds(_user.groups)}" labelField="name"/>
+          <s:Button right="31" bottom="0" width="30" height="20" label="-"/>
+          <s:Button right="1" bottom="0" width="30" height="20" label="+"/>     
+      </s:BorderContainer>
     </mx:FormItem>
   </mx:Form>
 </s:TitleWindow>

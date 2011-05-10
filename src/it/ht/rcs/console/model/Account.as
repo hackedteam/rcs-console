@@ -1,17 +1,17 @@
 package it.ht.rcs.console.model
 {
-  import com.adobe.serialization.json.JSON;
-  
   import flash.filesystem.File;
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
   
-  import it.ht.rcs.services.db.DB;
+  import it.ht.rcs.services.db.IDB;
+  import it.ht.rcs.services.db.RemoteDB;
+  import it.ht.rcs.services.db.DemoDB;
   
-  import mx.controls.Alert;
-  import mx.rpc.CallResponder;
   import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
+  
+  import mx.controls.Alert;
   
   import valueObjects.DBSession;
   
@@ -39,36 +39,18 @@ package it.ht.rcs.console.model
       this.server = server;
       
       /* this is for DEMO purpose only, no database will be contacted, all the data are fake */
-      if (user == 'demo' && pass == '' && server == 'demo') {  
+      if (user == 'demo' && pass == '' && server == 'demo') {
+        console.currentDB = new DemoDB();
         trace('Account.login -- DEMO MODE');
-        /* save the info for the next login */
-        save_previous();
-        /* instantiate the global currentSession object for the logged in user */
-        var u:User = new User({id:1, name: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:[1], time_offset:0, enabled:true});
-        /* create a fake session */
-        console.currentSession = new Session(u, server, true);
-        /* invoke the callback */
-        callback();
-        return;
-      } 
+      } else {
+        console.currentDB = new RemoteDB(server);
+      }
       
-      /* real request to the DB */
-      var db:DB = new DB();
-      
-      db.baseURL = server;
-      db.showBusyCursor = true;
-
-      /* set up the responder */
-      var resp:CallResponder = new CallResponder();
-      resp.addEventListener(ResultEvent.RESULT, onResult);
-      resp.addEventListener(FaultEvent.FAULT, onFault);
-
       /* remember the function for the async handlers */
       _callback = callback;
       _errback = errback;
       
-      /* perform the async request */
-      resp.token = db.login(JSON.encode({user:user, pass:pass}));
+      console.currentDB.login({user:user, pass:pass}, onResult, onFault);
     }
     
     private function onResult(e:ResultEvent):void
@@ -78,9 +60,9 @@ package it.ht.rcs.console.model
       save_previous();
       /* instantiate the global currentSession object for the logged in user */
       // TODO: take the real users
-      var u:User = new User({name: 'alor'});
+      var u:User = new User(e.result.user);
       // TODO: parse the current session
-      var sess:DBSession = e.result as DBSession;
+      //var sess:DBSession = e.result as DBSession;
       /* create the current session */
       console.currentSession = new Session(u, server);
       /* invoke the callback */
@@ -104,7 +86,7 @@ package it.ht.rcs.console.model
     {
       trace('Account.logout');
       /* request to the DB, ignoring the results */
-      new DB().logout();
+      console.currentDB.logout();
     }
     
     private function load_previous():void

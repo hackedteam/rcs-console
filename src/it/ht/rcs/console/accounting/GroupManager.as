@@ -10,6 +10,7 @@ package it.ht.rcs.console.accounting
   import mx.collections.SortField;
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
+  import mx.rpc.events.ResultEvent;
   
   public class GroupManager extends Manager
   {                                                     
@@ -44,17 +45,16 @@ package it.ht.rcs.console.accounting
     override protected function onRefresh(e:RefreshEvent):void
     {
       trace('GroupManager -- Refresh');
-      
-      _items.removeAll();
-      
-      /* DEMO MOCK */
-      if (console.currentSession.fake) {
-        addItem(new Group({id:1, name: 'demo', users:[1,2,3]}));
-        addItem(new Group({id:2, name: 'developers', users:[2,3,4,5,6,7,8,9]}));
-        addItem(new Group({id:3, name: 'test', users:[10]}));
-      }
-     
-      //TODO: get the users from db
+	    console.currentDB.groups(onResult);
+    }
+    
+    private function onResult(e:ResultEvent):void
+    {
+      var items:Array = e.result as Array;
+      _items.source = new Array();
+      items.forEach(function toGroupArray(element:*, index:int, arr:Array):void {
+        _items.source.push(new Group(element));
+      });
     }
     
     public function newGroup(data:Object=null):Group

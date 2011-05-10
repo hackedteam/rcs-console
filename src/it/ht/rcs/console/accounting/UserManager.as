@@ -9,6 +9,7 @@ package it.ht.rcs.console.accounting
   import mx.collections.SortField;
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
+  import mx.rpc.events.ResultEvent;
   
   public class UserManager extends Manager
   {
@@ -47,29 +48,25 @@ package it.ht.rcs.console.accounting
     {
       trace('UserManager -- Refresh');
       
-      _items.removeAll();
       connected_users.removeAll();
       
       /* DEMO MOCK */
       if (console.currentSession.fake) {
-        addItem(console.currentSession.user);
-        addItem(new User({id: 2, name: 'alor', locale:'en_US', groups:[1,2], enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
-        addItem(new User({id: 3, name: 'daniel', locale:'it_IT', groups:[1,2], enabled:true, privs:['ADMIN', 'TECH', 'VIEW']}));
-        addItem(new User({id: 4, name: 'naga', groups:[2], enabled:true, privs:['VIEW']}));
-        addItem(new User({id: 5, name: 'que', groups:[2], enabled:false}));
-        addItem(new User({id: 6, name: 'zeno', groups:[2], enabled:true, privs:['TECH', 'VIEW']}));
-        addItem(new User({id: 7, name: 'rev', groups:[2], enabled:false}));
-        addItem(new User({id: 8, name: 'kiodo', groups:[2], enabled:false}));
-        addItem(new User({id: 9, name: 'fabio', groups:[2], enabled:false}));
-        addItem(new User({id: 10, name: 'br1', groups:[3], enabled:false}));
-        
         connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date().time, privs: "A T V"},
                                                {user:"demo", address:"demo", logon:new Date().time, privs: "V"},
                                                {user:"daniel", address:"5.6.7.8", logon:new Date().time, privs: "T V"}]);
       }
-
-     
-      //TODO: get the users from db
+      
+      console.currentDB.users(onResult);
+    }
+    
+    public function onResult(e:ResultEvent):void
+    {
+      var items:Array = e.result as Array;
+      _items.source = new Array();
+      items.forEach(function toUserArray(element:*, index:int, arr:Array):void {
+        _items.source.push(new User(element));
+      });
     }
     
     public function newUser(data:Object=null):User

@@ -10,10 +10,10 @@ package it.ht.rcs.services.db
   import mx.rpc.http.HTTPMultiService;
   import mx.rpc.http.Operation;
   
-  public class DB extends _Super_DB
+  public class ServiceDB extends _Super_DB
   {
                
-    public function DB()
+    public function ServiceDB()
     {
       if (console.currentSession != null && console.currentSession.server != null)
         this.baseURL = console.currentSession.server;
@@ -24,7 +24,5 @@ package it.ht.rcs.services.db
       //trace('Initialize the DB.baseURL to: ' + url);
       _serviceControl.baseURL = "https://" + url + ":4444/";      
     }
-  
   }
-
 }

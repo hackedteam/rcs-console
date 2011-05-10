@@ -71,7 +71,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function login(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("login");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+		    var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -89,7 +89,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function logout() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("logout");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+		    var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      

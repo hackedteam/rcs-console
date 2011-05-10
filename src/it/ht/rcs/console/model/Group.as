@@ -6,7 +6,7 @@ package it.ht.rcs.console.model
   public class Group
   {
     [Bindable]
-    public var id:Number;
+    public var _id:String;
     [Bindable]
     public var name:String;
     [Bindable]
@@ -17,12 +17,12 @@ package it.ht.rcs.console.model
     {
       /* default group (when creating new group) */
       if (data == null) {
-        id = 0;
+        _id = "";
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_GROUP');
         user_ids = new ArrayCollection();
       } else {
         /* existing group */
-        id = data._id;
+        _id = data._id;
         name = data.name;
         user_ids = data.user_ids;
       }
@@ -30,12 +30,12 @@ package it.ht.rcs.console.model
     
     public function addUser(u:User):void
     {
-      user_ids.addItem(u.id);
+      user_ids.addItem(u._id);
     }
     
     public function removeUser(u:User):void
     {
-      var idx:int = user_ids.getItemIndex(u.id);
+      var idx:int = user_ids.getItemIndex(u._id);
       if (idx >= 0)
         user_ids.source.splice(idx, 1);
     }

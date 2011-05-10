@@ -12,7 +12,7 @@ package it.ht.rcs.services.db
     public function set baseURL(url:String):void
     {
       //trace('Initialize the DB.baseURL to: ' + url);
-      _serviceControl.baseURL = "http://" + url + ":4444/";      
+      _serviceControl.baseURL = "https://" + url + ":4444/";      
     }
     
     /**

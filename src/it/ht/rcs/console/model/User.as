@@ -6,7 +6,7 @@ package it.ht.rcs.console.model
   public class User
   {
     [Bindable]
-    public var id:Number;
+    public var _id:String;
     [Bindable]
     public var enabled:Boolean;
     [Bindable]
@@ -28,7 +28,7 @@ package it.ht.rcs.console.model
     {
       /* default user (when creating new user) */
       if (data == null) {
-        id = 0;
+        _id = "";
         enabled = false;
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
         contact = '';
@@ -38,7 +38,7 @@ package it.ht.rcs.console.model
         timezone = 0;
       } else {
         /* existing user */
-        id = data._id;
+        _id = data._id;
         enabled = data.enabled;
         name = data.name;
         contact = data.contact;
@@ -73,12 +73,12 @@ package it.ht.rcs.console.model
     
     public function addGroup(g:Group):void
     {
-      group_ids.addItem(g.id);
+      group_ids.addItem(g._id);
     }
     
     public function removeGroup(g:Group):void
     {
-      var idx:int = group_ids.getItemIndex(g.id);
+      var idx:int = group_ids.getItemIndex(g._id);
       if (idx >= 0)
         group_ids.source.splice(idx, 1);
     }

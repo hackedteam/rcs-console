@@ -2,8 +2,10 @@ package it.ht.rcs.console.model
 {
   import flash.utils.getQualifiedClassName;
   
+  import it.ht.rcs.console.events.LogonEvent;
   import it.ht.rcs.console.events.RefreshEvent;
   
+  import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
   import mx.collections.ISort;
   import mx.collections.ListCollectionView;
@@ -12,7 +14,6 @@ package it.ht.rcs.console.model
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
   import mx.events.CollectionEventKind;
-  import mx.collections.ArrayCollection;
   
   public class Manager
   {
@@ -31,6 +32,7 @@ package it.ht.rcs.console.model
       trace(_classname + ' -- Init');
       /* detect changes on the list */
       _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
+      FlexGlobals.topLevelApplication.addEventListener(LogonEvent.LOGGING_OUT, onLogout);
     }
     
     public function start():void
@@ -38,6 +40,8 @@ package it.ht.rcs.console.model
       trace(_classname + ' -- Start');
       /* react to the global refresh event */
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      /* always get new data upon startup */
+      onRefresh(null);
     }
     
  
@@ -77,6 +81,11 @@ package it.ht.rcs.console.model
       var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
       trace(classname + ' -- Refresh');
       /* get the new items from the DB, override this function */
+    }
+    
+    protected function onLogout(e:LogonEvent):void
+    {
+      _items.removeAll();
     }
     
     /* SPECIALIZE THIS: to specialize the type of object returned  */

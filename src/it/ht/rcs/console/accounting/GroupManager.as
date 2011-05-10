@@ -5,6 +5,7 @@ package it.ht.rcs.console.accounting
   import it.ht.rcs.console.model.Manager;
   
   import mx.collections.ArrayList;
+  import mx.collections.ArrayCollection;
   import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
@@ -47,10 +48,10 @@ package it.ht.rcs.console.accounting
     
     private function onResult(e:ResultEvent):void
     {
-      var items:Array = e.result as Array;
-      _items.source = new Array();
-      items.forEach(function toGroupArray(element:*, index:int, arr:Array):void {
-        _items.source.push(new Group(element));
+      var items:ArrayCollection = e.result as ArrayCollection;
+      _items.removeAll();
+      items.source.forEach(function toGroupArray(element:*, index:int, arr:Array):void {
+        addItem(new Group(element));
       });
     }
     

@@ -1,11 +1,12 @@
 package it.ht.rcs.services.db
 {
   import mx.rpc.events.ResultEvent;
+  import mx.collections.ArrayCollection;
   
   public class DemoDB implements IDB
   {
     
-    private var demo_user:Object = {_id:1, name: 'demo', contact:'demo@hackingteam.it', privs:['ADMIN', 'TECH', 'VIEW'], locale:'en_US', groups:[1], timezone:0, enabled:true};
+    private var demo_user:Object = {_id: '1', name: 'demo', contact:'demo@hackingteam.it', privs:new ArrayCollection(['ADMIN', 'TECH', 'VIEW']), locale:'en_US', group_ids:new ArrayCollection(['1']), timezone:0, enabled:true};
 
     public function DemoDB()
     {
@@ -26,27 +27,27 @@ package it.ht.rcs.services.db
     
     public function user_index(onResult:Function = null, onFault:Function = null):void
     {
-      var items:Array = new Array();
-      items.push(demo_user);
-      items.push({_id: 2, name: 'alor', locale:'en_US', groups:[1,2], enabled:true, privs:['ADMIN', 'TECH', 'VIEW']});
-      items.push({_id: 3, name: 'daniel', locale:'it_IT', groups:[1,2], enabled:true, privs:['ADMIN', 'TECH', 'VIEW']});
-      items.push({_id: 4, name: 'naga', groups:[2], enabled:true, privs:['VIEW']});
-      items.push({_id: 5, name: 'que', groups:[2], enabled:false});
-      items.push({_id: 6, name: 'zeno', groups:[2], enabled:true, privs:['TECH', 'VIEW']});
-      items.push({_id: 7, name: 'rev', groups:[2], enabled:false});
-      items.push({_id: 8, name: 'kiodo', groups:[2], enabled:false});
-      items.push({_id: 9, name: 'fabio', groups:[2], enabled:false});
-      items.push({_id: 10, name: 'br1', groups:[3], enabled:false});
+      var items:ArrayCollection = new ArrayCollection();
+      items.addItem(demo_user);
+      items.addItem({_id: '2', name: 'alor', locale:'en_US', group_ids:new ArrayCollection(['1','2']), enabled:true, privs:new ArrayCollection(['ADMIN', 'TECH', 'VIEW'])});
+      items.addItem({_id: '3', name: 'daniel', locale:'it_IT', group_ids:new ArrayCollection(['1','2']), enabled:true, privs:new ArrayCollection(['ADMIN', 'TECH', 'VIEW'])});
+      items.addItem({_id: '4', name: 'naga', group_ids:new ArrayCollection(['2']), enabled:true, privs:new ArrayCollection(['VIEW'])});
+      items.addItem({_id: '5', name: 'que', group_ids:new ArrayCollection(['2']), enabled:false});
+      items.addItem({_id: '6', name: 'zeno', group_ids:new ArrayCollection(['2']), enabled:true, privs:new ArrayCollection(['TECH', 'VIEW'])});
+      items.addItem({_id: '7', name: 'rev', group_ids:new ArrayCollection(['2']), enabled:false});
+      items.addItem({_id: '8', name: 'kiodo', group_ids:new ArrayCollection(['2']), enabled:false});
+      items.addItem({_id: '9', name: 'fabio', group_ids:new ArrayCollection(['2']), enabled:false});
+      items.addItem({_id: '10', name: 'br1', group_ids:new ArrayCollection(['3']), enabled:false});
       var event:ResultEvent = new ResultEvent("users", false, true, items);
       onResult(event);
     }
     
     public function group_index(onResult:Function = null, onFault:Function = null):void
     {
-      var items:Array = new Array();
-      items.push({_id:1, name: 'demo', users:[1,2,3]});
-      items.push({_id:2, name: 'developers', users:[2,3,4,5,6,7,8,9]});
-      items.push({_id:3, name: 'test', users:[10]});
+      var items:ArrayCollection = new ArrayCollection();
+      items.addItem({_id: '1', name: 'demo', user_ids:new ArrayCollection(['1','2','3'])});
+      items.addItem({_id: '2', name: 'developers', user_ids:new ArrayCollection(['2','3','4','5','6','7','8','9'])});
+      items.addItem({_id: '3', name: 'test', user_ids:new ArrayCollection(['10'])});
       var event:ResultEvent = new ResultEvent("groups", false, true, items);
       onResult(event);
     }

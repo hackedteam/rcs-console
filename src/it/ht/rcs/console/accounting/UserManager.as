@@ -9,8 +9,8 @@ package it.ht.rcs.console.accounting
   import mx.collections.SortField;
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
-  import mx.rpc.events.ResultEvent;
   import mx.rpc.events.FaultEvent;
+  import mx.rpc.events.ResultEvent;
   
   public class UserManager extends Manager
   {
@@ -60,10 +60,10 @@ package it.ht.rcs.console.accounting
     
     public function onResult(e:ResultEvent):void
     {
-      var items:Array = e.result as Array;
-      _items.source = new Array();
-      items.forEach(function toUserArray(element:*, index:int, arr:Array):void {
-        _items.source.push(new User(element));
+      var items:ArrayCollection = e.result as ArrayCollection;
+      _items.removeAll();
+      items.source.forEach(function toUserArray(element:*, index:int, arr:Array):void {
+        addItem(new User(element));
       });
     }
     

@@ -22,29 +22,26 @@ package it.ht.rcs.console.accounting
     {
       super();
     }
-  
-    override public function start():void
+
+    override protected function onItemAdd():void
     {
-      trace('Start GroupManager');
-      super.start();
     }
     
-    override public function stop():void
-    {
-      trace('Stop GroupManager');
-      super.stop();
-    }
-
-    override protected function onItemsChange(event:CollectionEvent):void 
+    override protected function onItemRemove():void
     { 
-      trace(event.toString());
-      
-      // TODO : all the logic to the db !!!
+    }
+    
+    override protected function onItemUpdate():void
+    { 
+    }
+    
+    override protected function onReset():void
+    {
     }
 
     override protected function onRefresh(e:RefreshEvent):void
     {
-      trace('GroupManager -- Refresh');
+      super.onRefresh(e);
 	    console.currentDB.groups(onResult);
     }
     

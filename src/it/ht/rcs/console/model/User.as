@@ -12,6 +12,8 @@ package it.ht.rcs.console.model
     [Bindable]
     public var name:String;
     [Bindable]
+    public var pass:String;
+    [Bindable]
     public var description:String;
     [Bindable]
     public var contact:String;
@@ -32,6 +34,7 @@ package it.ht.rcs.console.model
         enabled = false;
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
         contact = '';
+        pass = 'rcs';
         privs = new ArrayCollection();
         locale = 'en_US';
         group_ids = new ArrayCollection();
@@ -43,10 +46,16 @@ package it.ht.rcs.console.model
         name = data.name;
         contact = data.contact;
         privs = data.privs;
+        pass = '';
         locale = data.locale;
         group_ids = data.group_ids;
         timezone = data.timezone;
       }
+    }
+    
+    public function toHash():Object
+    {
+      return {_id: _id, enabled: enabled, name: name, contact: contact, privs: privs.source, pass: pass, locale: locale, group_ids: group_ids.source, timezone: timezone}
     }
     
     public function is_admin():Boolean

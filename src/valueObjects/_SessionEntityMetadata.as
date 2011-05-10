@@ -20,7 +20,7 @@ import mx.events.PropertyChangeEvent;
 use namespace model_internal;
 
 [ExcludeClass]
-internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects.AbstractEntityMetadata
+internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.AbstractEntityMetadata
 {
     private static var emptyArray:Array = new Array();
 
@@ -35,7 +35,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     model_internal static var derivedProperties:Array = new Array();
     model_internal static var collectionProperties:Array = new Array("level");
     model_internal static var collectionBaseMap:Object;
-    model_internal static var entityName:String = "SessionObject";
+    model_internal static var entityName:String = "Session";
     model_internal static var dependentsOnMap:Object;
     model_internal static var dependedOnServices:Array = new Array();
     model_internal static var propertyTypeMap:Object;
@@ -61,10 +61,10 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     model_internal var _userIsValidCacheInitialized:Boolean = false;
     model_internal var _userValidationFailureMessages:Array;
 
-    model_internal var _instance:_Super_SessionObject;
+    model_internal var _instance:_Super_Session;
     model_internal static var _nullStyle:com.adobe.fiber.styles.Style = new com.adobe.fiber.styles.Style();
 
-    public function _SessionObjectEntityMetadata(value : _Super_SessionObject)
+    public function _SessionEntityMetadata(value : _Super_Session)
     {
         // initialize property maps
         if (model_internal::dependentsOnMap == null)
@@ -159,7 +159,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     override public function getDependants(propertyName:String):Array
     {
        if (model_internal::nonDerivedProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a data property of entity SessionObject");
+            throw new Error(propertyName + " is not a data property of entity Session");
             
        return model_internal::dependentsOnMap[propertyName] as Array;  
     }
@@ -177,7 +177,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     override public function getCollectionBase(propertyName:String):String
     {
         if (model_internal::collectionProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a collection property of entity SessionObject");
+            throw new Error(propertyName + " is not a collection property of entity Session");
 
         return model_internal::collectionBaseMap[propertyName];
     }
@@ -185,7 +185,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     override public function getPropertyType(propertyName:String):String
     {
         if (model_internal::allProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a property of SessionObject");
+            throw new Error(propertyName + " is not a property of Session");
 
         return model_internal::propertyTypeMap[propertyName];
     }
@@ -199,7 +199,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     {
         if (model_internal::allProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " does not exist for entity SessionObject");
+            throw new Error(propertyName + " does not exist for entity Session");
         }
 
         return model_internal::_instance[propertyName];
@@ -209,7 +209,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     {
         if (model_internal::nonDerivedProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " is not a modifiable property of entity SessionObject");
+            throw new Error(propertyName + " is not a modifiable property of entity Session");
         }
 
         model_internal::_instance[propertyName] = value;
@@ -241,7 +241,7 @@ internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects
     {
         if (model_internal::allProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " does not exist for entity SessionObject");
+            throw new Error(propertyName + " does not exist for entity Session");
         }
 
         if (model_internal::allAlwaysAvailableProperties.indexOf(propertyName) != -1)

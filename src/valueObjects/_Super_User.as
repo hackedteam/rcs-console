@@ -6,10 +6,14 @@
 package valueObjects
 {
 import com.adobe.fiber.services.IFiberManagingService;
+import com.adobe.fiber.util.FiberUtils;
 import com.adobe.fiber.valueobjects.IValueObject;
+import flash.events.Event;
 import flash.events.EventDispatcher;
+import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
 import mx.events.PropertyChangeEvent;
+import mx.validators.ValidationResult;
 
 import flash.net.registerClassAlias;
 import flash.net.getClassByAlias;
@@ -49,6 +53,7 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
      */
     private var _internal_enabled : Boolean;
     private var _internal_timezone : int;
+    private var _internal_desc : String;
     private var _internal__id : String;
     private var _internal_privs : ArrayCollection;
     private var _internal_group_ids : ArrayCollection;
@@ -72,6 +77,7 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
         _model = new _UserEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "desc", model_internal::setterListenerDesc));
 
     }
 
@@ -89,6 +95,12 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
     public function get timezone() : int
     {
         return _internal_timezone;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get desc() : String
+    {
+        return _internal_desc;
     }
 
     [Bindable(event="propertyChange")]
@@ -158,6 +170,16 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
         {
             _internal_timezone = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "timezone", oldValue, _internal_timezone));
+        }
+    }
+
+    public function set desc(value:String) : void
+    {
+        var oldValue:String = _internal_desc;
+        if (oldValue !== value)
+        {
+            _internal_desc = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "desc", oldValue, _internal_desc));
         }
     }
 
@@ -273,6 +295,11 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
 
+    model_internal function setterListenerDesc(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnDesc();
+    }
+
 
     /**
      * valid related derived properties
@@ -294,6 +321,11 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
+        if (!_model.descIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_descValidationFailureMessages);
+        }
 
         model_internal::_cacheInitialized_isValid = true;
         model_internal::invalidConstraints_der = violatedConsts;
@@ -373,6 +405,33 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
         }
     }
 
+    model_internal var _doValidationCacheOfDesc : Array = null;
+    model_internal var _doValidationLastValOfDesc : String;
+
+    model_internal function _doValidationForDesc(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfDesc != null && model_internal::_doValidationLastValOfDesc == value)
+           return model_internal::_doValidationCacheOfDesc ;
+
+        _model.model_internal::_descIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isDescAvailable && _internal_desc == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "desc is required"));
+        }
+
+        model_internal::_doValidationCacheOfDesc = validationFailures;
+        model_internal::_doValidationLastValOfDesc = value;
+
+        return validationFailures;
+    }
+    
 
 }
 

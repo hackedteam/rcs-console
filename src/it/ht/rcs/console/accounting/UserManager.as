@@ -26,15 +26,21 @@ package it.ht.rcs.console.accounting
       super();
     }
     
-    override protected function onItemAdd():void
+    override protected function onItemAdd(o: Object):void
     {
+      
     }
     
-    override protected function onItemRemove():void
+    protected function onUserAddFault(e:FaultEvent):void
+    {
+      
+    }
+    
+    override protected function onItemRemove(o: Object):void
     { 
     }
     
-    override protected function onItemUpdate():void
+    override protected function onItemUpdate(o: Object):void
     { 
     }
     
@@ -72,11 +78,13 @@ package it.ht.rcs.console.accounting
       trace(e.toString);
     }
     
-    public function newUser(data:Object=null):User
+    public function newUser(callback:Function):void
     {
-      var u:User = new User(data);
-      addItem(u);
-      return u;
+      console.currentDB.user_create(new User().toHash(), function _(e:ResultEvent):void {
+        var u:User = new User(e.result);
+        addItem(u);
+        callback(u);
+      });
     }
     
     public function disconnectUser(u:Object):void

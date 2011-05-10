@@ -1,4 +1,4 @@
-package it.ht.rcs.console.model
+  package it.ht.rcs.console.model
 {
   import flash.utils.getQualifiedClassName;
   
@@ -59,15 +59,21 @@ package it.ht.rcs.console.model
       /* all the logic to the db is here, override this method */
       switch (event.kind) { 
         case CollectionEventKind.ADD: 
-          onItemAdd();
+          event.items.forEach(function _(element:*, index:int, arr:Array):void { 
+            onItemAdd(element);
+          });
           break; 
         
         case CollectionEventKind.REMOVE: 
-          onItemRemove();
+          event.items.forEach(function _(element:*, index:int, arr:Array):void { 
+            onItemRemove(element);
+          });
           break; 
         
         case CollectionEventKind.UPDATE: 
-          onItemUpdate();
+          event.items.forEach(function _(element:*, index:int, arr:Array):void { 
+            onItemUpdate(element);
+          });
           break; 
         
         case CollectionEventKind.RESET: 
@@ -101,7 +107,7 @@ package it.ht.rcs.console.model
       _items.addItem(o);
     }
     
-    protected function onItemAdd():void
+    protected function onItemAdd(o:Object):void
     {
     }
     
@@ -116,11 +122,11 @@ package it.ht.rcs.console.model
         _items.removeItemAt(idx);
     }
 
-    protected function onItemRemove():void
+    protected function onItemRemove(o:Object):void
     { 
     }
 
-    protected function onItemUpdate():void
+    protected function onItemUpdate(o:Object):void
     { 
     }
     
@@ -156,7 +162,7 @@ package it.ht.rcs.console.model
     {
       /* set the filter on the ids */
       var ff:Function = function filter(o:Object):Boolean {
-        if (ids.getItemIndex(o.id) != -1)
+        if (ids.getItemIndex(o._id) != -1)
           return true;
         
         return false;

@@ -1,5 +1,5 @@
 /**
- * This is a generated sub-class of _SessionObject.as and is intended for behavior
+ * This is a generated sub-class of _Session.as and is intended for behavior
  * customization.  This class is only generated when there is no file already present
  * at its target location.  Thus custom behavior that you add here will survive regeneration
  * of the super-class. 
@@ -15,7 +15,7 @@ package valueObjects
 
 import com.adobe.fiber.core.model_internal;
 
-public class SessionObject extends _Super_SessionObject
+public class Session extends _Super_Session
 {
     /** 
      * DO NOT MODIFY THIS STATIC INITIALIZER - IT IS NECESSARY
@@ -30,17 +30,17 @@ public class SessionObject extends _Super_SessionObject
      */     
     public static function _initRemoteClassAlias() : void
     {
-        _Super_SessionObject.model_internal::initRemoteClassAliasSingle(valueObjects.SessionObject);
-        _Super_SessionObject.model_internal::initRemoteClassAliasAllRelated();
+        _Super_Session.model_internal::initRemoteClassAliasSingle(valueObjects.Session);
+        _Super_Session.model_internal::initRemoteClassAliasAllRelated();
     }
      
     model_internal static function initRemoteClassAliasSingleChild() : void
     {
-        _Super_SessionObject.model_internal::initRemoteClassAliasSingle(valueObjects.SessionObject);
+        _Super_Session.model_internal::initRemoteClassAliasSingle(valueObjects.Session);
     }
     
     {
-        _Super_SessionObject.model_internal::initRemoteClassAliasSingle(valueObjects.SessionObject);
+        _Super_Session.model_internal::initRemoteClassAliasSingle(valueObjects.Session);
     }
     /** 
      * END OF DO NOT MODIFY SECTION

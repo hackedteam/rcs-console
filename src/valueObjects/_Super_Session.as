@@ -1,6 +1,6 @@
 /**
  * This is a generated class and is not intended for modification.  To customize behavior
- * of this value object you may modify the generated sub-class of this class - SessionObject.as.
+ * of this value object you may modify the generated sub-class of this class - Session.as.
  */
 
 package valueObjects
@@ -26,7 +26,7 @@ import com.adobe.fiber.valueobjects.AvailablePropertyIterator;
 use namespace model_internal;
 
 [ExcludeClass]
-public class _Super_SessionObject extends flash.events.EventDispatcher implements com.adobe.fiber.valueobjects.IValueObject
+public class _Super_Session extends flash.events.EventDispatcher implements com.adobe.fiber.valueobjects.IValueObject
 {
     model_internal static function initRemoteClassAliasSingle(cz:Class) : void
     {
@@ -37,7 +37,7 @@ public class _Super_SessionObject extends flash.events.EventDispatcher implement
         valueObjects.User.initRemoteClassAliasSingleChild();
     }
 
-    model_internal var _dminternal_model : _SessionObjectEntityMetadata;
+    model_internal var _dminternal_model : _SessionEntityMetadata;
     model_internal var _changedObjects:mx.collections.ArrayCollection = new ArrayCollection();
 
     public function getChangedObjects() : Array
@@ -69,9 +69,9 @@ public class _Super_SessionObject extends flash.events.EventDispatcher implement
 
     model_internal var _changeWatcherArray:Array = new Array();
 
-    public function _Super_SessionObject()
+    public function _Super_Session()
     {
-        _model = new _SessionObjectEntityMetadata(this);
+        _model = new _SessionEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "cookie", model_internal::setterListenerCookie));
@@ -279,14 +279,14 @@ public class _Super_SessionObject extends flash.events.EventDispatcher implement
 
     [Transient]
     [Bindable(event="propertyChange")]
-    public function get _model() : _SessionObjectEntityMetadata
+    public function get _model() : _SessionEntityMetadata
     {
         return model_internal::_dminternal_model;
     }
 
-    public function set _model(value : _SessionObjectEntityMetadata) : void
+    public function set _model(value : _SessionEntityMetadata) : void
     {
-        var oldValue : _SessionObjectEntityMetadata = model_internal::_dminternal_model;
+        var oldValue : _SessionEntityMetadata = model_internal::_dminternal_model;
         if (oldValue !== value)
         {
             model_internal::_dminternal_model = value;

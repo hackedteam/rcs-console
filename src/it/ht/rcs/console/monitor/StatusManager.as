@@ -1,19 +1,19 @@
 package it.ht.rcs.console.monitor
 {
 	import flash.events.Event;
-  import flash.events.TimerEvent;
-  import flash.utils.Timer;
-  
-  import it.ht.rcs.console.events.RefreshEvent;
-  import it.ht.rcs.console.model.Manager;
-  
-  import mx.collections.ArrayCollection;
-  import mx.events.CollectionEvent;
-  import mx.events.CollectionEventKind;
-  import mx.collections.Sort;
-  import mx.collections.SortField;
-  import mx.core.FlexGlobals;
-  import it.ht.rcs.console.utils.CounterBaloon;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import it.ht.rcs.console.events.RefreshEvent;
+	import it.ht.rcs.console.model.Manager;
+	import it.ht.rcs.console.utils.CounterBaloon;
+	
+	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
+	import mx.core.FlexGlobals;
+	import mx.events.CollectionEvent;
+	import mx.events.CollectionEventKind;
 
   public class StatusManager extends Manager
   {
@@ -49,7 +49,7 @@ package it.ht.rcs.console.monitor
       // TODO: get from db
     }
    
-    override protected function onItemRemove():void 
+    override protected function onItemRemove(o:Object):void 
     { 
       // TODO: remove from db
     }

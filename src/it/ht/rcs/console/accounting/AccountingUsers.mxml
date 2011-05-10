@@ -47,13 +47,10 @@
       private function addUser():void
       {
         /* create the new user */
-        var new_user:User = UserManager.instance.newUser();
-        
-        /* select the item (the newly created one) */
-        selectUser(new_user);
-        
-        /* edit the new user */
-        editUser(new_user);
+        UserManager.instance.newUser(function onSuccess(u:User):void {
+          selectUser(u);
+          editUser(u);
+        });
       }
       
       private function selectUser(u:User):void

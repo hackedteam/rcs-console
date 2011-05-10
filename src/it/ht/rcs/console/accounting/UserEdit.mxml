@@ -6,6 +6,7 @@
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
     <![CDATA[
+      import mx.collections.ArrayCollection;
       import it.ht.rcs.console.model.User;
       import mx.managers.PopUpManager;
       
@@ -21,15 +22,15 @@
         _user.description = formDescription.text;
         _user.contact = formContact.text;
         _user.locale = formLocale.selectedItem;
-        _user.time_offset = formConsoletime.selectedItem;
+        _user.timezone = formConsoletime.selectedItem;
         
-        var privs:Array = new Array();
+        var privs:ArrayCollection = new ArrayCollection();
         if (formAdmin.selected) 
-          privs.push('ADMIN');
+          privs.addItem('ADMIN');
         if (formTech.selected) 
-          privs.push('TECH');
+          privs.addItem('TECH');
         if (formView.selected) 
-          privs.push('VIEW');
+          privs.addItem('VIEW');
         
         _user.privs = privs;
         
@@ -79,21 +80,21 @@
     <mx:FormItem label="{resourceManager.getString('localized_main', 'PRIVILEGES')}">     
       <s:HGroup>
         <!-- the current user cannot remove the ADMIN priv from himself -->
-        <s:CheckBox label="ADMIN" width="70" selected="{_user.privs.indexOf('ADMIN') != -1}" id="formAdmin" enabled="{_user.id != console.currentSession.user.id}"/>
-        <s:CheckBox label="TECH" width="70" selected="{_user.privs.indexOf('TECH') != -1}" id="formTech"/>
-        <s:CheckBox label="VIEWER" width="70" selected="{_user.privs.indexOf('VIEW') != -1}" id="formView"/>
+        <s:CheckBox label="ADMIN" width="70" selected="{_user.privs.getItemIndex('ADMIN') != -1}" id="formAdmin" enabled="{_user.id != console.currentSession.user.id}"/>
+        <s:CheckBox label="TECH" width="70" selected="{_user.privs.getItemIndex('TECH') != -1}" id="formTech"/>
+        <s:CheckBox label="VIEWER" width="70" selected="{_user.privs.getItemIndex('VIEW') != -1}" id="formView"/>
       </s:HGroup>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'LANGUAGE')}">      
       <s:DropDownList width="75" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(_user.locale)}" id="formLocale"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}">      
-      <s:DropDownList dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.time_offset + 12}" id="formConsoletime"/>
+      <s:DropDownList dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.timezone + 12}" id="formConsoletime"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}">
       <s:BorderContainer backgroundColor="#EAEAEA" borderVisible="false">
         <s:List bottom="20" width="150"
-                dataProvider="{GroupManager.instance.getViewIds(_user.groups)}" labelField="name"/>
+                dataProvider="{GroupManager.instance.getViewIds(_user.group_ids)}" labelField="name"/>
           <s:Button right="31" bottom="0" width="30" height="20" label="-"/>
           <s:Button right="1" bottom="0" width="30" height="20" label="+"/>     
       </s:BorderContainer>

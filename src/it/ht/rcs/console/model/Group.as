@@ -10,7 +10,7 @@ package it.ht.rcs.console.model
     [Bindable]
     public var name:String;
     [Bindable]
-    public var users:Array;
+    public var user_ids:ArrayCollection;
   
     
     public function Group(data:Object = null)
@@ -19,25 +19,25 @@ package it.ht.rcs.console.model
       if (data == null) {
         id = 0;
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_GROUP');
-        users = [];
+        user_ids = new ArrayCollection();
       } else {
         /* existing group */
-        id = data.id;
+        id = data._id;
         name = data.name;
-        users = data.users;
+        user_ids = data.user_ids;
       }
     }
     
     public function addUser(u:User):void
     {
-      users.push(u.id);
+      user_ids.addItem(u.id);
     }
     
     public function removeUser(u:User):void
     {
-      var idx:int = users.indexOf(u.id);
+      var idx:int = user_ids.getItemIndex(u.id);
       if (idx >= 0)
-        users.splice(idx, 1);
+        user_ids.source.splice(idx, 1);
     }
     
     public function save():void

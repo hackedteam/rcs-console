@@ -10,6 +10,7 @@ package it.ht.rcs.console.accounting
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
   import mx.rpc.events.ResultEvent;
+  import mx.rpc.events.FaultEvent;
   
   public class UserManager extends Manager
   {
@@ -54,7 +55,7 @@ package it.ht.rcs.console.accounting
                                                {user:"daniel", address:"5.6.7.8", logon:new Date().time, privs: "T V"}]);
       }
       
-      console.currentDB.users(onResult);
+      console.currentDB.user_index(onResult, onFault);
     }
     
     public function onResult(e:ResultEvent):void
@@ -64,6 +65,11 @@ package it.ht.rcs.console.accounting
       items.forEach(function toUserArray(element:*, index:int, arr:Array):void {
         _items.source.push(new User(element));
       });
+    }
+    
+    public function onFault(e:FaultEvent):void
+    {
+      trace(e.toString);
     }
     
     public function newUser(data:Object=null):User

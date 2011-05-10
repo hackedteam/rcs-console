@@ -42,7 +42,7 @@ package it.ht.rcs.console.accounting
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-	    console.currentDB.groups(onResult);
+	    console.currentDB.group_index(onResult);
     }
     
     private function onResult(e:ResultEvent):void

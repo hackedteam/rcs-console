@@ -16,13 +16,13 @@ package it.ht.rcs.console.model
     [Bindable]
     public var contact:String;
     [Bindable]
-    public var privs:Array;
+    public var privs:ArrayCollection;
     [Bindable]
     public var locale:String;
     [Bindable]
-    public var time_offset:int;
+    public var timezone:int;
     [Bindable]
-    public var groups:Array;
+    public var group_ids:ArrayCollection;
     
     public function User(data:Object = null)
     {
@@ -32,34 +32,34 @@ package it.ht.rcs.console.model
         enabled = false;
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
         contact = '';
-        privs = [];
+        privs = new ArrayCollection();
         locale = 'en_US';
-        groups = [];
-        time_offset = 0;
+        group_ids = new ArrayCollection();
+        timezone = 0;
       } else {
         /* existing user */
-        id = data.id;
+        id = data._id;
         enabled = data.enabled;
         name = data.name;
         contact = data.contact;
         privs = data.privs;
         locale = data.locale;
-        groups = data.groups;
-        time_offset = data.time_offset;
+        group_ids = data.group_ids;
+        timezone = data.timezone;
       }
     }
     
     public function is_admin():Boolean
     {
-      return privs.indexOf('ADMIN') != -1
+      return privs.getItemIndex('ADMIN') != -1
     }
     public function is_tech():Boolean
     {
-      return privs.indexOf('TECH') != -1
+      return privs.getItemIndex('TECH') != -1
     }
     public function is_viewer():Boolean
     {
-      return privs.indexOf('VIEW') != -1
+      return privs.getItemIndex('VIEW') != -1
     }
     public function is_any():Boolean
     {
@@ -73,14 +73,14 @@ package it.ht.rcs.console.model
     
     public function addGroup(g:Group):void
     {
-      groups.push(g.id);
+      group_ids.addItem(g.id);
     }
     
     public function removeGroup(g:Group):void
     {
-      var idx:int = groups.indexOf(g.id);
+      var idx:int = group_ids.getItemIndex(g.id);
       if (idx >= 0)
-        groups.splice(idx, 1);
+        group_ids.source.splice(idx, 1);
     }
     
     public function save():void

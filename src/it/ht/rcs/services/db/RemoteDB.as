@@ -1,4 +1,4 @@
-package it.ht.rcs.services.db
+  package it.ht.rcs.services.db
 {
   public class RemoteDB implements IDB
   {
@@ -35,12 +35,18 @@ package it.ht.rcs.services.db
       _delegate.logout();
     }
     
-    public function users(onResult:Function = null, onFault:Function = null):void
+    public function user_index(onResult:Function = null, onFault:Function = null):void
     {
+      /* set up the responder */
+      var resp:CallResponder = new CallResponder();
+      resp.addEventListener(ResultEvent.RESULT, onResult);
+      if (onFault != null) resp.addEventListener(FaultEvent.FAULT, onFault);
       
+      /* perform the async request */
+      resp.token = _delegate.user_index(); 
     }
     
-    public function groups(onResult:Function = null, onFault:Function = null):void
+    public function group_index(onResult:Function = null, onFault:Function = null):void
     {
       
     }

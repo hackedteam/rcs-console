@@ -13,8 +13,6 @@ package it.ht.rcs.console.model
   
   import mx.controls.Alert;
   
-  import valueObjects.DBSession;
-  
   public class Account
   {
    
@@ -58,13 +56,12 @@ package it.ht.rcs.console.model
       trace('Account.login -- result');
       /* save the info for the next login */
       save_previous();
-      /* instantiate the global currentSession object for the logged in user */
-      // TODO: take the real users
+      
       var u:User = new User(e.result.user);
-      // TODO: parse the current session
-      //var sess:DBSession = e.result as DBSession;
+      
       /* create the current session */
       console.currentSession = new Session(u, server);
+      
       /* invoke the callback */
       _callback();
     }

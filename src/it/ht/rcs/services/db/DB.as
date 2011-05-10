@@ -7,21 +7,18 @@
  
 package it.ht.rcs.services.db
 {
-  public class ServiceDB extends _Super_DB
-  {
-    public function set baseURL(url:String):void
-    {
-      //trace('Initialize the DB.baseURL to: ' + url);
-      _serviceControl.baseURL = "http://" + url + ":4444/";      
-    }
-    
+
+public class DB extends _Super_DB
+{
     /**
      * Override super.init() to provide any initialization customization if needed.
      */
     protected override function preInitializeService():void
     {
-      super.preInitializeService();
-      // Initialization customization goes here
+        super.preInitializeService();
+        // Initialization customization goes here
     }
-  }
+               
+}
+
 }

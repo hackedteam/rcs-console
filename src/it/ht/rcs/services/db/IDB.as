@@ -5,7 +5,7 @@ package it.ht.rcs.services.db
     function login(params:Object, onResult:Function, onFault:Function):void;
     function logout():void;
     
-    function users(onResult:Function = null, onFault:Function = null):void;
-    function groups(onResult:Function = null, onFault:Function = null):void;
+    function user_index(onResult:Function = null, onFault:Function = null):void;
+    function group_index(onResult:Function = null, onFault:Function = null):void;
   }
 }

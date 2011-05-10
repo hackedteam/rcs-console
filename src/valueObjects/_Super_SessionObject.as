@@ -1,6 +1,6 @@
 /**
  * This is a generated class and is not intended for modification.  To customize behavior
- * of this value object you may modify the generated sub-class of this class - DBSession.as.
+ * of this value object you may modify the generated sub-class of this class - SessionObject.as.
  */
 
 package valueObjects
@@ -15,6 +15,7 @@ import mx.collections.ArrayCollection;
 import mx.events.CollectionEvent;
 import mx.events.PropertyChangeEvent;
 import mx.validators.ValidationResult;
+import valueObjects.User;
 
 import flash.net.registerClassAlias;
 import flash.net.getClassByAlias;
@@ -25,7 +26,7 @@ import com.adobe.fiber.valueobjects.AvailablePropertyIterator;
 use namespace model_internal;
 
 [ExcludeClass]
-public class _Super_DBSession extends flash.events.EventDispatcher implements com.adobe.fiber.valueobjects.IValueObject
+public class _Super_SessionObject extends flash.events.EventDispatcher implements com.adobe.fiber.valueobjects.IValueObject
 {
     model_internal static function initRemoteClassAliasSingle(cz:Class) : void
     {
@@ -33,9 +34,10 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
 
     model_internal static function initRemoteClassAliasAllRelated() : void
     {
+        valueObjects.User.initRemoteClassAliasSingleChild();
     }
 
-    model_internal var _dminternal_model : _DBSessionEntityMetadata;
+    model_internal var _dminternal_model : _SessionObjectEntityMetadata;
     model_internal var _changedObjects:mx.collections.ArrayCollection = new ArrayCollection();
 
     public function getChangedObjects() : Array
@@ -53,10 +55,9 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
      * properties
      */
     private var _internal_cookie : String;
-    private var _internal_uid : int;
     private var _internal_time : String;
     private var _internal_level : ArrayCollection;
-    private var _internal_user : String;
+    private var _internal_user : valueObjects.User;
 
     private static var emptyArray:Array = new Array();
 
@@ -68,9 +69,9 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
 
     model_internal var _changeWatcherArray:Array = new Array();
 
-    public function _Super_DBSession()
+    public function _Super_SessionObject()
     {
-        _model = new _DBSessionEntityMetadata(this);
+        _model = new _SessionObjectEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "cookie", model_internal::setterListenerCookie));
@@ -91,12 +92,6 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     }
 
     [Bindable(event="propertyChange")]
-    public function get uid() : int
-    {
-        return _internal_uid;
-    }
-
-    [Bindable(event="propertyChange")]
     public function get time() : String
     {
         return _internal_time;
@@ -109,7 +104,7 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     }
 
     [Bindable(event="propertyChange")]
-    public function get user() : String
+    public function get user() : valueObjects.User
     {
         return _internal_user;
     }
@@ -129,16 +124,6 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
         {
             _internal_cookie = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "cookie", oldValue, _internal_cookie));
-        }
-    }
-
-    public function set uid(value:int) : void
-    {
-        var oldValue:int = _internal_uid;
-        if (oldValue !== value)
-        {
-            _internal_uid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "uid", oldValue, _internal_uid));
         }
     }
 
@@ -177,9 +162,9 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
         }
     }
 
-    public function set user(value:String) : void
+    public function set user(value:valueObjects.User) : void
     {
-        var oldValue:String = _internal_user;
+        var oldValue:valueObjects.User = _internal_user;
         if (oldValue !== value)
         {
             _internal_user = value;
@@ -294,14 +279,14 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
 
     [Transient]
     [Bindable(event="propertyChange")]
-    public function get _model() : _DBSessionEntityMetadata
+    public function get _model() : _SessionObjectEntityMetadata
     {
         return model_internal::_dminternal_model;
     }
 
-    public function set _model(value : _DBSessionEntityMetadata) : void
+    public function set _model(value : _SessionObjectEntityMetadata) : void
     {
-        var oldValue : _DBSessionEntityMetadata = model_internal::_dminternal_model;
+        var oldValue : _SessionObjectEntityMetadata = model_internal::_dminternal_model;
         if (oldValue !== value)
         {
             model_internal::_dminternal_model = value;
@@ -428,11 +413,11 @@ public class _Super_DBSession extends flash.events.EventDispatcher implements co
     }
     
     model_internal var _doValidationCacheOfUser : Array = null;
-    model_internal var _doValidationLastValOfUser : String;
+    model_internal var _doValidationLastValOfUser : valueObjects.User;
 
     model_internal function _doValidationForUser(valueIn:Object):Array
     {
-        var value : String = valueIn as String;
+        var value : valueObjects.User = valueIn as valueObjects.User;
 
         if (model_internal::_doValidationCacheOfUser != null && model_internal::_doValidationLastValOfUser == value)
            return model_internal::_doValidationCacheOfUser ;

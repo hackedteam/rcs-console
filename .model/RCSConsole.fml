@@ -16,7 +16,7 @@
       <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
       <item name="LINKED_FILE"></item>
     </annotation>
-    <function name="login" return-type="DBSession">
+    <function name="login" return-type="SessionObject">
       <annotation name="analyze group">
         <item name="analyzed">true</item>
       </annotation>
@@ -31,12 +31,12 @@
         <item name="completeURL">http://localhost:4444/auth/login</item>
       </annotation>
       <annotation name="ValidProperties">
-        <item name="propertySpecifier">cookie,uid,time,level,user</item>
+        <item name="propertySpecifier">cookie,time,level,user</item>
       </annotation>
       <annotation name="original signature">
+        <item name="returnType">opaque</item>
         <item name="inputParamNames">strXml</item>
         <item name="inputParams">string</item>
-        <item name="returnType">opaque</item>
       </annotation>
       <parameter name="strXml" type="string"/>
     </function>
@@ -57,10 +57,55 @@
         <item name="returnType">opaque</item>
       </annotation>
     </function>
+    <function name="user_index" return-type="User[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/user</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/user</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">enabled,timezone,_id,privs,group_ids,name,locale,contact,pass</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
   </service>
-  <entity name="DBSession">
+  <entity name="User">
     <annotation name="EntityProperties">
-      <item name="EntityOriginalName">DBSession</item>
+      <item name="EntityOriginalName">User</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">DB</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <annotation name="user_index">
+      <item name="propertySpecifier">enabled,timezone,_id,privs,group_ids,name,locale,contact,pass</item>
+    </annotation>
+    <property name="enabled" type="boolean"/>
+    <property name="timezone" type="integer"/>
+    <property name="_id" type="string"/>
+    <property name="privs" type="string[]"/>
+    <property name="group_ids" type="opaque[]"/>
+    <property name="name" type="string"/>
+    <property name="locale" type="string"/>
+    <property name="contact" type="string"/>
+    <property name="pass" type="string"/>
+  </entity>
+  <entity name="SessionObject">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">SessionObject</item>
     </annotation>
     <annotation name="service Group">
       <item name="service">DB</item>
@@ -69,15 +114,14 @@
       <item name="IncludeRemoteClass">nonempty</item>
     </annotation>
     <annotation name="login">
-      <item name="propertySpecifier">cookie,uid,time,level,user</item>
+      <item name="propertySpecifier">cookie,time,level,user</item>
     </annotation>
     <annotation name="ActionScriptGeneration">
       <item name="Package">valueObjects</item>
     </annotation>
     <property name="cookie" type="string" required="true"/>
-    <property name="uid" type="integer" required="true"/>
     <property name="time" type="string" required="true"/>
     <property name="level" type="string[]" required="true"/>
-    <property name="user" type="string" required="true"/>
+    <property name="user" type="User" required="true"/>
   </entity>
 </model>

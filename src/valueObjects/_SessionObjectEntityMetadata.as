@@ -12,6 +12,7 @@ import com.adobe.fiber.valueobjects.AvailablePropertyIterator;
 import com.adobe.fiber.valueobjects.IPropertyIterator;
 import mx.collections.ArrayCollection;
 import mx.events.ValidationResultEvent;
+import valueObjects.User;
 import com.adobe.fiber.core.model_internal;
 import com.adobe.fiber.valueobjects.IModelType;
 import mx.events.PropertyChangeEvent;
@@ -19,22 +20,22 @@ import mx.events.PropertyChangeEvent;
 use namespace model_internal;
 
 [ExcludeClass]
-internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.AbstractEntityMetadata
+internal class _SessionObjectEntityMetadata extends com.adobe.fiber.valueobjects.AbstractEntityMetadata
 {
     private static var emptyArray:Array = new Array();
 
-    model_internal static var allProperties:Array = new Array("cookie", "uid", "time", "level", "user");
+    model_internal static var allProperties:Array = new Array("cookie", "time", "level", "user");
     model_internal static var allAssociationProperties:Array = new Array();
-    model_internal static var allRequiredProperties:Array = new Array("cookie", "uid", "time", "level", "user");
-    model_internal static var allAlwaysAvailableProperties:Array = new Array("cookie", "uid", "time", "level", "user");
+    model_internal static var allRequiredProperties:Array = new Array("cookie", "time", "level", "user");
+    model_internal static var allAlwaysAvailableProperties:Array = new Array("cookie", "time", "level", "user");
     model_internal static var guardedProperties:Array = new Array();
-    model_internal static var dataProperties:Array = new Array("cookie", "uid", "time", "level", "user");
+    model_internal static var dataProperties:Array = new Array("cookie", "time", "level", "user");
     model_internal static var sourceProperties:Array = emptyArray
-    model_internal static var nonDerivedProperties:Array = new Array("cookie", "uid", "time", "level", "user");
+    model_internal static var nonDerivedProperties:Array = new Array("cookie", "time", "level", "user");
     model_internal static var derivedProperties:Array = new Array();
     model_internal static var collectionProperties:Array = new Array("level");
     model_internal static var collectionBaseMap:Object;
-    model_internal static var entityName:String = "DBSession";
+    model_internal static var entityName:String = "SessionObject";
     model_internal static var dependentsOnMap:Object;
     model_internal static var dependedOnServices:Array = new Array();
     model_internal static var propertyTypeMap:Object;
@@ -60,10 +61,10 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     model_internal var _userIsValidCacheInitialized:Boolean = false;
     model_internal var _userValidationFailureMessages:Array;
 
-    model_internal var _instance:_Super_DBSession;
+    model_internal var _instance:_Super_SessionObject;
     model_internal static var _nullStyle:com.adobe.fiber.styles.Style = new com.adobe.fiber.styles.Style();
 
-    public function _DBSessionEntityMetadata(value : _Super_DBSession)
+    public function _SessionObjectEntityMetadata(value : _Super_SessionObject)
     {
         // initialize property maps
         if (model_internal::dependentsOnMap == null)
@@ -71,7 +72,6 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
             // dependents map
             model_internal::dependentsOnMap = new Object();
             model_internal::dependentsOnMap["cookie"] = new Array();
-            model_internal::dependentsOnMap["uid"] = new Array();
             model_internal::dependentsOnMap["time"] = new Array();
             model_internal::dependentsOnMap["level"] = new Array();
             model_internal::dependentsOnMap["user"] = new Array();
@@ -84,10 +84,9 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
         // Property type Map
         model_internal::propertyTypeMap = new Object();
         model_internal::propertyTypeMap["cookie"] = "String";
-        model_internal::propertyTypeMap["uid"] = "int";
         model_internal::propertyTypeMap["time"] = "String";
         model_internal::propertyTypeMap["level"] = "ArrayCollection";
-        model_internal::propertyTypeMap["user"] = "String";
+        model_internal::propertyTypeMap["user"] = "valueObjects.User";
 
         model_internal::_instance = value;
         model_internal::_cookieValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForCookie);
@@ -160,7 +159,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     override public function getDependants(propertyName:String):Array
     {
        if (model_internal::nonDerivedProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a data property of entity DBSession");
+            throw new Error(propertyName + " is not a data property of entity SessionObject");
             
        return model_internal::dependentsOnMap[propertyName] as Array;  
     }
@@ -178,7 +177,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     override public function getCollectionBase(propertyName:String):String
     {
         if (model_internal::collectionProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a collection property of entity DBSession");
+            throw new Error(propertyName + " is not a collection property of entity SessionObject");
 
         return model_internal::collectionBaseMap[propertyName];
     }
@@ -186,7 +185,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     override public function getPropertyType(propertyName:String):String
     {
         if (model_internal::allProperties.indexOf(propertyName) == -1)
-            throw new Error(propertyName + " is not a property of DBSession");
+            throw new Error(propertyName + " is not a property of SessionObject");
 
         return model_internal::propertyTypeMap[propertyName];
     }
@@ -200,7 +199,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     {
         if (model_internal::allProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " does not exist for entity DBSession");
+            throw new Error(propertyName + " does not exist for entity SessionObject");
         }
 
         return model_internal::_instance[propertyName];
@@ -210,7 +209,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     {
         if (model_internal::nonDerivedProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " is not a modifiable property of entity DBSession");
+            throw new Error(propertyName + " is not a modifiable property of entity SessionObject");
         }
 
         model_internal::_instance[propertyName] = value;
@@ -242,7 +241,7 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
     {
         if (model_internal::allProperties.indexOf(propertyName) == -1)
         {
-            throw new Error(propertyName + " does not exist for entity DBSession");
+            throw new Error(propertyName + " does not exist for entity SessionObject");
         }
 
         if (model_internal::allAlwaysAvailableProperties.indexOf(propertyName) != -1)
@@ -338,12 +337,6 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
 
     [Bindable(event="propertyChange")]
     public function get isCookieAvailable():Boolean
-    {
-        return true;
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get isUidAvailable():Boolean
     {
         return true;
     }
@@ -506,12 +499,6 @@ internal class _DBSessionEntityMetadata extends com.adobe.fiber.valueobjects.Abs
                 model_internal::_instance.model_internal::isValid_der = model_internal::_instance.model_internal::calculateIsValid();
             }
         }
-    }
-
-    [Bindable(event="propertyChange")]   
-    public function get uidStyle():com.adobe.fiber.styles.Style
-    {
-        return model_internal::_nullStyle;
     }
 
     [Bindable(event="propertyChange")]   

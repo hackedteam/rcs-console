@@ -12,6 +12,7 @@ package it.ht.rcs.console.model
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
   import mx.events.CollectionEventKind;
+  import mx.collections.ArrayCollection;
   
   public class Manager
   {
@@ -142,11 +143,11 @@ package it.ht.rcs.console.model
       return lcv;
     }
     
-    public function getViewIds(ids:Array):ListCollectionView
+    public function getViewIds(ids:ArrayCollection):ListCollectionView
     {
       /* set the filter on the ids */
       var ff:Function = function filter(o:Object):Boolean {
-        if (ids.indexOf(o.id) != -1)
+        if (ids.getItemIndex(o.id) != -1)
           return true;
         
         return false;

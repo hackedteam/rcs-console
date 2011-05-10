@@ -1,5 +1,5 @@
 /**
- * This is a generated sub-class of _DBSession.as and is intended for behavior
+ * This is a generated sub-class of _User.as and is intended for behavior
  * customization.  This class is only generated when there is no file already present
  * at its target location.  Thus custom behavior that you add here will survive regeneration
  * of the super-class. 
@@ -15,7 +15,7 @@ package valueObjects
 
 import com.adobe.fiber.core.model_internal;
 
-public class DBSession extends _Super_DBSession
+public class User extends _Super_User
 {
     /** 
      * DO NOT MODIFY THIS STATIC INITIALIZER - IT IS NECESSARY
@@ -30,17 +30,17 @@ public class DBSession extends _Super_DBSession
      */     
     public static function _initRemoteClassAlias() : void
     {
-        _Super_DBSession.model_internal::initRemoteClassAliasSingle(valueObjects.DBSession);
-        _Super_DBSession.model_internal::initRemoteClassAliasAllRelated();
+        _Super_User.model_internal::initRemoteClassAliasSingle(valueObjects.User);
+        _Super_User.model_internal::initRemoteClassAliasAllRelated();
     }
      
     model_internal static function initRemoteClassAliasSingleChild() : void
     {
-        _Super_DBSession.model_internal::initRemoteClassAliasSingle(valueObjects.DBSession);
+        _Super_User.model_internal::initRemoteClassAliasSingle(valueObjects.User);
     }
     
     {
-        _Super_DBSession.model_internal::initRemoteClassAliasSingle(valueObjects.DBSession);
+        _Super_User.model_internal::initRemoteClassAliasSingle(valueObjects.User);
     }
     /** 
      * END OF DO NOT MODIFY SECTION

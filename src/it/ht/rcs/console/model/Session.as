@@ -29,7 +29,7 @@ package it.ht.rcs.console.model
       //ResourceManager.getInstance().localeChain = [user.locale];
 
       /* update the clock timezone */
-      Clock.instance.setConsoleTimezone(user.time_offset);
+      Clock.instance.setConsoleTimezone(user.timezone);
     }
     
     public function destroy():void

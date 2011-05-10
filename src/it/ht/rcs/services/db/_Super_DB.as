@@ -10,7 +10,8 @@ import mx.rpc.AbstractOperation;
 import mx.rpc.AsyncToken;
 import mx.rpc.http.HTTPMultiService;
 import mx.rpc.http.Operation;
-import valueObjects.DBSession;
+import valueObjects.SessionObject;
+import valueObjects.User;
 
 import com.adobe.serializers.json.JSONSerializationFilter;
 
@@ -33,7 +34,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.method = "POST";
          operation.serializationFilter = serializer0;
          operation.contentType = "application/xml";
-         operation.resultType = valueObjects.DBSession;
+         operation.resultType = valueObjects.SessionObject;
          operations.push(operation);
 
          operation = new mx.rpc.http.Operation(null, "logout");
@@ -41,6 +42,13 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.method = "POST";
          operation.contentType = "application/x-www-form-urlencoded";
          operation.resultType = Object;
+         operations.push(operation);
+
+         operation = new mx.rpc.http.Operation(null, "user_index");
+         operation.url = "/user";
+         operation.method = "GET";
+         operation.serializationFilter = serializer0;
+         operation.resultElementType = valueObjects.User;
          operations.push(operation);
 
          _serviceControl.operationList = operations;  
@@ -71,7 +79,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function login(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("login");
-		    var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -89,7 +97,25 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function logout() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("logout");
-		    var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'user_index' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function user_index() : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_index");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      

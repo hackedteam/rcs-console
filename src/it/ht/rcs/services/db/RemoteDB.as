@@ -132,5 +132,27 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.group_create(JSON.encode(group.toHash()));
     }
+    
+    public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.group_add_user(JSON.encode( {group: group._id, user: user._id} ));      
+    }
+    
+    public function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.group_del_user(JSON.encode( {group: group._id, user: user._id} ));         
+    }
   }
 }

@@ -17,5 +17,10 @@ package it.ht.rcs.services.db
     function group_index(onResult:Function = null, onFault:Function = null):void;
     function group_show(id:String, onResult:Function = null, onFault:Function = null):void;
     function group_create(group:Group, onResult:Function = null, onFault:Function = null):void;
+    function group_update(group:Group, onResult:Function = null, onFault:Function = null):void;
+    function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void;
+    function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
+    function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
+
   }
 }

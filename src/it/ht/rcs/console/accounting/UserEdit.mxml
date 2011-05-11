@@ -6,8 +6,12 @@
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
     <![CDATA[
-      import mx.collections.ArrayCollection;
+      import it.ht.rcs.console.model.Group;
       import it.ht.rcs.console.model.User;
+      
+      import mx.collections.ArrayCollection;
+      import mx.controls.Menu;
+      import mx.events.MenuEvent;
       import mx.managers.PopUpManager;
       
       [Bindable]
@@ -53,6 +57,35 @@
         PopUpManager.centerPopUp(cp);
       }
       
+      private function removeGroup(g:Group):void
+      {
+        g.removeUser(_user, function _():void {
+          /* refresh the view */
+          usergroups.dataProvider = GroupManager.instance.getViewIds(_user.group_ids);
+        });  
+      }
+      
+      private function addGroup(event:MenuEvent):void
+      {
+        var g:Group = event.item as Group;
+        
+        g.addUser(_user, function _():void {
+          /* refresh the view */
+          usergroups.dataProvider = GroupManager.instance.getViewIds(_user.group_ids);
+        });   
+      }
+      
+      private function initMenuUser():void
+      {
+        var _menu:Menu;
+        _menu = new Menu();
+        _menu.dataProvider = GroupManager.instance.getView();
+        _menu.labelField = 'name';
+        _menu.selectedIndex = 0;
+        _menu.addEventListener(MenuEvent.ITEM_CLICK, addGroup);
+        addgroupButton.popUp = _menu;
+      }
+      
     ]]>
   </fx:Script>
   
@@ -93,10 +126,12 @@
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}">
       <s:BorderContainer backgroundColor="#EAEAEA" borderVisible="false">
-        <s:List bottom="20" width="150"
+        <s:List id="usergroups" bottom="20" width="150"
                 dataProvider="{GroupManager.instance.getViewIds(_user.group_ids)}" labelField="name"/>
-          <s:Button right="31" bottom="0" width="30" height="20" label="-"/>
-          <s:Button right="1" bottom="0" width="30" height="20" label="+"/>     
+          <s:Button right="51" bottom="0" width="30" height="20" label="-" styleName="AddRemove"
+                    enabled="{usergroups.selectedItem != null}"
+                    click="{removeGroup(usergroups.selectedItem as Group)}"/>
+          <mx:PopUpButton id="addgroupButton" right="1" bottom="0" width="50" height="20" styleName="AddRemove" label="+" openAlways="true" creationComplete="initMenuUser()"/>
       </s:BorderContainer>
     </mx:FormItem>
   </mx:Form>

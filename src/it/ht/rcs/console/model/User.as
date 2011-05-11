@@ -83,18 +83,6 @@ package it.ht.rcs.console.model
       // TODO: save to the db      
     }
     
-    public function addGroup(g:Group):void
-    {
-      group_ids.addItem(g._id);
-    }
-    
-    public function removeGroup(g:Group):void
-    {
-      var idx:int = group_ids.getItemIndex(g._id);
-      if (idx >= 0)
-        group_ids.source.splice(idx, 1);
-    }
-    
     public function reload():void
     {
       /* reload data from db */      

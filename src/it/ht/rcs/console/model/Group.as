@@ -36,24 +36,22 @@ package it.ht.rcs.console.model
     
     public function addUser(u:User, callback:Function):void
     {
-      user_ids.addItem(u._id);
-      
-      this.reload();
-      u.reload();
-      
-      callback();
+      var g:Group = this;
+      console.currentDB.group_add_user(g, u, function _():void {
+        g.reload();
+        u.reload();
+        callback();
+      });
     }
     
     public function removeUser(u:User, callback:Function):void
     {
-      var idx:int = user_ids.getItemIndex(u._id);
-      if (idx >= 0)
-        user_ids.source.splice(idx, 1);
-
-      this.reload();
-      u.reload();
-      
-      callback();
+      var g:Group = this;
+      console.currentDB.group_del_user(g, u, function _():void {
+        g.reload();
+        u.reload();
+        callback();
+      });
     }
     
     public function reload():void

@@ -99,5 +99,37 @@ package it.ht.rcs.services.db
       var event:ResultEvent = new ResultEvent("user.create", false, true, g);
       onResult(event);
     }
+    
+    public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      group.user_ids.addItem(user._id);
+      user.group_ids.addItem(group._id);
+      var event:ResultEvent = new ResultEvent("group.add_user", false, true, group);
+      onResult(event);
+    }
+    
+    public function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      var idx:int = group.user_ids.getItemIndex(user._id);
+      if (idx >= 0)
+        group.user_ids.source.splice(idx, 1);
+      
+      var idy:int = user.group_ids.getItemIndex(group._id);
+      if (idy >= 0)
+        user.group_ids.source.splice(idy, 1);
+      
+      var event:ResultEvent = new ResultEvent("group.del_user", false, true, group);
+      onResult(event);
+    }
   }
 }

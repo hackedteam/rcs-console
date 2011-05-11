@@ -1,6 +1,9 @@
   package it.ht.rcs.services.db
 {
-    import mx.controls.Alert;
+  import it.ht.rcs.console.model.User;
+  
+  import mx.controls.Alert;
+  import mx.resources.ResourceManager;
     
   public class RemoteDB implements IDB
   {
@@ -14,26 +17,61 @@
     
     private var _delegate:ServiceDB;
     
-    private function onDeFault(e:FaultEvent):void
-    {
-      Alert.show(e.toString());
-    }
-    
     public function RemoteDB(baseURL:String)
     {
       _delegate = new ServiceDB;
       _delegate.baseURL = baseURL;
       _delegate.showBusyCursor = true;
     }
+
+    /* default Fault handler */
+    private function onDeFault(e:FaultEvent):void
+    {
+      var message:String = "ERROR";
+      var decoded:* = JSON.decode(e.fault.content as String);
+      
+      if (decoded is Array)
+        message = decoded[0];
+      else if (decoded is String)
+        message = decoded;
+      else
+        message = decoded.toString();
+      
+      var localized_error:String = ResourceManager.getInstance().getString('localized_db_messages', message);
+      
+      if (localized_error == null)
+        localized_error = message;
+      
+      Alert.show(localized_error, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+    }
     
-    public function login(params:Object, onResult:Function, onFault:Function):void
+    private function getCallResponder(onResult:Function, onFault:Function):CallResponder
     {
       /* set up the responder */
       var resp:CallResponder = new CallResponder();
-      resp.addEventListener(ResultEvent.RESULT, onResult);
-      resp.addEventListener(FaultEvent.FAULT, onFault);
       
-      /* perform the async request */
+      if (onResult != null) 
+        resp.addEventListener(ResultEvent.RESULT, onResult);
+      
+      /* 
+        if the Fault handler is provided, use it.
+        otherwise use the default one.
+      */
+      if (onFault != null) 
+        resp.addEventListener(FaultEvent.FAULT, onFault);
+      else
+        resp.addEventListener(FaultEvent.FAULT, onDeFault);
+      
+      return resp;
+    }
+    
+    /***** METHODS ******/
+    
+    /* AUTH */
+    
+    public function login(params:Object, onResult:Function, onFault:Function):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.login(JSON.encode(params));
     }
     
@@ -42,33 +80,33 @@
       _delegate.logout();
     }
     
+    /* USERS */
+    
     public function user_index(onResult:Function = null, onFault:Function = null):void
     {
-      /* set up the responder */
-      var resp:CallResponder = new CallResponder();
-      if (onResult != null) resp.addEventListener(ResultEvent.RESULT, onResult);
-      if (onFault != null) 
-        resp.addEventListener(FaultEvent.FAULT, onFault);
-      else
-        resp.addEventListener(FaultEvent.FAULT, onDeFault);
-      
-      /* perform the async request */
+      var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.user_index(); 
     }
     
-    public function user_create(params:Object, onResult:Function = null, onFault:Function = null):void
+    public function user_create(user:User, onResult:Function = null, onFault:Function = null):void
     {
-      /* set up the responder */
-      var resp:CallResponder = new CallResponder();
-      if (onResult != null) resp.addEventListener(ResultEvent.RESULT, onResult);
-      if (onFault != null) 
-        resp.addEventListener(FaultEvent.FAULT, onFault);
-      else
-        resp.addEventListener(FaultEvent.FAULT, onDeFault);
-      
-      /* perform the async request */
-      resp.token = _delegate.user_create(JSON.encode(params));
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.user_create(JSON.encode(user.toHash()));
     }
+
+    public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.user_update(user._id, JSON.encode(user.toHash()));
+    }
+
+    public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.user_destroy(user._id);
+    }
+    
+    /* GROUPS */
     
     public function group_index(onResult:Function = null, onFault:Function = null):void
     {

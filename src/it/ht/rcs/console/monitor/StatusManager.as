@@ -49,7 +49,7 @@ package it.ht.rcs.console.monitor
       // TODO: get from db
     }
    
-    override protected function onItemRemove(o:Object):void 
+    override protected function onItemRemove(o:*):void 
     { 
       // TODO: remove from db
     }

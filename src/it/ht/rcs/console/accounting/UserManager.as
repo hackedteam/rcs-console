@@ -26,22 +26,14 @@ package it.ht.rcs.console.accounting
       super();
     }
     
-    override protected function onItemAdd(o: Object):void
-    {
-      
-    }
-    
-    protected function onUserAddFault(e:FaultEvent):void
-    {
-      
-    }
-    
-    override protected function onItemRemove(o: Object):void
+    override protected function onItemRemove(o:*):void
     { 
+      console.currentDB.user_destroy(o);
     }
     
-    override protected function onItemUpdate(o: Object):void
+    override protected function onItemUpdate(e:*):void
     { 
+      //console.currentDB.user_update(e.source);
     }
     
     override protected function onReset():void
@@ -61,10 +53,10 @@ package it.ht.rcs.console.accounting
                                                {user:"daniel", address:"5.6.7.8", logon:new Date().time, privs: "T V"}]);
       }
       
-      console.currentDB.user_index(onResult, onFault);
+      console.currentDB.user_index(onUserIndexResult);
     }
     
-    public function onResult(e:ResultEvent):void
+    public function onUserIndexResult(e:ResultEvent):void
     {
       var items:ArrayCollection = e.result as ArrayCollection;
       _items.removeAll();
@@ -73,14 +65,9 @@ package it.ht.rcs.console.accounting
       });
     }
     
-    public function onFault(e:FaultEvent):void
-    {
-      trace(e.toString);
-    }
-    
     public function newUser(callback:Function):void
     {
-      console.currentDB.user_create(new User().toHash(), function _(e:ResultEvent):void {
+      console.currentDB.user_create(new User(), function _(e:ResultEvent):void {
         var u:User = new User(e.result);
         addItem(u);
         callback(u);

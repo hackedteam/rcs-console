@@ -107,7 +107,7 @@
       _items.addItem(o);
     }
     
-    protected function onItemAdd(o:Object):void
+    protected function onItemAdd(o:*):void
     {
     }
     
@@ -122,11 +122,11 @@
         _items.removeItemAt(idx);
     }
 
-    protected function onItemRemove(o:Object):void
+    protected function onItemRemove(o:*):void
     { 
     }
 
-    protected function onItemUpdate(o:Object):void
+    protected function onItemUpdate(event:*):void
     { 
     }
     

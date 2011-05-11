@@ -24,15 +24,15 @@ package it.ht.rcs.console.accounting
       super();
     }
 
-    override protected function onItemAdd(o: Object):void
+    override protected function onItemAdd(o:*):void
     {
     }
     
-    override protected function onItemRemove(o: Object):void
+    override protected function onItemRemove(o:*):void
     { 
     }
     
-    override protected function onItemUpdate(o: Object):void
+    override protected function onItemUpdate(e:*):void
     { 
     }
     

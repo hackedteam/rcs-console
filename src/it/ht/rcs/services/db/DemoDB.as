@@ -1,8 +1,9 @@
 package it.ht.rcs.services.db
 {
+  import it.ht.rcs.console.model.User;
+  
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
-  import it.ht.rcs.console.model.User;
   
   public class DemoDB implements IDB
   {
@@ -13,6 +14,10 @@ package it.ht.rcs.services.db
     {
       
     }
+    
+    /***** METHODS ******/
+    
+    /* AUTH */
     
     public function login(params:Object, onResult:Function, onFault:Function):void
     {
@@ -25,6 +30,8 @@ package it.ht.rcs.services.db
     {
       
     }
+    
+    /* USERS */
     
     public function user_index(onResult:Function = null, onFault:Function = null):void
     {
@@ -43,14 +50,27 @@ package it.ht.rcs.services.db
       onResult(event);
     }
     
-    public function user_create(params:Object, onResult:Function = null, onFault:Function = null):void
+    public function user_create(user:User, onResult:Function = null, onFault:Function = null):void
     {
-      params._id = new Date().getTime().toString();
-      params.privs = new ArrayCollection(params.privs);
-      params.group_ids = new ArrayCollection(params.group_ids);
-      var event:ResultEvent = new ResultEvent("user.create", false, true, params);
+      var u:Object = user.toHash();
+      u._id = new Date().getTime().toString();
+      u.privs = new ArrayCollection(u.privs);
+      u.group_ids = new ArrayCollection(u.group_ids);
+      var event:ResultEvent = new ResultEvent("user.create", false, true, u);
       onResult(event);
     }
+
+    public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
+    {
+      var event:ResultEvent = new ResultEvent("user.update", false, true, user);
+      onResult(event);
+    }
+
+    public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
+    {
+    }
+    
+    /* GROUPS */
     
     public function group_index(onResult:Function = null, onFault:Function = null):void
     {

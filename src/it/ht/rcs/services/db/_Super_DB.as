@@ -63,23 +63,21 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operations.push(operation);
 
          operation = new mx.rpc.http.Operation(null, "user_update");
-         operation.url = "/user/{item}";
+         operation.url = "/user/{id}";
          operation.method = "POST";
          operation.serializationFilter = serializer1;
          operation.properties = new Object();
-         operation.properties["urlParamNames"] = ["item"];
+         operation.properties["urlParamNames"] = ["id"];
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.User;
          operations.push(operation);
 
          operation = new mx.rpc.http.Operation(null, "user_destroy");
          operation.url = "/user/{item}";
-         operation.method = "GET";
-         argsArray = new Array("item");
-         operation.argumentNames = argsArray;         
+         operation.method = "POST";
          operation.properties = new Object();
          operation.properties["urlParamNames"] = ["item"];
-         operation.contentType = "application/x-www-form-urlencoded";
+         operation.contentType = "application/xml";
          operation.resultType = Object;
          operations.push(operation);
 
@@ -95,6 +93,28 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.method = "POST";
          operation.serializationFilter = serializer0;
          operation.contentType = "application/xml";
+         operation.resultType = valueObjects.Group;
+         operations.push(operation);
+
+         operation = new mx.rpc.http.Operation(null, "user_show");
+         operation.url = "/user/{id}";
+         operation.method = "GET";
+         argsArray = new Array("id");
+         operation.argumentNames = argsArray;         
+         operation.serializationFilter = serializer0;
+         operation.properties = new Object();
+         operation.properties["urlParamNames"] = ["id"];
+         operation.resultType = valueObjects.User;
+         operations.push(operation);
+
+         operation = new mx.rpc.http.Operation(null, "group_show");
+         operation.url = "/group/{id}";
+         operation.method = "GET";
+         argsArray = new Array("id");
+         operation.argumentNames = argsArray;         
+         operation.serializationFilter = serializer0;
+         operation.properties = new Object();
+         operation.properties["urlParamNames"] = ["id"];
          operation.resultType = valueObjects.Group;
          operations.push(operation);
 
@@ -195,10 +215,10 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
       *
       * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
       */
-    public function user_update(item:String, strXml:String) : mx.rpc.AsyncToken
+    public function user_update(id:String, strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_update");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(item,strXml) ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id,strXml) ;
         return _internal_token;
     }
      
@@ -213,10 +233,10 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
       *
       * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
       */
-    public function user_destroy(item:String) : mx.rpc.AsyncToken
+    public function user_destroy(item:String, strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(item) ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(item,strXml) ;
         return _internal_token;
     }
      
@@ -253,6 +273,42 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_create");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'user_show' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function user_show(id:String) : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_show");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'group_show' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function group_show(id:String) : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_show");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
         return _internal_token;
     }
      

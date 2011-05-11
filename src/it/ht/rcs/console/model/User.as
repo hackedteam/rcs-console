@@ -2,6 +2,7 @@ package it.ht.rcs.console.model
 {
   import mx.collections.ArrayCollection;
   import mx.resources.ResourceManager;
+  import mx.rpc.events.ResultEvent;
   
   public class User
   {
@@ -94,10 +95,30 @@ package it.ht.rcs.console.model
         group_ids.source.splice(idx, 1);
     }
     
+    public function reload():void
+    {
+      /* reload data from db */      
+      console.currentDB.user_show(_id, onReload);
+    }
+    
+    private function onReload(e:ResultEvent):void
+    {
+      var u:Object = e.result;
+      
+      enabled = u.enabled;
+      name = u.name;
+      desc = u.desc;
+      contact = u.contact;
+      privs = u.privs;
+      pass = u.pass;
+      locale = u.locale;
+      group_ids = u.group_ids;
+      timezone = u.timezone;
+    }
+    
     public function save():void
     {
       // TODO: save to the db
-      // TODO: updated the local id from the db
     }
   }
 }

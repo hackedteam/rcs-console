@@ -67,15 +67,10 @@
       
       private function removeUserFromGroup(u:User, g:Group):void
       {
-        /* remove the user from the group */
-        g.removeUser(u);
-        g.save();
-        /* and viceversa */
-        u.removeGroup(g);
-        u.save();
-        
-        /* refresh the view */
-        usersingroup.dataProvider = UserManager.instance.getViewIds(g.user_ids);
+        g.removeUser(u, function _():void {
+          /* refresh the view */
+          usersingroup.dataProvider = UserManager.instance.getViewIds(g.user_ids);
+        });
       }
       
       private function addUserToGroup(event:MenuEvent):void 
@@ -83,15 +78,10 @@
         var u:User = event.item as User;
         var g:Group = groupslist.selectedItem as Group;
        
-        /* add the user to the group */
-        g.addUser(u);
-        g.save();
-        /* and viceversa */
-        u.addGroup(g);
-        u.save();
-        
-        /* refresh the view */
-        usersingroup.dataProvider = UserManager.instance.getViewIds(g.user_ids);
+        g.addUser(u, function _():void {
+          /* refresh the view */
+          usersingroup.dataProvider = UserManager.instance.getViewIds(g.user_ids);
+        });        
       }
       
       private function initMenuUser():void

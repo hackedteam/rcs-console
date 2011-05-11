@@ -51,6 +51,10 @@ package it.ht.rcs.services.db
       onResult(event);
     }
     
+    public function user_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {  
+    }
+    
     public function user_create(user:User, onResult:Function = null, onFault:Function = null):void
     {
       var u:Object = user.toHash();
@@ -83,6 +87,10 @@ package it.ht.rcs.services.db
       onResult(event);
     }
     
+    public function group_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {  
+    }
+
     public function group_create(group:Group, onResult:Function = null, onFault:Function = null):void
     {
       var g:Object = group.toHash();

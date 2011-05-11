@@ -9,11 +9,13 @@ package it.ht.rcs.services.db
     function logout():void;
     
     function user_index(onResult:Function = null, onFault:Function = null):void;
+    function user_show(id:String, onResult:Function = null, onFault:Function = null):void;
     function user_create(user:User, onResult:Function = null, onFault:Function = null):void;
     function user_update(user:User, onResult:Function = null, onFault:Function = null):void;
     function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void;
     
     function group_index(onResult:Function = null, onFault:Function = null):void;
+    function group_show(id:String, onResult:Function = null, onFault:Function = null):void;
     function group_create(group:Group, onResult:Function = null, onFault:Function = null):void;
   }
 }

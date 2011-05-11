@@ -6,12 +6,10 @@ package valueObjects
 {
 import com.adobe.fiber.styles.IStyle;
 import com.adobe.fiber.styles.Style;
-import com.adobe.fiber.styles.StyleValidator;
 import com.adobe.fiber.valueobjects.AbstractEntityMetadata;
 import com.adobe.fiber.valueobjects.AvailablePropertyIterator;
 import com.adobe.fiber.valueobjects.IPropertyIterator;
 import mx.collections.ArrayCollection;
-import mx.events.ValidationResultEvent;
 import com.adobe.fiber.core.model_internal;
 import com.adobe.fiber.valueobjects.IModelType;
 import mx.events.PropertyChangeEvent;
@@ -25,7 +23,7 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
 
     model_internal static var allProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
     model_internal static var allAssociationProperties:Array = new Array();
-    model_internal static var allRequiredProperties:Array = new Array("desc");
+    model_internal static var allRequiredProperties:Array = new Array();
     model_internal static var allAlwaysAvailableProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
     model_internal static var guardedProperties:Array = new Array();
     model_internal static var dataProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
@@ -39,11 +37,6 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     model_internal static var dependedOnServices:Array = new Array();
     model_internal static var propertyTypeMap:Object;
 
-    
-    model_internal var _descIsValid:Boolean;
-    model_internal var _descValidator:com.adobe.fiber.styles.StyleValidator;
-    model_internal var _descIsValidCacheInitialized:Boolean = false;
-    model_internal var _descValidationFailureMessages:Array;
 
     model_internal var _instance:_Super_User;
     model_internal static var _nullStyle:com.adobe.fiber.styles.Style = new com.adobe.fiber.styles.Style();
@@ -86,11 +79,6 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
         model_internal::propertyTypeMap["pass"] = "String";
 
         model_internal::_instance = value;
-        model_internal::_descValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForDesc);
-        model_internal::_descValidator.required = true;
-        model_internal::_descValidator.requiredFieldError = "desc is required";
-        //model_internal::_descValidator.source = model_internal::_instance;
-        //model_internal::_descValidator.property = "desc";
     }
 
     override public function getEntityName():String
@@ -381,14 +369,6 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     /**
      * derived property recalculation
      */
-    public function invalidateDependentOnDesc():void
-    {
-        if (model_internal::_descIsValidCacheInitialized )
-        {
-            model_internal::_instance.model_internal::_doValidationCacheOfDesc = null;
-            model_internal::calculateDescIsValid();
-        }
-    }
 
     model_internal function fireChangeEvent(propertyName:String, oldValue:Object, newValue:Object):void
     {
@@ -411,100 +391,6 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     public function get descStyle():com.adobe.fiber.styles.Style
     {
         return model_internal::_nullStyle;
-    }
-
-    public function get descValidator() : StyleValidator
-    {
-        return model_internal::_descValidator;
-    }
-
-    model_internal function set _descIsValid_der(value:Boolean):void 
-    {
-        var oldValue:Boolean = model_internal::_descIsValid;         
-        if (oldValue !== value)
-        {
-            model_internal::_descIsValid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "descIsValid", oldValue, value));
-        }                             
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get descIsValid():Boolean
-    {
-        if (!model_internal::_descIsValidCacheInitialized)
-        {
-            model_internal::calculateDescIsValid();
-        }
-
-        return model_internal::_descIsValid;
-    }
-
-    model_internal function calculateDescIsValid():void
-    {
-        var valRes:ValidationResultEvent = model_internal::_descValidator.validate(model_internal::_instance.desc)
-        model_internal::_descIsValid_der = (valRes.results == null);
-        model_internal::_descIsValidCacheInitialized = true;
-        if (valRes.results == null)
-             model_internal::descValidationFailureMessages_der = emptyArray;
-        else
-        {
-            var _valFailures:Array = new Array();
-            for (var a:int = 0 ; a<valRes.results.length ; a++)
-            {
-                _valFailures.push(valRes.results[a].errorMessage);
-            }
-            model_internal::descValidationFailureMessages_der = _valFailures;
-        }
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get descValidationFailureMessages():Array
-    {
-        if (model_internal::_descValidationFailureMessages == null)
-            model_internal::calculateDescIsValid();
-
-        return _descValidationFailureMessages;
-    }
-
-    model_internal function set descValidationFailureMessages_der(value:Array) : void
-    {
-        var oldValue:Array = model_internal::_descValidationFailureMessages;
-
-        var needUpdate : Boolean = false;
-        if (oldValue == null)
-            needUpdate = true;
-    
-        // avoid firing the event when old and new value are different empty arrays
-        if (!needUpdate && (oldValue !== value && (oldValue.length > 0 || value.length > 0)))
-        {
-            if (oldValue.length == value.length)
-            {
-                for (var a:int=0; a < oldValue.length; a++)
-                {
-                    if (oldValue[a] !== value[a])
-                    {
-                        needUpdate = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                needUpdate = true;
-            }
-        }
-
-        if (needUpdate)
-        {
-            model_internal::_descValidationFailureMessages = value;   
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "descValidationFailureMessages", oldValue, value));
-            // Only execute calculateIsValid if it has been called before, to update the validationFailureMessages for
-            // the entire entity.
-            if (model_internal::_instance.model_internal::_cacheInitialized_isValid)
-            {
-                model_internal::_instance.model_internal::isValid_der = model_internal::_instance.model_internal::calculateIsValid();
-            }
-        }
     }
 
     [Bindable(event="propertyChange")]   
@@ -574,10 +460,6 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
      {
          switch(propertyName)
          {
-            case("desc"):
-            {
-                return descValidationFailureMessages;
-            }
             default:
             {
                 return emptyArray;

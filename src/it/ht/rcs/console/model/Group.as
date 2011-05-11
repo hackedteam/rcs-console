@@ -2,6 +2,7 @@ package it.ht.rcs.console.model
 {
   import mx.collections.ArrayCollection;
   import mx.resources.ResourceManager;
+  import mx.rpc.events.ResultEvent;
   
   public class Group
   {
@@ -33,23 +34,45 @@ package it.ht.rcs.console.model
       return {name: name, user_ids: user_ids.source}
     }
     
-    public function addUser(u:User):void
+    public function addUser(u:User, callback:Function):void
     {
       user_ids.addItem(u._id);
+      
+      this.reload();
+      u.reload();
+      
+      callback();
     }
     
-    public function removeUser(u:User):void
+    public function removeUser(u:User, callback:Function):void
     {
       var idx:int = user_ids.getItemIndex(u._id);
       if (idx >= 0)
         user_ids.source.splice(idx, 1);
+
+      this.reload();
+      u.reload();
+      
+      callback();
+    }
+    
+    public function reload():void
+    {
+      /* reload data from db */      
+      console.currentDB.group_show(_id, onReload);
+    }
+    
+    private function onReload(e:ResultEvent):void
+    {
+      var g:Object = e.result;
+      
+      name = g.name;
+      user_ids = g.user_ids;
     }
     
     public function save():void
     {
-      trace('save group');
       // TODO: save to the db
-      // TODO: updated the local id from the db
     }
   }
 }

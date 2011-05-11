@@ -33,6 +33,7 @@ package it.ht.rcs.console.accounting
     
     override protected function onItemUpdate(e:*):void
     { 
+      // e.source.save();
       //console.currentDB.user_update(e.source);
     }
     

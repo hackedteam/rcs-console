@@ -109,13 +109,37 @@
         <item name="method">POST</item>
         <item name="contentType">application/xml</item>
         <item name="requestBodyParameter">true</item>
+        <item name="url">/user/{id}</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/user/{id}</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">enabled,timezone,desc,_id,privs,group_ids,name,locale,contact,pass</item>
+      </annotation>
+      <annotation name="Properties">
+        <item name="urlParamNames">id</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">id,strXml</item>
+        <item name="inputParams">string,string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="strXml" type="string"/>
+    </function>
+    <function name="user_destroy" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
         <item name="url">/user/{item}</item>
       </annotation>
       <annotation name="url group">
         <item name="completeURL">http://localhost:4444/user/{item}</item>
-      </annotation>
-      <annotation name="ValidProperties">
-        <item name="propertySpecifier">enabled,timezone,desc,_id,privs,group_ids,name,locale,contact,pass</item>
       </annotation>
       <annotation name="Properties">
         <item name="urlParamNames">item</item>
@@ -127,29 +151,6 @@
       </annotation>
       <parameter name="item" type="string"/>
       <parameter name="strXml" type="string"/>
-    </function>
-    <function name="user_destroy" return-type="opaque">
-      <annotation name="analyze group">
-        <item name="analyzed">false</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="method">GET</item>
-        <item name="contentType">application/x-www-form-urlencoded</item>
-        <item name="requestBodyParameter">false</item>
-        <item name="url">/user/{item}</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/user/{item}</item>
-      </annotation>
-      <annotation name="Properties">
-        <item name="urlParamNames">item</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="inputParamNames">item</item>
-        <item name="inputParams">string</item>
-        <item name="returnType">opaque</item>
-      </annotation>
-      <parameter name="item" type="string"/>
     </function>
     <function name="group_index" return-type="Group[]">
       <annotation name="analyze group">
@@ -194,6 +195,56 @@
       </annotation>
       <parameter name="strXml" type="string"/>
     </function>
+    <function name="user_show" return-type="User">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/user/{id}</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/user/{id}</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">enabled,timezone,desc,_id,privs,group_ids,name,locale,contact,pass</item>
+      </annotation>
+      <annotation name="Properties">
+        <item name="urlParamNames">id</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">id</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+    </function>
+    <function name="group_show" return-type="Group">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/group/{id}</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/group/{id}</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">_id,name,user_ids</item>
+      </annotation>
+      <annotation name="Properties">
+        <item name="urlParamNames">id</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">id</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+    </function>
   </service>
   <entity name="User">
     <annotation name="EntityProperties">
@@ -217,9 +268,12 @@
     <annotation name="user_update">
       <item name="propertySpecifier">enabled,timezone,desc,_id,privs,group_ids,name,locale,contact,pass</item>
     </annotation>
+    <annotation name="user_show">
+      <item name="propertySpecifier">enabled,timezone,desc,_id,privs,group_ids,name,locale,contact,pass</item>
+    </annotation>
     <property name="enabled" type="boolean"/>
     <property name="timezone" type="integer"/>
-    <property name="desc" type="string" required="true"/>
+    <property name="desc" type="string"/>
     <property name="_id" type="string"/>
     <property name="privs" type="string[]"/>
     <property name="group_ids" type="opaque[]"/>
@@ -266,6 +320,9 @@
       <item name="Package">valueObjects</item>
     </annotation>
     <annotation name="group_create">
+      <item name="propertySpecifier">_id,name,user_ids</item>
+    </annotation>
+    <annotation name="group_show">
       <item name="propertySpecifier">_id,name,user_ids</item>
     </annotation>
     <property name="_id" type="string"/>

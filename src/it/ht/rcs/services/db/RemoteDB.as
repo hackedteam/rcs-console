@@ -1,10 +1,10 @@
   package it.ht.rcs.services.db
 {
+  import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
-  import it.ht.rcs.console.model.Group;
     
   public class RemoteDB implements IDB
   {
@@ -88,6 +88,12 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.user_index(); 
     }
+
+    public function user_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.user_show(id); 
+    }
     
     public function user_create(user:User, onResult:Function = null, onFault:Function = null):void
     {
@@ -104,7 +110,7 @@
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.user_destroy(user._id);
+      resp.token = _delegate.user_destroy(user._id, null);
     }
     
     /* GROUPS */
@@ -113,6 +119,12 @@
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.group_index(); 
+    }
+    
+    public function group_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.group_show(id); 
     }
     
     public function group_create(group:Group, onResult:Function = null, onFault:Function = null):void

@@ -151,6 +151,49 @@
       </annotation>
       <parameter name="item" type="string"/>
     </function>
+    <function name="group_index" return-type="Group[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/group</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/group</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">_id,name,user_ids</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="group_create" return-type="Group">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
+        <item name="url">/group</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/group</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">_id,name,user_ids</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">strXml</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="strXml" type="string"/>
+    </function>
   </service>
   <entity name="User">
     <annotation name="EntityProperties">
@@ -205,5 +248,28 @@
     <property name="time" type="string" required="true"/>
     <property name="level" type="string[]" required="true"/>
     <property name="user" type="User" required="true"/>
+  </entity>
+  <entity name="Group">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Group</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">DB</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="group_index">
+      <item name="propertySpecifier">_id,name,user_ids</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <annotation name="group_create">
+      <item name="propertySpecifier">_id,name,user_ids</item>
+    </annotation>
+    <property name="_id" type="string"/>
+    <property name="name" type="string"/>
+    <property name="user_ids" type="opaque[]"/>
   </entity>
 </model>

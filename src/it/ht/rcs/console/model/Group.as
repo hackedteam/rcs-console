@@ -28,6 +28,11 @@ package it.ht.rcs.console.model
       }
     }
     
+    public function toHash():Object
+    {
+      return {name: name, user_ids: user_ids.source}
+    }
+    
     public function addUser(u:User):void
     {
       user_ids.addItem(u._id);

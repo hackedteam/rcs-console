@@ -1,6 +1,7 @@
 package it.ht.rcs.services.db
 {
   import it.ht.rcs.console.model.User;
+  import it.ht.rcs.console.model.Group;
 
   public interface IDB
   {
@@ -13,5 +14,6 @@ package it.ht.rcs.services.db
     function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void;
     
     function group_index(onResult:Function = null, onFault:Function = null):void;
+    function group_create(group:Group, onResult:Function = null, onFault:Function = null):void;
   }
 }

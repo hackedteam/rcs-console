@@ -4,6 +4,7 @@ package it.ht.rcs.services.db
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
+  import it.ht.rcs.console.model.Group;
   
   public class DemoDB implements IDB
   {
@@ -79,6 +80,15 @@ package it.ht.rcs.services.db
       items.addItem({_id: '2', name: 'developers', user_ids:new ArrayCollection(['2','3','4','5','6','7','8','9'])});
       items.addItem({_id: '3', name: 'test', user_ids:new ArrayCollection(['10'])});
       var event:ResultEvent = new ResultEvent("group.index", false, true, items);
+      onResult(event);
+    }
+    
+    public function group_create(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      var g:Object = group.toHash();
+      g._id = new Date().getTime().toString();
+      g.user_ids = new ArrayCollection(g.user_ids);
+      var event:ResultEvent = new ResultEvent("user.create", false, true, g);
       onResult(event);
     }
   }

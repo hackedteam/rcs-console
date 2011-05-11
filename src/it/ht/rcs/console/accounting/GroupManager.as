@@ -4,8 +4,8 @@ package it.ht.rcs.console.accounting
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.Manager;
   
-  import mx.collections.ArrayList;
   import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
@@ -24,29 +24,23 @@ package it.ht.rcs.console.accounting
       super();
     }
 
-    override protected function onItemAdd(o:*):void
-    {
-    }
-    
     override protected function onItemRemove(o:*):void
     { 
+      //console.currentDB.group_destroy(o);
     }
     
     override protected function onItemUpdate(e:*):void
     { 
-    }
-    
-    override protected function onReset():void
-    {
+      //console.currentDB.group_update(e.source);
     }
 
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-	    console.currentDB.group_index(onResult);
+	    console.currentDB.group_index(onGroupIndexResult);
     }
     
-    private function onResult(e:ResultEvent):void
+    private function onGroupIndexResult(e:ResultEvent):void
     {
       var items:ArrayCollection = e.result as ArrayCollection;
       _items.removeAll();
@@ -55,11 +49,13 @@ package it.ht.rcs.console.accounting
       });
     }
     
-    public function newGroup(data:Object=null):Group
+    public function newGroup(callback:Function):void
     {
-      var g:Group = new Group(data);
-      addItem(g);
-      return g;
+      console.currentDB.group_create(new Group(), function _(e:ResultEvent):void {
+        var g:Group = new Group(e.result);
+        addItem(g);
+        callback(g);
+      });
     }
     
   }

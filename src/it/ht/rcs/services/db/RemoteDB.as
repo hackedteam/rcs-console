@@ -4,6 +4,7 @@
   
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
+  import it.ht.rcs.console.model.Group;
     
   public class RemoteDB implements IDB
   {
@@ -110,7 +111,14 @@
     
     public function group_index(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.group_index(); 
+    }
+    
+    public function group_create(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.group_create(JSON.encode(group.toHash()));
     }
   }
 }

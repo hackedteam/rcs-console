@@ -28,7 +28,7 @@ package it.ht.rcs.console.accounting
     
     override protected function onItemRemove(o:*):void
     { 
-      console.currentDB.user_destroy(o);
+      //console.currentDB.user_destroy(o);
     }
     
     override protected function onItemUpdate(e:*):void
@@ -36,10 +36,6 @@ package it.ht.rcs.console.accounting
       //console.currentDB.user_update(e.source);
     }
     
-    override protected function onReset():void
-    {
-    }
-
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);

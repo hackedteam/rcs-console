@@ -67,10 +67,7 @@
       
       private function removeUserFromGroup(u:User, g:Group):void
       {
-        g.removeUser(u, function _():void {
-          /* refresh the view */
-          usersingroup.dataProvider = UserManager.instance.getViewIds(g.user_ids);
-        });
+        g.removeUser(u);
       }
       
       private function addUserToGroup(event:MenuEvent):void 
@@ -78,10 +75,7 @@
         var u:User = event.item as User;
         var g:Group = groupslist.selectedItem as Group;
        
-        g.addUser(u, function _():void {
-          /* refresh the view */
-          usersingroup.dataProvider = UserManager.instance.getViewIds(g.user_ids);
-        });        
+        g.addUser(u);        
       }
       
       private function initMenuUser():void
@@ -93,6 +87,12 @@
         _menu.selectedIndex = 0;
         _menu.addEventListener(MenuEvent.ITEM_CLICK, addUserToGroup);
         adduserButton.popUp = _menu;
+      }
+      
+      private function userFromId(o:Object):String
+      {
+        var u:User = UserManager.instance.getItem(o as String);
+        return u.name;
       }
       
     ]]>
@@ -130,8 +130,7 @@
         <s:Label text="Users in this group" styleName="AccountingTitles"/>
         <s:BorderContainer width="100%" height="50%" dropShadowVisible="true" backgroundColor="#EAEAEA">
           <s:List id="usersingroup" left="5" right="5" top="5" bottom="20" borderVisible="false" contentBackgroundColor="#EAEAEA" 
-                  labelField="name" 
-                  dataProvider="{UserManager.instance.getViewIds((groupslist.selectedItem as Group).user_ids)}"/>
+                  dataProvider="{(groupslist.selectedItem as Group).user_ids}" labelFunction="userFromId"/>
           <s:Button label="-" width="30" height="20" right="51" bottom="1" styleName="AddRemove"
                     enabled="{usersingroup.selectedItem != null}"
                     click="{removeUserFromGroup(usersingroup.selectedItem as User, groupslist.selectedItem as Group)}"/>

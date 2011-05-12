@@ -5,7 +5,6 @@
   import it.ht.rcs.console.events.LogonEvent;
   import it.ht.rcs.console.events.RefreshEvent;
   
-  import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
   import mx.collections.ISort;
   import mx.collections.ListCollectionView;
@@ -117,7 +116,7 @@
       if (o == null)
         return;
       
-      var idx : int = _items.getItemIndex(o);
+      var idx:int = _items.getItemIndex(o);
       if (idx >= 0) 
         _items.removeItemAt(idx);
     }
@@ -134,7 +133,19 @@
     {
     }
     
-    public function getView(filterFunction:Function=null, sortCriteria:ISort=null):ListCollectionView
+    public function getItem(id:String):*
+    {
+      var idx:int;
+      /* search for the item with _id and return it */
+      for (idx = 0; idx < _items.length; idx++) {
+        var elem:* = _items.getItemAt(idx);
+        if (elem._id == id)
+          return elem;
+      }
+      return null;
+    }
+    
+    public function getView(sortCriteria:ISort=null, filterFunction:Function=null):ListCollectionView
     {
       /* always return updated content when something requests a view */
       onRefresh(null);
@@ -158,18 +169,5 @@
       return lcv;
     }
     
-    public function getViewIds(ids:ArrayCollection):ListCollectionView
-    {
-      /* set the filter on the ids */
-      var ff:Function = function filter(o:Object):Boolean {
-        if (ids.getItemIndex(o._id) != -1)
-          return true;
-        
-        return false;
-      };
-      
-      /* create the view for the caller */
-      return getView(ff);
-    }
   }
 }

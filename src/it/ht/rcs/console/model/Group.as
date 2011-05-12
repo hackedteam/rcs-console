@@ -34,23 +34,21 @@ package it.ht.rcs.console.model
       return {name: name, user_ids: user_ids.source}
     }
     
-    public function addUser(u:User, callback:Function):void
+    public function addUser(u:User):void
     {
       var g:Group = this;
       console.currentDB.group_add_user(g, u, function _():void {
         g.reload();
         u.reload();
-        callback();
       });
     }
     
-    public function removeUser(u:User, callback:Function):void
+    public function removeUser(u:User):void
     {
       var g:Group = this;
       console.currentDB.group_del_user(g, u, function _():void {
         g.reload();
         u.reload();
-        callback();
       });
     }
     

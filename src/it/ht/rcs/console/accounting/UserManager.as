@@ -5,6 +5,8 @@ package it.ht.rcs.console.accounting
   import it.ht.rcs.console.model.User;
   
   import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
+  import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
   import mx.core.FlexGlobals;
@@ -15,7 +17,7 @@ package it.ht.rcs.console.accounting
   public class UserManager extends Manager
   {
     [Bindable]
-    public var connected_users:ArrayCollection = new ArrayCollection();
+    public var _sessions:ArrayList = new ArrayList();
                                                                     
     /* singleton */
     private static var _instance:UserManager = new UserManager();
@@ -28,28 +30,24 @@ package it.ht.rcs.console.accounting
     
     override protected function onItemRemove(o:*):void
     { 
-      //console.currentDB.user_destroy(o);
+      console.currentDB.user_destroy(o);
     }
     
     override protected function onItemUpdate(e:*):void
     { 
-      // e.source.save();
-      //console.currentDB.user_update(e.source);
+      console.currentDB.user_update(e.source);
     }
     
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
       
-      connected_users.removeAll();
+      _sessions.removeAll();
+
+      /* retrieve the connected users */
+      console.currentDB.session_index(onSessionIndexResult);
       
-      /* DEMO MOCK */
-      if (console.currentSession.fake) {
-        connected_users = new ArrayCollection([{user:"alor", address:"1.1.2.3", logon:new Date().time, privs: "A T V"},
-                                               {user:"demo", address:"demo", logon:new Date().time, privs: "V"},
-                                               {user:"daniel", address:"5.6.7.8", logon:new Date().time, privs: "T V"}]);
-      }
-      
+      /* system users */
       console.currentDB.user_index(onUserIndexResult);
     }
     
@@ -59,6 +57,15 @@ package it.ht.rcs.console.accounting
       _items.removeAll();
       items.source.forEach(function toUserArray(element:*, index:int, arr:Array):void {
         addItem(new User(element));
+      });
+    }
+
+    public function onSessionIndexResult(e:ResultEvent):void
+    {
+      var items:ArrayCollection = e.result as ArrayCollection;
+      _sessions.removeAll();
+      items.source.forEach(function toUserArray(element:*, index:int, arr:Array):void {
+        _sessions.addItem(element);
       });
     }
     
@@ -71,13 +78,29 @@ package it.ht.rcs.console.accounting
       });
     }
     
+    public function getSessionsView():ListCollectionView
+    {
+      /* create the view for the caller */
+      var lcv:ListCollectionView = new ListCollectionView();
+      lcv.list = _sessions;
+      
+      /* default sorting is alphabetical */
+      var sort:Sort = new Sort();
+      sort.fields = [new SortField('user', true, false, false)];
+      lcv.sort = sort;
+      lcv.refresh();
+      
+      return lcv;
+    }
+    
     public function disconnectUser(u:Object):void
     {
-      var idx : int = connected_users.getItemIndex(u);
+      var idx : int = _sessions.getItemIndex(u);
       if (idx >= 0) 
-        connected_users.removeItemAt(idx);
+        _sessions.removeItemAt(idx);
       
-      // TODO: disconnect call to db
+      /* disconnect call to db */
+      console.currentDB.session_destroy(u['cookie']);
     }
     
   }

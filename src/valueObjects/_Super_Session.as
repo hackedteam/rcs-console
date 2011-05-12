@@ -6,15 +6,10 @@
 package valueObjects
 {
 import com.adobe.fiber.services.IFiberManagingService;
-import com.adobe.fiber.util.FiberUtils;
 import com.adobe.fiber.valueobjects.IValueObject;
-import flash.events.Event;
 import flash.events.EventDispatcher;
-import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
-import mx.events.CollectionEvent;
 import mx.events.PropertyChangeEvent;
-import mx.validators.ValidationResult;
 import valueObjects.User;
 
 import flash.net.registerClassAlias;
@@ -57,6 +52,7 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
     private var _internal_cookie : String;
     private var _internal_time : String;
     private var _internal_level : ArrayCollection;
+    private var _internal_address : String;
     private var _internal_user : valueObjects.User;
 
     private static var emptyArray:Array = new Array();
@@ -74,10 +70,6 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
         _model = new _SessionEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "cookie", model_internal::setterListenerCookie));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "time", model_internal::setterListenerTime));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "level", model_internal::setterListenerLevel));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "user", model_internal::setterListenerUser));
 
     }
 
@@ -101,6 +93,12 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
     public function get level() : ArrayCollection
     {
         return _internal_level;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get address() : String
+    {
+        return _internal_address;
     }
 
     [Bindable(event="propertyChange")]
@@ -162,6 +160,16 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
         }
     }
 
+    public function set address(value:String) : void
+    {
+        var oldValue:String = _internal_address;
+        if (oldValue !== value)
+        {
+            _internal_address = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "address", oldValue, _internal_address));
+        }
+    }
+
     public function set user(value:valueObjects.User) : void
     {
         var oldValue:valueObjects.User = _internal_user;
@@ -184,33 +192,6 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
 
-    model_internal function setterListenerCookie(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnCookie();
-    }
-
-    model_internal function setterListenerTime(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnTime();
-    }
-
-    model_internal function setterListenerLevel(value:flash.events.Event):void
-    {
-        if (value is mx.events.PropertyChangeEvent)
-        {
-            if (mx.events.PropertyChangeEvent(value).newValue)
-            {
-                mx.events.PropertyChangeEvent(value).newValue.addEventListener(mx.events.CollectionEvent.COLLECTION_CHANGE, model_internal::setterListenerLevel);
-            }
-        }
-        _model.invalidateDependentOnLevel();
-    }
-
-    model_internal function setterListenerUser(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnUser();
-    }
-
 
     /**
      * valid related derived properties
@@ -232,26 +213,6 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
-        if (!_model.cookieIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_cookieValidationFailureMessages);
-        }
-        if (!_model.timeIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_timeValidationFailureMessages);
-        }
-        if (!_model.levelIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_levelValidationFailureMessages);
-        }
-        if (!_model.userIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_userValidationFailureMessages);
-        }
 
         model_internal::_cacheInitialized_isValid = true;
         model_internal::invalidConstraints_der = violatedConsts;
@@ -331,114 +292,6 @@ public class _Super_Session extends flash.events.EventDispatcher implements com.
         }
     }
 
-    model_internal var _doValidationCacheOfCookie : Array = null;
-    model_internal var _doValidationLastValOfCookie : String;
-
-    model_internal function _doValidationForCookie(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfCookie != null && model_internal::_doValidationLastValOfCookie == value)
-           return model_internal::_doValidationCacheOfCookie ;
-
-        _model.model_internal::_cookieIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isCookieAvailable && _internal_cookie == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "cookie is required"));
-        }
-
-        model_internal::_doValidationCacheOfCookie = validationFailures;
-        model_internal::_doValidationLastValOfCookie = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfTime : Array = null;
-    model_internal var _doValidationLastValOfTime : String;
-
-    model_internal function _doValidationForTime(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfTime != null && model_internal::_doValidationLastValOfTime == value)
-           return model_internal::_doValidationCacheOfTime ;
-
-        _model.model_internal::_timeIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isTimeAvailable && _internal_time == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "time is required"));
-        }
-
-        model_internal::_doValidationCacheOfTime = validationFailures;
-        model_internal::_doValidationLastValOfTime = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfLevel : Array = null;
-    model_internal var _doValidationLastValOfLevel : ArrayCollection;
-
-    model_internal function _doValidationForLevel(valueIn:Object):Array
-    {
-        var value : ArrayCollection = valueIn as ArrayCollection;
-
-        if (model_internal::_doValidationCacheOfLevel != null && model_internal::_doValidationLastValOfLevel == value)
-           return model_internal::_doValidationCacheOfLevel ;
-
-        _model.model_internal::_levelIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isLevelAvailable && _internal_level == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "level is required"));
-        }
-
-        model_internal::_doValidationCacheOfLevel = validationFailures;
-        model_internal::_doValidationLastValOfLevel = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfUser : Array = null;
-    model_internal var _doValidationLastValOfUser : valueObjects.User;
-
-    model_internal function _doValidationForUser(valueIn:Object):Array
-    {
-        var value : valueObjects.User = valueIn as valueObjects.User;
-
-        if (model_internal::_doValidationCacheOfUser != null && model_internal::_doValidationLastValOfUser == value)
-           return model_internal::_doValidationCacheOfUser ;
-
-        _model.model_internal::_userIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isUserAvailable && _internal_user == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "user is required"));
-        }
-
-        model_internal::_doValidationCacheOfUser = validationFailures;
-        model_internal::_doValidationLastValOfUser = value;
-
-        return validationFailures;
-    }
-    
 
 }
 

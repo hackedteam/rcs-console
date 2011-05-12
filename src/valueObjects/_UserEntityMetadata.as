@@ -21,14 +21,14 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
 {
     private static var emptyArray:Array = new Array();
 
-    model_internal static var allProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
+    model_internal static var allProperties:Array = new Array("desc", "enabled", "timezone", "updated_at", "_id", "privs", "group_ids", "name", "locale", "created_at", "contact", "pass");
     model_internal static var allAssociationProperties:Array = new Array();
     model_internal static var allRequiredProperties:Array = new Array();
-    model_internal static var allAlwaysAvailableProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
+    model_internal static var allAlwaysAvailableProperties:Array = new Array("desc", "enabled", "timezone", "updated_at", "_id", "privs", "group_ids", "name", "locale", "created_at", "contact", "pass");
     model_internal static var guardedProperties:Array = new Array();
-    model_internal static var dataProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
+    model_internal static var dataProperties:Array = new Array("desc", "enabled", "timezone", "updated_at", "_id", "privs", "group_ids", "name", "locale", "created_at", "contact", "pass");
     model_internal static var sourceProperties:Array = emptyArray
-    model_internal static var nonDerivedProperties:Array = new Array("enabled", "timezone", "desc", "_id", "privs", "group_ids", "name", "locale", "contact", "pass");
+    model_internal static var nonDerivedProperties:Array = new Array("desc", "enabled", "timezone", "updated_at", "_id", "privs", "group_ids", "name", "locale", "created_at", "contact", "pass");
     model_internal static var derivedProperties:Array = new Array();
     model_internal static var collectionProperties:Array = new Array("privs", "group_ids");
     model_internal static var collectionBaseMap:Object;
@@ -48,14 +48,16 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
         {
             // dependents map
             model_internal::dependentsOnMap = new Object();
+            model_internal::dependentsOnMap["desc"] = new Array();
             model_internal::dependentsOnMap["enabled"] = new Array();
             model_internal::dependentsOnMap["timezone"] = new Array();
-            model_internal::dependentsOnMap["desc"] = new Array();
+            model_internal::dependentsOnMap["updated_at"] = new Array();
             model_internal::dependentsOnMap["_id"] = new Array();
             model_internal::dependentsOnMap["privs"] = new Array();
             model_internal::dependentsOnMap["group_ids"] = new Array();
             model_internal::dependentsOnMap["name"] = new Array();
             model_internal::dependentsOnMap["locale"] = new Array();
+            model_internal::dependentsOnMap["created_at"] = new Array();
             model_internal::dependentsOnMap["contact"] = new Array();
             model_internal::dependentsOnMap["pass"] = new Array();
 
@@ -67,14 +69,16 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
 
         // Property type Map
         model_internal::propertyTypeMap = new Object();
+        model_internal::propertyTypeMap["desc"] = "String";
         model_internal::propertyTypeMap["enabled"] = "Boolean";
         model_internal::propertyTypeMap["timezone"] = "int";
-        model_internal::propertyTypeMap["desc"] = "String";
+        model_internal::propertyTypeMap["updated_at"] = "String";
         model_internal::propertyTypeMap["_id"] = "String";
         model_internal::propertyTypeMap["privs"] = "ArrayCollection";
         model_internal::propertyTypeMap["group_ids"] = "ArrayCollection";
         model_internal::propertyTypeMap["name"] = "String";
         model_internal::propertyTypeMap["locale"] = "String";
+        model_internal::propertyTypeMap["created_at"] = "String";
         model_internal::propertyTypeMap["contact"] = "String";
         model_internal::propertyTypeMap["pass"] = "String";
 
@@ -306,6 +310,12 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     }
 
     [Bindable(event="propertyChange")]
+    public function get isDescAvailable():Boolean
+    {
+        return true;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get isEnabledAvailable():Boolean
     {
         return true;
@@ -318,7 +328,7 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     }
 
     [Bindable(event="propertyChange")]
-    public function get isDescAvailable():Boolean
+    public function get isUpdated_atAvailable():Boolean
     {
         return true;
     }
@@ -354,6 +364,12 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     }
 
     [Bindable(event="propertyChange")]
+    public function get isCreated_atAvailable():Boolean
+    {
+        return true;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get isContactAvailable():Boolean
     {
         return true;
@@ -376,6 +392,12 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     }
 
     [Bindable(event="propertyChange")]   
+    public function get descStyle():com.adobe.fiber.styles.Style
+    {
+        return model_internal::_nullStyle;
+    }
+
+    [Bindable(event="propertyChange")]   
     public function get enabledStyle():com.adobe.fiber.styles.Style
     {
         return model_internal::_nullStyle;
@@ -388,7 +410,7 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     }
 
     [Bindable(event="propertyChange")]   
-    public function get descStyle():com.adobe.fiber.styles.Style
+    public function get updated_atStyle():com.adobe.fiber.styles.Style
     {
         return model_internal::_nullStyle;
     }
@@ -419,6 +441,12 @@ internal class _UserEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
 
     [Bindable(event="propertyChange")]   
     public function get localeStyle():com.adobe.fiber.styles.Style
+    {
+        return model_internal::_nullStyle;
+    }
+
+    [Bindable(event="propertyChange")]   
+    public function get created_atStyle():com.adobe.fiber.styles.Style
     {
         return model_internal::_nullStyle;
     }

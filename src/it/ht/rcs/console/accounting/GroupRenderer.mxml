@@ -16,14 +16,9 @@
         /* visualize the textedit and give it the focus */
         nameedit.text = data.name;
         nameedit.visible = true;
+        namelabel.visible = false;
         //nameedit.selectRange(nameedit.text.length, nameedit.text.length+1);
         nameedit.setFocus();
-      }
-      
-      private function cancel():void
-      {
-        /* back to the label visualization */
-        nameedit.visible = false; 
       }
       
       private function endEdit():void
@@ -32,15 +27,16 @@
         data.name = nameedit.text;
   
         /* back to the label visualization */
-        nameedit.visible = false; 
+        nameedit.visible = false;
+        namelabel.visible = true;
       }
       
     ]]>
   </fx:Script>
-  <s:SkinnableContainer x="0" y="0" width="70" height="80" >
+  <s:SkinnableContainer x="0" y="0" width="70" >
     <mx:Image source="img/items/group.png" left="0" top="5" width="70" height="60"/>
-    <s:Label id="namelabel" text="{data.name}" bottom="0" horizontalCenter="0"/>
-    <s:TextInput id="nameedit" text="{data.name}" bottom="0" horizontalCenter="0" width="70" visible="false" focusOut="cancel()" enter="endEdit()" borderVisible="false"/>
+    <s:Label id="namelabel" text="{data.name}" top="70" horizontalCenter="0" width="70" textAlign="center"/>
+    <s:TextInput id="nameedit" text="{data.name}" top="70" horizontalCenter="0" width="70" visible="false" focusOut="endEdit()" enter="endEdit()" borderVisible="false"/>
   </s:SkinnableContainer>
   
 </s:ItemRenderer>

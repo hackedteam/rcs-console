@@ -26,12 +26,12 @@ package it.ht.rcs.console.accounting
 
     override protected function onItemRemove(o:*):void
     { 
-      //console.currentDB.group_destroy(o);
+      console.currentDB.group_destroy(o);
     }
     
     override protected function onItemUpdate(e:*):void
     { 
-      //console.currentDB.group_update(e.source);
+      console.currentDB.group_update(e.source);
     }
 
     override protected function onRefresh(e:RefreshEvent):void

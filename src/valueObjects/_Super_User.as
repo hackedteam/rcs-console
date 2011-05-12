@@ -47,14 +47,16 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
     /**
      * properties
      */
+    private var _internal_desc : String;
     private var _internal_enabled : Boolean;
     private var _internal_timezone : int;
-    private var _internal_desc : String;
+    private var _internal_updated_at : String;
     private var _internal__id : String;
     private var _internal_privs : ArrayCollection;
     private var _internal_group_ids : ArrayCollection;
     private var _internal_name : String;
     private var _internal_locale : String;
+    private var _internal_created_at : String;
     private var _internal_contact : String;
     private var _internal_pass : String;
 
@@ -81,6 +83,12 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
      */
 
     [Bindable(event="propertyChange")]
+    public function get desc() : String
+    {
+        return _internal_desc;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get enabled() : Boolean
     {
         return _internal_enabled;
@@ -93,9 +101,9 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
     }
 
     [Bindable(event="propertyChange")]
-    public function get desc() : String
+    public function get updated_at() : String
     {
-        return _internal_desc;
+        return _internal_updated_at;
     }
 
     [Bindable(event="propertyChange")]
@@ -129,6 +137,12 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
     }
 
     [Bindable(event="propertyChange")]
+    public function get created_at() : String
+    {
+        return _internal_created_at;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get contact() : String
     {
         return _internal_contact;
@@ -147,6 +161,16 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
     /**
      * data/source property setters
      */
+
+    public function set desc(value:String) : void
+    {
+        var oldValue:String = _internal_desc;
+        if (oldValue !== value)
+        {
+            _internal_desc = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "desc", oldValue, _internal_desc));
+        }
+    }
 
     public function set enabled(value:Boolean) : void
     {
@@ -168,13 +192,13 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
         }
     }
 
-    public function set desc(value:String) : void
+    public function set updated_at(value:String) : void
     {
-        var oldValue:String = _internal_desc;
+        var oldValue:String = _internal_updated_at;
         if (oldValue !== value)
         {
-            _internal_desc = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "desc", oldValue, _internal_desc));
+            _internal_updated_at = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "updated_at", oldValue, _internal_updated_at));
         }
     }
 
@@ -255,6 +279,16 @@ public class _Super_User extends flash.events.EventDispatcher implements com.ado
         {
             _internal_locale = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "locale", oldValue, _internal_locale));
+        }
+    }
+
+    public function set created_at(value:String) : void
+    {
+        var oldValue:String = _internal_created_at;
+        if (oldValue !== value)
+        {
+            _internal_created_at = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "created_at", oldValue, _internal_created_at));
         }
     }
 

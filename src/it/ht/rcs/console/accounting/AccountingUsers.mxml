@@ -29,7 +29,7 @@
       
       private function formatdate(item:Object, column:DataGridColumn):String
       {
-        return TimeUtils.timestampFormatter(item[column.dataField]);
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
       }
       
       private function deleteUser(user:User):void
@@ -106,12 +106,12 @@
   <s:SkinnableContainer width="100%" height="100%">
     <s:Label text="{resourceManager.getString('localized_main', 'USERS_CONNECTED')}" horizontalCenter="0" top="5" styleName="AccountingTitles"/>
     <s:BorderContainer id="activeuserlistshadow" borderVisible="false" dropShadowVisible="true" right="0" left="0" top="30" bottom="0">
-      <mx:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{UserManager.instance.connected_users}">
+      <mx:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{UserManager.instance.getSessionsView()}">
         <mx:columns>
-          <mx:DataGridColumn headerText="User" dataField="user" minWidth="200"/>
-          <mx:DataGridColumn headerText="Privileges" dataField="privs" width="70" resizable="false"/>
+          <mx:DataGridColumn headerText="User" dataField="user.name" minWidth="200"/>
+          <mx:DataGridColumn headerText="Privileges" dataField="level" width="70" resizable="false"/>
           <mx:DataGridColumn headerText="Address" dataField="address"/>
-          <mx:DataGridColumn headerText="Logon Time" dataField="logon" labelFunction="formatdate" width="130" resizable="false"/>
+          <mx:DataGridColumn headerText="Logon Time" dataField="time" labelFunction="formatdate" width="130" resizable="false"/>
           <mx:DataGridColumn headerText="" sortable="false" resizable="false" width="35">
             <mx:itemRenderer>
               <fx:Component>

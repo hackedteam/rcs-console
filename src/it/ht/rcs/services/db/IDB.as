@@ -1,12 +1,15 @@
 package it.ht.rcs.services.db
 {
-  import it.ht.rcs.console.model.User;
   import it.ht.rcs.console.model.Group;
+  import it.ht.rcs.console.model.User;
 
   public interface IDB
   {
     function login(params:Object, onResult:Function, onFault:Function):void;
     function logout():void;
+    
+    function session_index(onResult:Function = null, onFault:Function = null):void;
+    function session_destroy(cookie:String, onResult:Function = null, onFault:Function = null):void;
     
     function user_index(onResult:Function = null, onFault:Function = null):void;
     function user_show(id:String, onResult:Function = null, onFault:Function = null):void;

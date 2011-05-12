@@ -31,7 +31,7 @@
         <item name="completeURL">http://localhost:4444/auth/login</item>
       </annotation>
       <annotation name="ValidProperties">
-        <item name="propertySpecifier">cookie,time,level,user</item>
+        <item name="propertySpecifier">cookie,time,level,address,user</item>
       </annotation>
       <annotation name="original signature">
         <item name="returnType">opaque</item>
@@ -285,6 +285,25 @@
       </annotation>
       <parameter name="strXml" type="string"/>
     </function>
+    <function name="session_index" return-type="Session[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/session</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/session</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">cookie,time,level,address,user</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
   </service>
   <entity name="User">
     <annotation name="EntityProperties">
@@ -311,14 +330,16 @@
     <annotation name="user_show">
       <item name="propertySpecifier">enabled,timezone,desc,_id,privs,group_ids,name,locale,contact,pass</item>
     </annotation>
+    <property name="desc" type="string"/>
     <property name="enabled" type="boolean"/>
     <property name="timezone" type="integer"/>
-    <property name="desc" type="string"/>
+    <property name="updated_at" type="string"/>
     <property name="_id" type="string"/>
     <property name="privs" type="string[]"/>
     <property name="group_ids" type="opaque[]"/>
     <property name="name" type="string"/>
     <property name="locale" type="string"/>
+    <property name="created_at" type="string"/>
     <property name="contact" type="string"/>
     <property name="pass" type="string"/>
   </entity>
@@ -333,15 +354,19 @@
       <item name="IncludeRemoteClass">nonempty</item>
     </annotation>
     <annotation name="login">
-      <item name="propertySpecifier">cookie,time,level,user</item>
+      <item name="propertySpecifier">cookie,time,level,address,user</item>
     </annotation>
     <annotation name="ActionScriptGeneration">
       <item name="Package">valueObjects</item>
     </annotation>
-    <property name="cookie" type="string" required="true"/>
-    <property name="time" type="string" required="true"/>
-    <property name="level" type="string[]" required="true"/>
-    <property name="user" type="User" required="true"/>
+    <annotation name="session_index">
+      <item name="propertySpecifier">cookie,time,level,address,user</item>
+    </annotation>
+    <property name="cookie" type="string"/>
+    <property name="time" type="string"/>
+    <property name="level" type="string[]"/>
+    <property name="address" type="string"/>
+    <property name="user" type="User"/>
   </entity>
   <entity name="Group">
     <annotation name="EntityProperties">

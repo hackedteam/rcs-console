@@ -1,10 +1,10 @@
 package it.ht.rcs.services.db
 {
+  import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
-  import it.ht.rcs.console.model.Group;
   
   public class DemoDB implements IDB
   {
@@ -29,7 +29,25 @@ package it.ht.rcs.services.db
     
     public function logout():void
     {
-      
+      /* do nothing */
+    }
+    
+    /* SESSION */
+    
+    public function session_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var items:ArrayCollection = new ArrayCollection();
+      items.addItem({user:{name:"alor"}, address:"1.1.2.3", time:new Date().time / 1000, level: new ArrayCollection(['admin', 'tech', 'view'])});
+      items.addItem({user:{name:"demo"}, address:"demo", time:new Date().time / 1000, level: new ArrayCollection(['view'])});
+      items.addItem({user:{name:"daniel"}, address:"5.6.7.8", time:new Date().time / 1000, level: new ArrayCollection(['tech', 'view'])});
+      var event:ResultEvent = new ResultEvent("session.index", false, true, items);
+      if (onResult != null) 
+        onResult(event);
+    }
+    
+    public function session_destroy(cookie:String, onResult:Function = null, onFault:Function = null):void
+    {
+      /* do nothing */
     }
     
     /* USERS */
@@ -48,11 +66,13 @@ package it.ht.rcs.services.db
       items.addItem({_id: '9', name: 'fabio', group_ids:new ArrayCollection(['2']), enabled:false});
       items.addItem({_id: '10', name: 'br1', group_ids:new ArrayCollection(['3']), enabled:false});
       var event:ResultEvent = new ResultEvent("user.index", false, true, items);
-      onResult(event);
+      if (onResult != null) 
+        onResult(event);
     }
     
     public function user_show(id:String, onResult:Function = null, onFault:Function = null):void
     {  
+      /* do nothing */
     }
     
     public function user_create(user:User, onResult:Function = null, onFault:Function = null):void
@@ -68,11 +88,13 @@ package it.ht.rcs.services.db
     public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
     {
       var event:ResultEvent = new ResultEvent("user.update", false, true, user);
-      onResult(event);
+      if (onResult != null) 
+         onResult(event);
     }
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
+      /* do nothing */
     }
     
     /* GROUPS */
@@ -84,11 +106,13 @@ package it.ht.rcs.services.db
       items.addItem({_id: '2', name: 'developers', user_ids:new ArrayCollection(['2','3','4','5','6','7','8','9'])});
       items.addItem({_id: '3', name: 'test', user_ids:new ArrayCollection(['10'])});
       var event:ResultEvent = new ResultEvent("group.index", false, true, items);
-      onResult(event);
+      if (onResult != null) 
+        onResult(event);
     }
     
     public function group_show(id:String, onResult:Function = null, onFault:Function = null):void
     {  
+      /* do nothing */
     }
 
     public function group_create(group:Group, onResult:Function = null, onFault:Function = null):void
@@ -97,17 +121,18 @@ package it.ht.rcs.services.db
       g._id = new Date().getTime().toString();
       g.user_ids = new ArrayCollection(g.user_ids);
       var event:ResultEvent = new ResultEvent("user.create", false, true, g);
-      onResult(event);
+      if (onResult != null) 
+        onResult(event);
     }
     
     public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
     {
-      
+      /* do nothing */
     }
     
     public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void
     {
-      
+      /* do nothing */
     }
     
     public function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
@@ -115,7 +140,8 @@ package it.ht.rcs.services.db
       group.user_ids.addItem(user._id);
       user.group_ids.addItem(group._id);
       var event:ResultEvent = new ResultEvent("group.add_user", false, true, group);
-      onResult(event);
+      if (onResult != null) 
+        onResult(event);
     }
     
     public function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
@@ -129,7 +155,8 @@ package it.ht.rcs.services.db
         user.group_ids.source.splice(idy, 1);
       
       var event:ResultEvent = new ResultEvent("group.del_user", false, true, group);
-      onResult(event);
+      if (onResult != null) 
+        onResult(event);
     }
   }
 }

@@ -133,13 +133,13 @@
     {
     }
     
-    public function getItem(id:String):*
+    public function getItem(_id:String):*
     {
       var idx:int;
       /* search for the item with _id and return it */
       for (idx = 0; idx < _items.length; idx++) {
         var elem:* = _items.getItemAt(idx);
-        if (elem._id == id)
+        if (elem._id == _id)
           return elem;
       }
       return null;

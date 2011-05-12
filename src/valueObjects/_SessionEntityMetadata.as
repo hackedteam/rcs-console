@@ -6,12 +6,10 @@ package valueObjects
 {
 import com.adobe.fiber.styles.IStyle;
 import com.adobe.fiber.styles.Style;
-import com.adobe.fiber.styles.StyleValidator;
 import com.adobe.fiber.valueobjects.AbstractEntityMetadata;
 import com.adobe.fiber.valueobjects.AvailablePropertyIterator;
 import com.adobe.fiber.valueobjects.IPropertyIterator;
 import mx.collections.ArrayCollection;
-import mx.events.ValidationResultEvent;
 import valueObjects.User;
 import com.adobe.fiber.core.model_internal;
 import com.adobe.fiber.valueobjects.IModelType;
@@ -24,14 +22,14 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
 {
     private static var emptyArray:Array = new Array();
 
-    model_internal static var allProperties:Array = new Array("cookie", "time", "level", "user");
+    model_internal static var allProperties:Array = new Array("cookie", "time", "level", "address", "user");
     model_internal static var allAssociationProperties:Array = new Array();
-    model_internal static var allRequiredProperties:Array = new Array("cookie", "time", "level", "user");
-    model_internal static var allAlwaysAvailableProperties:Array = new Array("cookie", "time", "level", "user");
+    model_internal static var allRequiredProperties:Array = new Array();
+    model_internal static var allAlwaysAvailableProperties:Array = new Array("cookie", "time", "level", "address", "user");
     model_internal static var guardedProperties:Array = new Array();
-    model_internal static var dataProperties:Array = new Array("cookie", "time", "level", "user");
+    model_internal static var dataProperties:Array = new Array("cookie", "time", "level", "address", "user");
     model_internal static var sourceProperties:Array = emptyArray
-    model_internal static var nonDerivedProperties:Array = new Array("cookie", "time", "level", "user");
+    model_internal static var nonDerivedProperties:Array = new Array("cookie", "time", "level", "address", "user");
     model_internal static var derivedProperties:Array = new Array();
     model_internal static var collectionProperties:Array = new Array("level");
     model_internal static var collectionBaseMap:Object;
@@ -40,26 +38,6 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
     model_internal static var dependedOnServices:Array = new Array();
     model_internal static var propertyTypeMap:Object;
 
-    
-    model_internal var _cookieIsValid:Boolean;
-    model_internal var _cookieValidator:com.adobe.fiber.styles.StyleValidator;
-    model_internal var _cookieIsValidCacheInitialized:Boolean = false;
-    model_internal var _cookieValidationFailureMessages:Array;
-    
-    model_internal var _timeIsValid:Boolean;
-    model_internal var _timeValidator:com.adobe.fiber.styles.StyleValidator;
-    model_internal var _timeIsValidCacheInitialized:Boolean = false;
-    model_internal var _timeValidationFailureMessages:Array;
-    
-    model_internal var _levelIsValid:Boolean;
-    model_internal var _levelValidator:com.adobe.fiber.styles.StyleValidator;
-    model_internal var _levelIsValidCacheInitialized:Boolean = false;
-    model_internal var _levelValidationFailureMessages:Array;
-    
-    model_internal var _userIsValid:Boolean;
-    model_internal var _userValidator:com.adobe.fiber.styles.StyleValidator;
-    model_internal var _userIsValidCacheInitialized:Boolean = false;
-    model_internal var _userValidationFailureMessages:Array;
 
     model_internal var _instance:_Super_Session;
     model_internal static var _nullStyle:com.adobe.fiber.styles.Style = new com.adobe.fiber.styles.Style();
@@ -74,6 +52,7 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
             model_internal::dependentsOnMap["cookie"] = new Array();
             model_internal::dependentsOnMap["time"] = new Array();
             model_internal::dependentsOnMap["level"] = new Array();
+            model_internal::dependentsOnMap["address"] = new Array();
             model_internal::dependentsOnMap["user"] = new Array();
 
             // collection base map
@@ -86,29 +65,10 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
         model_internal::propertyTypeMap["cookie"] = "String";
         model_internal::propertyTypeMap["time"] = "String";
         model_internal::propertyTypeMap["level"] = "ArrayCollection";
+        model_internal::propertyTypeMap["address"] = "String";
         model_internal::propertyTypeMap["user"] = "valueObjects.User";
 
         model_internal::_instance = value;
-        model_internal::_cookieValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForCookie);
-        model_internal::_cookieValidator.required = true;
-        model_internal::_cookieValidator.requiredFieldError = "cookie is required";
-        //model_internal::_cookieValidator.source = model_internal::_instance;
-        //model_internal::_cookieValidator.property = "cookie";
-        model_internal::_timeValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForTime);
-        model_internal::_timeValidator.required = true;
-        model_internal::_timeValidator.requiredFieldError = "time is required";
-        //model_internal::_timeValidator.source = model_internal::_instance;
-        //model_internal::_timeValidator.property = "time";
-        model_internal::_levelValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForLevel);
-        model_internal::_levelValidator.required = true;
-        model_internal::_levelValidator.requiredFieldError = "level is required";
-        //model_internal::_levelValidator.source = model_internal::_instance;
-        //model_internal::_levelValidator.property = "level";
-        model_internal::_userValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForUser);
-        model_internal::_userValidator.required = true;
-        model_internal::_userValidator.requiredFieldError = "user is required";
-        //model_internal::_userValidator.source = model_internal::_instance;
-        //model_internal::_userValidator.property = "user";
     }
 
     override public function getEntityName():String
@@ -354,6 +314,12 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
     }
 
     [Bindable(event="propertyChange")]
+    public function get isAddressAvailable():Boolean
+    {
+        return true;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get isUserAvailable():Boolean
     {
         return true;
@@ -363,38 +329,6 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
     /**
      * derived property recalculation
      */
-    public function invalidateDependentOnCookie():void
-    {
-        if (model_internal::_cookieIsValidCacheInitialized )
-        {
-            model_internal::_instance.model_internal::_doValidationCacheOfCookie = null;
-            model_internal::calculateCookieIsValid();
-        }
-    }
-    public function invalidateDependentOnTime():void
-    {
-        if (model_internal::_timeIsValidCacheInitialized )
-        {
-            model_internal::_instance.model_internal::_doValidationCacheOfTime = null;
-            model_internal::calculateTimeIsValid();
-        }
-    }
-    public function invalidateDependentOnLevel():void
-    {
-        if (model_internal::_levelIsValidCacheInitialized )
-        {
-            model_internal::_instance.model_internal::_doValidationCacheOfLevel = null;
-            model_internal::calculateLevelIsValid();
-        }
-    }
-    public function invalidateDependentOnUser():void
-    {
-        if (model_internal::_userIsValidCacheInitialized )
-        {
-            model_internal::_instance.model_internal::_doValidationCacheOfUser = null;
-            model_internal::calculateUserIsValid();
-        }
-    }
 
     model_internal function fireChangeEvent(propertyName:String, oldValue:Object, newValue:Object):void
     {
@@ -407,198 +341,10 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
         return model_internal::_nullStyle;
     }
 
-    public function get cookieValidator() : StyleValidator
-    {
-        return model_internal::_cookieValidator;
-    }
-
-    model_internal function set _cookieIsValid_der(value:Boolean):void 
-    {
-        var oldValue:Boolean = model_internal::_cookieIsValid;         
-        if (oldValue !== value)
-        {
-            model_internal::_cookieIsValid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "cookieIsValid", oldValue, value));
-        }                             
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get cookieIsValid():Boolean
-    {
-        if (!model_internal::_cookieIsValidCacheInitialized)
-        {
-            model_internal::calculateCookieIsValid();
-        }
-
-        return model_internal::_cookieIsValid;
-    }
-
-    model_internal function calculateCookieIsValid():void
-    {
-        var valRes:ValidationResultEvent = model_internal::_cookieValidator.validate(model_internal::_instance.cookie)
-        model_internal::_cookieIsValid_der = (valRes.results == null);
-        model_internal::_cookieIsValidCacheInitialized = true;
-        if (valRes.results == null)
-             model_internal::cookieValidationFailureMessages_der = emptyArray;
-        else
-        {
-            var _valFailures:Array = new Array();
-            for (var a:int = 0 ; a<valRes.results.length ; a++)
-            {
-                _valFailures.push(valRes.results[a].errorMessage);
-            }
-            model_internal::cookieValidationFailureMessages_der = _valFailures;
-        }
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get cookieValidationFailureMessages():Array
-    {
-        if (model_internal::_cookieValidationFailureMessages == null)
-            model_internal::calculateCookieIsValid();
-
-        return _cookieValidationFailureMessages;
-    }
-
-    model_internal function set cookieValidationFailureMessages_der(value:Array) : void
-    {
-        var oldValue:Array = model_internal::_cookieValidationFailureMessages;
-
-        var needUpdate : Boolean = false;
-        if (oldValue == null)
-            needUpdate = true;
-    
-        // avoid firing the event when old and new value are different empty arrays
-        if (!needUpdate && (oldValue !== value && (oldValue.length > 0 || value.length > 0)))
-        {
-            if (oldValue.length == value.length)
-            {
-                for (var a:int=0; a < oldValue.length; a++)
-                {
-                    if (oldValue[a] !== value[a])
-                    {
-                        needUpdate = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                needUpdate = true;
-            }
-        }
-
-        if (needUpdate)
-        {
-            model_internal::_cookieValidationFailureMessages = value;   
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "cookieValidationFailureMessages", oldValue, value));
-            // Only execute calculateIsValid if it has been called before, to update the validationFailureMessages for
-            // the entire entity.
-            if (model_internal::_instance.model_internal::_cacheInitialized_isValid)
-            {
-                model_internal::_instance.model_internal::isValid_der = model_internal::_instance.model_internal::calculateIsValid();
-            }
-        }
-    }
-
     [Bindable(event="propertyChange")]   
     public function get timeStyle():com.adobe.fiber.styles.Style
     {
         return model_internal::_nullStyle;
-    }
-
-    public function get timeValidator() : StyleValidator
-    {
-        return model_internal::_timeValidator;
-    }
-
-    model_internal function set _timeIsValid_der(value:Boolean):void 
-    {
-        var oldValue:Boolean = model_internal::_timeIsValid;         
-        if (oldValue !== value)
-        {
-            model_internal::_timeIsValid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "timeIsValid", oldValue, value));
-        }                             
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get timeIsValid():Boolean
-    {
-        if (!model_internal::_timeIsValidCacheInitialized)
-        {
-            model_internal::calculateTimeIsValid();
-        }
-
-        return model_internal::_timeIsValid;
-    }
-
-    model_internal function calculateTimeIsValid():void
-    {
-        var valRes:ValidationResultEvent = model_internal::_timeValidator.validate(model_internal::_instance.time)
-        model_internal::_timeIsValid_der = (valRes.results == null);
-        model_internal::_timeIsValidCacheInitialized = true;
-        if (valRes.results == null)
-             model_internal::timeValidationFailureMessages_der = emptyArray;
-        else
-        {
-            var _valFailures:Array = new Array();
-            for (var a:int = 0 ; a<valRes.results.length ; a++)
-            {
-                _valFailures.push(valRes.results[a].errorMessage);
-            }
-            model_internal::timeValidationFailureMessages_der = _valFailures;
-        }
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get timeValidationFailureMessages():Array
-    {
-        if (model_internal::_timeValidationFailureMessages == null)
-            model_internal::calculateTimeIsValid();
-
-        return _timeValidationFailureMessages;
-    }
-
-    model_internal function set timeValidationFailureMessages_der(value:Array) : void
-    {
-        var oldValue:Array = model_internal::_timeValidationFailureMessages;
-
-        var needUpdate : Boolean = false;
-        if (oldValue == null)
-            needUpdate = true;
-    
-        // avoid firing the event when old and new value are different empty arrays
-        if (!needUpdate && (oldValue !== value && (oldValue.length > 0 || value.length > 0)))
-        {
-            if (oldValue.length == value.length)
-            {
-                for (var a:int=0; a < oldValue.length; a++)
-                {
-                    if (oldValue[a] !== value[a])
-                    {
-                        needUpdate = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                needUpdate = true;
-            }
-        }
-
-        if (needUpdate)
-        {
-            model_internal::_timeValidationFailureMessages = value;   
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "timeValidationFailureMessages", oldValue, value));
-            // Only execute calculateIsValid if it has been called before, to update the validationFailureMessages for
-            // the entire entity.
-            if (model_internal::_instance.model_internal::_cacheInitialized_isValid)
-            {
-                model_internal::_instance.model_internal::isValid_der = model_internal::_instance.model_internal::calculateIsValid();
-            }
-        }
     }
 
     [Bindable(event="propertyChange")]   
@@ -607,198 +353,16 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
         return model_internal::_nullStyle;
     }
 
-    public function get levelValidator() : StyleValidator
+    [Bindable(event="propertyChange")]   
+    public function get addressStyle():com.adobe.fiber.styles.Style
     {
-        return model_internal::_levelValidator;
-    }
-
-    model_internal function set _levelIsValid_der(value:Boolean):void 
-    {
-        var oldValue:Boolean = model_internal::_levelIsValid;         
-        if (oldValue !== value)
-        {
-            model_internal::_levelIsValid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "levelIsValid", oldValue, value));
-        }                             
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get levelIsValid():Boolean
-    {
-        if (!model_internal::_levelIsValidCacheInitialized)
-        {
-            model_internal::calculateLevelIsValid();
-        }
-
-        return model_internal::_levelIsValid;
-    }
-
-    model_internal function calculateLevelIsValid():void
-    {
-        var valRes:ValidationResultEvent = model_internal::_levelValidator.validate(model_internal::_instance.level)
-        model_internal::_levelIsValid_der = (valRes.results == null);
-        model_internal::_levelIsValidCacheInitialized = true;
-        if (valRes.results == null)
-             model_internal::levelValidationFailureMessages_der = emptyArray;
-        else
-        {
-            var _valFailures:Array = new Array();
-            for (var a:int = 0 ; a<valRes.results.length ; a++)
-            {
-                _valFailures.push(valRes.results[a].errorMessage);
-            }
-            model_internal::levelValidationFailureMessages_der = _valFailures;
-        }
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get levelValidationFailureMessages():Array
-    {
-        if (model_internal::_levelValidationFailureMessages == null)
-            model_internal::calculateLevelIsValid();
-
-        return _levelValidationFailureMessages;
-    }
-
-    model_internal function set levelValidationFailureMessages_der(value:Array) : void
-    {
-        var oldValue:Array = model_internal::_levelValidationFailureMessages;
-
-        var needUpdate : Boolean = false;
-        if (oldValue == null)
-            needUpdate = true;
-    
-        // avoid firing the event when old and new value are different empty arrays
-        if (!needUpdate && (oldValue !== value && (oldValue.length > 0 || value.length > 0)))
-        {
-            if (oldValue.length == value.length)
-            {
-                for (var a:int=0; a < oldValue.length; a++)
-                {
-                    if (oldValue[a] !== value[a])
-                    {
-                        needUpdate = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                needUpdate = true;
-            }
-        }
-
-        if (needUpdate)
-        {
-            model_internal::_levelValidationFailureMessages = value;   
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "levelValidationFailureMessages", oldValue, value));
-            // Only execute calculateIsValid if it has been called before, to update the validationFailureMessages for
-            // the entire entity.
-            if (model_internal::_instance.model_internal::_cacheInitialized_isValid)
-            {
-                model_internal::_instance.model_internal::isValid_der = model_internal::_instance.model_internal::calculateIsValid();
-            }
-        }
+        return model_internal::_nullStyle;
     }
 
     [Bindable(event="propertyChange")]   
     public function get userStyle():com.adobe.fiber.styles.Style
     {
         return model_internal::_nullStyle;
-    }
-
-    public function get userValidator() : StyleValidator
-    {
-        return model_internal::_userValidator;
-    }
-
-    model_internal function set _userIsValid_der(value:Boolean):void 
-    {
-        var oldValue:Boolean = model_internal::_userIsValid;         
-        if (oldValue !== value)
-        {
-            model_internal::_userIsValid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "userIsValid", oldValue, value));
-        }                             
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get userIsValid():Boolean
-    {
-        if (!model_internal::_userIsValidCacheInitialized)
-        {
-            model_internal::calculateUserIsValid();
-        }
-
-        return model_internal::_userIsValid;
-    }
-
-    model_internal function calculateUserIsValid():void
-    {
-        var valRes:ValidationResultEvent = model_internal::_userValidator.validate(model_internal::_instance.user)
-        model_internal::_userIsValid_der = (valRes.results == null);
-        model_internal::_userIsValidCacheInitialized = true;
-        if (valRes.results == null)
-             model_internal::userValidationFailureMessages_der = emptyArray;
-        else
-        {
-            var _valFailures:Array = new Array();
-            for (var a:int = 0 ; a<valRes.results.length ; a++)
-            {
-                _valFailures.push(valRes.results[a].errorMessage);
-            }
-            model_internal::userValidationFailureMessages_der = _valFailures;
-        }
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get userValidationFailureMessages():Array
-    {
-        if (model_internal::_userValidationFailureMessages == null)
-            model_internal::calculateUserIsValid();
-
-        return _userValidationFailureMessages;
-    }
-
-    model_internal function set userValidationFailureMessages_der(value:Array) : void
-    {
-        var oldValue:Array = model_internal::_userValidationFailureMessages;
-
-        var needUpdate : Boolean = false;
-        if (oldValue == null)
-            needUpdate = true;
-    
-        // avoid firing the event when old and new value are different empty arrays
-        if (!needUpdate && (oldValue !== value && (oldValue.length > 0 || value.length > 0)))
-        {
-            if (oldValue.length == value.length)
-            {
-                for (var a:int=0; a < oldValue.length; a++)
-                {
-                    if (oldValue[a] !== value[a])
-                    {
-                        needUpdate = true;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                needUpdate = true;
-            }
-        }
-
-        if (needUpdate)
-        {
-            model_internal::_userValidationFailureMessages = value;   
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "userValidationFailureMessages", oldValue, value));
-            // Only execute calculateIsValid if it has been called before, to update the validationFailureMessages for
-            // the entire entity.
-            if (model_internal::_instance.model_internal::_cacheInitialized_isValid)
-            {
-                model_internal::_instance.model_internal::isValid_der = model_internal::_instance.model_internal::calculateIsValid();
-            }
-        }
     }
 
 
@@ -826,22 +390,6 @@ internal class _SessionEntityMetadata extends com.adobe.fiber.valueobjects.Abstr
      {
          switch(propertyName)
          {
-            case("cookie"):
-            {
-                return cookieValidationFailureMessages;
-            }
-            case("time"):
-            {
-                return timeValidationFailureMessages;
-            }
-            case("level"):
-            {
-                return levelValidationFailureMessages;
-            }
-            case("user"):
-            {
-                return userValidationFailureMessages;
-            }
             default:
             {
                 return emptyArray;

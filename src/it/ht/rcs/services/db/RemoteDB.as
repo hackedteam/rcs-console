@@ -80,6 +80,19 @@
     {
       _delegate.logout();
     }
+
+    /* SESSION */
+    
+    public function session_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.session_index(); 
+    }    
+    
+    public function session_destroy(cookie:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
     
     /* USERS */
     
@@ -103,14 +116,16 @@
 
     public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
     {
-      var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.user_update(user._id, JSON.encode(user.toHash()));
+      // FIXME: how fucking ??!?!?
+      //var resp:CallResponder = getCallResponder(onResult, onFault);
+      //resp.token = _delegate.user_update(user._id, JSON.encode(user.toHash()));
     }
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
-      var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.user_destroy(user._id, null);
+      // FIXME: how fucking ??!?!?
+      //var resp:CallResponder = getCallResponder(onResult, onFault);
+      //resp.token = _delegate.user_destroy(user._id, null);
     }
     
     /* GROUPS */

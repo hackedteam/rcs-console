@@ -63,11 +63,9 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operations.push(operation);
 
          operation = new mx.rpc.http.Operation(null, "user_update");
-         operation.url = "/user/{id}";
+         operation.url = "/user/update";
          operation.method = "POST";
          operation.serializationFilter = serializer1;
-         operation.properties = new Object();
-         operation.properties["urlParamNames"] = ["id"];
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.User;
          operations.push(operation);
@@ -147,6 +145,13 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
 
          operation = new mx.rpc.http.Operation(null, "session_destroy");
          operation.url = "/session/destroy";
+         operation.method = "POST";
+         operation.contentType = "application/xml";
+         operation.resultType = Object;
+         operations.push(operation);
+
+         operation = new mx.rpc.http.Operation(null, "group_update");
+         operation.url = "/group/update";
          operation.method = "POST";
          operation.contentType = "application/xml";
          operation.resultType = Object;
@@ -249,10 +254,10 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
       *
       * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
       */
-    public function user_update(id:String, strXml:String) : mx.rpc.AsyncToken
+    public function user_update(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_update");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id,strXml) ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -432,6 +437,24 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function session_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("session_destroy");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'group_update' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function group_update(strXml:String) : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_update");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }

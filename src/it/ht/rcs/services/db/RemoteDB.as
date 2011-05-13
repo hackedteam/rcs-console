@@ -128,9 +128,10 @@
 
     public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
     {
-      // FIXME: how fucking ??!?!?
-      //var resp:CallResponder = getCallResponder(onResult, onFault);
-      //resp.token = _delegate.user_update(user._id, JSON.encode(user.toHash()));
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      var u:Object = user.toHash();
+      u['user'] = user._id;
+      resp.token = _delegate.user_update(JSON.encode(u));
     }
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
@@ -161,7 +162,10 @@
     
     public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      var g:Object = group.toHash();
+      g['group'] = group._id;
+      resp.token = _delegate.group_update(JSON.encode(g));
     }
     
     public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void

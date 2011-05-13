@@ -71,7 +71,6 @@
         
         case CollectionEventKind.UPDATE: 
           event.items.forEach(function _(element:*, index:int, arr:Array):void {
-            trace(element.toString());
             onItemUpdate(element);
           });
           break; 

@@ -76,9 +76,10 @@
       resp.token = _delegate.login(JSON.encode(params));
     }
     
-    public function logout():void
+    public function logout(onResult:Function = null, onFault:Function = null):void
     {
-      _delegate.logout();
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.logout();
     }
 
     /* SESSION */

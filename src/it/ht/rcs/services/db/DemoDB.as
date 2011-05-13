@@ -27,9 +27,11 @@ package it.ht.rcs.services.db
       onResult(event);
     }
     
-    public function logout():void
+    public function logout(onResult:Function = null, onFault:Function = null):void
     {
-      /* do nothing */
+      var event:ResultEvent = new ResultEvent("logout", false, true, null);
+      if (onResult != null) 
+        onResult(event);
     }
     
     /* SESSION */
@@ -40,6 +42,7 @@ package it.ht.rcs.services.db
       items.addItem({user:{name:"alor"}, address:"1.1.2.3", time:new Date().time / 1000, level: new ArrayCollection(['admin', 'tech', 'view'])});
       items.addItem({user:{name:"demo"}, address:"demo", time:new Date().time / 1000, level: new ArrayCollection(['view'])});
       items.addItem({user:{name:"daniel"}, address:"5.6.7.8", time:new Date().time / 1000, level: new ArrayCollection(['tech', 'view'])});
+      items.addItem({user:{name:"admin"}, address:"10.11.12.13", time:new Date().time / 1000, level: new ArrayCollection(['admin'])});
       var event:ResultEvent = new ResultEvent("session.index", false, true, items);
       if (onResult != null) 
         onResult(event);

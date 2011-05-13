@@ -5,6 +5,7 @@
 
 <fx:Script>
   <![CDATA[
+    import it.ht.rcs.console.model.Account;
     import it.ht.rcs.console.events.LogonEvent;
     import it.ht.rcs.console.events.RefreshEvent;
     
@@ -14,6 +15,12 @@
     {
       /* destroy the current session */
       console.currentSession.destroy();
+      /* logout the user from the db */
+      new Account().logout(onLogoutExit, onLogoutExit);
+    }
+    
+    private function onLogoutExit(event:*):void
+    {
       /* close the AIR application */
       console.applicationExit();
     }
@@ -25,6 +32,12 @@
       /* destroy the current session */
       console.currentSession.destroy();
       console.currentSession = null;
+      /* logout the user from the db */
+      new Account().logout(onLogout, onLogout);
+    }
+    
+    private function onLogout(event:*):void
+    {
       /* back to the login screen */ 
       FlexGlobals.topLevelApplication.currentState = "LoggedOut" 
     }

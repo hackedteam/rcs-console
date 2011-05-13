@@ -78,11 +78,11 @@ package it.ht.rcs.console.model
       _errback('Cannot connect to server');
     }
     
-    public function logout():void
+    public function logout(callback:Function = null, errback:Function = null):void
     {
       trace('Account.logout');
       /* request to the DB, ignoring the results */
-      console.currentDB.logout();
+      console.currentDB.logout(callback, errback);
     }
     
     private function load_previous():void

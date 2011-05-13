@@ -1,8 +1,8 @@
 package it.ht.rcs.console.model
 {
   
-  import mx.resources.ResourceManager;
   import mx.core.FlexGlobals;
+  import mx.resources.ResourceManager;
 
   public class Session
   {
@@ -33,12 +33,10 @@ package it.ht.rcs.console.model
     }
     
     public function destroy():void
-    {
-      /* logout the user from the db */
-      new Account().logout();
-      
+    {      
       /* current user is released */
       user = null;
+      server = null;
     }
     
     

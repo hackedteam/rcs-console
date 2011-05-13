@@ -1,5 +1,7 @@
   package it.ht.rcs.services.db
 {
+  import com.adobe.serialization.json.JSONParseError;
+  
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
@@ -29,8 +31,16 @@
     private function onDeFault(e:FaultEvent):void
     {
       var message:String = "ERROR";
-      var decoded:* = JSON.decode(e.fault.content as String);
       
+      // TODO: if http code is 403, handle ivalid cookie
+      
+      var decoded:*;
+      try {
+        decoded = JSON.decode(e.fault.content as String);
+      } catch (e:JSONParseError) {
+        decoded = "";
+      }
+        
       if (decoded is Array)
         message = decoded[0];
       else if (decoded is String)
@@ -92,7 +102,8 @@
     
     public function session_destroy(cookie:String, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.session_destroy(JSON.encode({session: cookie}));
     }
     
     /* USERS */
@@ -124,9 +135,8 @@
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
-      // FIXME: how fucking ??!?!?
-      //var resp:CallResponder = getCallResponder(onResult, onFault);
-      //resp.token = _delegate.user_destroy(user._id, null);
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.user_destroy(JSON.encode({user: user._id}));
     }
     
     /* GROUPS */
@@ -156,7 +166,8 @@
     
     public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.group_destroy(JSON.encode({group: group._id}));
     }
     
     public function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void

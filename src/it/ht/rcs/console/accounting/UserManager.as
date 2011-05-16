@@ -86,7 +86,7 @@ package it.ht.rcs.console.accounting
       
       /* default sorting is alphabetical */
       var sort:Sort = new Sort();
-      sort.fields = [new SortField('user', true, false, false)];
+      sort.fields = [new SortField('time', true, false, true)];
       lcv.sort = sort;
       lcv.refresh();
       

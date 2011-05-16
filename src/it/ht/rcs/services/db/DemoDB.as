@@ -39,10 +39,10 @@ package it.ht.rcs.services.db
     public function session_index(onResult:Function = null, onFault:Function = null):void
     {
       var items:ArrayCollection = new ArrayCollection();
-      items.addItem({user:{name:"alor"}, address:"1.1.2.3", time:new Date().time / 1000, level: new ArrayCollection(['admin', 'tech', 'view'])});
+      items.addItem({user:{name:"alor"}, address:"1.1.2.3", time:(new Date().time - 20000) / 1000, level: new ArrayCollection(['admin', 'tech', 'view'])});
       items.addItem({user:{name:"demo"}, address:"demo", time:new Date().time / 1000, level: new ArrayCollection(['view'])});
-      items.addItem({user:{name:"daniel"}, address:"5.6.7.8", time:new Date().time / 1000, level: new ArrayCollection(['tech', 'view'])});
-      items.addItem({user:{name:"admin"}, address:"10.11.12.13", time:new Date().time / 1000, level: new ArrayCollection(['admin'])});
+      items.addItem({user:{name:"daniel"}, address:"5.6.7.8", time:(new Date().time - 5000) / 1000, level: new ArrayCollection(['tech', 'view'])});
+      items.addItem({user:{name:"admin"}, address:"10.11.12.13", time:(new Date().time - 2000) / 1000, level: new ArrayCollection(['admin'])});
       var event:ResultEvent = new ResultEvent("session.index", false, true, items);
       if (onResult != null) 
         onResult(event);

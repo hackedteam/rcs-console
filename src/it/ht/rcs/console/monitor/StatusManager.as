@@ -40,7 +40,7 @@ package it.ht.rcs.console.monitor
       _items.removeAll();
       
       /* DEMO MOCK */
-      if (console.currentSession.fake) {
+      if (true) {
         addItem(new StatusEntry({name: 'Collector', status:'0', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
 		    addItem(new StatusEntry({name: 'Database', status:'1', address: '127.0.0.1', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
 		    addItem(new StatusEntry({name: 'Collector', status:'2', address: '5.6.7.8', desc: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));

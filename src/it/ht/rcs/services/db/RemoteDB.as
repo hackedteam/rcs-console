@@ -126,12 +126,11 @@
       resp.token = _delegate.user_create(JSON.encode(user.toHash()));
     }
 
-    public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
+    public function user_update(user:User, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      var u:Object = user.toHash();
-      u['user'] = user._id;
-      resp.token = _delegate.user_update(JSON.encode(u));
+      property['user'] = user._id;
+      resp.token = _delegate.user_update(JSON.encode(property));
     }
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
@@ -160,12 +159,11 @@
       resp.token = _delegate.group_create(JSON.encode(group.toHash()));
     }
     
-    public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
+    public function group_update(group:Group, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      var g:Object = group.toHash();
-      g['group'] = group._id;
-      resp.token = _delegate.group_update(JSON.encode(g));
+      property['group'] = group._id;
+      resp.token = _delegate.group_update(JSON.encode(property));
     }
     
     public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void

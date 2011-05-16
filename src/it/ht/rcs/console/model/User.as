@@ -1,5 +1,6 @@
 package it.ht.rcs.console.model
 {
+  import mx.controls.Alert;
   import mx.collections.ArrayCollection;
   import mx.resources.ResourceManager;
   import mx.rpc.events.ResultEvent;
@@ -80,7 +81,12 @@ package it.ht.rcs.console.model
     
     public function change_password(new_pass:String):void
     {
-      // TODO: save to the db      
+      console.currentDB.user_update(this, {pass: new_pass}, onPasswordChanged);
+    }
+    
+    public function onPasswordChanged(e: ResultEvent):void
+    {
+      Alert.show(ResourceManager.getInstance().getString('localized_main', 'PASSWORD_CHANGED'));
     }
     
     public function reload():void

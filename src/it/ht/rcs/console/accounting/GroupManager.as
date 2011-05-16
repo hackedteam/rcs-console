@@ -31,7 +31,12 @@ package it.ht.rcs.console.accounting
     
     override protected function onItemUpdate(e:*):void
     { 
-      console.currentDB.group_update(e.source);
+      var o:Object = new Object;
+      if (e.newValue is ArrayCollection)
+        o[e.property] = e.newValue.source;
+      else
+        o[e.property] = e.newValue;
+      console.currentDB.group_update(e.source, o);
     }
 
     override protected function onRefresh(e:RefreshEvent):void

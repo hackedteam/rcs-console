@@ -13,7 +13,7 @@
       import mx.controls.Menu;
       import mx.events.MenuEvent;
       import mx.managers.PopUpManager;
-      
+            
       [Bindable]
       private var _user:User;
       
@@ -29,14 +29,12 @@
         _user.timezone = formConsoletime.selectedItem;
         
         var privs:ArrayCollection = new ArrayCollection();
-        if (formAdmin.selected)
-          privs.addItem('ADMIN');
-        if (formTech.selected) 
-          privs.addItem('TECH');
-        if (formView.selected) 
-          privs.addItem('VIEW');
+        if (formAdmin.selected) privs.addItem('ADMIN');
+        if (formTech.selected)  privs.addItem('TECH');
+        if (formView.selected)  privs.addItem('VIEW');
         
-        _user.privs = privs;
+        if (privs.toString() != _user.privs.toString())
+          _user.privs = privs;
         
         PopUpManager.removePopUp(this);
         callback();

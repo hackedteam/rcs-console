@@ -88,11 +88,9 @@ package it.ht.rcs.services.db
       onResult(event);
     }
 
-    public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
+    public function user_update(user:User, property:Object, onResult:Function = null, onFault:Function = null):void
     {
-      var event:ResultEvent = new ResultEvent("user.update", false, true, user);
-      if (onResult != null) 
-         onResult(event);
+      /* do nothing */
     }
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
@@ -128,7 +126,7 @@ package it.ht.rcs.services.db
         onResult(event);
     }
     
-    public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
+    public function group_update(group:Group, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       /* do nothing */
     }

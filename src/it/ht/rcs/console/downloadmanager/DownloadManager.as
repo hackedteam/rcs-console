@@ -37,7 +37,8 @@ package it.ht.rcs.console.downloadmanager
       tasks.removeAll();
       
       /* DEMO MOCK */
-      if (console.currentSession.fake) {
+      //if (console.currentSession.fake) {
+      if (true) {
         var p:int = 1000;
         var t:Task = new Task();
         

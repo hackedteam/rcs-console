@@ -90,6 +90,7 @@ package it.ht.rcs.services.db
 
     public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
     {
+      trace('no');
       var event:ResultEvent = new ResultEvent("user.update", false, true, user);
       if (onResult != null) 
          onResult(event);

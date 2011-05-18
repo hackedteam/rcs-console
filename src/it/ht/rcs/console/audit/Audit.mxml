@@ -1,15 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         title="AUDIT" >
+         xmlns:audit="it.ht.rcs.console.audit.*"
+         creationComplete="init(event)" title="AUDIT">
+
+  <fx:Declarations>
+    <s:ArrayCollection id="dummy">
+      <fx:Object action="auth.login" activity="Activity 1" actor="Corrado" backdoor="RCS_000"
+                 date="2011-05-17" description="Descr 1" group="" target="Target 1" user="Corrado"/>
+      <fx:Object action="auth.login" activity="Activity 2" actor="Corrado" backdoor="RCS_001"
+                 date="2011-05-18" description="Descr 2" group="" target="Target 2" user="Corrado"/>
+    </s:ArrayCollection>
+  </fx:Declarations>
+  
   <fx:Script>
     <![CDATA[
-
+      import mx.events.FlexEvent;
+      
+      [Bindable]
+      public static var instance:Audit;
+      
+      [Bindable]
+      public var filterObject:AuditFilter = new AuditFilter();
+      
+      private function init(event:FlexEvent):void {
+        instance = this;
+      }
+      
+      public function resetFilterObject():void {
+        Audit.instance.filterObject = new AuditFilter();
+      }
+      
+      public function refresh():void {
+      }
+      
+      protected function button1_clickHandler(event:MouseEvent):void {
+        trace(Audit.instance.filterObject);
+      }
+      
     ]]>
   </fx:Script>
-  <fx:Declarations>
 
-  </fx:Declarations>
-
+  <s:Button click="button1_clickHandler(event)"/>
+  <audit:AuditTable left="5" right="5" top="5" bottom="5" dataProvider="{dummy}"/>
+  
 </s:Panel>

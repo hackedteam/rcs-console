@@ -13,7 +13,7 @@
       import mx.controls.Menu;
       import mx.events.MenuEvent;
       import mx.managers.PopUpManager;
-      
+            
       [Bindable]
       private var _user:User;
       
@@ -21,22 +21,21 @@
       
       private function closeMe():void
       {
-        _user.enabled = formEnabled.selected;
+        /* keep the name the first to be modified */
         _user.name = formName.text;
+        _user.enabled = formEnabled.selected;
         _user.desc = formDescription.text;
         _user.contact = formContact.text;
         _user.locale = formLocale.selectedItem;
         _user.timezone = formConsoletime.selectedItem;
         
         var privs:ArrayCollection = new ArrayCollection();
-        if (formAdmin.selected)
-          privs.addItem('ADMIN');
-        if (formTech.selected) 
-          privs.addItem('TECH');
-        if (formView.selected) 
-          privs.addItem('VIEW');
+        if (formAdmin.selected) privs.addItem('ADMIN');
+        if (formTech.selected)  privs.addItem('TECH');
+        if (formView.selected)  privs.addItem('VIEW');
         
-        _user.privs = privs;
+        if (privs.toString() != _user.privs.toString())
+          _user.privs = privs;
         
         PopUpManager.removePopUp(this);
         callback();
@@ -56,7 +55,7 @@
       
       private function removeGroup(g:Group):void
       {
-        g.removeUser(_user);
+        g.removeUser(_user);  
       }
       
       private function addGroup(event:MenuEvent):void

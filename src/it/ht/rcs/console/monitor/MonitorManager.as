@@ -6,6 +6,7 @@ package it.ht.rcs.console.monitor
 	
 	import it.ht.rcs.console.events.RefreshEvent;
 	import it.ht.rcs.console.model.Manager;
+	import it.ht.rcs.console.model.Monitor;
 	import it.ht.rcs.console.utils.CounterBaloon;
 	
 	import mx.collections.ArrayCollection;
@@ -14,8 +15,9 @@ package it.ht.rcs.console.monitor
 	import mx.core.FlexGlobals;
 	import mx.events.CollectionEvent;
 	import mx.events.CollectionEventKind;
+	import mx.rpc.events.ResultEvent;
 
-  public class StatusManager extends Manager
+  public class MonitorManager extends Manager
   {
     
     private var _counterBaloon:CounterBaloon = new CounterBaloon();
@@ -24,10 +26,10 @@ package it.ht.rcs.console.monitor
     private var _autorefresh:Timer = new Timer(15000);
     
     /* singleton */
-    private static var _instance:StatusManager = new StatusManager();
-    public static function get instance():StatusManager { return _instance; } 
+    private static var _instance:MonitorManager = new MonitorManager();
+    public static function get instance():MonitorManager { return _instance; } 
     
-    public function StatusManager()
+    public function MonitorManager()
     {
       super();
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefreshCounter);
@@ -36,38 +38,42 @@ package it.ht.rcs.console.monitor
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-
-      _items.removeAll();
-      
-      /* DEMO MOCK */
-      if (console.currentSession.fake) {
-        addItem(new StatusEntry({name: 'Collector', status:'0', address: '1.2.3.4', desc: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10}));
-		    addItem(new StatusEntry({name: 'Database', status:'1', address: '127.0.0.1', desc: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20}));
-		    addItem(new StatusEntry({name: 'Collector', status:'2', address: '5.6.7.8', desc: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70}));
-      }
-            
-      // TODO: get from db
+      console.currentDB.monitor_index(onMonitorIndexResult);
     }
    
+    private function onMonitorIndexResult(e:ResultEvent):void
+    {
+      var items:ArrayCollection = e.result as ArrayCollection;
+      _items.removeAll();
+      items.source.forEach(function toMonitorArray(element:*, index:int, arr:Array):void {
+        addItem(new Monitor(element));
+      });
+    }
+    
     override protected function onItemRemove(o:*):void 
     { 
-      // TODO: remove from db
+      console.currentDB.monitor_destroy(o._id);
+    }
+    
+    private function onAutoRefresh(e:Event):void
+    {
+      onRefresh(null);
     }
     
     override public function start():void
     {
       super.start();
-      _autorefresh.addEventListener(TimerEvent.TIMER, onRefresh);
+      _autorefresh.addEventListener(TimerEvent.TIMER, onAutoRefresh);
     }
 	
     override public function stop():void
     {
       super.stop();
-      _autorefresh.removeEventListener(TimerEvent.TIMER, onRefresh);
+      _autorefresh.removeEventListener(TimerEvent.TIMER, onAutoRefresh);
     }
 
     
-    public function add_counters():void
+    public function start_counters():void
     {
       /* add the baloon to the screen */
       FlexGlobals.topLevelApplication.addElement(_counterBaloon);
@@ -80,7 +86,7 @@ package it.ht.rcs.console.monitor
       onRefreshCounter(null);
     }
 
-    public function remove_counters():void
+    public function stop_counters():void
     {
       FlexGlobals.topLevelApplication.removeElement(_counterBaloon);
       
@@ -92,6 +98,12 @@ package it.ht.rcs.console.monitor
     private function onRefreshCounter(e:Event):void
     {
       trace('StatusManager -- Refresh Counters');
+      
+      console.currentDB.monitor_counters(onMonitorCounters);
+    }
+    
+    private function onMonitorCounters(e:ResultEvent):void
+    {
       /* get the position of the Monitor button */
       var buttons:ArrayCollection = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar.dataProvider;
       var len:int = buttons.length;
@@ -101,14 +113,14 @@ package it.ht.rcs.console.monitor
       _counterBaloon.right = 3 + ((len - index) * 90);
       _counterBaloon.top = 43;
       
-      /* DEMO MOCK */
-      if (console.currentSession.fake) {
-        _counterBaloon.value = (Math.round( Math.random() * 3 ));
-        _counterBaloon.style = "alert";
+      if (e.result['ko'] != 0) {
+        _counterBaloon.value = e.result['ko'];
+        _counterBaloon.style = 'alert';
+      } else if (e.result['warn'] != 0) {
+        _counterBaloon.value = e.result['warn'];
+        _counterBaloon.style = 'warn';        
       }
       
-      // TODO: get counters from db
-
       /* display it or not */
       if (_counterBaloon.value > 0)
         _counterBaloon.visible = true;

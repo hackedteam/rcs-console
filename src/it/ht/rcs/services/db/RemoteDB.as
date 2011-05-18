@@ -12,17 +12,17 @@
   {
     import com.adobe.serialization.json.JSON;
     
-    import it.ht.rcs.services.db.ServiceDB;
+    import it.ht.rcs.services.db.DB;
     
     import mx.rpc.CallResponder;
     import mx.rpc.events.FaultEvent;
     import mx.rpc.events.ResultEvent;
     
-    private var _delegate:ServiceDB;
+    private var _delegate:DB;
     
     public function RemoteDB(baseURL:String)
     {
-      _delegate = new ServiceDB;
+      _delegate = new DB;
       _delegate.baseURL = baseURL;
       _delegate.showBusyCursor = true;
     }
@@ -106,6 +106,44 @@
       resp.token = _delegate.session_destroy(JSON.encode({session: cookie}));
     }
     
+    /* AUDIT */
+    public function audit_index(filter: Object, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.audit_index(JSON.encode(filter));
+    }
+    
+    /* LICENSE */
+    
+    public function license_limit(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.license_limit(); 
+    }
+
+    public function license_count(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.license_count(); 
+    }
+
+    /* MONITOR */
+
+    public function monitor_index(onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function monitor_counters(onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
     /* USERS */
     
     public function user_index(onResult:Function = null, onFault:Function = null):void
@@ -126,12 +164,11 @@
       resp.token = _delegate.user_create(JSON.encode(user.toHash()));
     }
 
-    public function user_update(user:User, onResult:Function = null, onFault:Function = null):void
+    public function user_update(user:User, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      var u:Object = user.toHash();
-      u['user'] = user._id;
-      resp.token = _delegate.user_update(JSON.encode(u));
+      property['user'] = user._id;
+      resp.token = _delegate.user_update(JSON.encode(property));
     }
 
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
@@ -160,12 +197,11 @@
       resp.token = _delegate.group_create(JSON.encode(group.toHash()));
     }
     
-    public function group_update(group:Group, onResult:Function = null, onFault:Function = null):void
+    public function group_update(group:Group, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      var g:Object = group.toHash();
-      g['group'] = group._id;
-      resp.token = _delegate.group_update(JSON.encode(g));
+      property['group'] = group._id;
+      resp.token = _delegate.group_update(JSON.encode(property));
     }
     
     public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void

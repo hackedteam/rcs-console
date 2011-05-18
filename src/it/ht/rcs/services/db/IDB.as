@@ -13,6 +13,9 @@ package it.ht.rcs.services.db
    
     function audit_index(filter1:String, filter2:String, onResult:Function = null, onFault:Function = null):void;
     
+    function license_limit(onResult:Function = null, onFault:Function = null):void;
+    function license_count(onResult:Function = null, onFault:Function = null):void;
+    
     function user_index(onResult:Function = null, onFault:Function = null):void;
     function user_show(id:String, onResult:Function = null, onFault:Function = null):void;
     function user_create(user:User, onResult:Function = null, onFault:Function = null):void;

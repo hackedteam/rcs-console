@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         title="MONITOR" width="100%" height="100%" 
+         xmlns:monitor="it.ht.rcs.console.monitor.*"
+         addedToStage="added()"
+         removedFromStage="removed()"
+         creationComplete="init()">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.StatusBar;
+      import it.ht.rcs.console.model.LicenseManager;
+      import it.ht.rcs.console.monitor.AlertingGroup;
+      
+      import mx.collections.ListCollectionView;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _status_view:ListCollectionView;
+      
+      private function init():void
+      {
+        /* default sorting: status */
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('status', true, true, true)];
+
+        _status_view = MonitorManager.instance.getView(sort);
+      }
+       
+      private function added():void
+      {
+        LicenseManager.instance.start();
+        /* start the auto refresh when the section is open */
+        MonitorManager.instance.start();
+      }
+      
+      private function removed():void
+      {
+        LicenseManager.instance.stop();
+        /* stop the auto refresh when going away */
+        MonitorManager.instance.stop();
+      }
+      
+      private function showAlertingGroup():void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, AlertingGroup, true));
+      }
+      
+      private function sort_by_status():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('status', true, true, true)];
+        _status_view.sort = sort;
+        _status_view.refresh();
+      }
+
+      private function sort_by_name():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('name', true, false, false)];
+        _status_view.sort = sort;
+        _status_view.refresh();
+      }
+
+    ]]>
+  </fx:Script>
+  
+  <fx:Metadata>
+    [ResourceBundle("localized_main")] 
+  </fx:Metadata>
+  
+  <!-- sidebar -->
+  <mx:Accordion width="200" left="5" top="5" bottom="5" >
+    <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE')}" width="100%" height="100%">
+      <monitor:LicenseView />
+    </s:NavigatorContent>
+    <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE_VERSIONS')}" width="100%" height="100%">
+      <monitor:VersionsView />
+    </s:NavigatorContent>
+  </mx:Accordion>
+  
+  <!-- button bar (transparent container) -->  
+  <s:BorderContainer borderVisible="false" top="5" left="215" right="5" height="20" backgroundAlpha="0.0">
+    <s:Button x="0" y="0" label="S" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SORT_BY_STATUS')}" click="sort_by_status()" skinClass="it.ht.rcs.console.skins.SortButton"/>
+    <s:Button x="40" y="0" label="S" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SORT_BY_NAME')}" click="sort_by_name()" skinClass="it.ht.rcs.console.skins.SortNameButton"/>
+    <s:Button x="130" y="0" label="G" width="30" height="20" visible="{console.currentSession.user.is_admin()}" toolTip="{resourceManager.getString('localized_main', 'SELECT_ALERTING_GROUP')}" click="showAlertingGroup()" skinClass="it.ht.rcs.console.skins.ContactButton"/>
+  </s:BorderContainer>
+
+  <!-- monitor list -->
+  <s:List id="monitors" left="215" top="30" bottom="5" right="5" 
+          itemRenderer="it.ht.rcs.console.monitor.MonitorRenderer" 
+          dataProvider="{_status_view}" 
+          click="{monitors.selectedIndex = -1}"/>
+  
+</s:Panel>

@@ -53,6 +53,12 @@ package it.ht.rcs.services.db
       /* do nothing */
     }
     
+    /* AUDIT */
+    public function audit_index(filter1:String, filter2:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
     /* USERS */
     
     public function user_index(onResult:Function = null, onFault:Function = null):void

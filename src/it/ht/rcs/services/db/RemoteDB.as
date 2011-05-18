@@ -12,17 +12,17 @@
   {
     import com.adobe.serialization.json.JSON;
     
-    import it.ht.rcs.services.db.ServiceDB;
+    import it.ht.rcs.services.db.DB;
     
     import mx.rpc.CallResponder;
     import mx.rpc.events.FaultEvent;
     import mx.rpc.events.ResultEvent;
     
-    private var _delegate:ServiceDB;
+    private var _delegate:DB;
     
     public function RemoteDB(baseURL:String)
     {
-      _delegate = new ServiceDB;
+      _delegate = new DB;
       _delegate.baseURL = baseURL;
       _delegate.showBusyCursor = true;
     }
@@ -104,6 +104,13 @@
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.session_destroy(JSON.encode({session: cookie}));
+    }
+    
+    /* AUDIT */
+    public function audit_index(filter1:String, filter2:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.audit_index(filter1, filter2);
     }
     
     /* USERS */

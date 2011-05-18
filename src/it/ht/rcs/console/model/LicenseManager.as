@@ -1,35 +1,40 @@
 package it.ht.rcs.console.model
 {
-  import mx.core.FlexGlobals;
+  import com.adobe.serialization.json.JSON;
+  
   import it.ht.rcs.console.events.RefreshEvent;
+  
+  import mx.core.FlexGlobals;
+  import mx.rpc.events.ResultEvent;
   
   [Bindable]
   public class LicenseManager
   {
-    public var start_date:String = "2011-06-02 15:30"
-    public var end_date:String = "Unlimited"
+    public var type:String = "reusable"
     public var serial:String = "off";
     
-    public var users:CurrMaxObject = new CurrMaxObject("0", "U");
-    public var backdoors:CurrMaxObject = new CurrMaxObject("1", "U");
-    public var bck_desktop:CurrMaxObject = new CurrMaxObject("2", "U");
-    public var bck_macos:CurrMaxObject = new CurrMaxObject("3", "U");
-    public var bck_windows:CurrMaxObject = new CurrMaxObject("4", "U");
-    public var bck_mobile:CurrMaxObject = new CurrMaxObject("5", "U");
-    public var bck_android:CurrMaxObject = new CurrMaxObject("6", "U");
-    public var bck_blackberry:CurrMaxObject = new CurrMaxObject("7", "U");
-    public var bck_iphone:CurrMaxObject = new CurrMaxObject("8", "U");
-    public var bck_symbian:CurrMaxObject = new CurrMaxObject("9", "U");
-    public var bck_winmo:CurrMaxObject = new CurrMaxObject("10", "U");
+    public var users:CurrMaxObject = new CurrMaxObject("0", "0");
     
-    public var coll_nodes:CurrMaxObject = new CurrMaxObject("11", "U");
-    public var anonymizers:CurrMaxObject = new CurrMaxObject("12", "U");
+    public var bck_total:CurrMaxObject = new CurrMaxObject("0", "0");
+    public var bck_desktop:CurrMaxObject = new CurrMaxObject("0", "0");
+    public var bck_linux:Boolean = false;
+    public var bck_macos:Boolean = false;
+    public var bck_windows:Boolean = false;
+    public var bck_mobile:CurrMaxObject = new CurrMaxObject("0", "0");
+    public var bck_android:Boolean = false;
+    public var bck_blackberry:Boolean = false;
+    public var bck_iphone:Boolean = false;
+    public var bck_symbian:Boolean = false;
+    public var bck_winmo:Boolean = false;
     
-    public var alerting:Boolean = true;
+    public var collectors:CurrMaxObject = new CurrMaxObject("0", "0");
+    public var anonymizers:CurrMaxObject = new CurrMaxObject("0", "0");
+    
+    public var alerting:Boolean = false;
     public var correlation:Boolean = false;
     
-    public var ipa:CurrMaxObject = new CurrMaxObject("13", "U");
-    public var rmi:Boolean = true;
+    public var ipa:CurrMaxObject = new CurrMaxObject("0", "0");
+    public var rmi:Boolean = false;
     
     
     /* singleton */
@@ -38,17 +43,75 @@ package it.ht.rcs.console.model
     
     public function LicenseManager()
     {
-      // TODO: initialize it on login
-      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
     }
     
-    private function onRefresh(e:Event):void
+    public function start():void
+    {
+      /* react to the global refresh event */
+      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, load_license);
+    }
+    
+    public function stop():void
+    {
+      /* after stop, we don't want to refresh anymore */
+      FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, load_license);
+    }
+    
+    public function load_license(e:RefreshEvent):void
     {
       trace('LicenseManager -- Refresh');
-      
-      // FIXME: MOCK remove this
-      users.curr = (Math.round( Math.random() * 100 )).toString();
 
+      console.currentDB.license_limit(onLoadLimit);
+      console.currentDB.license_count(onLoadCount);
     }
+    
+    private function onLoadLimit(e:ResultEvent):void
+    {
+      var limits:Object = JSON.decode(e.result as String);
+        
+      type = limits['type'];
+      serial = limits['serial'].toString();
+      
+      users.max = limits['users'].toString();
+      
+      bck_total.max = (limits['backdoors']['total'] == null) ? 'U' : limits['backdoors']['total'].toString();
+      bck_desktop.max = (limits['backdoors']['desktop'] == null) ? 'U' : limits['backdoors']['desktop'].toString();
+      bck_mobile.max = (limits['backdoors']['mobile'] == null) ? 'U' : limits['backdoors']['mobile'].toString();
+      
+      bck_linux = limits['backdoors']['linux'];
+      bck_macos = limits['backdoors']['macos'];
+      bck_windows = limits['backdoors']['windows'];
+      bck_android = limits['backdoors']['android'];
+      bck_blackberry = limits['backdoors']['blackberry'];
+      bck_iphone = limits['backdoors']['iphone'];
+      bck_symbian = limits['backdoors']['symbian'];
+      bck_winmo = limits['backdoors']['winmo'];
+      
+      collectors.max = (limits['collectors']['collectors'] == null) ? 'U' : limits['collectors']['collectors'].toString();
+      anonymizers.max = (limits['collectors']['anonymizers'] == null) ? 'U' : limits['collectors']['anonymizers'].toString();
+      
+      alerting = limits['alerting'];
+      correlation = limits['correlation'];
+      
+      ipa.max = (limits['ipa'] == null) ? 'U' : limits['ipa'].toString();
+      rmi = limits['rmi'];
+    }
+
+    private function onLoadCount(e:ResultEvent):void
+    {
+      var current:Object = JSON.decode(e.result as String);
+      
+      users.curr = current['users'].toString();
+      
+      bck_total.curr = current['backdoors']['total'].toString();
+      bck_desktop.curr = current['backdoors']['desktop'].toString();
+      bck_mobile.curr = current['backdoors']['mobile'].toString();
+      
+      collectors.curr = current['collectors']['collectors'].toString();
+      anonymizers.curr = current['collectors']['anonymizers'].toString();
+      
+      ipa.curr = current['ipa'].toString();
+    }
+
   }
 }

@@ -54,16 +54,21 @@ package it.ht.rcs.console.monitor
       // TODO: remove from db
     }
     
+    private function onAutoRefresh(e:Event):void
+    {
+      onRefresh(null);
+    }
+    
     override public function start():void
     {
       super.start();
-      _autorefresh.addEventListener(TimerEvent.TIMER, onRefresh);
+      _autorefresh.addEventListener(TimerEvent.TIMER, onAutoRefresh);
     }
 	
     override public function stop():void
     {
       super.stop();
-      _autorefresh.removeEventListener(TimerEvent.TIMER, onRefresh);
+      _autorefresh.removeEventListener(TimerEvent.TIMER, onAutoRefresh);
     }
 
     

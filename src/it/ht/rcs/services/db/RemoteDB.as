@@ -106,6 +106,20 @@
       resp.token = _delegate.session_destroy(JSON.encode({session: cookie}));
     }
     
+    /* LICENSE */
+    
+    public function license_limit(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.license_limit(); 
+    }
+
+    public function license_count(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.license_count(); 
+    }
+
     /* USERS */
     
     public function user_index(onResult:Function = null, onFault:Function = null):void

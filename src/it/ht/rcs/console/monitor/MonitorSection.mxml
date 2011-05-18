@@ -27,21 +27,21 @@
         var sort:Sort = new Sort();
         sort.fields = [new SortField('status', true, true, true)];
 
-        _status_view = StatusManager.instance.getView(sort);
+        _status_view = MonitorManager.instance.getView(sort);
       }
        
       private function added():void
       {
         LicenseManager.instance.start();
         /* start the auto refresh when the section is open */
-        StatusManager.instance.start();
+        MonitorManager.instance.start();
       }
       
       private function removed():void
       {
         LicenseManager.instance.stop();
         /* stop the auto refresh when going away */
-        StatusManager.instance.stop();
+        MonitorManager.instance.stop();
       }
       
       private function showAlertingGroup():void
@@ -91,7 +91,7 @@
 
   <!-- monitor list -->
   <s:List id="monitors" left="215" top="30" bottom="5" right="5" 
-          itemRenderer="it.ht.rcs.console.monitor.StatusRenderer" 
+          itemRenderer="it.ht.rcs.console.monitor.MonitorRenderer" 
           dataProvider="{_status_view}" 
           click="{monitors.selectedIndex = -1}"/>
   

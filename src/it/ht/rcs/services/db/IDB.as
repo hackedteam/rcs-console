@@ -15,6 +15,10 @@ package it.ht.rcs.services.db
     
     function license_limit(onResult:Function = null, onFault:Function = null):void;
     function license_count(onResult:Function = null, onFault:Function = null):void;
+
+    function monitor_index(onResult:Function = null, onFault:Function = null):void;
+    function monitor_counters(onResult:Function = null, onFault:Function = null):void;
+    function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void;
     
     function user_index(onResult:Function = null, onFault:Function = null):void;
     function user_show(id:String, onResult:Function = null, onFault:Function = null):void;

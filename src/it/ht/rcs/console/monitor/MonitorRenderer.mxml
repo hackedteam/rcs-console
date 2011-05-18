@@ -9,18 +9,19 @@
                 removedFromStage="removed()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.model.Monitor;
       import it.ht.rcs.console.model.Clock;
       import it.ht.rcs.console.utils.TimeUtils;
       
       [Bindable]
-      private var _data:StatusEntry;
+      private var _data:Monitor;
       
       [Bindable]
       private var difftime:String;
       
       /* data is passed by the list and we cast it to an object of type StatusEntry */
       override public function set data(value:Object):void {
-        _data = value as StatusEntry;
+        _data = value as Monitor;
       }
       
       private function init():void
@@ -77,8 +78,8 @@
     [ResourceBundle("localized_main")] 
   </fx:Metadata>
   
-  <s:TitleWindow id="monitorrender" skinClass="it.ht.rcs.console.monitor.skins.MonitorSkin" left="5" right="5" top="5" bottom="5" title="{_data.name} ({_data.address})" backgroundColor="#EAEAEA" close="{StatusManager.instance.removeItem(_data)}">
-    <monitor:StatusImage status="{_data.status}" top="3" left="3"/>
+  <s:TitleWindow id="monitorrender" skinClass="it.ht.rcs.console.monitor.skins.MonitorSkin" left="5" right="5" top="5" bottom="5" title="{_data.name} ({_data.address})" backgroundColor="#EAEAEA" close="{MonitorManager.instance.removeItem(_data)}">
+    <monitor:MonitorImage status="{_data.status}" top="3" left="3"/>
     <s:Label text="{difftime}" top="-15" right="30" width="100" fontSize="11"/>
     <s:BorderContainer right="5" bottom="5" top="5" left="80" minHeight="20" cornerRadius="10" backgroundColor="#EAEAEA">
       <s:Label text="CPU" top="10" width="60" left="5" styleName="MonitorStatus"/>
@@ -90,7 +91,7 @@
       <s:Label text="Disk Free" top="10" width="60" styleName="MonitorStatus" left="125"/>
       <s:Label text="{(_data.df != -1) ? _data.df : 'N/A'} %" color="{diskColor(_data.df)}" top="30" width="60" styleName="MonitorStatus" left="125"/>
       
-      <s:TextArea contentBackgroundAlpha="0.0" editable="false" enabled="true" text="{_data.desc}" top="5" right="5" bottom="5" left="200"/>
+      <s:TextArea contentBackgroundAlpha="0.0" editable="false" enabled="true" text="{_data.info}" top="5" right="5" bottom="5" left="200"/>
     </s:BorderContainer>
   </s:TitleWindow>
   

@@ -90,6 +90,8 @@
     
     protected function onLogout(e:LogonEvent):void
     {
+      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
+      trace(classname + ' -- Logout');
       _items.removeAll();
     }
     

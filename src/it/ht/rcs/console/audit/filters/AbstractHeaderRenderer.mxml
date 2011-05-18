@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DefaultGridHeaderRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             click="clickHandler(event)" creationComplete="init(event)">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.events.FlexEvent;
+      import mx.managers.PopUpManager;
+      
+      import spark.components.CheckBox;
+      
+      public var popup:IFactory;
+      public var _popup:AbstractFilterPopup;
+      public static var _currentPopup:AbstractFilterPopup;
+      
+      [Bindable]
+      public var mandatory:Boolean = false;
+      
+      private function init(event:FlexEvent):void {
+        _popup = popup.newInstance();
+        PopUpManager.addPopUp(_popup, this, false);
+        if (mandatory) showFilter.selected = true;
+      }
+      
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        super.prepare(hasBeenRecycled);
+        labelDisplayGroup.addElement(showFilter);
+      }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        showFilter.x = labelDisplay.measuredWidth + 5;
+        if (_popup && _popup.visible) centerPopup();
+      }
+      
+      private function centerPopup():void {
+        var center:Point = localToGlobal(new Point(x, y));
+        _popup.x = center.x - x;
+        _popup.y = center.y + height;
+        if (_popup.x + _popup.width > owner.width)
+          _popup.x = center.x - x - _popup.width + width;
+      }
+      
+      private function changeHandler(event:Event):void {
+      
+        if (!showFilter.selected)
+          _popup.resetFilter();
+
+      }
+      
+      private function clickHandler(event:MouseEvent):void {
+        
+        if (_currentPopup) _currentPopup.visible = false;
+        
+        _currentPopup = _popup;
+        centerPopup();
+        _popup.visible = true;
+        
+        showFilter.selected = true;
+        
+      }
+      
+    ]]>
+  </fx:Script>
+
+  <fx:Declarations>
+    <s:CheckBox id="showFilter" y="-2" change="changeHandler(event)"
+                enabled="{!mandatory &amp;&amp; showFilter.selected}"/>
+  </fx:Declarations>
+
+</s:DefaultGridHeaderRenderer>

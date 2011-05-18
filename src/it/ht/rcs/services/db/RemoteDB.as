@@ -120,6 +120,18 @@
       resp.token = _delegate.license_count(); 
     }
 
+    /* MONITOR */
+
+    public function monitor_index(onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
     /* USERS */
     
     public function user_index(onResult:Function = null, onFault:Function = null):void

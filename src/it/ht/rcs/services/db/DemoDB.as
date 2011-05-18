@@ -80,9 +80,27 @@ package it.ht.rcs.services.db
                              "backdoors":{"total":5,"desktop":3,"mobile":2},
                              "collectors":{"collectors":1,"anonymizers":1},
                              "ipa":2};
-      var event:ResultEvent = new ResultEvent("license.limit", false, true, JSON.encode(counters));
+      var event:ResultEvent = new ResultEvent("license.count", false, true, JSON.encode(counters));
       if (onResult != null) 
         onResult(event);     
+    }
+    
+    /* MONITOR */
+    
+    public function monitor_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var items:ArrayCollection = new ArrayCollection();
+      items.addItem({_id: '1', name: 'Collector', status:'0', address: '1.2.3.4', info: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10});
+      items.addItem({_id: '2', name: 'Database', status:'1', address: '127.0.0.1', info: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20});
+      items.addItem({_id: '3', name: 'Collector', status:'2', address: '5.6.7.8', info: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70});
+      var event:ResultEvent = new ResultEvent("monitor.index", false, true, items);
+      if (onResult != null) 
+        onResult(event);
+    }
+    
+    public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      /* do nothing */
     }
     
     /* USERS */

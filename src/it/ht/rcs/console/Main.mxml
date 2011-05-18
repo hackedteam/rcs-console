@@ -18,7 +18,7 @@
   <![CDATA[
     import it.ht.rcs.console.events.SectionEvent;
     import it.ht.rcs.console.model.LicenseManager;
-    import it.ht.rcs.console.monitor.StatusManager;
+    import it.ht.rcs.console.monitor.MonitorManager;
     
     import mx.controls.Alert;
     import mx.core.FlexGlobals;
@@ -59,7 +59,7 @@
 
       /* initialize the monitor counter */
       if (console.currentSession.user.is_any()) {
-        StatusManager.instance.add_counters();
+        MonitorManager.instance.start_counters();
       }
 
       /* retrieve the current license limits */
@@ -71,7 +71,7 @@
       trace("Exiting main section...")
 
       /* remove the monitor counter */
-      StatusManager.instance.remove_counters();
+      MonitorManager.instance.stop_counters();
     }
   ]]>
 </fx:Script>
@@ -99,21 +99,21 @@
   <mx:ToggleButtonBar id="sectionsButtonBar" top="50" right="10" height="20" horizontalGap="10" buttonWidth="80" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" selectedIndex="{main_sections.indexOf(currentState)}"/>
   
   <!-- all the sections -->
-  <accounting:Accounting includeIn="Accounting" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <accounting:AccountingSection includeIn="Accounting" height="100%" top="75" left="5" right="5" bottom="5"/>
   
-  <console:Console includeIn="Console" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <console:ConsoleSection includeIn="Console" height="100%" top="75" left="5" right="5" bottom="5"/>
 
-  <dashboard:Dashboard includeIn="Dashboard" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <dashboard:DashboardSection includeIn="Dashboard" height="100%" top="75" left="5" right="5" bottom="5"/>
 
-  <correlation:Correlation includeIn="Correlation" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <correlation:CorrelationSection includeIn="Correlation" height="100%" top="75" left="5" right="5" bottom="5"/>
   
-  <network:Network includeIn="Network" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <network:NetworkSection includeIn="Network" height="100%" top="75" left="5" right="5" bottom="5"/>
   
-  <alerting:Alerting includeIn="Alerting" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <alerting:AlertingSection includeIn="Alerting" height="100%" top="75" left="5" right="5" bottom="5"/>
   
   <audit:Audit includeIn="Audit" height="100%" top="75" left="5" right="5" bottom="5"/>
   
-  <monitor:Monitor includeIn="Monitor" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="5" right="5" bottom="5"/>
   
   <!-- special case if the user has no privilege -->
   <s:Panel includeIn="Nothing" title="NOTHING TO DO" height="100%" top="75" left="5" right="5" bottom="5">

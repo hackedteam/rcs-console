@@ -16,6 +16,7 @@
   
   <fx:Script>
     <![CDATA[
+      import mx.collections.AsyncListView;
       import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
       
@@ -54,7 +55,8 @@
       
       private function onResult(e:ResultEvent):void
       {
-        grid.dataProvider = new ArrayCollection(e.result as Array);
+        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
+        trace();
       }
       
       protected function onFilterChange(event:Event):void
@@ -68,7 +70,7 @@
       
     ]]>
   </fx:Script>
-
+  
   <s:Button click="button1_clickHandler(event)"/>
   <audit:AuditTable id="grid" left="5" right="5" top="5" bottom="5" creationComplete="adg1_creationCompleteHandler(event)"/>
 

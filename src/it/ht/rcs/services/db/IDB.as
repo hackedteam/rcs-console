@@ -1,5 +1,6 @@
 package it.ht.rcs.services.db
 {
+  import mx.rpc.AsyncToken;
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
 

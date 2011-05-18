@@ -98,6 +98,14 @@ package it.ht.rcs.services.db
         onResult(event);
     }
     
+    public function monitor_counters(onResult:Function = null, onFault:Function = null):void
+    {
+      var counters:Object = {"ok":1, "warn":1, "ko":1};
+        var event:ResultEvent = new ResultEvent("monitor.counters", false, true, counters);
+        if (onResult != null) 
+          onResult(event);    
+    }
+    
     public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
       /* do nothing */

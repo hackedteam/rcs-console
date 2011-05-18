@@ -6,6 +6,7 @@ package it.ht.rcs.console.monitor
 	
 	import it.ht.rcs.console.events.RefreshEvent;
 	import it.ht.rcs.console.model.Manager;
+	import it.ht.rcs.console.model.Monitor;
 	import it.ht.rcs.console.utils.CounterBaloon;
 	
 	import mx.collections.ArrayCollection;
@@ -14,7 +15,6 @@ package it.ht.rcs.console.monitor
 	import mx.core.FlexGlobals;
 	import mx.events.CollectionEvent;
 	import mx.events.CollectionEventKind;
-	import it.ht.rcs.console.model.Monitor;
 	import mx.rpc.events.ResultEvent;
 
   public class MonitorManager extends Manager
@@ -98,6 +98,12 @@ package it.ht.rcs.console.monitor
     private function onRefreshCounter(e:Event):void
     {
       trace('StatusManager -- Refresh Counters');
+      
+      console.currentDB.monitor_counters(onMonitorCounters);
+    }
+    
+    private function onMonitorCounters(e:ResultEvent):void
+    {
       /* get the position of the Monitor button */
       var buttons:ArrayCollection = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar.dataProvider;
       var len:int = buttons.length;
@@ -107,14 +113,14 @@ package it.ht.rcs.console.monitor
       _counterBaloon.right = 3 + ((len - index) * 90);
       _counterBaloon.top = 43;
       
-      /* DEMO MOCK */
-      if (console.currentSession.fake) {
-        _counterBaloon.value = (Math.round( Math.random() * 3 ));
-        _counterBaloon.style = "alert";
+      if (e.result['ko'] != 0) {
+        _counterBaloon.value = e.result['ko'];
+        _counterBaloon.style = 'alert';
+      } else if (e.result['warn'] != 0) {
+        _counterBaloon.value = e.result['warn'];
+        _counterBaloon.style = 'warn';        
       }
       
-      // TODO: get counters from db
-
       /* display it or not */
       if (_counterBaloon.value > 0)
         _counterBaloon.visible = true;

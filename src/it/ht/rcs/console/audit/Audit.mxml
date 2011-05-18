@@ -3,34 +3,50 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:db="it.ht.rcs.services.db.*"
-         title="AUDIT">
+         width="1052" height="506" title="AUDIT">
   <fx:Script>
     <![CDATA[
+      import com.adobe.serialization.json.JSON;
+      
       import mx.controls.Alert;
       import mx.events.FlexEvent;
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       private var filterString:String = '';
       
       protected function adg1_creationCompleteHandler(event:FlexEvent):void
       {
-        audit_indexResult2.token = dB.audit_index(filterString, '');
+        var filter:Object = {}
+        if (filterString != '')
+          filter['action'] = filterString;
+        console.currentDB.audit_index(filter, onResult);
+        //audit_indexResult3.token = dB.audit_index(JSON.encode(filter));
+      }
+      
+      private function onResult(e:ResultEvent):void
+      {
+        adg1.dataProvider = e.result;
       }
       
       protected function onFilterChange(event:Event):void
       {
-        audit_indexResult2.token = dB.audit_index(filterString, '');
+        var filter:Object = {}
+        if (filterString != '')
+          filter['action'] = filterString;
+        console.currentDB.audit_index(filter, onResult);
+        //audit_indexResult3.token = dB.audit_index(JSON.encode(filter));
       }
     ]]>
   </fx:Script>
   <fx:Declarations>
-    <s:CallResponder id="audit_indexResult"/>
-    <db:DB id="dB" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+    <!-- <db:DB id="dB" fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
            showBusyCursor="true" baseURL="{console.currentSession.server}"/>
-    <s:CallResponder id="audit_indexResult2"/>
+    <s:CallResponder id="audit_indexResult3"/> -->
   </fx:Declarations>
-  <mx:AdvancedDataGrid id="adg1" x="80" y="56" creationComplete="adg1_creationCompleteHandler(event)"
-                       dataProvider="{audit_indexResult2.lastResult}" designViewDataType="flat">
+  <mx:AdvancedDataGrid id="adg1" left="0" right="0" bottom="274" height="160"
+                       creationComplete="adg1_creationCompleteHandler(event)"
+                       designViewDataType="flat">
     <mx:columns>
       <mx:AdvancedDataGridColumn dataField="time" headerText="time"/>
       <mx:AdvancedDataGridColumn dataField="desc" headerText="desc"/>
@@ -40,6 +56,6 @@
       <mx:AdvancedDataGridColumn dataField="user" headerText="user"/>
     </mx:columns>
   </mx:AdvancedDataGrid>
-  <s:TextInput x="80" y="346" text="@{filterString}" />
-  <s:Button x="227" y="346" label="Filter" click="onFilterChange(event)"/>
+  <s:TextInput x="5" y="10" text="@{filterString}" />
+  <s:Button x="141" y="10" label="Filter" click="onFilterChange(event)"/>
 </s:Panel>

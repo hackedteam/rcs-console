@@ -30,8 +30,8 @@ import com.adobe.serializers.xml.XMLSerializationFilter;
 [ExcludeClass]
 internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWrapper
 {
-    private static var serializer1:JSONSerializationFilter = new JSONSerializationFilter();
-    private static var serializer0:XMLSerializationFilter = new XMLSerializationFilter();
+    private static var serializer0:JSONSerializationFilter = new JSONSerializationFilter();
+    private static var serializer1:XMLSerializationFilter = new XMLSerializationFilter();
     private var _auditRPCDataManager : mx.data.RPCDataManager;
     private var managersArray : Array = new Array();
 
@@ -145,7 +145,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "audit_count");
          operation.url = "/audit/count";
          operation.method = "GET";
-         argsArray = new Array("filterParam1","filterParam2");
+         argsArray = new Array("filter");
          operation.argumentNames = argsArray;         
          operation.serializationFilter = serializer0;
          operation.resultType = int;
@@ -154,9 +154,9 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "audit_index");
          operation.url = "/audit";
          operation.method = "GET";
-         argsArray = new Array("filterParam1","filterParam2","startIndex","numItems");
+         argsArray = new Array("filter","startIndex","numItems");
          operation.argumentNames = argsArray;         
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.resultElementType = valueObjects.Audit;
          operations.push(operation);
 
@@ -170,7 +170,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "group_create");
          operation.url = "/group";
          operation.method = "POST";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.Group;
          operations.push(operation);
@@ -192,7 +192,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "group_index");
          operation.url = "/group";
          operation.method = "GET";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.resultElementType = valueObjects.Group;
          operations.push(operation);
 
@@ -201,7 +201,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.method = "GET";
          argsArray = new Array("id");
          operation.argumentNames = argsArray;         
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.properties = new Object();
          operation.properties["urlParamNames"] = ["id"];
          operation.resultType = valueObjects.Group;
@@ -214,10 +214,22 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.resultType = Object;
          operations.push(operation);
 
+         operation = new mx.rpc.http.Operation(null, "license_count");
+         operation.url = "/license/count";
+         operation.method = "GET";
+         operation.resultType = Object;
+         operations.push(operation);
+
+         operation = new mx.rpc.http.Operation(null, "license_limit");
+         operation.url = "/license/limit";
+         operation.method = "GET";
+         operation.resultType = Object;
+         operations.push(operation);
+
          operation = new mx.rpc.http.Operation(null, "login");
          operation.url = "/auth/login";
          operation.method = "POST";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.Session;
          operations.push(operation);
@@ -239,7 +251,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "session_index");
          operation.url = "/session";
          operation.method = "GET";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.contentType = "application/x-www-form-urlencoded";
          operation.resultElementType = valueObjects.Session;
          operations.push(operation);
@@ -247,7 +259,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "user_create");
          operation.url = "/user";
          operation.method = "POST";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.User;
          operations.push(operation);
@@ -262,7 +274,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "user_index");
          operation.url = "/user";
          operation.method = "GET";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.resultElementType = valueObjects.User;
          operations.push(operation);
 
@@ -271,7 +283,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.method = "GET";
          argsArray = new Array("id");
          operation.argumentNames = argsArray;         
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.properties = new Object();
          operation.properties["urlParamNames"] = ["id"];
          operation.resultType = valueObjects.User;
@@ -280,21 +292,9 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "user_update");
          operation.url = "/user/update";
          operation.method = "POST";
-         operation.serializationFilter = serializer0;
+         operation.serializationFilter = serializer1;
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.User;
-         operations.push(operation);
-
-         operation = new mx.rpc.http.Operation(null, "license_limit");
-         operation.url = "/license/limit";
-         operation.method = "GET";
-         operation.resultType = Object;
-         operations.push(operation);
-
-         operation = new mx.rpc.http.Operation(null, "license_count");
-         operation.url = "/license/count";
-         operation.method = "GET";
-         operation.resultType = Object;
          operations.push(operation);
 
          _serviceControl.operationList = operations;  
@@ -321,8 +321,8 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
         dmQuery.countOperation = "audit_count";
         dmQuery.pagingEnabled = true;
         dmQuery.positionalPagingParameters = true;
-        dmQuery.pageSize = 5;
-        dmQuery.parameters = "filterParam1,filterParam2,startIndex,numItems";
+        dmQuery.pageSize = 10;
+        dmQuery.parameters = "filter,startIndex,numItems";
         _auditRPCDataManager.addManagedOperation(dmQuery);
 
         _serviceControl.managers = managersArray;
@@ -349,10 +349,10 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
       *
       * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
       */
-    public function audit_count(filterParam1:String, filterParam2:String) : mx.rpc.AsyncToken
+    public function audit_count(filter:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("audit_count");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filterParam1,filterParam2) ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filter) ;
         return _internal_token;
     }
      
@@ -367,10 +367,10 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
       *
       * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
       */
-    public function audit_index(filterParam1:String, filterParam2:String) : mx.rpc.AsyncToken
+    public function audit_index(filter:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("audit_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filterParam1,filterParam2) ;
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filter) ;
         return _internal_token;
     }
      
@@ -497,6 +497,42 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_update");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'license_count' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function license_count() : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("license_count");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'license_limit' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function license_limit() : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("license_limit");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -659,42 +695,6 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_update");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
-        return _internal_token;
-    }
-     
-    /**
-      * This method is a generated wrapper used to call the 'license_limit' operation. It returns an mx.rpc.AsyncToken whose 
-      * result property will be populated with the result of the operation when the server response is received. 
-      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
-      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
-      *
-      * @see mx.rpc.AsyncToken
-      * @see mx.rpc.CallResponder 
-      *
-      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
-      */
-    public function license_limit() : mx.rpc.AsyncToken
-    {
-        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("license_limit");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
-        return _internal_token;
-    }
-     
-    /**
-      * This method is a generated wrapper used to call the 'license_count' operation. It returns an mx.rpc.AsyncToken whose 
-      * result property will be populated with the result of the operation when the server response is received. 
-      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
-      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
-      *
-      * @see mx.rpc.AsyncToken
-      * @see mx.rpc.CallResponder 
-      *
-      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
-      */
-    public function license_count() : mx.rpc.AsyncToken
-    {
-        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("license_count");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      

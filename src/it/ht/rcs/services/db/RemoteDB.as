@@ -107,10 +107,10 @@
     }
     
     /* AUDIT */
-    public function audit_index(filter1:String, filter2:String, onResult:Function = null, onFault:Function = null):void
+    public function audit_index(filter: Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.audit_index(filter1, filter2);
+      resp.token = _delegate.audit_index(JSON.encode(filter));
     }
     
     /* LICENSE */

@@ -17,6 +17,7 @@
   <fx:Script>
     <![CDATA[
       import mx.collections.AsyncListView;
+      import mx.events.CollectionEvent;
       import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
       
@@ -44,18 +45,18 @@
         trace(Audit.instance.filterObject);
       }
       
-      protected function adg1_creationCompleteHandler(event:FlexEvent):void
+      protected function tableInit(event:FlexEvent):void
       {
         var filter:Object = {}
         if (filterString != '')
           filter['action'] = filterString;
         console.currentDB.audit_index(filter, onResult);
-        //audit_indexResult3.token = dB.audit_index(JSON.encode(filter));
       }
       
       private function onResult(e:ResultEvent):void
       {
         grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
+        grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
         trace();
       }
       
@@ -65,13 +66,18 @@
         if (filterString != '')
           filter['action'] = filterString;
         console.currentDB.audit_index(filter, onResult);
-        //audit_indexResult3.token = dB.audit_index(JSON.encode(filter));
+      }
+        
+      private function onDataProviderChange(event:CollectionEvent):void
+      {
+        trace("changing scroller position");
+        grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum; 
       }
       
     ]]>
   </fx:Script>
   
   <s:Button click="button1_clickHandler(event)"/>
-  <audit:AuditTable id="grid" left="5" right="5" top="5" bottom="5" creationComplete="adg1_creationCompleteHandler(event)"/>
+  <audit:AuditTable id="grid" left="5" right="5" top="5" bottom="5" creationComplete="tableInit(event)"/>
 
 </s:Panel>

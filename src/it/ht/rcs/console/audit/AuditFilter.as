@@ -15,7 +15,7 @@ package it.ht.rcs.console.audit {
     public var activity:String;
     public var target:String;
     public var backdoor:String;
-    public var descr:String;
+    public var desc:String;
     
     public function AuditFilter() {
     }

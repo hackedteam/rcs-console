@@ -14,22 +14,30 @@
       import spark.layouts.VerticalAlign;
       
       [Bindable]
-      public var _popup:AbstractFilterPopup;
+      public var popup:AbstractFilterPopup;
       public static var _currentPopup:AbstractFilterPopup;
-      public var popup:IFactory;
+      public var popupFactory:IFactory;
       
       [Bindable]
       public var mandatory:Boolean = false;
       
+      [Bindable]
+      public var filter:Object;
+      
+      [Bindable]
+      public var selectableFilters:Object;
+      
       private function init():void {
-        _popup = popup.newInstance();
-        _popup.property = column.dataField;
-        PopUpManager.addPopUp(_popup, this, false);
+        popup = popupFactory.newInstance();
+        popup.property = column.dataField;
+        popup.filter = filter;
+        popup.selectableFilters = selectableFilters[popup.property];
+        PopUpManager.addPopUp(popup, this.owner, false);
         if (mandatory) showFilter.selected = true;
       }
       
       private function destroy():void {
-        PopUpManager.removePopUp(_popup);
+        PopUpManager.removePopUp(popup);
       }
       
       override public function prepare(hasBeenRecycled:Boolean):void {
@@ -43,36 +51,36 @@
       
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
         super.updateDisplayList(unscaledWidth, unscaledHeight);
-        if (_popup && _popup.visible) centerPopup();
+        if (popup && popup.visible) centerPopup();
       }
       
       private function centerPopup():void {
         var center:Point = localToGlobal(new Point(x, y));
-        _popup.x = center.x - x;
-        _popup.y = center.y + height;
-        if (_popup.x + _popup.width > owner.width)
-          _popup.x = center.x - x - _popup.width + width + 1;
+        popup.x = center.x - x;
+        popup.y = center.y + height;
+        if (popup.x + popup.width > owner.width)
+          popup.x = center.x - x - popup.width + width + 1;
       }
       
       private function clickHandler(event:MouseEvent):void {
         
         if (_currentPopup && _currentPopup.visible) {
           _currentPopup.visible = false;
-          if (_currentPopup === _popup) {
+          if (_currentPopup === popup) {
             _currentPopup = null;
             return;
           }
         }
 
         centerPopup();
-        _popup.visible = true;
-        _currentPopup = _popup;
+        popup.visible = true;
+        _currentPopup = popup;
         
       }
       
       private function changeHandler(event:Event):void {
-        _popup.resetFilter();
-        _popup.visible = false;
+        popup.resetFilter();
+        popup.visible = false;
       }
       
     ]]>
@@ -81,7 +89,7 @@
   <fx:Declarations>
     <s:CheckBox id="showFilter" change="changeHandler(event)"
                 enabled="{!mandatory &amp;&amp; showFilter.selected}"
-                selected="{mandatory || _popup.valid}"/>
+                selected="{mandatory || popup.valid}"/>
   </fx:Declarations>
 
 </s:DefaultGridHeaderRenderer>

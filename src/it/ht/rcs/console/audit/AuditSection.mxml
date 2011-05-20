@@ -3,10 +3,18 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:audit="it.ht.rcs.console.audit.*"
-         creationComplete="init(event)" title="AUDIT">
+         creationComplete="init(event)"
+         addedToStage="onAddedToStage()" 
+         removedFromStage="onRemovedFromStage()" 
+         title="AUDIT">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.RefreshEvent;
+      
+      import mx.collections.AsyncListView;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
       import mx.events.CollectionEvent;
       import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
@@ -14,29 +22,49 @@
       [Bindable]
       public static var instance:AuditSection;
       
-      [Bindable]
-      public var filterObject:AuditFilter = new AuditFilter();
-      
-      [Bindable]
-      public var filterValues:Object = new Object();
-      
-      private function init(event:FlexEvent):void {
+      private function init(event:FlexEvent):void
+      {
         instance = this;
       }
       
-      private function buttonClick(event:MouseEvent):void {
-        trace();
+      private function onAddedToStage():void 
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        onRefresh(null);
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRefresh(event:RefreshEvent):void
+      {
+        console.currentDB.audit_index({}, onResult);
+        console.currentDB.audit_filters(onFiltersResult);
+      }
+      
+      private function onFiltersResult(event:ResultEvent):void
+      {
+        trace(event.result.toString());
+        grid.selectableFilters = event.result; 
+      }
+      
+      private function buttonClick(event:MouseEvent):void 
+      {
         grid.resetFilters();
       }
       
-      protected function dgCreationComplete(event:FlexEvent):void {
+      protected function dgCreationComplete(event:FlexEvent):void 
+      {
         var filter:Object = {}
         console.currentDB.audit_index(filter, onResult);
-        //console.currentDB.audit_filters(onResult);
+        console.currentDB.audit_filters(onFiltersResult);
       }
       
-      private function onResult(e:ResultEvent):void {
-        grid.dataProvider = new ArrayCollection(e.result as Array);
+      private function onResult(e:ResultEvent):void 
+      {
+        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
         grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
       }
       

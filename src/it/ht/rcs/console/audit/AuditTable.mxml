@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009" 
-            xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
-            xmlns:audit="it.ht.rcs.console.audit.*" xmlns:filters="it.ht.rcs.console.audit.filters.*">
+            xmlns:audit="it.ht.rcs.console.audit.*"
+            xmlns:filters="it.ht.rcs.console.audit.filters.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.events.FlexEvent;
+      import mx.rpc.events.HeaderEvent;
+      
+      public function resetFilters():void {
+        for (var i:int = 0; i < grid.columns.length; i++) {
+          var col:GridColumn = grid.columns.getItemAt(i) as GridColumn;
+        }
+      }
+      
+    ]]>
+  </fx:Script>
   
   <s:columns>
     <s:ArrayList>
       
-      <s:GridColumn dataField="date" headerText="Date" sortable="false">
+      <s:GridColumn dataField="time" headerText="Date" sortable="false">
         <s:headerRenderer>
           <fx:Component>
             <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.DateFilterPopup" mandatory="true"/>
@@ -18,7 +33,7 @@
       <s:GridColumn dataField="actor" headerText="Actor" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -26,7 +41,7 @@
       <s:GridColumn dataField="action" headerText="Action" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -34,7 +49,7 @@
       <s:GridColumn dataField="user" headerText="User" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -42,7 +57,7 @@
       <s:GridColumn dataField="group" headerText="Group" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -50,7 +65,7 @@
       <s:GridColumn dataField="activity" headerText="Activity" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -58,7 +73,7 @@
       <s:GridColumn dataField="target" headerText="Target" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -66,12 +81,18 @@
       <s:GridColumn dataField="backdoor" headerText="Backdoor" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ActionFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
       
-      <s:GridColumn dataField="description" headerText="Description" sortable="false"/>
+      <s:GridColumn dataField="descr" headerText="Description" sortable="false">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.TextFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
+      </s:GridColumn>
       
     </s:ArrayList>
   </s:columns>

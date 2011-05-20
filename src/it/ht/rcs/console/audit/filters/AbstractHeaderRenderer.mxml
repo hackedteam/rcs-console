@@ -2,36 +2,47 @@
 <s:DefaultGridHeaderRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
-                             click="clickHandler(event)" creationComplete="init(event)">
+                             click="clickHandler(event)"
+                             addedToStage="init()" removedFromStage="destroy()">
   
   <fx:Script>
     <![CDATA[
-      import mx.events.FlexEvent;
       import mx.managers.PopUpManager;
       
       import spark.components.CheckBox;
+      import spark.layouts.HorizontalLayout;
+      import spark.layouts.VerticalAlign;
       
-      public var popup:IFactory;
+      [Bindable]
       public var _popup:AbstractFilterPopup;
       public static var _currentPopup:AbstractFilterPopup;
+      public var popup:IFactory;
       
       [Bindable]
       public var mandatory:Boolean = false;
       
-      private function init(event:FlexEvent):void {
+      private function init():void {
         _popup = popup.newInstance();
+        _popup.property = column.dataField;
         PopUpManager.addPopUp(_popup, this, false);
         if (mandatory) showFilter.selected = true;
       }
       
+      private function destroy():void {
+        PopUpManager.removePopUp(_popup);
+      }
+      
       override public function prepare(hasBeenRecycled:Boolean):void {
         super.prepare(hasBeenRecycled);
-        labelDisplayGroup.addElement(showFilter);
+        labelDisplayGroup.addElementAt(showFilter, 0);
+        var layout:HorizontalLayout = new HorizontalLayout();
+        layout.verticalAlign = VerticalAlign.MIDDLE;
+        layout.gap = 0;
+        labelDisplayGroup.layout = layout;
       }
       
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
         super.updateDisplayList(unscaledWidth, unscaledHeight);
-        showFilter.x = labelDisplay.measuredWidth + 5;
         if (_popup && _popup.visible) centerPopup();
       }
       
@@ -40,34 +51,37 @@
         _popup.x = center.x - x;
         _popup.y = center.y + height;
         if (_popup.x + _popup.width > owner.width)
-          _popup.x = center.x - x - _popup.width + width;
-      }
-      
-      private function changeHandler(event:Event):void {
-      
-        if (!showFilter.selected)
-          _popup.resetFilter();
-
+          _popup.x = center.x - x - _popup.width + width + 1;
       }
       
       private function clickHandler(event:MouseEvent):void {
         
-        if (_currentPopup) _currentPopup.visible = false;
-        
-        _currentPopup = _popup;
+        if (_currentPopup && _currentPopup.visible) {
+          _currentPopup.visible = false;
+          if (_currentPopup === _popup) {
+            _currentPopup = null;
+            return;
+          }
+        }
+
         centerPopup();
         _popup.visible = true;
+        _currentPopup = _popup;
         
-        showFilter.selected = true;
-        
+      }
+      
+      private function changeHandler(event:Event):void {
+        _popup.resetFilter();
+        _popup.visible = false;
       }
       
     ]]>
   </fx:Script>
 
   <fx:Declarations>
-    <s:CheckBox id="showFilter" y="-2" change="changeHandler(event)"
-                enabled="{!mandatory &amp;&amp; showFilter.selected}"/>
+    <s:CheckBox id="showFilter" change="changeHandler(event)"
+                enabled="{!mandatory &amp;&amp; showFilter.selected}"
+                selected="{mandatory || _popup.valid}"/>
   </fx:Declarations>
 
 </s:DefaultGridHeaderRenderer>

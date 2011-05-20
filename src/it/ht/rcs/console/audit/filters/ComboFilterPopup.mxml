@@ -4,37 +4,32 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.audit.filters.*"
-                             creationComplete="init(event)">
+                             creationComplete="init()" hide="hide()">
 
-  <xt:FilterComboBox id="action" width="100" change="action_changeHandler(event)"
-                     dataProvider="{events}" styleName="auditFilter" enter="action_enterHandler(event)"/>
+  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" dataProvider="{events}"
+                     enter="enter()"/>
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.audit.Audit;
+      import it.ht.rcs.console.audit.AuditSection;
       
-      import mx.controls.Alert;
-      import mx.events.FlexEvent;
-      import mx.events.ListEvent;
-      
-      private function init(event:FlexEvent):void {
-        this.firstComponent = action;
-      }
-      
-      protected function action_changeHandler(event:ListEvent):void {
-      }
-      
-      protected function action_enterHandler(event:FlexEvent):void {
-        if(action.filteredCollection.length == 1)
-          action.dropdown.selectedIndex = 0;
+      private function init():void {
       }
       
       override public function resetFilter():void {
-        action.selectedItem = null;
+        combo.selectedItem = null;
       }
       
-      private function syncFilter():void {
-        Audit.instance.filterObject.action = action.selectedItem.label.text();
+      private function enter():void {
+        if (combo.filteredCollection.length == 1)
+          combo.dropdown.selectedIndex = 0;
+        if (!combo.dropdown.visible && combo.selectedItem)
+          this.visible = false;
+      }
+      
+      private function hide():void {
+        valid = combo.selectedItem != null;
+        AuditSection.instance.filterObject[property] = combo.selectedItem;
       }
       
     ]]>
@@ -85,5 +80,5 @@
       <event><label>TimerEvent</label></event>
     </fx:XMLList>
   </fx:Declarations>
-
+  
 </filters:AbstractFilterPopup>

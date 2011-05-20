@@ -3,43 +3,31 @@
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
                       visible="false" backgroundAlpha=".95" backgroundColor="#333333"
-                      hideEffect="{fadeOut}" showEffect="{fadeIn}"
-                      show="show(event)">
+                      creationPolicy="all" hideEffect="{fadeOut}" showEffect="{fadeIn}">
 
+  <fx:Script>
+    <![CDATA[
+      import mx.events.FlexEvent;
+      
+      [Bindable]
+      public var valid:Boolean = false;
+      
+      public var property:String;
+      
+      public function resetFilter():void {}
+
+    ]]>
+  </fx:Script>
+  
   <fx:Declarations>
-    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
+    <s:Parallel id="fadeOut">
+      <s:Fade alphaFrom="1" alphaTo="0" duration="150"/>
+      <s:Move duration="200" yFrom="{this.y}" yTo="{this.y - 20}"/>
+    </s:Parallel>
     <s:Parallel id="fadeIn">
       <s:Fade alphaFrom="0" alphaTo="1" duration="200"/>
       <s:Move duration="200" yFrom="{this.y - 20}" yTo="{this.y}"/>
     </s:Parallel>
   </fx:Declarations>
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.audit.Audit;
-      //keyDown="keyDown(event)"
-      import mx.core.UIComponent;
-      import mx.events.FlexEvent;
-      
-      public var firstComponent:UIComponent;
-
-      private function show(event:FlexEvent):void {
-        if (firstComponent) firstComponent.setFocus();
-      }
-      
-      private function focusOut(event:FocusEvent):void {
-        this.visible = false;
-        Audit.instance.refresh();
-      }
-      
-      public function resetFilter():void {
-      }
-      
-      protected function skinnablecontainer1_keyDownHandler(event:KeyboardEvent):void {
-        trace(event.keyCode);
-      }
-      
-    ]]>
-  </fx:Script>
 
 </s:SkinnableContainer>

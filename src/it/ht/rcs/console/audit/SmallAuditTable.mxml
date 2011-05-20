@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009" 
-            xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
-            xmlns:audit="it.ht.rcs.console.audit.*" xmlns:filters="it.ht.rcs.console.audit.filters.*">
-
+            xmlns:audit="it.ht.rcs.console.audit.*"
+            xmlns:filters="it.ht.rcs.console.audit.filters.*">
+  
   <s:columns>
     <s:ArrayList>
       
-      <s:GridColumn dataField="date" headerText="Date" sortable="false"/>
-      <s:GridColumn dataField="actor" headerText="Actor" sortable="false"/>
-      <s:GridColumn dataField="action" headerText="Action" sortable="false"/>
-      <s:GridColumn dataField="user" headerText="User" sortable="false"/>
-      <s:GridColumn dataField="group" headerText="Group" sortable="false"/>
-      <s:GridColumn dataField="activity" headerText="Activity" sortable="false"/>
-      <s:GridColumn dataField="target" headerText="Target" sortable="false"/>
-      <s:GridColumn dataField="backdoor" headerText="Backdoor" sortable="false"/>
-      <s:GridColumn dataField="description" headerText="Description" sortable="false"/>
+      <s:GridColumn dataField="date" headerText="Date" sortable="false">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.DateFilterPopup" mandatory="true"/>
+          </fx:Component>
+        </s:headerRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn dataField="action" headerText="Action" sortable="false">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
+      </s:GridColumn>
       
     </s:ArrayList>
   </s:columns>

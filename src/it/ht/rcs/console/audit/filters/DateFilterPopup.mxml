@@ -4,23 +4,63 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.audit.filters.*"
-                             creationComplete="init(event)">
+                             creationComplete="init()" hide="hide()">
   
-  <!-- <fx:Binding destination="from.selectedDate" source="Audit.instance.filterObject.from" twoWay="true"/>
-  <fx:Binding destination="to.selectedDate" source="Audit.instance.filterObject.to" twoWay="true"/> -->
-
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.audit.AuditFilter;
+      import it.ht.rcs.console.audit.AuditSection;
+      import it.ht.rcs.console.utils.DateUtils;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import mx.events.CalendarLayoutChangeEvent;
+      
+      private function init():void {
+        valid = true;
+        from.selectedDate = AuditSection.instance.filterObject.from;
+        fromChange(null);
+      }
+      
+      override public function resetFilter():void {
+        from.selectedDate = DateUtils.addDays(new Date(), -AuditFilter.RANGE);
+        fromChange(null);
+      }
+      
+      private function fromChange(event:CalendarLayoutChangeEvent):void {
+        var time:Number = Math.min(new Date().time,
+                                   DateUtils.addDays(from.selectedDate, AuditFilter.RANGE).time);
+        
+        var date:Date = new Date(time);
+        to.selectedDate = date;
+        to.disabledRanges = [{rangeStart: DateUtils.addDays(date, 1)}];
+      }
+      
+      private function hide():void {
+        AuditSection.instance.filterObject.from = from.selectedDate;
+        AuditSection.instance.filterObject.to = to.selectedDate;
+      }
+      
+      private function labelFunction(date:Date):String {
+        return date ? TimeUtils.timestampFormatter(date.time) : '';
+      }
+      
+    ]]>
+  </fx:Script>
+  
   <s:VGroup gap="10" styleName="auditFilter">
     
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="From"/>
-      <mx:DateField id="from" width="120" change="fromChange(event)" showToday="false"
-                    yearNavigationEnabled="true"/>
+      <mx:DateField id="from" width="120" change="fromChange(event)"
+                    disabledRanges="{[{rangeStart: DateUtils.addDays(new Date(), 1)}]}"
+                    showToday="false"
+                    yearNavigationEnabled="true" formatString="YYYY-MM-DD JJ:NN:SS"/>
     </s:HGroup>
     
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="To"/>
-      <mx:DateField id="to" width="120" change="syncFilter()" showToday="false"
-                    yearNavigationEnabled="true"/>
+      <mx:DateField id="to" width="120" formatString="YYYY-MM-DD JJ:NN:SS"
+                    showToday="false" yearNavigationEnabled="true"/>
     </s:HGroup>
     
     <s:HGroup width="100%" verticalAlign="middle">
@@ -29,47 +69,5 @@
     </s:HGroup>
     
   </s:VGroup>
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.audit.Audit;
-      import it.ht.rcs.console.audit.AuditFilter;
-      import it.ht.rcs.console.utils.DateUtils;
-      
-      import mx.binding.utils.BindingUtils;
-      import mx.events.CalendarLayoutChangeEvent;
-      import mx.events.FlexEvent;
-      
-      private var today:Date = new Date();
-      
-      private function init(event:FlexEvent):void {
-        this.firstComponent = from;
-        from.selectedDate = Audit.instance.filterObject.from;
-        to.selectedDate = Audit.instance.filterObject.to;
-      }
-      
-      override public function resetFilter():void {
-        from.selectedDate = DateUtils.addDays(today, -AuditFilter.RANGE);
-        to.selectedDate = today;
-        from.disabledRanges = to.disabledRanges = [{rangeStart: DateUtils.addDays(today, 1)}];
-      }
-      
-      private function fromChange(event:CalendarLayoutChangeEvent):void {
-        var time:Number = Math.min(today.time,
-                                   DateUtils.addDays(from.selectedDate, AuditFilter.RANGE).time);
-                
-        var date:Date = new Date();
-        date.setTime(time);
-        to.selectedDate = date;
-        to.disabledRanges = [{rangeStart: DateUtils.addDays(date, 1)}];
-      }
-      
-      private function syncFilter():void {
-        Audit.instance.filterObject.from = from.selectedDate;
-        Audit.instance.filterObject.to = to.selectedDate;
-      }
-      
-    ]]>
-  </fx:Script>
 
 </filters:AbstractFilterPopup>

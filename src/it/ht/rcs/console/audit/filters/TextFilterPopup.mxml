@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.audit.filters.*"
+                             creationComplete="init()" hide="hide()">
+
+  <s:TextInput id="filter" width="150" styleName="auditFilter" enter="enter()"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import com.adobe.utils.StringUtil;
+      
+      import it.ht.rcs.console.audit.AuditSection;
+      
+      import mx.events.FlexEvent;
+      
+      private function init():void {
+      }
+      
+      override public function resetFilter():void {
+        filter.text = '';
+      }
+      
+      private function enter():void {
+        this.visible = false;
+      }
+      
+      private function hide():void {
+        filter.text = StringUtil.trim(filter.text);
+        valid = filter.text != '';
+        AuditSection.instance.filterObject[property] = filter.text == '' ? null : filter.text;
+      }
+      
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

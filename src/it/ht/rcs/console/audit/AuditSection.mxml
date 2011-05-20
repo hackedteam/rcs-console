@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:audit="it.ht.rcs.console.audit.*"
+         creationComplete="init(event)" title="AUDIT">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.audit.filters.AbstractHeaderRenderer;
+      
+      import mx.events.FlexEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.components.gridClasses.GridColumn;
+      
+      [Bindable]
+      public static var instance:AuditSection;
+      
+      [Bindable]
+      public var filterObject:AuditFilter = new AuditFilter();
+      
+      [Bindable]
+      public var filterValues:Object = new Object();
+      
+      private function init(event:FlexEvent):void {
+        instance = this;
+      }
+      
+      private function buttonClick(event:MouseEvent):void {
+        trace();
+        grid.resetFilters();
+      }
+      
+      protected function dgCreationComplete(event:FlexEvent):void {
+        var filter:Object = {}
+        console.currentDB.audit_index(filter, onResult);
+      }
+      
+      private function onResult(e:ResultEvent):void {
+        grid.dataProvider = new ArrayCollection(e.result as Array);
+      }
+      
+    ]]>
+  </fx:Script>
+
+  <s:VGroup width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+    <s:HGroup width="100%">
+      <s:Button height="20" label="Export" click="buttonClick(event)"/>
+      <s:Button height="20" label="Reset filters" click="buttonClick(event)"/>
+    </s:HGroup>
+    <audit:AuditTable id="grid" width="100%" height="100%"
+                      creationComplete="dgCreationComplete(event)"/>
+  </s:VGroup>
+
+  <fx:Declarations>
+    <s:ArrayCollection id="dummy">
+      <fx:Object action="auth.login" activity="Activity 1" actor="Corrado" backdoor="RCS_000"
+                 date="2011-05-17" description="Descr 1" group="" target="Target 1" user="Corrado"/>
+      <fx:Object action="auth.login" activity="Activity 2" actor="Corrado" backdoor="RCS_001"
+                 date="2011-05-18" description="Descr 2" group="" target="Target 2" user="Corrado"/>
+    </s:ArrayCollection>
+    <fx:XMLList id="events">
+      <event><label>ActivityEvent</label></event>
+      <event><label>AsyncErrorEvent</label></event>
+      <event><label>BrowserInvokeEvent</label></event>
+      <event><label>ContextMenuEvent</label></event>
+      <event><label>DataEvent</label></event>
+      <event><label>DRMAuthenticateEvent</label></event>
+      <event><label>DRMAuthenticationCompleteEvent</label></event>
+      <event><label>DRMAuthenticationErrorEvent</label></event>
+      <event><label>DRMErrorEvent</label></event>
+      <event><label>DRMStatusEvent</label></event>
+      <event><label>ErrorEvent</label></event>
+      <event><label>Event</label></event>
+      <event><label>EventDispatcher</label></event>
+      <event><label>EventPhase</label></event>
+      <event><label>FileListEvent</label></event>
+      <event><label>FocusEvent</label></event>
+      <event><label>FullScreenEvent</label></event>
+      <event><label>HTMLUncaughtScriptExceptionEvent</label></event>
+      <event><label>HTTPStatusEvent</label></event>
+      <event><label>IMEEvent</label></event>
+      <event><label>InvokeEvent</label></event>
+      <event><label>IOErrorEvent</label></event>
+      <event><label>KeyboardEvent</label></event>
+      <event><label>MouseEvent</label></event>
+      <event><label>NativeDragEvent</label></event>
+      <event><label>NativeWindowBoundsEvent</label></event>
+      <event><label>NativeWindowDisplayStateEvent</label></event>
+      <event><label>NetStatusEvent</label></event>
+      <event><label>OutputProgressEvent</label></event>
+      <event><label>ProgressEvent</label></event>
+      <event><label>SampleDataEvent</label></event>
+      <event><label>ScreenMouseEvent</label></event>
+      <event><label>SecurityErrorEvent</label></event>
+      <event><label>ShaderEvent</label></event>
+      <event><label>SQLErrorEvent</label></event>
+      <event><label>SQLEvent</label></event>
+      <event><label>SQLUpdateEvent</label></event>
+      <event><label>StatusEvent</label></event>
+      <event><label>SyncEvent</label></event>
+      <event><label>TextEvent</label></event>
+      <event><label>TimerEvent</label></event>
+    </fx:XMLList>
+    <fx:XMLList id="events2">
+      <event><label>ActivityEvent</label></event>
+      <event><label>AsyncErrorEvent</label></event>
+    </fx:XMLList>
+  </fx:Declarations>
+  
+</s:Panel>

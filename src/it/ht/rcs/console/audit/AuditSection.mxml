@@ -7,12 +7,9 @@
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.audit.filters.AbstractHeaderRenderer;
-      
+      import mx.events.CollectionEvent;
       import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
-      
-      import spark.components.gridClasses.GridColumn;
       
       [Bindable]
       public static var instance:AuditSection;
@@ -35,10 +32,18 @@
       protected function dgCreationComplete(event:FlexEvent):void {
         var filter:Object = {}
         console.currentDB.audit_index(filter, onResult);
+        //console.currentDB.audit_filters(onResult);
       }
       
       private function onResult(e:ResultEvent):void {
         grid.dataProvider = new ArrayCollection(e.result as Array);
+        grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
+      }
+      
+      private function onDataProviderChange(event:CollectionEvent):void
+      {
+        grid.dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
+        grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
       }
       
     ]]>

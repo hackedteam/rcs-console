@@ -7,6 +7,7 @@
   
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
+  import mx.rpc.AsyncToken;
     
   public class RemoteDB implements IDB
   {
@@ -111,6 +112,12 @@
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.audit_index(JSON.encode(filter));
+    }
+    
+    public function audit_filters(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.audit_filters();
     }
     
     /* LICENSE */

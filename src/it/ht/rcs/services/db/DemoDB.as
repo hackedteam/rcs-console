@@ -6,6 +6,7 @@ package it.ht.rcs.services.db
   import it.ht.rcs.console.model.User;
   
   import mx.collections.ArrayCollection;
+  import mx.rpc.AsyncToken;
   import mx.rpc.events.ResultEvent;
   
   public class DemoDB implements IDB
@@ -59,7 +60,7 @@ package it.ht.rcs.services.db
     public function audit_index(filter: Object, onResult:Function = null, onFault:Function = null):void
     {
       var items:ArrayCollection = new ArrayCollection();
-      items.addItem({_id: "4dd1312b963d351900000003", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\", \"VIEW\"]' for user 'test'", time: "2011-05-16T16:14:03+02:00",user: "test" });
+      items.addItem({_id: "4dd1312b963d351900000003", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\", \"VIEW\"]' for user 'test'", time: "2011-05-16T16:14:03+02:00", user: "test" });
       items.addItem({_id: "4dd133ef963d351a90000004", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user' for user 'test'", time: "2011-05-16T16:25:51+02:00", user: "test"});
       items.addItem({_id: "4dd134b9963d351af6000003", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user ' for user 'test'", time: "2011-05-16T16:29:13+02:00", user:"test"});
       items.addItem({_id: "4dd134b9963d351af6000004", action: "user.update", actor: "admin", desc: "Updated 'contact' to 'bla bla bla' for user 'test'", time: "2011-05-16T16:29:13+02:00", user:"test"});
@@ -67,6 +68,21 @@ package it.ht.rcs.services.db
       items.addItem({_id: "4dd134f5963d351af6000008", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\"]' for user 'finochky'", time: "2011-05-16T16:32:18+02:00", user:"test"});
       var event:ResultEvent = new ResultEvent("audit.index", false, true, items);
       if (onResult != null) 
+        onResult(event);
+    }
+    
+    public function audit_filters(onResult:Function = null, onFault:Function = null):void
+    {
+      var filters:Object = new Object;
+      /*
+      "{"_id":"4dd4e801963d350598000003","actions":["login","user.update","user.create","logout"],"actors":["admin"],"users":["admin","test","New User","finochky"]}"
+      */
+      filters["_id"] = "4dd4e801963d350598000003";
+      filters["actions"] = ["login","user.update","user.create","logout"];
+      filters["actors"] = ["admin"];
+      filters["users"] = ["admin","test","New User","finochky"];
+      var event:ResultEvent = new ResultEvent("audit.filters", false, true, filters);
+      if (onResult != null)
         onResult(event);
     }
       

@@ -7,17 +7,13 @@
   
   <fx:Script>
     <![CDATA[
-      import mx.events.FlexEvent;
-      import mx.rpc.events.HeaderEvent;
-      
-      public function resetFilters():void {
-        for (var i:int = 0; i < grid.columns.length; i++) {
-          var col:GridColumn = grid.columns.getItemAt(i) as GridColumn;
-        }
-      }
+
+      [Bindable]
+      public var filter:Object;
       
     ]]>
   </fx:Script>
+  
   
   <s:columns>
     <s:ArrayList>
@@ -33,7 +29,7 @@
       <s:GridColumn dataField="actor" headerText="Actor" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup"/>
+            <filters:AbstractHeaderRenderer popup="it.ht.rcs.console.audit.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>

@@ -1,7 +1,7 @@
 package it.ht.rcs.console.audit {
   import it.ht.rcs.console.utils.DateUtils;
   
-  public class AuditFilter {
+  public dynamic class AuditFilter {
     
     public static const RANGE:int = 30; // number of days
     

@@ -114,6 +114,12 @@
       resp.token = _delegate.audit_index(JSON.encode(filter));
     }
     
+    public function audit_filters(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.audit_filters();
+    }
+    
     /* LICENSE */
     
     public function license_limit(onResult:Function = null, onFault:Function = null):void

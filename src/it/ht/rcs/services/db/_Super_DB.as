@@ -20,6 +20,7 @@ import mx.rpc.AsyncToken;
 import mx.rpc.http.HTTPMultiService;
 import mx.rpc.http.Operation;
 import valueObjects.Audit;
+import valueObjects.AuditFilters;
 import valueObjects.Group;
 import valueObjects.Session;
 import valueObjects.User;
@@ -295,6 +296,13 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.serializationFilter = serializer1;
          operation.contentType = "application/xml";
          operation.resultType = valueObjects.User;
+         operations.push(operation);
+
+         operation = new mx.rpc.http.Operation(null, "audit_filters");
+         operation.url = "/audit/filters";
+         operation.method = "GET";
+         operation.serializationFilter = serializer0;
+         operation.resultType = valueObjects.AuditFilters;
          operations.push(operation);
 
          _serviceControl.operationList = operations;  
@@ -695,6 +703,24 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_update");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'audit_filters' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function audit_filters() : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("audit_filters");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      

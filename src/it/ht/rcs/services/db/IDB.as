@@ -13,6 +13,7 @@ package it.ht.rcs.services.db
     function session_destroy(cookie:String, onResult:Function = null, onFault:Function = null):void;
    
     function audit_index(filter: Object, onResult:Function = null, onFault:Function = null):void;
+    function audit_filters(onResult:Function = null, onFault:Function = null):void;
     
     function license_limit(onResult:Function = null, onFault:Function = null):void;
     function license_count(onResult:Function = null, onFault:Function = null):void;

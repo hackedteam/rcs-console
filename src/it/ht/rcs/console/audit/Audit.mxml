@@ -5,17 +5,9 @@
          xmlns:audit="it.ht.rcs.console.audit.*"
          creationComplete="init(event)" title="AUDIT">
 
-  <fx:Declarations>
-    <s:ArrayCollection id="dummy">
-      <fx:Object action="auth.login" activity="Activity 1" actor="Corrado" backdoor="RCS_000"
-                 date="2011-05-17" description="Descr 1" group="" target="Target 1" user="Corrado"/>
-      <fx:Object action="auth.login" activity="Activity 2" actor="Corrado" backdoor="RCS_001"
-                 date="2011-05-18" description="Descr 2" group="" target="Target 2" user="Corrado"/>
-    </s:ArrayCollection>
-  </fx:Declarations>
-  
   <fx:Script>
     <![CDATA[
+      import mx.collections.ArrayCollection;
       import mx.collections.AsyncListView;
       import mx.events.CollectionEvent;
       import mx.events.FlexEvent;
@@ -55,9 +47,8 @@
       
       private function onResult(e:ResultEvent):void
       {
-        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
+        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);       
         grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
-        trace();
       }
       
       protected function onFilterChange(event:Event):void
@@ -70,14 +61,13 @@
         
       private function onDataProviderChange(event:CollectionEvent):void
       {
-        trace("changing scroller position");
-        grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum; 
+        grid.dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
+        grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
       }
       
     ]]>
   </fx:Script>
   
-  <s:Button click="button1_clickHandler(event)"/>
   <audit:AuditTable id="grid" left="5" right="5" top="5" bottom="5" creationComplete="tableInit(event)"/>
 
 </s:Panel>

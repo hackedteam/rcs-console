@@ -70,6 +70,21 @@ package it.ht.rcs.services.db
       if (onResult != null) 
         onResult(event);
     }
+    
+    public function audit_filters(onResult:Function = null, onFault:Function = null):void
+    {
+      var filters:Object = new Object;
+      /*
+      "{"_id":"4dd4e801963d350598000003","actions":["login","user.update","user.create","logout"],"actors":["admin"],"users":["admin","test","New User","finochky"]}"
+      */
+      filters["_id"] = "4dd4e801963d350598000003";
+      filters["actions"] = ["login","user.update","user.create","logout"];
+      filters["actors"] = ["admin"];
+      filters["users"] = ["admin","test","New User","finochky"];
+      var event:ResultEvent = new ResultEvent("audit.filters", false, true, filters);
+      if (onResult != null)
+        onResult(event);
+    }
       
     /* LICENSE */
     

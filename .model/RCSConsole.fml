@@ -31,7 +31,7 @@
       <annotation name="original signature">
         <item name="returnType">opaque</item>
         <item name="inputParamNames">filter</item>
-        <item name="inputParams">opaque</item>
+        <item name="inputParams">string</item>
       </annotation>
       <parameter name="filter" type="string"/>
     </function>
@@ -53,7 +53,7 @@
       <annotation name="original signature">
         <item name="returnType">opaque</item>
         <item name="inputParamNames">filter,startIndex,numItems</item>
-        <item name="inputParams">opaque,integer,integer</item>
+        <item name="inputParams">string,integer,integer</item>
       </annotation>
       <parameter name="filter" type="string"/>
       <parameter name="startIndex" type="integer"/>
@@ -431,6 +431,25 @@
       </annotation>
       <parameter name="strXml" type="string"/>
     </function>
+    <function name="audit_filters" return-type="AuditFilters">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/audit/filters</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/audit/filters</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">backdoor,_id,target,action,actor,group,user,activity</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
   </service>
   <entity name="User">
     <annotation name="EntityProperties">
@@ -469,6 +488,31 @@
     <property name="created_at" type="string"/>
     <property name="contact" type="string"/>
     <property name="pass" type="string"/>
+  </entity>
+  <entity name="AuditFilters">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">AuditFilters</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">DB</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="audit_filters">
+      <item name="propertySpecifier">backdoor,_id,target,action,actor,group,user,activity</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="backdoor" type="string[]" required="true"/>
+    <property name="_id" type="string" required="true"/>
+    <property name="target" type="string[]" required="true"/>
+    <property name="action" type="string[]" required="true"/>
+    <property name="actor" type="string[]" required="true"/>
+    <property name="group" type="string[]" required="true"/>
+    <property name="user" type="string[]" required="true"/>
+    <property name="activity" type="string[]" required="true"/>
   </entity>
   <entity name="Session">
     <annotation name="EntityProperties">

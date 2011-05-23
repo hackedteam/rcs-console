@@ -53,16 +53,16 @@
         PopUpManager.centerPopUp(cp);
       }
       
-      private function removeGroup(g:Group):void
+      private function removeGroup(gid:String):void
       {
-        g.removeUser(_user);  
+        var group:Group = GroupManager.instance.getItem(gid);
+        group.removeUser(_user);  
       }
       
       private function addGroup(event:MenuEvent):void
       {
-        var g:Group = event.item as Group;
-        
-        g.addUser(_user);   
+        var group:Group = event.item as Group;
+        group.addUser(_user);   
       }
       
       private function initMenuUser():void
@@ -78,8 +78,8 @@
       
       private function groupFromId(o:Object):String
       {
-        var g:Group = GroupManager.instance.getItem(o as String);
-        return g.name;
+        var group:Group = GroupManager.instance.getItem(o as String);
+        return group.name;
       }
       
     ]]>
@@ -125,7 +125,7 @@
         <s:List id="usergroups" bottom="20" width="150" dataProvider="{_user.group_ids}" labelFunction="groupFromId"/>
           <s:Button right="51" bottom="0" width="30" height="20" label="-" styleName="AddRemove"
                     enabled="{usergroups.selectedItem != null}"
-                    click="{removeGroup(usergroups.selectedItem as Group)}"/>
+                    click="{removeGroup(usergroups.selectedItem)}"/>
           <mx:PopUpButton id="addgroupButton" right="1" bottom="0" width="50" height="20" styleName="AddRemove" label="+" openAlways="true" creationComplete="initMenuUser()"/>
       </s:BorderContainer>
     </mx:FormItem>

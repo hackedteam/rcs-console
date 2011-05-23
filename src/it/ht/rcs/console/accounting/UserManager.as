@@ -107,6 +107,6 @@ package it.ht.rcs.console.accounting
       /* disconnect call to db */
       console.currentDB.session_destroy(u['cookie']);
     }
-    
+
   }
 }

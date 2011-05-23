@@ -116,28 +116,28 @@ package it.ht.rcs.services.db
         onResult(event);     
     }
     
-    /* MONITOR */
+    /* STATUS */
     
-    public function monitor_index(onResult:Function = null, onFault:Function = null):void
+    public function status_index(onResult:Function = null, onFault:Function = null):void
     {
       var items:ArrayCollection = new ArrayCollection();
-      items.addItem({_id: '1', name: 'Collector', status:'0', address: '1.2.3.4', info: 'status for component...', time: new Date().time, cpu:15, cput:30, df:10});
-      items.addItem({_id: '2', name: 'Database', status:'1', address: '127.0.0.1', info: 'pay attention', time: new Date().time, cpu:15, cput:70, df:20});
-      items.addItem({_id: '3', name: 'Collector', status:'2', address: '5.6.7.8', info: 'houston we have a problem!', time: new Date().time, cpu:70, cput:90, df:70});
+      items.addItem({_id: '1', name: 'Collector', status:'0', address: '1.2.3.4', info: 'status for component...', time: new Date().time / 1000, pcpu:15, cpu:30, disk:10});
+      items.addItem({_id: '2', name: 'Database', status:'1', address: '127.0.0.1', info: 'pay attention', time: new Date().time / 1000, pcpu:15, cpu:70, disk:20});
+      items.addItem({_id: '3', name: 'Collector', status:'2', address: '5.6.7.8', info: 'houston we have a problem!', time: new Date().time / 1000, pcpu:70, cpu:90, disk:70});
       var event:ResultEvent = new ResultEvent("monitor.index", false, true, items);
       if (onResult != null) 
         onResult(event);
     }
     
-    public function monitor_counters(onResult:Function = null, onFault:Function = null):void
+    public function status_counters(onResult:Function = null, onFault:Function = null):void
     {
-      var counters:Object = {"ok":1, "warn":1, "ko":1};
-        var event:ResultEvent = new ResultEvent("monitor.counters", false, true, counters);
+      var counters:Object = {"ok":1, "warn":1, "error":1};
+        var event:ResultEvent = new ResultEvent("monitor.counters", false, true, JSON.encode(counters));
         if (onResult != null) 
           onResult(event);    
     }
     
-    public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    public function status_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
       /* do nothing */
     }

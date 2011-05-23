@@ -7,6 +7,7 @@
   
   import mx.collections.ArrayList;
   import mx.collections.ISort;
+  import mx.collections.IViewCursor;
   import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
@@ -170,6 +171,5 @@
       
       return lcv;
     }
-    
   }
 }

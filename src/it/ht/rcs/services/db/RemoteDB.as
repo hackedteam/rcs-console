@@ -173,14 +173,14 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.user_create(JSON.encode(user.toHash()));
     }
-
+    
     public function user_update(user:User, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
       property['user'] = user._id;
       resp.token = _delegate.user_update(JSON.encode(property));
     }
-
+    
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);

@@ -4,6 +4,8 @@ package it.ht.rcs.console.model
   import mx.resources.ResourceManager;
   import mx.rpc.events.ResultEvent;
   
+  import it.ht.rcs.console.accounting.UserManager;
+  
   public class Group
   {
     [Bindable]

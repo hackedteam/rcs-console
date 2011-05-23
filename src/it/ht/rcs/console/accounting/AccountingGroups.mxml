@@ -23,7 +23,6 @@
       private function init():void
       {
         _groups_view = GroupManager.instance.getView();
-        
         this.removeElement(rightpanels);
       }
       
@@ -65,9 +64,10 @@
         }
       }
       
-      private function removeUserFromGroup(u:User, g:Group):void
+      private function removeUserFromGroup(uid:String, group:Group):void
       {
-        g.removeUser(u);
+        var user:User = UserManager.instance.getItem(uid); 
+        group.removeUser(user);
       }
       
       private function addUserToGroup(event:MenuEvent):void 
@@ -133,7 +133,7 @@
                   dataProvider="{(groupslist.selectedItem as Group).user_ids}" labelFunction="userFromId"/>
           <s:Button label="-" width="30" height="20" right="51" bottom="1" styleName="AddRemove"
                     enabled="{usersingroup.selectedItem != null}"
-                    click="{removeUserFromGroup(usersingroup.selectedItem as User, groupslist.selectedItem as Group)}"/>
+                    click="{removeUserFromGroup(usersingroup.selectedItem, groupslist.selectedItem as Group)}"/>
           <mx:PopUpButton id="adduserButton" label="+" right="1" bottom="1" width="50" height="20" styleName="AddRemove"
                               enabled="{groupslist.selectedItem != null}"
                               openAlways="true" creationComplete="initMenuUser()"/>

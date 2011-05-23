@@ -1,6 +1,6 @@
 package it.ht.rcs.console.model
 {
-  public class Monitor
+  public class Status
   {
     [Bindable]
     public var _id:String;
@@ -15,13 +15,13 @@ package it.ht.rcs.console.model
     [Bindable]
     public var time:Number;
     [Bindable]
+    public var pcpu:Number;
+    [Bindable]
     public var cpu:Number;
     [Bindable]
-    public var cput:Number;
-    [Bindable]
-    public var df:Number;
+    public var disk:Number;
     
-    public function Monitor(data:Object)
+    public function Status(data:Object)
     {
       _id = data._id;
       name = data.name;
@@ -29,9 +29,9 @@ package it.ht.rcs.console.model
       address = data.address;
       info = data.info;
       time = data.time;
+      pcpu = data.pcpu;
       cpu = data.cpu;
-      cput = data.cput;
-      df = data.df;
+      disk = data.disk;
     }
     
   }

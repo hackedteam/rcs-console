@@ -12,7 +12,7 @@ package it.ht.rcs.console.utils
     
     public static function timestampDiffFromNow(t:Number):String
     {
-      var diff:Number = Clock.instance.now.time - t;
+      var diff:Number = Clock.instance.now.time - t * 1000;
       var days:int = diff / 1000 / 60 / 60 / 24;
       
       /* prevent negative differences */

@@ -134,21 +134,24 @@
       resp.token = _delegate.license_count(); 
     }
 
-    /* MONITOR */
+    /* STATUS */
 
-    public function monitor_index(onResult:Function = null, onFault:Function = null):void
+    public function status_index(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.status_index();       
     }
     
-    public function monitor_counters(onResult:Function = null, onFault:Function = null):void
+    public function status_counters(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.status_counters();
     }
     
-    public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    public function status_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.status_destroy(JSON.encode({status: id}));
     }
     
     /* USERS */

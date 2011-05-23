@@ -6,9 +6,11 @@ package it.ht.rcs.console.monitor
 	
 	import it.ht.rcs.console.events.RefreshEvent;
 	import it.ht.rcs.console.model.Manager;
-	import it.ht.rcs.console.model.Monitor;
+	import it.ht.rcs.console.model.Status;
 	import it.ht.rcs.console.utils.CounterBaloon;
 	
+  import com.adobe.serialization.json.JSON;
+  
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	import mx.collections.SortField;
@@ -38,7 +40,7 @@ package it.ht.rcs.console.monitor
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-      console.currentDB.monitor_index(onMonitorIndexResult);
+      console.currentDB.status_index(onMonitorIndexResult);
     }
    
     private function onMonitorIndexResult(e:ResultEvent):void
@@ -46,13 +48,13 @@ package it.ht.rcs.console.monitor
       var items:ArrayCollection = e.result as ArrayCollection;
       _items.removeAll();
       items.source.forEach(function toMonitorArray(element:*, index:int, arr:Array):void {
-        addItem(new Monitor(element));
+        addItem(new Status(element));
       });
     }
     
     override protected function onItemRemove(o:*):void 
     { 
-      console.currentDB.monitor_destroy(o._id);
+      console.currentDB.status_destroy(o._id);
     }
     
     private function onAutoRefresh(e:Event):void
@@ -72,6 +74,13 @@ package it.ht.rcs.console.monitor
       _autorefresh.removeEventListener(TimerEvent.TIMER, onAutoRefresh);
     }
 
+    
+    override public function removeItem(o:Object):void
+    {
+      super.removeItem(o);
+      /* update the couters without waiting for next auto-refresh */
+      onRefreshCounter(null);
+    }
     
     public function start_counters():void
     {
@@ -99,7 +108,7 @@ package it.ht.rcs.console.monitor
     {
       trace('StatusManager -- Refresh Counters');
       
-      console.currentDB.monitor_counters(onMonitorCounters);
+      console.currentDB.status_counters(onMonitorCounters);
     }
     
     private function onMonitorCounters(e:ResultEvent):void
@@ -112,12 +121,17 @@ package it.ht.rcs.console.monitor
       /* find the correct displacement (starting from right) */
       _counterBaloon.right = 3 + ((len - index) * 90);
       _counterBaloon.top = 43;
+
+      /* default, reset all values */
+      _counterBaloon.value = 0;
       
-      if (e.result['ko'] != 0) {
-        _counterBaloon.value = e.result['ko'];
+      var counters:Object = JSON.decode(e.result as String);
+      
+      if (counters['error'] != 0) {
+        _counterBaloon.value = counters['error'];
         _counterBaloon.style = 'alert';
-      } else if (e.result['warn'] != 0) {
-        _counterBaloon.value = e.result['warn'];
+      } else if (counters['warn'] != 0) {
+        _counterBaloon.value = counters['warn'];
         _counterBaloon.style = 'warn';        
       }
       

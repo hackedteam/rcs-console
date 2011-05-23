@@ -16,14 +16,18 @@
       import mx.managers.PopUpManager;
       
       [Bindable]
-      private var _group_view:ListCollectionView = new ListCollectionView();
+      private var _group_view:ListCollectionView;
       [Bindable]
       private var _alert_group:Group;
       
       private function init():void
       {
         _group_view = GroupManager.instance.getView();
-        
+        _group_view.addEventListener(CollectionEvent.COLLECTION_CHANGE, selectGroup);
+      }
+      
+      private function selectGroup(e:CollectionEvent):void
+      {
         _alert_group = GroupManager.instance.alertGroup();
         if (_alert_group != null)
           noalert.selected = false;

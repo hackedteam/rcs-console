@@ -35,6 +35,7 @@ package it.ht.rcs.services.db
     function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void;
     function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
     function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
-
+    function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void;
+    
   }
 }

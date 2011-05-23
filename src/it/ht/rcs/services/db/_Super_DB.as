@@ -326,6 +326,13 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation.resultType = Object;
          operations.push(operation);
 
+         operation = new mx.rpc.http.Operation(null, "group_alert");
+         operation.url = "/group/alert";
+         operation.method = "POST";
+         operation.contentType = "application/xml";
+         operation.resultType = Object;
+         operations.push(operation);
+
          _serviceControl.operationList = operations;  
         var managedAssociation : mx.data.ManagedAssociation;
         var managedAssocsArray : Array;
@@ -796,6 +803,24 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("status_counters");
 		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        return _internal_token;
+    }
+     
+    /**
+      * This method is a generated wrapper used to call the 'group_alert' operation. It returns an mx.rpc.AsyncToken whose 
+      * result property will be populated with the result of the operation when the server response is received. 
+      * To use this result from MXML code, define a CallResponder component and assign its token property to this method's return value. 
+      * You can then bind to CallResponder.lastResult or listen for the CallResponder.result or fault events.
+      *
+      * @see mx.rpc.AsyncToken
+      * @see mx.rpc.CallResponder 
+      *
+      * @return an mx.rpc.AsyncToken whose result property will be populated with the result of the operation when the server response is received.
+      */
+    public function group_alert(strXml:String) : mx.rpc.AsyncToken
+    {
+        var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_alert");
+		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      

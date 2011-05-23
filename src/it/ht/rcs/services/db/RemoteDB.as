@@ -231,5 +231,15 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.group_del_user(JSON.encode( {group: group._id, user: user._id} ));         
     }
+    
+    public function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      if (group != null) 
+        resp.token = _delegate.group_alert(JSON.encode( {group: group._id} ));
+      else
+        resp.token = _delegate.group_alert(JSON.encode( {group: null} ));
+    }
+    
   }
 }

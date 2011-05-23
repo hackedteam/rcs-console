@@ -192,9 +192,9 @@ package it.ht.rcs.services.db
     public function group_index(onResult:Function = null, onFault:Function = null):void
     {
       var items:ArrayCollection = new ArrayCollection();
-      items.addItem({_id: '1', name: 'demo', user_ids:new ArrayCollection(['1','2','3'])});
-      items.addItem({_id: '2', name: 'developers', user_ids:new ArrayCollection(['2','3','4','5','6','7','8','9'])});
-      items.addItem({_id: '3', name: 'test', user_ids:new ArrayCollection(['10'])});
+      items.addItem({_id: '1', name: 'demo', user_ids:new ArrayCollection(['1','2','3']), alert: false});
+      items.addItem({_id: '2', name: 'developers', user_ids:new ArrayCollection(['2','3','4','5','6','7','8','9']), alert: false});
+      items.addItem({_id: '3', name: 'test', user_ids:new ArrayCollection(['10']), alert: true});
       var event:ResultEvent = new ResultEvent("group.index", false, true, items);
       if (onResult != null) 
         onResult(event);
@@ -248,5 +248,11 @@ package it.ht.rcs.services.db
       if (onResult != null) 
         onResult(event);
     }
+    
+    public function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      /* do nothing */
+    }
+
   }
 }

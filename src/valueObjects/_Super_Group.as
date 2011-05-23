@@ -6,10 +6,14 @@
 package valueObjects
 {
 import com.adobe.fiber.services.IFiberManagingService;
+import com.adobe.fiber.util.FiberUtils;
 import com.adobe.fiber.valueobjects.IValueObject;
+import flash.events.Event;
 import flash.events.EventDispatcher;
+import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
 import mx.events.PropertyChangeEvent;
+import mx.validators.ValidationResult;
 
 import flash.net.registerClassAlias;
 import flash.net.getClassByAlias;
@@ -47,8 +51,11 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
     /**
      * properties
      */
+    private var _internal_updated_at : String;
     private var _internal__id : String;
+    private var _internal_alert : Boolean;
     private var _internal_name : String;
+    private var _internal_created_at : String;
     private var _internal_user_ids : ArrayCollection;
 
     private static var emptyArray:Array = new Array();
@@ -66,6 +73,8 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
         _model = new _GroupEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "updated_at", model_internal::setterListenerUpdated_at));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "created_at", model_internal::setterListenerCreated_at));
 
     }
 
@@ -74,15 +83,33 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
      */
 
     [Bindable(event="propertyChange")]
+    public function get updated_at() : String
+    {
+        return _internal_updated_at;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get _id() : String
     {
         return _internal__id;
     }
 
     [Bindable(event="propertyChange")]
+    public function get alert() : Boolean
+    {
+        return _internal_alert;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get name() : String
     {
         return _internal_name;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get created_at() : String
+    {
+        return _internal_created_at;
     }
 
     [Bindable(event="propertyChange")]
@@ -99,6 +126,16 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
      * data/source property setters
      */
 
+    public function set updated_at(value:String) : void
+    {
+        var oldValue:String = _internal_updated_at;
+        if (oldValue !== value)
+        {
+            _internal_updated_at = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "updated_at", oldValue, _internal_updated_at));
+        }
+    }
+
     public function set _id(value:String) : void
     {
         var oldValue:String = _internal__id;
@@ -109,6 +146,16 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
         }
     }
 
+    public function set alert(value:Boolean) : void
+    {
+        var oldValue:Boolean = _internal_alert;
+        if (oldValue !== value)
+        {
+            _internal_alert = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "alert", oldValue, _internal_alert));
+        }
+    }
+
     public function set name(value:String) : void
     {
         var oldValue:String = _internal_name;
@@ -116,6 +163,16 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
         {
             _internal_name = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "name", oldValue, _internal_name));
+        }
+    }
+
+    public function set created_at(value:String) : void
+    {
+        var oldValue:String = _internal_created_at;
+        if (oldValue !== value)
+        {
+            _internal_created_at = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "created_at", oldValue, _internal_created_at));
         }
     }
 
@@ -156,6 +213,16 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
 
+    model_internal function setterListenerUpdated_at(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnUpdated_at();
+    }
+
+    model_internal function setterListenerCreated_at(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnCreated_at();
+    }
+
 
     /**
      * valid related derived properties
@@ -177,6 +244,16 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
+        if (!_model.updated_atIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_updated_atValidationFailureMessages);
+        }
+        if (!_model.created_atIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_created_atValidationFailureMessages);
+        }
 
         model_internal::_cacheInitialized_isValid = true;
         model_internal::invalidConstraints_der = violatedConsts;
@@ -256,6 +333,60 @@ public class _Super_Group extends flash.events.EventDispatcher implements com.ad
         }
     }
 
+    model_internal var _doValidationCacheOfUpdated_at : Array = null;
+    model_internal var _doValidationLastValOfUpdated_at : String;
+
+    model_internal function _doValidationForUpdated_at(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfUpdated_at != null && model_internal::_doValidationLastValOfUpdated_at == value)
+           return model_internal::_doValidationCacheOfUpdated_at ;
+
+        _model.model_internal::_updated_atIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isUpdated_atAvailable && _internal_updated_at == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "updated_at is required"));
+        }
+
+        model_internal::_doValidationCacheOfUpdated_at = validationFailures;
+        model_internal::_doValidationLastValOfUpdated_at = value;
+
+        return validationFailures;
+    }
+    
+    model_internal var _doValidationCacheOfCreated_at : Array = null;
+    model_internal var _doValidationLastValOfCreated_at : String;
+
+    model_internal function _doValidationForCreated_at(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfCreated_at != null && model_internal::_doValidationLastValOfCreated_at == value)
+           return model_internal::_doValidationCacheOfCreated_at ;
+
+        _model.model_internal::_created_atIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isCreated_atAvailable && _internal_created_at == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "created_at is required"));
+        }
+
+        model_internal::_doValidationCacheOfCreated_at = validationFailures;
+        model_internal::_doValidationLastValOfCreated_at = value;
+
+        return validationFailures;
+    }
+    
 
 }
 

@@ -5,9 +5,11 @@
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
+  import mx.core.FlexGlobals;
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
   import mx.rpc.AsyncToken;
+  import it.ht.rcs.console.model.Account;
     
   public class RemoteDB implements IDB
   {
@@ -28,13 +30,39 @@
       _delegate.showBusyCursor = true;
     }
 
+    private function onFatalError(event:*):void
+    {
+      /* back to the login screen */ 
+      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
+    }
+    
     /* default Fault handler */
     private function onDeFault(e:FaultEvent):void
     {
       var message:String = "ERROR";
       
-      // TODO: if http code is 403, handle ivalid cookie
+      /* avoid multiple messages, by checking if the currentSession is valid */
+      if (console.currentSession == null) {
+        return;
+      }
       
+      /* if http code is 403, handle ivalid cookie */
+      if (e.statusCode == 403) {
+        Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        /* logout the user from the db */
+        new Account().logout(onFatalError, onFatalError);
+        return; 
+      }
+      
+      /* server error (cannot connect) */
+      if (e.statusCode == 0) {
+        Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        /* logout the user from the db */
+        new Account().logout(onFatalError, onFatalError);
+        return;
+      }
+        
+      /* decode the message from the server */
       var decoded:*;
       try {
         decoded = JSON.decode(e.fault.content as String);
@@ -42,6 +70,7 @@
         decoded = "";
       }
         
+      /* guess which error it is */
       if (decoded is Array)
         message = decoded[0];
       else if (decoded is String)

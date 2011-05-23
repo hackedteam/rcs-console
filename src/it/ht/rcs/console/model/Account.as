@@ -7,7 +7,9 @@ package it.ht.rcs.console.model
   import it.ht.rcs.services.db.DemoDB;
   import it.ht.rcs.services.db.IDB;
   import it.ht.rcs.services.db.RemoteDB;
+  import it.ht.rcs.console.events.LogonEvent;
   
+  import mx.core.FlexGlobals;
   import mx.controls.Alert;
   import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
@@ -81,6 +83,11 @@ package it.ht.rcs.console.model
     public function logout(callback:Function = null, errback:Function = null):void
     {
       trace('Account.logout');
+      /* dispatch the event for all */
+      FlexGlobals.topLevelApplication.dispatchEvent(new LogonEvent(LogonEvent.LOGGING_OUT));
+      /* destroy the current session */
+      console.currentSession.destroy();
+      console.currentSession = null;
       /* request to the DB, ignoring the results */
       console.currentDB.logout(callback, errback);
     }

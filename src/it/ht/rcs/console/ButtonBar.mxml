@@ -13,8 +13,6 @@
     
     private function exit():void
     {
-      /* destroy the current session */
-      console.currentSession.destroy();
       /* logout the user from the db */
       new Account().logout(onLogoutExit, onLogoutExit);
     }
@@ -27,11 +25,6 @@
     
     private function logout():void
     {
-      /* dispatch the event for all */
-      FlexGlobals.topLevelApplication.dispatchEvent(new LogonEvent(LogonEvent.LOGGING_OUT));
-      /* destroy the current session */
-      console.currentSession.destroy();
-      console.currentSession = null;
       /* logout the user from the db */
       new Account().logout(onLogout, onLogout);
     }
@@ -39,7 +32,7 @@
     private function onLogout(event:*):void
     {
       /* back to the login screen */ 
-      FlexGlobals.topLevelApplication.currentState = "LoggedOut" 
+      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
     }
     
     [Bindable]

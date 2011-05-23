@@ -46,10 +46,9 @@
         return;
       }
       
-      /* if http code is 403, handle ivalid cookie */
+      /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        /* logout the user from the db */
         new Account().logout(onFatalError, onFatalError);
         return; 
       }
@@ -57,7 +56,6 @@
       /* server error (cannot connect) */
       if (e.statusCode == 0) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        /* logout the user from the db */
         new Account().logout(onFatalError, onFatalError);
         return;
       }

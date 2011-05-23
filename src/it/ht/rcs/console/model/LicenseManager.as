@@ -10,9 +10,8 @@ package it.ht.rcs.console.model
   [Bindable]
   public class LicenseManager
   {
-    public var type:String = "reusable"
+    public var type:String = "reusable";
     public var serial:String = "off";
-    
     public var users:CurrMaxObject = new CurrMaxObject("0", "0");
     
     public var bck_total:CurrMaxObject = new CurrMaxObject("0", "0");

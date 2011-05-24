@@ -71,7 +71,7 @@ package it.ht.rcs.console.model
       type = limits['type'];
       serial = limits['serial'].toString();
       
-      users.max = limits['users'].toString();
+      users.max = (limits['users'] == null) ? 'U' : limits['users'].toString();
       
       bck_total.max = (limits['backdoors']['total'] == null) ? 'U' : limits['backdoors']['total'].toString();
       bck_desktop.max = (limits['backdoors']['desktop'] == null) ? 'U' : limits['backdoors']['desktop'].toString();

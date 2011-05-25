@@ -18,9 +18,9 @@ package it.ht.rcs.services.db
     function license_limit(onResult:Function = null, onFault:Function = null):void;
     function license_count(onResult:Function = null, onFault:Function = null):void;
 
-    function monitor_index(onResult:Function = null, onFault:Function = null):void;
-    function monitor_counters(onResult:Function = null, onFault:Function = null):void;
-    function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void;
+    function status_index(onResult:Function = null, onFault:Function = null):void;
+    function status_counters(onResult:Function = null, onFault:Function = null):void;
+    function status_destroy(id:String, onResult:Function = null, onFault:Function = null):void;
     
     function user_index(onResult:Function = null, onFault:Function = null):void;
     function user_show(id:String, onResult:Function = null, onFault:Function = null):void;
@@ -35,6 +35,7 @@ package it.ht.rcs.services.db
     function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void;
     function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
     function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
-
+    function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void;
+    
   }
 }

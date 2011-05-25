@@ -5,9 +5,11 @@
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
+  import mx.core.FlexGlobals;
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
   import mx.rpc.AsyncToken;
+  import it.ht.rcs.console.model.Account;
     
   public class RemoteDB implements IDB
   {
@@ -28,13 +30,37 @@
       _delegate.showBusyCursor = true;
     }
 
+    private function onFatalError(event:*):void
+    {
+      /* back to the login screen */ 
+      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
+    }
+    
     /* default Fault handler */
     private function onDeFault(e:FaultEvent):void
     {
       var message:String = "ERROR";
       
-      // TODO: if http code is 403, handle ivalid cookie
+      /* avoid multiple messages, by checking if the currentSession is valid */
+      if (console.currentSession == null) {
+        return;
+      }
       
+      /* http code 403 means our session is not valid */
+      if (e.statusCode == 403) {
+        Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        new Account().logout(onFatalError, onFatalError);
+        return; 
+      }
+      
+      /* server error (cannot connect) */
+      if (e.statusCode == 0) {
+        Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        new Account().logout(onFatalError, onFatalError);
+        return;
+      }
+        
+      /* decode the message from the server */
       var decoded:*;
       try {
         decoded = JSON.decode(e.fault.content as String);
@@ -42,6 +68,7 @@
         decoded = "";
       }
         
+      /* guess which error it is */
       if (decoded is Array)
         message = decoded[0];
       else if (decoded is String)
@@ -134,21 +161,24 @@
       resp.token = _delegate.license_count(); 
     }
 
-    /* MONITOR */
+    /* STATUS */
 
-    public function monitor_index(onResult:Function = null, onFault:Function = null):void
+    public function status_index(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.status_index();       
     }
     
-    public function monitor_counters(onResult:Function = null, onFault:Function = null):void
+    public function status_counters(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.status_counters();
     }
     
-    public function monitor_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    public function status_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.status_destroy(JSON.encode({status: id}));
     }
     
     /* USERS */
@@ -170,14 +200,14 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.user_create(JSON.encode(user.toHash()));
     }
-
+    
     public function user_update(user:User, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
       property['user'] = user._id;
       resp.token = _delegate.user_update(JSON.encode(property));
     }
-
+    
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
@@ -228,5 +258,15 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.group_del_user(JSON.encode( {group: group._id, user: user._id} ));         
     }
+    
+    public function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      if (group != null) 
+        resp.token = _delegate.group_alert(JSON.encode( {group: group._id} ));
+      else
+        resp.token = _delegate.group_alert(JSON.encode( {group: null} ));
+    }
+    
   }
 }

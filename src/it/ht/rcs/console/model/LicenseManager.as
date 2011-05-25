@@ -10,9 +10,8 @@ package it.ht.rcs.console.model
   [Bindable]
   public class LicenseManager
   {
-    public var type:String = "reusable"
+    public var type:String = "reusable";
     public var serial:String = "off";
-    
     public var users:CurrMaxObject = new CurrMaxObject("0", "0");
     
     public var bck_total:CurrMaxObject = new CurrMaxObject("0", "0");
@@ -72,7 +71,7 @@ package it.ht.rcs.console.model
       type = limits['type'];
       serial = limits['serial'].toString();
       
-      users.max = limits['users'].toString();
+      users.max = (limits['users'] == null) ? 'U' : limits['users'].toString();
       
       bck_total.max = (limits['backdoors']['total'] == null) ? 'U' : limits['backdoors']['total'].toString();
       bck_desktop.max = (limits['backdoors']['desktop'] == null) ? 'U' : limits['backdoors']['desktop'].toString();

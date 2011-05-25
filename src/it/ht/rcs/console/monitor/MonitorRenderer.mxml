@@ -9,19 +9,19 @@
                 removedFromStage="removed()">
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.model.Monitor;
+      import it.ht.rcs.console.model.Status;
       import it.ht.rcs.console.model.Clock;
       import it.ht.rcs.console.utils.TimeUtils;
       
       [Bindable]
-      private var _data:Monitor;
+      private var _data:Status;
       
       [Bindable]
       private var difftime:String;
       
       /* data is passed by the list and we cast it to an object of type StatusEntry */
       override public function set data(value:Object):void {
-        _data = value as Monitor;
+        _data = value as Status;
       }
       
       private function init():void
@@ -83,13 +83,13 @@
     <s:Label text="{difftime}" top="-15" right="30" width="100" fontSize="11"/>
     <s:BorderContainer right="5" bottom="5" top="5" left="80" minHeight="20" cornerRadius="10" backgroundColor="#EAEAEA">
       <s:Label text="CPU" top="10" width="60" left="5" styleName="MonitorStatus"/>
-      <s:Label text="{(_data.cpu != -1) ? _data.cpu : 'N/A'} %" color="{cpuColor(_data.cpu)}" top="30" width="60" left="5" styleName="MonitorStatus"/>
+      <s:Label text="{(_data.pcpu != -1) ? _data.pcpu : 'N/A'} %" color="{cpuColor(_data.pcpu)}" top="30" width="60" left="5" styleName="MonitorStatus"/>
       
       <s:Label text="CPU total" top="10" width="60" left="65" styleName="MonitorStatus"/>
-      <s:Label text="{(_data.cput != -1) ? _data.cput : 'N/A'} %" color="{cpuColor(_data.cput)}" top="30" width="60" left="65" styleName="MonitorStatus"/>
+      <s:Label text="{(_data.cpu != -1) ? _data.cpu : 'N/A'} %" color="{cpuColor(_data.cpu)}" top="30" width="60" left="65" styleName="MonitorStatus"/>
       
       <s:Label text="Disk Free" top="10" width="60" styleName="MonitorStatus" left="125"/>
-      <s:Label text="{(_data.df != -1) ? _data.df : 'N/A'} %" color="{diskColor(_data.df)}" top="30" width="60" styleName="MonitorStatus" left="125"/>
+      <s:Label text="{(_data.disk != -1) ? _data.disk : 'N/A'} %" color="{diskColor(_data.disk)}" top="30" width="60" styleName="MonitorStatus" left="125"/>
       
       <s:TextArea contentBackgroundAlpha="0.0" editable="false" enabled="true" text="{_data.info}" top="5" right="5" bottom="5" left="200"/>
     </s:BorderContainer>

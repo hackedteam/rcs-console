@@ -63,5 +63,23 @@ package it.ht.rcs.console.accounting
       });
     }
     
+    public function alertGroup():Group
+    {
+      var idx:int;
+      /* search for the item with alert = true and return it */
+      for (idx = 0; idx < _items.length; idx++) {
+        var elem:* = _items.getItemAt(idx);
+        if (elem.alert == true)
+          return elem;
+      }
+      return null;
+    }
+    
+    public function setalertGroup(g:Group):void
+    {
+      console.currentDB.group_alert(g);
+      if (g != null) 
+        g.alert = true;
+    }
   }
 }

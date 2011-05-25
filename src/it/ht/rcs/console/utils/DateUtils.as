@@ -20,8 +20,8 @@ package it.ht.rcs.console.utils {
 		
 		public static function addSeconds(date:Date, secs:Number):Date {
 			var mSecs:Number = secs * 1000;			
-			var sum:Number = mSecs + date.getTime();
-			return new Date(sum);
+			//var sum:Number = mSecs + date.getTime();
+			return new Date(/*sum*/ 0);
 		}
 		
 	}

@@ -48,7 +48,7 @@
         <item name="completeURL">http://localhost:4444/audit</item>
       </annotation>
       <annotation name="ValidProperties">
-        <item name="propertySpecifier">time,desc,_id,action,actor,user</item>
+        <item name="propertySpecifier">backdoor,time,desc,_id,target,action,actor,group,user,activity</item>
       </annotation>
       <annotation name="original signature">
         <item name="returnType">opaque</item>
@@ -652,7 +652,7 @@
       <item name="IncludeRemoteClass">nonempty</item>
     </annotation>
     <annotation name="audit_index">
-      <item name="propertySpecifier">time,desc,_id,action,actor,user</item>
+      <item name="propertySpecifier">backdoor,time,desc,_id,target,action,actor,group,user,activity</item>
       <item name="positionalPagingParameters">true</item>
       <item name="pagingEnabled">true</item>
       <item name="pageSize">10</item>
@@ -665,12 +665,16 @@
       <item name="managingService">DB</item>
       <item name="fillFunc">audit_index</item>
     </annotation>
-    <property name="time" type="string"/>
+    <property name="backdoor" type="string" required="true"/>
+    <property name="time" type="integer"/>
     <property name="desc" type="string"/>
     <id name="_id" type="string"/>
+    <property name="target" type="string" required="true"/>
     <property name="action" type="string"/>
     <property name="actor" type="string"/>
+    <property name="group" type="string" required="true"/>
     <property name="user" type="string"/>
+    <property name="activity" type="string" required="true"/>
   </entity>
   <entity name="Group">
     <annotation name="EntityProperties">

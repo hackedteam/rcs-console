@@ -6,10 +6,14 @@
 package valueObjects
 {
 import com.adobe.fiber.services.IFiberManagingService;
+import com.adobe.fiber.util.FiberUtils;
 import com.adobe.fiber.valueobjects.IValueObject;
+import flash.events.Event;
 import flash.events.EventDispatcher;
+import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
 import mx.events.PropertyChangeEvent;
+import mx.validators.ValidationResult;
 
 import flash.net.registerClassAlias;
 import flash.net.getClassByAlias;
@@ -48,12 +52,16 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
     /**
      * properties
      */
-    private var _internal_time : String;
+    private var _internal_backdoor : String;
+    private var _internal_time : int;
     private var _internal_desc : String;
     private var _internal__id : String;
+    private var _internal_target : String;
     private var _internal_action : String;
     private var _internal_actor : String;
+    private var _internal_group : String;
     private var _internal_user : String;
+    private var _internal_activity : String;
 
     private static var emptyArray:Array = new Array();
 
@@ -70,6 +78,10 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         _model = new _AuditEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "backdoor", model_internal::setterListenerBackdoor));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "target", model_internal::setterListenerTarget));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "group", model_internal::setterListenerGroup));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "activity", model_internal::setterListenerActivity));
 
     }
 
@@ -78,7 +90,13 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
      */
 
     [Bindable(event="propertyChange")]
-    public function get time() : String
+    public function get backdoor() : String
+    {
+        return _internal_backdoor;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get time() : int
     {
         return _internal_time;
     }
@@ -96,6 +114,12 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
     }
 
     [Bindable(event="propertyChange")]
+    public function get target() : String
+    {
+        return _internal_target;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get action() : String
     {
         return _internal_action;
@@ -108,9 +132,21 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
     }
 
     [Bindable(event="propertyChange")]
+    public function get group() : String
+    {
+        return _internal_group;
+    }
+
+    [Bindable(event="propertyChange")]
     public function get user() : String
     {
         return _internal_user;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get activity() : String
+    {
+        return _internal_activity;
     }
 
     public function clearAssociations() : void
@@ -121,9 +157,18 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
      * data/source property setters
      */
 
-    public function set time(value:String) : void
+    public function set backdoor(value:String) : void
     {
-        var oldValue:String = _internal_time;
+        var oldValue:String = _internal_backdoor;
+        if (oldValue !== value)
+        {
+            _internal_backdoor = value;
+        }
+    }
+
+    public function set time(value:int) : void
+    {
+        var oldValue:int = _internal_time;
         if (oldValue !== value)
         {
             _internal_time = value;
@@ -148,6 +193,15 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         }
     }
 
+    public function set target(value:String) : void
+    {
+        var oldValue:String = _internal_target;
+        if (oldValue !== value)
+        {
+            _internal_target = value;
+        }
+    }
+
     public function set action(value:String) : void
     {
         var oldValue:String = _internal_action;
@@ -166,12 +220,30 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         }
     }
 
+    public function set group(value:String) : void
+    {
+        var oldValue:String = _internal_group;
+        if (oldValue !== value)
+        {
+            _internal_group = value;
+        }
+    }
+
     public function set user(value:String) : void
     {
         var oldValue:String = _internal_user;
         if (oldValue !== value)
         {
             _internal_user = value;
+        }
+    }
+
+    public function set activity(value:String) : void
+    {
+        var oldValue:String = _internal_activity;
+        if (oldValue !== value)
+        {
+            _internal_activity = value;
         }
     }
 
@@ -186,6 +258,26 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
      *  - the validity of the property (and the containing entity) if the given data property has a length restriction.
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
+
+    model_internal function setterListenerBackdoor(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnBackdoor();
+    }
+
+    model_internal function setterListenerTarget(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnTarget();
+    }
+
+    model_internal function setterListenerGroup(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnGroup();
+    }
+
+    model_internal function setterListenerActivity(value:flash.events.Event):void
+    {
+        _model.invalidateDependentOnActivity();
+    }
 
 
     /**
@@ -208,6 +300,26 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
+        if (!_model.backdoorIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_backdoorValidationFailureMessages);
+        }
+        if (!_model.targetIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_targetValidationFailureMessages);
+        }
+        if (!_model.groupIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_groupValidationFailureMessages);
+        }
+        if (!_model.activityIsValid)
+        {
+            propertyValidity = false;
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_activityValidationFailureMessages);
+        }
 
         model_internal::_cacheInitialized_isValid = true;
         model_internal::invalidConstraints_der = violatedConsts;
@@ -287,6 +399,114 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         }
     }
 
+    model_internal var _doValidationCacheOfBackdoor : Array = null;
+    model_internal var _doValidationLastValOfBackdoor : String;
+
+    model_internal function _doValidationForBackdoor(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfBackdoor != null && model_internal::_doValidationLastValOfBackdoor == value)
+           return model_internal::_doValidationCacheOfBackdoor ;
+
+        _model.model_internal::_backdoorIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isBackdoorAvailable && _internal_backdoor == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "backdoor is required"));
+        }
+
+        model_internal::_doValidationCacheOfBackdoor = validationFailures;
+        model_internal::_doValidationLastValOfBackdoor = value;
+
+        return validationFailures;
+    }
+    
+    model_internal var _doValidationCacheOfTarget : Array = null;
+    model_internal var _doValidationLastValOfTarget : String;
+
+    model_internal function _doValidationForTarget(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfTarget != null && model_internal::_doValidationLastValOfTarget == value)
+           return model_internal::_doValidationCacheOfTarget ;
+
+        _model.model_internal::_targetIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isTargetAvailable && _internal_target == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "target is required"));
+        }
+
+        model_internal::_doValidationCacheOfTarget = validationFailures;
+        model_internal::_doValidationLastValOfTarget = value;
+
+        return validationFailures;
+    }
+    
+    model_internal var _doValidationCacheOfGroup : Array = null;
+    model_internal var _doValidationLastValOfGroup : String;
+
+    model_internal function _doValidationForGroup(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfGroup != null && model_internal::_doValidationLastValOfGroup == value)
+           return model_internal::_doValidationCacheOfGroup ;
+
+        _model.model_internal::_groupIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isGroupAvailable && _internal_group == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "group is required"));
+        }
+
+        model_internal::_doValidationCacheOfGroup = validationFailures;
+        model_internal::_doValidationLastValOfGroup = value;
+
+        return validationFailures;
+    }
+    
+    model_internal var _doValidationCacheOfActivity : Array = null;
+    model_internal var _doValidationLastValOfActivity : String;
+
+    model_internal function _doValidationForActivity(valueIn:Object):Array
+    {
+        var value : String = valueIn as String;
+
+        if (model_internal::_doValidationCacheOfActivity != null && model_internal::_doValidationLastValOfActivity == value)
+           return model_internal::_doValidationCacheOfActivity ;
+
+        _model.model_internal::_activityIsValidCacheInitialized = true;
+        var validationFailures:Array = new Array();
+        var errorMessage:String;
+        var failure:Boolean;
+
+        var valRes:ValidationResult;
+        if (_model.isActivityAvailable && _internal_activity == null)
+        {
+            validationFailures.push(new ValidationResult(true, "", "", "activity is required"));
+        }
+
+        model_internal::_doValidationCacheOfActivity = validationFailures;
+        model_internal::_doValidationLastValOfActivity = value;
+
+        return validationFailures;
+    }
+    
 
 }
 

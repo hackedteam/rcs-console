@@ -353,7 +353,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
         var dmQuery : mx.data.ManagedQuery;
 
         dmQuery = new mx.data.ManagedQuery("audit_index");
-        dmQuery.propertySpecifier = "time,desc,_id,action,actor,user";
+        dmQuery.propertySpecifier = "backdoor,time,desc,_id,target,action,actor,group,user,activity";
         dmQuery.countOperation = "audit_count";
         dmQuery.pagingEnabled = true;
         dmQuery.positionalPagingParameters = true;

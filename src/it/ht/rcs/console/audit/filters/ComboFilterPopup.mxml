@@ -6,12 +6,10 @@
                              xmlns:filters="it.ht.rcs.console.audit.filters.*"
                              creationComplete="init()" hide="hide()">
 
-  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" dataProvider="{events}"
-                     enter="enter()"/>
+  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" dataProvider="{selectableFilters}"/>
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.audit.AuditSection;
       
       [Bindable]
       private var events:Array = ['prova', 'corrado', 'hackingteam']
@@ -32,7 +30,8 @@
       
       private function hide():void {
         valid = combo.selectedItem != null;
-        //AuditSection.instance.filterObject[property] = combo.selectedItem;
+        //filter[property] = combo.selectedItem;
+        dispatchEvent(new Event("ciccio", true));
       }
       
     ]]>

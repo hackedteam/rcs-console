@@ -9,6 +9,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.model.Clock;
       import it.ht.rcs.console.utils.DateUtils;
       import it.ht.rcs.console.utils.TimeUtils;
       
@@ -56,12 +57,12 @@
       protected function show():void
       {
         
-        var fromDate:Date = new Date(filter.from * 1000);
+        var fromDate:Date = new Date((filter.from * 1000) + Clock.instance.consoleTimeZoneOffset);
         from.selectedDate = fromDate;
         fromH.value = fromDate.hours;
         fromM.value = fromDate.minutes;
 
-        var toDate:Date = new Date(filter.to * 1000);
+        var toDate:Date = new Date((filter.to * 1000) + Clock.instance.consoleTimeZoneOffset);
         to.selectedDate = toDate;
         toH.value = toDate.hours;
         toM.value = toDate.minutes;
@@ -110,14 +111,14 @@
       {
         from.selectedDate.hours = fromH.value;
         from.selectedDate.minutes = fromM.value;
-        return from.selectedDate.time / 1000;
+        return (from.selectedDate.time - Clock.instance.consoleTimeZoneOffset) / 1000;
       }
       
       private function getToTimestamp():int
       {
         to.selectedDate.hours = toH.value;
         to.selectedDate.minutes = toM.value;
-        return to.selectedDate.time / 1000;
+        return (to.selectedDate.time - Clock.instance.consoleTimeZoneOffset) / 1000;
       }
       
       private function pad(n:Number):String

@@ -11,11 +11,13 @@
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.model.Clock;
+      import it.ht.rcs.console.utils.DateUtils;
       
       import mx.collections.ArrayCollection;
       import mx.collections.AsyncListView;
       import mx.core.FlexGlobals;
       import mx.events.CollectionEvent;
+      import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
       
       private function onAddedToStage():void
@@ -34,16 +36,13 @@
       {
         if (!(event is FilterEvent))
           console.currentDB.audit_filters(onFiltersResult);
-        fixTimeFilter();
-        printFilterObject();
+        
+        if (grid.filter.from)
+          setDefaultDate();
+        
         console.currentDB.audit_index(grid.filter, onResult);
       }
-      
-      private function fixTimeFilter():void {
-        grid.filter.from = (grid.filter.from as Number) - (Clock.instance.consoleTimeZoneOffset / 1000);
-        grid.filter.to = (grid.filter.to as Number) - (Clock.instance.consoleTimeZoneOffset / 1000);
-      }
-      
+
       private function onFiltersResult(event:ResultEvent):void
       {
         var e:FilterEvent = new FilterEvent(FilterEvent.FILTER_VALUES_CHANGED);
@@ -61,7 +60,7 @@
       {
         grid.dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
         grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
-        //grid.visible = true;
+        grid.visible = true;
       }
       
       private function resetFilters(event:MouseEvent):void
@@ -77,6 +76,38 @@
         trace('--- END');
       }
       
+//      protected function onGridCreationComplete(event:FlexEvent):void
+//      {
+//        
+//        var today:Date = new Date();
+//        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
+//        
+//        var from:Date = DateUtils.addDays(today, -30);
+//        grid.filter.from = (from.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+//        
+//        var to:Date = today;
+//        to.hours = 23; to.minutes = 59;
+//        grid.filter.to = (to.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+//        
+//        refresh();
+//        
+//      }
+      
+      protected function setDefaultDate():void
+      {
+        
+        var today:Date = new Date();
+        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
+        
+        var from:Date = DateUtils.addDays(today, -30);
+        grid.filter.from = (from.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+        
+        var to:Date = today;
+        to.hours = 23; to.minutes = 59;
+        grid.filter.to = (to.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+        
+      }
+      
     ]]>
   </fx:Script>
 
@@ -85,7 +116,7 @@
       <s:Button height="20" label="Reset filters" click="resetFilters(event)" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
       <s:Button height="20" label="Export" skinClass="it.ht.rcs.console.skins.DownloadButton"/>
     </s:HGroup>
-    <audit:AuditTable id="grid" width="100%" height="100%" creationComplete="refresh()"/>
+    <audit:AuditTable id="grid" width="100%" height="100%" creationComplete="refresh()" visible="false"/>
   </s:VGroup>
   
 </s:Panel>

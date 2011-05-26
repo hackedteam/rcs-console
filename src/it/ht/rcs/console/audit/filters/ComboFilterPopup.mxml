@@ -3,32 +3,52 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
-                             xmlns:filters="it.ht.rcs.console.audit.filters.*"
-                             creationComplete="init()" hide="hide()">
+                             xmlns:filters="it.ht.rcs.console.audit.filters.*" show="show()">
 
-  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" dataProvider="{selectableFilters}"/>
+  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" matchedTextStyleName="matched"/>
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
       
-      private function init():void {
+      import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
+
+      override public function commit():void
+      {
+        hasFilter = combo.selectedItem != null;
+        hasFilter ? filter[property] = combo.selectedItem : delete(filter[property]);
+        visible = false;
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
-      override public function resetFilter():void {
+      override public function reset(fireEvent:Boolean=true):void
+      {
         combo.selectedItem = null;
+        hasFilter = false;
+        delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
-      private function enter():void {
+      override public function set filterValues(filterValues:Object):void
+      {
+        combo.dataProvider = filterValues;
+        combo.selectedItem = filter[property];
+      }
+      
+      private function enter():void
+      {
         if (combo.filteredCollection.length == 1)
           combo.dropdown.selectedIndex = 0;
         if (!combo.dropdown.visible && combo.selectedItem)
-          this.visible = false;
+          commit();
       }
       
-      private function hide():void {
-        valid = combo.selectedItem != null;
-        //filter[property] = combo.selectedItem;
-        dispatchEvent(new Event("ciccio", true));
+      protected function show():void
+      {
+        combo.selectedItem = filter[property];
       }
       
     ]]>

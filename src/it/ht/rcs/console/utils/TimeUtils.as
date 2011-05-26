@@ -48,5 +48,12 @@ package it.ht.rcs.console.utils
       clockFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
       return clockFormatter.format(date);
     }
+    
+    public static function zeroPad(number:Number, width:int):String {
+      var ret:String = "" + number;
+      while( ret.length < width )
+        ret = "0" + ret;
+      return ret;
+    }
   }
 }

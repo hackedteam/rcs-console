@@ -3,34 +3,38 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
-                             xmlns:filters="it.ht.rcs.console.audit.filters.*"
-                             creationComplete="init()" hide="hide()">
+                             xmlns:filters="it.ht.rcs.console.audit.filters.*" show="show()">
 
-  <s:TextInput id="filter" width="150" styleName="auditFilter" enter="enter()"/>
+  <s:TextInput id="input" width="150" styleName="auditFilter" enter="commit()"/>
   
   <fx:Script>
     <![CDATA[
-      import com.adobe.utils.StringUtil;
+      import it.ht.rcs.console.events.FilterEvent;
       
-      import it.ht.rcs.console.audit.AuditSection;
-      
+      import mx.core.FlexGlobals;
       import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
       
-      private function init():void {
+      override public function commit():void {
+        input.text = StringUtil.trim(input.text);
+        hasFilter = input.text != '';
+        hasFilter ? filter[property] = input.text : delete(filter[property]) ;
+        visible = false;
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+        
+      override public function reset(fireEvent:Boolean=true):void {
+        input.text = '';
+        hasFilter = false;
+        delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
-      override public function resetFilter():void {
-        filter.text = '';
-      }
-      
-      private function enter():void {
-        this.visible = false;
-      }
-      
-      private function hide():void {
-        filter.text = StringUtil.trim(filter.text);
-        valid = filter.text != '';
-        AuditSection.instance.filterObject[property] = filter.text == '' ? null : filter.text;
+      protected function show():void
+      {
+        input.text = filter[property];
       }
       
     ]]>

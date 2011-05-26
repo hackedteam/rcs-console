@@ -4,44 +4,74 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.audit.filters.*"
-                             creationComplete="init()" hide="hide()">
+                             creationComplete="init()" show="show()">
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.audit.AuditFilter;
-      import it.ht.rcs.console.audit.AuditSection;
+      import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.utils.DateUtils;
       import it.ht.rcs.console.utils.TimeUtils;
       
+      import mx.core.FlexGlobals;
       import mx.events.CalendarLayoutChangeEvent;
       
       private function init():void {
-        valid = true;
-        //from.selectedDate = AuditSection.instance.filterObject.from;
+        hasFilter = true;
+        from.selectedDate = DateUtils.addDays(new Date(), -30);
         fromChange(null);
       }
       
-      override public function resetFilter():void {
-        from.selectedDate = DateUtils.addDays(new Date(), -AuditFilter.RANGE);
+      override public function commit():void {
+        from.selectedDate.hours = fromH.value;
+        from.selectedDate.minutes = fromM.value;
+        filter['from'] = from.selectedDate.time / 1000;
+        to.selectedDate.hours = toH.value;
+        to.selectedDate.minutes = toM.value;
+        filter['to'] = to.selectedDate.time / 1000;
+        visible = false;
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void {
+        from.selectedDate = DateUtils.addDays(new Date(), -30);
         fromChange(null);
+        filter['from'] = from.selectedDate.time / 1000;
+        filter['to'] = to.selectedDate.time / 1000;
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
       private function fromChange(event:CalendarLayoutChangeEvent):void {
         var time:Number = Math.min(new Date().time,
-                                   DateUtils.addDays(from.selectedDate, AuditFilter.RANGE).time);
+                                   DateUtils.addDays(from.selectedDate, 30).time);
         
         var date:Date = new Date(time);
         to.selectedDate = date;
         to.disabledRanges = [{rangeStart: DateUtils.addDays(date, 1)}];
       }
       
-      private function hide():void {
-        AuditSection.instance.filterObject.from = from.selectedDate;
-        AuditSection.instance.filterObject.to = to.selectedDate;
+      private function test(n:Number):String {
+        return TimeUtils.zeroPad(n, 2);
       }
       
-      private function labelFunction(date:Date):String {
-        return date ? TimeUtils.timestampFormatter(date.time) : '';
+      protected function show():void
+      {
+        var fromTime:int = filter['from'];
+        if (fromTime) {
+          var fromDate:Date = new Date(fromTime * 1000);
+          from.selectedDate = fromDate;
+          fromH.value = fromDate.hours;
+          fromM.value = fromDate.minutes;
+        }
+        var toTime:int = filter['to'];
+        if (toTime) {
+          var toDate:Date = new Date(toTime * 1000);
+          to.selectedDate = toDate;
+          toH.value = toDate.hours;
+          toM.value = toDate.minutes;
+        }
+        
       }
       
     ]]>
@@ -53,19 +83,21 @@
       <s:Label width="40" text="From"/>
       <mx:DateField id="from" width="120" change="fromChange(event)"
                     disabledRanges="{[{rangeStart: DateUtils.addDays(new Date(), 1)}]}"
-                    showToday="false"
-                    yearNavigationEnabled="true" formatString="YYYY-MM-DD JJ:NN:SS"/>
+                    showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
+      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="test" />
+      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="test" />
     </s:HGroup>
     
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="To"/>
-      <mx:DateField id="to" width="120" formatString="YYYY-MM-DD JJ:NN:SS"
-                    showToday="false" yearNavigationEnabled="true"/>
+      <mx:DateField id="to" width="120" showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
+      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="test" />
+      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="test" />
     </s:HGroup>
     
     <s:HGroup width="100%" verticalAlign="middle">
       <s:Spacer width="100%"/>
-      <s:Button label="Current" click="resetFilter()"/>
+      <s:Button label="Current" click="reset()"/>
     </s:HGroup>
     
   </s:VGroup>

@@ -3,10 +3,12 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              click="clickHandler(event)"
-                             addedToStage="init()" removedFromStage="destroy()">
+                             addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
       import mx.core.FlexGlobals;
       import mx.managers.PopUpManager;
       
@@ -15,8 +17,8 @@
       import spark.layouts.VerticalAlign;
       
       [Bindable]
-      public var popup:AbstractFilterPopup;
-      public static var _currentPopup:AbstractFilterPopup;
+      private var popup:AbstractFilterPopup;
+      private static var currentPopup:AbstractFilterPopup;
       public var popupFactory:IFactory;
       
       [Bindable]
@@ -25,25 +27,34 @@
       [Bindable]
       public var filter:Object;
       
-      [Bindable]
-      public var selectableFilters:Object;
-      
-      private function init():void {
+      private function onAddedToStage():void {
+        
         popup = popupFactory.newInstance();
         popup.property = column.dataField;
         popup.filter = filter;
-        //popup.selectableFilters = selectableFilters[popup.property];
         PopUpManager.addPopUp(popup, this.owner, false);
-        if (mandatory) showFilter.selected = true;
-        FlexGlobals.topLevelApplication.addEventListener("ciccio", reet);
+        
+        showFilter.selected = filter.hasOwnProperty(column.dataField) || mandatory;
+        
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_VALUES_CHANGED, filterValuesChanged);
+        
       }
       
-      private function reet(event:Event):void {
-        this.showFilter.selected = mandatory || false;
-      }
-      
-      private function destroy():void {
+      private function onRemovedFromStage():void {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_VALUES_CHANGED, filterValuesChanged);
         PopUpManager.removePopUp(popup);
+      }
+      
+      private function resetFilter(event:FilterEvent):void {
+        this.showFilter.selected = mandatory || false;
+        changeHandler(null, false);
+      }
+      
+      private function filterValuesChanged(event:FilterEvent):void {
+        if (event.filterValues.hasOwnProperty(popup.property))
+          popup.filterValues = event.filterValues[popup.property];
       }
       
       override public function prepare(hasBeenRecycled:Boolean):void {
@@ -70,22 +81,24 @@
       
       private function clickHandler(event:MouseEvent):void {
         
-        if (_currentPopup && _currentPopup.visible) {
-          _currentPopup.visible = false;
-          if (_currentPopup === popup) {
-            _currentPopup = null;
+        if (currentPopup && currentPopup.visible) {
+          currentPopup.commit();
+          if (currentPopup === popup) {
+            currentPopup = null;
             return;
           }
         }
 
         centerPopup();
         popup.visible = true;
-        _currentPopup = popup;
+        currentPopup = popup;
         
       }
       
-      private function changeHandler(event:Event):void {
-        popup.resetFilter();
+      // triggered only when a filter is set (ie. when switching from selected to deselected state)
+      // because where there's no filter, the checkbox is disabled
+      private function changeHandler(event:Event, fireEvent:Boolean=true):void {
+        popup.reset(fireEvent);
         popup.visible = false;
       }
       
@@ -95,7 +108,7 @@
   <fx:Declarations>
     <s:CheckBox id="showFilter" change="changeHandler(event)"
                 enabled="{!mandatory &amp;&amp; showFilter.selected}"
-                selected="{mandatory || popup.valid}"/>
+                selected="{mandatory || popup.hasFilter}"/>
   </fx:Declarations>
 
 </s:DefaultGridHeaderRenderer>

@@ -15,62 +15,56 @@
       import mx.core.FlexGlobals;
       import mx.events.CalendarLayoutChangeEvent;
       
-      private function init():void {
+      private static const DEFAULT_RANGE:int = 30;
+      public var range:int = DEFAULT_RANGE;
+      
+      private function init():void
+      {
+        if (!filter.from)
+          reset(false);
         hasFilter = true;
-        from.selectedDate = DateUtils.addDays(new Date(), -30);
-        fromChange(null);
       }
       
-      override public function commit():void {
-        from.selectedDate.hours = fromH.value;
-        from.selectedDate.minutes = fromM.value;
-        filter['from'] = from.selectedDate.time / 1000;
-        to.selectedDate.hours = toH.value;
-        to.selectedDate.minutes = toM.value;
-        filter['to'] = to.selectedDate.time / 1000;
-        visible = false;
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
-      }
-      
-      override public function reset(fireEvent:Boolean=true):void {
-        from.selectedDate = DateUtils.addDays(new Date(), -30);
-        fromChange(null);
-        filter['from'] = from.selectedDate.time / 1000;
-        filter['to'] = to.selectedDate.time / 1000;
+      override public function commit(fireEvent:Boolean=true):void
+      {
+        filter.from = getFromTimestamp();
+        filter.to = getToTimestamp();
         visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
-      private function fromChange(event:CalendarLayoutChangeEvent):void {
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        from.selectedDate = defaultFrom();
+        fromChange(null);
+        commit(fireEvent);
+      }
+      
+      private function fromChange(event:CalendarLayoutChangeEvent):void
+      {
+        
         var time:Number = Math.min(new Date().time,
-                                   DateUtils.addDays(from.selectedDate, 30).time);
+                                   DateUtils.addDays(from.selectedDate, range).time);
         
         var date:Date = new Date(time);
         to.selectedDate = date;
         to.disabledRanges = [{rangeStart: DateUtils.addDays(date, 1)}];
-      }
-      
-      private function test(n:Number):String {
-        return TimeUtils.zeroPad(n, 2);
+        
       }
       
       protected function show():void
       {
-        var fromTime:int = filter['from'];
-        if (fromTime) {
-          var fromDate:Date = new Date(fromTime * 1000);
-          from.selectedDate = fromDate;
-          fromH.value = fromDate.hours;
-          fromM.value = fromDate.minutes;
-        }
-        var toTime:int = filter['to'];
-        if (toTime) {
-          var toDate:Date = new Date(toTime * 1000);
-          to.selectedDate = toDate;
-          toH.value = toDate.hours;
-          toM.value = toDate.minutes;
-        }
+        
+        var fromDate:Date = new Date(filter.from * 1000);
+        from.selectedDate = fromDate;
+        fromH.value = fromDate.hours;
+        fromM.value = fromDate.minutes;
+
+        var toDate:Date = new Date(filter.to * 1000);
+        to.selectedDate = toDate;
+        toH.value = toDate.hours;
+        toM.value = toDate.minutes;
         
       }
       
@@ -84,15 +78,15 @@
       <mx:DateField id="from" width="120" change="fromChange(event)"
                     disabledRanges="{[{rangeStart: DateUtils.addDays(new Date(), 1)}]}"
                     showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
-      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="test" />
-      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="test" />
+      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="pad" value="0" />
+      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="pad" value="0" />
     </s:HGroup>
     
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="To"/>
       <mx:DateField id="to" width="120" showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
-      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="test" />
-      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="test" />
+      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="pad" value="23" />
+      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="pad" value="59" />
     </s:HGroup>
     
     <s:HGroup width="100%" verticalAlign="middle">
@@ -101,5 +95,37 @@
     </s:HGroup>
     
   </s:VGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      
+      private function defaultFrom():Date
+      {
+        var from:Date = DateUtils.addDays(new Date(), -range);
+        from.hours = from.minutes = 0;
+        return from;
+      }
+      
+      private function getFromTimestamp():int
+      {
+        from.selectedDate.hours = fromH.value;
+        from.selectedDate.minutes = fromM.value;
+        return from.selectedDate.time / 1000;
+      }
+      
+      private function getToTimestamp():int
+      {
+        to.selectedDate.hours = toH.value;
+        to.selectedDate.minutes = toM.value;
+        return to.selectedDate.time / 1000;
+      }
+      
+      private function pad(n:Number):String
+      {
+        return TimeUtils.zeroPad(n, 2);
+      }
+      
+    ]]>
+  </fx:Script>
 
 </filters:AbstractFilterPopup>

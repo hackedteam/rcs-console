@@ -12,24 +12,22 @@
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
-      import mx.events.FlexEvent;
       import mx.utils.StringUtil;
       
-      override public function commit():void {
+      override public function commit(fireEvent:Boolean=true):void
+      {
         input.text = StringUtil.trim(input.text);
         hasFilter = input.text != '';
         hasFilter ? filter[property] = input.text : delete(filter[property]) ;
         visible = false;
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
-      }
-        
-      override public function reset(fireEvent:Boolean=true):void {
-        input.text = '';
-        hasFilter = false;
-        delete(filter[property]);
-        visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+        
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        input.text = '';
+        commit(fireEvent);
       }
       
       protected function show():void

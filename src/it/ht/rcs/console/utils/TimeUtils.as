@@ -6,6 +6,7 @@ package it.ht.rcs.console.utils
 
   public class TimeUtils
   {
+    
     public function TimeUtils()
     {
     }
@@ -49,11 +50,13 @@ package it.ht.rcs.console.utils
       return clockFormatter.format(date);
     }
     
-    public static function zeroPad(number:Number, width:int):String {
+    public static function zeroPad(number:Number, width:int):String
+    {
       var ret:String = "" + number;
       while( ret.length < width )
         ret = "0" + ret;
       return ret;
     }
+    
   }
 }

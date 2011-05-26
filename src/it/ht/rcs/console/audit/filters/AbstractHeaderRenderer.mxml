@@ -24,7 +24,6 @@
       [Bindable]
       public var mandatory:Boolean = false;
       
-      [Bindable]
       public var filter:Object;
       
       private function onAddedToStage():void {
@@ -48,8 +47,8 @@
       }
       
       private function resetFilter(event:FilterEvent):void {
-        this.showFilter.selected = mandatory || false;
-        changeHandler(null, false);
+        showFilter.selected = mandatory || false;
+        changeHandler(false);
       }
       
       private function filterValuesChanged(event:FilterEvent):void {
@@ -97,7 +96,7 @@
       
       // triggered only when a filter is set (ie. when switching from selected to deselected state)
       // because where there's no filter, the checkbox is disabled
-      private function changeHandler(event:Event, fireEvent:Boolean=true):void {
+      private function changeHandler(fireEvent:Boolean=true):void {
         popup.reset(fireEvent);
         popup.visible = false;
       }
@@ -106,7 +105,7 @@
   </fx:Script>
 
   <fx:Declarations>
-    <s:CheckBox id="showFilter" change="changeHandler(event)"
+    <s:CheckBox id="showFilter" change="changeHandler()"
                 enabled="{!mandatory &amp;&amp; showFilter.selected}"
                 selected="{mandatory || popup.hasFilter}"/>
   </fx:Declarations>

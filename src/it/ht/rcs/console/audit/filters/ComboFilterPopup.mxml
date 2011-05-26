@@ -5,31 +5,27 @@
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.audit.filters.*" show="show()">
 
-  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" matchedTextStyleName="matched"/>
+  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()"/>
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
-      import mx.events.FlexEvent;
 
-      override public function commit():void
+      override public function commit(fireEvent:Boolean=true):void
       {
         hasFilter = combo.selectedItem != null;
         hasFilter ? filter[property] = combo.selectedItem : delete(filter[property]);
         visible = false;
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
       override public function reset(fireEvent:Boolean=true):void
       {
         combo.selectedItem = null;
-        hasFilter = false;
-        delete(filter[property]);
-        visible = false;
-        if (fireEvent)
-          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+        commit(fireEvent);
       }
       
       override public function set filterValues(filterValues:Object):void

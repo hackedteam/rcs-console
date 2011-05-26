@@ -10,6 +10,7 @@
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.model.Clock;
       
       import mx.collections.ArrayCollection;
       import mx.collections.AsyncListView;
@@ -19,20 +20,28 @@
       
       private function onAddedToStage():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, refresh);
       }
       
       private function onRemovedFromStage():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, refresh);
       }
       
-      private function onRefresh(event:RefreshEvent):void
+      private function refresh(event:Event=null):void
       {
-        console.currentDB.audit_filters(onFiltersResult);
+        if (!(event is FilterEvent))
+          console.currentDB.audit_filters(onFiltersResult);
+        fixTimeFilter();
+        printFilterObject();
         console.currentDB.audit_index(grid.filter, onResult);
+      }
+      
+      private function fixTimeFilter():void {
+        grid.filter.from = (grid.filter.from as Number) - (Clock.instance.consoleTimeZoneOffset / 1000);
+        grid.filter.to = (grid.filter.to as Number) - (Clock.instance.consoleTimeZoneOffset / 1000);
       }
       
       private function onFiltersResult(event:ResultEvent):void
@@ -52,18 +61,20 @@
       {
         grid.dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
         grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
-        grid.visible = true;
+        //grid.visible = true;
       }
       
       private function resetFilters(event:MouseEvent):void
       {
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
-        onRefresh(null);
+        refresh();
       }
       
-      protected function onFilterChanged(event:FilterEvent):void
-      {
-        onRefresh(null);
+      private function printFilterObject():void {
+        trace('--- START');
+        for (var key:String in grid.filter)
+          trace(key + ": " + grid.filter[key]);
+        trace('--- END');
       }
       
     ]]>
@@ -74,7 +85,7 @@
       <s:Button height="20" label="Reset filters" click="resetFilters(event)" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
       <s:Button height="20" label="Export" skinClass="it.ht.rcs.console.skins.DownloadButton"/>
     </s:HGroup>
-    <audit:AuditTable id="grid" width="100%" height="100%" creationComplete="onRefresh(null)" visible="false"/>
+    <audit:AuditTable id="grid" width="100%" height="100%" creationComplete="refresh()"/>
   </s:VGroup>
   
 </s:Panel>

@@ -2,10 +2,14 @@ package it.ht.rcs.services.db
 {
   import com.adobe.serialization.json.JSON;
   
+  import flash.utils.Timer;
+  import flash.events.TimerEvent;
+  
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
   import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
   import mx.rpc.AsyncToken;
   import mx.rpc.events.ResultEvent;
   
@@ -13,9 +17,17 @@ package it.ht.rcs.services.db
   {
     private var demo_user:Object = {_id: '1', name: 'demo', contact:'demo@hackingteam.it', privs:new ArrayCollection(['ADMIN', 'TECH', 'VIEW']), locale:'en_US', group_ids:new ArrayCollection(['1']), timezone:0, enabled:true};
 
+    private var timer:Timer = new Timer(100);
+    
     public function DemoDB()
     {
-      
+      timer.addEventListener(TimerEvent.TIMER, updateTasks);
+      timer.start();
+    }
+    
+    public function setBusyCursor(value: Boolean):void
+    {
+      /* do nothing */
     }
     
     /***** METHODS ******/
@@ -255,11 +267,27 @@ package it.ht.rcs.services.db
       /* do nothing */
     }
     
+    private var tasks:Object = {
+      '5f58925c-2e86-9cff-5816-95fe5cbdd246': {_id: '5f58925c-2e86-9cff-5816-95fe5cbdd246', type: 'blotter', total: 1000, current:0, desc: 'Blotter creation', grid_id: ''}, 
+      'afa9abb1-7de2-b720-98a4-cb6c5185f693' : {_id: 'afa9abb1-7de2-b720-98a4-cb6c5185f693', type: 'file', total:10000, current: 0, desc: 'File download', grid_id: ''}
+    };
+    
+    private function updateTasks(e: TimerEvent):void
+    {
+      for each (var task:Object in tasks) {
+        task.current += 1;
+      }
+    } 
+    
     public function task_index(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var task_list:ArrayCollection = new ArrayCollection();
+      for each (var item:Object in tasks) task_list.addItem(item);
+      var event:ResultEvent = new ResultEvent("task.index", false, true, task_list);
+      if (onResult != null)
+        onResult(event);
     }
-
+    
     public function task_show(id:String, onResult:Function = null, onFault:Function = null):void
     {
       

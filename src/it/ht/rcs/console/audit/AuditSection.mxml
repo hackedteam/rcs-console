@@ -17,7 +17,6 @@
       import mx.collections.AsyncListView;
       import mx.core.FlexGlobals;
       import mx.events.CollectionEvent;
-      import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
       
       private function onAddedToStage():void
@@ -40,6 +39,7 @@
         if (!grid.filter.hasOwnProperty('from'))
           setDefaultDate();
         
+        printFilterObject();
         console.currentDB.audit_index(grid.filter, onResult);
       }
 
@@ -100,11 +100,11 @@
         today.hours = today.minutes = today.seconds = today.milliseconds = 0;
         
         var from:Date = DateUtils.addDays(today, -30);
-        grid.filter.from = (from.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+        grid.filter.from = from.time / 1000;
         
         var to:Date = today;
         to.hours = 23; to.minutes = 59;
-        grid.filter.to = (to.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+        grid.filter.to = to.time / 1000;
         
       }
       

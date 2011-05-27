@@ -21,8 +21,8 @@
       
       private function init():void
       {
-        if (!filter.from)
-          reset(false);
+//        if (!filter.from)
+//          reset(false);
         hasFilter = true;
       }
       
@@ -57,12 +57,12 @@
       protected function show():void
       {
         
-        var fromDate:Date = new Date((filter.from * 1000) + Clock.instance.consoleTimeZoneOffset);
+        var fromDate:Date = Clock.toConsoleDate(new Date(filter.from * 1000));
         from.selectedDate = fromDate;
         fromH.value = fromDate.hours;
         fromM.value = fromDate.minutes;
 
-        var toDate:Date = new Date((filter.to * 1000) + Clock.instance.consoleTimeZoneOffset);
+        var toDate:Date = Clock.toConsoleDate(new Date(filter.to * 1000));
         to.selectedDate = toDate;
         toH.value = toDate.hours;
         toM.value = toDate.minutes;
@@ -103,7 +103,6 @@
       private function defaultFrom():Date
       {
         var from:Date = DateUtils.addDays(new Date(), -range);
-        from.hours = from.minutes = 0;
         return from;
       }
       
@@ -111,14 +110,14 @@
       {
         from.selectedDate.hours = fromH.value;
         from.selectedDate.minutes = fromM.value;
-        return (from.selectedDate.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+        return Clock.toUTCTime(from.selectedDate) / 1000;
       }
       
       private function getToTimestamp():int
       {
         to.selectedDate.hours = toH.value;
         to.selectedDate.minutes = toM.value;
-        return (to.selectedDate.time - Clock.instance.consoleTimeZoneOffset) / 1000;
+        return Clock.toUTCTime(to.selectedDate) / 1000;
       }
       
       private function pad(n:Number):String

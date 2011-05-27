@@ -60,12 +60,13 @@ package it.ht.rcs.services.db
     public function audit_index(filter: Object, onResult:Function = null, onFault:Function = null):void
     {
       var items:ArrayCollection = new ArrayCollection();
-      items.addItem({_id: "4dd1312b963d351900000003", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\", \"VIEW\"]' for user 'test'", time: "2011-05-16T16:14:03+02:00", user: "test" });
-      items.addItem({_id: "4dd133ef963d351a90000004", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user' for user 'test'", time: "2011-05-16T16:25:51+02:00", user: "test"});
-      items.addItem({_id: "4dd134b9963d351af6000003", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user ' for user 'test'", time: "2011-05-16T16:29:13+02:00", user:"test"});
-      items.addItem({_id: "4dd134b9963d351af6000004", action: "user.update", actor: "admin", desc: "Updated 'contact' to 'bla bla bla' for user 'test'", time: "2011-05-16T16:29:13+02:00", user:"test"});
-      items.addItem({_id: "4dd134ec963d351af6000007", action: "user.update", actor: "admin", desc: "Changed password for user 'New User'", time: "2011-05-16T16:30:04+02:00", user:"test"});
-      items.addItem({_id: "4dd134f5963d351af6000008", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\"]' for user 'finochky'", time: "2011-05-16T16:32:18+02:00", user:"test"});
+      var time:int = (new Date().time) / 1000;
+      items.addItem({_id: "4dd1312b963d351900000003", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\", \"VIEW\"]' for user 'test'", time: time, user: "test" });
+      items.addItem({_id: "4dd133ef963d351a90000004", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user' for user 'test'", time: time, user: "test"});
+      items.addItem({_id: "4dd134b9963d351af6000003", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user ' for user 'test'", time: time, user:"test"});
+      items.addItem({_id: "4dd134b9963d351af6000004", action: "user.update", actor: "admin", desc: "Updated 'contact' to 'bla bla bla' for user 'test'", time: time, user:"test"});
+      items.addItem({_id: "4dd134ec963d351af6000007", action: "user.update", actor: "admin", desc: "Changed password for user 'New User'", time: time, user:"test"});
+      items.addItem({_id: "4dd134f5963d351af6000008", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\"]' for user 'finochky'", time: time, user:"test"});
       var event:ResultEvent = new ResultEvent("audit.index", false, true, items);
       if (onResult != null) 
         onResult(event);
@@ -253,6 +254,26 @@ package it.ht.rcs.services.db
     {
       /* do nothing */
     }
+    
+    public function task_index(onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
 
+    public function task_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function task_create(type:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
   }
 }

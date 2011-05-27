@@ -37,7 +37,7 @@
         if (!(event is FilterEvent))
           console.currentDB.audit_filters(onFiltersResult);
         
-        if (grid.filter.from)
+        if (!grid.filter.hasOwnProperty('from'))
           setDefaultDate();
         
         console.currentDB.audit_index(grid.filter, onResult);
@@ -61,7 +61,6 @@
         if (grid.dataProvider)
           grid.dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
         grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
-        grid.visible = true;
       }
       
       private function resetFilters(event:MouseEvent):void
@@ -117,7 +116,7 @@
       <s:Button height="20" label="Reset filters" click="resetFilters(event)" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
       <s:Button height="20" label="Export" skinClass="it.ht.rcs.console.skins.DownloadButton"/>
     </s:HGroup>
-    <audit:AuditTable id="grid" width="100%" height="100%" addedToStage="refresh()" visible="false"/>
+    <audit:AuditTable id="grid" width="100%" height="100%" addedToStage="refresh()"/>
   </s:VGroup>
-  
+
 </s:Panel>

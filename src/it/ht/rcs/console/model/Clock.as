@@ -3,6 +3,9 @@ package it.ht.rcs.console.model
   import flash.events.TimerEvent;
   import flash.utils.Timer;
   
+  import it.ht.rcs.console.events.RefreshEvent;
+  
+  import mx.core.FlexGlobals;
   import mx.formatters.DateFormatter;
 
   public class Clock
@@ -64,15 +67,16 @@ package it.ht.rcs.console.model
       consoleOffset = offset;
       consoleTimeZoneOffset = offset * 3600 * 1000;
       updateClock(null);
+      FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
     }
     
     public function toConsoleDate(localDate:Date):Date {
-      var newTime:Number = localDate.time + _instance.consoleTimeZoneOffset + (localDate.timezoneOffset * 60 * 1000);
+      var newTime:Number = localDate.time + consoleTimeZoneOffset + (localDate.timezoneOffset * 60 * 1000);
       return new Date(newTime);
     }
     
     public function toUTCTime(consoleDate:Date):Number {
-      var newTime:Number = consoleDate.time - _instance.consoleTimeZoneOffset - (consoleDate.timezoneOffset * 60 * 1000);
+      var newTime:Number = consoleDate.time - consoleTimeZoneOffset - (consoleDate.timezoneOffset * 60 * 1000);
       return newTime;
     }
     

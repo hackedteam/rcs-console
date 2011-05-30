@@ -6,6 +6,8 @@ package it.ht.rcs.services.db
 
   public interface IDB
   { 
+    function setBusyCursor(value: Boolean):void;
+      
     function login(params:Object, onResult:Function, onFault:Function):void;
     function logout(onResult:Function = null, onFault:Function = null):void;
     
@@ -37,5 +39,9 @@ package it.ht.rcs.services.db
     function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void;
     function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void;
     
+    function task_index(onResult:Function = null, onFault:Function = null):void;
+    function task_show(id:String, onResult:Function = null, onFault:Function = null):void;
+    function task_create(type:String, onResult:Function = null, onFault:Function = null):void;
+    function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void;
   }
 }

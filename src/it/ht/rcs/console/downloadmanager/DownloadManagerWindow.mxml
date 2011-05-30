@@ -3,11 +3,25 @@
                xmlns:s="library://ns.adobe.com/flex/spark" 
                xmlns:mx="library://ns.adobe.com/flex/mx" 
                width="500" height="300" 
+               creationComplete="init()"
                close="closeMe()"
                title="{resourceManager.getString('localized_main', 'DOWNLOAD_MANAGER')}">
   <fx:Script>
     <![CDATA[
+      import mx.collections.SortField;
+      import mx.collections.Sort;
+      import mx.collections.ListCollectionView;
       import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _list_view:ListCollectionView;
+      
+      private function init():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('desc', true, false, false)];
+        _list_view = DownloadManager.instance.getView(sort);
+      }
       
       private function closeMe():void
       {
@@ -16,6 +30,6 @@
     ]]>
   </fx:Script>
   
-  <s:List left="10" top="10" right="10" bottom="10" dataProvider="{DownloadManager.instance.tasks}" itemRenderer="it.ht.rcs.console.downloadmanager.TaskRenderer" />
-
+  <s:List left="10" top="10" right="10" bottom="10" dataProvider="{_list_view}" itemRenderer="it.ht.rcs.console.downloadmanager.TaskRenderer" />
+  
 </s:TitleWindow>

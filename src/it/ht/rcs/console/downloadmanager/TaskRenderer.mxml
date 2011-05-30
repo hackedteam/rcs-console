@@ -7,38 +7,25 @@
     <![CDATA[
       import it.ht.rcs.console.utils.Size;
       
-      private function byteprogress(creation:Object, download:Object):String
+      private function progressObject(current: int, total: int): Object
       {
-        var str:String;
-        
-        /* if creation is completed, display the download */
-        if (creation.bytesLoaded < creation.bytesTotal) {
-          str = Size.toHumanBytes(creation.bytesLoaded);
-          if (creation.bytesTotal != 0)
-            str += " of " + Size.toHumanBytes(creation.bytesTotal);
-        } else {
-          str = Size.toHumanBytes(download.bytesLoaded);
-          if (download.bytesTotal != 0) 
-            str += " of " + Size.toHumanBytes(download.bytesTotal);
-        }
-         
-        return str;
+        return {bytesLoaded: current, bytesTotal: total};
       }
       
     ]]>
   </fx:Script>
-    
+  
   <s:layout>
     <s:HorizontalLayout/>
   </s:layout>
   
   <s:SkinnableContainer width="100%" height="60" toolTip="{data.time}">
     <s:HGroup top="7" left="5" right="50">
-      <s:Label text="{data.title}" fontWeight="bold"/>
-      <s:Label text="{byteprogress(data.creation_percentage, data.download_percentage)}" textAlign="right" width="100%"/>
+      <s:Label text="{data.desc}" fontWeight="bold"/>
+      <s:Label text="percentage" textAlign="right" width="100%"/>
     </s:HGroup>
-    <mx:ProgressBar mode="polled" indeterminate="{data.creation_undefined}" source="{(data.creation_undefined) ? null : data.creation_percentage}" label="%3%%" labelPlacement="right" top="20" left="5" right="10"/>
-    <mx:ProgressBar mode="polled" source="{data.download_percentage}" label="%3%%" labelPlacement="right" top="30" left="5" right="10"/>
+    <mx:ProgressBar name="creationProgress" mode="polled" source="{progressObject(data.current, data.total)}" label="%3%%" labelPlacement="right" top="20" left="5" right="10"/>
+    <mx:ProgressBar name="downloadProgress" mode="polled" source="{data.download_percentage}" label="%3%%" labelPlacement="right" top="30" left="5" right="10"/>
     <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" right="5" top="5" width="15" height="15" click="data.cancel()" toolTip="{resourceManager.getString('localized_main', 'CANCEL')}" />
   </s:SkinnableContainer>
 </s:ItemRenderer>

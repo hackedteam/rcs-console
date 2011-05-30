@@ -2,10 +2,14 @@ package it.ht.rcs.services.db
 {
   import com.adobe.serialization.json.JSON;
   
+  import flash.utils.Timer;
+  import flash.events.TimerEvent;
+  
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
   import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
   import mx.rpc.AsyncToken;
   import mx.rpc.events.ResultEvent;
   
@@ -13,9 +17,17 @@ package it.ht.rcs.services.db
   {
     private var demo_user:Object = {_id: '1', name: 'demo', contact:'demo@hackingteam.it', privs:new ArrayCollection(['ADMIN', 'TECH', 'VIEW']), locale:'en_US', group_ids:new ArrayCollection(['1']), timezone:0, enabled:true};
 
+    private var timer:Timer = new Timer(100);
+    
     public function DemoDB()
     {
-      
+      timer.addEventListener(TimerEvent.TIMER, updateTasks);
+      timer.start();
+    }
+    
+    public function setBusyCursor(value: Boolean):void
+    {
+      /* do nothing */
     }
     
     /***** METHODS ******/
@@ -60,12 +72,13 @@ package it.ht.rcs.services.db
     public function audit_index(filter: Object, onResult:Function = null, onFault:Function = null):void
     {
       var items:ArrayCollection = new ArrayCollection();
-      items.addItem({_id: "4dd1312b963d351900000003", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\", \"VIEW\"]' for user 'test'", time: "2011-05-16T16:14:03+02:00", user: "test" });
-      items.addItem({_id: "4dd133ef963d351a90000004", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user' for user 'test'", time: "2011-05-16T16:25:51+02:00", user: "test"});
-      items.addItem({_id: "4dd134b9963d351af6000003", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user ' for user 'test'", time: "2011-05-16T16:29:13+02:00", user:"test"});
-      items.addItem({_id: "4dd134b9963d351af6000004", action: "user.update", actor: "admin", desc: "Updated 'contact' to 'bla bla bla' for user 'test'", time: "2011-05-16T16:29:13+02:00", user:"test"});
-      items.addItem({_id: "4dd134ec963d351af6000007", action: "user.update", actor: "admin", desc: "Changed password for user 'New User'", time: "2011-05-16T16:30:04+02:00", user:"test"});
-      items.addItem({_id: "4dd134f5963d351af6000008", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\"]' for user 'finochky'", time: "2011-05-16T16:32:18+02:00", user:"test"});
+      var time:int = (new Date().time) / 1000;
+      items.addItem({_id: "4dd1312b963d351900000003", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\", \"VIEW\"]' for user 'test'", time: time, user: "test" });
+      items.addItem({_id: "4dd133ef963d351a90000004", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user' for user 'test'", time: time, user: "test"});
+      items.addItem({_id: "4dd134b9963d351af6000003", action: "user.update", actor: "admin", desc: "Updated 'desc' to 'This is a test user ' for user 'test'", time: time, user:"test"});
+      items.addItem({_id: "4dd134b9963d351af6000004", action: "user.update", actor: "admin", desc: "Updated 'contact' to 'bla bla bla' for user 'test'", time: time, user:"test"});
+      items.addItem({_id: "4dd134ec963d351af6000007", action: "user.update", actor: "admin", desc: "Changed password for user 'New User'", time: time, user:"test"});
+      items.addItem({_id: "4dd134f5963d351af6000008", action: "user.update", actor: "admin", desc: "Updated 'privs' to '[\"ADMIN\", \"TECH\"]' for user 'finochky'", time: time, user:"test"});
       var event:ResultEvent = new ResultEvent("audit.index", false, true, items);
       if (onResult != null) 
         onResult(event);
@@ -253,6 +266,42 @@ package it.ht.rcs.services.db
     {
       /* do nothing */
     }
-
+    
+    private var tasks:Object = {
+      '5f58925c-2e86-9cff-5816-95fe5cbdd246': {_id: '5f58925c-2e86-9cff-5816-95fe5cbdd246', type: 'blotter', total: 1000, current:0, desc: 'Blotter creation', grid_id: ''}, 
+      'afa9abb1-7de2-b720-98a4-cb6c5185f693' : {_id: 'afa9abb1-7de2-b720-98a4-cb6c5185f693', type: 'file', total:10000, current: 0, desc: 'File download', grid_id: ''}
+    };
+    
+    private function updateTasks(e: TimerEvent):void
+    {
+      for each (var task:Object in tasks) {
+        task.current += 1;
+      }
+    } 
+    
+    public function task_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var task_list:ArrayCollection = new ArrayCollection();
+      for each (var item:Object in tasks) task_list.addItem(item);
+      var event:ResultEvent = new ResultEvent("task.index", false, true, task_list);
+      if (onResult != null)
+        onResult(event);
+    }
+    
+    public function task_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function task_create(type:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
+    public function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
   }
 }

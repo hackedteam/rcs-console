@@ -2,14 +2,14 @@
 {
   import com.adobe.serialization.json.JSONParseError;
   
+  import it.ht.rcs.console.model.Account;
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
-  import mx.core.FlexGlobals;
   import mx.controls.Alert;
+  import mx.core.FlexGlobals;
   import mx.resources.ResourceManager;
   import mx.rpc.AsyncToken;
-  import it.ht.rcs.console.model.Account;
     
   public class RemoteDB implements IDB
   {
@@ -27,9 +27,14 @@
     {
       _delegate = new DB;
       _delegate.baseURL = baseURL;
-      _delegate.showBusyCursor = true;
+      _delegate.showBusyCursor = false;
     }
-
+    
+    public function setBusyCursor(value: Boolean):void
+    {
+      _delegate.showBusyCursor = value;
+    }
+    
     private function onFatalError(event:*):void
     {
       /* back to the login screen */ 
@@ -59,7 +64,7 @@
         new Account().logout(onFatalError, onFatalError);
         return;
       }
-        
+      
       /* decode the message from the server */
       var decoded:*;
       try {
@@ -268,5 +273,28 @@
         resp.token = _delegate.group_alert(JSON.encode( {group: null} ));
     }
     
+    public function task_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.task_index();
+    }
+    
+    public function task_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.task_show(id); 
+    }
+    
+    public function task_create(type:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.task_create(JSON.encode( {type: type} ));
+    }
+    
+    public function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.task_destroy(JSON.encode({task: id}));
+    }
   }
 }

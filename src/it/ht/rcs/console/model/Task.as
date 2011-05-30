@@ -1,19 +1,26 @@
-package it.ht.rcs.console.downloadmanager
+package it.ht.rcs.console.model
 {
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.net.URLStream;
   
+  import it.ht.rcs.console.downloadmanager.DownloadManager;
+  
   [Bindable(event="percentageChanged")]
   public class Task extends EventDispatcher
   {
-    public function Task() 
-    {
-
-    }
-    
     [Bindable]
-    public var title:String;
+    public var _id:String;
+    [Bindable]
+    public var type:String;
+    [Bindable]
+    public var current:int;
+    [Bindable]
+    public var total:int;
+    [Bindalbe]
+    public var desc:String;
+    [Bindable]
+    public var grid_id:String;
     [Bindable]
     public var time:String;
     [Bindable]
@@ -24,6 +31,15 @@ package it.ht.rcs.console.downloadmanager
     [Bindable(event="percentageChanged")]
     public var download_percentage:Object = {bytesLoaded:0, bytesTotal:0};
     
+    public function Task(data:Object = null) 
+    {
+      _id = data._id;
+      type = data.type;
+      current = data.current;
+      total = data.total;
+      desc = data.desc;
+      grid_id = data.grid_id;
+    }
     
     //public var stream : URLStream;
 

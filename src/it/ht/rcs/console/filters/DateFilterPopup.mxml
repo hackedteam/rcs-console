@@ -3,7 +3,7 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
-                             xmlns:filters="it.ht.rcs.console.audit.filters.*"
+                             xmlns:filters="it.ht.rcs.console.filters.*"
                              creationComplete="init()" show="show()">
   
   <fx:Script>
@@ -14,16 +14,17 @@
       import it.ht.rcs.console.utils.TimeUtils;
       
       import mx.core.FlexGlobals;
-      import mx.events.CalendarLayoutChangeEvent;
       
-      private static const DEFAULT_RANGE:int = 30;
+      private var today:Date;
+
+      private static const DEFAULT_RANGE:int = 5;
       public var range:int = DEFAULT_RANGE;
       
       private function init():void
       {
-//        if (!filter.from)
-//          reset(false);
         hasFilter = true;
+        today = new Date();
+        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
       }
       
       override public function commit(fireEvent:Boolean=true):void
@@ -37,36 +38,32 @@
       
       override public function reset(fireEvent:Boolean=true):void
       {
-        from.selectedDate = defaultFrom();
-        fromChange(null);
+        today.hours = 0; today.minutes = 0;
+        filter.from = DateUtils.addDays(today, -range).time / 1000;
+        setFromTimestamp(filter.from);
+        
+        today.hours = 23; today.minutes = 59;
+        filter.to = today.time / 1000;
+        setToTimestamp(filter.to);
+        
+        adjust();
         commit(fireEvent);
       }
       
-      private function fromChange(event:CalendarLayoutChangeEvent):void
+      private function adjust():void
       {
+        var fromTS:int = getFromTimestamp();
+        var toTS:int = getToTimestamp();
         
-        var time:Number = Math.min(new Date().time,
-                                   DateUtils.addDays(from.selectedDate, range).time);
-        
-        var date:Date = new Date(time);
-        to.selectedDate = date;
-        to.disabledRanges = [{rangeStart: DateUtils.addDays(date, 1)}];
-        
+        if (fromTS > toTS)
+          setToTimestamp(fromTS);
       }
       
       protected function show():void
       {
-        
-        var fromDate:Date = Clock.toConsoleDate(new Date(filter.from * 1000));
-        from.selectedDate = fromDate;
-        fromH.value = fromDate.hours;
-        fromM.value = fromDate.minutes;
-
-        var toDate:Date = Clock.toConsoleDate(new Date(filter.to * 1000));
-        to.selectedDate = toDate;
-        toH.value = toDate.hours;
-        toM.value = toDate.minutes;
-        
+        fromH.setFocus();
+        setFromTimestamp(filter.from);
+        setToTimestamp(filter.to);
       }
       
     ]]>
@@ -76,23 +73,25 @@
     
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="From"/>
-      <mx:DateField id="from" width="120" change="fromChange(event)"
-                    disabledRanges="{[{rangeStart: DateUtils.addDays(new Date(), 1)}]}"
+      <mx:DateField id="from" width="120" change="adjust()"
                     showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
-      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="pad" value="0" />
-      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="pad" value="0" />
+      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="pad" value="0" change="adjust()"/>
+      <s:Label text=":"/>
+      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="pad" value="0" change="adjust()"/>
     </s:HGroup>
     
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="To"/>
-      <mx:DateField id="to" width="120" showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
-      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="pad" value="23" />
-      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="pad" value="59" />
+      <mx:DateField id="to" width="120" change="adjust()"
+                    showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
+      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="pad" value="23" change="adjust()"/>
+      <s:Label text=":"/>
+      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="pad" value="59" change="adjust()"/>
     </s:HGroup>
     
     <s:HGroup width="100%" verticalAlign="middle">
       <s:Spacer width="100%"/>
-      <s:Button label="Current" click="reset()"/>
+      <s:Button label="Last year" click="reset()"/>
     </s:HGroup>
     
   </s:VGroup>
@@ -100,24 +99,32 @@
   <fx:Script>
     <![CDATA[
       
-      private function defaultFrom():Date
-      {
-        var from:Date = DateUtils.addDays(new Date(), -range);
-        return from;
-      }
-      
       private function getFromTimestamp():int
       {
         from.selectedDate.hours = fromH.value;
         from.selectedDate.minutes = fromM.value;
-        return Clock.toUTCTime(from.selectedDate) / 1000;
+        return Clock.instance.toUTCTime(from.selectedDate) / 1000;
       }
-      
       private function getToTimestamp():int
       {
         to.selectedDate.hours = toH.value;
         to.selectedDate.minutes = toM.value;
-        return Clock.toUTCTime(to.selectedDate) / 1000;
+        return Clock.instance.toUTCTime(to.selectedDate) / 1000;
+      }
+      
+      private function setFromTimestamp(ts:int):void
+      {
+        var fromDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
+        from.selectedDate = fromDate;
+        fromH.value = fromDate.hours;
+        fromM.value = fromDate.minutes;
+      }
+      private function setToTimestamp(ts:int):void
+      {
+        var toDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
+        to.selectedDate = toDate;
+        toH.value = toDate.hours;
+        toM.value = toDate.minutes;
       }
       
       private function pad(n:Number):String

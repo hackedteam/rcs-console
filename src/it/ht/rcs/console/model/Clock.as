@@ -66,12 +66,12 @@ package it.ht.rcs.console.model
       updateClock(null);
     }
     
-    public static function toConsoleDate(localDate:Date):Date {
+    public function toConsoleDate(localDate:Date):Date {
       var newTime:Number = localDate.time + _instance.consoleTimeZoneOffset + (localDate.timezoneOffset * 60 * 1000);
       return new Date(newTime);
     }
     
-    public static function toUTCTime(consoleDate:Date):Number {
+    public function toUTCTime(consoleDate:Date):Number {
       var newTime:Number = consoleDate.time - _instance.consoleTimeZoneOffset - (consoleDate.timezoneOffset * 60 * 1000);
       return newTime;
     }

@@ -7,7 +7,6 @@
   
   import mx.collections.ArrayList;
   import mx.collections.ISort;
-  import mx.collections.IViewCursor;
   import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
@@ -47,7 +46,7 @@
  
     public function stop():void
     {
-      trace(_classname + ' -- Start');
+      trace(_classname + ' -- Stop');
       /* after stop, we don't want to refresh anymore */
       FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
     }

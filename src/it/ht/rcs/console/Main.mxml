@@ -16,13 +16,14 @@
          removedFromStage="removed()">
 <fx:Script>
   <![CDATA[
+    import it.ht.rcs.console.downloadmanager.DownloadManagerWindow;
     import it.ht.rcs.console.events.SectionEvent;
     import it.ht.rcs.console.model.LicenseManager;
     import it.ht.rcs.console.monitor.MonitorManager;
     
-    import mx.controls.Alert;
     import mx.core.FlexGlobals;
     import mx.events.ItemClickEvent;
+    import mx.managers.PopUpManager;
     
     [Bindable]
     private var main_sections:Array;
@@ -61,6 +62,12 @@
       if (console.currentSession.user.is_any()) {
         MonitorManager.instance.start_counters();
       }
+      
+//      /* initialize the download manager */
+//      if (console.currentSession.user.is_any()) {
+//        console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
+//        //DownloadManager.instance.start_counters();
+//      }
 
       /* retrieve the current license limits */
       LicenseManager.instance.load_license(null);

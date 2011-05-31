@@ -7,9 +7,21 @@
     <![CDATA[
       import it.ht.rcs.console.utils.Size;
       
+      import mx.controls.Alert;
+      import mx.events.CloseEvent;
+      
       private function progressObject(current: int, total: int): Object
       {
         return {bytesLoaded: current, bytesTotal: total};
+      }
+      
+      private function cancel():void {
+        Alert.show("Are you sure you want to cancel this ongoing task or download?", "Confirm", Alert.OK | Alert.CANCEL, null, doCancel);
+      }
+      
+      private function doCancel(event:CloseEvent):void {
+        if(event.detail == Alert.OK)
+          data.cancel();
       }
       
     ]]>
@@ -20,12 +32,9 @@
   </s:layout>
   
   <s:SkinnableContainer width="100%" height="60" toolTip="{data.time}">
-    <s:HGroup top="7" left="5" right="50">
-      <s:Label text="{data.desc}" fontWeight="bold"/>
-      <s:Label text="percentage" textAlign="right" width="100%"/>
-    </s:HGroup>
-    <mx:ProgressBar name="creationProgress" mode="polled" source="{progressObject(data.current, data.total)}" label="%3%%" labelPlacement="right" top="20" left="5" right="10"/>
+    <s:Label text="{data.desc}" fontWeight="bold" top="8" left="5"/>
+    <mx:ProgressBar name="creationProgress" mode="polled" source="{data.creation_percentage}" label="%3%%" labelPlacement="right" top="20" left="5" right="10"/>
     <mx:ProgressBar name="downloadProgress" mode="polled" source="{data.download_percentage}" label="%3%%" labelPlacement="right" top="30" left="5" right="10"/>
-    <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" right="5" top="5" width="15" height="15" click="data.cancel()" toolTip="{resourceManager.getString('localized_main', 'CANCEL')}" />
+    <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" right="5" top="5" width="15" height="15" click="cancel()" toolTip="{resourceManager.getString('localized_main', 'CANCEL')}" />
   </s:SkinnableContainer>
 </s:ItemRenderer>

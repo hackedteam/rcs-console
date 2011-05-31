@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                   xmlns:s="library://ns.adobe.com/flex/spark" 
+                   xmlns:mx="library://ns.adobe.com/flex/mx" width="300" height="80"
+                   cornerRadius="10" backgroundAlpha=".95" backgroundColor="#333333"
+                   addedEffect="{fadeIn}" removedEffect="{fadeOut}" click="onClick()" creationPolicy="all">
+
+  <s:HGroup verticalAlign="middle" horizontalAlign="center" height="100%" width="100%">
+    <s:Label text="The file you requested is now downloading..." fontStyle="italic" color="white" fontWeight="bold" fontSize="12"/>
+  </s:HGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.managers.PopUpManager;
+      protected function onClick():void
+      {
+        PopUpManager.removePopUp(this);
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:Parallel id="fadeIn">
+      <s:Fade alphaFrom="0" alphaTo="1" duration="200"/>
+      <s:Move duration="200" yFrom="{this.y + 50}" yTo="{this.y}"/>
+    </s:Parallel>
+    <s:Parallel id="fadeOut">
+      <s:Fade alphaFrom="1" alphaTo="0" duration="200"/>
+      <s:Move duration="200" yFrom="{this.y}" yTo="{this.y - 50}"/>
+    </s:Parallel>
+  </fx:Declarations>
+  
+  <s:filters>
+    <s:DropShadowFilter angle="0" distance="0" quality="2" blurX="5" blurY="5" strength="1" color="#666666" />
+  </s:filters>
+
+</s:BorderContainer>

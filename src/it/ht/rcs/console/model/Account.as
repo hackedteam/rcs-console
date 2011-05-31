@@ -4,13 +4,12 @@ package it.ht.rcs.console.model
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
   
-  import it.ht.rcs.services.db.DemoDB;
-  import it.ht.rcs.services.db.IDB;
-  import it.ht.rcs.services.db.RemoteDB;
+  import it.ht.rcs.console.downloadmanager.DownloadManager;
   import it.ht.rcs.console.events.LogonEvent;
+  import it.ht.rcs.services.db.DemoDB;
+  import it.ht.rcs.services.db.RemoteDB;
   
   import mx.core.FlexGlobals;
-  import mx.controls.Alert;
   import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
   
@@ -50,6 +49,9 @@ package it.ht.rcs.console.model
       _errback = errback;
       
       console.currentDB.login({user:user, pass:pass}, onResult, onFault);
+      
+      console.downloadManager = new DownloadManager();
+      
     }
     
     private function onResult(e:ResultEvent):void

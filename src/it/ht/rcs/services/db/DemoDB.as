@@ -2,8 +2,8 @@ package it.ht.rcs.services.db
 {
   import com.adobe.serialization.json.JSON;
   
-  import flash.utils.Timer;
   import flash.events.TimerEvent;
+  import flash.utils.Timer;
   
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
@@ -268,8 +268,8 @@ package it.ht.rcs.services.db
     }
     
     private var tasks:Object = {
-      '5f58925c-2e86-9cff-5816-95fe5cbdd246': {_id: '5f58925c-2e86-9cff-5816-95fe5cbdd246', type: 'blotter', total: 1000, current:0, desc: 'Blotter creation', grid_id: ''}, 
-      'afa9abb1-7de2-b720-98a4-cb6c5185f693' : {_id: 'afa9abb1-7de2-b720-98a4-cb6c5185f693', type: 'file', total:10000, current: 0, desc: 'File download', grid_id: ''}
+      '5f58925c-2e86-9cff-5816-95fe5cbdd246': {_id: '5f58925c-2e86-9cff-5816-95fe5cbdd246', type: 'blotter', total: 1000, current:0, desc: 'Blotter creation', grid_id: ''} 
+      //'afa9abb1-7de2-b720-98a4-cb6c5185f693' : {_id: 'afa9abb1-7de2-b720-98a4-cb6c5185f693', type: 'file', total:10000, current: 0, desc: 'File download', grid_id: ''}
     };
     
     private function updateTasks(e: TimerEvent):void
@@ -290,7 +290,13 @@ package it.ht.rcs.services.db
     
     public function task_show(id:String, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var show:Object = {};
+      show._id = tasks[id];
+      tasks[id].current += 100;
+      show.current = tasks[id].current;
+      var event:ResultEvent = new ResultEvent("task.show", false, true, show);
+      if (onResult != null)
+        onResult(event);
     }
     
     public function task_create(type:String, onResult:Function = null, onFault:Function = null):void

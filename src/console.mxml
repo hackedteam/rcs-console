@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx" 
-             xmlns:main="it.ht.rcs.console.*"
-             xmlns:effects="it.ht.rcs.console.effects.*" 
-             currentState="LoggedOut" 
-             backgroundColor.LoggedOut="#6FA0BF"
-             backgroundAlpha.LoggedOut="0.7"
-             backgroundColor.LoggedIn="#CCCCCC"
-             applicationComplete="init()" 
-             title="RCS Console" 
-             showStatusBar="false"
-             skinClass="it.ht.rcs.console.skins.ApplicationSkin">
+          					   xmlns:s="library://ns.adobe.com/flex/spark" 
+          					   xmlns:mx="library://ns.adobe.com/flex/mx" 
+                       xmlns:main="it.ht.rcs.console.*"
+                       xmlns:effects="it.ht.rcs.console.effects.*" 
+                       currentState="LoggedOut" 
+                       backgroundColor.LoggedOut="#6FA0BF"
+                       backgroundAlpha.LoggedOut="0.7"
+                       backgroundColor.LoggedIn="#CCCCCC"
+                       applicationComplete="init()" 
+                       title="RCS Console" 
+                       showStatusBar="false"
+                       closing="windowedapplication1_closeHandler(event)"
+                       skinClass="it.ht.rcs.console.skins.ApplicationSkin">
+
   <fx:Style source="it/ht/rcs/console/styles/style.css"/>
 
   <fx:Script>
   <![CDATA[
-	  import it.ht.rcs.console.StatusBar;
-	  import it.ht.rcs.console.model.Session;
+    import it.ht.rcs.console.downloadmanager.DownloadManager;
+    import it.ht.rcs.console.downloadmanager.DownloadManagerWindow;
+    import it.ht.rcs.console.model.Session;
+    import it.ht.rcs.console.notifications.NotificationPopup;
+    import it.ht.rcs.console.utils.FileDownloader;
     import it.ht.rcs.services.db.IDB;
-	  
-	  import mx.collections.ArrayCollection;
-	  import mx.controls.Alert;
-	  import mx.core.FlexGlobals;
-	  import mx.formatters.DateBase;
+    
+    import mx.collections.ArrayCollection;
+    import mx.core.FlexGlobals;
+    import mx.managers.PopUpManager;
     
     /* This variable contains the version number, the value is take dynamically from console-app.xml */ 
     public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
@@ -40,6 +44,10 @@
 	  [Bindable]
 	  public static var currentDB:IDB;
     
+    [Bindable]
+    public static var downloadManager:DownloadManager;
+    public static var downloadManagerWindow:DownloadManagerWindow;
+    
     /* supported locales for the application */
     [Bindable]
     public static var locales:ArrayCollection = new ArrayCollection(['en_US', 'it_IT']); 
@@ -50,6 +58,9 @@
     {
       /* INIT STUFF */
 
+//      var fd:FileDownloader = new FileDownloader("http://www.noao.edu/education/astrogram/news_12_03_04.pdf", "c:/asd.pdf");
+//      fd.load();
+      //FlexGlobals.topLevelApplication.nativeWindow.addEventListener(
       /* center on screen */                	
       nativeWindow.x = Screen.mainScreen.bounds.width / 2 - this.width / 2;
       nativeWindow.y = Screen.mainScreen.bounds.height / 2 - this.height / 2;       
@@ -57,7 +68,7 @@
       /* start maximized on small screen */
       if (Screen.mainScreen.bounds.width <= 1280)
         FlexGlobals.topLevelApplication.nativeWindow.maximize();
-      
+
     }
     
     public static function applicationExit():void {
@@ -67,7 +78,19 @@
         NativeApplication.nativeApplication.exit();
       }
     }
+    
+    public static function showNotification():void {
+      var not:NotificationPopup = new NotificationPopup();
+      not.x = FlexGlobals.topLevelApplication.width - not.width - 20;
+      not.y = FlexGlobals.topLevelApplication.height - not.height - 20;
+      PopUpManager.addPopUp(not, FlexGlobals.topLevelApplication as DisplayObject, false);
+    }
 
+    protected function windowedapplication1_closeHandler(event:Event):void
+    {
+      //event.preventDefault();
+      //event.stopImmediatePropagation();
+    }
     
   ]]>
   </fx:Script>

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="160" height="20">
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          height="20" gap="10">
 
 <fx:Script>
   <![CDATA[
-    import it.ht.rcs.console.model.Account;
-    import it.ht.rcs.console.events.LogonEvent;
+    
     import it.ht.rcs.console.events.RefreshEvent;
+    import it.ht.rcs.console.model.Account;
     
     import mx.core.FlexGlobals;
     
@@ -60,15 +61,36 @@
       /* dispatch the event for all */
       FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
     }
+    
+    private function test():void
+    {
+      console.downloadManager.createTask("Test Task");
+    }
+    
   ]]>
 </fx:Script>
 
   <fx:Declarations>
-    <s:GlowFilter id="glow" color="0xAAAAAA" strength="8" />
+    <s:GlowFilter id="glow" color="0xAAAAAA" strength="8"/>
   </fx:Declarations>  
 
-  <s:Button x="0" y="0" label="E" width="30" height="20" id="ExitButton" click="exit()"  skinClass="it.ht.rcs.console.skins.ExitButton" toolTip="{resourceManager.getString('localized_main', 'EXIT')}"/>
-  <s:Button y="0" label="L" width="30" height="20" left="40" id="LogoutButton" click="logout()" skinClass="it.ht.rcs.console.skins.LogoutButton" toolTip="{resourceManager.getString('localized_main', 'LOGOUT')}"/>
-  <s:Button y="0" label="F" width="30" height="20" id="FullscreenButton" left="80" click="fullscreen()" filters="{fullscreenFilters}" skinClass="it.ht.rcs.console.skins.FullscreenButton" toolTip="{resourceManager.getString('localized_main', 'FULLSCREEN')}"/>
-  <s:Button width="30" height="20" left="130" id="RefreshButton" click="refresh()"  skinClass="it.ht.rcs.console.skins.RefreshButton" toolTip="{resourceManager.getString('localized_main', 'REFRESH')}"/>
-</s:Group>
+  <s:Button id="ExitButton" label="E" click="exit()" skinClass="it.ht.rcs.console.skins.ExitButton"
+            toolTip="{resourceManager.getString('localized_main', 'EXIT')}"/>
+  
+  <s:Button id="LogoutButton" label="L" click="logout()"
+            skinClass="it.ht.rcs.console.skins.LogoutButton"
+            toolTip="{resourceManager.getString('localized_main', 'LOGOUT')}"/>
+  
+  <s:Button id="FullscreenButton" label="F" click="fullscreen()" filters="{fullscreenFilters}"
+            skinClass="it.ht.rcs.console.skins.FullscreenButton"
+            toolTip="{resourceManager.getString('localized_main', 'FULLSCREEN')}"/>
+  
+  <s:Spacer width="5"/>
+  <s:Button id="RefreshButton" click="refresh()" skinClass="it.ht.rcs.console.skins.RefreshButton"
+            toolTip="{resourceManager.getString('localized_main', 'REFRESH')}"/>
+  
+  <s:Spacer width="5"/>
+  <s:Button id="TestButton" click="test()" skinClass="it.ht.rcs.console.skins.RefreshButton"
+            toolTip="Test"/>
+  
+</s:HGroup>

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-          					   xmlns:s="library://ns.adobe.com/flex/spark" 
-          					   xmlns:mx="library://ns.adobe.com/flex/mx" 
+<s:WindowedApplication xmlns:s="library://ns.adobe.com/flex/spark"
+                       xmlns:mx="library://ns.adobe.com/flex/mx"
+                       xmlns:fx="http://ns.adobe.com/mxml/2009"
                        xmlns:main="it.ht.rcs.console.*"
-                       xmlns:effects="it.ht.rcs.console.effects.*" 
-                       currentState="LoggedOut" 
+                       xmlns:effects="it.ht.rcs.console.effects.*"
+                       skinClass="it.ht.rcs.console.skins.ApplicationSkin"
+                       title="RCS Console"
+                       currentState="LoggedOut"
+                       showStatusBar="false"
+                       backgroundColor.LoggedIn="#CCCCCC"
                        backgroundColor.LoggedOut="#6FA0BF"
                        backgroundAlpha.LoggedOut="0.7"
-                       backgroundColor.LoggedIn="#CCCCCC"
-                       applicationComplete="init()" 
-                       title="RCS Console" 
-                       showStatusBar="false"
-                       closing="windowedapplication1_closeHandler(event)"
-                       skinClass="it.ht.rcs.console.skins.ApplicationSkin">
+                       applicationComplete="init()"
+                       closing="onClose(event)">
 
   <fx:Style source="it/ht/rcs/console/styles/style.css"/>
 
@@ -21,13 +21,10 @@
     import it.ht.rcs.console.downloadmanager.DownloadManager;
     import it.ht.rcs.console.downloadmanager.DownloadManagerWindow;
     import it.ht.rcs.console.model.Session;
-    import it.ht.rcs.console.notifications.NotificationPopup;
-    import it.ht.rcs.console.utils.FileDownloader;
     import it.ht.rcs.services.db.IDB;
-    
+
     import mx.collections.ArrayCollection;
     import mx.core.FlexGlobals;
-    import mx.managers.PopUpManager;
     
     /* This variable contains the version number, the value is take dynamically from console-app.xml */ 
     public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
@@ -52,23 +49,24 @@
     [Bindable]
     public static var locales:ArrayCollection = new ArrayCollection(['en_US', 'it_IT']); 
     
-
-    
     private function init():void
     {
       /* INIT STUFF */
 
-//      var fd:FileDownloader = new FileDownloader("http://www.noao.edu/education/astrogram/news_12_03_04.pdf", "c:/asd.pdf");
-//      fd.load();
-      //FlexGlobals.topLevelApplication.nativeWindow.addEventListener(
-      /* center on screen */                	
+      /* center on screen */
       nativeWindow.x = Screen.mainScreen.bounds.width / 2 - this.width / 2;
       nativeWindow.y = Screen.mainScreen.bounds.height / 2 - this.height / 2;       
 
       /* start maximized on small screen */
       if (Screen.mainScreen.bounds.width <= 1280)
         FlexGlobals.topLevelApplication.nativeWindow.maximize();
-
+    
+    }
+    
+    protected function onClose(event:Event):void
+    {
+      event.preventDefault();
+      applicationExit();
     }
     
     public static function applicationExit():void {
@@ -78,20 +76,7 @@
         NativeApplication.nativeApplication.exit();
       }
     }
-    
-    public static function showNotification():void {
-      var not:NotificationPopup = new NotificationPopup();
-      not.x = FlexGlobals.topLevelApplication.width - not.width - 20;
-      not.y = FlexGlobals.topLevelApplication.height - not.height - 20;
-      PopUpManager.addPopUp(not, FlexGlobals.topLevelApplication as DisplayObject, false);
-    }
 
-    protected function windowedapplication1_closeHandler(event:Event):void
-    {
-      //event.preventDefault();
-      //event.stopImmediatePropagation();
-    }
-    
   ]]>
   </fx:Script>
   
@@ -101,7 +86,7 @@
   </fx:Metadata>
   
   <s:states>
-		<s:State name="LoggedIn" enterState="{FlexGlobals.topLevelApplication.showStatusBar = true}" />
+		<s:State name="LoggedIn"  enterState="{FlexGlobals.topLevelApplication.showStatusBar = true}"/>
 		<s:State name="LoggedOut" enterState="{FlexGlobals.topLevelApplication.showStatusBar = false}"/>
 	</s:states>
 
@@ -117,10 +102,10 @@
   -->
   
   <!-- LoggedOut state -->
-  <main:Login id="LoginPanel" includeIn="LoggedOut" />
-  <effects:Reflector includeIn="LoggedOut" target="{LoginPanel}" alpha="0.5" falloff="0.5" blurAmount="0.5"/>
+  <main:Login id="LoginPanel" includeIn="LoggedOut"/>
+  <effects:Reflector includeIn="LoggedOut" alpha="0.5" blurAmount="0.5" falloff="0.5" target="{LoginPanel}"/>
   
   <!-- LoggedIn state -->
-  <main:Main id="MainPanel" includeIn="LoggedIn" width="100%" height="100%" />
+  <main:Main id="MainPanel" includeIn="LoggedIn" width="100%" height="100%"/>
   
 </s:WindowedApplication>

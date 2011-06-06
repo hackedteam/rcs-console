@@ -10,8 +10,6 @@ package it.ht.rcs.console.utils {
   import flash.net.URLStream;
   import flash.utils.ByteArray;
   
-  import mx.controls.Alert;
-  
   public class FileDownloader {
     
     private var remotePath:String;
@@ -20,31 +18,33 @@ package it.ht.rcs.console.utils {
     private var remoteStream:URLStream;
     private var localStream:FileStream;
     
+    private var localFile:File;
+    
     public var onProgress:Function;
     public var onComplete:Function;
+    
+    private var downloadCompletedFlag:Boolean = false;
     
     public function FileDownloader(remotePath:String, localPath:String) {
       this.remotePath = remotePath;
       this.localPath = localPath;
     }
     
-    public function load():void {
+    public function download():void {
       
-      if(!remoteStream) {
+      if (!remoteStream) {
 
         remoteStream = new URLStream();
         localStream = new FileStream();
 
         var request:URLRequest = new URLRequest(remotePath);
         var currentPosition:uint = 0;
-        var downloadCompleteFlag:Boolean = false;
 
         localStream.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, function(event:OutputProgressEvent):void {
-          
-          if (event.bytesPending == 0 && downloadCompleteFlag) {
+
+          if (downloadCompletedFlag && event.bytesPending == 0) {
             
-            remoteStream.close();
-            localStream.close();
+            closeStreams();
             
             if (onComplete != null)
               onComplete();
@@ -53,7 +53,8 @@ package it.ht.rcs.console.utils {
           
         });
 
-        localStream.openAsync(new File(localPath), FileMode.WRITE);
+        localFile = new File(localPath);
+        localStream.openAsync(localFile, FileMode.WRITE);
         
         remoteStream.addEventListener(ProgressEvent.PROGRESS, function():void {
           
@@ -70,8 +71,7 @@ package it.ht.rcs.console.utils {
         });
         
         remoteStream.addEventListener(Event.COMPLETE, function():void {
-          downloadCompleteFlag = true;
-          //Alert.show("comepleted");
+          downloadCompletedFlag = true;
         });
         
         remoteStream.load(request);
@@ -80,6 +80,23 @@ package it.ht.rcs.console.utils {
         trace("Download already started");
       }
       
+    }
+    
+    public function cancelDownload():void {
+      closeStreams();
+      if (localFile)
+        localFile.deleteFile();
+    }
+    
+    private function closeStreams():void {
+      if (remoteStream) {
+        remoteStream.close();
+        remoteStream = null;
+      }
+      if (localStream) {
+        localStream.close();
+        localStream = null;
+      }
     }
     
   }

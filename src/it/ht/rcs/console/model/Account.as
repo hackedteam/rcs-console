@@ -1,5 +1,6 @@
 package it.ht.rcs.console.model
 {
+  
   import flash.filesystem.File;
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;

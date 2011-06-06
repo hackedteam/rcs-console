@@ -1,23 +1,20 @@
 package it.ht.rcs.console.model
 {
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
   import flash.filesystem.File;
-  import flash.geom.PerspectiveProjection;
-  import flash.net.FileReference;
-  import flash.net.URLRequest;
-  import flash.net.URLStream;
   import flash.utils.Timer;
   
   import it.ht.rcs.console.notifications.NotificationPopup;
   import it.ht.rcs.console.utils.FileDownloader;
   
-  import mx.controls.Alert;
   import mx.rpc.events.ResultEvent;
   
   public class Task extends EventDispatcher
   {
+    
     public static const STATE_IDLE:String = 'idle';
     public static const STATE_CREATING:String = 'creating';
     public static const STATE_DOWNLOADING:String = 'downloading';
@@ -42,7 +39,8 @@ package it.ht.rcs.console.model
     [Bindable]
     public var creation_undefined:Boolean = true;
     
-    private var creation_timer:Timer;
+    private var creationTimer:Timer;
+    private var fileDownloader:FileDownloader; 
     
     [Bindable(event="percentageChanged")]
     public var creation_percentage:Object = {bytesLoaded:0, bytesTotal:0};
@@ -61,81 +59,100 @@ package it.ht.rcs.console.model
       if(current >= total) {
         
       }
+      
     }
     
-    public function start_update():void {
-      creation_timer = new Timer(500);
-      creation_timer.addEventListener(TimerEvent.TIMER, update);
-      creation_timer.start();
+    public function start_update():void
+    {
+      creationTimer = new Timer(500);
+      creationTimer.addEventListener(TimerEvent.TIMER, update);
+      creationTimer.start();
     }
     
-    private function update(event:TimerEvent):void {
-      console.currentDB.task_show(_id, updateResult);
+    private function update(event:TimerEvent):void
+    {
+      console.currentDB.task_show(_id, update_creation);
     }
     
-    private function updateResult(event:ResultEvent):void {
-      update_creation(event.result.current);
-    }
-
 //    public function set_creation_size(total:Number):void 
 //    {
 //      //creation_percentage.bytesTotal = total;
 //      creation_undefined = false;
 //    }
     
-    public function set_download_size(total:Number):void 
-    {
-      ///download_percentage.bytesTotal = total;
-    }
+//    public function set_download_size(total:Number):void
+//    {
+//      ///download_percentage.bytesTotal = total;
+//    }
     
-    public function update_creation(cur:Number):void 
+    public function update_creation(event:ResultEvent):void
     {
+      
+      state = Task.STATE_CREATING;
+      
+      current = event.result.current;
+      
       creation_percentage.bytesTotal = total;
-      creation_percentage.bytesLoaded = cur;
-      current = cur;
-      if (current > total && creation_timer) {
-        creation_timer.stop();
-        creation_timer = null;
-        console.showNotification();
-        var path:String = File.desktopDirectory.nativePath;
-        var fd:FileDownloader = new FileDownloader("http://www.noao.edu/education/astrogram/news_12_03_03.pdf", path + '/test.pdf');
-        fd.onProgress = onDLProgress;
-        fd.onComplete = complete;
-        fd.load();
-//        var asd:FileReference = new FileReference();
-//        asd.download(new URLRequest('http://www.google.it/images/logos/ps_logo2.png'));
+      creation_percentage.bytesLoaded = current;
+      dispatchEvent(new Event("percentageChanged"));
+      
+      if (current > total && creationTimer) {
+        
+        creationTimer.stop();
+        creationTimer = null;
+        
+        NotificationPopup.showNotification("Task <b>'" + desc + "'</b> completed.<br/>The file you requested is now downloading...");
+        
+        if (event.result.grid_id) {
+          
+          grid_id = event.result.grid_id;
+          
+          var path:String = File.desktopDirectory.nativePath;
+          fileDownloader = new FileDownloader(grid_id, path + '/' + _id + '.pdf');
+          fileDownloader.onProgress = update_download;
+          fileDownloader.onComplete = complete;
+          fileDownloader.download();
+          
+          state = STATE_DOWNLOADING;
+        
+        } else {
+          state = STATE_FINISHED;
+        }
         
       }
-      dispatchEvent(new Event("percentageChanged"));
+      
     }
     
-    public function onDLProgress(cur:Number):void {
-      download_percentage.bytesTotal = 10000000;
+    public function update_download(cur:Number):void
+    {
+      download_percentage.bytesTotal = 4993536;
       download_percentage.bytesLoaded = cur;
       dispatchEvent(new Event("percentageChanged"));
     }
     
-    public function update_download(cur:Number):void 
+    public function complete():void
     {
-      //download_percentage.bytesLoaded = cur;
-      dispatchEvent(new Event("percentageChanged"));
+      state = Task.STATE_FINISHED;
+      NotificationPopup.showNotification("Download complete...");
     }
     
-    public function complete():void 
+    public function cancel():void
     {
-      console.showNotification();
-    }
-    
-    public function cancel():void 
-    {
-      if (creation_timer) {
-        creation_timer.stop();
-        creation_timer = null;
+      
+      if (creationTimer) {
+        creationTimer.stop();
+        creationTimer = null;
       }
-      //stream.close();
-      //stream.dispatchEvent(new Event("closed"));
-      console.downloadManager.removeTask(this);
+      
+      if (fileDownloader) {
+        fileDownloader.cancelDownload();
+        fileDownloader = null;
+      }
+      
+      console.downloadManager.destroyTask(this);
+      
     }
     
   }
+  
 }

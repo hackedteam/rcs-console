@@ -14,74 +14,73 @@
          width="100%" height="100%" 
          addedToStage="added()"
          removedFromStage="removed()">
-<fx:Script>
-  <![CDATA[
-    import it.ht.rcs.console.downloadmanager.DownloadManagerWindow;
-    import it.ht.rcs.console.events.SectionEvent;
-    import it.ht.rcs.console.model.LicenseManager;
-    import it.ht.rcs.console.monitor.MonitorManager;
-    
-    import mx.core.FlexGlobals;
-    import mx.events.ItemClickEvent;
-    import mx.managers.PopUpManager;
-    
-    [Bindable]
-    private var main_sections:Array;
-    
-    private function mainButtonClickHandler(event:ItemClickEvent):void 
-    {
-      trace("SECTION: " + event.label.toUpperCase());
-      /* dispatch the event for all */
-      FlexGlobals.topLevelApplication.dispatchEvent(new SectionEvent(event.label.toLowerCase()));
-      /* change the state to the current section */
-      currentState = event.label;
-    }
   
-    private function added():void 
-    {
-      trace("Entering main section...")  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.model.LicenseManager;
+      import it.ht.rcs.console.monitor.MonitorManager;
       
-      /* different view based on privileges */
-      main_sections = new Array();
-      if (console.currentSession.user.is_admin()) main_sections.push('Accounting');
-      if (console.currentSession.user.is_any()) main_sections.push('Console');
-      if (console.currentSession.user.is_viewer()) main_sections.push('Dashboard');
-      if (console.currentSession.user.is_viewer()) main_sections.push('Alerting');
-      //if (console.currentSession.user.is_viewer()) main_sections.push('Correlation');
-      if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech()) main_sections.push('Network');
-      if (console.currentSession.user.is_admin()) main_sections.push('Audit');
-      if (console.currentSession.user.is_any()) main_sections.push('Monitor');
-
-      /* default state is Console */
-      if (console.currentSession.user.is_any())
-        currentState = "Console";
-      else
-        currentState = "Nothing";
-
-      /* initialize the monitor counter */
-      if (console.currentSession.user.is_any()) {
-        MonitorManager.instance.start_counters();
+      import mx.core.FlexGlobals;
+      import mx.events.ItemClickEvent;
+      
+      [Bindable]
+      private var main_sections:Array;
+      
+      private function mainButtonClickHandler(event:ItemClickEvent):void 
+      {
+        trace("SECTION: " + event.label.toUpperCase());
+        /* dispatch the event for all */
+        FlexGlobals.topLevelApplication.dispatchEvent(new SectionEvent(event.label.toLowerCase()));
+        /* change the state to the current section */
+        currentState = event.label;
+      }
+    
+      private function added():void 
+      {
+        trace("Entering main section...")  
+        
+        /* different view based on privileges */
+        main_sections = new Array();
+        if (console.currentSession.user.is_admin()) main_sections.push('Accounting');
+        if (console.currentSession.user.is_any()) main_sections.push('Console');
+        if (console.currentSession.user.is_viewer()) main_sections.push('Dashboard');
+        if (console.currentSession.user.is_viewer()) main_sections.push('Alerting');
+        //if (console.currentSession.user.is_viewer()) main_sections.push('Correlation');
+        if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech()) main_sections.push('Network');
+        if (console.currentSession.user.is_admin()) main_sections.push('Audit');
+        if (console.currentSession.user.is_any()) main_sections.push('Monitor');
+  
+        /* default state is Console */
+        if (console.currentSession.user.is_any())
+          currentState = "Console";
+        else
+          currentState = "Nothing";
+  
+        /* initialize the monitor counter */
+        if (console.currentSession.user.is_any()) {
+          MonitorManager.instance.start_counters();
+        }
+        
+  //      /* initialize the download manager */
+  //      if (console.currentSession.user.is_any()) {
+  //        console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
+  //        //DownloadManager.instance.start_counters();
+  //      }
+  
+        /* retrieve the current license limits */
+        LicenseManager.instance.load_license(null);
       }
       
-//      /* initialize the download manager */
-//      if (console.currentSession.user.is_any()) {
-//        console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
-//        //DownloadManager.instance.start_counters();
-//      }
-
-      /* retrieve the current license limits */
-      LicenseManager.instance.load_license(null);
-    }
-    
-    private function removed():void 
-    {
-      trace("Exiting main section...")
-
-      /* remove the monitor counter */
-      MonitorManager.instance.stop_counters();
-    }
-  ]]>
-</fx:Script>
+      private function removed():void 
+      {
+        trace("Exiting main section...")
+  
+        /* remove the monitor counter */
+        MonitorManager.instance.stop_counters();
+      }
+    ]]>
+  </fx:Script>
   
   <fx:Declarations>
   </fx:Declarations>

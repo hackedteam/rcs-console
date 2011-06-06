@@ -114,13 +114,13 @@
     
     public function removeItem(o:Object):void
     {
-      /* remove an item from the list */
-      if (o == null)
-        return;
-      
-      var idx:int = _items.getItemIndex(o);
-      if (idx >= 0) 
-        _items.removeItemAt(idx);
+//      /* remove an item from the list */
+//      if (o == null)
+//        return;
+      _items.removeItem(o);
+//      var idx:int = _items.getItemIndex(o);
+//      if (idx >= 0) 
+//        _items.removeItemAt(idx);
     }
 
     protected function onItemRemove(o:*):void

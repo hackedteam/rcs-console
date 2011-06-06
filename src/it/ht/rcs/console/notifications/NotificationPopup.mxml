@@ -1,21 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                   xmlns:s="library://ns.adobe.com/flex/spark" 
-                   xmlns:mx="library://ns.adobe.com/flex/mx" width="300" height="80"
-                   cornerRadius="10" backgroundAlpha=".95" backgroundColor="#333333"
-                   addedEffect="{fadeIn}" removedEffect="{fadeOut}" click="onClick()" creationPolicy="all">
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   width="300" height="80" addedEffect="{fadeIn}"
+                   backgroundAlpha=".95" backgroundColor="#333333" click="onClick()"
+                   cornerRadius="10" creationPolicy="all" removedEffect="{fadeOut}">
 
-  <s:HGroup verticalAlign="middle" horizontalAlign="center" height="100%" width="100%">
-    <s:Label text="The file you requested is now downloading..." fontStyle="italic" color="white" fontWeight="bold" fontSize="12"/>
+  <s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+    <s:RichText id="message" color="white" fontSize="13" lineHeight="18"/>
   </s:HGroup>
   
   <fx:Script>
     <![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import mx.core.FlexGlobals;
       import mx.managers.PopUpManager;
+      
       protected function onClick():void
       {
         PopUpManager.removePopUp(this);
       }
+      
+      public static function showNotification(message:String):void
+      {
+        var popup:NotificationPopup = new NotificationPopup();
+        popup.x = FlexGlobals.topLevelApplication.width - popup.width - 20;
+        popup.y = FlexGlobals.topLevelApplication.height - popup.height - 20;
+        PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, false);
+        popup.message.textFlow = TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+      }
+      
     ]]>
   </fx:Script>
   
@@ -31,7 +46,7 @@
   </fx:Declarations>
   
   <s:filters>
-    <s:DropShadowFilter angle="0" distance="0" quality="2" blurX="5" blurY="5" strength="1" color="#666666" />
+    <s:DropShadowFilter angle="0" blurX="5" blurY="5" color="#666666" distance="0" quality="2" strength="1"/>
   </s:filters>
 
 </s:BorderContainer>

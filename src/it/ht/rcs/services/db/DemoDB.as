@@ -267,6 +267,8 @@ package it.ht.rcs.services.db
       /* do nothing */
     }
     
+    /* TASKS */
+    
     private var tasks:Object = {
       '5f58925c-2e86-9cff-5816-95fe5cbdd246': {_id: '5f58925c-2e86-9cff-5816-95fe5cbdd246', type: 'blotter', total: 1000, current:0, desc: 'Blotter creation', grid_id: ''} 
       //'afa9abb1-7de2-b720-98a4-cb6c5185f693' : {_id: 'afa9abb1-7de2-b720-98a4-cb6c5185f693', type: 'file', total:10000, current: 0, desc: 'File download', grid_id: ''}

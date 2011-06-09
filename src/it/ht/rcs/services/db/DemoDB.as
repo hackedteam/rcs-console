@@ -324,3 +324,4 @@ package it.ht.rcs.services.db
   }
 
 }
+

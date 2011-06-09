@@ -1,7 +1,7 @@
 package it.ht.rcs.services.db
 {
-  import mx.rpc.AsyncToken;
   import it.ht.rcs.console.model.Group;
+  import it.ht.rcs.console.model.Task;
   import it.ht.rcs.console.model.User;
 
   public interface IDB
@@ -41,7 +41,8 @@ package it.ht.rcs.services.db
     
     function task_index(onResult:Function = null, onFault:Function = null):void;
     function task_show(id:String, onResult:Function = null, onFault:Function = null):void;
-    function task_create(type:String, onResult:Function = null, onFault:Function = null):void;
+    function task_create(task:Task, onResult:Function = null, onFault:Function = null):void;
     function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void;
   }
+
 }

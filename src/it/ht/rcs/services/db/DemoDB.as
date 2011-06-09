@@ -267,13 +267,15 @@ package it.ht.rcs.services.db
     
     //private dummyFile:String = 'http://www.google.it/images/logos/ps_logo2.png';
     private var dummyFile:String = 'http://www.birdlife.org/action/science/species/seabirds/tracking_ocean_wanderers.pdf';
+    private var dummyFileSize:Number = 4993536;
     private var tasks:Object = {
       '5f58925c-2e86-9cff-5816-95fe5cbdd246': { _id: '5f58925c-2e86-9cff-5816-95fe5cbdd246',
                                                 type: 'blotter',
                                                 total: 1000,
                                                 current: 0,
                                                 desc: 'Blotter creation',
-                                                grid_id: dummyFile
+                                                grid_id: dummyFile,
+                                                file_name: 'test.pdf'
                                               } 
       //'afa9abb1-7de2-b720-98a4-cb6c5185f693' : {_id: 'afa9abb1-7de2-b720-98a4-cb6c5185f693', type: 'file', total:10000, current: 0, desc: 'File download', grid_id: ''}
     };
@@ -293,19 +295,21 @@ package it.ht.rcs.services.db
       show._id = tasks[id];
       show.grid_id = tasks[id].grid_id;
       show.current = tasks[id].current += 50;
+      show.file_size = dummyFileSize;
       var event:ResultEvent = new ResultEvent("task.show", false, true, show);
       if (onResult != null)
         onResult(event);
     }
     
-    public function task_create(type:String, onResult:Function = null, onFault:Function = null):void
+    public function task_create(task:Task, onResult:Function = null, onFault:Function = null):void
     {
-      var newTask:Object = { _id: '__' + Math.round(Math.random() * 100),
+      var newTask:Object = { _id: '__' + Math.round(Math.random() * 1000),
                              type: 'blotter',
                              total: 1000,
                              current: 0,
-                             desc: new Date().time + " " + type,
-                             grid_id: dummyFile
+                             desc: new Date().time + " " + task.type,
+                             grid_id: dummyFile,
+                             file_name: task.file_name
                            }
       tasks[newTask._id] = newTask;
       var event:ResultEvent = new ResultEvent("task.create", false, true, newTask);
@@ -324,4 +328,3 @@ package it.ht.rcs.services.db
   }
 
 }
-

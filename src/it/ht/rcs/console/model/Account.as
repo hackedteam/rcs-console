@@ -38,10 +38,10 @@ package it.ht.rcs.console.model
     
     public function logout(exitApplication:Boolean = false):void {
     
+      trace('Account.logout');
+      
       var event:AccountEvent = new AccountEvent(AccountEvent.LOGGING_OUT, false, true);
-      trace(event.isDefaultPrevented() as String);
       FlexGlobals.topLevelApplication.dispatchEvent(event);
-      trace(event.isDefaultPrevented() as String);
       if (event.isDefaultPrevented())
         Alert.show(ResourceManager.getInstance().getString('localized_main', 'CONFIRM_LOGOUT'),
                    ResourceManager.getInstance().getString('localized_main', 'CONFIRM'),
@@ -56,10 +56,11 @@ package it.ht.rcs.console.model
     
     public function forceLogout(exitApplication:Boolean = false):void {
       
+      trace('Account.forceLogout');
+      
       var event:AccountEvent = new AccountEvent(AccountEvent.FORCE_LOG_OUT, false, true);
       FlexGlobals.topLevelApplication.dispatchEvent(event);
       
-      trace('Account.logout');
       /* destroy the current session */
       console.currentSession.destroy();
       console.currentSession = null;
@@ -94,7 +95,6 @@ package it.ht.rcs.console.model
     
     private function onResult(e:ResultEvent):void
     {
-      trace('Account.login -- result');
       /* save the info for the next login */
       save_previous();
       
@@ -109,8 +109,6 @@ package it.ht.rcs.console.model
     
     private function onFault(e:FaultEvent):void
     {
-      trace('Account.login -- fault');
-
       /* HTTP 403 is "not authorized" */
       if (e.statusCode == 403) {
         _errback('Incorrect Username or Password...');
@@ -119,18 +117,6 @@ package it.ht.rcs.console.model
       
       _errback('Cannot connect to server');
     }
-    
-//    public function logout(callback:Function = null, errback:Function = null):void
-//    {
-//      trace('Account.logout');
-//      /* dispatch the event for all */
-//      FlexGlobals.topLevelApplication.dispatchEvent(new LogonEvent(LogonEvent.LOGGING_OUT));
-//      /* destroy the current session */
-//      console.currentSession.destroy();
-//      console.currentSession = null;
-//      /* request to the DB, ignoring the results */
-//      console.currentDB.logout(callback, errback);
-//    }
     
     private function load_previous():void
     {

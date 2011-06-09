@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:dm="it.ht.rcs.console.downloadmanager.*"
          width="100%">
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.ClockProfile;
       import it.ht.rcs.console.accounting.UserProfile;
+      import it.ht.rcs.console.downloadmanager.DownloadManager;
       import it.ht.rcs.console.downloadmanager.DownloadManagerWindow;
       import it.ht.rcs.console.model.Clock;
       
       import mx.managers.PopUpManager;
+      
+      private var downloadManagerWindow:DownloadManagerWindow = null;
       
       private function showUserProfile():void
       {
@@ -25,10 +29,10 @@
       
       private function showDownloadManager():void
       {
-        if (console.downloadManagerWindow == null)
-          console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
-        PopUpManager.centerPopUp(console.downloadManagerWindow);
-        console.downloadManagerWindow.visible = true;
+        if (downloadManagerWindow == null)
+          downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
+        PopUpManager.centerPopUp(downloadManagerWindow);
+        downloadManagerWindow.visible = true;
       }
       
     ]]>
@@ -39,15 +43,18 @@
   </s:layout>
   
   <!-- user profile -->
-  <mx:LinkButton label="{console.currentSession.user.name}\@{console.currentSession.server}" left="10" click="showUserProfile()"/>
+  <mx:LinkButton left="10"
+                 label="{console.currentSession.user.name}\@{console.currentSession.server}"
+                 click="showUserProfile()"/>
   
   <!-- download manager -->
-  <dm:DownloadManagerBar click="showDownloadManager()" useHandCursor="true" buttonMode="true" visible="{console.downloadManager.active}"
-                         includeInLayout="{console.downloadManager.active}"/>
+  <dm:DownloadManagerBar visible="{DownloadManager.instance.active}" buttonMode="true"
+                         click="showDownloadManager()"
+                         includeInLayout="{DownloadManager.instance.active}" useHandCursor="true"/>
   
   <!-- UTC clock -->
   <s:HGroup width="100%" horizontalAlign="right" paddingRight="12">
-    <mx:LinkButton label="{Clock.instance.currentConsoleTime}" click="showClockProfile()" />
+    <mx:LinkButton label="{Clock.instance.currentConsoleTime}" click="showClockProfile()"/>
   </s:HGroup>
   
 </s:Group>

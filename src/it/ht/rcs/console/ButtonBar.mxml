@@ -6,38 +6,14 @@
 
 <fx:Script>
   <![CDATA[
-    
+    import it.ht.rcs.console.downloadmanager.DownloadManager;
     import it.ht.rcs.console.events.RefreshEvent;
     import it.ht.rcs.console.model.Account;
     
     import mx.core.FlexGlobals;
-    
-    private function exit():void
-    {
-      /* logout the user from the db */
-      new Account().logout(onLogoutExit, onLogoutExit);
-    }
-    
-    private function onLogoutExit(event:*):void
-    {
-      /* close the AIR application */
-      console.applicationExit();
-    }
-    
-    private function logout():void
-    {
-      /* logout the user from the db */
-      new Account().logout(onLogout, onLogout);
-    }
-    
-    private function onLogout(event:*):void
-    {
-      /* back to the login screen */ 
-      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
-    }
-    
+
     [Bindable]
-    private var fullscreenFilters: Array = [];
+    private var fullscreenFilters:Array = [];
     private var _fullscreenState:Boolean = false;
     
     private function fullscreen():void {			
@@ -64,20 +40,21 @@
     
     private function test():void
     {
-      console.downloadManager.createTask("Test Task");
+      DownloadManager.instance.createTask("Test Task");
     }
-    
+
   ]]>
 </fx:Script>
 
   <fx:Declarations>
     <s:GlowFilter id="glow" color="0xAAAAAA" strength="8"/>
-  </fx:Declarations>  
+  </fx:Declarations>
 
-  <s:Button id="ExitButton" label="E" click="exit()" skinClass="it.ht.rcs.console.skins.ExitButton"
+  <s:Button id="ExitButton" label="E" click="Account.instance.logout(true)"
+            skinClass="it.ht.rcs.console.skins.ExitButton"
             toolTip="{resourceManager.getString('localized_main', 'EXIT')}"/>
   
-  <s:Button id="LogoutButton" label="L" click="logout()"
+  <s:Button id="LogoutButton" label="L" click="Account.instance.logout(false)"
             skinClass="it.ht.rcs.console.skins.LogoutButton"
             toolTip="{resourceManager.getString('localized_main', 'LOGOUT')}"/>
   

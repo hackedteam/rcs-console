@@ -1,5 +1,7 @@
 package it.ht.rcs.console.monitor
 {
+	import com.adobe.serialization.json.JSON;
+	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
@@ -9,14 +11,8 @@ package it.ht.rcs.console.monitor
 	import it.ht.rcs.console.model.Status;
 	import it.ht.rcs.console.utils.CounterBaloon;
 	
-  import com.adobe.serialization.json.JSON;
-  
 	import mx.collections.ArrayCollection;
-	import mx.collections.Sort;
-	import mx.collections.SortField;
 	import mx.core.FlexGlobals;
-	import mx.events.CollectionEvent;
-	import mx.events.CollectionEventKind;
 	import mx.rpc.events.ResultEvent;
 
   public class MonitorManager extends Manager
@@ -106,7 +102,7 @@ package it.ht.rcs.console.monitor
 
     private function onRefreshCounter(e:Event):void
     {
-      trace('StatusManager -- Refresh Counters');
+      trace(_classname + ' -- Refresh Counters');
       
       console.currentDB.status_counters(onMonitorCounters);
     }
@@ -114,7 +110,7 @@ package it.ht.rcs.console.monitor
     private function onMonitorCounters(e:ResultEvent):void
     {
       /* get the position of the Monitor button */
-      var buttons:ArrayCollection = FlexGlobals.topLevelApplication.MainPanel.sectionsButtonBar.dataProvider;
+      var buttons:ArrayCollection = FlexGlobals.topLevelApplication.mainPanel.sectionsButtonBar.dataProvider;
       var len:int = buttons.length;
       var index:int = buttons.toArray().indexOf("Monitor") + 1;
       

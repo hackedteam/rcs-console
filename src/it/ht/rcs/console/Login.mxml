@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="400" height="200"
-         verticalCenter="-33" cornerRadius="0" addedToStage="added()" removedFromStage="removed()"
-         backgroundColor="0xffffff"
-         creationComplete="init()">
+         width="400" height="200" addedToStage="added()" backgroundColor="0xffffff" cornerRadius="0"
+         creationComplete="init()" removedFromStage="removed()" verticalCenter="-33">
+  
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.events.LogonEvent;
+      import it.ht.rcs.console.events.AccountEvent;
       import it.ht.rcs.console.model.Account;
       
       import mx.core.FlexGlobals;
@@ -19,7 +18,7 @@
       
       private function init():void
       {
-        this.title = "RCS Console " + console.rcsVersion.substring(0, console.rcsVersion.length-2); 
+        this.title = "RCS Console " + console.rcsVersion.substring(0, console.rcsVersion.length-2);
       }
       
       private function added():void
@@ -32,9 +31,6 @@
         onResize(null);
         /* monitor the resize event */
         FlexGlobals.topLevelApplication.addEventListener(ResizeEvent.RESIZE, onResize);
-        
-        /* default focuse */
-        loginForm.defaultButton = LoginButton;
       }
       
       private function removed():void
@@ -54,7 +50,7 @@
         /* reset the error message */
         ErrorMessage.text = '';
         /* perform login to the server */
-        account.login(UserNameText.text, PasswordText.text, ServerText.text, onSuccess, onFailure);
+        Account.instance.login(UserNameText.text, PasswordText.text, ServerText.text, onSuccess, onFailure);
       }
       
       private function onSuccess():void
@@ -64,9 +60,9 @@
         /* set the locale of the current user */
         resourceManager.localeChain = [console.currentSession.user.locale];
         /* send the global LOGIN event */
-        FlexGlobals.topLevelApplication.dispatchEvent(new LogonEvent(LogonEvent.LOGGING_IN));
+        FlexGlobals.topLevelApplication.dispatchEvent(new AccountEvent(AccountEvent.LOGGING_IN));
         /* switch to the main stage */
-        FlexGlobals.topLevelApplication.currentState = "LoggedIn"
+        FlexGlobals.topLevelApplication.currentState = console.LOGGED_IN_STATE;
       }
       
       private function onFailure(message:String):void
@@ -79,33 +75,34 @@
       
     ]]>
   </fx:Script>
+
   <fx:Declarations>
-    <s:Sequence id="shake" target="{this}" duration="70">
-      <s:Move xBy="20" />
-      <s:Move xBy="-20" />            
-      <s:Move xBy="20" />       
-      <s:Move xBy="-20" />      
-      <s:Move xBy="20" />            
-      <s:Move xBy="-20" />            
-      <s:Move xBy="20" />            
-      <s:Move xBy="-20" />            
+    <s:Sequence id="shake" duration="70" target="{this}">
+      <s:Move xBy="20"/>
+      <s:Move xBy="-20"/>
+      <s:Move xBy="20"/>
+      <s:Move xBy="-20"/>
+      <s:Move xBy="20"/>
+      <s:Move xBy="-20"/>
+      <s:Move xBy="20"/>
+      <s:Move xBy="-20"/>
     </s:Sequence>
   </fx:Declarations>
 
-  <mx:Form id="loginForm" horizontalCenter="0" verticalCenter="-20" defaultButton="{LoginButton}">
+  <mx:Form id="loginForm" defaultButton="{LoginButton}" horizontalCenter="0" verticalCenter="-20">
     <mx:FormItem label="Username">
-      <s:TextInput width="200" id="UserNameText" addedToStage="UserNameText.setFocus()" text="{account.username}"/>
+      <s:TextInput id="UserNameText" width="200" text="{account.lastUsername}" addedToStage="UserNameText.setFocus()"/>
     </mx:FormItem>
     <mx:FormItem label="Password">
-      <s:TextInput width="200" displayAsPassword="true" id="PasswordText"/>
+      <s:TextInput id="PasswordText" width="200" displayAsPassword="true"/>
     </mx:FormItem>
     <mx:FormItem label="Server">
-      <s:TextInput width="200" id="ServerText" text="{account.server}" />
+      <s:TextInput id="ServerText" width="200" text="{account.lastServer}"/>
     </mx:FormItem>
   </mx:Form>
-  <s:Label id="ErrorMessage" text="Error message..." bottom="43" left="137" styleName="Error"/>
-  <s:Button label="Login" bottom="15" right="110" click="login()" id="LoginButton"/>
-  <s:Button label="Cancel" bottom="15" right="30" click="console.applicationExit()" id="CancelButton"/>    
-  
+  <s:Label id="ErrorMessage" left="137" bottom="43" styleName="error" text="Error message..."/>
+  <s:Button id="LoginButton" right="110" bottom="15" label="Login" click="login()"/>
+  <s:Button id="CancelButton" right="30" bottom="15" label="Cancel"
+            click="FlexGlobals.topLevelApplication.exit()"/>    
 
 </s:Panel>

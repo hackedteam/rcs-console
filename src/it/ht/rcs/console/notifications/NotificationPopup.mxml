@@ -2,9 +2,10 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
-                   width="300" height="80" addedEffect="{fadeIn}"
+                   width="300" height="80" addedEffect="{fadeIn}" addedToStage="added()"
                    backgroundAlpha=".95" backgroundColor="#333333" click="onClick()"
-                   cornerRadius="10" creationPolicy="all" removedEffect="{fadeOut}">
+                   cornerRadius="10" creationPolicy="all" removedEffect="{fadeOut}"
+                   removedFromStage="removed()">
 
   <s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
     <s:RichText id="message" color="white" fontSize="13" lineHeight="18"/>
@@ -14,7 +15,10 @@
     <![CDATA[
       import flashx.textLayout.conversion.TextConverter;
       
+      import it.ht.rcs.console.events.AccountEvent;
+      
       import mx.core.FlexGlobals;
+      import mx.events.AIREvent;
       import mx.managers.PopUpManager;
       
       protected function onClick():void
@@ -25,10 +29,30 @@
       public static function showNotification(message:String):void
       {
         var popup:NotificationPopup = new NotificationPopup();
-        popup.x = FlexGlobals.topLevelApplication.width - popup.width - 20;
-        popup.y = FlexGlobals.topLevelApplication.height - popup.height - 20;
+        popup.adjustPosition();
         PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, false);
         popup.message.textFlow = TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+      }
+      
+      private function added():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(AccountEvent.FORCE_LOG_OUT, doHide);
+        //NativeApplication.nativeApplication.activeWindow.addEventListener(Event.RESIZE, adjustPosition);
+      }
+      
+      private function removed():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(AccountEvent.FORCE_LOG_OUT, doHide);
+        //NativeApplication.nativeApplication.activeWindow.removeEventListener(Event.RESIZE, adjustPosition);
+      }
+      
+      private function adjustPosition(event:Event=null):void {
+        this.x = 100;
+        this.y = FlexGlobals.topLevelApplication.height - this.height - 30;
+      }
+      
+      private function doHide(event:Event=null):void {
+        PopUpManager.removePopUp(this);
       }
       
     ]]>
@@ -46,7 +70,8 @@
   </fx:Declarations>
   
   <s:filters>
-    <s:DropShadowFilter angle="0" blurX="5" blurY="5" color="#666666" distance="0" quality="2" strength="1"/>
+    <s:DropShadowFilter angle="0" blurX="5" blurY="5" color="#666666" distance="0" quality="2"
+                        strength="1"/>
   </s:filters>
 
 </s:BorderContainer>

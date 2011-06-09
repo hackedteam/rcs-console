@@ -7,6 +7,7 @@ package it.ht.rcs.console.model
   import flash.filesystem.File;
   import flash.utils.Timer;
   
+  import it.ht.rcs.console.downloadmanager.DownloadManager;
   import it.ht.rcs.console.notifications.NotificationPopup;
   import it.ht.rcs.console.utils.FileDownloader;
   
@@ -111,7 +112,7 @@ package it.ht.rcs.console.model
           fileDownloader = new FileDownloader(grid_id, path + '/' + _id + '.pdf');
           fileDownloader.onProgress = update_download;
           fileDownloader.onComplete = complete;
-          fileDownloader.download();
+          //fileDownloader.download();
           
           state = STATE_DOWNLOADING;
         
@@ -136,7 +137,7 @@ package it.ht.rcs.console.model
       NotificationPopup.showNotification("Download complete...");
     }
     
-    public function cancel():void
+    public function cancel(destroyRemotely:Boolean=false):void
     {
       
       if (creationTimer) {
@@ -149,7 +150,8 @@ package it.ht.rcs.console.model
         fileDownloader = null;
       }
       
-      console.downloadManager.destroyTask(this);
+      if (destroyRemotely)
+        DownloadManager.instance.destroyTask(this);
       
     }
     

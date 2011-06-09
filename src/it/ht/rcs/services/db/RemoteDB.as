@@ -7,9 +7,7 @@
   import it.ht.rcs.console.model.User;
   
   import mx.controls.Alert;
-  import mx.core.FlexGlobals;
   import mx.resources.ResourceManager;
-  import mx.rpc.AsyncToken;
     
   public class RemoteDB implements IDB
   {
@@ -30,16 +28,16 @@
       _delegate.showBusyCursor = false;
     }
     
-    public function setBusyCursor(value: Boolean):void
+    public function setBusyCursor(value:Boolean):void
     {
       _delegate.showBusyCursor = value;
     }
     
-    private function onFatalError(event:*):void
-    {
-      /* back to the login screen */ 
-      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
-    }
+//    private function onFatalError(event:*):void
+//    {
+//      /* back to the login screen */ 
+//      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
+//    }
     
     /* default Fault handler */
     private function onDeFault(e:FaultEvent):void
@@ -54,14 +52,16 @@
       /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        new Account().logout(onFatalError, onFatalError);
+        //new Account().logout(onFatalError, onFatalError);
+        Account.instance.logout();
         return; 
       }
-      
+            
       /* server error (cannot connect) */
       if (e.statusCode == 0) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        new Account().logout(onFatalError, onFatalError);
+        //new Account().logout(onFatalError, onFatalError);
+        Account.instance.logout();
         return;
       }
       

@@ -1,8 +1,9 @@
-  package it.ht.rcs.console.model
+package it.ht.rcs.console.model
 {
+  
   import flash.utils.getQualifiedClassName;
   
-  import it.ht.rcs.console.events.LogonEvent;
+  import it.ht.rcs.console.events.AccountEvent;
   import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayList;
@@ -16,83 +17,91 @@
   
   public class Manager
   {
+    
     [Bindable]
     protected var _items:ArrayList = new ArrayList();
     
-    private var _classname:String;
-    
-    /* singleton */
-    private static var _instance:Manager = new Manager();
-    public static function get instance():Manager { return _instance; } 
+    protected var _classname:String;
     
     public function Manager()
     {
       _classname = flash.utils.getQualifiedClassName(this).split('::')[1];
       trace(_classname + ' -- Init');
+      
+      FlexGlobals.topLevelApplication.addEventListener(AccountEvent.LOGGING_IN, onLoggingIn);
+      FlexGlobals.topLevelApplication.addEventListener(AccountEvent.LOGGING_OUT, onLoggingOut);
+      FlexGlobals.topLevelApplication.addEventListener(AccountEvent.FORCE_LOG_OUT, onForceLogOut);
+      
       /* detect changes on the list */
       _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
-      FlexGlobals.topLevelApplication.addEventListener(LogonEvent.LOGGING_OUT, onLogout);
+    }
+    
+    protected function onLoggingIn(e:AccountEvent):void
+    {
+      trace(_classname + ' (super) -- Logging In');
+    }
+    
+    protected function onLoggingOut(e:AccountEvent):void
+    {
+      trace(_classname + ' (super) -- Logging Out');
+    }
+    
+    protected function onForceLogOut(e:AccountEvent):void
+    {
+      trace(_classname + ' (super) -- Force Log Out');
+      _items.removeAll();
     }
     
     public function start():void
     {
-      trace(_classname + ' -- Start');
+      trace(_classname + ' (super) -- Start');
       /* react to the global refresh event */
       FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       /* always get new data upon startup */
       onRefresh(null);
     }
     
- 
     public function stop():void
     {
-      trace(_classname + ' -- Stop');
+      trace(_classname + ' (super) -- Stop');
       /* after stop, we don't want to refresh anymore */
       FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
     }
 
-    protected function onItemsChange(event:CollectionEvent):void 
-    { 
-      //trace(_classname + ' -- ' + event.toString());
-      
-      /* all the logic to the db is here, override this method */
-      switch (event.kind) { 
-        case CollectionEventKind.ADD: 
-          event.items.forEach(function _(element:*, index:int, arr:Array):void { 
-            onItemAdd(element);
-          });
-          break; 
-        
-        case CollectionEventKind.REMOVE: 
-          event.items.forEach(function _(element:*, index:int, arr:Array):void { 
-            onItemRemove(element);
-          });
-          break; 
-        
-        case CollectionEventKind.UPDATE: 
-          event.items.forEach(function _(element:*, index:int, arr:Array):void {
-            onItemUpdate(element);
-          });
-          break; 
-        
-        case CollectionEventKind.RESET: 
-          onReset();
-          break; 
-      } 
-    }
-    
     protected function onRefresh(e:RefreshEvent):void
     {
-      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
-      trace(classname + ' -- Refresh');
+      trace(_classname + ' (super) -- Refresh');
       /* get the new items from the DB, override this function */
     }
     
-    protected function onLogout(e:LogonEvent):void
+    protected function onItemsChange(event:CollectionEvent):void
     {
-      var classname:String = flash.utils.getQualifiedClassName(this).split('::')[1];
-      trace(classname + ' -- Logout');
-      _items.removeAll();
+      
+      /* all the logic to the db is here, override this method */
+      switch (event.kind) {
+        case CollectionEventKind.ADD:
+          event.items.forEach(function _(element:*, index:int, arr:Array):void {
+            onItemAdd(element);
+          });
+          break;
+        
+        case CollectionEventKind.REMOVE:
+          event.items.forEach(function _(element:*, index:int, arr:Array):void {
+            onItemRemove(element);
+          });
+          break;
+        
+        case CollectionEventKind.UPDATE:
+          event.items.forEach(function _(element:*, index:int, arr:Array):void {
+            onItemUpdate(element);
+          });
+          break;
+        
+        case CollectionEventKind.RESET:
+          onReset();
+          break;
+      }
+      
     }
     
     /* SPECIALIZE THIS: to specialize the type of object returned  */
@@ -114,13 +123,7 @@
     
     public function removeItem(o:Object):void
     {
-//      /* remove an item from the list */
-//      if (o == null)
-//        return;
       _items.removeItem(o);
-//      var idx:int = _items.getItemIndex(o);
-//      if (idx >= 0) 
-//        _items.removeItemAt(idx);
     }
 
     protected function onItemRemove(o:*):void
@@ -170,5 +173,7 @@
       
       return lcv;
     }
+    
   }
+  
 }

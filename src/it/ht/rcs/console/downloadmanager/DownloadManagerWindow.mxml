@@ -9,12 +9,13 @@
                title="{resourceManager.getString('localized_main', 'DOWNLOAD_MANAGER')}">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.AccountEvent;
       import it.ht.rcs.console.model.Task;
       
-      import mx.collections.IViewCursor;
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
       import mx.collections.SortField;
+      import mx.core.FlexGlobals;
       
       [Bindable]
       private var _list_view:ListCollectionView;
@@ -22,11 +23,12 @@
       private function init():void
       {
         var sort:Sort = new Sort();
-        sort.fields = [new SortField('desc', true, false, false)];
-        _list_view = console.downloadManager.getView(sort);
+        sort.fields = [new SortField('desc', true, true, false)];
+        _list_view = DownloadManager.instance.getView(sort);
+        FlexGlobals.topLevelApplication.addEventListener(AccountEvent.FORCE_LOG_OUT, closeMe);
       }
       
-      private function closeMe():void
+      private function closeMe(event:Event=null):void
       {
         visible = false;
       }
@@ -35,7 +37,7 @@
       {
         for each (var t:Task in _list_view)
           if(t.state == Task.STATE_FINISHED)
-            console.downloadManager.destroyTask(t);
+            DownloadManager.instance.destroyTask(t);
             //_list_view.removeItemAt(_list_view.getItemIndex(t));
       }
       

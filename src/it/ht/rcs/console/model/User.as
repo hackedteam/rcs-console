@@ -35,48 +35,48 @@ package it.ht.rcs.console.model
         _id = "";
         enabled = false;
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
-        contact = '';
-        desc = '';
         pass = '';
+        desc = '';
+        contact = '';
         privs = new ArrayCollection();
         locale = 'en_US';
-        group_ids = new ArrayCollection();
         timezone = 0;
+        group_ids = new ArrayCollection();
       } else {
         /* existing user */
         _id = data._id;
         enabled = data.enabled;
         name = data.name;
+        pass = data.pass;
         desc = data.desc;
         contact = data.contact;
         privs = data.privs;
-        pass = data.pass;
         locale = data.locale;
-        group_ids = data.group_ids;
         timezone = data.timezone;
+        group_ids = data.group_ids;
       }
     }
     
     public function toHash():Object
     {
-      return {enabled: enabled, name: name, contact: contact, desc: desc, privs: privs.source, locale: locale, group_ids: group_ids.source, timezone: timezone}
+      return {enabled: enabled, name: name, contact: contact, desc: desc, privs: privs.source, locale: locale, group_ids: group_ids.source, timezone: timezone};
     }
     
     public function is_admin():Boolean
     {
-      return privs.getItemIndex('ADMIN') != -1
+      return privs.getItemIndex('ADMIN') != -1;
     }
     public function is_tech():Boolean
     {
-      return privs.getItemIndex('TECH') != -1
+      return privs.getItemIndex('TECH') != -1;
     }
     public function is_viewer():Boolean
     {
-      return privs.getItemIndex('VIEW') != -1
+      return privs.getItemIndex('VIEW') != -1;
     }
     public function is_any():Boolean
     {
-      return privs.length != 0
+      return privs.length != 0;
     }
     
     public function change_password(new_pass:String):void
@@ -101,13 +101,13 @@ package it.ht.rcs.console.model
       
       enabled = u.enabled;
       name = u.name;
+      pass = u.pass;
       desc = u.desc;
       contact = u.contact;
       privs = u.privs;
-      pass = u.pass;
       locale = u.locale;
-      group_ids = u.group_ids;
       timezone = u.timezone;
+      group_ids = u.group_ids;
     }
     
     public function save():void

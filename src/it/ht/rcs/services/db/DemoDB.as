@@ -304,7 +304,7 @@ package it.ht.rcs.services.db
                              type: 'blotter',
                              total: 1000,
                              current: 0,
-                             desc: type,
+                             desc: new Date().time + " " + type,
                              grid_id: dummyFile
                            }
       tasks[newTask._id] = newTask;

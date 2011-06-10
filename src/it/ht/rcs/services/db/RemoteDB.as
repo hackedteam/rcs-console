@@ -4,6 +4,7 @@
   
   import it.ht.rcs.console.model.Account;
   import it.ht.rcs.console.model.Group;
+  import it.ht.rcs.console.model.Task;
   import it.ht.rcs.console.model.User;
   
   import mx.controls.Alert;
@@ -285,16 +286,16 @@
       resp.token = _delegate.task_show(id); 
     }
     
-    public function task_create(type:String, onResult:Function = null, onFault:Function = null):void
+    public function task_create(task:Task, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.task_create(JSON.encode( {type: type} ));
+      resp.token = _delegate.task_create(JSON.encode( {type: task.type, file_name: task.file_name} ));
     }
     
     public function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.task_destroy(JSON.encode({task: id}));
+      resp.token = _delegate.task_destroy(JSON.encode( {task: id} ));
     }
   }
 }

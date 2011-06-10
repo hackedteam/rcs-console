@@ -1,8 +1,6 @@
 package it.ht.rcs.console.downloadmanager
 {
   
-  import flash.events.Event;
-  
   import it.ht.rcs.console.events.AccountEvent;
   import it.ht.rcs.console.model.Manager;
   import it.ht.rcs.console.model.Task;
@@ -50,7 +48,7 @@ package it.ht.rcs.console.downloadmanager
     override protected function onLoggingOut(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Logging Out');
-      for each(var t:Task in _items.source)
+      for each(var t:Task in _items)
       if (t.state != Task.STATE_FINISHED) {
         e.preventDefault();
         return;
@@ -60,14 +58,17 @@ package it.ht.rcs.console.downloadmanager
     override protected function onForceLogOut(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Force Log Out');
-      for each(var t:Task in _items.source)
-      t.cancel();
+      for each(var t:Task in _items)
+        t.cleanup();
       super.onForceLogOut(e);
     }
     
-    public function createTask(type:String):void
+    public function createTask(type:String, fileName:String):void
     {
-      console.currentDB.task_create(type, onTaskCreateResult);
+      var task:Task = new Task();
+      task.type = type;
+      task.file_name = fileName;
+      console.currentDB.task_create(task, onTaskCreateResult);
     }
     
     public function onTaskCreateResult(e:ResultEvent):void
@@ -77,22 +78,24 @@ package it.ht.rcs.console.downloadmanager
     
     public function destroyTask(t:Task):void
     {
-      console.currentDB.task_destroy(t._id, onTaskDestroyResult);
+      //console.currentDB.task_destroy(t._id, onTaskDestroyResult);
+      console.currentDB.task_destroy(t._id);
+      t.cleanup();
       removeTask(t);
     }
     
-    public function onTaskDestroyResult(e:ResultEvent):void
-    {
-      //removeTask(t);
-    }
+//    public function onTaskDestroyResult(e:ResultEvent):void
+//    {
+//      //removeTask(t);
+//    }
     
-    private function addTask(t:Task):void
+    public function addTask(t:Task):void
     {
       addItem(t);
       active = _items.length > 0;
     }
     
-    private function removeTask(t:Task):void
+    public function removeTask(t:Task):void
     {
       removeItem(t);
       active = _items.length > 0;

@@ -32,7 +32,7 @@ package it.ht.rcs.console.model
     {
       /* default user (when creating new user) */
       if (data == null) {
-        _id = "";
+        _id = '';
         enabled = false;
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_USER');
         pass = '';

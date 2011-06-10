@@ -26,7 +26,7 @@ package it.ht.rcs.console.model
     public function Manager()
     {
       _classname = flash.utils.getQualifiedClassName(this).split('::')[1];
-      trace(_classname + ' -- Init');
+      trace(_classname + ' (super) -- Init');
       
       FlexGlobals.topLevelApplication.addEventListener(AccountEvent.LOGGING_IN, onLoggingIn);
       FlexGlobals.topLevelApplication.addEventListener(AccountEvent.LOGGING_OUT, onLoggingOut);
@@ -117,7 +117,7 @@ package it.ht.rcs.console.model
       _items.addItem(o);
     }
     
-    protected function onItemAdd(o:*):void
+    protected function onItemAdd(element:*):void
     {
     }
     
@@ -126,11 +126,11 @@ package it.ht.rcs.console.model
       _items.removeItem(o);
     }
 
-    protected function onItemRemove(o:*):void
+    protected function onItemRemove(element:*):void
     { 
     }
 
-    protected function onItemUpdate(event:*):void
+    protected function onItemUpdate(element:*):void
     { 
     }
     

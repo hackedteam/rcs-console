@@ -3,6 +3,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 autoDrawBackground="true">
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.model.Task;
@@ -10,36 +11,27 @@
       import mx.controls.Alert;
       import mx.events.CloseEvent;
       
-      private function progressObject(current: int, total: int): Object
-      {
-        return {bytesLoaded: current, bytesTotal: total};
-      }
-      
       private function cancel():void
       {
-        if(data.state == Task.STATE_CREATING || data.state == Task.STATE_DOWNLOADING)
+        if (data.state == Task.STATE_CREATING || data.state == Task.STATE_DOWNLOADING)
           Alert.show(resourceManager.getString('localized_main', 'CONFIRM_TASK_DELETION'),
                      resourceManager.getString('localized_main', 'CONFIRM'),
                      Alert.OK | Alert.CANCEL, null, doCancel);
         else
-          data.cancel();
+          DownloadManager.instance.removeTask(data as Task);
       }
       
       private function doCancel(event:CloseEvent):void
       {
         if(event.detail == Alert.OK)
-          data.cancel(true);
+          DownloadManager.instance.destroyTask(data as Task);
       }
       
     ]]>
   </fx:Script>
   
-  <s:layout>
-    <s:HorizontalLayout/>
-  </s:layout>
-  
   <s:SkinnableContainer width="100%" height="60" toolTip="{data.time}">
-    <s:Label left="5" top="8" fontWeight="bold" text="{data.desc}"/>
+    <s:Label left="5" top="8" fontWeight="bold" text="{data.desc + '  ( ' + data.file_name + ' )'}"/>
     <mx:ProgressBar left="5" right="10" top="20" label="%3%%" labelPlacement="right" mode="polled"
                     name="creationProgress" source="{data.creation_percentage}"/>
     <mx:ProgressBar left="5" right="10" top="30" label="%3%%" labelPlacement="right" mode="polled"
@@ -48,4 +40,5 @@
               skinClass="spark.skins.spark.TitleWindowCloseButtonSkin"
               toolTip="{resourceManager.getString('localized_main', 'CANCEL')}"/>
   </s:SkinnableContainer>
+
 </s:ItemRenderer>

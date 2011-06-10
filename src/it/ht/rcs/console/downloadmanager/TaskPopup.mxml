@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               close="onClose()" creationComplete="init()">
+
+  <fx:Script>
+    <![CDATA[
+      import mx.managers.PopUpManager;
+  
+      public var okCallback:Function = null;
+      
+      private function init():void {
+        fileName.setFocus();
+      }
+      
+      private function onClose():void {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function onClick():void
+      {
+        if (okCallback != null)
+          okCallback(fileName.text);
+        onClose();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:VerticalLayout gap="10" horizontalAlign="center" paddingBottom="20" paddingLeft="20"
+                      paddingRight="20" paddingTop="20"/>
+  </s:layout>
+  
+  <s:Label x="10" top="20" text="Choose a name for the file that will be created"/>
+  <s:TextInput id="fileName" x="10" y="44" width="200" enter="onClick()"/>
+  <s:Button x="125" bottom="10" label="OK" click="onClick()"/>
+
+</s:TitleWindow>

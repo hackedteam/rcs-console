@@ -7,16 +7,20 @@
 <fx:Script>
   <![CDATA[
     import it.ht.rcs.console.downloadmanager.DownloadManager;
+    import it.ht.rcs.console.downloadmanager.TaskPopup;
     import it.ht.rcs.console.events.RefreshEvent;
     import it.ht.rcs.console.model.Account;
     
+    import mx.controls.Alert;
     import mx.core.FlexGlobals;
+    import mx.managers.PopUpManager;
 
     [Bindable]
     private var fullscreenFilters:Array = [];
     private var _fullscreenState:Boolean = false;
     
-    private function fullscreen():void {			
+    private function fullscreen():void
+    {
       switch (_fullscreenState) {
         case true:
           fullscreenFilters = [];
@@ -33,14 +37,19 @@
     
     private function refresh():void
     {
-      trace('GLOBAL REFRESH EVENT')
+      trace('GLOBAL REFRESH EVENT');
       /* dispatch the event for all */
       FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
     }
     
     private function test():void
     {
-      DownloadManager.instance.createTask("Test Task");
+      var popup:TaskPopup = new TaskPopup();
+      popup.okCallback = function(fileName:String):void {
+        DownloadManager.instance.createTask("Test Task", fileName);
+      };
+      PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
+      PopUpManager.centerPopUp(popup);
     }
 
   ]]>

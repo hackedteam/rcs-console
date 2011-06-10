@@ -17,12 +17,12 @@ package it.ht.rcs.console.model
     public var bck_total:CurrMaxObject = new CurrMaxObject("0", "0");
     public var bck_desktop:CurrMaxObject = new CurrMaxObject("0", "0");
     public var bck_linux:Boolean = false;
-    public var bck_macos:Boolean = false;
+    public var bck_osx:Boolean = false;
     public var bck_windows:Boolean = false;
     public var bck_mobile:CurrMaxObject = new CurrMaxObject("0", "0");
     public var bck_android:Boolean = false;
     public var bck_blackberry:Boolean = false;
-    public var bck_iphone:Boolean = false;
+    public var bck_ios:Boolean = false;
     public var bck_symbian:Boolean = false;
     public var bck_winmo:Boolean = false;
     
@@ -78,11 +78,11 @@ package it.ht.rcs.console.model
       bck_mobile.max = (limits['backdoors']['mobile'] == null) ? 'U' : limits['backdoors']['mobile'].toString();
       
       bck_linux = limits['backdoors']['linux'];
-      bck_macos = limits['backdoors']['macos'];
+      bck_osx = limits['backdoors']['osx'];
       bck_windows = limits['backdoors']['windows'];
       bck_android = limits['backdoors']['android'];
       bck_blackberry = limits['backdoors']['blackberry'];
-      bck_iphone = limits['backdoors']['iphone'];
+      bck_ios = limits['backdoors']['ios'];
       bck_symbian = limits['backdoors']['symbian'];
       bck_winmo = limits['backdoors']['winmo'];
       

@@ -61,7 +61,7 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
     private var _internal_actor : String;
     private var _internal_group : String;
     private var _internal_user : String;
-    private var _internal_activity : String;
+    private var _internal_operation : String;
 
     private static var emptyArray:Array = new Array();
 
@@ -81,7 +81,7 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "backdoor", model_internal::setterListenerBackdoor));
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "target", model_internal::setterListenerTarget));
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "group", model_internal::setterListenerGroup));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "activity", model_internal::setterListenerActivity));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "operation", model_internal::setterListenerOperation));
 
     }
 
@@ -144,9 +144,9 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
     }
 
     [Bindable(event="propertyChange")]
-    public function get activity() : String
+    public function get operation() : String
     {
-        return _internal_activity;
+        return _internal_operation;
     }
 
     public function clearAssociations() : void
@@ -238,12 +238,12 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         }
     }
 
-    public function set activity(value:String) : void
+    public function set operation(value:String) : void
     {
-        var oldValue:String = _internal_activity;
+        var oldValue:String = _internal_operation;
         if (oldValue !== value)
         {
-            _internal_activity = value;
+            _internal_operation = value;
         }
     }
 
@@ -274,9 +274,9 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         _model.invalidateDependentOnGroup();
     }
 
-    model_internal function setterListenerActivity(value:flash.events.Event):void
+    model_internal function setterListenerOperation(value:flash.events.Event):void
     {
-        _model.invalidateDependentOnActivity();
+        _model.invalidateDependentOnOperation();
     }
 
 
@@ -315,10 +315,10 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
             propertyValidity = false;
             com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_groupValidationFailureMessages);
         }
-        if (!_model.activityIsValid)
+        if (!_model.operationIsValid)
         {
             propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_activityValidationFailureMessages);
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_operationValidationFailureMessages);
         }
 
         model_internal::_cacheInitialized_isValid = true;
@@ -480,29 +480,29 @@ public class _Super_Audit extends flash.events.EventDispatcher implements com.ad
         return validationFailures;
     }
     
-    model_internal var _doValidationCacheOfActivity : Array = null;
-    model_internal var _doValidationLastValOfActivity : String;
+    model_internal var _doValidationCacheOfOperation : Array = null;
+    model_internal var _doValidationLastValOfOperation : String;
 
-    model_internal function _doValidationForActivity(valueIn:Object):Array
+    model_internal function _doValidationForOperation(valueIn:Object):Array
     {
         var value : String = valueIn as String;
 
-        if (model_internal::_doValidationCacheOfActivity != null && model_internal::_doValidationLastValOfActivity == value)
-           return model_internal::_doValidationCacheOfActivity ;
+        if (model_internal::_doValidationCacheOfOperation != null && model_internal::_doValidationLastValOfOperation == value)
+           return model_internal::_doValidationCacheOfOperation ;
 
-        _model.model_internal::_activityIsValidCacheInitialized = true;
+        _model.model_internal::_operationIsValidCacheInitialized = true;
         var validationFailures:Array = new Array();
         var errorMessage:String;
         var failure:Boolean;
 
         var valRes:ValidationResult;
-        if (_model.isActivityAvailable && _internal_activity == null)
+        if (_model.isOperationAvailable && _internal_operation == null)
         {
-            validationFailures.push(new ValidationResult(true, "", "", "activity is required"));
+            validationFailures.push(new ValidationResult(true, "", "", "operation is required"));
         }
 
-        model_internal::_doValidationCacheOfActivity = validationFailures;
-        model_internal::_doValidationLastValOfActivity = value;
+        model_internal::_doValidationCacheOfOperation = validationFailures;
+        model_internal::_doValidationLastValOfOperation = value;
 
         return validationFailures;
     }

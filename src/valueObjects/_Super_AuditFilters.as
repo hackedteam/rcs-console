@@ -59,7 +59,7 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
     private var _internal_actor : ArrayCollection;
     private var _internal_group : ArrayCollection;
     private var _internal_user : ArrayCollection;
-    private var _internal_activity : ArrayCollection;
+    private var _internal_operation : ArrayCollection;
 
     private static var emptyArray:Array = new Array();
 
@@ -83,7 +83,7 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "actor", model_internal::setterListenerActor));
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "group", model_internal::setterListenerGroup));
         model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "user", model_internal::setterListenerUser));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "activity", model_internal::setterListenerActivity));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "operation", model_internal::setterListenerOperation));
 
     }
 
@@ -134,9 +134,9 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
     }
 
     [Bindable(event="propertyChange")]
-    public function get activity() : ArrayCollection
+    public function get operation() : ArrayCollection
     {
-        return _internal_activity;
+        return _internal_operation;
     }
 
     public function clearAssociations() : void
@@ -307,28 +307,28 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
         }
     }
 
-    public function set activity(value:*) : void
+    public function set operation(value:*) : void
     {
-        var oldValue:ArrayCollection = _internal_activity;
+        var oldValue:ArrayCollection = _internal_operation;
         if (oldValue !== value)
         {
             if (value is ArrayCollection)
             {
-                _internal_activity = value;
+                _internal_operation = value;
             }
             else if (value is Array)
             {
-                _internal_activity = new ArrayCollection(value);
+                _internal_operation = new ArrayCollection(value);
             }
             else if (value == null)
             {
-                _internal_activity = null;
+                _internal_operation = null;
             }
             else
             {
-                throw new Error("value of activity must be a collection");
+                throw new Error("value of operation must be a collection");
             }
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "activity", oldValue, _internal_activity));
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "operation", oldValue, _internal_operation));
         }
     }
 
@@ -421,16 +421,16 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
         _model.invalidateDependentOnUser();
     }
 
-    model_internal function setterListenerActivity(value:flash.events.Event):void
+    model_internal function setterListenerOperation(value:flash.events.Event):void
     {
         if (value is mx.events.PropertyChangeEvent)
         {
             if (mx.events.PropertyChangeEvent(value).newValue)
             {
-                mx.events.PropertyChangeEvent(value).newValue.addEventListener(mx.events.CollectionEvent.COLLECTION_CHANGE, model_internal::setterListenerActivity);
+                mx.events.PropertyChangeEvent(value).newValue.addEventListener(mx.events.CollectionEvent.COLLECTION_CHANGE, model_internal::setterListenerOperation);
             }
         }
-        _model.invalidateDependentOnActivity();
+        _model.invalidateDependentOnOperation();
     }
 
 
@@ -489,10 +489,10 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
             propertyValidity = false;
             com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_userValidationFailureMessages);
         }
-        if (!_model.activityIsValid)
+        if (!_model.operationIsValid)
         {
             propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_activityValidationFailureMessages);
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_operationValidationFailureMessages);
         }
 
         model_internal::_cacheInitialized_isValid = true;
@@ -762,29 +762,29 @@ public class _Super_AuditFilters extends flash.events.EventDispatcher implements
         return validationFailures;
     }
     
-    model_internal var _doValidationCacheOfActivity : Array = null;
-    model_internal var _doValidationLastValOfActivity : ArrayCollection;
+    model_internal var _doValidationCacheOfOperation : Array = null;
+    model_internal var _doValidationLastValOfOperation : ArrayCollection;
 
-    model_internal function _doValidationForActivity(valueIn:Object):Array
+    model_internal function _doValidationForOperation(valueIn:Object):Array
     {
         var value : ArrayCollection = valueIn as ArrayCollection;
 
-        if (model_internal::_doValidationCacheOfActivity != null && model_internal::_doValidationLastValOfActivity == value)
-           return model_internal::_doValidationCacheOfActivity ;
+        if (model_internal::_doValidationCacheOfOperation != null && model_internal::_doValidationLastValOfOperation == value)
+           return model_internal::_doValidationCacheOfOperation ;
 
-        _model.model_internal::_activityIsValidCacheInitialized = true;
+        _model.model_internal::_operationIsValidCacheInitialized = true;
         var validationFailures:Array = new Array();
         var errorMessage:String;
         var failure:Boolean;
 
         var valRes:ValidationResult;
-        if (_model.isActivityAvailable && _internal_activity == null)
+        if (_model.isOperationAvailable && _internal_operation == null)
         {
-            validationFailures.push(new ValidationResult(true, "", "", "activity is required"));
+            validationFailures.push(new ValidationResult(true, "", "", "operation is required"));
         }
 
-        model_internal::_doValidationCacheOfActivity = validationFailures;
-        model_internal::_doValidationLastValOfActivity = value;
+        model_internal::_doValidationCacheOfOperation = validationFailures;
+        model_internal::_doValidationLastValOfOperation = value;
 
         return validationFailures;
     }

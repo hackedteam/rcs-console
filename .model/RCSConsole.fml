@@ -35,6 +35,25 @@
       </annotation>
       <parameter name="filter" type="string"/>
     </function>
+    <function name="audit_filters" return-type="AuditFilters">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/audit/filters</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/audit/filters</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">backdoor,_id,target,action,actor,group,user,operation</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
     <function name="audit_index" return-type="Audit[]">
       <annotation name="analyze group">
         <item name="analyzed">true</item>
@@ -48,7 +67,7 @@
         <item name="completeURL">http://localhost:4444/audit</item>
       </annotation>
       <annotation name="ValidProperties">
-        <item name="propertySpecifier">backdoor,time,desc,_id,target,action,actor,group,user,activity</item>
+        <item name="propertySpecifier">backdoor,time,desc,_id,target,action,actor,group,user,operation</item>
       </annotation>
       <annotation name="original signature">
         <item name="returnType">opaque</item>
@@ -71,6 +90,26 @@
       </annotation>
       <annotation name="url group">
         <item name="completeURL">http://localhost:4444/group/add_user</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+        <item name="inputParamNames">strXml</item>
+        <item name="inputParams">string</item>
+      </annotation>
+      <parameter name="strXml" type="string"/>
+    </function>
+    <function name="group_alert" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
+        <item name="url">/group/alert</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/group/alert</item>
       </annotation>
       <annotation name="original signature">
         <item name="returnType">opaque</item>
@@ -319,6 +358,145 @@
         <item name="returnType">opaque</item>
       </annotation>
     </function>
+    <function name="status_counters" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="method">GET</item>
+        <item name="url">/status/counters</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/status/counters</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="status_destroy" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
+        <item name="url">/status/destroy</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/status/destroy</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+        <item name="inputParamNames">strXml</item>
+        <item name="inputParams">string</item>
+      </annotation>
+      <parameter name="strXml" type="string"/>
+    </function>
+    <function name="status_index" return-type="Status[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/status</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/status</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">time,updated_at,_id,status,address,name,disk,cpu,created_at,pcpu,info</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="task_create" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.xml.XMLSerializationFilter</item>
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
+        <item name="url">/task/create</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/task/create</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">strXml</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="strXml" type="string"/>
+    </function>
+    <function name="task_destroy" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">false</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="method">POST</item>
+        <item name="contentType">application/xml</item>
+        <item name="requestBodyParameter">true</item>
+        <item name="url">/task/destroy</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/task/destroy</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">strXml</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="strXml" type="string"/>
+    </function>
+    <function name="task_index" return-type="Task[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/task/</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/task/</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="returnType">opaque</item>
+      </annotation>
+    </function>
+    <function name="task_show" return-type="Task">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="ActionScriptGeneration">
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
+        <item name="method">GET</item>
+        <item name="url">/task/{id}</item>
+      </annotation>
+      <annotation name="url group">
+        <item name="completeURL">http://localhost:4444/task/{id}</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type</item>
+      </annotation>
+      <annotation name="Properties">
+        <item name="urlParamNames">id</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParamNames">id</item>
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+    </function>
     <function name="user_create" return-type="User">
       <annotation name="analyze group">
         <item name="analyzed">true</item>
@@ -431,184 +609,6 @@
       </annotation>
       <parameter name="strXml" type="string"/>
     </function>
-    <function name="audit_filters" return-type="AuditFilters">
-      <annotation name="analyze group">
-        <item name="analyzed">true</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
-        <item name="method">GET</item>
-        <item name="url">/audit/filters</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/audit/filters</item>
-      </annotation>
-      <annotation name="ValidProperties">
-        <item name="propertySpecifier">backdoor,_id,target,action,actor,group,user,activity</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="returnType">opaque</item>
-      </annotation>
-    </function>
-    <function name="status_index" return-type="Status[]">
-      <annotation name="analyze group">
-        <item name="analyzed">true</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
-        <item name="method">GET</item>
-        <item name="url">/status</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/status</item>
-      </annotation>
-      <annotation name="ValidProperties">
-        <item name="propertySpecifier">time,updated_at,_id,status,address,name,disk,cpu,created_at,pcpu,info</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="returnType">opaque</item>
-      </annotation>
-    </function>
-    <function name="status_destroy" return-type="opaque">
-      <annotation name="analyze group">
-        <item name="analyzed">false</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="method">POST</item>
-        <item name="contentType">application/xml</item>
-        <item name="requestBodyParameter">true</item>
-        <item name="url">/status/destroy</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/status/destroy</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="returnType">opaque</item>
-        <item name="inputParamNames">strXml</item>
-        <item name="inputParams">string</item>
-      </annotation>
-      <parameter name="strXml" type="string"/>
-    </function>
-    <function name="status_counters" return-type="opaque">
-      <annotation name="analyze group">
-        <item name="analyzed">false</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="method">GET</item>
-        <item name="url">/status/counters</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/status/counters</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="returnType">opaque</item>
-      </annotation>
-    </function>
-    <function name="group_alert" return-type="opaque">
-      <annotation name="analyze group">
-        <item name="analyzed">false</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="method">POST</item>
-        <item name="contentType">application/xml</item>
-        <item name="requestBodyParameter">true</item>
-        <item name="url">/group/alert</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/group/alert</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="returnType">opaque</item>
-        <item name="inputParamNames">strXml</item>
-        <item name="inputParams">string</item>
-      </annotation>
-      <parameter name="strXml" type="string"/>
-    </function>
-    <function name="task_index" return-type="Task[]">
-      <annotation name="analyze group">
-        <item name="analyzed">true</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
-        <item name="method">GET</item>
-        <item name="url">/task/</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/task/</item>
-      </annotation>
-      <annotation name="ValidProperties">
-        <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="returnType">opaque</item>
-      </annotation>
-    </function>
-    <function name="task_create" return-type="string">
-      <annotation name="analyze group">
-        <item name="analyzed">true</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="SerializationFilter">com.adobe.serializers.xml.XMLSerializationFilter</item>
-        <item name="method">POST</item>
-        <item name="contentType">application/xml</item>
-        <item name="requestBodyParameter">true</item>
-        <item name="url">/task/create</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/task/create</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="inputParamNames">strXml</item>
-        <item name="inputParams">string</item>
-        <item name="returnType">opaque</item>
-      </annotation>
-      <parameter name="strXml" type="string"/>
-    </function>
-    <function name="task_show" return-type="Task">
-      <annotation name="analyze group">
-        <item name="analyzed">true</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
-        <item name="method">GET</item>
-        <item name="url">/task/{id}</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/task/{id}</item>
-      </annotation>
-      <annotation name="ValidProperties">
-        <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type</item>
-      </annotation>
-      <annotation name="Properties">
-        <item name="urlParamNames">id</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="inputParamNames">id</item>
-        <item name="inputParams">string</item>
-        <item name="returnType">opaque</item>
-      </annotation>
-      <parameter name="id" type="string"/>
-    </function>
-    <function name="task_destroy" return-type="opaque">
-      <annotation name="analyze group">
-        <item name="analyzed">false</item>
-      </annotation>
-      <annotation name="ActionScriptGeneration">
-        <item name="method">POST</item>
-        <item name="contentType">application/xml</item>
-        <item name="requestBodyParameter">true</item>
-        <item name="url">/task/destroy</item>
-      </annotation>
-      <annotation name="url group">
-        <item name="completeURL">http://localhost:4444/task/destroy</item>
-      </annotation>
-      <annotation name="original signature">
-        <item name="inputParamNames">strXml</item>
-        <item name="inputParams">string</item>
-        <item name="returnType">opaque</item>
-      </annotation>
-      <parameter name="strXml" type="string"/>
-    </function>
   </service>
   <entity name="User">
     <annotation name="EntityProperties">
@@ -687,7 +687,7 @@
       <item name="IncludeRemoteClass">nonempty</item>
     </annotation>
     <annotation name="audit_filters">
-      <item name="propertySpecifier">backdoor,_id,target,action,actor,group,user,activity</item>
+      <item name="propertySpecifier">backdoor,_id,target,action,actor,group,user,operation</item>
     </annotation>
     <annotation name="ActionScriptGeneration">
       <item name="Package">valueObjects</item>
@@ -699,7 +699,7 @@
     <property name="actor" type="string[]" required="true"/>
     <property name="group" type="string[]" required="true"/>
     <property name="user" type="string[]" required="true"/>
-    <property name="activity" type="string[]" required="true"/>
+    <property name="operation" type="string[]" required="true"/>
   </entity>
   <entity name="Session">
     <annotation name="EntityProperties">
@@ -737,11 +737,9 @@
       <item name="IncludeRemoteClass">nonempty</item>
     </annotation>
     <annotation name="audit_index">
-      <item name="propertySpecifier">backdoor,time,desc,_id,target,action,actor,group,user,activity</item>
+      <item name="propertySpecifier">backdoor,time,desc,_id,target,action,actor,group,user,operation</item>
       <item name="positionalPagingParameters">true</item>
       <item name="pagingEnabled">true</item>
-      <item name="pageSize">10</item>
-      <item name="countOperation">audit_count</item>
     </annotation>
     <annotation name="ActionScriptGeneration">
       <item name="Package">valueObjects</item>
@@ -759,7 +757,7 @@
     <property name="actor" type="string"/>
     <property name="group" type="string" required="true"/>
     <property name="user" type="string"/>
-    <property name="activity" type="string" required="true"/>
+    <property name="operation" type="string" required="true"/>
   </entity>
   <entity name="Task">
     <annotation name="EntityProperties">

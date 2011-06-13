@@ -283,7 +283,7 @@ package it.ht.rcs.services.db
     public function task_index(onResult:Function = null, onFault:Function = null):void
     {
       var task_list:ArrayCollection = new ArrayCollection();
-      for each (var item:Object in tasks) task_list.addItem(item);
+      //for each (var item:Object in tasks) task_list.addItem(item);
       var event:ResultEvent = new ResultEvent("task.index", false, true, task_list);
       if (onResult != null)
         onResult(event);

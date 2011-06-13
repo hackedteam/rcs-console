@@ -5,18 +5,22 @@
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.filters.*" show="show()" xmlns:utils="it.ht.rcs.console.utils.*">
 
-  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" matchedTextStyleName="matched"/>
+  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" matchedTextStyleName="matched" prompt=""/>
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
+      
+      private var values:Array = [];
 
       override public function commit(fireEvent:Boolean=true):void
       {
-        hasFilter = combo.selectedItem != null;
-        hasFilter ? filter[property] = combo.selectedItem : delete(filter[property]);
+        //hasFilter = combo.selectedItem != null;
+        //hasFilter ? filter[property] = combo.selectedItem : delete(filter[property]);
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values.join(',') : delete(filter[property]);
         visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
@@ -24,7 +28,9 @@
       
       override public function reset(fireEvent:Boolean=true):void
       {
-        combo.selectedItem = null;
+        //combo.selectedItem = null;
+        values = [];
+        combo.prompt = '';
         commit(fireEvent);
       }
       
@@ -36,10 +42,21 @@
       
       private function enter():void
       {
-        if (combo.filteredCollection.length == 1)
-          combo.dropdown.selectedIndex = 0;
-        if (!combo.dropdown.visible && combo.selectedItem)
+        //if (combo.filteredCollection.length > 1)
+          //combo.dropdown.selectedIndex = 0;
+        //if (!combo.dropdown.visible && combo.selectedItem)
+          //commit();
+        if (combo.filteredCollection.length > 0) {
+          values = [];
+          for each (var item:String in combo.filteredCollection)
+            values.push(item);
+        } else {
+          combo.prompt = '';
+        }
+        if (values.length > 0) {
+          combo.prompt = combo.text;
           commit();
+        }
       }
       
       protected function show():void

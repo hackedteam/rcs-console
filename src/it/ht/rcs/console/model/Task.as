@@ -5,6 +5,8 @@ package it.ht.rcs.console.model
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
   import flash.filesystem.File;
+  import flash.net.URLRequest;
+  import flash.net.navigateToURL;
   import flash.utils.Timer;
   
   import it.ht.rcs.console.downloadmanager.DownloadManager;
@@ -102,8 +104,8 @@ package it.ht.rcs.console.model
           fileDownloader = new FileDownloader(grid_id, path + '/' + file_name);
           fileDownloader.onProgress = update_download;
           fileDownloader.onComplete = complete;
-          fileDownloader.download();
-          
+          //fileDownloader.download();
+
           state = STATE_DOWNLOADING;
         
         } else {
@@ -124,6 +126,7 @@ package it.ht.rcs.console.model
     public function complete():void
     {
       state = Task.STATE_FINISHED;
+      //console.currentDB.task_complete(_id);
       NotificationPopup.showNotification(ResourceManager.getInstance().getString('localized_main', 'DOWNLOAD_COMPLETE'));
     }
     

@@ -6,14 +6,10 @@
 
 <fx:Script>
   <![CDATA[
-    import it.ht.rcs.console.downloadmanager.DownloadManager;
-    import it.ht.rcs.console.downloadmanager.TaskPopup;
     import it.ht.rcs.console.events.RefreshEvent;
     import it.ht.rcs.console.model.Account;
     
-    import mx.controls.Alert;
     import mx.core.FlexGlobals;
-    import mx.managers.PopUpManager;
 
     [Bindable]
     private var fullscreenFilters:Array = [];
@@ -42,16 +38,6 @@
       FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
     }
     
-    private function test():void
-    {
-      var popup:TaskPopup = new TaskPopup();
-      popup.okCallback = function(fileName:String):void {
-        DownloadManager.instance.createTask("Test Task", fileName);
-      };
-      PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
-      PopUpManager.centerPopUp(popup);
-    }
-
   ]]>
 </fx:Script>
 
@@ -74,9 +60,5 @@
   <s:Spacer width="5"/>
   <s:Button id="RefreshButton" click="refresh()" skinClass="it.ht.rcs.console.skins.RefreshButton"
             toolTip="{resourceManager.getString('localized_main', 'REFRESH')}"/>
-  
-  <s:Spacer width="5"/>
-  <s:Button id="TestButton" click="test()" skinClass="it.ht.rcs.console.skins.RefreshButton"
-            toolTip="Test"/>
   
 </s:HGroup>

@@ -3,24 +3,26 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
-                             xmlns:filters="it.ht.rcs.console.filters.*" show="show()" xmlns:utils="it.ht.rcs.console.utils.*">
+                             xmlns:filters="it.ht.rcs.console.filters.*"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             show="show()">
 
-  <xt:FilterComboBox id="combo" width="150" styleName="auditFilter" enter="enter()" matchedTextStyleName="matched" prompt=""/>
+  <xt:FilterComboBox id="combo" width="150" enter="commit()" matchedTextStyleName="matched" prompt="Type"
+                     styleName="auditFilter"/>
   
   <fx:Script>
     <![CDATA[
+      import com.adobe.utils.StringUtil;
+      
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
-      
-      private var values:Array = [];
 
       override public function commit(fireEvent:Boolean=true):void
       {
-        //hasFilter = combo.selectedItem != null;
-        //hasFilter ? filter[property] = combo.selectedItem : delete(filter[property]);
+        var values:Array = getValues();
         hasFilter = values.length > 0;
-        hasFilter ? filter[property] = values.join(',') : delete(filter[property]);
+        hasFilter ? filter[property] = values : delete(filter[property]);
         visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
@@ -28,9 +30,7 @@
       
       override public function reset(fireEvent:Boolean=true):void
       {
-        //combo.selectedItem = null;
-        values = [];
-        combo.prompt = '';
+        combo.text = '';
         commit(fireEvent);
       }
       
@@ -40,23 +40,30 @@
         combo.selectedItem = filter[property];
       }
       
-      private function enter():void
+      private function getValues():Array
       {
-        //if (combo.filteredCollection.length > 1)
-          //combo.dropdown.selectedIndex = 0;
-        //if (!combo.dropdown.visible && combo.selectedItem)
-          //commit();
+        
+        combo.text = StringUtil.trim(combo.text);
+        combo.prompt = combo.text;
+        
+        if (combo.text == '')
+          return [];
+        
+        if (combo.text.indexOf(',') != -1)
+          return combo.text.split(',');
+        
+        if (combo.dropdown.selectedItems.length == 1)
+          return [combo.dropdown.selectedItem];
+        
         if (combo.filteredCollection.length > 0) {
-          values = [];
+          var values:Array = [];
           for each (var item:String in combo.filteredCollection)
             values.push(item);
-        } else {
-          combo.prompt = '';
+          return values;
         }
-        if (values.length > 0) {
-          combo.prompt = combo.text;
-          commit();
-        }
+        
+        return [];
+        
       }
       
       protected function show():void

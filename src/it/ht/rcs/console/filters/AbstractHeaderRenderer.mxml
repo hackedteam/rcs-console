@@ -15,17 +15,19 @@
       import spark.components.CheckBox;
       import spark.layouts.HorizontalLayout;
       import spark.layouts.VerticalAlign;
-      
+
+      private var ldgLayout:HorizontalLayout = new HorizontalLayout();
+
       [Bindable]
       private var popup:AbstractFilterPopup;
       private static var currentPopup:AbstractFilterPopup;
       public var popupFactory:IFactory;
-      
+
       [Bindable]
       public var mandatory:Boolean = false;
-      
+
       public var filter:Object;
-      
+
       private function onAddedToStage():void {
         
         popup = popupFactory.newInstance();
@@ -59,10 +61,9 @@
       override public function prepare(hasBeenRecycled:Boolean):void {
         super.prepare(hasBeenRecycled);
         labelDisplayGroup.addElementAt(showFilter, 0);
-        var layout:HorizontalLayout = new HorizontalLayout();
-        layout.verticalAlign = VerticalAlign.MIDDLE;
-        layout.gap = 0;
-        labelDisplayGroup.layout = layout;
+        ldgLayout.verticalAlign = VerticalAlign.MIDDLE;
+        ldgLayout.gap = 0;
+        labelDisplayGroup.layout = ldgLayout;
       }
       
       override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {

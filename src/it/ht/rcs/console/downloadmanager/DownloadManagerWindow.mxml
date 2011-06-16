@@ -13,6 +13,7 @@
       import it.ht.rcs.console.events.AccountEvent;
       import it.ht.rcs.console.model.Task;
       
+      import mx.collections.IViewCursor;
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
       import mx.collections.SortField;
@@ -36,9 +37,12 @@
       
       protected function clear():void
       {
-        for each (var t:Task in _list_view)
+        var cursor:IViewCursor = _list_view.createCursor();
+        if(cursor.moveNext()) {
+          var t:Task = cursor.current as Task;
           if(t.state == Task.STATE_FINISHED)
             DownloadManager.instance.removeTask(t);
+        }
       }
       
     ]]>

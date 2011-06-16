@@ -126,7 +126,7 @@ package it.ht.rcs.console.model
     public function complete():void
     {
       state = Task.STATE_FINISHED;
-      //console.currentDB.task_complete(_id);
+      console.currentDB.task_destroy(_id);
       NotificationPopup.showNotification(ResourceManager.getInstance().getString('localized_main', 'DOWNLOAD_COMPLETE'));
     }
     

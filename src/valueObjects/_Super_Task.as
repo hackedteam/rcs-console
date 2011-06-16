@@ -6,14 +6,10 @@
 package valueObjects
 {
 import com.adobe.fiber.services.IFiberManagingService;
-import com.adobe.fiber.util.FiberUtils;
 import com.adobe.fiber.valueobjects.IValueObject;
-import flash.events.Event;
 import flash.events.EventDispatcher;
-import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
 import mx.events.PropertyChangeEvent;
-import mx.validators.ValidationResult;
 
 import flash.net.registerClassAlias;
 import flash.net.getClassByAlias;
@@ -53,6 +49,7 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
      */
     private var _internal_total : int;
     private var _internal_desc : String;
+    private var _internal_file_size : int;
     private var _internal__id : String;
     private var _internal_stopped : Boolean;
     private var _internal_grid_id : String;
@@ -75,7 +72,6 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         _model = new _TaskEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "file_name", model_internal::setterListenerFile_name));
 
     }
 
@@ -93,6 +89,12 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
     public function get desc() : String
     {
         return _internal_desc;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get file_size() : int
+    {
+        return _internal_file_size;
     }
 
     [Bindable(event="propertyChange")]
@@ -156,6 +158,16 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         {
             _internal_desc = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "desc", oldValue, _internal_desc));
+        }
+    }
+
+    public function set file_size(value:int) : void
+    {
+        var oldValue:int = _internal_file_size;
+        if (oldValue !== value)
+        {
+            _internal_file_size = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "file_size", oldValue, _internal_file_size));
         }
     }
 
@@ -231,11 +243,6 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
 
-    model_internal function setterListenerFile_name(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnFile_name();
-    }
-
 
     /**
      * valid related derived properties
@@ -257,11 +264,6 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
-        if (!_model.file_nameIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_file_nameValidationFailureMessages);
-        }
 
         model_internal::_cacheInitialized_isValid = true;
         model_internal::invalidConstraints_der = violatedConsts;
@@ -341,33 +343,6 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         }
     }
 
-    model_internal var _doValidationCacheOfFile_name : Array = null;
-    model_internal var _doValidationLastValOfFile_name : String;
-
-    model_internal function _doValidationForFile_name(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfFile_name != null && model_internal::_doValidationLastValOfFile_name == value)
-           return model_internal::_doValidationCacheOfFile_name ;
-
-        _model.model_internal::_file_nameIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isFile_nameAvailable && _internal_file_name == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "file_name is required"));
-        }
-
-        model_internal::_doValidationCacheOfFile_name = validationFailures;
-        model_internal::_doValidationLastValOfFile_name = value;
-
-        return validationFailures;
-    }
-    
 
 }
 

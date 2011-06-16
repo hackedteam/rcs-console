@@ -22,14 +22,14 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
 {
     private static var emptyArray:Array = new Array();
 
-    model_internal static var allProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type");
+    model_internal static var allProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type", "file_name");
     model_internal static var allAssociationProperties:Array = new Array();
-    model_internal static var allRequiredProperties:Array = new Array("stopped", "type");
-    model_internal static var allAlwaysAvailableProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type");
+    model_internal static var allRequiredProperties:Array = new Array("file_name");
+    model_internal static var allAlwaysAvailableProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type", "file_name");
     model_internal static var guardedProperties:Array = new Array();
-    model_internal static var dataProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type");
+    model_internal static var dataProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type", "file_name");
     model_internal static var sourceProperties:Array = emptyArray
-    model_internal static var nonDerivedProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type");
+    model_internal static var nonDerivedProperties:Array = new Array("total", "desc", "_id", "stopped", "grid_id", "current", "type", "file_name");
     model_internal static var derivedProperties:Array = new Array();
     model_internal static var collectionProperties:Array = new Array();
     model_internal static var collectionBaseMap:Object;
@@ -39,10 +39,10 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
     model_internal static var propertyTypeMap:Object;
 
     
-    model_internal var _typeIsValid:Boolean;
-    model_internal var _typeValidator:com.adobe.fiber.styles.StyleValidator;
-    model_internal var _typeIsValidCacheInitialized:Boolean = false;
-    model_internal var _typeValidationFailureMessages:Array;
+    model_internal var _file_nameIsValid:Boolean;
+    model_internal var _file_nameValidator:com.adobe.fiber.styles.StyleValidator;
+    model_internal var _file_nameIsValidCacheInitialized:Boolean = false;
+    model_internal var _file_nameValidationFailureMessages:Array;
 
     model_internal var _instance:_Super_Task;
     model_internal static var _nullStyle:com.adobe.fiber.styles.Style = new com.adobe.fiber.styles.Style();
@@ -61,6 +61,7 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
             model_internal::dependentsOnMap["grid_id"] = new Array();
             model_internal::dependentsOnMap["current"] = new Array();
             model_internal::dependentsOnMap["type"] = new Array();
+            model_internal::dependentsOnMap["file_name"] = new Array();
 
             // collection base map
             model_internal::collectionBaseMap = new Object();
@@ -75,13 +76,14 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
         model_internal::propertyTypeMap["grid_id"] = "String";
         model_internal::propertyTypeMap["current"] = "int";
         model_internal::propertyTypeMap["type"] = "String";
+        model_internal::propertyTypeMap["file_name"] = "String";
 
         model_internal::_instance = value;
-        model_internal::_typeValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForType);
-        model_internal::_typeValidator.required = true;
-        model_internal::_typeValidator.requiredFieldError = "type is required";
-        //model_internal::_typeValidator.source = model_internal::_instance;
-        //model_internal::_typeValidator.property = "type";
+        model_internal::_file_nameValidator = new StyleValidator(model_internal::_instance.model_internal::_doValidationForFile_name);
+        model_internal::_file_nameValidator.required = true;
+        model_internal::_file_nameValidator.requiredFieldError = "file_name is required";
+        //model_internal::_file_nameValidator.source = model_internal::_instance;
+        //model_internal::_file_nameValidator.property = "file_name";
     }
 
     override public function getEntityName():String
@@ -350,16 +352,22 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
         return true;
     }
 
+    [Bindable(event="propertyChange")]
+    public function get isFile_nameAvailable():Boolean
+    {
+        return true;
+    }
+
 
     /**
      * derived property recalculation
      */
-    public function invalidateDependentOnType():void
+    public function invalidateDependentOnFile_name():void
     {
-        if (model_internal::_typeIsValidCacheInitialized )
+        if (model_internal::_file_nameIsValidCacheInitialized )
         {
-            model_internal::_instance.model_internal::_doValidationCacheOfType = null;
-            model_internal::calculateTypeIsValid();
+            model_internal::_instance.model_internal::_doValidationCacheOfFile_name = null;
+            model_internal::calculateFile_nameIsValid();
         }
     }
 
@@ -410,39 +418,45 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
         return model_internal::_nullStyle;
     }
 
-    public function get typeValidator() : StyleValidator
+    [Bindable(event="propertyChange")]   
+    public function get file_nameStyle():com.adobe.fiber.styles.Style
     {
-        return model_internal::_typeValidator;
+        return model_internal::_nullStyle;
     }
 
-    model_internal function set _typeIsValid_der(value:Boolean):void 
+    public function get file_nameValidator() : StyleValidator
     {
-        var oldValue:Boolean = model_internal::_typeIsValid;         
+        return model_internal::_file_nameValidator;
+    }
+
+    model_internal function set _file_nameIsValid_der(value:Boolean):void 
+    {
+        var oldValue:Boolean = model_internal::_file_nameIsValid;         
         if (oldValue !== value)
         {
-            model_internal::_typeIsValid = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "typeIsValid", oldValue, value));
+            model_internal::_file_nameIsValid = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "file_nameIsValid", oldValue, value));
         }                             
     }
 
     [Bindable(event="propertyChange")]
-    public function get typeIsValid():Boolean
+    public function get file_nameIsValid():Boolean
     {
-        if (!model_internal::_typeIsValidCacheInitialized)
+        if (!model_internal::_file_nameIsValidCacheInitialized)
         {
-            model_internal::calculateTypeIsValid();
+            model_internal::calculateFile_nameIsValid();
         }
 
-        return model_internal::_typeIsValid;
+        return model_internal::_file_nameIsValid;
     }
 
-    model_internal function calculateTypeIsValid():void
+    model_internal function calculateFile_nameIsValid():void
     {
-        var valRes:ValidationResultEvent = model_internal::_typeValidator.validate(model_internal::_instance.type)
-        model_internal::_typeIsValid_der = (valRes.results == null);
-        model_internal::_typeIsValidCacheInitialized = true;
+        var valRes:ValidationResultEvent = model_internal::_file_nameValidator.validate(model_internal::_instance.file_name)
+        model_internal::_file_nameIsValid_der = (valRes.results == null);
+        model_internal::_file_nameIsValidCacheInitialized = true;
         if (valRes.results == null)
-             model_internal::typeValidationFailureMessages_der = emptyArray;
+             model_internal::file_nameValidationFailureMessages_der = emptyArray;
         else
         {
             var _valFailures:Array = new Array();
@@ -450,22 +464,22 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
             {
                 _valFailures.push(valRes.results[a].errorMessage);
             }
-            model_internal::typeValidationFailureMessages_der = _valFailures;
+            model_internal::file_nameValidationFailureMessages_der = _valFailures;
         }
     }
 
     [Bindable(event="propertyChange")]
-    public function get typeValidationFailureMessages():Array
+    public function get file_nameValidationFailureMessages():Array
     {
-        if (model_internal::_typeValidationFailureMessages == null)
-            model_internal::calculateTypeIsValid();
+        if (model_internal::_file_nameValidationFailureMessages == null)
+            model_internal::calculateFile_nameIsValid();
 
-        return _typeValidationFailureMessages;
+        return _file_nameValidationFailureMessages;
     }
 
-    model_internal function set typeValidationFailureMessages_der(value:Array) : void
+    model_internal function set file_nameValidationFailureMessages_der(value:Array) : void
     {
-        var oldValue:Array = model_internal::_typeValidationFailureMessages;
+        var oldValue:Array = model_internal::_file_nameValidationFailureMessages;
 
         var needUpdate : Boolean = false;
         if (oldValue == null)
@@ -493,8 +507,8 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
 
         if (needUpdate)
         {
-            model_internal::_typeValidationFailureMessages = value;   
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "typeValidationFailureMessages", oldValue, value));
+            model_internal::_file_nameValidationFailureMessages = value;   
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "file_nameValidationFailureMessages", oldValue, value));
             // Only execute calculateIsValid if it has been called before, to update the validationFailureMessages for
             // the entire entity.
             if (model_internal::_instance.model_internal::_cacheInitialized_isValid)
@@ -529,9 +543,9 @@ internal class _TaskEntityMetadata extends com.adobe.fiber.valueobjects.Abstract
      {
          switch(propertyName)
          {
-            case("type"):
+            case("file_name"):
             {
-                return typeValidationFailureMessages;
+                return file_nameValidationFailureMessages;
             }
             default:
             {

@@ -296,9 +296,9 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
          operation = new mx.rpc.http.Operation(null, "task_create");
          operation.url = "/task/create";
          operation.method = "POST";
-         operation.serializationFilter = serializer1;
+         operation.serializationFilter = serializer0;
          operation.contentType = "application/xml";
-         operation.resultType = String;
+         operation.resultType = valueObjects.Task;
          operations.push(operation);
 
          operation = new mx.rpc.http.Operation(null, "task_destroy");

@@ -58,6 +58,7 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
     private var _internal_grid_id : String;
     private var _internal_current : int;
     private var _internal_type : String;
+    private var _internal_file_name : String;
 
     private static var emptyArray:Array = new Array();
 
@@ -74,7 +75,7 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         _model = new _TaskEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "type", model_internal::setterListenerType));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "file_name", model_internal::setterListenerFile_name));
 
     }
 
@@ -122,6 +123,12 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
     public function get type() : String
     {
         return _internal_type;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get file_name() : String
+    {
+        return _internal_file_name;
     }
 
     public function clearAssociations() : void
@@ -202,6 +209,16 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         }
     }
 
+    public function set file_name(value:String) : void
+    {
+        var oldValue:String = _internal_file_name;
+        if (oldValue !== value)
+        {
+            _internal_file_name = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "file_name", oldValue, _internal_file_name));
+        }
+    }
+
     /**
      * Data/source property setter listeners
      *
@@ -214,9 +231,9 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
 
-    model_internal function setterListenerType(value:flash.events.Event):void
+    model_internal function setterListenerFile_name(value:flash.events.Event):void
     {
-        _model.invalidateDependentOnType();
+        _model.invalidateDependentOnFile_name();
     }
 
 
@@ -240,10 +257,10 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
-        if (!_model.typeIsValid)
+        if (!_model.file_nameIsValid)
         {
             propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_typeValidationFailureMessages);
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_file_nameValidationFailureMessages);
         }
 
         model_internal::_cacheInitialized_isValid = true;
@@ -324,29 +341,29 @@ public class _Super_Task extends flash.events.EventDispatcher implements com.ado
         }
     }
 
-    model_internal var _doValidationCacheOfType : Array = null;
-    model_internal var _doValidationLastValOfType : String;
+    model_internal var _doValidationCacheOfFile_name : Array = null;
+    model_internal var _doValidationLastValOfFile_name : String;
 
-    model_internal function _doValidationForType(valueIn:Object):Array
+    model_internal function _doValidationForFile_name(valueIn:Object):Array
     {
         var value : String = valueIn as String;
 
-        if (model_internal::_doValidationCacheOfType != null && model_internal::_doValidationLastValOfType == value)
-           return model_internal::_doValidationCacheOfType ;
+        if (model_internal::_doValidationCacheOfFile_name != null && model_internal::_doValidationLastValOfFile_name == value)
+           return model_internal::_doValidationCacheOfFile_name ;
 
-        _model.model_internal::_typeIsValidCacheInitialized = true;
+        _model.model_internal::_file_nameIsValidCacheInitialized = true;
         var validationFailures:Array = new Array();
         var errorMessage:String;
         var failure:Boolean;
 
         var valRes:ValidationResult;
-        if (_model.isTypeAvailable && _internal_type == null)
+        if (_model.isFile_nameAvailable && _internal_file_name == null)
         {
-            validationFailures.push(new ValidationResult(true, "", "", "type is required"));
+            validationFailures.push(new ValidationResult(true, "", "", "file_name is required"));
         }
 
-        model_internal::_doValidationCacheOfType = validationFailures;
-        model_internal::_doValidationLastValOfType = value;
+        model_internal::_doValidationCacheOfFile_name = validationFailures;
+        model_internal::_doValidationLastValOfFile_name = value;
 
         return validationFailures;
     }

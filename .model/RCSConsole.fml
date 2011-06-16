@@ -412,12 +412,12 @@
         <item name="returnType">opaque</item>
       </annotation>
     </function>
-    <function name="task_create" return-type="string">
+    <function name="task_create" return-type="Task">
       <annotation name="analyze group">
         <item name="analyzed">true</item>
       </annotation>
       <annotation name="ActionScriptGeneration">
-        <item name="SerializationFilter">com.adobe.serializers.xml.XMLSerializationFilter</item>
+        <item name="SerializationFilter">com.adobe.serializers.json.JSONSerializationFilter</item>
         <item name="method">POST</item>
         <item name="contentType">application/xml</item>
         <item name="requestBodyParameter">true</item>
@@ -430,6 +430,9 @@
         <item name="inputParamNames">strXml</item>
         <item name="inputParams">string</item>
         <item name="returnType">opaque</item>
+      </annotation>
+      <annotation name="ValidProperties">
+        <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type,file_name</item>
       </annotation>
       <parameter name="strXml" type="string"/>
     </function>
@@ -615,7 +618,7 @@
       <item name="EntityOriginalName">User</item>
     </annotation>
     <annotation name="service Group">
-      <item name="service">DB</item>
+      <item name="service">DB,DBDummy</item>
     </annotation>
     <annotation name="ServerProperties">
       <item name="IncludeRemoteClass">nonempty</item>
@@ -778,13 +781,17 @@
     <annotation name="task_index">
       <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type</item>
     </annotation>
+    <annotation name="task_create">
+      <item name="propertySpecifier">total,desc,_id,stopped,grid_id,current,type,file_name</item>
+    </annotation>
     <property name="total" type="integer"/>
     <property name="desc" type="string"/>
     <property name="_id" type="string"/>
-    <property name="stopped" type="boolean" required="true"/>
+    <property name="stopped" type="boolean"/>
     <property name="grid_id" type="string"/>
     <property name="current" type="integer"/>
-    <property name="type" type="string" required="true"/>
+    <property name="type" type="string"/>
+    <property name="file_name" type="string" required="true"/>
   </entity>
   <entity name="Group">
     <annotation name="EntityProperties">

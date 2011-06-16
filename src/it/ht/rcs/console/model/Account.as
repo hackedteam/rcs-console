@@ -101,7 +101,7 @@ package it.ht.rcs.console.model
       var u:User = new User(e.result.user);
       
       /* create the current session */
-      console.currentSession = new Session(u, lastServer);
+      console.currentSession = new Session(u, lastServer, e.result.cookie);
       
       /* invoke the callback */
       _callback();

@@ -10,10 +10,12 @@ package it.ht.rcs.console.model
     public var user:User;
     [Bindable]
     public var server:String;
+    [Bindable]
+    public var cookie:String;
     
     public var fake:Boolean;
     
-    public function Session(user:User, server:String, fake:Boolean = false)
+    public function Session(user:User, server:String, cookie:String, fake:Boolean = false)
     {
       /* is it a real session */
       this.fake = fake;
@@ -21,6 +23,8 @@ package it.ht.rcs.console.model
       /* the user of this session */
       this.user = user;
 
+      this.cookie = cookie;
+      
       /* the connected server */
       this.server = server;
       

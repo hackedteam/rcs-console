@@ -87,7 +87,7 @@ package it.ht.rcs.console.model
       creation_percentage.bytesTotal = total;
       creation_percentage.bytesLoaded = current;
       
-      if (current >= total) {
+      if (current == total) {
         
         creationTimer.stop();
         creationTimer = null;
@@ -104,7 +104,8 @@ package it.ht.rcs.console.model
           fileDownloader = new FileDownloader(grid_id, path + '/' + file_name);
           fileDownloader.onProgress = update_download;
           fileDownloader.onComplete = complete;
-          //fileDownloader.download();
+          var cookie:String = console.currentSession.cookie;
+          fileDownloader.download();
 
           state = STATE_DOWNLOADING;
         

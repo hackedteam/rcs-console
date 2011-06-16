@@ -37,7 +37,7 @@ package it.ht.rcs.console.utils {
         remoteStream = new URLStream();
         localStream = new FileStream();
 
-        var request:URLRequest = new URLRequest("http://rcs-prod:4444/grid/"+remotePath+"?session="+console.currentSession.cookie);
+        var request:URLRequest = new URLRequest("http://rcs-prod:4444/grid/"+remotePath+"?session="+console.currentSession.authCookie);
         var currentPosition:uint = 0;
 
         localStream.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, function(event:OutputProgressEvent):void {

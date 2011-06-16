@@ -104,7 +104,6 @@ package it.ht.rcs.console.model
           fileDownloader = new FileDownloader(grid_id, path + '/' + file_name);
           fileDownloader.onProgress = update_download;
           fileDownloader.onComplete = complete;
-          var cookie:String = console.currentSession.cookie;
           fileDownloader.download();
 
           state = STATE_DOWNLOADING;

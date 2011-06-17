@@ -42,8 +42,8 @@ package it.ht.rcs.console.model
     public var time:String;
     [Bindable]
     public var state:String = Task.STATE_IDLE;
-    [Bindable]
-    public var creation_undefined:Boolean = true;
+//    [Bindable]
+//    public var creation_undefined:Boolean = true;
     
     private var creationTimer:Timer;
     private var fileDownloader:FileDownloader; 
@@ -69,7 +69,7 @@ package it.ht.rcs.console.model
     public function start_update():void
     {
       if (state != Task.STATE_IDLE) return;
-      creationTimer = new Timer(500);
+      creationTimer = new Timer(1000);
       creationTimer.addEventListener(TimerEvent.TIMER, update);
       creationTimer.start();
     }

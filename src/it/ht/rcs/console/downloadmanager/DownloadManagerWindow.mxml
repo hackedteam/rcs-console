@@ -38,10 +38,12 @@
       protected function clear():void
       {
         var cursor:IViewCursor = _list_view.createCursor();
-        if(cursor.moveNext()) {
+        while (!cursor.afterLast) {
           var t:Task = cursor.current as Task;
-          if(t.state == Task.STATE_FINISHED)
+          if(t.state == Task.STATE_FINISHED) {
             DownloadManager.instance.removeTask(t);
+            cursor = _list_view.createCursor();
+          } else cursor.moveNext();
         }
       }
       

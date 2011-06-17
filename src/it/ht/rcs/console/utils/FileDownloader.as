@@ -39,18 +39,21 @@ package it.ht.rcs.console.utils {
         localStream = new FileStream();
         bytes = new ByteArray();
 
-        var request:URLRequest = new URLRequest("http://rcs-prod:4444/grid/"+remotePath+"?session="+console.currentSession.authCookie);
-
+        var request:URLRequest = new URLRequest("https://localhost:4444/grid/"+remotePath);
+       
         localFile = new File(localPath);
         localStream.openAsync(localFile, FileMode.WRITE);
         
-        remoteStream.addEventListener(ProgressEvent.PROGRESS, function():void {
+        remoteStream.addEventListener(ProgressEvent.PROGRESS, function(e:ProgressEvent):void {
+          
+          // trace('bytes available: ' + remoteStream.bytesAvailable + ' current position: ' + currentPosition + ' bytesLoaded: ' + e.bytesLoaded + ' bytesTotal: ' + e.bytesTotal);
           
           var bytesAvailable:uint = remoteStream.bytesAvailable;
           currentPosition += bytesAvailable;
 
           remoteStream.readBytes(bytes, 0, bytesAvailable);
           localStream.writeBytes(bytes, 0, bytesAvailable);
+          
           bytes.clear();
           
           if (onProgress != null)

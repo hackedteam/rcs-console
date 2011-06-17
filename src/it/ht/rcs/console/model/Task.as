@@ -32,7 +32,7 @@ package it.ht.rcs.console.model
     public var current:int;
     [Bindable]
     public var total:int;
-    [Bindalbe]
+    [Bindable]
     public var desc:String;
     [Bindalbe]
     public var grid_id:String;

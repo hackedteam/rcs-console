@@ -1,7 +1,6 @@
 package it.ht.rcs.console.utils {
   
   import flash.events.Event;
-  import flash.events.OutputProgressEvent;
   import flash.events.ProgressEvent;
   import flash.filesystem.File;
   import flash.filesystem.FileMode;
@@ -14,18 +13,18 @@ package it.ht.rcs.console.utils {
     
     private var remotePath:String;
     private var localPath:String; 
-
+    
     private var remoteStream:URLStream;
     private var localStream:FileStream;
+    
+    private var bytes:ByteArray;
     
     private var localFile:File;
     
     public var onProgress:Function;
     public var onComplete:Function;
     
-    private var bytes:ByteArray = new ByteArray();
-    
-    private var downloadCompletedFlag:Boolean = false;
+    private var currentPosition:uint = 0;
     
     public function FileDownloader(remotePath:String, localPath:String) {
       this.remotePath = remotePath;
@@ -38,23 +37,10 @@ package it.ht.rcs.console.utils {
 
         remoteStream = new URLStream();
         localStream = new FileStream();
+        bytes = new ByteArray();
 
         var request:URLRequest = new URLRequest("https://localhost:4444/grid/"+remotePath);
-        var currentPosition:uint = 0;
-
-        localStream.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, function(event:OutputProgressEvent):void {
-
-          if (downloadCompletedFlag && event.bytesPending == 0) {
-            
-            closeStreams();
-            
-            if (onComplete != null)
-              onComplete();
-            
-          }
-          
-        });
-
+       
         localFile = new File(localPath);
         localStream.openAsync(localFile, FileMode.WRITE);
         
@@ -62,15 +48,11 @@ package it.ht.rcs.console.utils {
           
           // trace('bytes available: ' + remoteStream.bytesAvailable + ' current position: ' + currentPosition + ' bytesLoaded: ' + e.bytesLoaded + ' bytesTotal: ' + e.bytesTotal);
           
-          var thisStart:uint = currentPosition;
-          
-          currentPosition += remoteStream.bytesAvailable;
-          
-//          remoteStream.readBytes(bytes, thisStart);
-//          localStream.writeBytes(bytes, thisStart);
-          remoteStream.readBytes(bytes, 0, remoteStream.bytesAvailable);
-          localStream.writeBytes(bytes, 0, remoteStream.bytesAvailable);
-          bytes.clear();
+          var bytesAvailable:uint = remoteStream.bytesAvailable;
+          currentPosition += bytesAvailable;
+
+          remoteStream.readBytes(bytes, 0, bytesAvailable);
+          localStream.writeBytes(bytes, 0, bytesAvailable);
           
           bytes.clear();
           
@@ -80,7 +62,12 @@ package it.ht.rcs.console.utils {
         });
         
         remoteStream.addEventListener(Event.COMPLETE, function():void {
-          downloadCompletedFlag = true;
+          
+          closeStreams();
+          
+          if (onComplete != null)
+            onComplete();
+          
         });
         
         remoteStream.load(request);
@@ -105,6 +92,10 @@ package it.ht.rcs.console.utils {
       if (localStream) {
         localStream.close();
         localStream = null;
+      }
+      if (bytes) {
+        bytes.clear();
+        bytes = null;
       }
     }
     

@@ -23,6 +23,8 @@ package it.ht.rcs.console.utils {
     public var onProgress:Function;
     public var onComplete:Function;
     
+    private var bytes:ByteArray = new ByteArray();
+    
     private var downloadCompletedFlag:Boolean = false;
     
     public function FileDownloader(remotePath:String, localPath:String) {
@@ -58,12 +60,14 @@ package it.ht.rcs.console.utils {
         
         remoteStream.addEventListener(ProgressEvent.PROGRESS, function():void {
           
-          var bytes:ByteArray = new ByteArray();
           var thisStart:uint = currentPosition;
           currentPosition += remoteStream.bytesAvailable;
           
-          remoteStream.readBytes(bytes, thisStart);
-          localStream.writeBytes(bytes, thisStart);
+//          remoteStream.readBytes(bytes, thisStart);
+//          localStream.writeBytes(bytes, thisStart);
+          remoteStream.readBytes(bytes, 0, remoteStream.bytesAvailable);
+          localStream.writeBytes(bytes, 0, remoteStream.bytesAvailable);
+          bytes.clear();
           
           if (onProgress != null)
             onProgress(currentPosition);

@@ -32,7 +32,7 @@ package it.ht.rcs.console.model
     public var current:int;
     [Bindable]
     public var total:int;
-    [Bindalbe]
+    [Bindable]
     public var desc:String;
     [Bindalbe]
     public var grid_id:String;
@@ -126,7 +126,7 @@ package it.ht.rcs.console.model
     public function complete():void
     {
       state = Task.STATE_FINISHED;
-      //console.currentDB.task_complete(_id);
+      console.currentDB.task_destroy(_id);
       NotificationPopup.showNotification(ResourceManager.getInstance().getString('localized_main', 'DOWNLOAD_COMPLETE'));
     }
     

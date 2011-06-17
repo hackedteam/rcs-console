@@ -7,7 +7,7 @@
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              show="show()">
 
-  <xt:FilterComboBox id="combo" width="150" enter="commit()" matchedTextStyleName="matched" prompt="Type"
+  <xt:FilterComboBox id="combo" width="150" enter="commit()" matchedTextStyleName="matched" prompt="{PROMPT}"
                      styleName="auditFilter"/>
   
   <fx:Script>
@@ -17,6 +17,8 @@
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
+      
+      public static const PROMPT:String = 'Type';
 
       override public function commit(fireEvent:Boolean=true):void
       {
@@ -46,7 +48,7 @@
         combo.text = StringUtil.trim(combo.text);
         combo.prompt = combo.text;
         
-        if (combo.text == '')
+        if (combo.text == '' || combo.text == PROMPT)
           return [];
         
         if (combo.text.indexOf(',') != -1)

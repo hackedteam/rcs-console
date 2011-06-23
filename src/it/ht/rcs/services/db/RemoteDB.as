@@ -137,7 +137,7 @@
     public function session_destroy(cookie:String, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.session_destroy(JSON.encode({session: cookie}));
+      resp.token = _delegate.session_destroy(JSON.encode({_id: cookie}));
     }
     
     /* AUDIT */
@@ -184,7 +184,7 @@
     public function status_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.status_destroy(JSON.encode({status: id}));
+      resp.token = _delegate.status_destroy(JSON.encode({_id: id}));
     }
     
     /* USERS */
@@ -210,14 +210,14 @@
     public function user_update(user:User, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      property['user'] = user._id;
+      property['_id'] = user._id;
       resp.token = _delegate.user_update(JSON.encode(property));
     }
     
     public function user_destroy(user:User, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.user_destroy(JSON.encode({user: user._id}));
+      resp.token = _delegate.user_destroy(JSON.encode({_id: user._id}));
     }
     
     /* GROUPS */
@@ -243,35 +243,35 @@
     public function group_update(group:Group, property:Object, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      property['group'] = group._id;
+      property['_id'] = group._id;
       resp.token = _delegate.group_update(JSON.encode(property));
     }
     
     public function group_destroy(group:Group, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.group_destroy(JSON.encode({group: group._id}));
+      resp.token = _delegate.group_destroy(JSON.encode({_id: group._id}));
     }
     
     public function group_add_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.group_add_user(JSON.encode( {group: group._id, user: user._id} ));      
+      resp.token = _delegate.group_add_user(JSON.encode( {_id: group._id, user: user._id} ));      
     }
     
     public function group_del_user(group:Group, user:User, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.group_del_user(JSON.encode( {group: group._id, user: user._id} ));         
+      resp.token = _delegate.group_del_user(JSON.encode( {_id: group._id, user: user._id} ));         
     }
     
     public function group_alert(group:Group, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
       if (group != null) 
-        resp.token = _delegate.group_alert(JSON.encode( {group: group._id} ));
+        resp.token = _delegate.group_alert(JSON.encode( {_id: group._id} ));
       else
-        resp.token = _delegate.group_alert(JSON.encode( {group: null} ));
+        resp.token = _delegate.group_alert(JSON.encode( {_id: null} ));
     }
     
     public function task_index(onResult:Function = null, onFault:Function = null):void
@@ -295,7 +295,7 @@
     public function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
-      resp.token = _delegate.task_destroy(JSON.encode( {task: id} ));
+      resp.token = _delegate.task_destroy(JSON.encode( {_id: id} ));
     }
   }
 }

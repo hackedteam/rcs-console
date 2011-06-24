@@ -3,7 +3,8 @@ package it.ht.rcs.services.db
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.Task;
   import it.ht.rcs.console.model.User;
-
+  import it.ht.rcs.console.model.Collector;
+  
   public interface IDB
   { 
     function setBusyCursor(value: Boolean):void;
@@ -43,6 +44,13 @@ package it.ht.rcs.services.db
     function task_show(id:String, onResult:Function = null, onFault:Function = null):void;
     function task_create(task:Task, onResult:Function = null, onFault:Function = null):void;
     function task_destroy(id:String, onResult:Function = null, onFault:Function = null):void;
+    
+    function collector_index(onResult:Function = null, onFault:Function = null):void;
+    function collector_show(id:String, onResult:Function = null, onFault:Function = null):void;
+    function collector_create(coll:Collector, onResult:Function = null, onFault:Function = null):void;
+    function collector_update(coll:Collector, property:Object, onResult:Function = null, onFault:Function = null):void;
+    function collector_destroy(coll:Collector, onResult:Function = null, onFault:Function = null):void;
+    
   }
 
 }

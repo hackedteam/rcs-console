@@ -7,6 +7,7 @@ package it.ht.rcs.services.db
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.Task;
   import it.ht.rcs.console.model.User;
+  import it.ht.rcs.console.model.Collector;
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
@@ -325,6 +326,28 @@ package it.ht.rcs.services.db
         onResult(event);
     }
     
+    /* COLLECTORS */
+    
+    public function collector_index(onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    public function collector_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    public function collector_create(coll:Collector, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    public function collector_update(coll:Collector, property:Object, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    public function collector_destroy(coll:Collector, onResult:Function = null, onFault:Function = null):void
+    {
+      
+    }
+    
   }
-
 }

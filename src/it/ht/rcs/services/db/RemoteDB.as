@@ -297,23 +297,33 @@
     
     public function collector_index(onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_index(); 
     }
+    
     public function collector_show(id:String, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_show(id); 
     }
+    
     public function collector_create(coll:Collector, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_create(JSON.encode(coll.toHash()));
     }
+    
     public function collector_update(coll:Collector, property:Object, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      property['_id'] = coll._id;
+      resp.token = _delegate.collector_update(JSON.encode(property)); 
     }
+    
     public function collector_destroy(coll:Collector, onResult:Function = null, onFault:Function = null):void
     {
-      
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_destroy(JSON.encode({_id: coll._id}));
     }
     
   }

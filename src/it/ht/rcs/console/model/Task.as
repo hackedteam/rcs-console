@@ -82,6 +82,7 @@ package it.ht.rcs.console.model
     private function update_creation(event:ResultEvent):void
     {
       
+      desc = event.result.desc;
       current = event.result.current;
       
       creation_percentage.bytesTotal = total;
@@ -118,9 +119,10 @@ package it.ht.rcs.console.model
     
     }
     
-    public function update_download(cur:Number):void
+    public function update_download(cur:Number, total:Number):void
     {
       download_percentage.bytesLoaded = cur;
+      download_percentage.bytesTotal = total;
     }
     
     public function complete():void

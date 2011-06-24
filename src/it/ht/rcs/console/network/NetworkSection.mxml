@@ -1,8 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx">
-  <fx:Declarations>
-    <!-- Place non-visual elements (e.g., services, value objects) here -->
-  </fx:Declarations>
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:network="it.ht.rcs.console.network.*"
+         creationComplete="init()">
+
+  <s:Scroller width="100%" height="100%">
+    <network:Stage id="networkStage" width="100%" height="100%"/>
+  </s:Scroller>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.Anonymizer;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.network.model.DB;
+      
+      private var db1:DB;
+      private var db2:DB;
+      
+      private function init():void {
+        
+        trace('--- App: init()');
+        
+        db1 = getDB1();
+        db2 = getDB2();
+        networkStage.db = db1;
+        
+      }
+      
+      private function switchDB(event:MouseEvent):void {
+        networkStage.db = networkStage.db === db1 ? db2 : db1;
+      }
+      
+      private function getDB1():DB {
+        
+        var db:DB = new DB('DB 1');
+        
+        var collectors:Vector.<Collector> = new Vector.<Collector>();
+        
+        var collectorOne:Collector = new Collector('Collector 1');
+        var collectorTwo:Collector = new Collector('Collector 2');
+        var collectorThree:Collector = new Collector('Collector 3');
+        
+        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
+        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
+        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
+        
+        anonymizerTwo.nextHop = anonymizerThree;
+        
+        collectorOne.nextHop = anonymizerOne;
+        collectorTwo.nextHop = anonymizerTwo;
+        
+        collectors.push(collectorOne);
+        collectors.push(collectorTwo);
+        collectors.push(collectorThree);
+        
+        db.collectors = collectors;
+        
+        return db;
+        
+      }
+      
+      private function getDB2():DB {
+        
+        var db:DB = new DB('DB 2');
+        
+        var collectors:Vector.<Collector> = new Vector.<Collector>();
+        
+        var collectorOne:Collector = new Collector('Collector 1');
+        var collectorTwo:Collector = new Collector('Collector 2');
+        var collectorThree:Collector = new Collector('Collector 3');
+        
+        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
+        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
+        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
+        
+        anonymizerTwo.nextHop = anonymizerThree;
+        
+        collectorOne.nextHop = anonymizerOne;
+        collectorTwo.nextHop = anonymizerTwo;
+        
+        collectors.push(collectorOne);
+        collectors.push(collectorTwo);
+        //collectors.push(collectorThree);
+        
+        db.collectors = collectors;
+        
+        return db;
+        
+      }
+      
+    ]]>
+  </fx:Script>
+  
 </s:Panel>

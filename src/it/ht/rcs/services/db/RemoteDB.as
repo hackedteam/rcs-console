@@ -6,6 +6,7 @@
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.Task;
   import it.ht.rcs.console.model.User;
+  import it.ht.rcs.console.model.Collector;
   
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
@@ -34,12 +35,6 @@
       _delegate.showBusyCursor = value;
     }
     
-//    private function onFatalError(event:*):void
-//    {
-//      /* back to the login screen */ 
-//      FlexGlobals.topLevelApplication.currentState = "LoggedOut";
-//    }
-    
     /* default Fault handler */
     private function onDeFault(e:FaultEvent):void
     {
@@ -53,16 +48,14 @@
       /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        //new Account().logout(onFatalError, onFatalError);
-        Account.instance.logout();
+        Account.instance.forceLogout();
         return; 
       }
             
       /* server error (cannot connect) */
       if (e.statusCode == 0) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        //new Account().logout(onFatalError, onFatalError);
-        Account.instance.logout();
+        Account.instance.forceLogout();
         return;
       }
       
@@ -274,6 +267,8 @@
         resp.token = _delegate.group_alert(JSON.encode( {_id: null} ));
     }
     
+    /* TASKS */
+    
     public function task_index(onResult:Function = null, onFault:Function = null):void
     {
       var resp:CallResponder = getCallResponder(onResult, onFault);
@@ -297,5 +292,39 @@
       var resp:CallResponder = getCallResponder(onResult, onFault);
       resp.token = _delegate.task_destroy(JSON.encode( {_id: id} ));
     }
+    
+    /* COLLECTORS */
+    
+    public function collector_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_index(); 
+    }
+    
+    public function collector_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_show(id); 
+    }
+    
+    public function collector_create(coll:Collector, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_create(JSON.encode(coll.toHash()));
+    }
+    
+    public function collector_update(coll:Collector, property:Object, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      property['_id'] = coll._id;
+      resp.token = _delegate.collector_update(JSON.encode(property)); 
+    }
+    
+    public function collector_destroy(coll:Collector, onResult:Function = null, onFault:Function = null):void
+    {
+      var resp:CallResponder = getCallResponder(onResult, onFault);
+      resp.token = _delegate.collector_destroy(JSON.encode({_id: coll._id}));
+    }
+    
   }
 }

@@ -7,6 +7,7 @@ package it.ht.rcs.services.db
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.Task;
   import it.ht.rcs.console.model.User;
+  import it.ht.rcs.console.model.Collector;
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
@@ -325,6 +326,39 @@ package it.ht.rcs.services.db
         onResult(event);
     }
     
+    /* COLLECTORS */
+    
+    public function collector_index(onResult:Function = null, onFault:Function = null):void
+    {
+      var items:ArrayCollection = new ArrayCollection();
+      items.addItem({_id: '1', name: 'Main Collector', desc: 'uber collector...', address: '1.1.1.1', poll: false, port: 4444, configured: true, type: 'local'});
+      items.addItem({_id: '2', name: 'Backdup Collector', desc: 'uber collector...', address: '2.2.2.2', poll: false, port: 4444, configured: true, type: 'local'});
+      items.addItem({_id: '3', name: 'first anonymizer', desc: 'nobody knows...', address: '3.3.3.3', poll: false, port: 4444, configured: true, type: 'remote'});
+      items.addItem({_id: '4', name: 'second anonymizer', desc: 'nobody knows...', address: '4.4.4.4', poll: false, port: 4444, configured: true, type: 'remote'});
+      items.addItem({_id: '5', name: 'third anonymizer', desc: 'nobody knows...', address: '5.5.5.5', poll: false, port: 4444, configured: true, type: 'remote'});
+      var event:ResultEvent = new ResultEvent("collector.index", false, true, items);
+      if (onResult != null) 
+        onResult(event);
+    }
+    public function collector_show(id:String, onResult:Function = null, onFault:Function = null):void
+    {
+      /* do nothing */
+    }
+    public function collector_create(coll:Collector, onResult:Function = null, onFault:Function = null):void
+    {
+      var c:Object = coll.toHash();
+      c._id = new Date().getTime().toString();
+      var event:ResultEvent = new ResultEvent("collector.create", false, true, c);
+      onResult(event);
+    }
+    public function collector_update(coll:Collector, property:Object, onResult:Function = null, onFault:Function = null):void
+    {
+      /* do nothing */
+    }
+    public function collector_destroy(coll:Collector, onResult:Function = null, onFault:Function = null):void
+    {
+      /* do nothing */
+    }
+    
   }
-
 }

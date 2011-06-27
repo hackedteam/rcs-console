@@ -39,7 +39,7 @@ package it.ht.rcs.console.utils {
         localStream = new FileStream();
         bytes = new ByteArray();
 
-        var request:URLRequest = new URLRequest("https://localhost:4444/grid/"+remotePath);
+        var request:URLRequest = new URLRequest("https://localhost:4444/file/"+remotePath);
        
         localFile = new File(localPath);
         localStream.openAsync(localFile, FileMode.WRITE);
@@ -57,8 +57,7 @@ package it.ht.rcs.console.utils {
           bytes.clear();
           
           if (onProgress != null)
-            onProgress(currentPosition);
-
+            onProgress(currentPosition, e.bytesTotal);
         });
         
         remoteStream.addEventListener(Event.COMPLETE, function():void {

@@ -421,7 +421,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function audit_count(filter:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("audit_count");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filter) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filter) ;
         return _internal_token;
     }
      
@@ -439,7 +439,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function audit_filters() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("audit_filters");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -457,7 +457,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function audit_index(filter:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("audit_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filter) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(filter) ;
         return _internal_token;
     }
      
@@ -475,7 +475,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_add_user(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_add_user");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -493,7 +493,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_alert(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_alert");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -511,7 +511,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_create(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_create");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -529,7 +529,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_del_user(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_del_user");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -547,7 +547,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -565,7 +565,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_index() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -583,7 +583,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_show(id:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_show");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
         return _internal_token;
     }
      
@@ -601,7 +601,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function group_update(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("group_update");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -619,7 +619,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function license_count() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("license_count");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -637,7 +637,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function license_limit() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("license_limit");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -655,7 +655,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function login(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("login");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -673,7 +673,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function logout() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("logout");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -691,7 +691,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function session_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("session_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -709,7 +709,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function session_index() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("session_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -727,7 +727,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function status_counters() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("status_counters");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -745,7 +745,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function status_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("status_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -763,7 +763,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function status_index() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("status_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -781,7 +781,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function task_create(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("task_create");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -799,7 +799,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function task_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("task_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -817,7 +817,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function task_index() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("task_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -835,7 +835,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function task_show(id:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("task_show");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
         return _internal_token;
     }
      
@@ -853,7 +853,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function user_create(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_create");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -871,7 +871,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function user_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -889,7 +889,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function user_index() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -907,7 +907,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function user_show(id:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_show");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
         return _internal_token;
     }
      
@@ -925,7 +925,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function user_update(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("user_update");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      

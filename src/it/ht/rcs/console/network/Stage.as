@@ -18,27 +18,28 @@ package it.ht.rcs.console.network
 		private static const VERTICAL_DISTANCE:int = 80;
 		private static const BOTTOM_DISTANCE:int = 50;
 		
-		public function Stage() {
-			trace('--- Stage: constructor()');
+		public function Stage()
+    {
 			super();
 			
 			layout = null;
 		}
 		
 		private var ips:ArrayCollection;
-		public function set db(db:DB):void {
-			trace('--- Stage: set db()');
-			
+		public function set db(db:DB):void
+    {
 			_db = db;
 			
 			ips = new ArrayCollection();
 			
 			removeAllElements();
 			addElement(_db.renderer);
-			for each (var collector:Collector in _db.collectors) {
+			for each (var collector:Collector in _db.collectors)
+      {
 				addElement(collector.renderer);
 				var anonymizer:Anonymizer = collector.nextHop as Anonymizer;
-				while (anonymizer != null) {
+				while (anonymizer != null)
+        {
 					addElement(anonymizer.renderer);
 					anonymizer = anonymizer.nextHop as Anonymizer;
 				}
@@ -46,33 +47,33 @@ package it.ht.rcs.console.network
 				ips.addItem(ip);
 				addElement(ip);
 			}
-			
+      
 			this.invalidateDisplayList();
-			
 		}
 		
-		public function get db():DB {
+		public function get db():DB
+    {
 			return _db;
 		}
 		
-		override protected function createChildren():void {
-			trace('--- Stage: createChildren()');
+		override protected function createChildren():void
+    {
 			super.createChildren();
 		}
 		
-		override protected function measure():void {
-			trace('--- Stage: measure()');
-			super.measure();
+		override protected function measure():void
+    {
+      measuredHeight = 1000;
+      super.measure();
 		}
-
+    
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-			trace('--- Stage: updateDisplayList()');
-			
+      
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.lineStyle(1, 0x000000, 1, true);
-//			graphics.moveTo(width/2, 0);
-//			graphics.lineTo(width/2, height);
+//	  graphics.moveTo(width/2, 0);
+//		graphics.lineTo(width/2, height);
 			
 			if (_db != null) {
 			
@@ -98,27 +99,28 @@ package it.ht.rcs.console.network
 					graphics.moveTo(width/2, height - BOTTOM_DISTANCE - _db.renderer.measuredHeight/2);
 					graphics.lineTo(cX, cY + collector.renderer.measuredHeight);
 					
-					var a:Anonymizer = collector.nextHop as Anonymizer;
-					while (a != null) {
+					var anonymizer:Anonymizer = collector.nextHop as Anonymizer;
+					while (anonymizer != null) {
 						
-						graphics.moveTo(cX, cY - VERTICAL_DISTANCE + a.renderer.measuredHeight);
+						graphics.moveTo(cX, cY - VERTICAL_DISTANCE + anonymizer.renderer.measuredHeight);
 						graphics.lineTo(cX, cY);
 						
 						cY -= VERTICAL_DISTANCE;
-						a.renderer.move(cX - a.renderer.measuredWidth/2, cY);
+            anonymizer.renderer.move(cX - anonymizer.renderer.measuredWidth/2, cY);
 						
-						if (a.nextHop == null)
+						if (anonymizer.nextHop == null)
 							break;
 						
-						a = a.nextHop as Anonymizer;
+            anonymizer = anonymizer.nextHop as Anonymizer;
 						
 					} // End anonymizer
 					
+          // Draw the IPs
 					var ip:IPRenderer = ips.getItemAt(collectorIndex) as IPRenderer;
 					graphics.moveTo(cX, cY - VERTICAL_DISTANCE + ip.measuredHeight);
 					graphics.lineTo(cX, cY);
 					ip.move(cX - ip.measuredWidth/2, cY - VERTICAL_DISTANCE);
-					
+
 				} // End collectors
 				
 			} // End db

@@ -20,7 +20,6 @@ package it.ht.rcs.console.network.renderers
 		
 		public function AnonymizerRenderer(anonymizer:Anonymizer)
 		{
-			trace('--- AnonymizerRenderer: constructor()');
 			super();
 			
 			this.anonymizer = anonymizer;
@@ -29,17 +28,16 @@ package it.ht.rcs.console.network.renderers
 			setStyle('backgroundColor', 0xbbbbbb);
 			
 			addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
-//			addEventListener(MouseEvent.CLICK, function(event:Event):void {
-//				Alert.show('click');
-//			});
 			addEventListener(DragEvent.DRAG_ENTER, dragEnter);
 			addEventListener(DragEvent.DRAG_EXIT, dragExit);
 			addEventListener(DragEvent.DRAG_DROP, dragDrop);
 		}
 		
-		private function dragEnter(event:DragEvent):void {
+		private function dragEnter(event:DragEvent):void
+    {
 			var dragged:AnonymizerRenderer = event.dragInitiator as AnonymizerRenderer;
-			if (dragged !== this && anonymizer.nextHop !== dragged.anonymizer) {
+			if (dragged !== this && anonymizer.nextHop !== dragged.anonymizer)
+      {
 				var dropTarget:UIComponent = UIComponent(event.currentTarget);					
 				DragManager.acceptDragDrop(dropTarget);
 				DragManager.showFeedback(DragManager.COPY);
@@ -47,12 +45,13 @@ package it.ht.rcs.console.network.renderers
 			}
 		}
 		
-		private function dragExit(event:DragEvent):void {
+		private function dragExit(event:DragEvent):void
+    {
 			setStyle('backgroundColor', 0xbbbbbb);
 		}
 		
-		private function dragDrop(event:DragEvent):void {
-			
+		private function dragDrop(event:DragEvent):void
+    {
 			var sourceAnon:Anonymizer = (event.dragInitiator as AnonymizerRenderer).anonymizer;
 			var destAnon:Anonymizer = this.anonymizer;
 			
@@ -60,7 +59,6 @@ package it.ht.rcs.console.network.renderers
 			(parent as UIComponent).invalidateDisplayList();
 			
 			setStyle('backgroundColor', 0xbbbbbb);
-			
 		}
 		
 		private function mouseDown(event:MouseEvent):void
@@ -69,13 +67,12 @@ package it.ht.rcs.console.network.renderers
 			{
 				var dragInitiator:AnonymizerRenderer = event.currentTarget as AnonymizerRenderer;
 				var dragSource:DragSource = new DragSource();
-				
 				DragManager.doDrag(dragInitiator, dragSource, event, getProxy(dragInitiator));
 			}
 		}
 		
-		override protected function createChildren():void {
-			trace('--- AnonymizerRenderer: createChildren()');
+		override protected function createChildren():void
+    {
 			super.createChildren();
 
 			textLabel = new Label();
@@ -84,8 +81,8 @@ package it.ht.rcs.console.network.renderers
 			addElement(textLabel);
 		}
 		
-		override protected function measure():void {
-			trace('--- AnonymizerRenderer: measure()');
+		override protected function measure():void
+    {
 			super.measure();
 			
 			measuredWidth = textLabel.measuredWidth + 15;
@@ -94,7 +91,6 @@ package it.ht.rcs.console.network.renderers
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			trace('--- AnonymizerRenderer: updateDisplayList()');
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(getStyle('backgroundColor'));

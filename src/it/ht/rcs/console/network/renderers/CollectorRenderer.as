@@ -18,7 +18,6 @@ package it.ht.rcs.console.network.renderers
 		
 		public function CollectorRenderer(collector:Collector)
 		{
-			trace('--- CollectorRenderer: constructor()');
 			super();
 			
 			this.collector = collector;
@@ -30,8 +29,10 @@ package it.ht.rcs.console.network.renderers
 			addEventListener(DragEvent.DRAG_DROP, dragDrop);
 		}
 		
-		private function dragEnter(event:DragEvent):void {
-			if (collector.nextHop !== (event.dragInitiator as AnonymizerRenderer).anonymizer) {
+		private function dragEnter(event:DragEvent):void
+    {
+			if (collector.nextHop !== (event.dragInitiator as AnonymizerRenderer).anonymizer)
+      {
 				var dropTarget:UIComponent = UIComponent(event.currentTarget);					
 				DragManager.acceptDragDrop(dropTarget);
 				DragManager.showFeedback(DragManager.COPY);
@@ -39,12 +40,13 @@ package it.ht.rcs.console.network.renderers
 			}
 		}
 		
-		private function dragExit(event:DragEvent):void {
+		private function dragExit(event:DragEvent):void
+    {
 			setStyle('backgroundColor', 0xbbbbbb);
 		}
 		
-		private function dragDrop(event:DragEvent):void {
-			
+		private function dragDrop(event:DragEvent):void
+    {
 			var sourceAnon:Anonymizer = (event.dragInitiator as AnonymizerRenderer).anonymizer;
 			var destAnon:Collector = this.collector;
 			
@@ -52,11 +54,10 @@ package it.ht.rcs.console.network.renderers
 			(parent as UIComponent).invalidateDisplayList();
 			
 			setStyle('backgroundColor', 0xbbbbbb);
-			
 		}
 		
-		override protected function createChildren():void {
-			trace('--- CollectorRenderer: createChildren()');
+		override protected function createChildren():void
+    {
 			super.createChildren();
 
 			textLabel = new Label();
@@ -65,8 +66,8 @@ package it.ht.rcs.console.network.renderers
 			addElement(textLabel);
 		}
 		
-		override protected function measure():void {
-			trace('--- CollectorRenderer: measure()');
+		override protected function measure():void
+    {
 			super.measure();
 			
 			measuredWidth = textLabel.measuredWidth + 15;
@@ -75,7 +76,6 @@ package it.ht.rcs.console.network.renderers
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			trace('--- CollectorRenderer: updateDisplayList()');
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(getStyle('backgroundColor'));

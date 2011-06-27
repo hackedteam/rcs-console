@@ -13,14 +13,13 @@ package it.ht.rcs.console.network.renderers
 
 		public function DBRenderer(db:DB)
 		{
-			trace('--- DBRenderer: constructor()');
 			super();
 			
 			this.db = db;
 		}
 		
-		override protected function createChildren():void {
-			trace('--- DBRenderer: createChildren()');
+		override protected function createChildren():void
+    {
 			super.createChildren();
 			
 			textLabel = new Label();
@@ -29,8 +28,8 @@ package it.ht.rcs.console.network.renderers
 			addElement(textLabel);
 		}
 		
-		override protected function measure():void {
-			trace('--- DBRenderer: measure()');
+		override protected function measure():void
+    {
 			super.measure();
 			
 			measuredWidth = textLabel.measuredWidth + 20;
@@ -39,7 +38,6 @@ package it.ht.rcs.console.network.renderers
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			trace('--- DBRenderer: updateDisplayList()');
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(0xdddddd);

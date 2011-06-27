@@ -9,12 +9,11 @@ package it.ht.rcs.console.network.renderers
 		
 		public function IPRenderer()
 		{
-			trace('--- IPRenderer: constructor()');
 			super();
 		}
 		
-		override protected function createChildren():void {
-			trace('--- IPRenderer: createChildren()');
+		override protected function createChildren():void
+    {
 			super.createChildren();
 			
 			textLabel = new Label();
@@ -23,8 +22,8 @@ package it.ht.rcs.console.network.renderers
 			addElement(textLabel);
 		}
 		
-		override protected function measure():void {
-			trace('--- IPRenderer: measure()');
+		override protected function measure():void
+    {
 			super.measure();
 			
 			measuredWidth = textLabel.measuredWidth + 20;
@@ -33,7 +32,6 @@ package it.ht.rcs.console.network.renderers
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			trace('--- IPRenderer: updateDisplayList()');
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(0xdddddd);

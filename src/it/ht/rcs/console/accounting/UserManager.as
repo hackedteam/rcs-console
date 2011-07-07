@@ -81,7 +81,7 @@ package it.ht.rcs.console.accounting
         u.group_ids = e.result.group_ids;
       });
     }
-
+    
     public function onSessionIndexResult(e:ResultEvent):void
     {
       var items:ArrayCollection = e.result as ArrayCollection;

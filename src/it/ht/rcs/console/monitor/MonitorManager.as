@@ -8,7 +8,8 @@ package it.ht.rcs.console.monitor
 	
 	import it.ht.rcs.console.events.RefreshEvent;
 	import it.ht.rcs.console.model.Manager;
-	import it.ht.rcs.console.model.Status;
+	import it.ht.rcs.console.monitor.model.Status;
+	import it.ht.rcs.console.monitor.model.StatusCounters;
 	import it.ht.rcs.console.utils.CounterBaloon;
 	
 	import mx.collections.ArrayCollection;
@@ -121,7 +122,7 @@ package it.ht.rcs.console.monitor
       /* default, reset all values */
       _counterBaloon.value = 0;
       
-      var counters:Object = JSON.decode(e.result as String);
+      var counters:StatusCounters = e.result as StatusCounters;
       
       if (counters['error'] != 0) {
         _counterBaloon.value = counters['error'];

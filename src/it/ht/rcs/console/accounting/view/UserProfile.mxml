@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" 
+               width="400" height="210" 
+               close="closeMe()"
+               title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}">
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ArrayCollection;
+      import mx.managers.PopUpManager;
+      
+      private function closeMe():void
+      {
+        PopUpManager.removePopUp(this);  
+      }
+      
+      private function changeLocale():void
+      {
+        /* change on the fly the locale of the console */
+        resourceManager.localeChain = [locale.selectedItem];
+       
+        /* save the pref in the user profile */
+        console.currentSession.user.locale = locale.selectedItem;
+        console.currentSession.user.save();
+      }
+      
+      private function changePass():void
+      {
+        var cp:ChangePassword = PopUpManager.createPopUp(root, ChangePassword, true) as ChangePassword;
+        cp.user = console.currentSession.user;
+        PopUpManager.centerPopUp(cp);
+      } 
+      
+    ]]>
+  </fx:Script>  
+  
+  <!-- labels -->
+  <s:Label text="{resourceManager.getString('localized_main', 'USER')}:" top="20" left="20" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'PRIVILEGES')}:" left="20" top="80" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONTACT')}:" left="20" top="50" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'LANGUAGE')}:" left="20" top="110" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'PASSWORD')}:" left="20" top="140" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  
+  <!-- data -->
+  <s:Label text="{console.currentSession.user.name}" left="120" top="20"/>
+  <s:Label text="{console.currentSession.user.contact}" left="120" top="50"/>
+  <s:Label text="{console.currentSession.user.privs.source.join(' | ')}" left="120" top="80"/>
+  <s:DropDownList id="locale" left="120" top="110" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(console.currentSession.user.locale)}" width="80" change="changeLocale()"/>
+  <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75" click="changePass()"/>
+  
+</s:TitleWindow>

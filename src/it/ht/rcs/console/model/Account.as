@@ -99,7 +99,7 @@ package it.ht.rcs.console.model
       /* save the info for the next login */
       save_previous();
       
-      var u:User = new User(e.result.user);
+      var u:User = e.result.user as User;
       
       /* create the current session */
       console.currentSession = new Session(u, lastServer, e.result.cookie);

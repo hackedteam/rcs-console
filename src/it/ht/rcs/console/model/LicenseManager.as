@@ -3,6 +3,8 @@ package it.ht.rcs.console.model
   import com.adobe.serialization.json.JSON;
   
   import it.ht.rcs.console.events.RefreshEvent;
+  import it.ht.rcs.console.monitor.model.License;
+  import it.ht.rcs.console.monitor.model.LicenseCount;
   
   import mx.core.FlexGlobals;
   import mx.rpc.events.ResultEvent;
@@ -66,7 +68,7 @@ package it.ht.rcs.console.model
     
     private function onLoadLimit(e:ResultEvent):void
     {
-      var limits:Object = JSON.decode(e.result as String);
+      var limits:License = e.result as License;
         
       type = limits['type'];
       serial = limits['serial'].toString();
@@ -98,7 +100,7 @@ package it.ht.rcs.console.model
 
     private function onLoadCount(e:ResultEvent):void
     {
-      var current:Object = JSON.decode(e.result as String);
+      var current:LicenseCount = e.result as LicenseCount;
       
       users.curr = current['users'].toString();
       

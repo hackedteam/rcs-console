@@ -1,16 +1,18 @@
 package it.ht.rcs.console.accounting
 {
+  import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.RefreshEvent;
   import it.ht.rcs.console.model.Manager;
-  import it.ht.rcs.console.model.User;
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   import mx.collections.Sort;
   import mx.collections.SortField;
+  import mx.controls.Alert;
   import mx.core.FlexGlobals;
   import mx.events.CollectionEvent;
+  import mx.resources.ResourceManager;
   import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
   
@@ -30,7 +32,7 @@ package it.ht.rcs.console.accounting
     
     override protected function onItemRemove(o:*):void
     { 
-      console.currentDB.user_destroy(o);
+      console.currentDB.user.destroy(o);
     }
     
     override protected function onItemUpdate(e:*):void
@@ -40,7 +42,7 @@ package it.ht.rcs.console.accounting
         o[e.property] = e.newValue.source;
       else
         o[e.property] = e.newValue;
-      console.currentDB.user_update(e.source, o);
+      console.currentDB.user.update(e.source, o);
     }
     
     override protected function onRefresh(e:RefreshEvent):void
@@ -50,10 +52,10 @@ package it.ht.rcs.console.accounting
       _sessions.removeAll();
 
       /* retrieve the connected users */
-      console.currentDB.session_index(onSessionIndexResult);
+      console.currentDB.session.all(onSessionIndexResult);
       
       /* system users */
-      console.currentDB.user_index(onUserIndexResult);
+      console.currentDB.user.all(onUserIndexResult);
     }
     
     public function onUserIndexResult(e:ResultEvent):void
@@ -62,6 +64,21 @@ package it.ht.rcs.console.accounting
       _items.removeAll();
       items.source.forEach(function toUserArray(element:*, index:int, arr:Array):void {
         addItem(new User(element));
+      });
+    }
+    
+    public function reload(u:User):void
+    {
+      console.currentDB.user.show(u._id, function (e:ResultEvent):void {
+        u.enabled = e.result.enabled;
+        u.name = e.result.name;
+        u.pass = e.result.pass;
+        u.desc = e.result.desc;
+        u.contact = e.result.contact;
+        u.privs = e.result.privs;
+        u.locale = e.result.locale;
+        u.timezone = e.result.timezone;
+        u.group_ids = e.result.group_ids;
       });
     }
 
@@ -75,12 +92,24 @@ package it.ht.rcs.console.accounting
     }
     
     public function newUser(callback:Function):void
-    {
-      console.currentDB.user_create(new User(), function _(e:ResultEvent):void {
-        var u:User = new User(e.result);
+    {     
+      console.currentDB.user.create(User.defaultUser, function (e:ResultEvent):void {
+        var u:User = e.result as User;
         addItem(u);
         callback(u);
       });
+    }
+    
+    public function changePassword(user:User, password:String):void
+    {
+      console.currentDB.user.update(user, {pass: password}, function (e:ResultEvent):void {
+        Alert.show(ResourceManager.getInstance().getString('localized_main', 'PASSWORD_CHANGED'));
+      });
+    }
+    
+    public function update(user:User, properties:Object):void
+    {
+      console.currentDB.user.update(user, properties);
     }
     
     public function getSessionsView():ListCollectionView
@@ -105,7 +134,7 @@ package it.ht.rcs.console.accounting
         _sessions.removeItemAt(idx);
       
       /* disconnect call to db */
-      console.currentDB.session_destroy(u['cookie']);
+      console.currentDB.session.destroy(u['cookie']);
     }
 
   }

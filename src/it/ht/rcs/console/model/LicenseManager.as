@@ -59,9 +59,9 @@ package it.ht.rcs.console.model
     public function load_license(e:RefreshEvent):void
     {
       trace('LicenseManager -- Refresh');
-
-      console.currentDB.license_limit(onLoadLimit);
-      console.currentDB.license_count(onLoadCount);
+      
+      console.currentDB.license.limit(onLoadLimit);
+      console.currentDB.license.count(onLoadCount);
     }
     
     private function onLoadLimit(e:ResultEvent):void

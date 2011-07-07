@@ -6,8 +6,8 @@
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.model.Group;
-      import it.ht.rcs.console.model.User;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
       
       import mx.collections.ArrayCollection;
       import mx.controls.Menu;
@@ -56,13 +56,13 @@
       private function removeGroup(gid:String):void
       {
         var group:Group = GroupManager.instance.getItem(gid);
-        group.removeUser(_user);  
+        GroupManager.instance.removeUser(group, _user);  
       }
       
       private function addGroup(event:MenuEvent):void
       {
         var group:Group = event.item as Group;
-        group.addUser(_user);   
+        GroupManager.instance.addUser(group, _user);   
       }
       
       private function initMenuUser():void

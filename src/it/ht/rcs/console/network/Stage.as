@@ -2,7 +2,7 @@ package it.ht.rcs.console.network
 {
   import it.ht.rcs.console.network.model.Anonymizer;
   import it.ht.rcs.console.network.model.Collector;
-  import it.ht.rcs.console.network.model.DB;
+  import it.ht.rcs.console.network.model.DBModel;
   import it.ht.rcs.console.network.renderers.IPRenderer;
   
   import mx.collections.ArrayCollection;
@@ -12,7 +12,7 @@ package it.ht.rcs.console.network
   public class Stage extends Group
 	{
 		
-		private var _db:DB;
+		private var _db:DBModel;
 		
 		private static const COLLECTORS_DISTANCE:int = 200;
 		private static const VERTICAL_DISTANCE:int = 80;
@@ -26,7 +26,7 @@ package it.ht.rcs.console.network
 		}
 		
 		private var ips:ArrayCollection;
-		public function set db(db:DB):void {
+		public function set db(db:DBModel):void {
 			trace('--- Stage: set db()');
 			
 			_db = db;
@@ -36,7 +36,7 @@ package it.ht.rcs.console.network
 			removeAllElements();
 			addElement(_db.renderer);
 			for each (var collector:Collector in _db.collectors) {
-				addElement(collector.renderer);
+				//addElement(collector.renderer);
 				var anonymizer:Anonymizer = collector.nextHop as Anonymizer;
 				while (anonymizer != null) {
 					addElement(anonymizer.renderer);
@@ -51,7 +51,7 @@ package it.ht.rcs.console.network
 			
 		}
 		
-		public function get db():DB {
+		public function get db():DBModel {
 			return _db;
 		}
 		
@@ -93,10 +93,10 @@ package it.ht.rcs.console.network
 					
 					var cX:int = offsetFromCenter + collectorIndex * COLLECTORS_DISTANCE;
 					var cY:int = _db.renderer.y - VERTICAL_DISTANCE;
-					collector.renderer.move(cX - collector.renderer.measuredWidth/2, cY);
+					//collector.renderer.move(cX - collector.renderer.measuredWidth/2, cY);
 					
 					graphics.moveTo(width/2, height - BOTTOM_DISTANCE - _db.renderer.measuredHeight/2);
-					graphics.lineTo(cX, cY + collector.renderer.measuredHeight);
+					//graphics.lineTo(cX, cY + collector.renderer.measuredHeight);
 					
 					var a:Anonymizer = collector.nextHop as Anonymizer;
 					while (a != null) {

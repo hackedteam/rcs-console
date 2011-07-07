@@ -36,7 +36,7 @@ package it.ht.rcs.console.monitor
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-      console.currentDB.status_index(onMonitorIndexResult);
+      console.currentDB.monitor.all(onMonitorIndexResult);
     }
    
     private function onMonitorIndexResult(e:ResultEvent):void
@@ -50,7 +50,7 @@ package it.ht.rcs.console.monitor
     
     override protected function onItemRemove(o:*):void 
     { 
-      console.currentDB.status_destroy(o._id);
+      console.currentDB.monitor.destroy(o._id);
     }
     
     private function onAutoRefresh(e:Event):void
@@ -104,7 +104,7 @@ package it.ht.rcs.console.monitor
     {
       trace(_classname + ' -- Refresh Counters');
       
-      console.currentDB.status_counters(onMonitorCounters);
+      console.currentDB.monitor.counters(onMonitorCounters);
     }
     
     private function onMonitorCounters(e:ResultEvent):void

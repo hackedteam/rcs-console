@@ -1,16 +1,15 @@
 package it.ht.rcs.console.downloadmanager
 {
-  
+  import it.ht.rcs.console.DB;
   import it.ht.rcs.console.events.AccountEvent;
   import it.ht.rcs.console.model.Manager;
-  import it.ht.rcs.console.model.Task;
+  import it.ht.rcs.console.task.model.Task;
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
   
   public class DownloadManager extends Manager
   {
-    
     /* singleton */
     private static var _instance:DownloadManager = new DownloadManager();
     public static function get instance():DownloadManager { return _instance; } 
@@ -26,7 +25,7 @@ package it.ht.rcs.console.downloadmanager
     override protected function onLoggingIn(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Logging In');
-      console.currentDB.task_index(onTaskIndexResult);
+      console.currentDB.task.all(onTaskIndexResult);
     }
     
     private function onTaskIndexResult(e:ResultEvent):void
@@ -40,7 +39,7 @@ package it.ht.rcs.console.downloadmanager
     
     private function itemToTask(element:*, index:int, arr:Array):void
     {
-      var task:Task = new Task(element);
+      var task:DownloadTask = new DownloadTask(element, console.currentDB);
       addTask(task);
       task.start_update();
     }
@@ -48,8 +47,8 @@ package it.ht.rcs.console.downloadmanager
     override protected function onLoggingOut(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Logging Out');
-      for each(var t:Task in _items)
-      if (t.state != Task.STATE_FINISHED) {
+      for each(var t:DownloadTask in _items)
+      if (t.state != DownloadTask.STATE_FINISHED) {
         e.preventDefault();
         return;
       }
@@ -58,17 +57,14 @@ package it.ht.rcs.console.downloadmanager
     override protected function onForceLogOut(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Force Log Out');
-      for each(var t:Task in _items)
+      for each(var t:DownloadTask in _items)
         t.cleanup();
       super.onForceLogOut(e);
     }
     
     public function createTask(type:String, fileName:String):void
     {
-      var task:Task = new Task();
-      task.type = type;
-      task.file_name = fileName;
-      console.currentDB.task_create(task, onTaskCreateResult);
+      console.currentDB.task.create({type: type, file_name: fileName}, onTaskCreateResult);
     }
     
     public function onTaskCreateResult(e:ResultEvent):void
@@ -76,26 +72,20 @@ package it.ht.rcs.console.downloadmanager
       itemToTask(e.result, 0, null);
     }
     
-    public function destroyTask(t:Task):void
+    public function destroyTask(t:DownloadTask):void
     {
-      //console.currentDB.task_destroy(t._id, onTaskDestroyResult);
-      console.currentDB.task_destroy(t._id);
       t.cleanup();
       removeTask(t);
+      t.destroy();
     }
-    
-//    public function onTaskDestroyResult(e:ResultEvent):void
-//    {
-//      //removeTask(t);
-//    }
-    
-    public function addTask(t:Task):void
+        
+    public function addTask(t:DownloadTask):void
     {
       addItem(t);
       active = _items.length > 0;
     }
     
-    public function removeTask(t:Task):void
+    public function removeTask(t:DownloadTask):void
     {
       removeItem(t);
       active = _items.length > 0;

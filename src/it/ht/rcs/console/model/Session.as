@@ -1,6 +1,8 @@
 package it.ht.rcs.console.model
 {
   
+  import it.ht.rcs.console.accounting.model.User;
+  
   import mx.core.FlexGlobals;
   import mx.resources.ResourceManager;
 

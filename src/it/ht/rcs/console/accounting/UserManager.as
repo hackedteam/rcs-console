@@ -93,7 +93,7 @@ package it.ht.rcs.console.accounting
     
     public function newUser(callback:Function):void
     {     
-      console.currentDB.user.create(User.defaultUser, function (e:ResultEvent):void {
+      console.currentDB.user.create(User.defaultUser(), function (e:ResultEvent):void {
         var u:User = e.result as User;
         addItem(u);
         callback(u);

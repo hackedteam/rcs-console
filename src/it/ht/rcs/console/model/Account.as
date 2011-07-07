@@ -6,6 +6,7 @@ package it.ht.rcs.console.model
   import flash.filesystem.FileStream;
   
   import it.ht.rcs.console.DB;
+  import it.ht.rcs.console.DBFaultNotifier;
   import it.ht.rcs.console.I18N;
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.AccountEvent;
@@ -78,12 +79,14 @@ package it.ht.rcs.console.model
       this.lastUsername = user;
       this.lastServer = server;
       
+      var notifier:DBFaultNotifier = new DBFaultNotifier();
+      
       /* this is for DEMO purpose only, no database will be contacted, all the data are fake */
       if (user == 'demo' && pass == '' && server == 'demo') {
-        console.currentDB = new DB(server, null, new I18N());
+        console.currentDB = new DB(server, notifier, new I18N());
         trace('Account.login -- DEMO MODE');
       } else {
-        console.currentDB = new DB(server, null, new I18N());
+        console.currentDB = new DB(server, notifier, new I18N());
       }
       
       /* remember the function for the async handlers */

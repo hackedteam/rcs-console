@@ -25,7 +25,7 @@ package it.ht.rcs.console.downloadmanager
     override protected function onLoggingIn(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Logging In');
-      console.currentDB.task.all(onTaskIndexResult);
+      //console.currentDB.task.all(onTaskIndexResult);
     }
     
     private function onTaskIndexResult(e:ResultEvent):void

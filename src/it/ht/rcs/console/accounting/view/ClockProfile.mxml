@@ -7,6 +7,7 @@
                title="{resourceManager.getString('localized_main', 'CLOCK_SETTINGS').toUpperCase()}">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.UserManager;
       import it.ht.rcs.console.model.Clock;
       
       import mx.collections.ArrayCollection;
@@ -27,7 +28,7 @@
         Clock.instance.setConsoleTimezone(dropTimeList.selectedIndex - 12);
         /* save the timezone in the user profile */ 
         console.currentSession.user.timezone = dropTimeList.selectedIndex - 12;
-        console.currentSession.user.save();
+        UserManager.instance.update(console.currentSession.user, {timezone: console.currentSession.user.timezone});
       }
     ]]>
   </fx:Script>

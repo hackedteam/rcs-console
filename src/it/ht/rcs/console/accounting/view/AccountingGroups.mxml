@@ -6,11 +6,11 @@
           creationComplete="init()">
   <fx:Script>
     <![CDATA[
-		import it.ht.rcs.console.accounting.GroupManager;
-		import it.ht.rcs.console.accounting.UserManager;
+      import it.ht.rcs.console.accounting.GroupManager;
+      import it.ht.rcs.console.accounting.UserManager;
       import it.ht.rcs.console.events.EditEvent;
-      import it.ht.rcs.console.model.Group;
-      import it.ht.rcs.console.model.User;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
       
       import mx.collections.ListCollectionView;
       import mx.controls.Alert;
@@ -68,8 +68,8 @@
       
       private function removeUserFromGroup(uid:String, group:Group):void
       {
-        var user:User = UserManager.instance.getItem(uid); 
-        group.removeUser(user);
+        var user:User = UserManager.instance.getItem(uid);
+        GroupManager.instance.removeUser(group, user);
       }
       
       private function addUserToGroup(event:MenuEvent):void 
@@ -77,7 +77,7 @@
         var u:User = event.item as User;
         var g:Group = groupslist.selectedItem as Group;
        
-        g.addUser(u);        
+        GroupManager.instance.addUser(g, u);        
       }
       
       private function initMenuUser():void

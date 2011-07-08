@@ -1,5 +1,7 @@
 package it.ht.rcs.console.downloadmanager
 {
+  import com.adobe.serialization.json.JSON;
+   
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.events.AccountEvent;
   import it.ht.rcs.console.model.Manager;
@@ -25,7 +27,7 @@ package it.ht.rcs.console.downloadmanager
     override protected function onLoggingIn(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Logging In');
-      //console.currentDB.task.all(onTaskIndexResult);
+      console.currentDB.task.all(onTaskIndexResult);
     }
     
     private function onTaskIndexResult(e:ResultEvent):void
@@ -37,11 +39,11 @@ package it.ht.rcs.console.downloadmanager
         items.source.forEach(itemToTask);
     }
     
-    private function itemToTask(element:*, index:int, arr:Array):void
+    private function itemToTask(task:Object, index:int, arr:Array):void
     {
-      var task:DownloadTask = new DownloadTask(element, console.currentDB);
-      addTask(task);
-      task.start_update();
+      var downloadTask:DownloadTask = new DownloadTask(task as Task, console.currentDB);
+      addTask(downloadTask);
+      downloadTask.start_update();
     }
     
     override protected function onLoggingOut(e:AccountEvent):void
@@ -69,7 +71,7 @@ package it.ht.rcs.console.downloadmanager
     
     public function onTaskCreateResult(e:ResultEvent):void
     {
-      itemToTask(e.result, 0, null);
+      itemToTask(e.result as Task, 0, null);
     }
     
     public function destroyTask(t:DownloadTask):void

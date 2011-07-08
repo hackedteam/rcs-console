@@ -42,8 +42,10 @@ package it.ht.rcs.console
       var decoded:*;
       try {
         decoded = JSON.decode(e.fault.content as String);
-      } catch (e:JSONParseError) {
-        decoded = "";
+      } catch (json_error:JSONParseError) {
+        decoded = e.fault.content as String;
+        Alert.show(decoded, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        return;
       }
       
       /* guess which error it is */

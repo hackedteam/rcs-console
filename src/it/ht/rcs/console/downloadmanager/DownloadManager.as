@@ -4,7 +4,7 @@ package it.ht.rcs.console.downloadmanager
   
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.events.SessionEvent;
-  import it.ht.rcs.console.model.ItemManager;
+  import it.ht.rcs.console.controller.ItemManager;
   import it.ht.rcs.console.task.model.Task;
   
   import mx.collections.ArrayCollection;

@@ -3,7 +3,7 @@ package it.ht.rcs.console
   import com.adobe.serialization.json.JSON;
   import com.adobe.serialization.json.JSONParseError;
   
-  import it.ht.rcs.console.accounting.SessionManager;
+  import it.ht.rcs.console.accounting.controller.SessionManager;
   
   import mx.controls.Alert;
   import mx.resources.ResourceManager;

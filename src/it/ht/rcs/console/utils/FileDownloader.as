@@ -11,6 +11,9 @@ package it.ht.rcs.console.utils {
   
   public class FileDownloader {
     
+    public static const STATE_DOWNLOADING:String = 'downloading';
+    public static const STATE_FINISHED:String = 'finished';
+    
     private var remotePath:String;
     private var localPath:String; 
     
@@ -19,16 +22,19 @@ package it.ht.rcs.console.utils {
     
     private var bytes:ByteArray;
     
-    private var localFile:File;
+    public var localFile:File;
     
     public var onProgress:Function;
     public var onComplete:Function;
+    
+    private var state:String;
     
     private var currentPosition:uint = 0;
     
     public function FileDownloader(remotePath:String, localPath:String) {
       this.remotePath = remotePath;
       this.localPath = localPath;
+      this.state = STATE_DOWNLOADING;
     }
     
     public function download():void {
@@ -66,7 +72,9 @@ package it.ht.rcs.console.utils {
           
           closeStreams();
           
-          if (onComplete != null)
+          this.state = STATE_FINISHED;
+          
+          if (onComplete != null) 
             onComplete();
           
         });
@@ -79,9 +87,13 @@ package it.ht.rcs.console.utils {
       
     }
     
+    public function isFinished():Boolean {
+      return (this.state == STATE_FINISHED);
+    }
+    
     public function cancelDownload():void {
       closeStreams();
-      if (localFile && localFile.exists)
+      if (isFinished == false && localFile && localFile.exists)
         localFile.deleteFile();
     }
     

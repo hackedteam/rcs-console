@@ -3,14 +3,14 @@ package it.ht.rcs.console.downloadmanager
   import com.adobe.serialization.json.JSON;
   
   import it.ht.rcs.console.DB;
-  import it.ht.rcs.console.events.AccountEvent;
-  import it.ht.rcs.console.model.Manager;
+  import it.ht.rcs.console.events.SessionEvent;
+  import it.ht.rcs.console.controller.ItemManager;
   import it.ht.rcs.console.task.model.Task;
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
   
-  public class DownloadManager extends Manager
+  public class DownloadManager extends ItemManager
   {
     /* singleton */
     private static var _instance:DownloadManager = new DownloadManager();
@@ -24,7 +24,7 @@ package it.ht.rcs.console.downloadmanager
       trace(_classname + ' (instance) -- Init');
     }
     
-    override protected function onLoggingIn(e:AccountEvent):void
+    override protected function onLoggingIn(e:SessionEvent):void
     {
       trace(_classname + ' (instance) -- Logging In');
       // get all available tasks
@@ -49,7 +49,7 @@ package it.ht.rcs.console.downloadmanager
       downloadTask.start_update();
     }
     
-    override protected function onLoggingOut(e:AccountEvent):void
+    override protected function onLoggingOut(e:SessionEvent):void
     {
       trace(_classname + ' (instance) -- Logging Out');
       for each(var t:DownloadTask in _items)
@@ -59,7 +59,7 @@ package it.ht.rcs.console.downloadmanager
       }
     }
     
-    override protected function onForceLogOut(e:AccountEvent):void
+    override protected function onForceLogOut(e:SessionEvent):void
     {
       trace(_classname + ' (instance) -- Force Log Out');
       clearFinished();

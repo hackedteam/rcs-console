@@ -128,13 +128,16 @@ package it.ht.rcs.console.downloadmanager
           fileDownloader.onComplete = onDownloadComplete;
           fileDownloader.download();
           
+          trace("Task " + task._id + "is downloading.");
           state = STATE_DOWNLOADING;
           
         } else {
+          trace("Task " + task._id + "is finished.");
           state = STATE_FINISHED;
         }
         
       } else {
+        trace("Task " + task._id + "is creating.");
         state = STATE_CREATING;
       }
       
@@ -149,6 +152,7 @@ package it.ht.rcs.console.downloadmanager
     
     public function onDownloadComplete():void
     {
+      trace("Task " + task._id + "is finished.");
       state = STATE_FINISHED;
       //NotificationPopup.showNotification(ResourceManager.getInstance().getString('localized_main', 'DOWNLOAD_COMPLETE'));
     }

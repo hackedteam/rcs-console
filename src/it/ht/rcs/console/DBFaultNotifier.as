@@ -3,7 +3,7 @@ package it.ht.rcs.console
   import com.adobe.serialization.json.JSON;
   import com.adobe.serialization.json.JSONParseError;
   
-  import it.ht.rcs.console.model.Account;
+  import it.ht.rcs.console.accounting.controller.SessionManager;
   
   import mx.controls.Alert;
   import mx.resources.ResourceManager;
@@ -27,14 +27,14 @@ package it.ht.rcs.console
       /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        Account.instance.forceLogout();
+        SessionManager.instance.forceLogout();
         return; 
       }
       
       /* server error (cannot connect) */
       if (e.statusCode == 0) {
         Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        Account.instance.forceLogout();
+        SessionManager.instance.forceLogout();
         return;
       }
       

@@ -6,12 +6,12 @@
          xmlns:monitor="it.ht.rcs.console.monitor.*"
          addedToStage="added()"
          removedFromStage="removed()"
-         creationComplete="init()">
+         creationComplete="init()" xmlns:view="it.ht.rcs.console.monitor.view.*">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.MonitorManager;
       import it.ht.rcs.console.StatusBar;
-      import it.ht.rcs.console.model.LicenseManager;
-      import it.ht.rcs.console.monitor.AlertingGroup;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
@@ -75,10 +75,10 @@
   <!-- sidebar -->
   <mx:Accordion width="200" left="5" top="5" bottom="5" >
     <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE')}" width="100%" height="100%">
-      <monitor:LicenseView />
+      <view:LicenseView />
     </s:NavigatorContent>
     <s:NavigatorContent label="{resourceManager.getString('localized_main', 'LICENSE_VERSIONS')}" width="100%" height="100%">
-      <monitor:VersionsView />
+      <view:VersionsView />
     </s:NavigatorContent>
   </mx:Accordion>
   
@@ -91,7 +91,7 @@
 
   <!-- monitor list -->
   <s:List id="monitors" left="215" top="30" bottom="5" right="5" 
-          itemRenderer="it.ht.rcs.console.monitor.MonitorRenderer" 
+          itemRenderer="it.ht.rcs.console.monitor.view.MonitorRenderer" 
           dataProvider="{_status_view}" 
           click="{monitors.selectedIndex = -1}"/>
   

@@ -3,30 +3,88 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:network="it.ht.rcs.console.network.*"
-         width="100%" height="100%" creationComplete="init()">
+         width="100%" height="100%" addedToStage="onAddedToStage()" title="Network">
 
-  <s:VGroup left="5" right="5" top="5" bottom="5">
-    <s:List width="100%" height="100%"/>
-    <s:Scroller width="100%" height="100%" verticalScrollPolicy="on" horizontalScrollPolicy="on">
-      <network:Stage id="networkStage"/>
+  
+  <s:VGroup left="5" right="5" top="5" bottom="5" gap="0">
+    
+    <s:TabBar dataProvider="{views}"/>
+    <mx:ViewStack id="views" width="100%">
+      <s:NavigatorContent label="Collectors">
+        <network:CollectorList width="100%" height="176" dataProvider="{dp}"/>
+      </s:NavigatorContent>
+      <s:NavigatorContent label="Injection Proxies">
+        <network:CollectorList width="100%" height="200"/>
+      </s:NavigatorContent>
+      <s:NavigatorContent label="RMI">
+        <network:CollectorList width="100%" height="200"/>
+      </s:NavigatorContent>
+    </mx:ViewStack>
+
+    <s:Scroller width="100%" height="100%">
+      <network:NetworkStage id="networkStage" db="{db1}"/>
     </s:Scroller>
+  
   </s:VGroup>
+  
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.network.model.Anonymizer;
-      import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.network.model.DB;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.model.Collector;
       
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
       private var db1:DB;
       private var db2:DB;
+      [Bindable]
+      private var dp:ArrayCollection = new ArrayCollection([{name:'Coll 1'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}]);
       
-      private function init():void {
-        
-        db1 = getDB1();
-        db2 = getDB2();
-        networkStage.db = db1;
-        
+      private function onAddedToStage():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
+        refresh(null);
+//        db1 = getDB1();
+//        db2 = getDB2();
+//        networkStage.db = db1;
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
+      }
+      
+      private function refresh(event:RefreshEvent):void
+      {
+        console.currentDB.collector_index(buildGraph);
+      }
+      
+      private function buildGraph(event:ResultEvent):void {
+        var list:ArrayCollection = event.result as ArrayCollection;
+        var collectors:Vector.<Collector> = new Vector.<Collector>();
+
+        for each (var node:Collector in list) {
+          if (node.type == 'local')
+            collectors.push(node);
+          var nextHop:Collector = getCollectorById(node.next, list);
+          node.nextHop = nextHop;
+          if (nextHop != null)
+            nextHop.prevHop = node;
+        }
+        var db:DB = new DB();
+        db.collectors = collectors;
+        db1 = db;
+      }
+      
+      private function getCollectorById(_id:String, list:ArrayCollection):Collector {
+        if (_id == null) return null;
+        for each (var coll:Collector in list)
+          if (coll._id == _id)
+            return coll;
+        return null;
       }
       
       private function switchDB(event:MouseEvent):void {
@@ -35,28 +93,28 @@
       
       private function getDB1():DB {
         
-        var db:DB = new DB('DB 1');
+        var db:DB = new DB();
         
-        var collectors:Vector.<Collector> = new Vector.<Collector>();
-        
-        var collectorOne:Collector = new Collector('Collector 1');
-        var collectorTwo:Collector = new Collector('Collector 2');
-        var collectorThree:Collector = new Collector('Collector 3');
-        
-        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
-        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
-        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
-        
-        anonymizerTwo.nextHop = anonymizerThree;
-        
-        collectorOne.nextHop = anonymizerOne;
-        collectorTwo.nextHop = anonymizerTwo;
-        
-        collectors.push(collectorOne);
-        collectors.push(collectorTwo);
-        collectors.push(collectorThree);
-        
-        db.collectors = collectors;
+//        var collectors:Vector.<Collector> = new Vector.<Collector>();
+//        
+//        var collectorOne:Collector = new Collector('Collector 1');
+//        var collectorTwo:Collector = new Collector('Collector 2');
+//        var collectorThree:Collector = new Collector('Collector 3');
+//        
+//        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
+//        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
+//        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
+//        
+//        anonymizerTwo.nextHop = anonymizerThree;
+//        
+//        collectorOne.nextHop = anonymizerOne;
+//        collectorTwo.nextHop = anonymizerTwo;
+//        
+//        collectors.push(collectorOne);
+//        collectors.push(collectorTwo);
+//        collectors.push(collectorThree);
+//        
+//        db.collectors = collectors;
         
         return db;
         
@@ -64,28 +122,28 @@
       
       private function getDB2():DB {
         
-        var db:DB = new DB('DB 2');
+        var db:DB = new DB();
         
-        var collectors:Vector.<Collector> = new Vector.<Collector>();
-        
-        var collectorOne:Collector = new Collector('Collector 1');
-        var collectorTwo:Collector = new Collector('Collector 2');
-        var collectorThree:Collector = new Collector('Collector 3');
-        
-        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
-        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
-        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
-        
-        anonymizerTwo.nextHop = anonymizerThree;
-        
-        collectorOne.nextHop = anonymizerOne;
-        collectorTwo.nextHop = anonymizerTwo;
-        
-        collectors.push(collectorOne);
-        collectors.push(collectorTwo);
-        //collectors.push(collectorThree);
-        
-        db.collectors = collectors;
+//        var collectors:Vector.<Collector> = new Vector.<Collector>();
+//        
+//        var collectorOne:Collector = new Collector('Collector 1');
+//        var collectorTwo:Collector = new Collector('Collector 2');
+//        var collectorThree:Collector = new Collector('Collector 3');
+//        
+//        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
+//        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
+//        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
+//        
+//        anonymizerTwo.nextHop = anonymizerThree;
+//        
+//        collectorOne.nextHop = anonymizerOne;
+//        collectorTwo.nextHop = anonymizerTwo;
+//        
+//        collectors.push(collectorOne);
+//        collectors.push(collectorTwo);
+//        //collectors.push(collectorThree);
+//        
+//        db.collectors = collectors;
         
         return db;
         

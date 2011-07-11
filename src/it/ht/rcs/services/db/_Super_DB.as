@@ -995,7 +995,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function collector_index() : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("collector_index");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send() ;
         return _internal_token;
     }
      
@@ -1013,7 +1013,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function collector_destroy(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("collector_destroy");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -1031,7 +1031,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function collector_update(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("collector_update");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -1049,7 +1049,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function collector_create(strXml:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("collector_create");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(strXml) ;
         return _internal_token;
     }
      
@@ -1067,7 +1067,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function collector_log(id:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("collector_log");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
         return _internal_token;
     }
      
@@ -1085,7 +1085,7 @@ internal class _Super_DB extends com.adobe.fiber.services.wrapper.HTTPServiceWra
     public function collector_show(id:String) : mx.rpc.AsyncToken
     {
         var _internal_operation:mx.rpc.AbstractOperation = _serviceControl.getOperation("collector_show");
-		var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
+        var _internal_token:mx.rpc.AsyncToken = _internal_operation.send(id) ;
         return _internal_token;
     }
      

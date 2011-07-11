@@ -2,6 +2,8 @@ package it.ht.rcs.console.network.renderers
 {
   import flash.events.MouseEvent;
   
+  import it.ht.rcs.console.network.CollectorListRenderer;
+  import it.ht.rcs.console.network.NetworkObject;
   import it.ht.rcs.console.network.model.Anonymizer;
   
   import mx.core.DragSource;
@@ -11,14 +13,14 @@ package it.ht.rcs.console.network.renderers
   
   import spark.components.Label;
 	
-	public class AnonymizerRenderer extends NetworkObjectRenderer
+	public class oldAnonymizerRenderer extends NetworkObject
 	{
 	
 		public var anonymizer:Anonymizer;
 		
 		private var textLabel:Label;
 		
-		public function AnonymizerRenderer(anonymizer:Anonymizer)
+		public function oldAnonymizerRenderer(anonymizer:Anonymizer)
 		{
 			super();
 			
@@ -35,14 +37,20 @@ package it.ht.rcs.console.network.renderers
 		
 		private function dragEnter(event:DragEvent):void
     {
-			var dragged:AnonymizerRenderer = event.dragInitiator as AnonymizerRenderer;
-			if (dragged !== this && anonymizer.nextHop !== dragged.anonymizer)
-      {
-				var dropTarget:UIComponent = UIComponent(event.currentTarget);					
-				DragManager.acceptDragDrop(dropTarget);
-				DragManager.showFeedback(DragManager.COPY);
-				setStyle('backgroundColor', 0x5555bb);
-			}
+      var accept:Boolean = false;
+      if (event.dragInitiator is AnonymizerRenderer) {
+  			var dragged:AnonymizerRenderer = event.dragInitiator as AnonymizerRenderer;
+  			accept = dragged !== this && anonymizer.nextHop !== dragged.anonymizer;
+      } else if (event.dragInitiator is CollectorListRenderer) {
+        accept = true;
+      }
+
+      if (accept) {
+        var dropTarget:UIComponent = UIComponent(event.currentTarget);					
+        DragManager.acceptDragDrop(dropTarget);
+        DragManager.showFeedback(DragManager.COPY);
+        setStyle('backgroundColor', 0x5555bb);
+      }
 		}
 		
 		private function dragExit(event:DragEvent):void
@@ -52,11 +60,17 @@ package it.ht.rcs.console.network.renderers
 		
 		private function dragDrop(event:DragEvent):void
     {
-			var sourceAnon:Anonymizer = (event.dragInitiator as AnonymizerRenderer).anonymizer;
-			var destAnon:Anonymizer = this.anonymizer;
-			
-			sourceAnon.moveAfter(destAnon);
-			(parent as UIComponent).invalidateDisplayList();
+      if (event.dragInitiator as AnonymizerRenderer) {
+			  var sourceAnon:Anonymizer = (event.dragInitiator as AnonymizerRenderer).anonymizer;
+			  var destAnon:Anonymizer = this.anonymizer;
+			  sourceAnon.moveAfter(destAnon);
+			  (parent as UIComponent).invalidateDisplayList();
+      } else if (event.dragInitiator is CollectorListRenderer) {
+        //coll = (event.dragInitiator as CollectorListRenderer).data as Collector
+        var destAnon:Anonymizer = this.anonymizer;
+        sourceAnon.moveAfter(destAnon);
+        (parent as UIComponent).invalidateDisplayList();
+      }
 			
 			setStyle('backgroundColor', 0xbbbbbb);
 		}
@@ -77,7 +91,7 @@ package it.ht.rcs.console.network.renderers
 
 			textLabel = new Label();
 			textLabel.text = anonymizer.ip;
-			textLabel.setStyle('fontSize', 18);
+			textLabel.setStyle('fontSize', 14);
 			addElement(textLabel);
 		}
 		
@@ -85,8 +99,8 @@ package it.ht.rcs.console.network.renderers
     {
 			super.measure();
 			
-			measuredWidth = textLabel.measuredWidth + 15;
-			measuredHeight = textLabel.measuredHeight + 20;
+			measuredWidth = textLabel.measuredWidth + 12;
+			measuredHeight = textLabel.measuredHeight + 14;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void

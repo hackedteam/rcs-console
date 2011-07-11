@@ -1,7 +1,8 @@
 package it.ht.rcs.console.model
 {
+  import it.ht.rcs.console.network.renderers.CollectorRenderer;
+  
   import mx.collections.ArrayCollection;
-  import mx.controls.Alert;
   import mx.resources.ResourceManager;
   import mx.rpc.events.ResultEvent;
   
@@ -20,43 +21,45 @@ package it.ht.rcs.console.model
     [Bindable]
     public var port:int;
     [Bindable]
-    public var instance:String;
-    [Bindable]
-    public var version:String;
-    [Bindable]
     public var poll:Boolean;
     [Bindable]
     public var configured:Boolean;
+    [Bindable]
+    public var instance:String;
+    [Bindable]
+    public var version:String;
     [Bindable]
     public var next:String;
     [Bindable]
     public var prev:String;
 
-    
+    public var renderer:CollectorRenderer;
+
     public function Collector(data:Object = null)
     {
-      /* default user (when creating new collector) */
+      /* default values (when creating new collector) */
       if (data == null) {
         _id = '';
         name = ResourceManager.getInstance().getString('localized_main', 'NEW_COLLECTOR');
         desc = '';
-        poll = false;
         address = '';
         type = 'remote';
         port = 4444;
+        poll = false;
         configured = true;
       } else {
         /* existing collector */
         _id = data._id;
         name = data.name;
         desc = data.desc;
-        poll = data.poll;
         address = data.address;
         type = data.type;
         port = data.port;
-        prev = data.prev;
-        next = data.next;
+        poll = data.poll;
+        next = data.next is ArrayCollection ? data.next[0] : data.next;
+        prev = data.prev is ArrayCollection ? data.prev[0] : data.prev;
       }
+      renderer = new CollectorRenderer(this);
     }
     
     public function toHash():Object
@@ -82,5 +85,92 @@ package it.ht.rcs.console.model
     {
       console.currentDB.collector_update(this, this.toHash());
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    private var _nextHop:Collector;
+    private var _prevHop:Collector;
+    
+    public function get nextHop():Collector
+    {
+      return _nextHop;
+    }
+    
+    public function set nextHop(newNextHop:Collector):void
+    {
+      _nextHop = newNextHop;
+    }
+    
+    public function get prevHop():Collector
+    {
+      return _prevHop;
+    }
+    
+    public function set prevHop(newPrevHop:Collector):void
+    {
+      _prevHop = newPrevHop;
+    }
+    
+    public function moveAfter(destination:Collector):void
+    {
+      if (_prevHop === destination)
+        return;
+      
+      _prevHop._nextHop = _nextHop;
+      if (_nextHop != null)
+        _nextHop._prevHop = _prevHop;
+      
+      if (destination._nextHop != null)
+        destination._nextHop._prevHop = this;
+      _nextHop = destination._nextHop;
+      _prevHop = destination;
+      destination._nextHop = this;
+    }
+    
+    public function detach():void
+    {
+      if (_nextHop != null)
+        _nextHop._prevHop = _prevHop;
+      _prevHop._nextHop = _nextHop;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   }
 }

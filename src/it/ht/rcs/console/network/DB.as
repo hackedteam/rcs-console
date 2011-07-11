@@ -1,21 +1,19 @@
-package it.ht.rcs.console.network.renderers
+package it.ht.rcs.console.network
 {
-  import it.ht.rcs.console.network.model.DB;
+  import it.ht.rcs.console.model.Collector;
   
   import spark.components.Label;
 
-  public class DBRenderer extends NetworkObjectRenderer
+  public class DB extends NetworkObject
 	{
 	
-		private var db:DB;
+    public var collectors:Vector.<Collector>;
 		
 		private var textLabel:Label;
 
-		public function DBRenderer(db:DB)
+		public function DB()
 		{
 			super();
-			
-			this.db = db;
 		}
 		
 		override protected function createChildren():void
@@ -24,7 +22,8 @@ package it.ht.rcs.console.network.renderers
 			
 			textLabel = new Label();
 			textLabel.text = '255.255.255.255';
-			textLabel.setStyle('fontSize', 20);
+			textLabel.setStyle('fontSize', 16);
+      textLabel.setStyle('fontWeight', 'bold');
 			addElement(textLabel);
 		}
 		
@@ -32,8 +31,8 @@ package it.ht.rcs.console.network.renderers
     {
 			super.measure();
 			
-			measuredWidth = textLabel.measuredWidth + 20;
-			measuredHeight = textLabel.measuredHeight + 40;
+			measuredWidth = textLabel.measuredWidth + 18;
+			measuredHeight = textLabel.measuredHeight + 32;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void

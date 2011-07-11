@@ -1,4 +1,4 @@
-package it.ht.rcs.console.network.renderers
+package it.ht.rcs.console.network
 {
   import flash.display.BitmapData;
   
@@ -8,10 +8,10 @@ package it.ht.rcs.console.network.renderers
   import spark.components.Image;
   import spark.layouts.HorizontalLayout;
 	
-	public class NetworkObjectRenderer extends Group
+	public class NetworkObject extends Group
 	{
 		
-		public function NetworkObjectRenderer()
+		public function NetworkObject()
 		{
 			var layout:HorizontalLayout = new HorizontalLayout();
 			layout.horizontalAlign = 'center';

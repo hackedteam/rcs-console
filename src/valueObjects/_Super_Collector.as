@@ -12,6 +12,7 @@ import flash.events.Event;
 import flash.events.EventDispatcher;
 import mx.binding.utils.ChangeWatcher;
 import mx.collections.ArrayCollection;
+import mx.events.CollectionEvent;
 import mx.events.PropertyChangeEvent;
 import mx.validators.ValidationResult;
 
@@ -52,15 +53,20 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
      * properties
      */
     private var _internal_port : int;
+    private var _internal_desc : String;
+    private var _internal_configured : Boolean;
+    private var _internal_next : ArrayCollection;
+    private var _internal_type : String;
+    private var _internal_version : int;
+    private var _internal_prev : ArrayCollection;
     private var _internal_updated_at : String;
     private var _internal_poll : Boolean;
-    private var _internal_desc : String;
     private var _internal__id : String;
-    private var _internal_configured : Boolean;
     private var _internal_address : String;
     private var _internal_name : String;
     private var _internal_created_at : String;
-    private var _internal_type : String;
+    private var _internal__mid : int;
+    private var _internal_instance : String;
 
     private static var emptyArray:Array = new Array();
 
@@ -77,13 +83,9 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         _model = new _CollectorEntityMetadata(this);
 
         // Bind to own data or source properties for cache invalidation triggering
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "updated_at", model_internal::setterListenerUpdated_at));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "desc", model_internal::setterListenerDesc));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "_id", model_internal::setterListener_id));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "address", model_internal::setterListenerAddress));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "name", model_internal::setterListenerName));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "created_at", model_internal::setterListenerCreated_at));
-        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "type", model_internal::setterListenerType));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "next", model_internal::setterListenerNext));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "prev", model_internal::setterListenerPrev));
+        model_internal::_changeWatcherArray.push(mx.binding.utils.ChangeWatcher.watch(this, "instance", model_internal::setterListenerInstance));
 
     }
 
@@ -95,6 +97,42 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
     public function get port() : int
     {
         return _internal_port;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get desc() : String
+    {
+        return _internal_desc;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get configured() : Boolean
+    {
+        return _internal_configured;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get next() : ArrayCollection
+    {
+        return _internal_next;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get type() : String
+    {
+        return _internal_type;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get version() : int
+    {
+        return _internal_version;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get prev() : ArrayCollection
+    {
+        return _internal_prev;
     }
 
     [Bindable(event="propertyChange")]
@@ -110,21 +148,9 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
     }
 
     [Bindable(event="propertyChange")]
-    public function get desc() : String
-    {
-        return _internal_desc;
-    }
-
-    [Bindable(event="propertyChange")]
     public function get _id() : String
     {
         return _internal__id;
-    }
-
-    [Bindable(event="propertyChange")]
-    public function get configured() : Boolean
-    {
-        return _internal_configured;
     }
 
     [Bindable(event="propertyChange")]
@@ -146,9 +172,15 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
     }
 
     [Bindable(event="propertyChange")]
-    public function get type() : String
+    public function get _mid() : int
     {
-        return _internal_type;
+        return _internal__mid;
+    }
+
+    [Bindable(event="propertyChange")]
+    public function get instance() : String
+    {
+        return _internal_instance;
     }
 
     public function clearAssociations() : void
@@ -166,6 +198,96 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         {
             _internal_port = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "port", oldValue, _internal_port));
+        }
+    }
+
+    public function set desc(value:String) : void
+    {
+        var oldValue:String = _internal_desc;
+        if (oldValue !== value)
+        {
+            _internal_desc = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "desc", oldValue, _internal_desc));
+        }
+    }
+
+    public function set configured(value:Boolean) : void
+    {
+        var oldValue:Boolean = _internal_configured;
+        if (oldValue !== value)
+        {
+            _internal_configured = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "configured", oldValue, _internal_configured));
+        }
+    }
+
+    public function set next(value:*) : void
+    {
+        var oldValue:ArrayCollection = _internal_next;
+        if (oldValue !== value)
+        {
+            if (value is ArrayCollection)
+            {
+                _internal_next = value;
+            }
+            else if (value is Array)
+            {
+                _internal_next = new ArrayCollection(value);
+            }
+            else if (value == null)
+            {
+                _internal_next = null;
+            }
+            else
+            {
+                throw new Error("value of next must be a collection");
+            }
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "next", oldValue, _internal_next));
+        }
+    }
+
+    public function set type(value:String) : void
+    {
+        var oldValue:String = _internal_type;
+        if (oldValue !== value)
+        {
+            _internal_type = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "type", oldValue, _internal_type));
+        }
+    }
+
+    public function set version(value:int) : void
+    {
+        var oldValue:int = _internal_version;
+        if (oldValue !== value)
+        {
+            _internal_version = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "version", oldValue, _internal_version));
+        }
+    }
+
+    public function set prev(value:*) : void
+    {
+        var oldValue:ArrayCollection = _internal_prev;
+        if (oldValue !== value)
+        {
+            if (value is ArrayCollection)
+            {
+                _internal_prev = value;
+            }
+            else if (value is Array)
+            {
+                _internal_prev = new ArrayCollection(value);
+            }
+            else if (value == null)
+            {
+                _internal_prev = null;
+            }
+            else
+            {
+                throw new Error("value of prev must be a collection");
+            }
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "prev", oldValue, _internal_prev));
         }
     }
 
@@ -189,16 +311,6 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         }
     }
 
-    public function set desc(value:String) : void
-    {
-        var oldValue:String = _internal_desc;
-        if (oldValue !== value)
-        {
-            _internal_desc = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "desc", oldValue, _internal_desc));
-        }
-    }
-
     public function set _id(value:String) : void
     {
         var oldValue:String = _internal__id;
@@ -206,16 +318,6 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         {
             _internal__id = value;
             this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "_id", oldValue, _internal__id));
-        }
-    }
-
-    public function set configured(value:Boolean) : void
-    {
-        var oldValue:Boolean = _internal_configured;
-        if (oldValue !== value)
-        {
-            _internal_configured = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "configured", oldValue, _internal_configured));
         }
     }
 
@@ -249,13 +351,23 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         }
     }
 
-    public function set type(value:String) : void
+    public function set _mid(value:int) : void
     {
-        var oldValue:String = _internal_type;
+        var oldValue:int = _internal__mid;
         if (oldValue !== value)
         {
-            _internal_type = value;
-            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "type", oldValue, _internal_type));
+            _internal__mid = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "_mid", oldValue, _internal__mid));
+        }
+    }
+
+    public function set instance(value:String) : void
+    {
+        var oldValue:String = _internal_instance;
+        if (oldValue !== value)
+        {
+            _internal_instance = value;
+            this.dispatchEvent(mx.events.PropertyChangeEvent.createUpdateEvent(this, "instance", oldValue, _internal_instance));
         }
     }
 
@@ -271,39 +383,33 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
      *  - the validity of the property (and the containing entity) if the given data property is required.
      */
 
-    model_internal function setterListenerUpdated_at(value:flash.events.Event):void
+    model_internal function setterListenerNext(value:flash.events.Event):void
     {
-        _model.invalidateDependentOnUpdated_at();
+        if (value is mx.events.PropertyChangeEvent)
+        {
+            if (mx.events.PropertyChangeEvent(value).newValue)
+            {
+                mx.events.PropertyChangeEvent(value).newValue.addEventListener(mx.events.CollectionEvent.COLLECTION_CHANGE, model_internal::setterListenerNext);
+            }
+        }
+        _model.invalidateDependentOnNext();
     }
 
-    model_internal function setterListenerDesc(value:flash.events.Event):void
+    model_internal function setterListenerPrev(value:flash.events.Event):void
     {
-        _model.invalidateDependentOnDesc();
+        if (value is mx.events.PropertyChangeEvent)
+        {
+            if (mx.events.PropertyChangeEvent(value).newValue)
+            {
+                mx.events.PropertyChangeEvent(value).newValue.addEventListener(mx.events.CollectionEvent.COLLECTION_CHANGE, model_internal::setterListenerPrev);
+            }
+        }
+        _model.invalidateDependentOnPrev();
     }
 
-    model_internal function setterListener_id(value:flash.events.Event):void
+    model_internal function setterListenerInstance(value:flash.events.Event):void
     {
-        _model.invalidateDependentOn_id();
-    }
-
-    model_internal function setterListenerAddress(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnAddress();
-    }
-
-    model_internal function setterListenerName(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnName();
-    }
-
-    model_internal function setterListenerCreated_at(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnCreated_at();
-    }
-
-    model_internal function setterListenerType(value:flash.events.Event):void
-    {
-        _model.invalidateDependentOnType();
+        _model.invalidateDependentOnInstance();
     }
 
 
@@ -327,40 +433,20 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         var validationFailureMessages:Array = new Array();
 
         var propertyValidity:Boolean = true;
-        if (!_model.updated_atIsValid)
+        if (!_model.nextIsValid)
         {
             propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_updated_atValidationFailureMessages);
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_nextValidationFailureMessages);
         }
-        if (!_model.descIsValid)
+        if (!_model.prevIsValid)
         {
             propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_descValidationFailureMessages);
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_prevValidationFailureMessages);
         }
-        if (!_model._idIsValid)
+        if (!_model.instanceIsValid)
         {
             propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::__idValidationFailureMessages);
-        }
-        if (!_model.addressIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_addressValidationFailureMessages);
-        }
-        if (!_model.nameIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_nameValidationFailureMessages);
-        }
-        if (!_model.created_atIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_created_atValidationFailureMessages);
-        }
-        if (!_model.typeIsValid)
-        {
-            propertyValidity = false;
-            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_typeValidationFailureMessages);
+            com.adobe.fiber.util.FiberUtils.arrayAdd(validationFailureMessages, _model.model_internal::_instanceValidationFailureMessages);
         }
 
         model_internal::_cacheInitialized_isValid = true;
@@ -441,191 +527,83 @@ public class _Super_Collector extends flash.events.EventDispatcher implements co
         }
     }
 
-    model_internal var _doValidationCacheOfUpdated_at : Array = null;
-    model_internal var _doValidationLastValOfUpdated_at : String;
+    model_internal var _doValidationCacheOfNext : Array = null;
+    model_internal var _doValidationLastValOfNext : ArrayCollection;
 
-    model_internal function _doValidationForUpdated_at(valueIn:Object):Array
+    model_internal function _doValidationForNext(valueIn:Object):Array
     {
-        var value : String = valueIn as String;
+        var value : ArrayCollection = valueIn as ArrayCollection;
 
-        if (model_internal::_doValidationCacheOfUpdated_at != null && model_internal::_doValidationLastValOfUpdated_at == value)
-           return model_internal::_doValidationCacheOfUpdated_at ;
+        if (model_internal::_doValidationCacheOfNext != null && model_internal::_doValidationLastValOfNext == value)
+           return model_internal::_doValidationCacheOfNext ;
 
-        _model.model_internal::_updated_atIsValidCacheInitialized = true;
+        _model.model_internal::_nextIsValidCacheInitialized = true;
         var validationFailures:Array = new Array();
         var errorMessage:String;
         var failure:Boolean;
 
         var valRes:ValidationResult;
-        if (_model.isUpdated_atAvailable && _internal_updated_at == null)
+        if (_model.isNextAvailable && _internal_next == null)
         {
-            validationFailures.push(new ValidationResult(true, "", "", "updated_at is required"));
+            validationFailures.push(new ValidationResult(true, "", "", "next is required"));
         }
 
-        model_internal::_doValidationCacheOfUpdated_at = validationFailures;
-        model_internal::_doValidationLastValOfUpdated_at = value;
+        model_internal::_doValidationCacheOfNext = validationFailures;
+        model_internal::_doValidationLastValOfNext = value;
 
         return validationFailures;
     }
     
-    model_internal var _doValidationCacheOfDesc : Array = null;
-    model_internal var _doValidationLastValOfDesc : String;
+    model_internal var _doValidationCacheOfPrev : Array = null;
+    model_internal var _doValidationLastValOfPrev : ArrayCollection;
 
-    model_internal function _doValidationForDesc(valueIn:Object):Array
+    model_internal function _doValidationForPrev(valueIn:Object):Array
     {
-        var value : String = valueIn as String;
+        var value : ArrayCollection = valueIn as ArrayCollection;
 
-        if (model_internal::_doValidationCacheOfDesc != null && model_internal::_doValidationLastValOfDesc == value)
-           return model_internal::_doValidationCacheOfDesc ;
+        if (model_internal::_doValidationCacheOfPrev != null && model_internal::_doValidationLastValOfPrev == value)
+           return model_internal::_doValidationCacheOfPrev ;
 
-        _model.model_internal::_descIsValidCacheInitialized = true;
+        _model.model_internal::_prevIsValidCacheInitialized = true;
         var validationFailures:Array = new Array();
         var errorMessage:String;
         var failure:Boolean;
 
         var valRes:ValidationResult;
-        if (_model.isDescAvailable && _internal_desc == null)
+        if (_model.isPrevAvailable && _internal_prev == null)
         {
-            validationFailures.push(new ValidationResult(true, "", "", "desc is required"));
+            validationFailures.push(new ValidationResult(true, "", "", "prev is required"));
         }
 
-        model_internal::_doValidationCacheOfDesc = validationFailures;
-        model_internal::_doValidationLastValOfDesc = value;
+        model_internal::_doValidationCacheOfPrev = validationFailures;
+        model_internal::_doValidationLastValOfPrev = value;
 
         return validationFailures;
     }
     
-    model_internal var _doValidationCacheOf_id : Array = null;
-    model_internal var _doValidationLastValOf_id : String;
+    model_internal var _doValidationCacheOfInstance : Array = null;
+    model_internal var _doValidationLastValOfInstance : String;
 
-    model_internal function _doValidationFor_id(valueIn:Object):Array
+    model_internal function _doValidationForInstance(valueIn:Object):Array
     {
         var value : String = valueIn as String;
 
-        if (model_internal::_doValidationCacheOf_id != null && model_internal::_doValidationLastValOf_id == value)
-           return model_internal::_doValidationCacheOf_id ;
+        if (model_internal::_doValidationCacheOfInstance != null && model_internal::_doValidationLastValOfInstance == value)
+           return model_internal::_doValidationCacheOfInstance ;
 
-        _model.model_internal::__idIsValidCacheInitialized = true;
+        _model.model_internal::_instanceIsValidCacheInitialized = true;
         var validationFailures:Array = new Array();
         var errorMessage:String;
         var failure:Boolean;
 
         var valRes:ValidationResult;
-        if (_model.is_idAvailable && _internal__id == null)
+        if (_model.isInstanceAvailable && _internal_instance == null)
         {
-            validationFailures.push(new ValidationResult(true, "", "", "_id is required"));
+            validationFailures.push(new ValidationResult(true, "", "", "instance is required"));
         }
 
-        model_internal::_doValidationCacheOf_id = validationFailures;
-        model_internal::_doValidationLastValOf_id = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfAddress : Array = null;
-    model_internal var _doValidationLastValOfAddress : String;
-
-    model_internal function _doValidationForAddress(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfAddress != null && model_internal::_doValidationLastValOfAddress == value)
-           return model_internal::_doValidationCacheOfAddress ;
-
-        _model.model_internal::_addressIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isAddressAvailable && _internal_address == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "address is required"));
-        }
-
-        model_internal::_doValidationCacheOfAddress = validationFailures;
-        model_internal::_doValidationLastValOfAddress = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfName : Array = null;
-    model_internal var _doValidationLastValOfName : String;
-
-    model_internal function _doValidationForName(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfName != null && model_internal::_doValidationLastValOfName == value)
-           return model_internal::_doValidationCacheOfName ;
-
-        _model.model_internal::_nameIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isNameAvailable && _internal_name == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "name is required"));
-        }
-
-        model_internal::_doValidationCacheOfName = validationFailures;
-        model_internal::_doValidationLastValOfName = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfCreated_at : Array = null;
-    model_internal var _doValidationLastValOfCreated_at : String;
-
-    model_internal function _doValidationForCreated_at(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfCreated_at != null && model_internal::_doValidationLastValOfCreated_at == value)
-           return model_internal::_doValidationCacheOfCreated_at ;
-
-        _model.model_internal::_created_atIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isCreated_atAvailable && _internal_created_at == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "created_at is required"));
-        }
-
-        model_internal::_doValidationCacheOfCreated_at = validationFailures;
-        model_internal::_doValidationLastValOfCreated_at = value;
-
-        return validationFailures;
-    }
-    
-    model_internal var _doValidationCacheOfType : Array = null;
-    model_internal var _doValidationLastValOfType : String;
-
-    model_internal function _doValidationForType(valueIn:Object):Array
-    {
-        var value : String = valueIn as String;
-
-        if (model_internal::_doValidationCacheOfType != null && model_internal::_doValidationLastValOfType == value)
-           return model_internal::_doValidationCacheOfType ;
-
-        _model.model_internal::_typeIsValidCacheInitialized = true;
-        var validationFailures:Array = new Array();
-        var errorMessage:String;
-        var failure:Boolean;
-
-        var valRes:ValidationResult;
-        if (_model.isTypeAvailable && _internal_type == null)
-        {
-            validationFailures.push(new ValidationResult(true, "", "", "type is required"));
-        }
-
-        model_internal::_doValidationCacheOfType = validationFailures;
-        model_internal::_doValidationLastValOfType = value;
+        model_internal::_doValidationCacheOfInstance = validationFailures;
+        model_internal::_doValidationLastValOfInstance = value;
 
         return validationFailures;
     }

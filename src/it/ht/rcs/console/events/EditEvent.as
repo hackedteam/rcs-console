@@ -2,6 +2,7 @@ package it.ht.rcs.console.events
 {
   import flash.events.Event;
   
+  import it.ht.rcs.console.model.Collector;
   import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.User;
   
@@ -9,8 +10,10 @@ package it.ht.rcs.console.events
   {
     public static const USER:String = "editUser";
     public static const GROUP:String = "editGroup";
+    public static const ANONYMIZER:String = "editAnonymizer";
     public var user:User;
     public var group:Group;
+    public var collector:Collector;
     
     public function EditEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
     {

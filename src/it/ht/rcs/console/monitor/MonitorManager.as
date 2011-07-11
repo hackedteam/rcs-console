@@ -38,7 +38,7 @@ package it.ht.rcs.console.monitor
       super.onRefresh(e);
       console.currentDB.status_index(onMonitorIndexResult);
     }
-   
+    
     private function onMonitorIndexResult(e:ResultEvent):void
     {
       var items:ArrayCollection = e.result as ArrayCollection;
@@ -102,8 +102,7 @@ package it.ht.rcs.console.monitor
 
     private function onRefreshCounter(e:Event):void
     {
-      trace(_classname + ' -- Refresh Counters');
-      
+      //trace(_classname + ' -- Refresh Counters');
       console.currentDB.status_counters(onMonitorCounters);
     }
     

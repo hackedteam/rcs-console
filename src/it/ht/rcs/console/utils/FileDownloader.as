@@ -38,15 +38,17 @@ package it.ht.rcs.console.utils {
         remoteStream = new URLStream();
         localStream = new FileStream();
         bytes = new ByteArray();
-
-        var request:URLRequest = new URLRequest("https://localhost:4444/file/"+remotePath);
-       
+        
+        var url:String = "https://localhost:4444/" + remotePath
+        var request:URLRequest = new URLRequest(url);
+        trace("downloading from " + url);
+        
         localFile = new File(localPath);
         localStream.openAsync(localFile, FileMode.WRITE);
         
         remoteStream.addEventListener(ProgressEvent.PROGRESS, function(e:ProgressEvent):void {
           
-          // trace('bytes available: ' + remoteStream.bytesAvailable + ' current position: ' + currentPosition + ' bytesLoaded: ' + e.bytesLoaded + ' bytesTotal: ' + e.bytesTotal);
+          trace('bytes available: ' + remoteStream.bytesAvailable + ' current position: ' + currentPosition + ' bytesLoaded: ' + e.bytesLoaded + ' bytesTotal: ' + e.bytesTotal);
           
           var bytesAvailable:uint = remoteStream.bytesAvailable;
           currentPosition += bytesAvailable;
@@ -79,7 +81,7 @@ package it.ht.rcs.console.utils {
     
     public function cancelDownload():void {
       closeStreams();
-      if (localFile)
+      if (localFile && localFile.exists)
         localFile.deleteFile();
     }
     

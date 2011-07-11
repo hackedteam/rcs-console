@@ -12,7 +12,7 @@
       
       private function cancel():void
       {
-        if (data.state == DownloadTask.STATE_CREATING || data.state == DownloadTask.STATE_DOWNLOADING)
+        if (data.isCreating() || data.isDownloading())
           Alert.show(resourceManager.getString('localized_main', 'CONFIRM_TASK_DELETION'),
                      resourceManager.getString('localized_main', 'CONFIRM'),
                      Alert.OK | Alert.CANCEL, null, doCancel);
@@ -23,7 +23,7 @@
       private function doCancel(event:CloseEvent):void
       {
         if(event.detail == Alert.OK)
-          DownloadManager.instance.destroyTask(data as DownloadTask);
+          DownloadManager.instance.removeTask(data as DownloadTask);
       }
       
     ]]>
@@ -39,5 +39,5 @@
               skinClass="spark.skins.spark.TitleWindowCloseButtonSkin"
               toolTip="{resourceManager.getString('localized_main', 'CANCEL')}"/>
   </s:SkinnableContainer>
-
+  
 </s:ItemRenderer>

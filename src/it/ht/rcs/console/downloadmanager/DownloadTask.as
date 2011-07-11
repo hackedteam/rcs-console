@@ -9,8 +9,9 @@ package it.ht.rcs.console.downloadmanager
   import it.ht.rcs.console.task.model.Task;
   import it.ht.rcs.console.utils.FileDownloader;
   
+  import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
-
+  
   public class DownloadTask
   {
     public static const STATE_IDLE:String = 'idle';
@@ -18,12 +19,14 @@ package it.ht.rcs.console.downloadmanager
     public static const STATE_DOWNLOADING:String = 'downloading';
     public static const STATE_FINISHED:String = 'finished';
     
-    private var creationTimer:Timer;
-    private var fileDownloader:FileDownloader;
-    private var task: it.ht.rcs.console.task.model.Task;
+    private var creationTimer: Timer;
+    private var fileDownloader: FileDownloader;
     
     [Bindable]
     private var db:DB;
+    
+    [Bindable]
+    public var task: Task;
     [Bindable]
     public var state:String = STATE_IDLE;
     [Bindable]
@@ -31,9 +34,15 @@ package it.ht.rcs.console.downloadmanager
     [Bindable]
     public var download_percentage:Object = {bytesLoaded:0, bytesTotal:0};
     
-    public function DownloadTask(task: Task, db: DB)
+    public function get desc():String
     {
-      this.task = task;
+      return this.task.desc;
+    }
+    
+    public function DownloadTask(task: Object, db: DB)
+    {
+      trace("Creating DownloadTask " + task._id);
+      this.task = new Task(task);
       this.db = db;
     }
     
@@ -49,47 +58,74 @@ package it.ht.rcs.console.downloadmanager
     
     public function destroy():void
     {
-      db.task.destroy(task._id);     
+      trace("Deleting task " + task._id);
+      db.task.destroy(task);    
     }
     
     public function start_update():void
     {
       if (state != STATE_IDLE) return;
       creationTimer = new Timer(1000);
-      creationTimer.addEventListener(TimerEvent.TIMER, update);
+      creationTimer.addEventListener(TimerEvent.TIMER, function ():void {
+        db.task.show(task._id, onUpdate, onUpdateFailure);
+      });
       creationTimer.start();
     }
     
-    private function update(event:TimerEvent):void
+    public function isFinished():Boolean
     {
-      db.task.show(task._id, update_creation);
+      return (state == DownloadTask.STATE_FINISHED);
     }
     
-    private function update_creation(event:ResultEvent):void
+    public function isCreating(): Boolean
     {
+      return (state == DownloadTask.STATE_CREATING);
+    }
+    
+    public function isDownloading(): Boolean
+    {
+      return (state == DownloadTask.STATE_DOWNLOADING);
+    }
+    
+    public function onUpdateFailure(event:FaultEvent):void
+    {
+      trace("Update failure!!! " + event);
+    }
+    
+    private function onUpdate(event:ResultEvent):void
+    {
+      // update description, progress and resource
       task.desc = event.result.desc;
       task.current = event.result.current;
+      task.resource = event.result.resource;
+      trace ("Updating task " + event.result._id + "[current: " + task.current + " | total: " + task.total + "]");
       
+      // update creation progress bar
       creation_percentage.bytesTotal = task.total;
       creation_percentage.bytesLoaded = task.current;
       
-      if (task.current == task.total) {
-        
+      // if creation is complete, start the download
+      if (task.current == task.total) {  
         creationTimer.stop();
         creationTimer = null;
         
+        trace("Task " + task._id +" creation complete.");
+        
         //NotificationPopup.showNotification(ResourceManager.getInstance().getString('localized_main', 'TASK_COMPLETE', [desc]));
         
-        if (event.result.grid_id) {
+        if (event.result.resource._id) {
+          trace("Downloading file " + event.result.resource._id);
           
-          task.resource = event.result.resource;
-          download_percentage.bytesTotal = event.result.file_size;
-          
+          // downloads are stored into /Desktop/RCS Downloads 
           var path:String = File.desktopDirectory.nativePath + '/RCS Downloads';
           new File(path).createDirectory();
-          fileDownloader = new FileDownloader(task.resource._id, path + '/' + task.file_name);
-          fileDownloader.onProgress = update_download;
-          fileDownloader.onComplete = complete;
+          
+          // start the downloader
+          var remote_uri:String = task.resource.type + '/' + task.resource._id;
+          var local_path:String = path + '/' + task.file_name;
+          fileDownloader = new FileDownloader(remote_uri, local_path);
+          fileDownloader.onProgress = onDownloadUpdate;
+          fileDownloader.onComplete = onDownloadComplete;
           fileDownloader.download();
           
           state = STATE_DOWNLOADING;
@@ -104,16 +140,16 @@ package it.ht.rcs.console.downloadmanager
       
     }
     
-    public function update_download(cur:Number, total:Number):void
+    public function onDownloadUpdate(cur:Number, total:Number):void
     {
+      // update download progress bar
       download_percentage.bytesLoaded = cur;
       download_percentage.bytesTotal = total;
     }
     
-    public function complete():void
+    public function onDownloadComplete():void
     {
       state = STATE_FINISHED;
-      db.task.destroy(task._id);
       //NotificationPopup.showNotification(ResourceManager.getInstance().getString('localized_main', 'DOWNLOAD_COMPLETE'));
     }
     

@@ -101,7 +101,7 @@ package it.ht.rcs.console.monitor
 
     private function onRefreshCounter(e:Event):void
     {
-      trace(_classname + ' -- Refresh Counters');
+      //trace(_classname + ' -- Refresh Counters');
       
       console.currentDB.monitor.counters(onMonitorCounters);
     }

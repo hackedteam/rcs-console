@@ -4,7 +4,7 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:network="it.ht.rcs.console.network.*"
          width="100%" height="100%" addedToStage="onAddedToStage()" title="Network">
-
+  
   
   <s:VGroup left="5" right="5" top="5" bottom="5" gap="0">
     
@@ -20,11 +20,11 @@
         <network:CollectorList width="100%" height="200"/>
       </s:NavigatorContent>
     </mx:ViewStack>
-
+    
     <s:Scroller width="100%" height="100%">
       <network:NetworkStage id="networkStage" db="{db1}"/>
     </s:Scroller>
-  
+    
   </s:VGroup>
   
   
@@ -32,6 +32,7 @@
     <![CDATA[
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.network.renderers.CollectorRenderer;
       import it.ht.rcs.console.network.renderers.DBRenderer;
       
       import mx.collections.ArrayCollection;
@@ -42,7 +43,7 @@
       private var db1:DBRenderer;
       private var db2:DBRenderer;
       [Bindable]
-      private var dp:ArrayCollection = new ArrayCollection([{name:'Coll 1'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}]);
+      private var dp:ArrayCollection;// = new ArrayCollection([{name:'Coll 1'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}, {name: 'Coll 2'}]);
       
       private function onAddedToStage():void
       {
@@ -65,26 +66,28 @@
       
       private function buildGraph(event:ResultEvent):void {
         var list:ArrayCollection = event.result as ArrayCollection;
-        var collectors:Vector.<Collector> = new Vector.<Collector>();
+        dp = list;
+        var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
 
         for each (var node:Collector in list) {
+          var cr:CollectorRenderer = new CollectorRenderer(node);
           if (node.type == 'local')
-            collectors.push(node);
-          var nextHop:Collector = node.next ? getCollectorById(node.next[0], list) : null;
-          node.nextHop = nextHop;
+            collectors.push(cr);
+          var nextHop:CollectorRenderer = node.next ? getCollectorById(node.next[0], collectors) : null;
+          cr.nextHop = nextHop;
           if (nextHop != null)
-            nextHop.prevHop = node;
+            nextHop.prevHop = cr;
         }
-//        var db:DBRenderer = new DBRenderer();
-//        db.collectors = collectors;
-//        db1 = db;
+        var db:DBRenderer = new DBRenderer();
+        db.collectors = collectors;
+        db1 = db;
       }
       
-      private function getCollectorById(_id:String, list:ArrayCollection):Collector {
+      private function getCollectorById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer {
         if (_id == null) return null;
-        for each (var coll:Collector in list)
-          if (coll._id == _id)
-            return coll;
+        for each (var cr:CollectorRenderer in list)
+          if (cr.collector._id == _id)
+            return cr;
         return null;
       }
       

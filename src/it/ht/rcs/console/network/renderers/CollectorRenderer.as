@@ -17,7 +17,7 @@ package it.ht.rcs.console.network.renderers
     private static const WIDTH:Number = 120;
     private static const HEIGHT:Number = 32;
 	
-		protected var collector:Collector;
+		public var collector:Collector;
 		
 		private var textLabel:Label;
 		
@@ -28,6 +28,7 @@ package it.ht.rcs.console.network.renderers
 			this.collector = collector;
       if (collector.type == 'remote')
 			  this.buttonMode = true;
+      
 			setStyle('backgroundColor', 0xbbbbbb);
 			
       addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
@@ -48,7 +49,7 @@ package it.ht.rcs.console.network.renderers
     
 		private function dragEnter(event:DragEvent):void
     {
-			if (collector.nextHop !== (event.dragInitiator as CollectorRenderer).collector)
+			if (nextHop !== event.dragInitiator as CollectorRenderer)
       {
 				var dropTarget:UIComponent = UIComponent(event.currentTarget);					
 				DragManager.acceptDragDrop(dropTarget);
@@ -106,6 +107,52 @@ package it.ht.rcs.console.network.renderers
 			graphics.drawRoundRect(0, 0, measuredWidth, measuredHeight, 20, 20);
 			graphics.endFill();
 		}
+    
+    private var _nextHop:CollectorRenderer;
+    private var _prevHop:CollectorRenderer;
+    
+    public function get nextHop():CollectorRenderer
+    {
+      return _nextHop;
+    }
+    
+    public function set nextHop(newNextHop:CollectorRenderer):void
+    {
+      _nextHop = newNextHop;
+    }
+    
+    public function get prevHop():CollectorRenderer
+    {
+      return _prevHop;
+    }
+    
+    public function set prevHop(newPrevHop:CollectorRenderer):void
+    {
+      _prevHop = newPrevHop;
+    }
+    
+    public function moveAfter(destination:CollectorRenderer):void
+    {
+      if (_prevHop === destination)
+        return;
+      
+      _prevHop._nextHop = _nextHop;
+      if (_nextHop != null)
+        _nextHop._prevHop = _prevHop;
+      
+      if (destination._nextHop != null)
+        destination._nextHop._prevHop = this;
+      _nextHop = destination._nextHop;
+      _prevHop = destination;
+      destination._nextHop = this;
+    }
+    
+    public function detach():void
+    {
+      if (_nextHop != null)
+        _nextHop._prevHop = _prevHop;
+      _prevHop._nextHop = _nextHop;
+    }
 		
 	}
 	

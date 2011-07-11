@@ -15,17 +15,23 @@ package it.ht.rcs.console.network.renderers
 		override protected function createChildren():void {
 			super.createChildren();
 			
-			textLabel = new Label();
-			textLabel.text = 'DB';
-			textLabel.setStyle('fontSize', 20);
-			addElement(textLabel);
+      if (textLabel == null)
+      {
+        textLabel = new Label();
+        textLabel.text = 'DB';
+        textLabel.setStyle('fontSize', 20);
+        textLabel.setStyle('textAlign', 'center');
+        textLabel.width = WIDTH - 20;
+        textLabel.maxDisplayedLines = 1;
+        addElement(textLabel);
+      }
 		}
 		
 		override protected function measure():void {
 			super.measure();
 			
-			width = measuredWidth = WIDTH; //textLabel.measuredWidth + 20;
-			height = measuredHeight = HEIGHT; //textLabel.measuredHeight + 40;
+			width = measuredWidth = WIDTH;
+			height = measuredHeight = HEIGHT;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void

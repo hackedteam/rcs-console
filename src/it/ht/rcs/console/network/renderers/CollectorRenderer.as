@@ -26,8 +26,7 @@ package it.ht.rcs.console.network.renderers
 			super();
 			
 			this.collector = collector;
-      if (collector.type == 'remote')
-			  this.buttonMode = true;
+  	  this.buttonMode = collector.type == 'remote';
       
 			setStyle('backgroundColor', 0xbbbbbb);
 			
@@ -37,44 +36,6 @@ package it.ht.rcs.console.network.renderers
 			addEventListener(DragEvent.DRAG_DROP, dragDrop);
 		}
 		
-    private function mouseDown(event:MouseEvent):void
-    {
-      if ((event.currentTarget as CollectorRenderer).collector.type == 'remote')
-      {
-        var dragInitiator:CollectorRenderer = event.currentTarget as CollectorRenderer;
-        var dragSource:DragSource = new DragSource();
-        DragManager.doDrag(dragInitiator, dragSource, event, getProxy(dragInitiator));
-      }
-    }
-    
-		private function dragEnter(event:DragEvent):void
-    {
-			if (nextHop !== event.dragInitiator as CollectorRenderer)
-      {
-				var dropTarget:UIComponent = UIComponent(event.currentTarget);					
-				DragManager.acceptDragDrop(dropTarget);
-				DragManager.showFeedback(DragManager.COPY);
-				setStyle('backgroundColor', 0x5555bb);
-			}
-		}
-		
-		private function dragExit(event:DragEvent):void
-    {
-			setStyle('backgroundColor', 0xbbbbbb);
-		}
-		
-		private function dragDrop(event:DragEvent):void
-    {
-//			var sourceAnon:Anonymizer = (event.dragInitiator as AnonymizerRenderer).anonymizer;
-//			var destAnon:Collector = this.collector;
-//			
-//			sourceAnon.moveAfter(destAnon);
-//      (parent as UIComponent).invalidateSize();
-//			(parent as UIComponent).invalidateDisplayList();
-			
-			setStyle('backgroundColor', 0xbbbbbb);
-		}
-
     override protected function createChildren():void
     {
 			super.createChildren();
@@ -95,8 +56,8 @@ package it.ht.rcs.console.network.renderers
     {
 			super.measure();
 			
-			width = measuredWidth = WIDTH; //textLabel.measuredWidth + 12;
-			height = measuredHeight = HEIGHT; //textLabel.measuredHeight + 14;
+			width = measuredWidth = WIDTH;
+			height = measuredHeight = HEIGHT;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
@@ -107,6 +68,48 @@ package it.ht.rcs.console.network.renderers
 			graphics.drawRoundRect(0, 0, measuredWidth, measuredHeight, 20, 20);
 			graphics.endFill();
 		}
+    
+    
+    
+    private function mouseDown(event:MouseEvent):void
+    {
+      if ((event.currentTarget as CollectorRenderer).collector.type == 'remote')
+      {
+        var dragInitiator:CollectorRenderer = event.currentTarget as CollectorRenderer;
+        var dragSource:DragSource = new DragSource();
+        DragManager.doDrag(dragInitiator, dragSource, event, getProxy(dragInitiator));
+      }
+    }
+    
+    private function dragEnter(event:DragEvent):void
+    {
+      if (nextHop !== event.dragInitiator as CollectorRenderer)
+      {
+        var dropTarget:UIComponent = UIComponent(event.currentTarget);					
+        DragManager.acceptDragDrop(dropTarget);
+        DragManager.showFeedback(DragManager.COPY);
+        setStyle('backgroundColor', 0x5555bb);
+      }
+    }
+    
+    private function dragExit(event:DragEvent):void
+    {
+      setStyle('backgroundColor', 0xbbbbbb);
+    }
+    
+    private function dragDrop(event:DragEvent):void
+    {
+      //			var sourceAnon:Anonymizer = (event.dragInitiator as AnonymizerRenderer).anonymizer;
+      //			var destAnon:Collector = this.collector;
+      //			
+      //			sourceAnon.moveAfter(destAnon);
+      //      (parent as UIComponent).invalidateSize();
+      //			(parent as UIComponent).invalidateDisplayList();
+      
+      setStyle('backgroundColor', 0xbbbbbb);
+    }
+    
+    
     
     private var _nextHop:CollectorRenderer;
     private var _prevHop:CollectorRenderer;

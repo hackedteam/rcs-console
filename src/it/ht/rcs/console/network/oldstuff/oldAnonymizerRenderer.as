@@ -84,32 +84,6 @@ package it.ht.rcs.console.network.model
 			}
 		}
 		
-		override protected function createChildren():void
-    {
-			super.createChildren();
-
-			textLabel = new Label();
-			textLabel.text = anonymizer.ip;
-			textLabel.setStyle('fontSize', 14);
-			addElement(textLabel);
-		}
-		
-		override protected function measure():void
-    {
-			super.measure();
-			
-			measuredWidth = textLabel.measuredWidth + 12;
-			measuredHeight = textLabel.measuredHeight + 14;
-		}
-		
-		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
-		{
-			super.updateDisplayList(unscaledWidth, unscaledHeight);
-			
-			graphics.beginFill(getStyle('backgroundColor'));
-			graphics.drawRoundRect(0, 0, measuredWidth, measuredHeight, 20, 20);
-			graphics.endFill();
-		}
 		
 	}
 	

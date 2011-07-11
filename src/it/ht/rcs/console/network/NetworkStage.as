@@ -1,6 +1,5 @@
 package it.ht.rcs.console.network
 {
-  import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.network.renderers.CollectorRenderer;
   import it.ht.rcs.console.network.renderers.DBRenderer;
   import it.ht.rcs.console.network.renderers.IPRenderer;
@@ -61,21 +60,21 @@ package it.ht.rcs.console.network
 		override protected function measure():void
     {
       super.measure();
-//      if (_db != null && _db.collectors.length > 0) {
-//        measuredWidth = measuredMinWidth = (_db.collectors[0].renderer.measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length-1)) + 47;
-//        var maxBranch:Number = 0, branch:Number = 0, nextHop:NetworkObject;
-//        for each (var coll:Collector in _db.collectors) {
-//          nextHop = coll.nextHop;
-//          while (nextHop != null) {
-//            branch += VERTICAL_DISTANCE;
-//            nextHop = nextHop.nextHop;
-//          }
-//          branch += VERTICAL_DISTANCE;
-//          maxBranch = branch > maxBranch ? branch : maxBranch;
-//        }
-//        measuredHeight = maxBranch;
-//            
-//      }
+      if (_db != null && _db.collectors.length > 0) {
+        measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length-1)) + 47;
+        var maxBranch:Number = 0, branch:Number = 0, nextHop:CollectorRenderer;
+        for each (var coll:CollectorRenderer in _db.collectors) {
+          nextHop = coll.nextHop;
+          while (nextHop != null) {
+            branch += VERTICAL_DISTANCE;
+            nextHop = nextHop.nextHop;
+          }
+          branch += VERTICAL_DISTANCE;
+          maxBranch = branch > maxBranch ? branch : maxBranch;
+        }
+        measuredHeight = maxBranch;
+            
+      }
 		}
     
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
@@ -85,7 +84,7 @@ package it.ht.rcs.console.network
       var _width:Number = unscaledWidth > measuredWidth ? unscaledWidth : measuredWidth;
       var _height:Number = unscaledHeight > measuredHeight ? unscaledHeight : measuredHeight;
 
-      graphics.lineStyle(1, 0x000000, 1, true);
+      graphics.lineStyle(1, 0x222222, 1, true);
       
 			if (_db != null) {
 			

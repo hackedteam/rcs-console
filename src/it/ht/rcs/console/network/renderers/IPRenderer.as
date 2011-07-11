@@ -10,11 +10,6 @@ package it.ht.rcs.console.network.renderers
 	
 		private var textLabel:Label;
 		
-		public function IPRenderer()
-		{
-			super();
-		}
-		
 		override protected function createChildren():void
     {
 			super.createChildren();
@@ -35,8 +30,8 @@ package it.ht.rcs.console.network.renderers
     {
 			super.measure();
 			
-      width = measuredWidth = WIDTH; //textLabel.measuredWidth + 12;
-      height = measuredHeight = HEIGHT; //textLabel.measuredHeight + 14;
+      width = measuredWidth = WIDTH;
+      height = measuredHeight = HEIGHT;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void

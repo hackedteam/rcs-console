@@ -1,7 +1,7 @@
 package it.ht.rcs.console.downloadmanager
 {
   import com.adobe.serialization.json.JSON;
-   
+  
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.events.AccountEvent;
   import it.ht.rcs.console.model.Manager;
@@ -27,21 +27,24 @@ package it.ht.rcs.console.downloadmanager
     override protected function onLoggingIn(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Logging In');
+      // get all available tasks
       console.currentDB.task.all(onTaskIndexResult);
     }
     
     private function onTaskIndexResult(e:ResultEvent):void
     {
+      trace(_classname + ' (onTaskIndexResult) e.result = ' + e.result);
       var items:ArrayCollection = e.result as ArrayCollection;
       _items.removeAll();
       
       if (active = items.length > 0)
-        items.source.forEach(itemToTask);
+        items.source.forEach(itemToDownloadTask);
     }
     
-    private function itemToTask(task:Object, index:int, arr:Array):void
+    private function itemToDownloadTask(task:Object, index:int, arr:Array):void
     {
-      var downloadTask:DownloadTask = new DownloadTask(task as Task, console.currentDB);
+      trace(_classname + ' (itemToDownloadTask) e.result = ' + task);
+      var downloadTask:DownloadTask = new DownloadTask(task, console.currentDB);
       addTask(downloadTask);
       downloadTask.start_update();
     }
@@ -59,9 +62,19 @@ package it.ht.rcs.console.downloadmanager
     override protected function onForceLogOut(e:AccountEvent):void
     {
       trace(_classname + ' (instance) -- Force Log Out');
+      clearFinished();
       for each(var t:DownloadTask in _items)
         t.cleanup();
       super.onForceLogOut(e);
+    }
+    
+    public function clearFinished():void
+    {
+      for (var i:int = _items.length-1; i >= 0; i--)
+      {
+        if (_items.source[i].isFinished())
+          removeTask(_items.getItemAt(i) as DownloadTask);
+      }
     }
     
     public function createTask(type:String, fileName:String):void
@@ -71,16 +84,16 @@ package it.ht.rcs.console.downloadmanager
     
     public function onTaskCreateResult(e:ResultEvent):void
     {
-      itemToTask(e.result as Task, 0, null);
+      itemToDownloadTask(e.result as Task, 0, null);
     }
     
-    public function destroyTask(t:DownloadTask):void
+    override protected function onItemRemove(t:*):void
     {
       t.cleanup();
       removeTask(t);
       t.destroy();
     }
-        
+    
     public function addTask(t:DownloadTask):void
     {
       addItem(t);

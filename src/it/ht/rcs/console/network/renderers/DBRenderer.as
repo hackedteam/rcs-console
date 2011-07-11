@@ -4,7 +4,7 @@ package it.ht.rcs.console.network.renderers
   
   import spark.components.Label;
 
-  public class DBRenderer extends NetworkObjectRenderer
+  public class DBRenderer extends NetworkObject
 	{
 	
 		private var db:DBModel;
@@ -13,14 +13,12 @@ package it.ht.rcs.console.network.renderers
 
 		public function DBRenderer(db:DBModel)
 		{
-			trace('--- DBRenderer: constructor()');
 			super();
 			
 			this.db = db;
 		}
 		
 		override protected function createChildren():void {
-			trace('--- DBRenderer: createChildren()');
 			super.createChildren();
 			
 			textLabel = new Label();
@@ -30,7 +28,6 @@ package it.ht.rcs.console.network.renderers
 		}
 		
 		override protected function measure():void {
-			trace('--- DBRenderer: measure()');
 			super.measure();
 			
 			measuredWidth = textLabel.measuredWidth + 20;
@@ -39,7 +36,6 @@ package it.ht.rcs.console.network.renderers
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			trace('--- DBRenderer: updateDisplayList()');
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(0xdddddd);

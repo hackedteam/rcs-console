@@ -3,7 +3,6 @@ package it.ht.rcs.console.network.renderers
   import flash.events.MouseEvent;
   
   import it.ht.rcs.console.network.model.Collector;
-  import it.ht.rcs.console.network.NetworkObject;
   
   import mx.core.DragSource;
   import mx.core.UIComponent;

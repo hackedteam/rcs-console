@@ -1,7 +1,8 @@
 package it.ht.rcs.console.network
 {
   import it.ht.rcs.console.network.model.Collector;
-  import it.ht.rcs.console.network.renderers.CollectorRenderer;
+  import it.ht.rcs.console.network.renderers.DBRenderer;
+  import it.ht.rcs.console.network.renderers.IPRenderer;
   
   import mx.collections.ArrayCollection;
   
@@ -10,7 +11,7 @@ package it.ht.rcs.console.network
   public class NetworkStage extends Group
 	{
 		
-		private var _db:DB;
+		private var _db:DBRenderer;
 		
 		private static const COLLECTORS_DISTANCE:int = 60;
 		private static const VERTICAL_DISTANCE:int = 55;
@@ -24,7 +25,7 @@ package it.ht.rcs.console.network
 		}
 		
 		private var ips:ArrayCollection;
-		public function set db(db:DB):void
+		public function set db(db:DBRenderer):void
     {
 			_db = db;
       
@@ -51,7 +52,7 @@ package it.ht.rcs.console.network
       }
 		}
 		
-		public function get db():DB
+		public function get db():DBRenderer
     {
 			return _db;
 		}

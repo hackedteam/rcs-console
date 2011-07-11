@@ -13,28 +13,29 @@
     <![CDATA[
       import it.ht.rcs.console.network.model.Anonymizer;
       import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.network.model.DB;
+      import it.ht.rcs.console.network.model.DBModel;
       
-      private var db1:DB;
-      private var db2:DB;
+      private var db1:DBModel;
+      private var db2:DBModel;
       
       private function init():void {
         
         trace('--- App: init()');
         
+        /*
         db1 = getDB1();
         db2 = getDB2();
         networkStage.db = db1;
-        
+        */
       }
       
       private function switchDB(event:MouseEvent):void {
         networkStage.db = networkStage.db === db1 ? db2 : db1;
       }
       
-      private function getDB1():DB {
+      private function getDB1():DBModel {
         
-        var db:DB = new DB('DB 1');
+        var db:DBModel = new DBModel('DB 1');
         
         var collectors:Vector.<Collector> = new Vector.<Collector>();
         
@@ -48,8 +49,8 @@
         
         anonymizerTwo.nextHop = anonymizerThree;
         
-        collectorOne.nextHop = anonymizerOne;
-        collectorTwo.nextHop = anonymizerTwo;
+        //collectorOne.nextHop = anonymizerOne;
+        //collectorTwo.nextHop = anonymizerTwo;
         
         collectors.push(collectorOne);
         collectors.push(collectorTwo);
@@ -61,9 +62,9 @@
         
       }
       
-      private function getDB2():DB {
+      private function getDB2():DBModel {
         
-        var db:DB = new DB('DB 2');
+        var db:DBModel = new DBModel('DB 2');
         
         var collectors:Vector.<Collector> = new Vector.<Collector>();
         
@@ -77,8 +78,8 @@
         
         anonymizerTwo.nextHop = anonymizerThree;
         
-        collectorOne.nextHop = anonymizerOne;
-        collectorTwo.nextHop = anonymizerTwo;
+        //collectorOne.nextHop = anonymizerOne;
+        //collectorTwo.nextHop = anonymizerTwo;
         
         collectors.push(collectorOne);
         collectors.push(collectorTwo);

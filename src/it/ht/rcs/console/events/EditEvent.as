@@ -2,8 +2,8 @@ package it.ht.rcs.console.events
 {
   import flash.events.Event;
   
-  import it.ht.rcs.console.model.Group;
-  import it.ht.rcs.console.model.User;
+  import it.ht.rcs.console.accounting.model.Group;
+  import it.ht.rcs.console.accounting.model.User;
   
   public class EditEvent extends Event
   {

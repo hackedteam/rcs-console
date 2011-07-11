@@ -1,17 +1,17 @@
 package it.ht.rcs.console.network.renderers
 {
-  import it.ht.rcs.console.network.model.DB;
+  import it.ht.rcs.console.network.model.DBModel;
   
   import spark.components.Label;
 
   public class DBRenderer extends NetworkObjectRenderer
 	{
 	
-		private var db:DB;
+		private var db:DBModel;
 		
 		private var textLabel:Label;
 
-		public function DBRenderer(db:DB)
+		public function DBRenderer(db:DBModel)
 		{
 			trace('--- DBRenderer: constructor()');
 			super();

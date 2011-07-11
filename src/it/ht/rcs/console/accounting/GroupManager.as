@@ -1,7 +1,8 @@
 package it.ht.rcs.console.accounting
 {
+  import it.ht.rcs.console.accounting.model.Group;
+  import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.RefreshEvent;
-  import it.ht.rcs.console.model.Group;
   import it.ht.rcs.console.model.Manager;
   
   import mx.collections.ArrayCollection;
@@ -26,7 +27,7 @@ package it.ht.rcs.console.accounting
 
     override protected function onItemRemove(o:*):void
     { 
-      console.currentDB.group_destroy(o);
+      console.currentDB.group.destroy(o);
     }
     
     override protected function onItemUpdate(e:*):void
@@ -36,13 +37,13 @@ package it.ht.rcs.console.accounting
         o[e.property] = e.newValue.source;
       else
         o[e.property] = e.newValue;
-      console.currentDB.group_update(e.source, o);
+      console.currentDB.group.update(e.source, o);
     }
 
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-	    console.currentDB.group_index(onGroupIndexResult);
+	    console.currentDB.group.all(onGroupIndexResult);
     }
     
     private function onGroupIndexResult(e:ResultEvent):void
@@ -54,10 +55,34 @@ package it.ht.rcs.console.accounting
       });
     }
     
+    public function removeUser(g:Group, u:User):void
+    {
+      console.currentDB.group.del_user(g, u, function _():void {
+        reload(g);
+        UserManager.instance.reload(u);
+      });
+    }
+    
+    public function addUser(g:Group, u:User):void
+    {
+      console.currentDB.group.add_user(g, u, function _():void {
+        reload(g);
+        UserManager.instance.reload(u);
+      });
+    }
+    
+    public function reload(g:Group):void
+    {
+      console.currentDB.group.show(g._id, function (e:ResultEvent):void {
+        g.name = e.result.name;
+        g.user_ids = e.result.user_ids;
+      });
+    }
+    
     public function newGroup(callback:Function):void
     {
-      console.currentDB.group_create(new Group(), function _(e:ResultEvent):void {
-        var g:Group = new Group(e.result);
+      console.currentDB.group.create(Group.defaultGroup(), function _(e:ResultEvent):void {
+        var g:Group = e.result as Group;
         addItem(g);
         callback(g);
       });
@@ -77,7 +102,7 @@ package it.ht.rcs.console.accounting
     
     public function setalertGroup(g:Group):void
     {
-      console.currentDB.group_alert(g);
+      console.currentDB.group.alert(g);
       if (g != null) 
         g.alert = true;
     }

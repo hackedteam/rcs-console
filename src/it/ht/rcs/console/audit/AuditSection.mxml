@@ -37,13 +37,13 @@
       private function refresh(event:Event=null):void
       {
         if (event is RefreshEvent)
-          console.currentDB.audit_filters(onFiltersResult);
+          console.currentDB.audit.filters(onFiltersResult);
         
         if(!grid.filter.hasOwnProperty('from'))
           setDefaultDate();
         
         printFilterObject();
-        console.currentDB.audit_index(grid.filter, onResult);
+        console.currentDB.audit.all(grid.filter, onResult);
       }
 
       private function onFiltersResult(event:ResultEvent):void
@@ -88,7 +88,7 @@
       {
           var popup:TaskPopup = new TaskPopup();
           popup.okCallback = function(fileName:String):void {
-            DownloadManager.instance.createTask("Test Task", fileName);
+            DownloadManager.instance.createTask("audit", fileName);
           };
           PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
           PopUpManager.centerPopUp(popup);

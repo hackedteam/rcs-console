@@ -7,6 +7,7 @@
                title="{resourceManager.getString('localized_main', 'CLOCK_SETTINGS').toUpperCase()}">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.UserManager;
       import it.ht.rcs.console.model.Clock;
       
       import mx.collections.ArrayCollection;
@@ -27,16 +28,16 @@
         Clock.instance.setConsoleTimezone(dropTimeList.selectedIndex - 12);
         /* save the timezone in the user profile */ 
         console.currentSession.user.timezone = dropTimeList.selectedIndex - 12;
-        console.currentSession.user.save();
+        UserManager.instance.update(console.currentSession.user, {timezone: console.currentSession.user.timezone});
       }
     ]]>
   </fx:Script>
   
   <!-- labels -->
-  <s:Label text="{resourceManager.getString('localized_main', 'UTC_TIME')}:" top="20" left="20" styleName="ClockProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'LOCAL_TIME')}:" left="20" top="50" styleName="ClockProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}:" left="20" top="80" styleName="ClockProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}:" left="20" top="113" styleName="ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'UTC_TIME')}:" top="20" left="20" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'LOCAL_TIME')}:" left="20" top="50" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}:" left="20" top="80" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}:" left="20" top="113" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
   
   <!-- data -->
   <s:Label left="170" top="20" text="{Clock.instance.currentUTCTime}"/>

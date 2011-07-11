@@ -31,7 +31,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.model.Collector;
+      import it.ht.rcs.console.network.model.Collector;
       
       import mx.collections.ArrayCollection;
       import mx.core.FlexGlobals;
@@ -59,7 +59,7 @@
       
       private function refresh(event:RefreshEvent):void
       {
-        console.currentDB.collector_index(buildGraph);
+        console.currentDB.network.all(buildGraph);
       }
       
       private function buildGraph(event:ResultEvent):void {
@@ -69,7 +69,7 @@
         for each (var node:Collector in list) {
           if (node.type == 'local')
             collectors.push(node);
-          var nextHop:Collector = getCollectorById(node.next, list);
+          var nextHop:Collector = node.next ? getCollectorById(node.next[0], list) : null;
           node.nextHop = nextHop;
           if (nextHop != null)
             nextHop.prevHop = node;
@@ -87,14 +87,36 @@
         return null;
       }
       
-      private function switchDB(event:MouseEvent):void {
-        networkStage.db = networkStage.db === db1 ? db2 : db1;
-      }
-      
-      private function getDB1():DB {
-        
-        var db:DB = new DB();
-        
+//      private function switchDB(event:MouseEvent):void {
+//        networkStage.db = networkStage.db === db1 ? db2 : db1;
+//      }
+//      
+//      private function getDB1():DBModel {
+//        
+//        var db:DB = new DB();
+//        
+////        var collectors:Vector.<Collector> = new Vector.<Collector>();
+////        
+////        var collectorOne:Collector = new Collector('Collector 1');
+////        var collectorTwo:Collector = new Collector('Collector 2');
+////        var collectorThree:Collector = new Collector('Collector 3');
+////        
+////        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
+////        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
+////        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
+////        
+////        anonymizerTwo.nextHop = anonymizerThree;
+////        
+////        collectorOne.nextHop = anonymizerOne;
+////        collectorTwo.nextHop = anonymizerTwo;
+////        
+////        collectors.push(collectorOne);
+////        collectors.push(collectorTwo);
+////        collectors.push(collectorThree);
+////        
+////        db.collectors = collectors;
+//        var db:DBModel = new DBModel('DB 1');
+//        
 //        var collectors:Vector.<Collector> = new Vector.<Collector>();
 //        
 //        var collectorOne:Collector = new Collector('Collector 1');
@@ -107,23 +129,45 @@
 //        
 //        anonymizerTwo.nextHop = anonymizerThree;
 //        
-//        collectorOne.nextHop = anonymizerOne;
-//        collectorTwo.nextHop = anonymizerTwo;
+//        //collectorOne.nextHop = anonymizerOne;
+//        //collectorTwo.nextHop = anonymizerTwo;
 //        
 //        collectors.push(collectorOne);
 //        collectors.push(collectorTwo);
 //        collectors.push(collectorThree);
 //        
 //        db.collectors = collectors;
-        
-        return db;
-        
-      }
-      
-      private function getDB2():DB {
-        
-        var db:DB = new DB();
-        
+//        
+//        return db;
+//        
+//      }
+//      
+//      private function getDB2():DBModel {
+//        
+//        var db:DB = new DB();
+//        
+////        var collectors:Vector.<Collector> = new Vector.<Collector>();
+////        
+////        var collectorOne:Collector = new Collector('Collector 1');
+////        var collectorTwo:Collector = new Collector('Collector 2');
+////        var collectorThree:Collector = new Collector('Collector 3');
+////        
+////        var anonymizerOne:Anonymizer = new Anonymizer('Anonymizer 1');
+////        var anonymizerTwo:Anonymizer = new Anonymizer('Anonymizer 2');
+////        var anonymizerThree:Anonymizer = new Anonymizer('Anonymizer 3');
+////        
+////        anonymizerTwo.nextHop = anonymizerThree;
+////        
+////        collectorOne.nextHop = anonymizerOne;
+////        collectorTwo.nextHop = anonymizerTwo;
+////        
+////        collectors.push(collectorOne);
+////        collectors.push(collectorTwo);
+////        //collectors.push(collectorThree);
+////        
+////        db.collectors = collectors;
+//        var db:DBModel = new DBModel('DB 2');
+//        
 //        var collectors:Vector.<Collector> = new Vector.<Collector>();
 //        
 //        var collectorOne:Collector = new Collector('Collector 1');
@@ -136,18 +180,18 @@
 //        
 //        anonymizerTwo.nextHop = anonymizerThree;
 //        
-//        collectorOne.nextHop = anonymizerOne;
-//        collectorTwo.nextHop = anonymizerTwo;
+//        //collectorOne.nextHop = anonymizerOne;
+//        //collectorTwo.nextHop = anonymizerTwo;
 //        
 //        collectors.push(collectorOne);
 //        collectors.push(collectorTwo);
 //        //collectors.push(collectorThree);
 //        
 //        db.collectors = collectors;
-        
-        return db;
-        
-      }
+//        
+//        return db;
+//        
+//      }
       
     ]]>
   </fx:Script>

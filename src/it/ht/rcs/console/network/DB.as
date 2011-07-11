@@ -1,6 +1,6 @@
 package it.ht.rcs.console.network
 {
-  import it.ht.rcs.console.model.Collector;
+  import it.ht.rcs.console.network.model.Collector;
   
   import spark.components.Label;
 

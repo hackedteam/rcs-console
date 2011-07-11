@@ -7,6 +7,7 @@
                title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.UserManager;
       import mx.collections.ArrayCollection;
       import mx.managers.PopUpManager;
       
@@ -22,7 +23,7 @@
        
         /* save the pref in the user profile */
         console.currentSession.user.locale = locale.selectedItem;
-        console.currentSession.user.save();
+        UserManager.instance.update(console.currentSession.user, {locale: console.currentSession.user.locale});
       }
       
       private function changePass():void
@@ -36,11 +37,11 @@
   </fx:Script>  
   
   <!-- labels -->
-  <s:Label text="{resourceManager.getString('localized_main', 'USER')}:" top="20" left="20" styleName="UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'PRIVILEGES')}:" left="20" top="80" styleName="UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'CONTACT')}:" left="20" top="50" styleName="UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'LANGUAGE')}:" left="20" top="110" styleName="UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'PASSWORD')}:" left="20" top="140" styleName="UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'USER')}:" top="20" left="20" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'PRIVILEGES')}:" left="20" top="80" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'CONTACT')}:" left="20" top="50" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'LANGUAGE')}:" left="20" top="110" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
+  <s:Label text="{resourceManager.getString('localized_main', 'PASSWORD')}:" left="20" top="140" styleName="it.ht.rcs.console.accounting.view.UserProfile"/>
   
   <!-- data -->
   <s:Label text="{console.currentSession.user.name}" left="120" top="20"/>

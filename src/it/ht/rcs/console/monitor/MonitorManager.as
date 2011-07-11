@@ -1,14 +1,13 @@
 package it.ht.rcs.console.monitor
 {
-	import com.adobe.serialization.json.JSON;
-	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
 	import it.ht.rcs.console.events.RefreshEvent;
 	import it.ht.rcs.console.model.Manager;
-	import it.ht.rcs.console.model.Status;
+	import it.ht.rcs.console.monitor.model.Status;
+	import it.ht.rcs.console.monitor.model.StatusCounters;
 	import it.ht.rcs.console.utils.CounterBaloon;
 	
 	import mx.collections.ArrayCollection;
@@ -36,7 +35,7 @@ package it.ht.rcs.console.monitor
     override protected function onRefresh(e:RefreshEvent):void
     {
       super.onRefresh(e);
-      console.currentDB.status_index(onMonitorIndexResult);
+      console.currentDB.monitor.all(onMonitorIndexResult);
     }
     
     private function onMonitorIndexResult(e:ResultEvent):void
@@ -50,7 +49,7 @@ package it.ht.rcs.console.monitor
     
     override protected function onItemRemove(o:*):void 
     { 
-      console.currentDB.status_destroy(o._id);
+      console.currentDB.monitor.destroy(o._id);
     }
     
     private function onAutoRefresh(e:Event):void
@@ -102,8 +101,9 @@ package it.ht.rcs.console.monitor
 
     private function onRefreshCounter(e:Event):void
     {
-      //trace(_classname + ' -- Refresh Counters');
-      console.currentDB.status_counters(onMonitorCounters);
+      trace(_classname + ' -- Refresh Counters');
+      
+      console.currentDB.monitor.counters(onMonitorCounters);
     }
     
     private function onMonitorCounters(e:ResultEvent):void
@@ -120,7 +120,7 @@ package it.ht.rcs.console.monitor
       /* default, reset all values */
       _counterBaloon.value = 0;
       
-      var counters:Object = JSON.decode(e.result as String);
+      var counters:StatusCounters = e.result as StatusCounters;
       
       if (counters['error'] != 0) {
         _counterBaloon.value = counters['error'];

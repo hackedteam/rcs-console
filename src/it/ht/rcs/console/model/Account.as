@@ -5,9 +5,11 @@ package it.ht.rcs.console.model
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
   
+  import it.ht.rcs.console.DB;
+  import it.ht.rcs.console.DBFaultNotifier;
+  import it.ht.rcs.console.I18N;
+  import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.AccountEvent;
-  import it.ht.rcs.services.db.DemoDB;
-  import it.ht.rcs.services.db.RemoteDB;
   
   import mx.controls.Alert;
   import mx.core.FlexGlobals;
@@ -65,7 +67,7 @@ package it.ht.rcs.console.model
       console.currentSession.destroy();
       console.currentSession = null;
       /* request to the DB, ignoring the results */
-      console.currentDB.logout();
+      console.currentDB.session.logout();
       exitApplication ? FlexGlobals.topLevelApplication.exit() : FlexGlobals.topLevelApplication.currentState = console.LOGGED_OUT_STATE;
       
     }
@@ -77,19 +79,21 @@ package it.ht.rcs.console.model
       this.lastUsername = user;
       this.lastServer = server;
       
+      var notifier:DBFaultNotifier = new DBFaultNotifier();
+      
       /* this is for DEMO purpose only, no database will be contacted, all the data are fake */
       if (user == 'demo' && pass == '' && server == 'demo') {
-        console.currentDB = new DemoDB();
+        console.currentDB = new DB(server, notifier, new I18N());
         trace('Account.login -- DEMO MODE');
       } else {
-        console.currentDB = new RemoteDB(server);
+        console.currentDB = new DB(server, notifier, new I18N());
       }
       
       /* remember the function for the async handlers */
       _callback = callback;
       _errback = errback;
       
-      console.currentDB.login({user:user, pass:pass}, onResult, onFault);
+      console.currentDB.session.login({user:user, pass:pass}, onResult, onFault);
       
     }
     
@@ -98,7 +102,7 @@ package it.ht.rcs.console.model
       /* save the info for the next login */
       save_previous();
       
-      var u:User = new User(e.result.user);
+      var u:User = e.result.user as User;
       
       /* create the current session */
       console.currentSession = new Session(u, lastServer, e.result.cookie);

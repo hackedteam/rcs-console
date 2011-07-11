@@ -1,4 +1,4 @@
-package it.ht.rcs.console.model
+package it.ht.rcs.console.monitor
 {
   import com.adobe.serialization.json.JSON;
   
@@ -8,6 +8,7 @@ package it.ht.rcs.console.model
   
   import mx.core.FlexGlobals;
   import mx.rpc.events.ResultEvent;
+  import it.ht.rcs.console.model.CurrMaxObject;
   
   [Bindable]
   public class LicenseManager

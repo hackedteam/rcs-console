@@ -3,15 +3,16 @@ package it.ht.rcs.console.monitor
   import com.adobe.serialization.json.JSON;
   
   import it.ht.rcs.console.events.RefreshEvent;
+  import it.ht.rcs.console.model.CurrMaxObject;
+  import it.ht.rcs.console.model.Manager;
   import it.ht.rcs.console.monitor.model.License;
   import it.ht.rcs.console.monitor.model.LicenseCount;
   
   import mx.core.FlexGlobals;
   import mx.rpc.events.ResultEvent;
-  import it.ht.rcs.console.model.CurrMaxObject;
   
   [Bindable]
-  public class LicenseManager
+  public class LicenseManager extends Manager
   {
     public var type:String = "reusable";
     public var serial:String = "off";
@@ -45,22 +46,12 @@ package it.ht.rcs.console.monitor
     
     public function LicenseManager()
     {
+      super();
     }
     
-    public function start():void
+    override protected function onRefresh(e:RefreshEvent):void
     {
-      /* react to the global refresh event */
-      FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, load_license);
-    }
-    
-    public function stop():void
-    {
-      /* after stop, we don't want to refresh anymore */
-      FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, load_license);
-    }
-    
-    public function load_license(e:RefreshEvent):void
-    {
+      super.onRefresh(e);
       trace('LicenseManager -- Refresh');
       
       console.currentDB.license.limit(onLoadLimit);

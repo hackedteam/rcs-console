@@ -4,13 +4,13 @@ package it.ht.rcs.console.downloadmanager
   
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.events.AccountEvent;
-  import it.ht.rcs.console.model.Manager;
+  import it.ht.rcs.console.model.ItemManager;
   import it.ht.rcs.console.task.model.Task;
   
   import mx.collections.ArrayCollection;
   import mx.rpc.events.ResultEvent;
   
-  public class DownloadManager extends Manager
+  public class DownloadManager extends ItemManager
   {
     /* singleton */
     private static var _instance:DownloadManager = new DownloadManager();

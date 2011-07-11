@@ -3,7 +3,7 @@ package it.ht.rcs.console.accounting
   import it.ht.rcs.console.accounting.model.Group;
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.RefreshEvent;
-  import it.ht.rcs.console.model.Manager;
+  import it.ht.rcs.console.model.ItemManager;
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
@@ -14,7 +14,7 @@ package it.ht.rcs.console.accounting
   import mx.events.CollectionEvent;
   import mx.rpc.events.ResultEvent;
   
-  public class GroupManager extends Manager
+  public class GroupManager extends ItemManager
   {                                                     
     /* singleton */
     private static var _instance:GroupManager = new GroupManager();

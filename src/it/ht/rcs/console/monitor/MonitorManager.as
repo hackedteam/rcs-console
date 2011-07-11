@@ -5,7 +5,7 @@ package it.ht.rcs.console.monitor
 	import flash.utils.Timer;
 	
 	import it.ht.rcs.console.events.RefreshEvent;
-	import it.ht.rcs.console.model.Manager;
+	import it.ht.rcs.console.model.ItemManager;
 	import it.ht.rcs.console.monitor.model.Status;
 	import it.ht.rcs.console.monitor.model.StatusCounters;
 	import it.ht.rcs.console.utils.CounterBaloon;
@@ -14,7 +14,7 @@ package it.ht.rcs.console.monitor
 	import mx.core.FlexGlobals;
 	import mx.rpc.events.ResultEvent;
 
-  public class MonitorManager extends Manager
+  public class MonitorManager extends ItemManager
   {
     
     private var _counterBaloon:CounterBaloon = new CounterBaloon();

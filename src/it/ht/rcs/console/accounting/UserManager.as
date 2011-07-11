@@ -2,7 +2,7 @@ package it.ht.rcs.console.accounting
 {
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.RefreshEvent;
-  import it.ht.rcs.console.model.Manager;
+  import it.ht.rcs.console.model.ItemManager;
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
@@ -16,7 +16,7 @@ package it.ht.rcs.console.accounting
   import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
   
-  public class UserManager extends Manager
+  public class UserManager extends ItemManager
   {
     [Bindable]
     public var _sessions:ArrayList = new ArrayList();

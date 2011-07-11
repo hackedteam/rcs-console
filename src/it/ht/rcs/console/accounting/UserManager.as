@@ -18,9 +18,6 @@ package it.ht.rcs.console.accounting
   
   public class UserManager extends ItemManager
   {
-    [Bindable]
-    public var _sessions:ArrayList = new ArrayList();
-                                                                    
     /* singleton */
     private static var _instance:UserManager = new UserManager();
     public static function get instance():UserManager { return _instance; } 
@@ -49,11 +46,6 @@ package it.ht.rcs.console.accounting
     {
       super.onRefresh(e);
       
-      _sessions.removeAll();
-
-      /* retrieve the connected users */
-      console.currentDB.session.all(onSessionIndexResult);
-      
       /* system users */
       console.currentDB.user.all(onUserIndexResult);
     }
@@ -81,16 +73,7 @@ package it.ht.rcs.console.accounting
         u.group_ids = e.result.group_ids;
       });
     }
-    
-    public function onSessionIndexResult(e:ResultEvent):void
-    {
-      var items:ArrayCollection = e.result as ArrayCollection;
-      _sessions.removeAll();
-      items.source.forEach(function toUserArray(element:*, index:int, arr:Array):void {
-        _sessions.addItem(element);
-      });
-    }
-    
+      
     public function newUser(callback:Function):void
     {     
       console.currentDB.user.create(User.defaultUser(), function (e:ResultEvent):void {
@@ -110,31 +93,6 @@ package it.ht.rcs.console.accounting
     public function update(user:User, properties:Object):void
     {
       console.currentDB.user.update(user, properties);
-    }
-    
-    public function getSessionsView():ListCollectionView
-    {
-      /* create the view for the caller */
-      var lcv:ListCollectionView = new ListCollectionView();
-      lcv.list = _sessions;
-      
-      /* default sorting is alphabetical */
-      var sort:Sort = new Sort();
-      sort.fields = [new SortField('time', true, false, true)];
-      lcv.sort = sort;
-      lcv.refresh();
-      
-      return lcv;
-    }
-    
-    public function disconnectUser(u:Object):void
-    {
-      var idx : int = _sessions.getItemIndex(u);
-      if (idx >= 0) 
-        _sessions.removeItemAt(idx);
-      
-      /* disconnect call to db */
-      console.currentDB.session.destroy(u['cookie']);
     }
 
   }

@@ -1,4 +1,4 @@
-package it.ht.rcs.console.model
+package it.ht.rcs.console.accounting
 {
   
   import flash.filesystem.File;
@@ -7,10 +7,19 @@ package it.ht.rcs.console.model
   
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.DBFaultNotifier;
-  import locale.I18N;
+  import it.ht.rcs.console.accounting.model.Session;
   import it.ht.rcs.console.accounting.model.User;
-  import it.ht.rcs.console.events.AccountEvent;
+  import it.ht.rcs.console.events.RefreshEvent;
+  import it.ht.rcs.console.events.SessionEvent;
+  import it.ht.rcs.console.model.ItemManager;
   
+  import locale.I18N;
+  
+  import mx.collections.ArrayCollection;
+  import mx.collections.ISort;
+  import mx.collections.ListCollectionView;
+  import mx.collections.Sort;
+  import mx.collections.SortField;
   import mx.controls.Alert;
   import mx.core.FlexGlobals;
   import mx.events.CloseEvent;
@@ -18,12 +27,12 @@ package it.ht.rcs.console.model
   import mx.rpc.events.FaultEvent;
   import mx.rpc.events.ResultEvent;
   
-  public class Account
+  public class SessionManager extends ItemManager
   {
     
     /* singleton */
-    private static var _instance:Account = new Account();
-    public static function get instance():Account { return _instance; } 
+    private static var _instance:SessionManager = new SessionManager();
+    public static function get instance():SessionManager { return _instance; } 
     
     [Bindable]
     public var lastUsername:String;
@@ -33,16 +42,62 @@ package it.ht.rcs.console.model
     private var _errback:Function;
     private var _callback:Function;
     
-    public function Account()
+    public function SessionManager()
     {
+      super();
       load_previous();
     }
+
+    /* SESSIONS LIST MANAGEMENT */
+
+    override protected function onRefresh(e:RefreshEvent):void
+    {
+      super.onRefresh(e);
+      
+      /* retrieve the connected users */
+      console.currentDB.session.all(onSessionIndexResult);
+    }
+    
+    public function onSessionIndexResult(e:ResultEvent):void
+    {
+      var items:ArrayCollection = e.result as ArrayCollection;
+      _items.removeAll();
+      items.source.forEach(function toUserArray(element:*, index:int, arr:Array):void {
+        addItem(new Session(element));
+      });
+    }
+    
+    public function disconnectUser(u:Object):void
+    {
+      _items.removeItem(u);
+      
+      /* disconnect call to db */
+      console.currentDB.session.destroy(u['cookie']);
+    }
+    
+    override public function getView(sortCriteria:ISort=null, filterFunction:Function=null):ListCollectionView
+    {
+      /* create the view for the caller */
+      var lcv:ListCollectionView = new ListCollectionView();
+      lcv.list = _items;
+      
+      /* sorting by time */
+      var sort:Sort = new Sort();
+      sort.fields = [new SortField('time', true, false, true)];
+      lcv.sort = sort;
+      lcv.refresh();
+      
+      return lcv;
+    }
+    
+    
+    /* CURRENT SESSION MANAGEMENT */
     
     public function logout(exitApplication:Boolean = false):void {
     
-      trace('Account.logout');
+      trace('SessionManager.logout');
       
-      var event:AccountEvent = new AccountEvent(AccountEvent.LOGGING_OUT, false, true);
+      var event:SessionEvent = new SessionEvent(SessionEvent.LOGGING_OUT, false, true);
       FlexGlobals.topLevelApplication.dispatchEvent(event);
       if (event.isDefaultPrevented())
         Alert.show(ResourceManager.getInstance().getString('localized_main', 'CONFIRM_LOGOUT'),
@@ -58,13 +113,12 @@ package it.ht.rcs.console.model
     
     public function forceLogout(exitApplication:Boolean = false):void {
       
-      trace('Account.forceLogout');
+      trace('SessionManager.forceLogout');
       
-      var event:AccountEvent = new AccountEvent(AccountEvent.FORCE_LOG_OUT, false, true);
+      var event:SessionEvent = new SessionEvent(SessionEvent.FORCE_LOG_OUT, false, true);
       FlexGlobals.topLevelApplication.dispatchEvent(event);
       
       /* destroy the current session */
-      console.currentSession.destroy();
       console.currentSession = null;
       /* request to the DB, ignoring the results */
       console.currentDB.session.logout();
@@ -74,7 +128,7 @@ package it.ht.rcs.console.model
     
     public function login(user:String, pass:String, server:String, callback:Function, errback:Function):void
     {
-      trace('Account.login');
+      trace('SessionManager.login');
       
       this.lastUsername = user;
       this.lastServer = server;
@@ -93,25 +147,23 @@ package it.ht.rcs.console.model
       _callback = callback;
       _errback = errback;
       
-      console.currentDB.session.login({user:user, pass:pass}, onResult, onFault);
-      
+      console.currentDB.session.login({user:user, pass:pass}, onLoginResult, onLoginFault);
     }
     
-    private function onResult(e:ResultEvent):void
+    private function onLoginResult(e:ResultEvent):void
     {
       /* save the info for the next login */
       save_previous();
       
-      var u:User = e.result.user as User;
-      
-      /* create the current session */
-      console.currentSession = new Session(u, lastServer, e.result.cookie);
+      /* save the current session */
+      console.currentSession = e.result as Session;
+      console.currentSession.server = lastServer;
       
       /* invoke the callback */
       _callback();
     }
     
-    private function onFault(e:FaultEvent):void
+    private function onLoginFault(e:FaultEvent):void
     {
       /* HTTP 403 is "not authorized" */
       if (e.statusCode == 403) {

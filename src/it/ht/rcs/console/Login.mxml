@@ -7,14 +7,12 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.events.AccountEvent;
-      import it.ht.rcs.console.model.Account;
+      import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.model.Clock;
+      import it.ht.rcs.console.accounting.SessionManager;
       
       import mx.core.FlexGlobals;
       import mx.events.ResizeEvent;
-      
-      [Bindable]
-      private var account:Account;
       
       private function init():void
       {
@@ -23,8 +21,6 @@
       
       private function added():void
       {
-        /* create the object and load the previous login info */
-        account = new Account();
         /* reset the error message */
         ErrorMessage.text = '';
         /* center on screen */
@@ -50,7 +46,7 @@
         /* reset the error message */
         ErrorMessage.text = '';
         /* perform login to the server */
-        Account.instance.login(UserNameText.text, PasswordText.text, ServerText.text, onSuccess, onFailure);
+        SessionManager.instance.login(UserNameText.text, PasswordText.text, ServerText.text, onSuccess, onFailure);
       }
       
       private function onSuccess():void
@@ -59,8 +55,10 @@
         PasswordText.text = '';
         /* set the locale of the current user */
         resourceManager.localeChain = [console.currentSession.user.locale];
+        /* update the clock timezone */
+        Clock.instance.setConsoleTimezone(console.currentSession.user.timezone);
         /* send the global LOGIN event */
-        FlexGlobals.topLevelApplication.dispatchEvent(new AccountEvent(AccountEvent.LOGGING_IN));
+        FlexGlobals.topLevelApplication.dispatchEvent(new SessionEvent(SessionEvent.LOGGING_IN));
         /* switch to the main stage */
         FlexGlobals.topLevelApplication.currentState = console.LOGGED_IN_STATE;
       }
@@ -91,13 +89,13 @@
 
   <mx:Form id="loginForm" defaultButton="{LoginButton}" horizontalCenter="0" verticalCenter="-20">
     <mx:FormItem label="Username">
-      <s:TextInput id="UserNameText" width="200" text="{account.lastUsername}" addedToStage="UserNameText.setFocus()"/>
+      <s:TextInput id="UserNameText" width="200" text="{SessionManager.instance.lastUsername}" addedToStage="UserNameText.setFocus()"/>
     </mx:FormItem>
     <mx:FormItem label="Password">
       <s:TextInput id="PasswordText" width="200" displayAsPassword="true"/>
     </mx:FormItem>
     <mx:FormItem label="Server">
-      <s:TextInput id="ServerText" width="200" text="{account.lastServer}"/>
+      <s:TextInput id="ServerText" width="200" text="{SessionManager.instance.lastServer}"/>
     </mx:FormItem>
   </mx:Form>
   <s:Label id="ErrorMessage" left="137" bottom="43" styleName="error" text="Error message..."/>

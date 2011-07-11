@@ -3,7 +3,7 @@ package it.ht.rcs.console.model
   
   import flash.utils.getQualifiedClassName;
   
-  import it.ht.rcs.console.events.AccountEvent;
+  import it.ht.rcs.console.events.SessionEvent;
   import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayList;
@@ -32,7 +32,7 @@ package it.ht.rcs.console.model
       _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
     }
     
-    override protected function onForceLogOut(e:AccountEvent):void
+    override protected function onForceLogOut(e:SessionEvent):void
     {
       super.onForceLogOut(e);
       trace(_classname + ' (itemManager) -- Force Log Out');

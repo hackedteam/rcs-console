@@ -3,7 +3,7 @@ package it.ht.rcs.console.model
   
   import flash.utils.getQualifiedClassName;
   
-  import it.ht.rcs.console.events.AccountEvent;
+  import it.ht.rcs.console.events.SessionEvent;
   import it.ht.rcs.console.events.RefreshEvent;
   
   import mx.collections.ArrayList;
@@ -24,22 +24,22 @@ package it.ht.rcs.console.model
       _classname = flash.utils.getQualifiedClassName(this).split('::')[1];
       trace(_classname + ' (manager) -- Init');
       
-      FlexGlobals.topLevelApplication.addEventListener(AccountEvent.LOGGING_IN, onLoggingIn);
-      FlexGlobals.topLevelApplication.addEventListener(AccountEvent.LOGGING_OUT, onLoggingOut);
-      FlexGlobals.topLevelApplication.addEventListener(AccountEvent.FORCE_LOG_OUT, onForceLogOut);
+      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_IN, onLoggingIn);
+      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
+      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.FORCE_LOG_OUT, onForceLogOut);
     }
     
-    protected function onLoggingIn(e:AccountEvent):void
+    protected function onLoggingIn(e:SessionEvent):void
     {
       trace(_classname + ' (manager) -- Logging In');
     }
     
-    protected function onLoggingOut(e:AccountEvent):void
+    protected function onLoggingOut(e:SessionEvent):void
     {
       trace(_classname + ' (manager) -- Logging Out');
     }
     
-    protected function onForceLogOut(e:AccountEvent):void
+    protected function onForceLogOut(e:SessionEvent):void
     {
       trace(_classname + ' (manager) -- Force Log Out');
     }

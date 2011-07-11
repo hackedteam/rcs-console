@@ -6,6 +6,7 @@
           creationComplete="init()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.SessionManager;
       import it.ht.rcs.console.accounting.UserManager;
       import it.ht.rcs.console.accounting.model.User;
       import it.ht.rcs.console.events.EditEvent;
@@ -107,7 +108,7 @@
   <s:SkinnableContainer width="100%" height="100%">
     <s:Label text="{resourceManager.getString('localized_main', 'USERS_CONNECTED')}" horizontalCenter="0" top="5" styleName="AccountingTitles"/>
     <s:BorderContainer id="activeuserlistshadow" borderVisible="false" dropShadowVisible="true" right="0" left="0" top="30" bottom="0">
-      <mx:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{UserManager.instance.getSessionsView()}">
+      <mx:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{SessionManager.instance.getView()}">
         <mx:columns>
           <mx:DataGridColumn headerText="User" dataField="user.name" minWidth="200"/>
           <mx:DataGridColumn headerText="Privileges" dataField="level" width="65" resizable="false" itemRenderer="it.ht.rcs.console.accounting.view.PrivsRenderer"/>
@@ -119,10 +120,11 @@
                 <s:MXItemRenderer>
                   <fx:Script>
                     <![CDATA[
+                      import it.ht.rcs.console.accounting.SessionManager;
                       import it.ht.rcs.console.accounting.UserManager;
                     ]]>
                   </fx:Script>
-                  <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" height="15" width="15" toolTip="{resourceManager.getString('localized_main', 'DISCONNECT_USER')}" horizontalCenter="0" click="{UserManager.instance.disconnectUser(data)}" />                          
+                  <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" height="15" width="15" toolTip="{resourceManager.getString('localized_main', 'DISCONNECT_USER')}" horizontalCenter="0" click="{SessionManager.instance.disconnectUser(data)}" />                          
                 </s:MXItemRenderer>
               </fx:Component>
             </mx:itemRenderer>

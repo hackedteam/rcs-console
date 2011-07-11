@@ -36,20 +36,20 @@ package it.ht.rcs.console.network
       
       ips = new ArrayCollection();
       
-      addElement(_db);
-      for each (var collector:Collector in _db.collectors)
-      {
-        //addElement(collector.renderer);
-        var anonymizer:Collector = collector.nextHop as Collector;
-        while (anonymizer != null)
-        {
-          //addElement(anonymizer.renderer);
-          anonymizer = anonymizer.nextHop as Collector;
-        }
-        var ip:IPRenderer = new IPRenderer();
-        ips.addItem(ip);
-        addElement(ip);
-      }
+//      addElement(_db);
+//      for each (var collector:Collector in _db.collectors)
+//      {
+//        //addElement(collector.renderer);
+//        var anonymizer:Collector = collector.nextHop as Collector;
+//        while (anonymizer != null)
+//        {
+//          //addElement(anonymizer.renderer);
+//          anonymizer = anonymizer.nextHop as Collector;
+//        }
+//        var ip:IPRenderer = new IPRenderer();
+//        ips.addItem(ip);
+//        addElement(ip);
+//      }
 		}
 		
 		public function get db():DBRenderer

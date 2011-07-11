@@ -7,7 +7,7 @@ package it.ht.rcs.console.model
   
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.DBFaultNotifier;
-  import it.ht.rcs.console.I18N;
+  import locale.I18N;
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.events.AccountEvent;
   

@@ -2,38 +2,45 @@ package it.ht.rcs.console.network.renderers
 {
   import spark.components.Label;
 
-  public class IPRenderer extends NetworkObjectRenderer
+  public class IPRenderer extends NetworkObject
 	{
+    
+    private static const WIDTH:Number = 120;
+    private static const HEIGHT:Number = 40;
 	
 		private var textLabel:Label;
 		
 		public function IPRenderer()
 		{
-			trace('--- IPRenderer: constructor()');
 			super();
 		}
 		
-		override protected function createChildren():void {
-			trace('--- IPRenderer: createChildren()');
+		override protected function createChildren():void
+    {
 			super.createChildren();
 			
-			textLabel = new Label();
-			textLabel.text = '255.255.255.255';
-			textLabel.setStyle('fontSize', 16);
-			addElement(textLabel);
+      if (textLabel == null)
+      {
+			  textLabel = new Label();
+			  textLabel.text = '255.255.255.255';
+			  textLabel.setStyle('fontSize', 12);
+        textLabel.setStyle('textAlign', 'center');
+        textLabel.width = WIDTH - 20;
+        textLabel.maxDisplayedLines = 1;
+			  addElement(textLabel);
+      }
 		}
 		
-		override protected function measure():void {
-			trace('--- IPRenderer: measure()');
+		override protected function measure():void
+    {
 			super.measure();
 			
-			measuredWidth = textLabel.measuredWidth + 20;
-			measuredHeight = textLabel.measuredHeight + 30;
+      width = measuredWidth = WIDTH; //textLabel.measuredWidth + 12;
+      height = measuredHeight = HEIGHT; //textLabel.measuredHeight + 14;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
-			trace('--- IPRenderer: updateDisplayList()');
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(0xdddddd);

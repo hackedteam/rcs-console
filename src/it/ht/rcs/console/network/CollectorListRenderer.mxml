@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                xmlns:s="library://ns.adobe.com/flex/spark" 
+                xmlns:mx="library://ns.adobe.com/flex/mx" 
+                autoDrawBackground="true"
+                doubleClickEnabled="true" doubleClick="edit()"
+                creationComplete="init()">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.EditEvent;
+      import it.ht.rcs.console.network.model.Collector;
+      
+      import mx.core.DragSource;
+      import mx.managers.DragManager;
+
+      private function init():void {
+        addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+      }
+      
+      private function mouseDown(event:MouseEvent):void
+      {
+        if (event.currentTarget is CollectorListRenderer)
+        {
+          var dragInitiator:CollectorListRenderer = event.currentTarget as CollectorListRenderer;
+          var dragSource:DragSource = new DragSource();
+          DragManager.doDrag(dragInitiator, dragSource, event);
+        }
+      }
+      
+      private function edit():void
+      {
+//        var evt:EditEvent = new EditEvent(EditEvent.ANONYMIZER, true);
+//        evt.collector = data as Collector;
+//        dispatchEvent(evt);
+      }
+    ]]>
+  </fx:Script>
+  <s:SkinnableContainer x="0" y="0" width="70" >
+    <mx:Image source="img/items/user.png" left="0" top="5" width="70" height="60"/>
+    <s:Label text="{data.name}" top="70" horizontalCenter="0" width="70" textAlign="center"/>
+  </s:SkinnableContainer>
+  
+</s:ItemRenderer>

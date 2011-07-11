@@ -1,7 +1,5 @@
 package it.ht.rcs.console.monitor
 {
-	import com.adobe.serialization.json.JSON;
-	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
@@ -39,7 +37,7 @@ package it.ht.rcs.console.monitor
       super.onRefresh(e);
       console.currentDB.monitor.all(onMonitorIndexResult);
     }
-   
+    
     private function onMonitorIndexResult(e:ResultEvent):void
     {
       var items:ArrayCollection = e.result as ArrayCollection;

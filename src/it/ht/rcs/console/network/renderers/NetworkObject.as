@@ -8,10 +8,10 @@ package it.ht.rcs.console.network.renderers
   import spark.components.Image;
   import spark.layouts.HorizontalLayout;
 	
-	public class NetworkObjectRenderer extends Group
+	public class NetworkObject extends Group
 	{
 		
-		public function NetworkObjectRenderer()
+		public function NetworkObject()
 		{
 			var layout:HorizontalLayout = new HorizontalLayout();
 			layout.horizontalAlign = 'center';
@@ -20,7 +20,8 @@ package it.ht.rcs.console.network.renderers
 			this.layout = layout;
 		}
 		
-		protected function getProxy(proxy:UIComponent):Image {
+		protected function getProxy(proxy:UIComponent):Image
+    {
 			var bitmapData:BitmapData = new BitmapData(proxy.width, proxy.height, true, 0);
 			bitmapData.draw(proxy);
 			var image:Image = new Image();

@@ -7,6 +7,7 @@ package it.ht.rcs.console.events
   
   public class EditEvent extends Event
   {
+    
     public static const USER:String = "editUser";
     public static const GROUP:String = "editGroup";
     public var user:User;
@@ -18,12 +19,14 @@ package it.ht.rcs.console.events
       trace('EditEvent.' + type.toUpperCase());
     }
     
-    public override function clone():Event {
+    public override function clone():Event
+    {
       trace('Clone EditEvent');
       var e:EditEvent = new EditEvent(type, bubbles, cancelable);
       e.group = group;
       e.user = user;
       return e;
     }
+    
   }
 }

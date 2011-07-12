@@ -10,10 +10,10 @@
       import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
       import it.ht.rcs.console.events.EditEvent;
+      import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import mx.collections.ListCollectionView;
-      import mx.controls.Alert;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
@@ -39,11 +39,11 @@
         if (user == null)
           return;
         
-        Alert.show(resourceManager.getString('localized_main', 'CONFIRM_USER_DELETION') + ' ' + user.name + ' ?', resourceManager.getString('localized_main', 'CONFIRM'), Alert.YES|Alert.NO, null,
+        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_USER_DELETION') + ' ' + user.name + ' ?', resourceManager.getString('localized_main', 'CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
-            if (e.detail == Alert.YES) 
+            if (e.detail == AlertPopUp.YES) 
               UserManager.instance.removeItem(user);
-          }, null, Alert.NO);
+          }, null, AlertPopUp.NO);
       }
       
       private function addUser():void

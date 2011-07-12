@@ -1,11 +1,11 @@
-package it.ht.rcs.console
+package it.ht.rcs.console.utils
 {
   import com.adobe.serialization.json.JSON;
   import com.adobe.serialization.json.JSONParseError;
   
+  import it.ht.rcs.console.IFaultNotifier;
   import it.ht.rcs.console.accounting.controller.SessionManager;
   
-  import mx.controls.Alert;
   import mx.resources.ResourceManager;
   import mx.rpc.events.FaultEvent;
   
@@ -26,14 +26,14 @@ package it.ht.rcs.console
       
       /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
-        Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
         SessionManager.instance.forceLogout();
         return; 
       }
       
       /* server error (cannot connect) */
       if (e.statusCode == 0) {
-        Alert.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
         SessionManager.instance.forceLogout();
         return;
       }
@@ -44,7 +44,7 @@ package it.ht.rcs.console
         decoded = JSON.decode(e.fault.content as String);
       } catch (json_error:JSONParseError) {
         decoded = e.fault.content as String;
-        Alert.show(decoded, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        AlertPopUp.show(decoded, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
         return;
       }
       
@@ -61,7 +61,7 @@ package it.ht.rcs.console
       if (localized_error == null)
         localized_error = message;
       
-      Alert.show(localized_error, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+      AlertPopUp.show(localized_error, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
     }
   }
 }

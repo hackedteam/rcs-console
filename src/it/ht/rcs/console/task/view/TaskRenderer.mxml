@@ -8,23 +8,23 @@
     <![CDATA[
       import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.task.controller.DownloadTask;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
-      import mx.controls.Alert;
       import mx.events.CloseEvent;
       
       private function cancel():void
       {
         if (data.isCreating() || data.isDownloading())
-          Alert.show(resourceManager.getString('localized_main', 'CONFIRM_TASK_DELETION'),
+          AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_TASK_DELETION'),
                      resourceManager.getString('localized_main', 'CONFIRM'),
-                     Alert.OK | Alert.CANCEL, null, doCancel);
+                     AlertPopUp.OK | AlertPopUp.CANCEL, null, doCancel);
         else
           DownloadManager.instance.removeTask(data as DownloadTask);
       }
       
       private function doCancel(event:CloseEvent):void
       {
-        if(event.detail == Alert.OK)
+        if(event.detail == AlertPopUp.OK)
           DownloadManager.instance.removeTask(data as DownloadTask);
       }
       

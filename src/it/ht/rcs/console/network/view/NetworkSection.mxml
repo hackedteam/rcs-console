@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:view="it.ht.rcs.console.network.view.*"
+         width="100%" height="100%" addedToStage="onAddedToStage()" title="Network">
+  
+  
+  <s:VGroup left="5" right="5" top="5" bottom="5" gap="0">
+    
+    <s:TabBar dataProvider="{views}"/>
+    <mx:ViewStack id="views" width="100%">
+      <s:NavigatorContent label="Collectors">
+        <view:CollectorList width="100%" height="176" dataProvider="{listDP}"/>
+      </s:NavigatorContent>
+      <s:NavigatorContent label="Injection Proxies">
+        <view:CollectorList width="100%" height="176"/>
+      </s:NavigatorContent>
+      <s:NavigatorContent label="RMI">
+        <view:CollectorList width="100%" height="176"/>
+      </s:NavigatorContent>
+    </mx:ViewStack>
+    
+    <s:Spacer height="5"/>
+    
+    <s:VGroup gap="0" width="100%" height="100%">
+      <s:HGroup width="100%" horizontalAlign="right">
+        <s:Button label="Network check"/>
+        <s:Button label="Apply"/>
+      </s:HGroup>
+      <s:Scroller width="100%" height="100%">
+        <view:NetworkStage id="networkStage" rootNode="{rootNode}"/>
+      </s:Scroller>
+    </s:VGroup>
+    
+  </s:VGroup>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.network.view.renderers.CollectorRenderer;
+      import it.ht.rcs.console.network.view.renderers.DBRenderer;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      private var rootNode:DBRenderer;
+
+      [Bindable]
+      private var listDP:ArrayCollection;
+      
+      private function onAddedToStage():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
+        refresh(null);
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
+      }
+      
+      private function refresh(event:RefreshEvent):void
+      {
+        console.currentDB.network.all(buildGraph);
+        //_db = getDB1();
+      }
+      
+      private function buildGraph(event:ResultEvent):void
+      {
+        var list:ArrayCollection = event.result as ArrayCollection;
+        var nodes:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
+        for each (var el:Collector in list)
+          nodes.push(new CollectorRenderer(el));
+          
+        var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
+
+        for each (var node:CollectorRenderer in nodes) {
+          if (node.collector.type == 'local')
+            collectors.push(node);
+          var nextHop:CollectorRenderer = node.collector.next ? getCollectorById(node.collector.next[0], nodes) : null;
+          node.nextHop = nextHop;
+        }
+        
+        var db:DBRenderer = new DBRenderer();
+        db.collectors = collectors;
+        rootNode = db;
+        
+        listDP = list;
+      }
+      
+      private function getCollectorById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer {
+        if (_id == null) return null;
+        for each (var cr:CollectorRenderer in list)
+          if (cr.collector._id == _id)
+            return cr;
+        return null;
+      }
+      
+      private function getDB1():DBRenderer {
+        
+        var db:DBRenderer = new DBRenderer();
+        
+        var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
+        
+        var collectorOne:CollectorRenderer = new CollectorRenderer(new Collector({_id: '1', type: 'local', name: 'Collector 1'}));
+        var collectorTwo:CollectorRenderer = new CollectorRenderer(new Collector({_id: '2', type: 'local', name: 'Collector 2'}));
+        var collectorThree:CollectorRenderer = new CollectorRenderer(new Collector({_id: '3', type: 'local', name: 'Collector 3'}));
+        
+        var anonymizerOne:CollectorRenderer = new CollectorRenderer(new Collector({_id: '4', type: 'remote', name: 'Anonymizer 1', prev: ['2']}));
+        
+        collectorTwo.nextHop = anonymizerOne;
+        //collectorOne.nextHop = anonymizerOne;
+        //collectorTwo.nextHop = anonymizerTwo;
+        
+        collectors.push(collectorOne);
+        collectors.push(collectorTwo);
+        collectors.push(collectorThree);
+        
+        db.collectors = collectors;
+        
+        return db;
+        
+      }
+      
+    ]]>
+  </fx:Script>
+  
+</s:Panel>

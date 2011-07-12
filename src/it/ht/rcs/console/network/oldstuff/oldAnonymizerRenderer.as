@@ -2,7 +2,7 @@ package it.ht.rcs.console.network.model
 {
   import flash.events.MouseEvent;
   
-  import it.ht.rcs.console.network.CollectorListRenderer;
+  import it.ht.rcs.console.network.view.CollectorListRenderer;
   
   import mx.core.DragSource;
   import mx.core.UIComponent;
@@ -10,7 +10,7 @@ package it.ht.rcs.console.network.model
   import mx.managers.DragManager;
   
   import spark.components.Label;
-  import it.ht.rcs.console.network.renderers.NetworkObject;
+  import it.ht.rcs.console.network.view.renderers.NetworkObject;
 	
 	public class oldAnonymizerRenderer extends NetworkObject
 	{

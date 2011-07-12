@@ -1,4 +1,4 @@
-package it.ht.rcs.console.network.renderers
+package it.ht.rcs.console.network.view.renderers
 {
   import spark.components.Label;
 

@@ -20,7 +20,7 @@ package it.ht.rcs.console.network.view.renderers
 			this.layout = layout;
 		}
 		
-		protected function getProxy(proxy:UIComponent):Image
+		public function getProxy(proxy:UIComponent):Image
     {
 			var bitmapData:BitmapData = new BitmapData(proxy.width, proxy.height, true, 0);
 			bitmapData.draw(proxy);

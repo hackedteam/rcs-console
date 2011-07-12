@@ -7,6 +7,9 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.network.view.renderers.CollectorRenderer;
+      
       import mx.core.DragSource;
       import mx.managers.DragManager;
 
@@ -26,7 +29,9 @@
         {
           var dragInitiator:CollectorListRenderer = event.currentTarget as CollectorListRenderer;
           var dragSource:DragSource = new DragSource();
-          DragManager.doDrag(dragInitiator, dragSource, event);
+          var proxy:CollectorRenderer = new CollectorRenderer(data as Collector);
+          var offset:int = event.target === bottomLabel ? 70 : 0;
+          DragManager.doDrag(dragInitiator, dragSource, event, proxy, event.localX, event.localY + offset);
         }
       }
       
@@ -38,9 +43,9 @@
       }
     ]]>
   </fx:Script>
-  <s:SkinnableContainer x="0" y="0" width="70">
-    <mx:Image left="0" top="5" width="70" height="60" source="img/items/user.png"/>
-    <s:Label top="70" width="70" horizontalCenter="0" text="{data.name}" textAlign="center"/>
+  <s:SkinnableContainer width="70">
+    <mx:Image top="5" width="70" height="60" source="img/items/user.png"/>
+    <s:Label id="bottomLabel" top="70" width="70" text="{data.name}" textAlign="center"/>
   </s:SkinnableContainer>
   
 </s:ItemRenderer>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:List xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        creationComplete="init()"
+        itemRenderer="it.ht.rcs.console.network.view.CollectorListRenderer">
+
+  <s:layout>
+    <s:TileLayout horizontalGap="10" verticalGap="10"/>
+  </s:layout>
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.view.renderers.CollectorRenderer;
+      
+      import mx.core.UIComponent;
+      import mx.events.DragEvent;
+      import mx.managers.DragManager;
+      
+      private function init():void
+      {
+        addEventListener(DragEvent.DRAG_ENTER, dragEnter);
+        addEventListener(DragEvent.DRAG_DROP, dragDrop);
+      }
+      
+      private function dragEnter(event:DragEvent):void
+      {
+        if (event.dragInitiator is CollectorRenderer)
+        {
+          var dropTarget:UIComponent = UIComponent(event.currentTarget);					
+          DragManager.acceptDragDrop(dropTarget);
+          DragManager.showFeedback(DragManager.COPY);
+        }
+      }
+      
+      private function dragDrop(event:DragEvent):void
+      {
+        var renderer:CollectorRenderer = event.dragInitiator as CollectorRenderer;
+        renderer.detach();
+        
+        (renderer.parent as NetworkStage).rebuildGraph();
+        //var stage:NetworkStage = 
+        //stage.removeElement(renderer);
+        //stage.invalidateDisplayList();
+        
+        //setStyle('backgroundColor', 0xbbbbbb);
+      }
+    ]]>
+  </fx:Script>
+
+</s:List>

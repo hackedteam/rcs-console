@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                xmlns:s="library://ns.adobe.com/flex/spark" 
-                xmlns:mx="library://ns.adobe.com/flex/mx" 
-                autoDrawBackground="true"
-                doubleClickEnabled="true" doubleClick="edit()"
-                creationComplete="init()">
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true" creationComplete="init()" doubleClick="edit()"
+                doubleClickEnabled="true">
+  
   <fx:Script>
     <![CDATA[
       import mx.core.DragSource;
@@ -14,9 +14,15 @@
         addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
       }
       
+      override public function set data(value:Object):void {
+        super.data = value;
+        if (data.type == 'remote')
+          this.buttonMode = true;
+      }
+      
       private function mouseDown(event:MouseEvent):void
       {
-        if (event.currentTarget is CollectorListRenderer)
+        if (data.type == 'remote' && data.prev == null && data.next == null)
         {
           var dragInitiator:CollectorListRenderer = event.currentTarget as CollectorListRenderer;
           var dragSource:DragSource = new DragSource();
@@ -32,9 +38,9 @@
       }
     ]]>
   </fx:Script>
-  <s:SkinnableContainer x="0" y="0" width="70" >
-    <mx:Image source="img/items/user.png" left="0" top="5" width="70" height="60"/>
-    <s:Label text="{data.name}" top="70" horizontalCenter="0" width="70" textAlign="center"/>
+  <s:SkinnableContainer x="0" y="0" width="70">
+    <mx:Image left="0" top="5" width="70" height="60" source="img/items/user.png"/>
+    <s:Label top="70" width="70" horizontalCenter="0" text="{data.name}" textAlign="center"/>
   </s:SkinnableContainer>
   
 </s:ItemRenderer>

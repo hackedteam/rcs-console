@@ -1,4 +1,4 @@
-package it.ht.rcs.console.network.renderers
+package it.ht.rcs.console.network.view.renderers
 {
   import spark.components.Label;
 
@@ -9,7 +9,8 @@ package it.ht.rcs.console.network.renderers
     private static const HEIGHT:Number = 40;
 	
 		private var textLabel:Label;
-		
+    public var text:String;
+    
 		override protected function createChildren():void
     {
 			super.createChildren();
@@ -17,7 +18,7 @@ package it.ht.rcs.console.network.renderers
       if (textLabel == null)
       {
 			  textLabel = new Label();
-			  textLabel.text = '255.255.255.255';
+			  textLabel.text = text;
 			  textLabel.setStyle('fontSize', 12);
         textLabel.setStyle('textAlign', 'center');
         textLabel.width = WIDTH - 20;

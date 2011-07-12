@@ -72,17 +72,17 @@ package it.ht.rcs.console.network.view
       
       if (_db != null && _db.collectors.length > 0) {
         measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length-1)) + 47;
-//        var maxBranch:Number = 0, branch:Number = 0, nextHop:CollectorRenderer;
-//        for each (var coll:CollectorRenderer in _db.collectors) {
-//          nextHop = coll.nextHop;
-//          while (nextHop != null) {
-//            branch += VERTICAL_DISTANCE;
-//            nextHop = nextHop.nextHop;
-//          }
-//          branch += VERTICAL_DISTANCE;
-//          maxBranch = branch > maxBranch ? branch : maxBranch;
-//        }
-//        measuredHeight = maxBranch;
+        var maxBranch:Number = 0, branch:Number = 0, nextHop:CollectorRenderer;
+        for each (var coll:CollectorRenderer in _db.collectors) {
+          nextHop = coll.nextHop;
+          while (nextHop != null) {
+            branch += VERTICAL_DISTANCE;
+            nextHop = nextHop.nextHop;
+          }
+          branch += VERTICAL_DISTANCE;
+          maxBranch = branch > maxBranch ? branch : maxBranch;
+        }
+        measuredHeight = maxBranch;
       }
 		}
     

@@ -8,12 +8,12 @@
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.controller.UserManager;
-      import it.ht.rcs.console.events.EditEvent;
       import it.ht.rcs.console.accounting.model.Group;
       import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.events.EditEvent;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import mx.collections.ListCollectionView;
-      import mx.controls.Alert;
       import mx.controls.Menu;
       import mx.events.CloseEvent;
       import mx.events.MenuEvent;
@@ -33,11 +33,11 @@
         if (group == null)
           return;
         
-        Alert.show(resourceManager.getString('localized_main', 'CONFIRM_GROUP_DELETION') + ' ' + group.name + ' ?', resourceManager.getString('localized_main', 'CONFIRM'), Alert.YES|Alert.NO, null,
+        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_GROUP_DELETION') + ' ' + group.name + ' ?', resourceManager.getString('localized_main', 'CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
-            if (e.detail == Alert.YES) 
+            if (e.detail == AlertPopUp.YES) 
               GroupManager.instance.removeItem(group);
-          }, null, Alert.NO);
+          }, null, AlertPopUp.NO);
       }
       
       private function addGroup():void

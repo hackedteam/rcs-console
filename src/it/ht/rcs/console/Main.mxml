@@ -17,6 +17,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
@@ -61,6 +62,11 @@
         if (console.currentSession.user.is_any()) {
           MonitorManager.instance.start_counters();
         }
+
+        /* initialize the alert counter */
+        if (console.currentSession.user.is_viewer()) {
+          AlertManager.instance.start_counters();
+        }
         
   //      /* initialize the download manager */
   //      if (console.currentSession.user.is_any()) {
@@ -76,8 +82,9 @@
       {
         trace("Exiting main section...")
   
-        /* remove the monitor counter */
+        /* remove the monitor and alert counter */
         MonitorManager.instance.stop_counters();
+        AlertManager.instance.stop_counters();
       }
     ]]>
   </fx:Script>

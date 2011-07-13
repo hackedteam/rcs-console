@@ -1,10 +1,10 @@
-package it.ht.rcs.console.network.view.renderers
+package it.ht.rcs.console.network.view.collectors.renderers
 {
   import flash.events.MouseEvent;
   
   import it.ht.rcs.console.network.model.Collector;
-  import it.ht.rcs.console.network.view.CollectorListRenderer;
-  import it.ht.rcs.console.network.view.NetworkStage;
+  import it.ht.rcs.console.network.view.collectors.CollectorListRenderer;
+  import it.ht.rcs.console.network.view.collectors.NetworkGraph;
   
   import mx.core.DragSource;
   import mx.core.UIComponent;
@@ -120,7 +120,7 @@ package it.ht.rcs.console.network.view.renderers
         source.moveAfter(dest);
       }
 
-      (parent as NetworkStage).rebuildGraph();
+      (parent as NetworkGraph).rebuildGraph();
       
       setStyle('backgroundColor', 0xbbbbbb);
     }

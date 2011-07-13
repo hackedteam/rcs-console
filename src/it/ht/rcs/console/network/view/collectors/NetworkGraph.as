@@ -1,15 +1,15 @@
-package it.ht.rcs.console.network.view
+package it.ht.rcs.console.network.view.collectors
 {
-  import it.ht.rcs.console.network.view.renderers.CollectorRenderer;
-  import it.ht.rcs.console.network.view.renderers.DBRenderer;
-  import it.ht.rcs.console.network.view.renderers.IPRenderer;
+  import it.ht.rcs.console.network.view.collectors.renderers.CollectorRenderer;
+  import it.ht.rcs.console.network.view.collectors.renderers.DBRenderer;
+  import it.ht.rcs.console.network.view.collectors.renderers.IPRenderer;
   
   import mx.collections.ArrayCollection;
   
   import spark.components.Group;
   import spark.components.Scroller;
 
-  public class NetworkStage extends Group
+  public class NetworkGraph extends Group
 	{
 		
 		private var _db:DBRenderer;
@@ -19,7 +19,7 @@ package it.ht.rcs.console.network.view
     private static const IP_VERTICAL_DISTANCE:int = 65;
 		private static const BOTTOM_DISTANCE:int = 0;
 		
-		public function NetworkStage()
+		public function NetworkGraph()
     {
 			super();
 			layout = null;

@@ -7,6 +7,7 @@ package it.ht.rcs.console.network.view
   import mx.collections.ArrayCollection;
   
   import spark.components.Group;
+  import spark.components.Scroller;
 
   public class NetworkStage extends Group
 	{
@@ -16,7 +17,7 @@ package it.ht.rcs.console.network.view
 		private static const COLLECTORS_DISTANCE:int = 60;
 		private static const VERTICAL_DISTANCE:int = 55;
     private static const IP_VERTICAL_DISTANCE:int = 65;
-		private static const BOTTOM_DISTANCE:int = 30;
+		private static const BOTTOM_DISTANCE:int = 0;
 		
 		public function NetworkStage()
     {
@@ -71,18 +72,19 @@ package it.ht.rcs.console.network.view
       super.measure();
       
       if (_db != null && _db.collectors.length > 0) {
-        measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length-1)) + 47;
+        measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length-1));
         var maxBranch:Number = 0, branch:Number = 0, nextHop:CollectorRenderer;
         for each (var coll:CollectorRenderer in _db.collectors) {
+          branch = BOTTOM_DISTANCE + _db.height + VERTICAL_DISTANCE;
           nextHop = coll.nextHop;
           while (nextHop != null) {
             branch += VERTICAL_DISTANCE;
             nextHop = nextHop.nextHop;
           }
-          branch += VERTICAL_DISTANCE;
+          branch += IP_VERTICAL_DISTANCE;
           maxBranch = branch > maxBranch ? branch : maxBranch;
         }
-        measuredHeight = maxBranch;
+        measuredHeight = measuredMinHeight = maxBranch;
       }
 		}
     

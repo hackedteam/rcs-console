@@ -6,7 +6,7 @@
          xmlns:accounting="it.ht.rcs.console.accounting.view.*"
          xmlns:alerting="it.ht.rcs.console.alerting.view.*"
          xmlns:audit="it.ht.rcs.console.audit.view.*" 
-         xmlns:console="it.ht.rcs.console.console.*"
+         xmlns:operations="it.ht.rcs.console.operations.*"
          xmlns:correlation="it.ht.rcs.console.correlation.*"
          xmlns:dashboard="it.ht.rcs.console.dashboard.*"
          xmlns:monitor="it.ht.rcs.console.monitor.view.*"
@@ -44,7 +44,7 @@
         /* different view based on privileges */
         main_sections = new Array();
         if (console.currentSession.user.is_admin()) main_sections.push('Accounting');
-        if (console.currentSession.user.is_any()) main_sections.push('Console');
+        if (console.currentSession.user.is_any()) main_sections.push('Operations');
         if (console.currentSession.user.is_viewer()) main_sections.push('Dashboard');
         if (console.currentSession.user.is_viewer()) main_sections.push('Alerting');
         //if (console.currentSession.user.is_viewer()) main_sections.push('Correlation');
@@ -54,7 +54,7 @@
   
         /* default state is Console */
         if (console.currentSession.user.is_any())
-          currentState = "Console";
+          currentState = "Operations";
         else
           currentState = "Nothing";
   
@@ -95,7 +95,7 @@
   <s:states>
     <s:State name="Nothing"/>
     <s:State name="Accounting"/>
-    <s:State name="Console"/>
+    <s:State name="Operations"/>
     <s:State name="Dashboard"/>
     <s:State name="Correlation"/>
     <s:State name="Network"/>
@@ -112,24 +112,24 @@
   <mx:ToggleButtonBar id="sectionsButtonBar" top="50" right="10" height="20" horizontalGap="10" buttonWidth="80" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" selectedIndex="{main_sections.indexOf(currentState)}"/>
   
   <!-- all the sections -->
-  <accounting:AccountingSection includeIn="Accounting" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <accounting:AccountingSection includeIn="Accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <console:ConsoleSection includeIn="Console" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <operations:OperationsSection includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <dashboard:DashboardSection includeIn="Dashboard" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <dashboard:DashboardSection includeIn="Dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <correlation:CorrelationSection includeIn="Correlation" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <correlation:CorrelationSection includeIn="Correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <network:NetworkSection includeIn="Network" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <network:NetworkSection includeIn="Network" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <alerting:AlertingSection includeIn="Alerting" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <alerting:AlertingSection includeIn="Alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <audit:AuditSection includeIn="Audit" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <audit:AuditSection includeIn="Audit" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="5" right="5" bottom="5"/>
+  <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
   
   <!-- special case if the user has no privilege -->
-  <s:Panel includeIn="Nothing" title="NOTHING TO DO" height="100%" top="75" left="5" right="5" bottom="5">
+  <s:Panel includeIn="Nothing" title="NOTHING TO DO" height="100%" top="75" left="0" right="0" bottom="0">
     <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" text="{resourceManager.getString('localized_main', 'NOTHING_TO_DO_MESSAGE')}" width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="justify" borderVisible="false" contentBackgroundColor="#EAEAEA"/>
   </s:Panel>
     

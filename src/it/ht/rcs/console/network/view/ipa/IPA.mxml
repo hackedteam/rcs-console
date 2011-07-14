@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:ipa="it.ht.rcs.console.network.view.ipa.*"
+          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()"
+          creationComplete="init()">
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.Proxy;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.ItemClickEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      private var ipaList:ArrayCollection;
+      
+      private function init():void
+      {
+        addEventListener(ItemClickEvent.ITEM_CLICK, onItemClick);
+      }
+      
+      private function onAddedToStage():void
+      {
+        console.currentDB.proxy.all(onResult);
+      }
+      
+      private function onResult(event:ResultEvent):void
+      {
+        ipaList = event.result as ArrayCollection;
+      }
+      
+      private function onItemClick(event:ItemClickEvent):void
+      {
+        rulesGrid.dataProvider = (event.item as it.ht.rcs.console.network.model.Proxy).rules;
+      }
+    ]]>
+  </fx:Script>
+  
+  
+  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
+    <ipa:IPAList width="100%" borderVisible="false" dataProvider="{ipaList}"/>
+  </s:BorderContainer>
+  
+  <s:HGroup>
+    <s:Button width="30" height="20" label="New" skinClass="it.ht.rcs.console.skins.NewButton"
+              toolTip="{resourceManager.getString('localized_main', 'NEW_RULE')}"/>
+    <s:Button width="30" height="20" label="Edit" skinClass="it.ht.rcs.console.skins.EditButton"
+              toolTip="{resourceManager.getString('localized_main', 'EDIT')}"/>
+    <s:Button width="30" height="20" label="Delete" skinClass="it.ht.rcs.console.skins.DeleteButton"
+              toolTip="{resourceManager.getString('localized_main', 'DELETE')}"/>
+    <s:Spacer width="15"/>
+    <s:Button width="30" height="20" label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"
+              toolTip="{resourceManager.getString('localized_main', 'APPLY')}"/>
+  </s:HGroup>
+  
+  <ipa:RulesGrid id="rulesGrid" width="100%" height="100%"/>
+      
+</s:VGroup>

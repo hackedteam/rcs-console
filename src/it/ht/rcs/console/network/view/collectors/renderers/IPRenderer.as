@@ -1,37 +1,38 @@
-package it.ht.rcs.console.network.view.renderers
+package it.ht.rcs.console.network.view.collectors.renderers
 {
   import spark.components.Label;
 
-  public class DBRenderer extends NetworkObject
+  public class IPRenderer extends NetworkObject
 	{
-	
+    
     private static const WIDTH:Number = 120;
     private static const HEIGHT:Number = 40;
-    
-    public var collectors:Vector.<CollectorRenderer>;
-		
+	
 		private var textLabel:Label;
-
-		override protected function createChildren():void {
+    public var text:String;
+    
+		override protected function createChildren():void
+    {
 			super.createChildren();
 			
       if (textLabel == null)
       {
-        textLabel = new Label();
-        textLabel.text = 'DB';
-        textLabel.setStyle('fontSize', 20);
+			  textLabel = new Label();
+			  textLabel.text = text;
+			  textLabel.setStyle('fontSize', 12);
         textLabel.setStyle('textAlign', 'center');
         textLabel.width = WIDTH - 20;
         textLabel.maxDisplayedLines = 1;
-        addElement(textLabel);
+			  addElement(textLabel);
       }
 		}
 		
-		override protected function measure():void {
+		override protected function measure():void
+    {
 			super.measure();
 			
-			width = measuredWidth = WIDTH;
-			height = measuredHeight = HEIGHT;
+      width = measuredWidth = WIDTH;
+      height = measuredHeight = HEIGHT;
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void

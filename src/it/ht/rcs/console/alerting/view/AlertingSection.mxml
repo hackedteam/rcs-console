@@ -59,10 +59,10 @@
       </s:BorderContainer>
       
       <!-- alert queries -->
-      <s:DataGrid left="5" right="5" top="30" height="100%" dataProvider="{_alert_view}">
+      <s:DataGrid id="dgAlerts" left="5" right="5" top="30" height="100%" dataProvider="{_alert_view}">
         <s:columns>
           <s:ArrayList>
-            <s:GridColumn dataField="num" headerText="N" width="30"/>
+            <s:GridColumn dataField="logs.length" headerText="N" width="30"/>
             <s:GridColumn dataField="enabled" headerText="En" width="30">
               <s:itemRenderer>
                 <fx:Component>
@@ -96,23 +96,14 @@
         <s:Button x="40" y="0" label="E" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.SortNameButton"/>
       </s:BorderContainer>
       
-      <s:DataGrid left="5" right="5" top="30" bottom="5" requestedRowCount="4">
+      <s:DataGrid left="5" right="5" top="30" bottom="5" requestedRowCount="4" dataProvider="{dgAlerts.selectedItem.logs}">
         <s:columns>
           <s:ArrayList>
-            <s:GridColumn dataField="dataField1" headerText="Time" width="130"/>
-            <s:GridColumn dataField="dataField2" headerText="Backdoor" width="250"/>
-            <s:GridColumn dataField="dataField3" headerText="Evidence"></s:GridColumn>
+            <s:GridColumn dataField="time" headerText="Time" width="130"/>
+            <s:GridColumn dataField="path" headerText="Backdoor" width="250"/>
+            <s:GridColumn dataField="evidence" headerText="Evidence"></s:GridColumn>
           </s:ArrayList>
         </s:columns>
-        <s:typicalItem>
-          <fx:Object dataField1="Sample Data" dataField2="Sample Data" dataField3="Sample Data"></fx:Object>
-        </s:typicalItem>
-        <s:ArrayList>
-          <fx:Object dataField1="2011-06-02 15:30:00" dataField2="data1" dataField3="data1"></fx:Object>
-          <fx:Object dataField1="2011-06-02 15:30:00" dataField2="data2" dataField3="data2"></fx:Object>
-          <fx:Object dataField1="2011-06-02 15:30:00" dataField2="data3" dataField3="data3"></fx:Object>
-          <fx:Object dataField1="2011-06-02 15:30:00" dataField2="data4" dataField3="data4"></fx:Object>
-        </s:ArrayList>
       </s:DataGrid>
       
     </s:SkinnableContainer>

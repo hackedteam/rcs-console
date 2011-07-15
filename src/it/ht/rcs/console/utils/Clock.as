@@ -1,4 +1,4 @@
-package it.ht.rcs.console.model
+package it.ht.rcs.console.utils
 {
   import flash.events.TimerEvent;
   import flash.utils.Timer;

@@ -1,4 +1,4 @@
-package it.ht.rcs.console.model
+package it.ht.rcs.console.utils
 {
   [Bindable]
   public class CurrMaxObject extends Object

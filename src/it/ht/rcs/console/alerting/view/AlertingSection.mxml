@@ -90,7 +90,17 @@
       <s:DataGrid id="alertlist" left="5" right="5" top="30" height="100%" dataProvider="{_alert_view}" doubleClickEnabled="true" doubleClick="editAlert(alertlist.selectedItem as Alert)">
         <s:columns>
           <s:ArrayList>
-            <s:GridColumn dataField="logs.length" headerText="Logs" width="45" />
+            <s:GridColumn dataField="logs.length" headerText="Logs" width="45">
+              <s:itemRenderer>
+                <fx:Component>
+                  <s:GridItemRenderer>
+                    <s:SkinnableContainer width="100%">
+                      <s:Label width="100%" text="{data.logs.length}" top="9" right="5" left="5" textAlign="right"/>                                          
+                    </s:SkinnableContainer>
+                  </s:GridItemRenderer>
+                </fx:Component>
+              </s:itemRenderer>
+            </s:GridColumn>
             <s:GridColumn dataField="enabled" headerText="En" width="30" resizable="false">
               <s:itemRenderer>
                 <fx:Component>
@@ -103,12 +113,13 @@
               </s:itemRenderer>
             </s:GridColumn>
             <s:GridColumn dataField="type" headerText="Type" width="50"/>
-            <s:GridColumn dataField="priority" headerText="Tag" width="35" itemRenderer="it.ht.rcs.console.alerting.view.PriorityRenderer"/>
+            
             <s:GridColumn dataField="path" headerText="Operation" itemRenderer="it.ht.rcs.console.alerting.view.OperationRenderer" />
             <s:GridColumn dataField="path" headerText="Target" itemRenderer="it.ht.rcs.console.alerting.view.TargetRenderer"/>
             <s:GridColumn dataField="path" headerText="Backdoor" itemRenderer="it.ht.rcs.console.alerting.view.BackdoorRenderer" />
             <s:GridColumn dataField="action" headerText="Action" width="80"/>
             <s:GridColumn dataField="evidence" headerText="Evidence" width="80"/>
+            <s:GridColumn dataField="priority" headerText="Tag" width="35" itemRenderer="it.ht.rcs.console.alerting.view.PriorityRenderer"/>
             <s:GridColumn dataField="keywords" headerText="Keywords"></s:GridColumn>
           </s:ArrayList>
         </s:columns>

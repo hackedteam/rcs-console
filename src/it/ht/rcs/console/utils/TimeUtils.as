@@ -1,6 +1,5 @@
 package it.ht.rcs.console.utils
 {
-  import it.ht.rcs.console.model.Clock;
   
   import mx.formatters.DateFormatter;
 

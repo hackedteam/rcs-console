@@ -2,21 +2,29 @@
 <utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009" 
                              xmlns:s="library://ns.adobe.com/flex/spark" 
                              xmlns:mx="library://ns.adobe.com/flex/mx" 
-                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="500"
+                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="400"
                              skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
                              save="saveMe()"
-                             title="{resourceManager.getString('localized_main', 'EDIT_ALERT').toUpperCase()}">
+                             title="{resourceManager.getString('localized_main', 'EDIT_ALERT').toUpperCase()}" xmlns:view="it.ht.rcs.console.alerting.view.*">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.alert.model.Alert;
       
+      import mx.collections.ArrayCollection;
       import mx.managers.PopUpManager;
       
       [Bindable]
       private var _alert:Alert;
-      
-      public var callback:Function;
+
+      [Bindable]
+      private var types:ArrayCollection = new ArrayCollection(['LOG', 'MAIL']);
+      [Bindable]
+      private var actions:ArrayCollection = new ArrayCollection(['EVIDENCE', 'SYNC', 'INSTANCE']);
+      [Bindable]
+      private var evidence:ArrayCollection = new ArrayCollection(['*', 'ADDRESSBOOK', 'APPLICATION', 'CALENDAR', 'CALL', 'CAMERA', 'CHAT', 'CLIPBOARD', 'DEVICE', 
+                                                                  'DOWNLOAD', 'FILECAP', 'FILEOPEN', 'FILESYSTEM', 'INFO', 'KEYLOG', 'LOCATION', 'MAIL', 'MIC', 
+                                                                  'MMS', 'MOUSE', 'PASSWORD', 'PRINT', 'SMS', 'SNAPSHOT', 'UPLOAD', 'URL']);
       
       public function set alert(a:Alert):void
       {
@@ -25,40 +33,71 @@
       
       private function saveMe():void
       {
+        _alert.enabled = formEnabled.selected;
+        _alert.type = formType.selectedItem;
+
+        //var path:ArrayCollection = new ArrayCollection();
+        //if (formOperation.selectedItem != '') path.addItem(formOperation.selectedItem._id);  
+        //if (formTarget.selectedItem != '') path.addItem(formTarget.selectedItem._id);  
+        //if (formBackdoor.selectedItem != '') path.addItem(formBackdoor.selectedItem._id);  
+
+        /* modify it only if changed */
+        //if (path.toString() != _alert.path.toString())
+        //  _alert.path = path;
+        
+        _alert.action = formAction.selectedItem;
+        if (_alert.action == 'EVIDENCE') {
+          _alert.evidence = formEvidence.selectedItem;
+          _alert.keywords = formKeywords.text;
+          _alert.priority = formPriority.value;
+        } else {
+          _alert.evidence = '';
+          _alert.keywords = '';          
+          _alert.priority = 0;
+        }
+        _alert.suppression = parseInt(formSuppression.text);
+        
         PopUpManager.removePopUp(this);
-        callback();
       }
       
     ]]>
   </fx:Script>
-  <s:Form id="form1" left="5" right="5" top="5" bottom="5"
-          skinClass="it.ht.rcs.console.skins.CompactForm" >
+  <s:Form left="5" right="5" top="5" bottom="5" skinClass="it.ht.rcs.console.skins.CompactForm" >
     <s:FormItem label="Enabled" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:CheckBox />
+      <s:CheckBox id="formEnabled" selected="{_alert.enabled}"/>
     </s:FormItem>
     <s:FormItem label="Type" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList></s:DropDownList>
-    </s:FormItem>
-    <s:FormItem label="Priority" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:HSlider/>
+      <s:DropDownList id="formType" width="70" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_alert.type)}"/>
     </s:FormItem>
     <s:FormItem label="Operation" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList></s:DropDownList>
+      <s:DropDownList id="formOperation"></s:DropDownList>
     </s:FormItem>
     <s:FormItem label="Target" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList></s:DropDownList>
+      <s:DropDownList id="formTarget"></s:DropDownList>
     </s:FormItem>
     <s:FormItem label="Backdoor" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList></s:DropDownList>
+      <s:DropDownList id="formBackdoor"></s:DropDownList>
     </s:FormItem>
     <s:FormItem label="Action" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList></s:DropDownList>
+      <s:DropDownList id="formAction" width="100" dataProvider="{actions}" selectedIndex="{actions.toArray().indexOf(_alert.action)}"/>
     </s:FormItem>
-    <s:FormItem label="Evidence" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList></s:DropDownList>
+    <s:FormItem label="Evidence" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:DropDownList id="formEvidence" width="120" dataProvider="{evidence}" selectedIndex="{evidence.toArray().indexOf(_alert.evidence)}"/>
     </s:FormItem>
-    <s:FormItem label="Suppression" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput width="40" text="600" textAlign="right"/>
+    <s:FormItem label="Priority" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:HGroup verticalAlign="middle">
+        <s:HSlider id="formPriority" minimum="0" maximum="4" width="30" value="{_alert.priority}"/>
+        <view:PriorityImage value="{formPriority.value}"/>        
+      </s:HGroup>
+    </s:FormItem>
+    <s:FormItem label="Keywords" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:TextInput id="formKeywords" text="{_alert.keywords}"/>
+    </s:FormItem>
+    <s:FormItem label="Suppression Time" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="formSuppression" width="40" text="{_alert.suppression}" textAlign="right"/>
+        <s:Label text="sec"/>
+      </s:HGroup>
     </s:FormItem>
   </s:Form>
 </utils:TitleWindowSaveClose>

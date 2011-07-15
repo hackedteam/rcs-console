@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-               xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx" 
-               width="300" height="175" 
-               close="closeMe()"
-               title="{resourceManager.getString('localized_main', 'CLOCK_SETTINGS').toUpperCase()}">
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             width="300" height="175" showCloseButton="false" save="saveMe()"
+                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
+                             title="{resourceManager.getString('localized_main', 'CLOCK_SETTINGS').toUpperCase()}">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.UserManager;
@@ -18,7 +19,7 @@
                                                                          'GMT', 
                                                                          'GMT +1', 'GMT +2', 'GMT +3', 'GMT +4', 'GMT +5', 'GMT +6', 'GMT +7', 'GMT +8', 'GMT +9', 'GMT +10', 'GMT +11', 'GMT +12']);
       
-      private function closeMe():void
+      private function saveMe():void
       {
         PopUpManager.removePopUp(this);  
       }
@@ -34,16 +35,21 @@
   </fx:Script>
   
   <!-- labels -->
-  <s:Label text="{resourceManager.getString('localized_main', 'UTC_TIME')}:" top="20" left="20" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'LOCAL_TIME')}:" left="20" top="50" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}:" left="20" top="80" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}:" left="20" top="113" styleName="it.ht.rcs.console.accounting.view.ClockProfile"/>
+  <s:Label left="20" top="20" styleName="it.ht.rcs.console.accounting.view.ClockProfile"
+           text="{resourceManager.getString('localized_main', 'UTC_TIME')}:"/>
+  <s:Label left="20" top="50" styleName="it.ht.rcs.console.accounting.view.ClockProfile"
+           text="{resourceManager.getString('localized_main', 'LOCAL_TIME')}:"/>
+  <s:Label left="20" top="80" styleName="it.ht.rcs.console.accounting.view.ClockProfile"
+           text="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}:"/>
+  <s:Label left="20" top="113" styleName="it.ht.rcs.console.accounting.view.ClockProfile"
+           text="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}:"/>
   
   <!-- data -->
   <s:Label left="170" top="20" text="{Clock.instance.currentUTCTime}"/>
   <s:Label left="170" top="50" text="{Clock.instance.currentLocalTime}"/>
   <s:Label left="170" top="80" text="{Clock.instance.currentConsoleTime}"/>
-  <s:DropDownList id="dropTimeList" top="110" left="170" right="10" dataProvider="{timezones}" selectedIndex="{Clock.instance.consoleOffset + 12}" change="changeTimeZone()"/>
+  <s:DropDownList id="dropTimeList" left="170" right="10" top="110" change="changeTimeZone()"
+                  dataProvider="{timezones}" selectedIndex="{Clock.instance.consoleOffset + 12}"/>
   
   
-</s:TitleWindow>
+</utils:TitleWindowSaveClose>

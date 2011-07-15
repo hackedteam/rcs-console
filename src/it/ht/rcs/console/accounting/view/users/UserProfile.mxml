@@ -3,7 +3,7 @@
                xmlns:s="library://ns.adobe.com/flex/spark" 
                xmlns:mx="library://ns.adobe.com/flex/mx" 
                xmlns:utils="it.ht.rcs.console.utils.*"
-               width="400" height="210" 
+               width="300" height="210" 
                showCloseButton="false" save="saveMe()"
                skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
                title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}">
@@ -38,18 +38,22 @@
     ]]>
   </fx:Script>  
   
-  <!-- labels -->
-  <s:Label text="{resourceManager.getString('localized_main', 'USER')}:" top="20" left="20" styleName="it.ht.rcs.console.accounting.view.users.UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'PRIVILEGES')}:" left="20" top="80" styleName="it.ht.rcs.console.accounting.view.users.UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'CONTACT')}:" left="20" top="50" styleName="it.ht.rcs.console.accounting.view.users.UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'LANGUAGE')}:" left="20" top="110" styleName="it.ht.rcs.console.accounting.view.users.UserProfile"/>
-  <s:Label text="{resourceManager.getString('localized_main', 'PASSWORD')}:" left="20" top="140" styleName="it.ht.rcs.console.accounting.view.users.UserProfile"/>
-  
-  <!-- data -->
-  <s:Label text="{console.currentSession.user.name}" left="120" top="20"/>
-  <s:Label text="{console.currentSession.user.contact}" left="120" top="50"/>
-  <s:Label text="{console.currentSession.user.privs.source.join(' | ')}" left="120" top="80"/>
-  <s:DropDownList id="locale" left="120" top="110" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(console.currentSession.user.locale)}" width="80" change="changeLocale()"/>
-  <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75" click="changePass()"/>
+  <s:Form skinClass="it.ht.rcs.console.skins.CompactForm" top="5" bottom="5" left="5" right="5">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'USER')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:Label text="{console.currentSession.user.name}"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'CONTACT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:Label text="{console.currentSession.user.contact}"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'PRIVILEGES')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:Label text="{console.currentSession.user.privs.source.join(' | ')}" left="120" top="80"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'LANGUAGE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="locale" left="120" top="110" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(console.currentSession.user.locale)}" width="80" change="changeLocale()"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'PASSWORD')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75" click="changePass()"/>
+    </s:FormItem>
+  </s:Form>
   
 </utils:TitleWindowSaveClose>

@@ -1,9 +1,12 @@
 package it.ht.rcs.console.utils
 {
+  import flash.events.KeyboardEvent;
   import flash.events.MouseEvent;
+  import flash.ui.Keyboard;
   
   import it.ht.rcs.console.events.SaveEvent;
   
+  import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
   
   import spark.components.Button;
@@ -22,6 +25,20 @@ package it.ht.rcs.console.utils
     public function TitleWindowSaveClose()
     {
       super();
+      addEventListener(FlexEvent.CREATION_COMPLETE, onShow);
+    }
+    
+    private function onShow(event:FlexEvent):void
+    {
+      stage.addEventListener(KeyboardEvent.KEY_DOWN, esc);
+    }
+    
+    private function esc(event:KeyboardEvent):void
+    {
+      if (event.keyCode == Keyboard.ESCAPE)
+        closeMe(null);
+      else if (event.keyCode == Keyboard.ENTER && event.controlKey)
+        dispatchEvent(new SaveEvent(SaveEvent.SAVE));
     }
     
     override protected function partAdded(partName:String, instance:Object):void

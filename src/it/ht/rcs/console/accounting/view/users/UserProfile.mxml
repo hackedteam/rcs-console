@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
                xmlns:mx="library://ns.adobe.com/flex/mx" 
+               xmlns:utils="it.ht.rcs.console.utils.*"
                width="400" height="210" 
-               close="closeMe()"
+               showCloseButton="false" save="saveMe()"
+               skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
                title="{resourceManager.getString('localized_main', 'USER_PROFILE').toUpperCase()}">
   <fx:Script>
     <![CDATA[
@@ -11,7 +13,7 @@
       import mx.collections.ArrayCollection;
       import mx.managers.PopUpManager;
       
-      private function closeMe():void
+      private function saveMe():void
       {
         PopUpManager.removePopUp(this);  
       }
@@ -50,4 +52,4 @@
   <s:DropDownList id="locale" left="120" top="110" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(console.currentSession.user.locale)}" width="80" change="changeLocale()"/>
   <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." left="120" top="140" width="75" click="changePass()"/>
   
-</s:TitleWindow>
+</utils:TitleWindowSaveClose>

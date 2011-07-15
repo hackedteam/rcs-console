@@ -48,7 +48,7 @@
         _alert.action = formAction.selectedItem;
         if (_alert.action == 'EVIDENCE') {
           _alert.evidence = formEvidence.selectedItem;
-          _alert.keywords = formKeywords.text;
+          _alert.keywords = formKeyword.text;
           _alert.tag = formTag.value;
         } else {
           _alert.evidence = '';
@@ -62,11 +62,16 @@
       
     ]]>
   </fx:Script>
+  
+  <fx:Metadata>
+    [ResourceBundle("localized_main")] 
+  </fx:Metadata>
+  
   <s:Form left="5" right="5" top="5" bottom="5" skinClass="it.ht.rcs.console.skins.CompactForm" >
-    <s:FormItem label="Enabled" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:CheckBox id="formEnabled" selected="{_alert.enabled}"/>
     </s:FormItem>
-    <s:FormItem label="Type" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'TYPE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="formType" width="70" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_alert.type)}"/>
     </s:FormItem>
     <s:FormItem label="Operation" skinClass="it.ht.rcs.console.skins.CompactFormItem">
@@ -78,22 +83,22 @@
     <s:FormItem label="Backdoor" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="formBackdoor"></s:DropDownList>
     </s:FormItem>
-    <s:FormItem label="Action" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="formAction" width="100" dataProvider="{actions}" selectedIndex="{actions.toArray().indexOf(_alert.action)}"/>
     </s:FormItem>
     <s:FormItem label="Evidence" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
       <s:DropDownList id="formEvidence" width="120" dataProvider="{evidence}" selectedIndex="{evidence.toArray().indexOf(_alert.evidence)}"/>
     </s:FormItem>
-    <s:FormItem label="Tag" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'TAG')}" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
       <s:HGroup verticalAlign="middle">
         <s:HSlider id="formTag" minimum="0" maximum="4" width="30" value="{_alert.tag}"/>
         <view:TagImage value="{formTag.value}"/>        
       </s:HGroup>
     </s:FormItem>
-    <s:FormItem label="Keywords" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
-      <s:TextInput id="formKeywords" text="{_alert.keywords}"/>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'KEYWORD')}" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:TextInput id="formKeyword" text="{_alert.keywords}"/>
     </s:FormItem>
-    <s:FormItem label="Suppression Time" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'SUPPRESSION_TIME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="formSuppression" width="40" text="{_alert.suppression}" textAlign="right"/>
         <s:Label text="sec"/>

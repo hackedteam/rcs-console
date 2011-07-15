@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="420"
-               close="closeMe()"
+               xmlns:mx="library://ns.adobe.com/flex/mx" 
+               xmlns:utils="it.ht.rcs.console.utils.*" 
+               skinClass="it.ht.rcs.console.skins.TitleWindowSaveCancelSkin"
+               width="450" height="420"
+               close="closeMe()" save="saveMe()"
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
     <![CDATA[
@@ -21,6 +24,11 @@
       public var callback:Function;
       
       private function closeMe():void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function saveMe():void
       {
         /* keep the name the first to be modified */
         _user.name = formName.text;
@@ -116,10 +124,10 @@
       </s:HGroup>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'LANGUAGE')}">      
-      <s:DropDownList width="75" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(_user.locale)}" id="formLocale"/>
+      <s:DropDownList width="80" dataProvider="{console.locales}" selectedIndex="{console.locales.toArray().indexOf(_user.locale)}" id="formLocale"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}">      
-      <s:DropDownList dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.timezone + 12}" id="formConsoletime"/>
+      <s:DropDownList width="80" dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.timezone + 12}" id="formConsoletime"/>
     </mx:FormItem>
     <mx:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}">
       <s:BorderContainer backgroundColor="#EAEAEA" borderVisible="false">
@@ -131,4 +139,4 @@
       </s:BorderContainer>
     </mx:FormItem>
   </mx:Form>
-</s:TitleWindow>
+</utils:TitleWindowSaveCancel>

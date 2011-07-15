@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                             xmlns:s="library://ns.adobe.com/flex/spark" 
+                             xmlns:mx="library://ns.adobe.com/flex/mx" 
+                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="500"
+                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
+                             save="saveMe()"
+                             title="{resourceManager.getString('localized_main', 'EDIT_ALERT').toUpperCase()}">
+  <fx:Declarations>
+    <!-- Place non-visual elements (e.g., services, value objects) here -->
+  </fx:Declarations>
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.alert.model.Alert;
+      
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _alert:Alert;
+      
+      public var callback:Function;
+      
+      public function set alert(a:Alert):void
+      {
+        _alert = a;
+      }
+      
+      private function saveMe():void
+      {
+        PopUpManager.removePopUp(this);
+        callback();
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:Form left="5" right="5" top="5" bottom="5">
+    <s:FormItem label="Enabled">
+      <s:CheckBox />
+    </s:FormItem>
+    <s:FormItem label="Type">
+      <s:DropDownList></s:DropDownList>
+    </s:FormItem>
+    <s:FormItem label="Priority">
+      <s:HSlider/>
+    </s:FormItem>
+    <s:FormItem label="Operation">
+      <s:DropDownList></s:DropDownList>
+    </s:FormItem>
+    <s:FormItem label="Target">
+      <s:DropDownList></s:DropDownList>
+    </s:FormItem>
+    <s:FormItem label="Backdoor">
+      <s:DropDownList></s:DropDownList>
+    </s:FormItem>
+    <s:FormItem label="Action">
+      <s:DropDownList></s:DropDownList>
+    </s:FormItem>
+    <s:FormItem label="Evidence">
+      <s:DropDownList></s:DropDownList>
+    </s:FormItem>
+    <s:FormItem label="Suppression">
+      <s:TextInput width="40" text="600" textAlign="right"/>
+    </s:FormItem>
+  </s:Form>
+</utils:TitleWindowSaveClose>

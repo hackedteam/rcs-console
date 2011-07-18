@@ -14,22 +14,24 @@
       [Bindable]
       private var _view:Boolean;
       
-      override public function set data(o:Object):void
-      {
-        if (data != null) {
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        if (data) {
+          
+          var o:* = data[column.dataField];
+          
           _admin = false;
           _tech = false;
           _view = false;
           
-          if (o.level.source.indexOf('admin') != -1 || o.level.source.indexOf('ADMIN') != -1)
+          if (o.source.indexOf('admin') != -1 || o.source.indexOf('ADMIN') != -1)
             _admin = true;
           
           
-          if (o.level.source.indexOf('tech') != -1 || o.level.source.indexOf('TECH') != -1)
+          if (o.source.indexOf('tech') != -1 || o.source.indexOf('TECH') != -1)
             _tech = true;
           
           
-          if (o.level.source.indexOf('view') != -1 || o.level.source.indexOf('VIEW') != -1)
+          if (o.source.indexOf('view') != -1 || o.source.indexOf('VIEW') != -1)
             _view = true;
         }
       }

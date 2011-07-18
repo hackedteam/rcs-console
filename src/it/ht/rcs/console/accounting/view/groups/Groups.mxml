@@ -3,7 +3,8 @@
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx"
           top="0" right="10" bottom="10" left="10"
-          creationComplete="init()">
+          creationComplete="init()"
+          addedToStage="added()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.GroupManager;
@@ -24,8 +25,12 @@
       
       private function init():void
       {
-        _groups_view = GroupManager.instance.getView();
         this.removeElement(rightpanels);
+      }
+      
+      private function added():void
+      {
+        _groups_view = GroupManager.instance.getView(); 
       }
       
       private function deleteGroup(group:Group):void

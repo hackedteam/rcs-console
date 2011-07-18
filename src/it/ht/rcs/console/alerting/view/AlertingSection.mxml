@@ -5,8 +5,7 @@
          title="ALERTING" width="100%" height="100%" 
          xmlns:alerting="it.ht.rcs.console.monitor.*"
          addedToStage="added()"
-         removedFromStage="removed()"
-         creationComplete="init()">
+         removedFromStage="removed()">
 
   <fx:Script>
     <![CDATA[
@@ -23,19 +22,15 @@
       [Bindable]
       private var _alert_view:ListCollectionView;
       
-      private function init():void
-      {
-        /* default sorting: status */
-        var sort:Sort = new Sort();
-        sort.fields = [new SortField('_id', true, true, true)];
-        
-        _alert_view = AlertManager.instance.getView(sort);
-      }
-      
       private function added():void
       {
         /* start the auto refresh when the section is open */
         AlertManager.instance.start();
+        
+        /* default sorting: status */
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('_id', true, true, true)];        
+        _alert_view = AlertManager.instance.getView(sort);
       }
       
       private function removed():void
@@ -138,7 +133,7 @@
             <s:GridColumn dataField="path" headerText="Target" itemRenderer="it.ht.rcs.console.alerting.view.TargetRenderer"/>
             <s:GridColumn dataField="path" headerText="Backdoor" itemRenderer="it.ht.rcs.console.alerting.view.BackdoorRenderer" />
             <s:GridColumn dataField="action" headerText="{resourceManager.getString('localized_main', 'ACTION')}" width="80"/>
-            <s:GridColumn dataField="evidence" headerText="Evidence" width="80"/>
+            <s:GridColumn dataField="evidence" headerText="Evidence" width="90"/>
             <s:GridColumn dataField="tag" headerText="{resourceManager.getString('localized_main', 'TAG')}" width="35" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
             <s:GridColumn dataField="keywords" headerText="{resourceManager.getString('localized_main', 'KEYWORD')}"></s:GridColumn>
           </s:ArrayList>

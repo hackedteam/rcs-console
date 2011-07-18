@@ -12,6 +12,7 @@
     <![CDATA[
       import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.alert.model.AlertLog;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import mx.collections.ListCollectionView;
@@ -75,6 +76,18 @@
         
         AlertManager.instance.removeItem(a);
       }
+      
+      private function deleteLog(l:AlertLog):void
+      {
+        if (l == null) {
+          /* if null is passed, delete all the logs */
+          (alertlist.selectedItem as Alert).logs.removeAll();
+        } else {
+          var i:int = (alertlist.selectedItem as Alert).logs.getItemIndex(alertloglist.selectedItem);
+          (alertlist.selectedItem as Alert).logs.removeItemAt(i);
+        }
+      }
+      
     ]]>
   </fx:Script>
   
@@ -139,8 +152,8 @@
       
       <!-- button bar (transparent container) -->  
       <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="20" backgroundAlpha="0.0">
-        <s:Button x="0" y="0" label="D" width="30" height="20" enabled="{alertloglist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-        <s:Button x="40" y="0" label="A" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'DELETE_ALL')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
+        <s:Button x="0" y="0" label="D" width="30" height="20" click="deleteLog(alertloglist.selectedItem as AlertLog)" enabled="{alertloglist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
+        <s:Button x="40" y="0" label="A" width="30" height="20" click="deleteLog(null)" toolTip="{resourceManager.getString('localized_main', 'DELETE_ALL')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
       </s:BorderContainer>
       
       <s:DataGrid id="alertloglist" left="5" right="5" top="30" bottom="5" requestedRowCount="4" dataProvider="{(alertlist.selectedItem as Alert).logs}">

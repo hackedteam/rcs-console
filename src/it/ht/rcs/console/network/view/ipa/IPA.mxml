@@ -3,60 +3,86 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:ipa="it.ht.rcs.console.network.view.ipa.*"
-          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()"
-          creationComplete="init()">
+          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()">
   
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
-      import mx.collections.ArrayCollection;
-      import mx.events.ItemClickEvent;
-      import mx.rpc.events.ResultEvent;
+      import mx.collections.ListCollectionView;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
       
       [Bindable]
-      private var ipaList:ArrayCollection;
-      
-      private function init():void
-      {
-        addEventListener(ItemClickEvent.ITEM_CLICK, onItemClick);
-      }
+      private var _proxy_view:ListCollectionView;
       
       private function onAddedToStage():void
       {
-        console.currentDB.proxy.all(onResult);
+          _proxy_view = ProxyManager.instance.getView();
       }
       
-      private function onResult(event:ResultEvent):void
+      private function addProxy():void
       {
-        ipaList = event.result as ArrayCollection;
+        ProxyManager.instance.addProxy(function onSuccess(proxy:it.ht.rcs.console.network.model.Proxy):void {
+          ipaList.selectedItem = proxy;
+          editProxy(proxy);
+        });
       }
       
-      private function onItemClick(event:ItemClickEvent):void
+      private function editProxy(proxy:it.ht.rcs.console.network.model.Proxy):void
       {
-        rulesGrid.dataProvider = (event.item as it.ht.rcs.console.network.model.Proxy).rules;
+        var popup:IPAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, IPAForm, true) as IPAForm;
+        popup.ipa = proxy;
+        PopUpManager.centerPopUp(popup);
       }
+      
+      protected function deleteProxy():void
+      {
+        AlertPopUp.show('', '', AlertPopUp.OK | AlertPopUp.CANCEL, null, doCancel);
+      }
+      
+      private function doCancel(event:CloseEvent):void
+      {
+        ProxyManager.instance.removeItem(ipaList.selectedItem);
+      }
+      
+      protected function enter(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ENTER && ipaList.selectedItem != null)
+          editProxy(ipaList.selectedItem);
+      }
+      
     ]]>
   </fx:Script>
   
   
-  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true" backgroundColor="#EAEAEA">
-    <ipa:IPAList width="100%" top="5" left="5" right="5" bottom="5" borderVisible="false" dataProvider="{ipaList}" contentBackgroundColor="#EAEAEA"/>
+  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
+    <ipa:IPAList id="ipaList" width="100%" borderVisible="false" dataProvider="{_proxy_view}" keyDown="enter(event)"/>
+    <s:Button label="-" width="32" height="20" right="33" bottom="1" styleName="AddRemove"
+              click="deleteProxy()"
+              toolTip="{resourceManager.getString('localized_main', 'PROXY_DELETE')}"/>
+    <s:Button label="+" width="32" height="20" right="1" bottom="1" styleName="AddRemove"
+              click="addProxy()"
+              toolTip="{resourceManager.getString('localized_main', 'PROXY_ADD')}"/>
   </s:BorderContainer>
   
   <s:HGroup>
     <s:Button width="30" height="20" label="New" skinClass="it.ht.rcs.console.skins.NewButton"
               toolTip="{resourceManager.getString('localized_main', 'NEW_RULE')}"/>
     <s:Button width="30" height="20" label="Edit" skinClass="it.ht.rcs.console.skins.EditButton"
-              toolTip="{resourceManager.getString('localized_main', 'EDIT')}"/>
+              toolTip="{resourceManager.getString('localized_main', 'EDIT')}" enabled="{rulesGrid.selectedItem != null}"/>
     <s:Button width="30" height="20" label="Delete" skinClass="it.ht.rcs.console.skins.DeleteButton"
-              toolTip="{resourceManager.getString('localized_main', 'DELETE')}"/>
+              toolTip="{resourceManager.getString('localized_main', 'DELETE')}" enabled="{rulesGrid.selectedItem != null}"/>
     <s:Spacer width="15"/>
     <s:Button width="30" height="20" label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"
               toolTip="{resourceManager.getString('localized_main', 'APPLY')}"/>
   </s:HGroup>
   
-  <ipa:RulesGrid id="rulesGrid" width="100%" height="100%"/>
-      
+  <ipa:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipaList.selectedItem.rules}"/>
+
+
 </s:VGroup>

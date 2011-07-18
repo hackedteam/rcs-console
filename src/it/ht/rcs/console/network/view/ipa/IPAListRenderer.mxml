@@ -2,30 +2,32 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true" click="itemSelect()" doubleClick="edit()"
-                doubleClickEnabled="true">
+                autoDrawBackground="true" doubleClick="edit()" doubleClickEnabled="true">
   
   <fx:Script>
     <![CDATA[
-      import mx.events.ItemClickEvent;
+      import it.ht.rcs.console.network.model.Proxy;
+      
       import mx.managers.PopUpManager;
       
       private function edit():void
       {
-        PopUpManager.centerPopUp(
-          PopUpManager.createPopUp(this.parentDocument as DisplayObject, IPAForm, true));
+        var popup:IPAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, IPAForm, true) as IPAForm;
+        popup.ipa = data as it.ht.rcs.console.network.model.Proxy;
+        PopUpManager.centerPopUp(popup);
       }
       
-      protected function itemSelect():void
-      {
-        var e:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK, true);
-        e.item = data;
-        e.index = itemIndex;
-        dispatchEvent(e);
-      }
+//      protected function itemSelect():void
+//      {
+//        var e:ItemClickEvent = new ItemClickEvent(ItemClickEvent.ITEM_CLICK, true);
+//        e.item = data;
+//        e.index = itemIndex;
+//        dispatchEvent(e);
+//      }
       
     ]]>
   </fx:Script>
+  
   <s:SkinnableContainer width="70">
     <mx:Image top="5" width="70" height="60" source="img/items/user.png"/>
     <s:Label id="bottomLabel" top="72" width="70" paddingBottom="5" text="{data.name}"

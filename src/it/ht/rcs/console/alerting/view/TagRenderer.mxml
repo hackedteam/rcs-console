@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
                     xmlns:s="library://ns.adobe.com/flex/spark" 
-                    xmlns:mx="library://ns.adobe.com/flex/mx" clipAndEnableScrolling="true" >
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:view="it.ht.rcs.console.alerting.view.*"
+                    clipAndEnableScrolling="true" >
   
   <fx:Script>
     <![CDATA[
+      
+      [Bindable]
+      private var _value:int;
+      
       override public function prepare(hasBeenRecycled:Boolean):void {
         if (data) {
-          lblData.text = data[column.dataField]
+          _value = data[column.dataField];
         }
       }
     ]]>
   </fx:Script>
-  <s:states>
-    <s:State name="zero"/>
-    <s:State name="low"/>
-    <s:State name="med"/>
-    <s:State name="hi"/>
-  </s:states>
-  
-  <s:Label id="lblData" top="9" left="7"/>
 
+  <view:TagImage value="{_value}"/>
+  
 </s:GridItemRenderer>

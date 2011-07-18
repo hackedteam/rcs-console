@@ -67,6 +67,14 @@
         ea.alert = a;
         PopUpManager.centerPopUp(ea);
       }
+      
+      private function deleteAlert(a:Alert):void
+      {
+        if (a == null)
+          return;
+        
+        AlertManager.instance.removeItem(a);
+      }
     ]]>
   </fx:Script>
   
@@ -83,14 +91,24 @@
       <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="20" backgroundAlpha="0.0">
         <s:Button x="0" y="0" label="N" width="30" height="20" click="addAlert()" toolTip="{resourceManager.getString('localized_main', 'NEW')}" skinClass="it.ht.rcs.console.skins.NewButton"/>
         <s:Button x="40" y="0" label="E" width="30" height="20" click="editAlert(alertlist.selectedItem as Alert)" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'EDIT')}" skinClass="it.ht.rcs.console.skins.EditButton"/>
-        <s:Button x="80" y="0" label="D" width="30" height="20" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
+        <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteAlert(alertlist.selectedItem as Alert)" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
       </s:BorderContainer>
       
       <!-- alert queries -->
       <s:DataGrid id="alertlist" left="5" right="5" top="30" height="100%" dataProvider="{_alert_view}" doubleClickEnabled="true" doubleClick="editAlert(alertlist.selectedItem as Alert)">
         <s:columns>
           <s:ArrayList>
-            <s:GridColumn dataField="logs.length" headerText="Logs" width="45" />
+            <s:GridColumn dataField="logs.length" headerText="Logs" width="45">
+              <s:itemRenderer>
+                <fx:Component>
+                  <s:GridItemRenderer>
+                    <s:SkinnableContainer width="100%">
+                      <s:Label width="100%" text="{data.logs.length}" top="9" right="5" left="5" textAlign="right"/>                                          
+                    </s:SkinnableContainer>
+                  </s:GridItemRenderer>
+                </fx:Component>
+              </s:itemRenderer>
+            </s:GridColumn>
             <s:GridColumn dataField="enabled" headerText="En" width="30" resizable="false">
               <s:itemRenderer>
                 <fx:Component>
@@ -102,14 +120,14 @@
                 </fx:Component>
               </s:itemRenderer>
             </s:GridColumn>
-            <s:GridColumn dataField="type" headerText="Type" width="50"/>
-            <s:GridColumn dataField="priority" headerText="Tag" width="35" itemRenderer="it.ht.rcs.console.alerting.view.PriorityRenderer"/>
+            <s:GridColumn dataField="type" headerText="{resourceManager.getString('localized_main', 'TYPE')}" width="50"/>
             <s:GridColumn dataField="path" headerText="Operation" itemRenderer="it.ht.rcs.console.alerting.view.OperationRenderer" />
             <s:GridColumn dataField="path" headerText="Target" itemRenderer="it.ht.rcs.console.alerting.view.TargetRenderer"/>
             <s:GridColumn dataField="path" headerText="Backdoor" itemRenderer="it.ht.rcs.console.alerting.view.BackdoorRenderer" />
-            <s:GridColumn dataField="action" headerText="Action" width="80"/>
+            <s:GridColumn dataField="action" headerText="{resourceManager.getString('localized_main', 'ACTION')}" width="80"/>
             <s:GridColumn dataField="evidence" headerText="Evidence" width="80"/>
-            <s:GridColumn dataField="keywords" headerText="Keywords"></s:GridColumn>
+            <s:GridColumn dataField="tag" headerText="{resourceManager.getString('localized_main', 'TAG')}" width="35" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
+            <s:GridColumn dataField="keywords" headerText="{resourceManager.getString('localized_main', 'KEYWORD')}"></s:GridColumn>
           </s:ArrayList>
         </s:columns>
       </s:DataGrid>
@@ -128,7 +146,7 @@
       <s:DataGrid id="alertloglist" left="5" right="5" top="30" bottom="5" requestedRowCount="4" dataProvider="{(alertlist.selectedItem as Alert).logs}">
         <s:columns>
           <s:ArrayList>
-            <s:GridColumn dataField="time" headerText="Time" width="130" labelFunction="formatdate" resizable="false"/>
+            <s:GridColumn dataField="time" headerText="{resourceManager.getString('localized_main', 'TIME')}" width="130" labelFunction="formatdate" resizable="false"/>
             <s:GridColumn dataField="path" headerText="Backdoor" width="250"/>
             <s:GridColumn dataField="evidence" headerText="Evidence"></s:GridColumn>
           </s:ArrayList>

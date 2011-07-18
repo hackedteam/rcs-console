@@ -36,9 +36,9 @@ package it.ht.rcs.console.utils
     private function esc(event:KeyboardEvent):void
     {
       if (event.keyCode == Keyboard.ESCAPE)
-        closeMe(null);
+        close(null);
       else if (event.keyCode == Keyboard.ENTER && event.controlKey)
-        dispatchEvent(new SaveEvent(SaveEvent.SAVE));
+        save(null)
     }
     
     override protected function partAdded(partName:String, instance:Object):void
@@ -48,21 +48,21 @@ package it.ht.rcs.console.utils
       if (instance == closeButton)
       {
         closeButton.removeEventListener(MouseEvent.CLICK, closeButton_clickHandler);
-        closeButton.addEventListener(MouseEvent.CLICK, closeMe);
-
+        closeButton.addEventListener(MouseEvent.CLICK, close);
       }
       else if (instance == saveButton)
       {
         saveButton.focusEnabled = false;
-        saveButton.addEventListener(MouseEvent.CLICK, saveButton_clickHandler);
+        saveButton.addEventListener(MouseEvent.CLICK, save);
       }
     }
     
-    private function closeMe(event:MouseEvent):void {
+    private function close(event:MouseEvent):void
+    {
       PopUpManager.removePopUp(this);
     }
     
-    private function saveButton_clickHandler(event:MouseEvent):void
+    private function save(event:MouseEvent):void
     {
       dispatchEvent(new SaveEvent(SaveEvent.SAVE));
     }

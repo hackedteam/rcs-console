@@ -17,6 +17,8 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
+      import spark.components.gridClasses.GridColumn;
+      
       [Bindable]
       private var _users_view:ListCollectionView;
       
@@ -29,7 +31,7 @@
         addEventListener(EditEvent.USER, onEditUser);
       }
       
-      private function formatdate(item:Object, column:DataGridColumn):String
+      private function formatdate(item:Object, column:GridColumn):String
       {
         return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
       }
@@ -109,29 +111,32 @@
   <s:SkinnableContainer width="100%" height="100%">
     <s:Label text="{resourceManager.getString('localized_main', 'USERS_CONNECTED')}" horizontalCenter="0" top="5" styleName="AccountingTitles"/>
     <s:BorderContainer id="activeuserlistshadow" borderVisible="false" dropShadowVisible="true" right="0" left="0" top="30" bottom="0">
-      <mx:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{SessionManager.instance.getView()}">
-        <mx:columns>
-          <mx:DataGridColumn headerText="{resourceManager.getString('localized_main', 'USER')}" dataField="user.name" minWidth="200"/>
-          <mx:DataGridColumn headerText="{resourceManager.getString('localized_main', 'PRIVILEGES')}" dataField="level" width="65" resizable="false" itemRenderer="it.ht.rcs.console.accounting.view.users.PrivsRenderer"/>
-          <mx:DataGridColumn headerText="{resourceManager.getString('localized_main', 'ADDRESS')}" dataField="address"/>
-          <mx:DataGridColumn headerText="{resourceManager.getString('localized_main', 'LOGON_TIME')}" dataField="time" labelFunction="formatdate" width="130" resizable="false"/>
-          <mx:DataGridColumn headerText="" sortable="false" resizable="false" width="35">
-            <mx:itemRenderer>
-              <fx:Component>
-                <s:MXItemRenderer>
-                  <fx:Script>
-                    <![CDATA[
-                      import it.ht.rcs.console.accounting.controller.SessionManager;
-                      import it.ht.rcs.console.accounting.controller.UserManager;
-                    ]]>
-                  </fx:Script>
-                  <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" height="15" width="15" toolTip="{resourceManager.getString('localized_main', 'DISCONNECT_USER')}" horizontalCenter="0" click="{SessionManager.instance.disconnectUser(data)}" />                          
-                </s:MXItemRenderer>
-              </fx:Component>
-            </mx:itemRenderer>
-          </mx:DataGridColumn>
-        </mx:columns>
-      </mx:DataGrid>      
+
+      <s:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{SessionManager.instance.getView()}">
+        <s:columns>
+          <s:ArrayList>
+            <s:GridColumn headerText="{resourceManager.getString('localized_main', 'USER')}" dataField="user.name" minWidth="200"/>
+            <s:GridColumn headerText="{resourceManager.getString('localized_main', 'PRIVILEGES')}" dataField="level" width="65" resizable="false" itemRenderer="it.ht.rcs.console.accounting.view.users.PrivsRenderer"/>
+            <s:GridColumn headerText="{resourceManager.getString('localized_main', 'ADDRESS')}" dataField="address"/>
+            <s:GridColumn headerText="{resourceManager.getString('localized_main', 'LOGON_TIME')}" dataField="time" labelFunction="formatdate" width="130" resizable="false"/>
+            <s:GridColumn headerText="" sortable="false" resizable="false" width="35">
+              <s:itemRenderer>
+                <fx:Component>
+                  <s:GridItemRenderer>
+                    <fx:Script>
+                      <![CDATA[
+                        import it.ht.rcs.console.accounting.controller.SessionManager;
+                        import it.ht.rcs.console.accounting.controller.UserManager;
+                      ]]>
+                    </fx:Script>
+                    <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" height="15" width="15" toolTip="{resourceManager.getString('localized_main', 'DISCONNECT_USER')}" horizontalCenter="0" click="{SessionManager.instance.disconnectUser(data)}" />                          
+                  </s:GridItemRenderer>
+                </fx:Component>
+              </s:itemRenderer>
+            </s:GridColumn>
+          </s:ArrayList>
+        </s:columns>
+      </s:DataGrid>
     </s:BorderContainer>
   </s:SkinnableContainer>
   

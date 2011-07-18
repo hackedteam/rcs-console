@@ -6,7 +6,7 @@
          xmlns:monitor="it.ht.rcs.console.monitor.*"
          addedToStage="added()"
          removedFromStage="removed()"
-         creationComplete="init()" xmlns:view="it.ht.rcs.console.monitor.view.*">
+         xmlns:view="it.ht.rcs.console.monitor.view.*">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.MonitorManager;
@@ -21,20 +21,16 @@
       [Bindable]
       private var _status_view:ListCollectionView;
       
-      private function init():void
-      {
-        /* default sorting: status */
-        var sort:Sort = new Sort();
-        sort.fields = [new SortField('status', true, true, true)];
-
-        _status_view = MonitorManager.instance.getView(sort);
-      }
-       
       private function added():void
       {
         LicenseManager.instance.start();
         /* start the auto refresh when the section is open */
         MonitorManager.instance.start();
+        
+        /* default sorting: status */
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('status', true, true, true)];        
+        _status_view = MonitorManager.instance.getView(sort);
       }
       
       private function removed():void

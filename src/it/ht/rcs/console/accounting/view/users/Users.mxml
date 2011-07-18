@@ -3,7 +3,8 @@
           xmlns:s="library://ns.adobe.com/flex/spark" 
           xmlns:mx="library://ns.adobe.com/flex/mx"
           bottom="10" top="0" right="10" left="10"
-          creationComplete="init()">
+          creationComplete="init()"
+          addedToStage="added()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.SessionManager;
@@ -21,14 +22,20 @@
       
       [Bindable]
       private var _users_view:ListCollectionView;
+      [Bindable]
+      private var _conn_users_view:ListCollectionView;
       
       private function init():void
       {
-        /* get the view on users list */
-        _users_view = UserManager.instance.getView();
-        
         /* this event is fired by the itemrenderer in the user list (when editing, doubleclick) */
         addEventListener(EditEvent.USER, onEditUser);
+      }
+      
+      private function added():void
+      {
+        /* get the view on users list */
+        _users_view = UserManager.instance.getView();
+        _conn_users_view = SessionManager.instance.getView();
       }
       
       private function formatdate(item:Object, column:GridColumn):String
@@ -112,7 +119,7 @@
     <s:Label text="{resourceManager.getString('localized_main', 'USERS_CONNECTED')}" horizontalCenter="0" top="5" styleName="AccountingTitles"/>
     <s:BorderContainer id="activeuserlistshadow" borderVisible="false" dropShadowVisible="true" right="0" left="0" top="30" bottom="0">
 
-      <s:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{SessionManager.instance.getView()}">
+      <s:DataGrid id="activeusersgrid" left="0" right="0" top="0" bottom="0" editable="false" dataProvider="{_conn_users_view}">
         <s:columns>
           <s:ArrayList>
             <s:GridColumn headerText="{resourceManager.getString('localized_main', 'USER')}" dataField="user.name" minWidth="200"/>
@@ -129,7 +136,9 @@
                         import it.ht.rcs.console.accounting.controller.UserManager;
                       ]]>
                     </fx:Script>
-                    <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" height="15" width="15" toolTip="{resourceManager.getString('localized_main', 'DISCONNECT_USER')}" horizontalCenter="0" click="{SessionManager.instance.disconnectUser(data)}" />                          
+                    <s:SkinnableContainer width="100%" height="100%">
+                      <s:Button skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" top="5" left="5" height="15" width="15" toolTip="{resourceManager.getString('localized_main', 'DISCONNECT_USER')}" horizontalCenter="0" click="{SessionManager.instance.disconnectUser(data)}" />                                                
+                    </s:SkinnableContainer>
                   </s:GridItemRenderer>
                 </fx:Component>
               </s:itemRenderer>

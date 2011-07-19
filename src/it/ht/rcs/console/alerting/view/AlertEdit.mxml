@@ -2,7 +2,7 @@
 <utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009" 
                              xmlns:s="library://ns.adobe.com/flex/spark" 
                              xmlns:mx="library://ns.adobe.com/flex/mx" 
-                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="400"
+                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="340"
                              skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
                              save="saveMe()"
                              title="{resourceManager.getString('localized_main', 'EDIT_ALERT').toUpperCase()}" xmlns:view="it.ht.rcs.console.alerting.view.*">
@@ -36,14 +36,7 @@
         _alert.enabled = formEnabled.selected;
         _alert.type = formType.selectedItem;
 
-        //var path:ArrayCollection = new ArrayCollection();
-        //if (formOperation.selectedItem != '') path.addItem(formOperation.selectedItem._id);  
-        //if (formTarget.selectedItem != '') path.addItem(formTarget.selectedItem._id);  
-        //if (formBackdoor.selectedItem != '') path.addItem(formBackdoor.selectedItem._id);  
-
-        /* modify it only if changed */
-        //if (path.toString() != _alert.path.toString())
-        //  _alert.path = path;
+        //_alert.path = formPath.selectedItem.path;
         
         _alert.action = formAction.selectedItem;
         if (_alert.action == 'EVIDENCE') {
@@ -71,23 +64,19 @@
     <s:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:CheckBox id="formEnabled" selected="{_alert.enabled}"/>
     </s:FormItem>
-    <s:FormItem label="{resourceManager.getString('localized_main', 'TYPE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="formType" width="70" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_alert.type)}"/>
-    </s:FormItem>
-    <s:FormItem label="Operation" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="formOperation"></s:DropDownList>
-    </s:FormItem>
-    <s:FormItem label="Target" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="formTarget"></s:DropDownList>
-    </s:FormItem>
-    <s:FormItem label="Backdoor" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="formBackdoor"></s:DropDownList>
-    </s:FormItem>
-    <s:FormItem label="{resourceManager.getString('localized_main', 'ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'ALERT_EVENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="formAction" width="100" dataProvider="{actions}" selectedIndex="{actions.toArray().indexOf(_alert.action)}"/>
     </s:FormItem>
+
+    <s:FormItem label="{resourceManager.getString('localized_main', 'PATH')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="formPath"></s:DropDownList>
+    </s:FormItem>
+    
     <s:FormItem label="Evidence" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
       <s:DropDownList id="formEvidence" width="120" dataProvider="{evidence}" selectedIndex="{evidence.toArray().indexOf(_alert.evidence)}"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'KEYWORD')}" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:TextInput id="formKeyword" text="{_alert.keywords}"/>
     </s:FormItem>
     <s:FormItem label="{resourceManager.getString('localized_main', 'TAG')}" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
       <s:HGroup verticalAlign="middle">
@@ -95,8 +84,9 @@
         <view:TagImage value="{formTag.value}"/>        
       </s:HGroup>
     </s:FormItem>
-    <s:FormItem label="{resourceManager.getString('localized_main', 'KEYWORD')}" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
-      <s:TextInput id="formKeyword" text="{_alert.keywords}"/>
+    
+    <s:FormItem label="{resourceManager.getString('localized_main', 'TYPE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="formType" width="70" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_alert.type)}"/>
     </s:FormItem>
     <s:FormItem label="{resourceManager.getString('localized_main', 'SUPPRESSION_TIME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:HGroup verticalAlign="middle">

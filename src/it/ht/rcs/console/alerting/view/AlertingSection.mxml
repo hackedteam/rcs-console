@@ -9,7 +9,7 @@
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.alert.model.AlertLog;
       import it.ht.rcs.console.utils.TimeUtils;
@@ -24,15 +24,15 @@
       private function added():void
       {
         /* start the auto refresh when the section is open */
-        AlertManager.instance.start();
+        AlertController.instance.start();
               
-        _alert_view = AlertManager.instance.getView();
+        _alert_view = AlertController.instance.getView();
       }
       
       private function removed():void
       {
         /* stop the auto refresh when going away */
-        AlertManager.instance.stop();
+        AlertController.instance.stop();
       }
       
       private function formatdate(item:Object, column:GridColumn):String
@@ -42,7 +42,7 @@
       
       private function addAlert():void
       {
-        AlertManager.instance.newAlert(function onSuccess(a:Alert):void {
+        AlertController.instance.newAlert(function onSuccess(a:Alert):void {
           selectAlert(a);
           editAlert(a);
         });
@@ -65,7 +65,7 @@
         if (a == null)
           return;
         
-        AlertManager.instance.removeItem(a);
+        AlertController.instance.removeItem(a);
       }
       
       private function deleteLog(l:AlertLog):void
@@ -131,14 +131,12 @@
                 </fx:Component>
               </s:itemRenderer>
             </s:GridColumn>
-            <s:GridColumn dataField="type" headerText="{resourceManager.getString('localized_main', 'TYPE')}" width="50"/>
-            <s:GridColumn dataField="path" headerText="Operation" itemRenderer="it.ht.rcs.console.alerting.view.OperationRenderer" />
-            <s:GridColumn dataField="path" headerText="Target" itemRenderer="it.ht.rcs.console.alerting.view.TargetRenderer"/>
-            <s:GridColumn dataField="path" headerText="Backdoor" itemRenderer="it.ht.rcs.console.alerting.view.BackdoorRenderer" />
-            <s:GridColumn dataField="action" headerText="{resourceManager.getString('localized_main', 'ACTION')}" width="80"/>
+            <s:GridColumn dataField="action" headerText="{resourceManager.getString('localized_main', 'ALERT_EVENT')}" width="80"/>
+            <s:GridColumn dataField="path" headerText="{resourceManager.getString('localized_main', 'PATH')}" itemRenderer="it.ht.rcs.console.alerting.view.PathRenderer" />
             <s:GridColumn dataField="evidence" headerText="Evidence" width="90"/>
-            <s:GridColumn dataField="tag" headerText="{resourceManager.getString('localized_main', 'TAG')}" width="35" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
             <s:GridColumn dataField="keywords" headerText="{resourceManager.getString('localized_main', 'KEYWORD')}"></s:GridColumn>
+            <s:GridColumn dataField="tag" headerText="{resourceManager.getString('localized_main', 'TAG')}" width="35" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
+            <s:GridColumn dataField="type" headerText="{resourceManager.getString('localized_main', 'TYPE')}" width="50"/>
           </s:ArrayList>
         </s:columns>
       </s:DataGrid>
@@ -158,7 +156,7 @@
         <s:columns>
           <s:ArrayList>
             <s:GridColumn dataField="time" headerText="{resourceManager.getString('localized_main', 'TIME')}" width="130" labelFunction="formatdate" resizable="false"/>
-            <s:GridColumn dataField="path" headerText="Backdoor" width="250"/>
+            <s:GridColumn dataField="path" headerText="{resourceManager.getString('localized_main', 'PATH')}" width="250" itemRenderer="it.ht.rcs.console.alerting.view.PathRenderer"/>
             <s:GridColumn dataField="evidence" headerText="Evidence"></s:GridColumn>
           </s:ArrayList>
         </s:columns>

@@ -5,14 +5,24 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.alert.controller.AlertController;
+      
       import mx.collections.ArrayCollection;
       
       override public function prepare(hasBeenRecycled:Boolean):void {
         if (data) {
           var path:ArrayCollection = data.path as ArrayCollection;
-          if (path.length > 2)
-            // TODO: get name of backdoor
-            lblData.text = path.getItemAt(2).toString();
+          
+            lblData.text = "*";
+            
+            if (path.length > 0)
+              lblData.text = AlertController.instance.getOperationName(path.getItemAt(0).toString());
+            
+            if (path.length > 1)
+              lblData.text +=  " > " + AlertController.instance.getTargetName(path.getItemAt(1).toString());
+                           
+            if (path.length > 2)
+              lblData.text +=  " > " + AlertController.instance.getBackdoorName(path.getItemAt(2).toString());
         }
       }
     ]]>

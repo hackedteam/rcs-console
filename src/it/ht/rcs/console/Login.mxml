@@ -7,9 +7,13 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.accounting.model.Session;
       import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.utils.Clock;
-      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.utils.DBFaultNotifier;
+      
+      import locale.I18N;
       
       import mx.core.FlexGlobals;
       import mx.events.ResizeEvent;
@@ -46,11 +50,13 @@
         /* reset the error message */
         ErrorMessage.text = '';
         /* perform login to the server */
-        SessionManager.instance.login(UserNameText.text, PasswordText.text, ServerText.text, onSuccess, onFailure);
+        SessionManager.instance.login(UserNameText.text, PasswordText.text, ServerText.text, new DBFaultNotifier(), new I18N(), onSuccess, onFailure);
       }
       
-      private function onSuccess():void
+      private function onSuccess(sess:Session):void
       {
+        /* take the current session from result */
+        console.currentSession = sess;
         /* reset the password field (if someone logout, he will not find the password already filled */
         PasswordText.text = '';
         /* set the locale of the current user */

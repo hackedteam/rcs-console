@@ -14,6 +14,7 @@
       import it.ht.rcs.console.alert.model.AlertLog;
       import it.ht.rcs.console.utils.TimeUtils;
       
+      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.managers.PopUpManager;
       
@@ -69,12 +70,19 @@
       
       private function deleteLog(l:AlertLog):void
       {
+        var alert:Alert = (alertlist.selectedItem as Alert);
+        
         if (l == null) {
           /* if null is passed, delete all the logs */
-          (alertlist.selectedItem as Alert).logs.removeAll();
+          alert.logs.removeAll();
+          /* to avoid displaying the 0 counter */
+          alert.logs = null;
         } else {
-          var i:int = (alertlist.selectedItem as Alert).logs.getItemIndex(alertloglist.selectedItem);
-          (alertlist.selectedItem as Alert).logs.removeItemAt(i);
+          var i:int = alert.logs.getItemIndex(l);
+          alert.logs.removeItemAt(i);
+          /* if there are no more items, invalidate the arracollection to avoid displaying the 0 counter */
+          if (alert.logs.length == 0)
+            alert.logs = null;
         }
       }
       
@@ -143,7 +151,7 @@
       <!-- button bar (transparent container) -->  
       <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="20" backgroundAlpha="0.0">
         <s:Button x="0" y="0" label="D" width="30" height="20" click="deleteLog(alertloglist.selectedItem as AlertLog)" enabled="{alertloglist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-        <s:Button x="40" y="0" label="A" width="30" height="20" click="deleteLog(null)" toolTip="{resourceManager.getString('localized_main', 'DELETE_ALL')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
+        <s:Button x="40" y="0" label="A" width="30" height="20" click="deleteLog(null)" enabled="{alertlist.selectedItem != null &amp;&amp; alertlist.selectedItem.logs != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE_ALL')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
       </s:BorderContainer>
       
       <s:DataGrid id="alertloglist" left="5" right="5" top="30" bottom="5" requestedRowCount="4" dataProvider="{(alertlist.selectedItem as Alert).logs}">

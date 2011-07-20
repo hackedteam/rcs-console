@@ -3,87 +3,38 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:audit="it.ht.rcs.console.audit.*"
-         addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" 
-         title="AUDIT" xmlns:view="it.ht.rcs.console.audit.view.*">
+         xmlns:view="it.ht.rcs.console.audit.view.*"
+         addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" title="AUDIT">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.audit.controller.AuditManager;
       import it.ht.rcs.console.events.FilterEvent;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.task.view.TaskPopup;
-      import it.ht.rcs.console.utils.DateUtils;
-      import it.ht.rcs.console.utils.TimeUtils;
       
-      import mx.collections.ArrayCollection;
-      import mx.collections.AsyncListView;
+      import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
-      import mx.events.CollectionEvent;
       import mx.managers.PopUpManager;
       import mx.resources.ResourceManager;
-      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      private var _audit_view:ListCollectionView;
       
       private function onAddedToStage():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, refresh);
+        AuditManager.instance.start();
+        _audit_view = AuditManager.instance.getView();
       }
       
       private function onRemovedFromStage():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, refresh);
-      }
-      
-      private function refresh(event:Event=null):void
-      {
-        // TODO: refactor into a manager
-//        if (event is RefreshEvent)
-//          console.currentDB.audit.filters(onFiltersResult);
-//        
-//        if(!grid.filter.hasOwnProperty('from'))
-//          setDefaultDate();
-//        
-//        printFilterObject();
-//        console.currentDB.audit.all(grid.filter, onResult);
-      }
-
-      private function onFiltersResult(event:ResultEvent):void
-      {
-        var e:FilterEvent = new FilterEvent(FilterEvent.FILTER_VALUES_CHANGED);
-        e.filterValues = event.result;
-        FlexGlobals.topLevelApplication.dispatchEvent(e);
-      }
-      
-      private function onResult(e:ResultEvent):void
-      {
-        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
-        grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
-      }
-      
-      private function onDataProviderChange(event:CollectionEvent):void
-      {
-        grid.dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
-        grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
+        AuditManager.instance.stop();
       }
       
       private function resetFilters(event:MouseEvent):void
       {
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
-        refresh();
-      }
-      
-      protected function setDefaultDate():void
-      {
-        var today:Date = new Date();
-        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
-        
-        var from:Date = DateUtils.addDays(today, -5);
-        grid.filter.from = from.time / 1000;
-        
-        var to:Date = today;
-        to.hours = 23; to.minutes = 59;
-        grid.filter.to = to.time / 1000;
+        AuditManager.instance.refresh();
       }
       
       protected function export():void
@@ -97,27 +48,18 @@
   </fx:Script>
 
   <s:VGroup width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-    <s:HGroup width="100%">
-      <s:Button height="20" label="Reset filters" toolTip="{ResourceManager.getInstance().getString('localized_main', 'RESET_FILTERS')}" click="resetFilters(event)" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-      <s:Button height="20" label="Export" toolTip="{ResourceManager.getInstance().getString('localized_main', 'EXPORT')}" click="export()" skinClass="it.ht.rcs.console.skins.DownloadButton"/>
+    
+    <s:HGroup>
+      <s:Button height="20" label="Reset filters" click="resetFilters(event)"
+                skinClass="it.ht.rcs.console.skins.DeleteButton"
+                toolTip="{ResourceManager.getInstance().getString('localized_main', 'RESET_FILTERS')}"/>
+      <s:Button height="20" label="Export" click="export()"
+                skinClass="it.ht.rcs.console.skins.DownloadButton"
+                toolTip="{ResourceManager.getInstance().getString('localized_main', 'EXPORT')}"/>
     </s:HGroup>
-    <view:AuditTable id="grid" width="100%" height="100%" addedToStage="refresh(new RefreshEvent(RefreshEvent.REFRESH))"/>
+    
+    <view:AuditTable id="grid" width="100%" height="100%" dataProvider="{AuditManager.instance._view}"/>
+    
   </s:VGroup>
-
-  <fx:Script>
-    <![CDATA[
-      private function printFilterObject():void {
-        trace('--- START');
-        for (var key:String in grid.filter) {
-          trace(key + ": " + grid.filter[key]);
-          if(key == 'from' || key == 'to') {
-            var d:Date = new Date(grid.filter[key] * 1000);
-            trace(key + " date: " + d.fullYearUTC +"-"+ TimeUtils.zeroPad(d.monthUTC+1, 2) + "-"+d.dateUTC + " "+ d.hoursUTC + ':'+d.minutesUTC + ':'+ d.secondsUTC);
-          }
-        }
-        trace('--- END');
-      }
-    ]]>
-  </fx:Script>
   
 </s:Panel>

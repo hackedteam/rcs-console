@@ -1,24 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             width="815" height="480"
-                             save="save()"
-                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin">
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            width="815" height="480" creationComplete="init()" save="save()"
+                            skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
+                            title="{R.get('EDIT') + ' ' + collector.name}">
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.network.model.Proxy;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
       
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
       import mx.managers.PopUpManager;
       
       public var mode:String = 'create';
       
       [Bindable]
-      public var collector:it.ht.rcs.console.network.model.Collector;
+      public var collector:Collector;
+      
+      private function init():void
+      {
+        trace('cc: ' + collector == null);
+        getLogs();
+      }
+      
+      private function getLogs():void
+      {
+        CollectorManager.instance.getLogs(collector._id, function(logs:ArrayCollection):void {
+          logTable.dataProvider = logs;
+        });
+      }
+      
+      private function clearLogs():void
+      {
+        CollectorManager.instance.clearLogs(collector._id, function():void {
+          logTable.dataProvider = null;
+        });
+      }
 
-      protected function save():void
+      private function save():void
       {
         /* keep the name the first to be modified */
         collector.name = nameField.text;
@@ -34,36 +58,36 @@
   </fx:Script>
   
   <s:Label left="10" top="16" text="Name"/>
-  <s:TextInput left="90" top="10" width="200" text="{collector.name}" id="nameField"/>
+  <s:TextInput id="nameField" left="90" top="10" width="200" text="{collector.name}"/>
   <s:Label left="330" top="16" text="Address"/>
-  <s:TextInput left="390" top="10" width="180" text="{collector.address}" id="address"/>
+  <s:TextInput id="address" left="390" top="10" width="180" text="{collector.address}"/>
   <s:Label left="610" top="16" text="Version"/>
   <s:TextInput left="670" right="10" top="10" enabled="false" text="{collector.version}"/>
   
   <s:Label left="10" top="56" text="Description"/>
-  <s:TextArea left="90" top="50" width="200" height="60" text="{collector.desc}" id="desc"/>
+  <s:TextArea id="desc" left="90" top="50" width="200" height="60" text="{collector.desc}"/>
   <s:Label left="330" top="56" text="Redirect"/>
-  <s:TextInput left="390" top="50" width="180" text="{collector.port}" id="port" restrict="0-9" maxChars="5"/>
+  <s:TextInput id="port" left="390" top="50" width="180" maxChars="5" restrict="0-9"
+               text="{collector.port}"/>
   <s:Label left="610" top="56" text="Poll"/>
-  <s:CheckBox left="670" top="50" selected="{collector.poll}" id="poll"/>
+  <s:CheckBox id="poll" left="670" top="50" selected="{collector.poll}"/>
 
-  <s:Button right="50" top="135" label="Refresh" skinClass="it.ht.rcs.console.skins.RefreshButton"
+  <s:Button right="50" top="135" label="Refresh" click="getLogs()"
+            skinClass="it.ht.rcs.console.skins.RefreshButton"
             toolTip="{resourceManager.getString('localized_main', 'REFRESH')}"/>
-  <s:Button right="10" top="135" label="Clear logs" skinClass="it.ht.rcs.console.skins.DeleteButton"
+  <s:Button right="10" top="135" label="Clear logs" click="clearLogs()"
+            skinClass="it.ht.rcs.console.skins.DeleteButton"
             toolTip="{resourceManager.getString('localized_main', 'CLEAR_LOGS')}"/>
   
   <s:Label left="10" top="140" fontSize="14" fontWeight="bold" text="Logs"/>
-  <s:DataGrid left="10" right="10" bottom="10" height="274" requestedRowCount="4" typicalItem="{typicalItem}">
+  <s:DataGrid id="logTable" left="10" right="10" bottom="10" height="274" requestedRowCount="4">
     <s:columns>
       <s:ArrayList>
-        <s:GridColumn dataField="time" headerText="Time"></s:GridColumn>
-        <s:GridColumn dataField="type" headerText="Type"></s:GridColumn>
+        <s:GridColumn width="150" dataField="time" headerText="Time"></s:GridColumn>
+        <s:GridColumn width="60" dataField="type" headerText="Type"></s:GridColumn>
         <s:GridColumn dataField="info" headerText="Info"></s:GridColumn>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>
-  <fx:Declarations>
-    <fx:Object id="typicalItem" time="2011-01-01 12:00:00" type="INFO" info=""/>
-  </fx:Declarations>
 
 </utils:TitleWindowSaveClose>

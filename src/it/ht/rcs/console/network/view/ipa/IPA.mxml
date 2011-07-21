@@ -6,9 +6,40 @@
           left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()">
   
   
+  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
+    
+    <ipa:IPAList id="ipas" left="5" right="5" top="5" bottom="5" width="100%" borderVisible="false"
+                 contentBackgroundColor="#EAEAEA" dataProvider="{_proxy_view}"
+                 keyDown="enter(event)"/>
+    
+    <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteProxy()"
+              enabled="{ipas.selectedItem != null}" styleName="AddRemove"
+              toolTip="{resourceManager.getString('localized_main', 'PROXY_DELETE')}"/>
+    <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addProxy()"
+              styleName="AddRemove"
+              toolTip="{resourceManager.getString('localized_main', 'PROXY_ADD')}"/>
+
+  </s:BorderContainer>
+  
+  <s:HGroup>
+    <s:Button width="30" height="20" label="New" skinClass="it.ht.rcs.console.skins.NewButton"
+              toolTip="{resourceManager.getString('localized_main', 'NEW_RULE')}"/>
+    <s:Button width="30" height="20" label="Edit" enabled="{rulesGrid.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.EditButton"
+              toolTip="{resourceManager.getString('localized_main', 'EDIT')}"/>
+    <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.DeleteButton"
+              toolTip="{resourceManager.getString('localized_main', 'DELETE')}"/>
+    <s:Spacer width="15"/>
+    <s:Button width="30" height="20" label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"
+              toolTip="{resourceManager.getString('localized_main', 'APPLY')}"/>
+  </s:HGroup>
+  
+  <ipa:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipas.selectedItem.rules}"/>
+  
+  
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.network.controller.ProxyController;
       import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
@@ -23,14 +54,13 @@
       
       private function onAddedToStage():void
       {
-        trace('IPA added');
         _proxy_view = ProxyManager.instance.getView();
       }
       
       private function addProxy():void
       {
         ProxyController.instance.addProxy(function onSuccess(proxy:it.ht.rcs.console.network.model.Proxy):void {
-          ipaList.selectedItem = proxy;
+          ipas.selectedItem = proxy;
           editProxy(proxy);
         });
       }
@@ -44,50 +74,24 @@
       
       protected function deleteProxy():void
       {
-        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_PROXY_DELETION') + ' ' + ipaList.selectedItem.name + ' ?',
+        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_PROXY_DELETION') + ' ' + ipas.selectedItem.name + ' ?',
                         resourceManager.getString('localized_main', 'CONFIRM'),
                         AlertPopUp.YES | AlertPopUp.NO,
                         null,
                         function(e:CloseEvent):void {
                           if (e.detail == AlertPopUp.YES) 
-                            ProxyController.instance.removeItem(ipaList.selectedItem);
+                            ProxyController.instance.removeItem(ipas.selectedItem);
                         },
                         null, AlertPopUp.NO);
       }
       
       protected function enter(event:KeyboardEvent):void
       {
-        if (event.keyCode == Keyboard.ENTER && ipaList.selectedItem != null)
-          editProxy(ipaList.selectedItem);
+        if (event.keyCode == Keyboard.ENTER && ipas.selectedItem != null)
+          editProxy(ipas.selectedItem);
       }
       
     ]]>
   </fx:Script>
-  
-  
-  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true" backgroundColor="#EAEAEA">
-    <ipa:IPAList id="ipaList" width="100%" top="5" left="5" right="5" bottom="5" borderVisible="false" dataProvider="{_proxy_view}" keyDown="enter(event)" contentBackgroundColor="#EAEAEA"/>
-    <s:Button label="-" width="32" height="20" right="33" bottom="1" styleName="AddRemove"
-              click="deleteProxy()" enabled="{ipaList.selectedItem != null}"
-              toolTip="{resourceManager.getString('localized_main', 'PROXY_DELETE')}"/>
-    <s:Button label="+" width="32" height="20" right="1" bottom="1" styleName="AddRemove"
-              click="addProxy()"
-              toolTip="{resourceManager.getString('localized_main', 'PROXY_ADD')}"/>
-  </s:BorderContainer>
-  
-  <s:HGroup>
-    <s:Button width="30" height="20" label="New" skinClass="it.ht.rcs.console.skins.NewButton"
-              toolTip="{resourceManager.getString('localized_main', 'NEW_RULE')}"/>
-    <s:Button width="30" height="20" label="Edit" skinClass="it.ht.rcs.console.skins.EditButton"
-              toolTip="{resourceManager.getString('localized_main', 'EDIT')}" enabled="{rulesGrid.selectedItem != null}"/>
-    <s:Button width="30" height="20" label="Delete" skinClass="it.ht.rcs.console.skins.DeleteButton"
-              toolTip="{resourceManager.getString('localized_main', 'DELETE')}" enabled="{rulesGrid.selectedItem != null}"/>
-    <s:Spacer width="15"/>
-    <s:Button width="30" height="20" label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"
-              toolTip="{resourceManager.getString('localized_main', 'APPLY')}"/>
-  </s:HGroup>
-  
-  <ipa:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipaList.selectedItem.rules}"/>
-
 
 </s:VGroup>

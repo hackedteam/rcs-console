@@ -2,28 +2,30 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:view="it.ht.rcs.console.network.view.*"
           xmlns:collectors="it.ht.rcs.console.network.view.collectors.*"
-          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()"
-          contentBackgroundColor="0xeaeaea">
+          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()">
 
   
   <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
     
-    <collectors:CollectorList id="collectors" width="100%" top="5" left="5" right="5" bottom="5"  borderVisible="false" keyDown="enter(event)" dataProvider="{_collector_view}"/>
+    <collectors:CollectorList id="collectors" left="5" right="5" top="5" bottom="5" width="100%" borderVisible="false"
+                              contentBackgroundColor="#EAEAEA" dataProvider="{_collector_view}"
+                              keyDown="enter(event)"/>
     
-    <s:Button right="33" bottom="1" width="32" height="20" label="-" styleName="AddRemove"
-              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_DELETE')}"
-              click="deleteCollector()"/>
-    <s:Button right="1" bottom="1" width="32" height="20" label="+" styleName="AddRemove"
-              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_ADD')}"
-              click="addCollector()"/>
+    <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteCollector()"
+              enabled="{collectors.selectedItem != null}" styleName="AddRemove"
+              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_DELETE')}"/>
+    <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addCollector()"
+              styleName="AddRemove"
+              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_ADD')}"/>
   
   </s:BorderContainer>
   
-  <s:HGroup width="100%">
-    <s:Button label="Health check" skinClass="it.ht.rcs.console.skins.HeartbeatButton"/>
-    <s:Button label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"/>
+  <s:HGroup>
+    <s:Button width="30" height="20" label="Health check" skinClass="it.ht.rcs.console.skins.HeartbeatButton"
+              toolTip="{resourceManager.getString('localized_main', 'HEALTH_CHECK')}"/>
+    <s:Button width="30" height="20" label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"
+              toolTip="{resourceManager.getString('localized_main', 'APPLY_TOPOLOGY')}"/>
   </s:HGroup>
   
   <s:Scroller id="stageScroller" width="100%" height="100%">
@@ -103,14 +105,14 @@
       protected function deleteCollector():void
       {
         AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_COLLECTOR_DELETION') + ' ' + collectors.selectedItem.name + ' ?',
-          resourceManager.getString('localized_main', 'CONFIRM'),
-          AlertPopUp.YES | AlertPopUp.NO,
-          null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES) 
-              CollectorManager.instance.removeItem(collectors.selectedItem);
-          },
-          null, AlertPopUp.NO);
+                        resourceManager.getString('localized_main', 'CONFIRM'),
+                        AlertPopUp.YES | AlertPopUp.NO,
+                        null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) 
+                            CollectorManager.instance.removeItem(collectors.selectedItem);
+                        },
+                        null, AlertPopUp.NO);
       }
       
       protected function enter(event:KeyboardEvent):void

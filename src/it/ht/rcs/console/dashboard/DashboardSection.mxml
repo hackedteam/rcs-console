@@ -3,10 +3,33 @@
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx" 
          xmlns:search="it.ht.rcs.console.operations.search.*"
-         title="DASHBOARD" width="100%" height="100%" >
-  <fx:Declarations>
-    <!-- Place non-visual elements (e.g., services, value objects) here -->
-  </fx:Declarations>
+         title="DASHBOARD" width="100%" height="100%"
+         addedToStage="added()" removedFromStage="removed()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      private var _dashboard_items:ListCollectionView;
+      
+      private function added():void
+      {
+        /* the controller needs the current user */
+        DashboardController.instance.user = console.currentSession.user;
+        DashboardController.instance.start();
+        _dashboard_items = DashboardController.instance.getView();
+      }
+      
+      private function removed():void
+      {
+        DashboardController.instance.stop();
+      }
+      
+    ]]>
+  </fx:Script>
   
   <!-- button bar (transparent container) -->  
   <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="30" backgroundAlpha="0.0">
@@ -16,15 +39,6 @@
   </s:BorderContainer>
   
   <!-- item list -->
-  <s:List id="items" left="5" top="30" bottom="5" right="5" itemRenderer="it.ht.rcs.console.dashboard.DashboardRenderer" click="{items.selectedIndex = -1}">
-    <s:dataProvider>
-      <s:ArrayList>
-        <fx:Object _kind="operation" name="Operation One" status="open" />
-        <fx:Object _kind="operation" name="Operation Two" status="open" />
-        <fx:Object _kind="target" name="Target One" status="open" />
-        <fx:Object _kind="backdoor" name="Backdoor One" status="open" />
-      </s:ArrayList>
-    </s:dataProvider>
-  </s:List>
+  <s:List id="items" left="5" top="30" bottom="5" right="5" itemRenderer="it.ht.rcs.console.dashboard.DashboardRenderer" click="{items.selectedIndex = -1}" dataProvider="{_dashboard_items}" />
   
 </s:Panel>

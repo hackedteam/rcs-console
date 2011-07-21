@@ -71,7 +71,7 @@
                 contents.left = contents.top = contents.right = contents.bottom = 0;
             }
             
-            dropShadow.visible = getStyle("dropShadowVisible");
+            //dropShadow.visible = getStyle("dropShadowVisible");
             
             var cr:Number = getStyle("cornerRadius");
             var withControls:Boolean = 
@@ -83,10 +83,10 @@
             {
                 cornerRadius = cr;
                 
-                dropShadow.tlRadius = cornerRadius;
-                dropShadow.trRadius = cornerRadius;
-                dropShadow.blRadius = withControls ? cornerRadius : 0;
-                dropShadow.brRadius = withControls ? cornerRadius : 0;
+                //dropShadow.tlRadius = cornerRadius;
+                //dropShadow.trRadius = cornerRadius;
+                //dropShadow.blRadius = withControls ? cornerRadius : 0;
+                //dropShadow.brRadius = withControls ? cornerRadius : 0;
                 
                 setPartCornerRadii(topMaskRect, withControls); 
                 setPartCornerRadii(border, withControls); 
@@ -113,7 +113,24 @@
             target.bottomLeftRadiusX = includeBottom ? cornerRadius : 0;
             target.bottomRightRadiusX = includeBottom ? cornerRadius : 0;
         }
-        
+      
+        private var prevHeight:Number;
+        private function collapseExpand(event:MouseEvent):void
+        {
+          event.stopImmediatePropagation();
+          if (currentState != "minimized")
+          {
+            currentState = "minimized";
+            prevHeight = height;
+            contentGroup.visible = contentGroup.includeInLayout = false;
+            height = 23;
+          } else {
+            currentState = "maximized";
+            height = prevHeight;
+            contentGroup.visible = contentGroup.includeInLayout = true;
+          }
+        }
+      
         private var cornerRadius:Number;
     </fx:Script>
     
@@ -129,9 +146,9 @@
     </s:states>
     
     <!--- drop shadow can't be hittable so it stays sibling of other graphics @private-->
-    <s:RectangularDropShadow id="dropShadow" blurX="20" blurY="20" alpha="0.32" 
+    <!--s:RectangularDropShadow id="dropShadow" blurX="20" blurY="20" alpha="0.32" excludeFrom="minimized"
                              alpha.inactiveGroup="0.22" distance="11"  distance.inactiveGroup="7"
-                             angle="90" color="0x000000" left="0" top="0" right="0" bottom="0"/>
+                             angle="90" color="0x000000" left="0" top="0" right="0" bottom="0"/-->
     
     <!--- drop shadow can't be hittable so all other graphics go in this group -->
     <s:Group left="0" right="0" top="0" bottom="0">
@@ -139,7 +156,7 @@
         <!--- top group mask @private-->
         <s:Group left="1" top="1" right="1" bottom="1" id="topGroupMask">
             <!--- @private-->
-            <s:Rect id="topMaskRect" left="0" top="0" right="0" bottom="0">
+            <s:Rect id="topMaskRect" left="0" top="0" right="0" bottom="1">
                 <s:fill>
                     <s:SolidColor alpha="0"/>
                 </s:fill>
@@ -181,7 +198,7 @@
                 <s:VerticalLayout gap="0" horizontalAlign="justify" />
             </s:layout>
             <!--- @private -->
-            <s:Group id="topGroup" mask="{topGroupMask}">
+            <s:Group id="topGroup" mask="{topGroupMask}" click="collapseExpand(event)">
                 
                 <!--- layer 0: title bar fill @private -->
                 <s:Rect id="tbFill" left="0" right="0" top="0" bottom="1">
@@ -232,7 +249,7 @@
                 <!--- @copy spark.components.TitleWindow#closeButton -->
                 <s:Button id="minMaxButton" skinClass="it.ht.rcs.console.skins.TitleWindowMinButtonSkin"
                           skinClass.minimized="it.ht.rcs.console.skins.TitleWindowMaxButtonSkin"
-                          width="15" height="15" right="25" top="3" />
+                          width="15" height="15" right="25" top="3" click="collapseExpand(event)" />
                 <s:Button id="closeButton" skinClass="it.ht.rcs.console.skins.TitleWindowCancelButtonSkin"
                           width="15" height="15" right="7" top="3" />
             </s:Group>

@@ -9,6 +9,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.network.controller.ProxyController;
       import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -28,7 +29,7 @@
       
       private function addProxy():void
       {
-        ProxyManager.instance.addProxy(function onSuccess(proxy:it.ht.rcs.console.network.model.Proxy):void {
+        ProxyController.instance.addProxy(function onSuccess(proxy:it.ht.rcs.console.network.model.Proxy):void {
           ipaList.selectedItem = proxy;
           editProxy(proxy);
         });
@@ -43,12 +44,15 @@
       
       protected function deleteProxy():void
       {
-        AlertPopUp.show('', '', AlertPopUp.OK | AlertPopUp.CANCEL, null, doCancel);
-      }
-      
-      private function doCancel(event:CloseEvent):void
-      {
-        ProxyManager.instance.removeItem(ipaList.selectedItem);
+        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_PROXY_DELETION') + ' ' + ipaList.selectedItem.name + ' ?',
+                        resourceManager.getString('localized_main', 'CONFIRM'),
+                        AlertPopUp.YES | AlertPopUp.NO,
+                        null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) 
+                            ProxyController.instance.removeItem(ipaList.selectedItem);
+                        },
+                        null, AlertPopUp.NO);
       }
       
       protected function enter(event:KeyboardEvent):void
@@ -64,7 +68,7 @@
   <s:BorderContainer width="100%" height="100%" dropShadowVisible="true" backgroundColor="#EAEAEA">
     <ipa:IPAList id="ipaList" width="100%" top="5" left="5" right="5" bottom="5" borderVisible="false" dataProvider="{_proxy_view}" keyDown="enter(event)" contentBackgroundColor="#EAEAEA"/>
     <s:Button label="-" width="32" height="20" right="33" bottom="1" styleName="AddRemove"
-              click="deleteProxy()"
+              click="deleteProxy()" enabled="{ipaList.selectedItem != null}"
               toolTip="{resourceManager.getString('localized_main', 'PROXY_DELETE')}"/>
     <s:Button label="+" width="32" height="20" right="1" bottom="1" styleName="AddRemove"
               click="addProxy()"

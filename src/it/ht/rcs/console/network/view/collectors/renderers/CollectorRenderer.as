@@ -88,7 +88,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
       var accept:Boolean = false;
       if (event.dragInitiator is CollectorRenderer) {
         var cr:CollectorRenderer = event.dragInitiator as CollectorRenderer;
-        accept = cr && nextHop !== cr && this !== cr;
+        accept = cr !== nextHop && cr !== this;
       } else if (event.dragInitiator is CollectorListRenderer) {
         accept = true;
       }
@@ -119,10 +119,10 @@ package it.ht.rcs.console.network.view.collectors.renderers
         source = new CollectorRenderer(collector);
         source.moveAfter(dest);
       }
-
-      (parent as NetworkGraph).rebuildGraph();
       
       setStyle('backgroundColor', 0xbbbbbb);
+      
+      (parent as NetworkGraph).rebuildGraph();
     }
     
     
@@ -184,8 +184,8 @@ package it.ht.rcs.console.network.view.collectors.renderers
     {
       if (_nextHop != null) {
         _nextHop._prevHop = _prevHop;
-        _nextHop.collector.prev = [_prevHop.collector._id];
         _prevHop.collector.next = [_nextHop.collector._id];
+        _nextHop.collector.prev = [_prevHop.collector._id];
       }
       _prevHop._nextHop = _nextHop;
       this.collector.prev = this.collector.next = null;

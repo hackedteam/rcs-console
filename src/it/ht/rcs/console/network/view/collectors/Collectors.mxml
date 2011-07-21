@@ -7,21 +7,29 @@
           left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()"
           contentBackgroundColor="0xeaeaea">
 
-  <s:BorderContainer width="100%" height="103" dropShadowVisible="true">
-    <collectors:CollectorList width="100%" height="101" borderVisible="false"
-                              dataProvider="{_collector_view}"/>
+  
+  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
+    
+    <collectors:CollectorList id="collectors" width="100%" top="5" left="5" right="5" bottom="5"  borderVisible="false" keyDown="enter(event)" dataProvider="{_collector_view}"/>
+    
     <s:Button right="33" bottom="1" width="32" height="20" label="-" styleName="AddRemove"
-              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_DELETE')}"/>
+              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_DELETE')}"
+              click="deleteCollector()"/>
     <s:Button right="1" bottom="1" width="32" height="20" label="+" styleName="AddRemove"
-              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_ADD')}"/>
+              toolTip="{resourceManager.getString('localized_main', 'COLLECTOR_ADD')}"
+              click="addCollector()"/>
+  
   </s:BorderContainer>
+  
   <s:HGroup width="100%">
     <s:Button label="Health check" skinClass="it.ht.rcs.console.skins.HeartbeatButton"/>
     <s:Button label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"/>
   </s:HGroup>
+  
   <s:Scroller id="stageScroller" width="100%" height="100%">
     <collectors:NetworkGraph id="networkStage" rootNode="{rootNode}"/>
   </s:Scroller>
+  
   
   <fx:Script>
     <![CDATA[
@@ -29,16 +37,14 @@
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.network.view.collectors.renderers.CollectorRenderer;
       import it.ht.rcs.console.network.view.collectors.renderers.DBRenderer;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
-      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
-      import mx.rpc.events.ResultEvent;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
       
       [Bindable]
       private var rootNode:DBRenderer;
-      
-      [Bindable]
-      private var listDP:ArrayCollection;
       
       [Bindable]
       private var _collector_view:ListCollectionView;
@@ -46,18 +52,16 @@
       private function onAddedToStage():void
       {
         _collector_view = CollectorManager.instance.getView();
-        trace('Coll added');
+        buildGraph();
       }
       
-      public function buildGraph(event:ResultEvent):void
+      public function buildGraph():void
       {
-        var list:ArrayCollection = event.result as ArrayCollection;
         var nodes:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
-        for each (var el:Collector in list)
+        for each (var el:Collector in _collector_view)
           nodes.push(new CollectorRenderer(el));
         
         var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
-        
         for each (var node:CollectorRenderer in nodes) {
           if (node.collector.type == 'local')
             collectors.push(node);
@@ -68,20 +72,53 @@
         var db:DBRenderer = new DBRenderer();
         db.collectors = collectors;
         rootNode = db;
-        
-        listDP = list;
-
-        stageScroller.verticalScrollBar.value = stageScroller.verticalScrollBar.maximum;
       }
       
-      private function getRendererById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer {
-        if (_id == null) return null;
-        for each (var cr:CollectorRenderer in list)
-        if (cr.collector._id == _id)
-          return cr;
+      private function getRendererById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer
+      {
+        if (_id != null)
+        {
+          for each (var cr:CollectorRenderer in list)
+            if (cr.collector._id == _id)
+              return cr;
+        }
         return null;
       }
-
+      
+      private function addCollector():void
+      {
+        CollectorManager.instance.addProxy(function onSuccess(collector:Collector):void {
+          collectors.selectedItem = collector;
+          editCollector(collector);
+        });
+      }
+      
+      private function editCollector(collector:Collector):void
+      {
+        var popup:CollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CollectorForm, true) as CollectorForm;
+        popup.collector = collector;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      protected function deleteCollector():void
+      {
+        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_COLLECTOR_DELETION') + ' ' + collectors.selectedItem.name + ' ?',
+          resourceManager.getString('localized_main', 'CONFIRM'),
+          AlertPopUp.YES | AlertPopUp.NO,
+          null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              CollectorManager.instance.removeItem(collectors.selectedItem);
+          },
+          null, AlertPopUp.NO);
+      }
+      
+      protected function enter(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ENTER && collectors.selectedItem != null)
+          editCollector(collectors.selectedItem);
+      }
+      
     ]]>
   </fx:Script>
   

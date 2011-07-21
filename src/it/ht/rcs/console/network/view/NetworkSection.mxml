@@ -3,8 +3,11 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:view="it.ht.rcs.console.network.view.*"
-         width="100%" height="100%" addedToStage="onAddedToStage()" creationComplete="init()"
-         creationPolicy="all" removedFromStage="onRemovedFromStage()" title="Network" xmlns:collectors="it.ht.rcs.console.network.view.collectors.*" xmlns:ipa="it.ht.rcs.console.network.view.ipa.*" xmlns:rmi="it.ht.rcs.console.network.view.rmi.*">
+         xmlns:collectors="it.ht.rcs.console.network.view.collectors.*"
+         xmlns:ipa="it.ht.rcs.console.network.view.ipa.*"
+         xmlns:rmi="it.ht.rcs.console.network.view.rmi.*"
+         width="100%" height="100%" addedToStage="onAddedToStage()" creationPolicy="all"
+         removedFromStage="onRemovedFromStage()" title="Network">
   
   
   <mx:TabNavigator left="5" right="5" top="5" bottom="5" backgroundColor="0xeaeaea">
@@ -25,34 +28,19 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.events.RefreshEvent;
-      
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.controller.ProxyController;
       
       private function onAddedToStage():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
+        CollectorManager.instance.start();
+        ProxyController.instance.start();
       }
       
       private function onRemovedFromStage():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
-      }
-      
-      private function init():void
-      {
-        refresh(null);
-      }
-      
-      private function refresh(event:RefreshEvent):void
-      {
-        //console.currentDB.collector.all(result);
-      }
-      
-      private function result(event:ResultEvent):void
-      {
-        collectors.buildGraph(event);
+        CollectorManager.instance.stop();
+        ProxyController.instance.stop();
       }
       
     ]]>

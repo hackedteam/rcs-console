@@ -1,5 +1,8 @@
 package it.ht.rcs.console.network.view.collectors
 {
+  import flash.events.Event;
+  
+  import it.ht.rcs.console.events.NodeEvent;
   import it.ht.rcs.console.network.view.collectors.renderers.CollectorRenderer;
   import it.ht.rcs.console.network.view.collectors.renderers.DBRenderer;
   import it.ht.rcs.console.network.view.collectors.renderers.IPRenderer;
@@ -7,8 +10,8 @@ package it.ht.rcs.console.network.view.collectors
   import mx.collections.ArrayCollection;
   
   import spark.components.Group;
-  import spark.components.Scroller;
 
+  [Event(name="nodeChanged", type="it.ht.rcs.console.events.NodeEvent")]
   public class NetworkGraph extends Group
 	{
 		
@@ -23,15 +26,27 @@ package it.ht.rcs.console.network.view.collectors
     {
 			super();
 			layout = null;
+      addEventListener(NodeEvent.CHANGED, onNodeEvent);
+      addEventListener(NodeEvent.ADDED, onNodeEvent);
+      addEventListener(NodeEvent.REMOVED, onNodeEvent);
 		}
+    
+    private function onNodeEvent(e:Event):void
+    {
+      if (!(e is NodeEvent))
+        return;
+      
+      trace('NetworkGraph: onNodeEvent');
+    }
 		
-		private var ips:ArrayCollection;
 		public function set rootNode(root:DBRenderer):void
     {
 			_db = root;
       rebuildGraph();
 		}
     
+    // List of IP renderer
+    private var ips:ArrayCollection;
     public function rebuildGraph():void {
       
       removeAllElements();
@@ -72,7 +87,9 @@ package it.ht.rcs.console.network.view.collectors
       super.measure();
       
       if (_db != null && _db.collectors.length > 0) {
-        measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length-1));
+        
+        measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length - 1));
+        
         var maxBranch:Number = 0, branch:Number = 0, nextHop:CollectorRenderer;
         for each (var coll:CollectorRenderer in _db.collectors) {
           branch = BOTTOM_DISTANCE + _db.height + VERTICAL_DISTANCE;
@@ -85,6 +102,7 @@ package it.ht.rcs.console.network.view.collectors
           maxBranch = branch > maxBranch ? branch : maxBranch;
         }
         measuredHeight = measuredMinHeight = maxBranch;
+        
       }
 		}
     

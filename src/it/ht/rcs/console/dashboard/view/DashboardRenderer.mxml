@@ -7,24 +7,40 @@
   <fx:Script>
     <![CDATA[
       
+      [Bindable]
+      private var _data:Object
+      
+      override public function set data(o:Object):void
+      {
+        _data = o;
+        
+        currentState = _data._kind;
+      }
     ]]>
   </fx:Script>
   
   <s:states>
-    <s:State name="Operation"/>
+    <s:State name="operation"/>
+    <s:State name="target"/>
+    <s:State name="backdoor"/>
   </s:states>
 
   <s:HGroup paddingBottom="5" paddingTop="5" paddingLeft="5" paddingRight="5" width="100%">
-    <utils:TitleWindowMinMaxClose skinClass="it.ht.rcs.console.skins.TitleWindowMinMaxCloseSkin" title="{data.name}" width="100%"> 
+    <utils:TitleWindowMinMaxClose skinClass="it.ht.rcs.console.skins.TitleWindowMinMaxCloseSkin" title="{_data.name}" width="100%"> 
       
       <s:HGroup width="100%" height="100%">
         <s:SkinnableContainer width="80" height="100%">
           <!-- item icon -->
-          <s:Image top="10" horizontalCenter="0" source="@Embed('img/items/operation_black.png')"/>
-          <s:Label top="80" horizontalCenter="0" text="{data.status != 'open' ? data.status : ''}"/>
+          <s:Image top="10" horizontalCenter="0" 
+                   source.operation="@Embed('img/items/operation_black.png')" 
+                   source.target="@Embed('img/items/target_black.png')" 
+                   source.backdoor="@Embed('img/items/backdoor_black.png')"/>
+          <s:Label top="80" horizontalCenter="0" text="{_data.status != 'open' ? _data.status : ''}"/>
         </s:SkinnableContainer>
         <s:SkinnableContainer width="100%" height="100%">
-          <view:OperationDetails includeIn="Operation" />
+          <view:OperationDetails includeIn="operation" />
+          <view:TargetDetails includeIn="target" />
+          <view:BackdoorDetails includeIn="backdoor" />
         </s:SkinnableContainer>
       </s:HGroup>
      

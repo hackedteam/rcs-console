@@ -2,10 +2,12 @@ package it.ht.rcs.console.network.view.collectors.renderers
 {
   import flash.events.MouseEvent;
   
+  import it.ht.rcs.console.events.NodeEvent;
   import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.network.view.collectors.CollectorListRenderer;
   import it.ht.rcs.console.network.view.collectors.NetworkGraph;
   
+  import mx.binding.utils.BindingUtils;
   import mx.core.DragSource;
   import mx.core.UIComponent;
   import mx.events.DragEvent;
@@ -45,7 +47,8 @@ package it.ht.rcs.console.network.view.collectors.renderers
       if (textLabel == null)
       {
   			textLabel = new Label();
-  			textLabel.text = collector.name;
+        BindingUtils.bindProperty(textLabel, "text", collector, "name");
+  			//textLabel.text = collector.name;
   			textLabel.setStyle('fontSize', 12);
         textLabel.setStyle('textAlign', 'center');
         textLabel.width = WIDTH - 20;
@@ -122,7 +125,8 @@ package it.ht.rcs.console.network.view.collectors.renderers
       
       setStyle('backgroundColor', 0xbbbbbb);
       
-      (parent as NetworkGraph).rebuildGraph();
+      dispatchEvent(new NodeEvent(NodeEvent.CHANGED));
+      //(parent as NetworkGraph).rebuildGraph();
     }
     
     

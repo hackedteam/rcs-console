@@ -8,8 +8,9 @@ package it.ht.rcs.console.network.view.collectors.renderers
     private static const WIDTH:Number = 120;
     private static const HEIGHT:Number = 40;
 	
-		private var textLabel:Label;
     public var text:String;
+    
+		private var textLabel:Label;
     
 		override protected function createChildren():void
     {

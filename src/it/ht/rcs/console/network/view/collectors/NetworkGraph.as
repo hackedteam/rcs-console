@@ -33,10 +33,12 @@ package it.ht.rcs.console.network.view.collectors
     
     private function onNodeEvent(e:Event):void
     {
-      if (!(e is NodeEvent))
+      if (!(e is NodeEvent) || e.target == this)
         return;
-      
+
       trace('NetworkGraph: onNodeEvent');
+      rebuildGraph();
+      //document.dispatchEvent(e);
     }
 		
 		public function set rootNode(root:DBRenderer):void

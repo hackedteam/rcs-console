@@ -114,21 +114,28 @@
             target.bottomRightRadiusX = includeBottom ? cornerRadius : 0;
         }
       
+        private var state:String = "";
         private var prevHeight:Number;
         private function collapseExpand(event:MouseEvent):void
         {
+          
           event.stopImmediatePropagation();
-          if (currentState != "minimized")
+          if (state != "minimized")
           {
-            currentState = "minimized";
+            state = "minimized";
             prevHeight = height;
-            contentGroup.visible = contentGroup.includeInLayout = false;
+            contentGroup.visible = contentGroup.includeInLayout =
+            minButton.visible = minButton.includeInLayout = false;
+            maxButton.visible = maxButton.includeInLayout = true;
             height = 23;
           } else {
-            currentState = "maximized";
+            state = "";
             height = prevHeight;
-            contentGroup.visible = contentGroup.includeInLayout = true;
+            contentGroup.visible = contentGroup.includeInLayout =
+            minButton.visible = minButton.includeInLayout = true;
+            maxButton.visible = maxButton.includeInLayout = false;
           }
+          
         }
       
         private var cornerRadius:Number;
@@ -141,8 +148,6 @@
         <s:State name="normalWithControlBar" stateGroups="withControls" />
         <s:State name="inactiveWithControlBar" stateGroups="withControls, inactiveGroup" />
         <s:State name="disabledWithControlBar" stateGroups="withControls" />
-        <s:State name="maximized" />
-        <s:State name="minimized" />
     </s:states>
     
     <!--- drop shadow can't be hittable so it stays sibling of other graphics @private-->
@@ -198,7 +203,7 @@
                 <s:VerticalLayout gap="0" horizontalAlign="justify" />
             </s:layout>
             <!--- @private -->
-            <s:Group id="topGroup" mask="{topGroupMask}" click="collapseExpand(event)">
+            <s:Group id="topGroup" mask="{topGroupMask}" doubleClickEnabled="true" doubleClick="collapseExpand(event)">
                 
                 <!--- layer 0: title bar fill @private -->
                 <s:Rect id="tbFill" left="0" right="0" top="0" bottom="1">
@@ -246,12 +251,13 @@
                 <!--- @copy spark.components.TitleWindow#moveArea -->
                 <s:Group id="moveArea" left="0" right="0" top="0" bottom="0" />
                 
-                <!--- @copy spark.components.TitleWindow#closeButton -->
-                <s:Button id="minMaxButton" skinClass="it.ht.rcs.console.skins.TitleWindowMinButtonSkin"
-                          skinClass.minimized="it.ht.rcs.console.skins.TitleWindowMaxButtonSkin"
-                          width="15" height="15" right="25" top="3" click="collapseExpand(event)" />
-                <s:Button id="closeButton" skinClass="it.ht.rcs.console.skins.TitleWindowCancelButtonSkin"
-                          width="15" height="15" right="7" top="3" />
+                <s:HGroup right="7" height="15" top="3" gap="5">
+                  <!--- @copy spark.components.TitleWindow#closeButton -->
+                  <s:Button id="maxButton" skinClass="it.ht.rcs.console.skins.TitleWindowMaxButtonSkin" click="collapseExpand(event)"
+                            visible="false" includeInLayout="false"/>
+                  <s:Button id="minButton" skinClass="it.ht.rcs.console.skins.TitleWindowMinButtonSkin" click="collapseExpand(event)"/>
+                  <s:Button id="closeButton" skinClass="it.ht.rcs.console.skins.TitleWindowCancelButtonSkin"/>
+                </s:HGroup>
             </s:Group>
             
             <!--

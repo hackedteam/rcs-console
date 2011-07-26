@@ -18,7 +18,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
       if (textLabel == null)
       {
         textLabel = new Label();
-        textLabel.text = 'DB';
+        textLabel.text = 'RCS';
         textLabel.setStyle('fontSize', 20);
         textLabel.setStyle('textAlign', 'center');
         textLabel.width = WIDTH - 20;

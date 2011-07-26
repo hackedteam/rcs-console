@@ -11,7 +11,9 @@
       private var _admin:Boolean;
       [Bindable]
       private var _tech:Boolean;
-      [Bindable]
+		  [Bindable]
+		  private var _sys:Boolean;
+		  [Bindable]
       private var _view:Boolean;
       
       override public function prepare(hasBeenRecycled:Boolean):void {
@@ -20,16 +22,18 @@
           var o:* = data[column.dataField];
           
           _admin = false;
+          _sys = false;
           _tech = false;
           _view = false;
           
           if (o.source.indexOf('admin') != -1 || o.source.indexOf('ADMIN') != -1)
             _admin = true;
-          
+
+		      if (o.source.indexOf('sys') != -1 || o.source.indexOf('SYS') != -1)
+			      _sys = true;
           
           if (o.source.indexOf('tech') != -1 || o.source.indexOf('TECH') != -1)
             _tech = true;
-          
           
           if (o.source.indexOf('view') != -1 || o.source.indexOf('VIEW') != -1)
             _view = true;
@@ -39,6 +43,7 @@
     ]]>
   </fx:Script>
   <s:Image left="5" top="0" bottom="0" source="img/privs/admin.png" visible="{_admin}"/>
-  <s:Image left="25" top="0" bottom="0" source="img/privs/tech.png" visible="{_tech}"/>
-  <s:Image left="45" top="0" bottom="0" source="img/privs/view.png" visible="{_view}"/>
+  <s:Image left="25" top="0" bottom="0" source="img/privs/sys.png" visible="{_sys}"/>
+  <s:Image left="45" top="0" bottom="0" source="img/privs/tech.png" visible="{_tech}"/>
+  <s:Image left="65" top="0" bottom="0" source="img/privs/view.png" visible="{_view}"/>
 </s:GridItemRenderer>

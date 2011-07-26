@@ -4,7 +4,7 @@
                xmlns:mx="library://ns.adobe.com/flex/mx" 
                xmlns:utils="it.ht.rcs.console.utils.*" 
                skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
-               width="450" height="470"
+               width="480" height="470"
                close="closeMe()" save="saveMe()"
                title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
   <fx:Script>
@@ -40,6 +40,7 @@
         
         var privs:ArrayCollection = new ArrayCollection();
         if (formAdmin.selected) privs.addItem('ADMIN');
+		if (formSys.selected) privs.addItem('SYS');
         if (formTech.selected)  privs.addItem('TECH');
         if (formView.selected)  privs.addItem('VIEW');
         
@@ -119,6 +120,7 @@
       <s:HGroup>
         <!-- the current user cannot remove the ADMIN priv from himself -->
         <s:CheckBox label="ADMIN" width="70" selected="{_user.privs.getItemIndex('ADMIN') != -1}" id="formAdmin" enabled="{_user._id != console.currentSession.user._id}"/>
+		<s:CheckBox label="SYS" width="70" selected="{_user.privs.getItemIndex('SYS') != -1}" id="formSys"/>
         <s:CheckBox label="TECH" width="70" selected="{_user.privs.getItemIndex('TECH') != -1}" id="formTech"/>
         <s:CheckBox label="VIEWER" width="70" selected="{_user.privs.getItemIndex('VIEW') != -1}" id="formView"/>
       </s:HGroup>

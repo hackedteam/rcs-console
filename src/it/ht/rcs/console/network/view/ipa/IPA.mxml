@@ -26,7 +26,7 @@
     <s:Button width="30" height="20" label="Edit" click="editRule()"
               enabled="{rulesGrid.selectedItem != null}"
               skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
-    <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}"
+    <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}" click="deleteRule()"
               skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
     <s:Spacer width="15"/>
     <s:Button width="30" height="20" label="Apply" enabled="{ipas.selectedItem != null}"
@@ -120,6 +120,19 @@
         var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
         popup.rule = rulesGrid.selectedItem as ProxyRule;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      protected function deleteRule():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_PROXY_DELETION'),
+          R.get('CONFIRM'),
+          AlertPopUp.YES | AlertPopUp.NO,
+          null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              rulesGrid.dataProvider.removeItemAt(rulesGrid.selectedIndex);
+          },
+          null, AlertPopUp.NO);
       }
       
     ]]>

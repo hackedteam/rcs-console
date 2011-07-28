@@ -5,7 +5,7 @@
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             width="815" height="480" creationComplete="init()" save="save()"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
-                            title="{R.get('EDIT') + ' ' + collector.name}">
+                            title="{R.get('EDIT_COLLECTOR') + ' ' + collector.name}">
 
   <fx:Script>
     <![CDATA[
@@ -15,16 +15,12 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
-      import mx.managers.PopUpManager;
-      
-      public var mode:String = 'create';
       
       [Bindable]
       public var collector:Collector;
       
       private function init():void
       {
-        trace('cc: ' + collector == null);
         getLogs();
       }
       
@@ -51,41 +47,39 @@
         collector.port = parseInt(port.text);
         collector.poll = poll.selected;
         
-        PopUpManager.removePopUp(this);
+        close();
       }
       
     ]]>
   </fx:Script>
   
-  <s:Label left="10" top="16" text="Name"/>
+  <s:Label left="10" top="16" text="{R.get('NAME')}"/>
   <s:TextInput id="nameField" left="90" top="10" width="200" text="{collector.name}"/>
-  <s:Label left="330" top="16" text="Address"/>
+  <s:Label left="330" top="16" text="{R.get('ADDRESS')}"/>
   <s:TextInput id="address" left="390" top="10" width="180" text="{collector.address}"/>
-  <s:Label left="610" top="16" text="Version"/>
+  <s:Label left="610" top="16" text="{R.get('VERSION')}"/>
   <s:TextInput left="670" right="10" top="10" enabled="false" text="{collector.version}"/>
   
-  <s:Label left="10" top="56" text="Description"/>
+  <s:Label left="10" top="56" text="{R.get('DESCRIPTION')}"/>
   <s:TextArea id="desc" left="90" top="50" width="200" height="60" text="{collector.desc}"/>
-  <s:Label left="330" top="56" text="Redirect"/>
+  <s:Label left="330" top="56" text="{R.get('PORT')}"/>
   <s:TextInput id="port" left="390" top="50" width="180" maxChars="5" restrict="0-9"
                text="{collector.port}"/>
-  <s:Label left="610" top="56" text="Poll"/>
+  <s:Label left="610" top="56" text="{R.get('POLL')}"/>
   <s:CheckBox id="poll" left="670" top="50" selected="{collector.poll}"/>
 
-  <s:Button right="50" top="135" label="Refresh" click="getLogs()"
-            skinClass="it.ht.rcs.console.skins.RefreshButton"
-            toolTip="{resourceManager.getString('localized_main', 'REFRESH')}"/>
-  <s:Button right="10" top="135" label="Clear logs" click="clearLogs()"
-            skinClass="it.ht.rcs.console.skins.DeleteButton"
-            toolTip="{resourceManager.getString('localized_main', 'CLEAR_LOGS')}"/>
+  <s:Button right="50" top="135" click="getLogs()" skinClass="it.ht.rcs.console.skins.RefreshButton"
+            toolTip="{R.get('REFRESH')}"/>
+  <s:Button right="10" top="135" click="clearLogs()" skinClass="it.ht.rcs.console.skins.DeleteButton"
+            toolTip="{R.get('CLEAR_LOGS')}"/>
   
-  <s:Label left="10" top="140" fontSize="14" fontWeight="bold" text="Logs"/>
+  <s:Label left="10" top="140" fontSize="14" fontWeight="bold" text="{R.get('LOGS')}"/>
   <s:DataGrid id="logTable" left="10" right="10" bottom="10" height="274" requestedRowCount="4">
     <s:columns>
       <s:ArrayList>
-        <s:GridColumn width="150" dataField="time" headerText="Time"></s:GridColumn>
-        <s:GridColumn width="60" dataField="type" headerText="Type"></s:GridColumn>
-        <s:GridColumn dataField="info" headerText="Info"></s:GridColumn>
+        <s:GridColumn width="150" dataField="time" headerText="{R.get('TIME')}"></s:GridColumn>
+        <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
+        <s:GridColumn dataField="info" headerText="{R.get('INFO')}"></s:GridColumn>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>

@@ -57,7 +57,7 @@ package it.ht.rcs.console.utils
       }
     }
     
-    private function close(event:MouseEvent):void
+    protected function close(event:MouseEvent=null):void
     {
       PopUpManager.removePopUp(this);
     }

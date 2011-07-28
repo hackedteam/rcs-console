@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            save="save()"
+                            skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
+                            title="{R.get('COLLECTOR_ADD')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.Collector;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var collector:Collector;
+      
+      private function save():void
+      {
+        collector.name = proxyName.text;
+        collector.desc = description.text;
+        collector.address = address.text;
+        collector.port = parseInt(port.text);
+        
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form left="5" right="5" bottom="10" skinClass="it.ht.rcs.console.skins.CompactForm">
+    
+    <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="proxyName" width="200" text="{collector.name}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DESCRIPTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextArea id="description" width="200" height="60" text="{collector.desc}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ADDRESS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="address" width="200" text="{collector.address}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PORT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="port" width="100" text="{collector.port}" restrict="0-9" maxChars="5"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('VERSION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="version" width="200" text="{collector.version}" enabled="false"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveClose>

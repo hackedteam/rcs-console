@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            width="815" height="480" save="save()"
+                            skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
+                            title="{R.get('EDIT_PROXY') + ' ' + proxy.name}">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.Proxy;
+      
+      import locale.R;
+      
+      public var mode:String = 'create';
+      
+      [Bindable]
+      public var proxy:it.ht.rcs.console.network.model.Proxy;
+
+      protected function save():void
+      {
+        /* keep the name the first to be modified */
+        proxy.name = nameField.text;
+        proxy.address = address.text;
+        proxy.desc = desc.text;
+        proxy.redirect = redirect.text;
+        proxy.poll = poll.selected;
+        
+        close();
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:Label left="10" top="16" text="{R.get('NAME')}"/>
+  <s:TextInput id="nameField" left="90" top="10" width="200" text="{proxy.name}"/>
+  <s:Label left="330" top="16" text="{R.get('ADDRESS')}"/>
+  <s:TextInput id="address" left="390" top="10" width="180" text="{proxy.address}"/>
+  <s:Label left="610" top="16" text="{R.get('VERSION')}"/>
+  <s:TextInput left="670" right="10" top="10" enabled="false" text="{proxy.version}"/>
+  
+  <s:Label left="10" top="56" text="{R.get('DESCRIPTION')}"/>
+  <s:TextArea id="desc" left="90" top="50" width="200" height="60" text="{proxy.desc}"/>
+  <s:Label left="330" top="56" text="{R.get('REDIRECT')}"/>
+  <s:TextInput id="redirect" left="390" top="50" width="180" text="{proxy.redirect}"/>
+  <s:Label left="610" top="56" text="{R.get('POLL')}"/>
+  <s:CheckBox id="poll" left="670" top="50" selected="{proxy.poll}"/>
+
+  <s:Button right="50" top="135" skinClass="it.ht.rcs.console.skins.RefreshButton"
+            toolTip="{R.get('REFRESH')}"/>
+  <s:Button right="10" top="135" skinClass="it.ht.rcs.console.skins.DeleteButton"
+            toolTip="{R.get('CLEAR_LOGS')}"/>
+  
+  <s:Label left="10" top="140" fontSize="14" fontWeight="bold" text="{R.get('LOGS')}"/>
+  <s:DataGrid left="10" right="10" bottom="10" height="274" requestedRowCount="4">
+    <s:columns>
+      <s:ArrayList>
+        <s:GridColumn width="150" dataField="time" headerText="{R.get('TIME')}"></s:GridColumn>
+        <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
+        <s:GridColumn dataField="info" headerText="{R.get('INFO')}"></s:GridColumn>
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+
+</utils:TitleWindowSaveClose>

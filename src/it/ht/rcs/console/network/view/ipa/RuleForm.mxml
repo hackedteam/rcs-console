@@ -3,47 +3,86 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            width="815" height="480" save="save()"
-                            skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin">
+                            save="save()"
+                            skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
+                            title="{R.get('EDIT_RULE')}">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.network.model.ProxyRule;
       
+      import locale.R;
+      
       [Bindable]
-      public var rule:ProxyRule;
+      private var _rule:ProxyRule;
+      
+      public function set rule(rule:ProxyRule):void
+      {
+        _rule = rule;
+        ident.selectedItem = _rule.ident;
+      }
       
       private function save():void
       {
-        
+        _rule.enabled = isEnabled.selected;
+        _rule.disable_sync = sync.selected;
+        _rule.probability = parseInt(probability.text);
+        _rule.target_id = target.selectedItem;
+        _rule.ident = ident.selectedItem;
+        _rule.ident_param = ident_param.text;
+        _rule.resource = resource.text;
+        _rule.action = action.selectedItem;
+        _rule.action_param = action_param.text;
+        close();
       }
     ]]>
   </fx:Script>
   
-  <s:Form left="5" right="5" top="5" bottom="5" skinClass="it.ht.rcs.console.skins.CompactForm">
+  <s:Form left="5" right="5" bottom="10" skinClass="it.ht.rcs.console.skins.CompactForm">
     
-    <s:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:CheckBox id="ruleEnabled" selected="{rule.enabled}"/>
+    <s:FormItem label="{R.get('ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:CheckBox id="isEnabled" selected="{_rule.enabled}"/>
     </s:FormItem>
     
-    <s:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:CheckBox id="sync" selected="{rule.disable_sync}"/>
+    <s:FormItem label="{R.get('SYNC')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:CheckBox id="sync" selected="{_rule.disable_sync}"/>
     </s:FormItem>
     
-    <s:FormItem label="Target" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="formTarget"></s:DropDownList>
+    <s:FormItem label="{R.get('PROBABILITY')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="probability" width="50" maxChars="3" restrict="0-9" text="{_rule.probability}"/>
     </s:FormItem>
     
-    <s:FormItem label="Ident" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="formBackdoor"></s:DropDownList>
+    <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="target" width="200"></s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem label="User Pattern" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput id="formKeyword" text="{rule.ident}"/>
+    <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="ident" width="200">
+        <s:dataProvider>
+          <s:ArrayList>
+            <fx:String>STATIC-IP</fx:String>
+            <fx:String>STATIC-MAC</fx:String>
+            <fx:String>STRING-CLIENT</fx:String>
+          </s:ArrayList>
+        </s:dataProvider>
+      </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem label="Resource Pattern" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput text="{rule.ident}"/>
+    <s:FormItem label="{R.get('USER_PATTERN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="ident_param" width="200" text="{_rule.ident_param}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('RESOURCE_PATTERN')}"
+                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="resource" width="200" text="{_rule.resource}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="action" width="200"></s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PARAMETERS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="action_param" width="200" text="{_rule.action_param}"/>
     </s:FormItem>
     
   </s:Form>

@@ -9,30 +9,28 @@
   <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
     
     <ipa:IPAList id="ipas" left="5" right="5" top="5" bottom="5" width="100%" borderVisible="false"
-                 contentBackgroundColor="#EAEAEA" dataProvider="{_proxy_view}"
-                 keyDown="enter(event)"/>
+                 dataProvider="{_proxy_view}" keyDown="enter(event)"/>
     
     <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteProxy()"
               enabled="{ipas.selectedItem != null}" styleName="AddRemove"
-              toolTip="{resourceManager.getString('localized_main', 'PROXY_DELETE')}"/>
+              toolTip="{R.get('PROXY_DELETE')}"/>
     <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addProxy()"
-              styleName="AddRemove"
-              toolTip="{resourceManager.getString('localized_main', 'PROXY_ADD')}"/>
+              styleName="AddRemove" toolTip="{R.get('PROXY_ADD')}"/>
 
   </s:BorderContainer>
   
   <s:HGroup>
-    <s:Button width="30" height="20" label="New" skinClass="it.ht.rcs.console.skins.NewButton"
-              toolTip="{resourceManager.getString('localized_main', 'NEW_RULE')}"/>
-    <s:Button width="30" height="20" label="Edit" enabled="{rulesGrid.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.EditButton"
-              toolTip="{resourceManager.getString('localized_main', 'EDIT')}"/>
+    <s:Button width="30" height="20" label="New" click="addRule()"
+              enabled="{ipas.selectedItem != null}" skinClass="it.ht.rcs.console.skins.NewButton"
+              toolTip="{R.get('RULE_ADD')}"/>
+    <s:Button width="30" height="20" label="Edit" click="editRule()"
+              enabled="{rulesGrid.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
     <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.DeleteButton"
-              toolTip="{resourceManager.getString('localized_main', 'DELETE')}"/>
+              skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
     <s:Spacer width="15"/>
-    <s:Button width="30" height="20" label="Apply" skinClass="it.ht.rcs.console.skins.ApplyButton"
-              toolTip="{resourceManager.getString('localized_main', 'APPLY')}"/>
+    <s:Button width="30" height="20" label="Apply" enabled="{ipas.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_RULES')}"/>
   </s:HGroup>
   
   <ipa:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipas.selectedItem.rules}"/>
@@ -43,7 +41,10 @@
       import it.ht.rcs.console.network.controller.ProxyController;
       import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
+      import it.ht.rcs.console.network.model.ProxyRule;
       import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
       
       import mx.collections.ListCollectionView;
       import mx.events.CloseEvent;
@@ -61,21 +62,28 @@
       {
         ProxyController.instance.addProxy(function onSuccess(proxy:it.ht.rcs.console.network.model.Proxy):void {
           ipas.selectedItem = proxy;
-          editProxy(proxy);
+          createProxy(proxy);
         });
+      }
+      
+      private function createProxy(proxy:it.ht.rcs.console.network.model.Proxy):void
+      {
+        var popup:CreateIPAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateIPAForm, true) as CreateIPAForm;
+        popup.proxy = proxy;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function editProxy(proxy:it.ht.rcs.console.network.model.Proxy):void
       {
-        var popup:IPAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, IPAForm, true) as IPAForm;
-        popup.ipa = proxy;
+        var popup:EditIPAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditIPAForm, true) as EditIPAForm;
+        popup.proxy = proxy;
         PopUpManager.centerPopUp(popup);
       }
       
       protected function deleteProxy():void
       {
-        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_PROXY_DELETION') + ' ' + ipas.selectedItem.name + '?',
-                        resourceManager.getString('localized_main', 'CONFIRM'),
+        AlertPopUp.show(R.get('CONFIRM_PROXY_DELETION') + ' ' + ipas.selectedItem.name + '?',
+                        R.get('CONFIRM'),
                         AlertPopUp.YES | AlertPopUp.NO,
                         null,
                         function(e:CloseEvent):void {
@@ -89,6 +97,29 @@
       {
         if (event.keyCode == Keyboard.ENTER && ipas.selectedItem != null)
           editProxy(ipas.selectedItem);
+      }
+      
+      private function addRule():void
+      {
+        var proxy:it.ht.rcs.console.network.model.Proxy = ipas.selectedItem;
+        proxy.rulesManager.addRule(proxy._id, function onSuccess(rule:ProxyRule):void {
+          rulesGrid.selectedItem = rule;
+          createRule(rule);
+        });
+      }
+      
+      protected function createRule(rule:ProxyRule):void
+      {
+        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+        popup.rule = rule;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      protected function editRule():void
+      {
+        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+        popup.rule = rulesGrid.selectedItem as ProxyRule;
+        PopUpManager.centerPopUp(popup);
       }
       
     ]]>

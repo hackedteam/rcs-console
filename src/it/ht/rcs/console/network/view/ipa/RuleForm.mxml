@@ -3,22 +3,23 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            save="save()"
+                            currentState="normal" save="save()"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
                             title="{R.get('EDIT_RULE')}">
   
   <fx:Script>
     <![CDATA[
-      import com.adobe.air.filesystem.FileUtil;
-      
+      import it.ht.rcs.console.events.UploadEvent;
       import it.ht.rcs.console.network.model.ProxyRule;
       
       import locale.R;
       
-      import spark.events.IndexChangeEvent;
+      import mx.managers.PopUpManager;
       
       [Bindable]
       private var _rule:ProxyRule;
+      
+      private var fileReference:FileReference;
       
       public function set rule(rule:ProxyRule):void
       {
@@ -29,6 +30,41 @@
       
       private function save():void
       {
+        if (action.selectedItem !== replace) {
+          manageInject();
+        } else {
+          manageReplace();
+        }
+      }
+      
+      private function manageInject():void
+      {
+        populateCommonProperties();
+        _rule.action_param = backdoors.selectedItem._id;
+        
+        close();
+      }
+      
+      private var uploadPopup:UploadPopup; 
+      private function manageReplace():void
+      {
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.addEventListener(UploadEvent.COMPLETE, complete);
+        PopUpManager.centerPopUp(uploadPopup);
+        
+      }
+      
+      private function complete(event:UploadEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        populateCommonProperties();
+        _rule.action_param = event.itemId;
+        
+        close();
+      }
+      
+      private function populateCommonProperties():void
+      {
         _rule.enabled = isEnabled.selected;
         _rule.disable_sync = sync.selected;
         _rule.probability = probability.value;
@@ -37,26 +73,43 @@
         _rule.ident_param = ident_param.text;
         _rule.resource = resource.text;
         _rule.action = action.selectedItem;
-        _rule.action_param = action_param_combo.selectedItem;
-        close();
       }
       
-      protected function browseClick():void
+      private function browse():void
       {
-        var ref:FileReference = new FileReference();
-        ref.browse();
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelect);
+        fileReference.browse();
+      }
+      
+      private function fileSelect(event:Event):void
+      {
+        currentState = 'fileSelected';
+        fileName.text = event.target.name;
+      }
+      
+      private function resetFile():void
+      {
+        currentState = 'normal';
+        fileReference = null;
+        fileName.text = '';
       }
       
     ]]>
   </fx:Script>
   
-  <s:Form left="5" right="5" bottom="10" skinClass="it.ht.rcs.console.skins.CompactForm">
+  <utils:states>
+    <s:State name="normal"/>
+    <s:State name="fileSelected"/>
+  </utils:states>
+  
+  <s:Form left="5" right="5" bottom="15" skinClass="it.ht.rcs.console.skins.CompactForm">
     
     <s:FormItem label="{R.get('ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:CheckBox id="isEnabled" selected="{_rule.enabled}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('SYNC')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('DISABLE_ON_SYNC')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:CheckBox id="sync" selected="{_rule.disable_sync}"/>
     </s:FormItem>
     
@@ -91,13 +144,12 @@
       <s:TextInput id="ident_param" width="200" text="{_rule.ident_param}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('RESOURCE_PATTERN')}"
-                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('RESOURCE_PATTERN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextInput id="resource" width="200" text="{_rule.resource}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="action" width="200" requireSelection="true">
+      <s:DropDownList id="action" width="200" change="{currentState = 'normal'}" requireSelection="true">
          <s:dataProvider>
            <s:ArrayList>
              <fx:String id="injectExe">INJECT-EXE</fx:String>
@@ -108,14 +160,28 @@
        </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('PARAMETERS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-
-      <s:Button id="action_param_file" visible="{action.selectedItem === replace}" width="100"
-                label="{R.get('BROWSE')}" click="browseClick()"
-                includeInLayout="{action.selectedItem === replace}"/>
+    <s:FormItem visible="{action.selectedItem !== replace}" label="{R.get('BACKDOOR')}"
+                includeInLayout="{action.selectedItem !== replace}"
+                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="backdoors" width="200" labelField="label" requireSelection="true">
+        <s:dataProvider>
+          <s:ArrayList>
+            <fx:Object id="backdoor1" label="Backdoor 1"/>
+            <fx:Object id="backdoor2" label="Backdoor 2"/>
+          </s:ArrayList>
+        </s:dataProvider>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem visible="{action.selectedItem === replace}" label="{R.get('FILE')}"
+                includeInLayout="{action.selectedItem === replace}"
+                skinClass="it.ht.rcs.console.skins.CompactFormItem">
       
-      <s:DropDownList id="action_param_combo" visible="{action.selectedItem !== replace}" width="200"
-                      includeInLayout="{action.selectedItem !== replace}"/>
+      <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
+      
+      <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true"
+               click="resetFile()" maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
+               verticalAlign="middle"/>
       
     </s:FormItem>
     

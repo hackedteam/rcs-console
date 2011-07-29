@@ -3,9 +3,10 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            currentState="normal" save="save()"
+                            creationPolicy="all" currentState="normal" save="save()"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
-                            title="{R.get('EDIT_RULE')}">
+                            title="{R.get('EDIT_RULE')}" creationComplete="init()">
+  
   
   <fx:Script>
     <![CDATA[
@@ -17,62 +18,91 @@
       import mx.managers.PopUpManager;
       
       [Bindable]
-      private var _rule:ProxyRule;
+      public var rule:ProxyRule;
+      
+      public var mode:String = 'edit';
       
       private var fileReference:FileReference;
+      private var fileChanged:Boolean = false;
       
-      public function set rule(rule:ProxyRule):void
+      public function init():void
       {
-        _rule = rule;
-        ident.selectedItem = _rule.ident;
-        action.selectedItem = _rule.action;
+        probability.value = rule.probability;
+        ident.selectedItem = rule.ident;
+        action.selectedItem = rule.action;
+        if (rule.action == 'REPLACE') {
+          currentState = 'fileSelected';
+          fileName.text = rule.action_param_name;
+        } else {
+          for each (var bd:Object in backdoors.dataProvider)
+          if (bd._id == rule.action_param) {
+            backdoors.selectedItem = bd;
+            break;
+          }
+        }
       }
       
       private function save():void
       {
+        
         if (action.selectedItem !== replace) {
           manageInject();
         } else {
-          manageReplace();
+//          if (mode == 'create' && fileReference == null) {
+//            AlertPopUp.show('please choose a file');
+//            return;
+//          }
+          if (fileChanged)
+            manageReplaceWithUpload();
+          else
+            manageReplace();
         }
+        
       }
       
       private function manageInject():void
       {
         populateCommonProperties();
-        _rule.action_param = backdoors.selectedItem._id;
+        rule.action_param = backdoors.selectedItem._id;
         
         close();
       }
       
       private var uploadPopup:UploadPopup; 
-      private function manageReplace():void
+      private function manageReplaceWithUpload():void
       {
         uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
         uploadPopup.addEventListener(UploadEvent.COMPLETE, complete);
-        PopUpManager.centerPopUp(uploadPopup);
-        
+        PopUpManager.centerPopUp(uploadPopup);  
       }
       
       private function complete(event:UploadEvent):void
       {
         PopUpManager.removePopUp(uploadPopup);
         populateCommonProperties();
-        _rule.action_param = event.itemId;
+        rule.action_param = event.itemId;
+        rule.action_param_name = fileReference.name;
+        
+        close();
+      }
+      
+      private function manageReplace():void
+      {
+        populateCommonProperties();
         
         close();
       }
       
       private function populateCommonProperties():void
       {
-        _rule.enabled = isEnabled.selected;
-        _rule.disable_sync = sync.selected;
-        _rule.probability = probability.value;
-        _rule.target_id = target.selectedItem;
-        _rule.ident = ident.selectedItem;
-        _rule.ident_param = ident_param.text;
-        _rule.resource = resource.text;
-        _rule.action = action.selectedItem;
+        rule.enabled = isEnabled.selected;
+        rule.disable_sync = sync.selected;
+        rule.probability = probability.value;
+        rule.target_id = target.selectedItem;
+        rule.ident = ident.selectedItem;
+        rule.ident_param = ident_param.text;
+        rule.resource = resource.text;
+        rule.action = action.selectedItem;
       }
       
       private function browse():void
@@ -88,11 +118,10 @@
         fileName.text = event.target.name;
       }
       
-      private function resetFile():void
+      private function changeFile():void
       {
-        currentState = 'normal';
-        fileReference = null;
-        fileName.text = '';
+        fileChanged = true;
+        browse();
       }
       
     ]]>
@@ -106,16 +135,15 @@
   <s:Form left="5" right="5" bottom="15" skinClass="it.ht.rcs.console.skins.CompactForm">
     
     <s:FormItem label="{R.get('ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:CheckBox id="isEnabled" selected="{_rule.enabled}"/>
+      <s:CheckBox id="isEnabled" selected="{rule.enabled}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('DISABLE_ON_SYNC')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:CheckBox id="sync" selected="{_rule.disable_sync}"/>
+      <s:CheckBox id="sync" selected="{rule.disable_sync}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('PROBABILITY')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1"
-                 value="50"/>
+      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1" value="50"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
@@ -125,7 +153,7 @@
     <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="ident" width="200" requireSelection="true">
         <s:dataProvider>
-          <s:ArrayList>
+          <s:ArrayCollection>
             <fx:String>STATIC-IP</fx:String>
             <fx:String>STATIC-MAC</fx:String>
             <fx:String>DHCP</fx:String>
@@ -135,27 +163,27 @@
             <fx:String>RADIUS-TECHKEY</fx:String>
             <fx:String>STRING-CLIENT</fx:String>
             <fx:String>STRING-SERVER</fx:String>
-          </s:ArrayList>
+          </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
     </s:FormItem>
     
     <s:FormItem label="{R.get('USER_PATTERN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput id="ident_param" width="200" text="{_rule.ident_param}"/>
+      <s:TextInput id="ident_param" width="200" text="{rule.ident_param}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('RESOURCE_PATTERN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput id="resource" width="200" text="{_rule.resource}"/>
+      <s:TextInput id="resource" width="200" text="{rule.resource}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="action" width="200" change="{currentState = 'normal'}" requireSelection="true">
          <s:dataProvider>
-           <s:ArrayList>
+           <s:ArrayCollection>
              <fx:String id="injectExe">INJECT-EXE</fx:String>
              <fx:String id="injectHtml">INJECT-HTML</fx:String>
              <fx:String id="replace">REPLACE</fx:String>
-           </s:ArrayList>
+           </s:ArrayCollection>
          </s:dataProvider>
        </s:DropDownList>
     </s:FormItem>
@@ -163,12 +191,12 @@
     <s:FormItem visible="{action.selectedItem !== replace}" label="{R.get('BACKDOOR')}"
                 includeInLayout="{action.selectedItem !== replace}"
                 skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="backdoors" width="200" labelField="label" requireSelection="true">
+      <s:DropDownList id="backdoors" width="200" labelField="name" requireSelection="true">
         <s:dataProvider>
-          <s:ArrayList>
-            <fx:Object id="backdoor1" label="Backdoor 1"/>
-            <fx:Object id="backdoor2" label="Backdoor 2"/>
-          </s:ArrayList>
+          <s:ArrayCollection>
+            <fx:Object _id="RCS_0001" name="RCS_0001"/>
+            <fx:Object _id="RCS_0002" name="RCS_0002"/>
+          </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
     </s:FormItem>
@@ -179,8 +207,8 @@
       
       <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
       
-      <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true"
-               click="resetFile()" maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
+      <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" paddingTop="8"
+               click="changeFile()" maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
                verticalAlign="middle"/>
       
     </s:FormItem>

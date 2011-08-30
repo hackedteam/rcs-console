@@ -8,6 +8,7 @@ package it.ht.rcs.console.utils.items
   import flash.ui.Keyboard;
   
   import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
   import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
   
@@ -27,6 +28,13 @@ package it.ht.rcs.console.utils.items
     public var types:Array;
     
     private var numberOfCategories:int = 0;
+
+    private var categories:ArrayList = new ArrayList([
+      {label: 'Targets', separator: true, type: 'target'},
+      {label: 'Backdoors', separator: true, type: 'backdoor'},
+      {label: 'Evidences', separator: true, type: 'evidence'},
+      {label: 'Operations', separator: true, type: 'operation'}
+    ]);
     
     public function SearchField()
     {
@@ -52,6 +60,7 @@ package it.ht.rcs.console.utils.items
     public function set dataProvider(dp:ArrayCollection):void
     {
       _dataProvider = dp;
+      _dataProvider.addAllAt(categories, 0);
       _dataProvider.filterFunction = filter;
       
       var sort:Sort = new Sort();
@@ -102,12 +111,14 @@ package it.ht.rcs.console.utils.items
     
     private function onKeyUp(event:KeyboardEvent):void
     {
-      trace(event.charCode);
       if (event.keyCode == Keyboard.DOWN) {
         showDropDown();
         dropDown.setFocus();
-      } else if (event.keyCode == Keyboard.ESCAPE || event.keyCode == Keyboard.ENTER) {
-      } else if (_dataProvider) {
+      } else if (event.keyCode == Keyboard.ESCAPE) {
+        text = '';
+        dropDown.hide();
+      } else if (event.keyCode == Keyboard.ENTER) {
+      } else if (event.charCode != 0 && _dataProvider) {
         _dataProvider.refresh();
         showDropDown();
       }

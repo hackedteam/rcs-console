@@ -30,7 +30,7 @@ package it.ht.rcs.console.utils
     
     private function onShow(event:FlexEvent):void
     {
-      stage.addEventListener(KeyboardEvent.KEY_DOWN, esc);
+      addEventListener(KeyboardEvent.KEY_DOWN, esc);
     }
     
     private function esc(event:KeyboardEvent):void

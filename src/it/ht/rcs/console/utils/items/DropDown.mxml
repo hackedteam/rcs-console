@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search:ExcludeSelectionList xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:search="it.ht.rcs.console.utils.items.*"
+                             visible="false" minWidth="300" minHeight="220" maxWidth="300"
+                             maxHeight="220" doubleClick="onDoubleClick()" doubleClickEnabled="true"
+                             filters="{[dropShadow]}" hideEffect="{fadeOut}"
+                             keyDown="onKeyDown(event)" mouseDownOutside="hide()"
+                             showEffect="{fadeIn}">
+  
+  <fx:Script>
+    <![CDATA[
+      
+      private function onKeyDown(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ENTER && selectedItem != null)
+          dispatchSelectedItemEvent(selectedItem);
+        else if (event.keyCode == Keyboard.ESCAPE)
+          hide();
+      }
+      
+      private function onDoubleClick():void
+      {
+        dispatchSelectedItemEvent(selectedItem);
+      }
+      
+      private function dispatchSelectedItemEvent(item:Object):void {
+        var event:ItemEvent = new ItemEvent(ItemEvent.ITEM_SELECTED);
+        event.selectedItem = item;
+        dispatchEvent(event);
+      }
+      
+      public function hide():void
+      {
+        visible = includeInLayout = false;
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
+    <s:DropShadowFilter id="dropShadow" alpha=".8" angle="0" blurX="8" blurY="8" color="#666666"
+                        distance="0" strength=".8"/>
+  </fx:Declarations>
+  
+</search:ExcludeSelectionList>

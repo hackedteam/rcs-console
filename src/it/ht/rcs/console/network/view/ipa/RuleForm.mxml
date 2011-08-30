@@ -3,9 +3,11 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            creationPolicy="all" currentState="normal" save="save()"
+                            xmlns:items="it.ht.rcs.console.utils.items.*"
+                            creationComplete="init()" creationPolicy="all" currentState="normal"
+                            save="save()"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
-                            title="{R.get('EDIT_RULE')}" creationComplete="init()">
+                            title="{R.get('EDIT_RULE')}">
   
   
   <fx:Script>
@@ -127,6 +129,52 @@
     ]]>
   </fx:Script>
   
+  <fx:Declarations>
+    <s:ArrayCollection id="dataProvider">
+      
+      <fx:Object label="Targets" separator="true" type="target"/>
+      <fx:Object label="Backdoors" separator="true" type="backdoor"/>
+      <fx:Object label="Evidences" separator="true" type="evidence"/>
+      <fx:Object label="Operations" separator="true" type="operation"/>
+      
+      <fx:Object label="Target 1" type="target"/>
+      <fx:Object label="Backdoor 1" type="backdoor"/>
+      <fx:Object label="Evidence 1" type="evidence"/>
+      <fx:Object label="Operation 1" type="operation"/>
+      
+      <fx:Object label="Target 2" type="target"/>
+      <fx:Object label="Backdoor 2" type="backdoor"/>
+      <fx:Object label="Evidence 2" type="evidence"/>
+      <fx:Object label="Operation 2" type="operation"/>
+      
+      <fx:Object label="Target 3" type="target"/>
+      <fx:Object label="Backdoor 3" type="backdoor"/>
+      <fx:Object label="Evidence 3" type="evidence"/>
+      <fx:Object label="Operation 3" type="operation"/>
+      
+      <fx:Object label="Target 4" type="target"/>
+      <fx:Object label="Backdoor 4" type="backdoor"/>
+      <fx:Object label="Evidence 4" type="evidence"/>
+      <fx:Object label="Operation 4" type="operation"/>
+      
+      <fx:Object label="Target 5" type="target"/>
+      <fx:Object label="Backdoor 5" type="backdoor"/>
+      <fx:Object label="Evidence 5" type="evidence"/>
+      <fx:Object label="Operation 5" type="operation"/>
+      
+      <fx:Object label="Target 6" type="target"/>
+      <fx:Object label="Backdoor 6" type="backdoor"/>
+      <fx:Object label="Evidence 6" type="evidence"/>
+      <fx:Object label="Operation 6" type="operation"/>
+      
+      <fx:Object label="Target 7" type="target"/>
+      <fx:Object label="Backdoor 7" type="backdoor"/>
+      <fx:Object label="Evidence 7" type="evidence"/>
+      <fx:Object label="Operation 7" type="operation"/>
+      
+    </s:ArrayCollection>
+  </fx:Declarations>
+  
   <utils:states>
     <s:State name="normal"/>
     <s:State name="fileSelected"/>
@@ -138,16 +186,22 @@
       <s:CheckBox id="isEnabled" selected="{rule.enabled}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('DISABLE_ON_SYNC')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('DISABLE_ON_SYNC')}"
+                skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:CheckBox id="sync" selected="{rule.disable_sync}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('PROBABILITY')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1" value="50"/>
+      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1"
+                 value="50"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="target" width="200"></s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <items:SearchField id="target2" width="200" dataProvider="{dataProvider}" types="{['target']}"></items:SearchField>
     </s:FormItem>
     
     <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
@@ -172,12 +226,14 @@
       <s:TextInput id="ident_param" width="200" text="{rule.ident_param}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('RESOURCE_PATTERN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('RESOURCE_PATTERN')}"
+                skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextInput id="resource" width="200" text="{rule.resource}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="action" width="200" change="{currentState = 'normal'}" requireSelection="true">
+      <s:DropDownList id="action" width="200" change="{currentState = 'normal'}"
+                      requireSelection="true">
          <s:dataProvider>
            <s:ArrayCollection>
              <fx:String id="injectExe">INJECT-EXE</fx:String>
@@ -207,9 +263,9 @@
       
       <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
       
-      <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" paddingTop="8"
-               click="changeFile()" maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
-               verticalAlign="middle"/>
+      <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true"
+               click="changeFile()" maxDisplayedLines="1" paddingTop="8"
+               toolTip="{R.get('CLICK_TO_CHANGE_FILE')}" verticalAlign="middle"/>
       
     </s:FormItem>
     

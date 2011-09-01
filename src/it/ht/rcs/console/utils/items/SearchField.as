@@ -7,6 +7,8 @@ package it.ht.rcs.console.utils.items
   import flash.geom.Point;
   import flash.ui.Keyboard;
   
+  import it.ht.rcs.console.skins.TextInputSearchSkin;
+  
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
   import mx.events.FlexEvent;
@@ -39,6 +41,7 @@ package it.ht.rcs.console.utils.items
     public function SearchField()
     {
       super();
+      setStyle('skinClass', TextInputSearchSkin);
       
       doubleClickEnabled = true;
       
@@ -47,6 +50,7 @@ package it.ht.rcs.console.utils.items
       
       addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
       addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+      addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
       addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
     }
@@ -54,7 +58,6 @@ package it.ht.rcs.console.utils.items
     private function init(event:FlexEvent):void
     {
       dropDown.dataProvider = _dataProvider;
-      PopUpManager.addPopUp(dropDown, this, false);
     }
     
     public function set dataProvider(dp:ArrayCollection):void
@@ -140,6 +143,11 @@ package it.ht.rcs.console.utils.items
     public function get selectedItem():Object
     {
       return _selectedItem;
+    }
+    
+    private function onAddedToStage(event:Event):void
+    {
+      PopUpManager.addPopUp(dropDown, this, false);
     }
     
     private function onRemovedFromStage(event:Event):void

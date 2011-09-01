@@ -64,7 +64,7 @@ package it.ht.rcs.console.network.view.collectors
 			{
 				addElement(cr);
 				var anonymizer:CollectorRenderer = cr.nextHop;
-				var lastIP:String=cr.collector.address;
+				var lastIP:String = cr.collector.address;
 				while (anonymizer != null)
 				{
 					addElement(anonymizer);

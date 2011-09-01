@@ -6,7 +6,7 @@
           left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()">
 
   
-  <s:BorderContainer width="100%" height="100%" dropShadowVisible="true">
+  <s:BorderContainer width="100%" height="228" dropShadowVisible="true">
     
     <collectors:CollectorList id="collectors" left="5" right="5" top="5" bottom="5" width="100%"
                               borderVisible="false" dataProvider="{_collector_view}"
@@ -28,7 +28,7 @@
   </s:HGroup>
   
   <s:Scroller id="stageScroller" width="100%" height="100%">
-    <collectors:NetworkGraph id="networkStage" rootNode="{rootNode}"/>
+    <collectors:NetworkGraph id="networkGraph" rootNode="{rootNode}"/>
   </s:Scroller>
   
   
@@ -56,7 +56,7 @@
       private function onAddedToStage():void
       {
         _collector_view = CollectorManager.instance.getView();
-        addEventListener(NodeEvent.CHANGED, networkStage_nodeChangedHandler);
+        addEventListener(NodeEvent.CHANGED, onNodeChanged);
         buildGraph();
       }
       
@@ -89,7 +89,7 @@
         }
         return null;
       }
-      
+
       private function addCollector():void
       {
         CollectorManager.instance.addProxy(function onSuccess(collector:Collector):void {
@@ -119,8 +119,10 @@
                         AlertPopUp.YES | AlertPopUp.NO,
                         null,
                         function(e:CloseEvent):void {
-                          if (e.detail == AlertPopUp.YES)
+                          if (e.detail == AlertPopUp.YES) {
                             CollectorManager.instance.removeItem(collectors.selectedItem);
+                            // remove node from networkGraph
+                          }
                         },
                         null, AlertPopUp.NO);
       }
@@ -131,7 +133,7 @@
           editCollector(collectors.selectedItem);
       }
       
-      protected function networkStage_nodeChangedHandler(event:Event):void
+      protected function onNodeChanged(event:Event):void
       {
         trace("Section, node changed");
       }

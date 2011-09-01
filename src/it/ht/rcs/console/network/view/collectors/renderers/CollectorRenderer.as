@@ -75,8 +75,15 @@ package it.ht.rcs.console.network.view.collectors.renderers
     
     
     
+    
+    public function selectNode(select:Boolean):void
+    {
+      setStyle('backgroundColor', select ? 0x8888bb : 0xbbbbbb);
+    }
+    
     private function mouseDown(event:MouseEvent):void
     {
+      trace("onMouseDown");
       if (this.collector.type == 'remote')
       {
         var dragInitiator:CollectorRenderer = event.currentTarget as CollectorRenderer;

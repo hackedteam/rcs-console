@@ -1,8 +1,11 @@
 package it.ht.rcs.console.network.view.collectors
 {
 	import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.utils.Dictionary;
 	
 	import it.ht.rcs.console.events.NodeEvent;
+	import it.ht.rcs.console.network.model.Collector;
 	import it.ht.rcs.console.network.view.collectors.renderers.CollectorRenderer;
 	import it.ht.rcs.console.network.view.collectors.renderers.DBRenderer;
 	import it.ht.rcs.console.network.view.collectors.renderers.IPRenderer;
@@ -29,7 +32,29 @@ package it.ht.rcs.console.network.view.collectors
 			addEventListener(NodeEvent.CHANGED, onNodeEvent);
 			addEventListener(NodeEvent.ADDED, onNodeEvent);
 			addEventListener(NodeEvent.REMOVED, onNodeEvent);
+      addEventListener(MouseEvent.CLICK, onClick);
 		}
+    
+    private function onClick(event:MouseEvent):void
+    {
+      for each (var cr:CollectorRenderer in db.collectors) {
+        cr.selectNode(false);
+        while (cr.nextHop != null) {
+          cr = cr.nextHop;
+          cr.selectNode(false);
+        }
+      }
+      
+      var node:CollectorRenderer;
+      if (event.target is CollectorRenderer)
+        node = event.target as CollectorRenderer;
+      else if (event.target.parent is CollectorRenderer)
+        node = event.target.parent as CollectorRenderer;
+      else return;
+
+      node.selectNode(true);
+      (this.parentDocument as Collectors).collectors.selectedItem = node.collector;
+    }
 
 		private function onNodeEvent(e:Event):void
 		{
@@ -49,12 +74,30 @@ package it.ht.rcs.console.network.view.collectors
 
 		// List of IP renderer
 		private var ips:ArrayCollection;
+    private var map:Dictionary;
+    
+    public function selectNode(c:Collector):void
+    {
+      for each (var cr:CollectorRenderer in db.collectors) {
+        cr.selectNode(false);
+        while (cr.nextHop != null) {
+          cr = cr.nextHop;
+          cr.selectNode(false);
+        }
+      }
+      
+      var node:CollectorRenderer = map[c] as CollectorRenderer;
+      if (!node) return;
+      
+      node.selectNode(true);
+    }
 
 		public function rebuildGraph():void
 		{
 
 			removeAllElements();
 			ips = new ArrayCollection();
+      map = new Dictionary();
 
 			if (_db == null)
 				return;
@@ -63,11 +106,13 @@ package it.ht.rcs.console.network.view.collectors
 			for each (var cr:CollectorRenderer in _db.collectors)
 			{
 				addElement(cr);
+        map[cr.collector] = cr;
 				var anonymizer:CollectorRenderer = cr.nextHop;
 				var lastIP:String = cr.collector.address;
 				while (anonymizer != null)
 				{
 					addElement(anonymizer);
+          map[anonymizer.collector] = anonymizer;
 					lastIP = anonymizer.collector.address;
 					anonymizer = anonymizer.nextHop;
 				}

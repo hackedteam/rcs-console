@@ -10,7 +10,7 @@
     
     <collectors:CollectorList id="collectors" left="5" right="5" top="5" bottom="5" width="100%"
                               borderVisible="false" dataProvider="{_collector_view}"
-                              keyDown="enter(event)"/>
+                              keyDown="enter(event)" change="collectors_changeHandler(event)"/>
     
     <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteCollector()"
               enabled="{collectors.selectedItem != null}" styleName="AddRemove"
@@ -46,6 +46,8 @@
       import mx.collections.ListCollectionView;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      
+      import spark.events.IndexChangeEvent;
       
       [Bindable]
       private var rootNode:DBRenderer;
@@ -122,6 +124,7 @@
                           if (e.detail == AlertPopUp.YES) {
                             CollectorManager.instance.removeItem(collectors.selectedItem);
                             // remove node from networkGraph
+                            buildGraph();
                           }
                         },
                         null, AlertPopUp.NO);
@@ -136,6 +139,12 @@
       protected function onNodeChanged(event:Event):void
       {
         trace("Section, node changed");
+      }
+      
+      protected function collectors_changeHandler(event:IndexChangeEvent):void
+      {
+        // TODO Auto-generated method stub
+        networkGraph.selectNode(collectors.selectedItem);
       }
       
     ]]>

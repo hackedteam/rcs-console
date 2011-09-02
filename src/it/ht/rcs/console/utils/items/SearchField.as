@@ -62,14 +62,15 @@ package it.ht.rcs.console.utils.items
     
     public function set dataProvider(dp:ArrayCollection):void
     {
-      _dataProvider = dp;
+      _dataProvider = new ArrayCollection();
+      _dataProvider.addAllAt(dp, 0);
       _dataProvider.addAllAt(categories, 0);
       _dataProvider.filterFunction = filter;
       
       var sort:Sort = new Sort();
-      sort.fields = [new SortField('type', false, false),
+      sort.fields = [new SortField('type',      false, false),
                      new SortField('separator', false, false),
-                     new SortField('label', false, false)];
+                     new SortField('label',     false, false)];
       _dataProvider.sort = sort;
       
       for each (var o:Object in _dataProvider)

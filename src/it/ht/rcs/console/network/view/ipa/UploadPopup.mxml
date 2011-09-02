@@ -4,39 +4,31 @@
                    xmlns:mx="library://ns.adobe.com/flex/mx"
                    width="300" height="80" backgroundColor="#666666" cornerRadius="10"
                    creationComplete="init()" creationPolicy="all">
+  
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.events.UploadEvent;
       
-      public var timer:Timer;
-      public var count:Number;
+      public var fileReference:FileReference;
       
       private function init():void
       {
-        timer = new Timer(25);
-        count = 0;
-        timer.addEventListener(TimerEvent.TIMER, updateProgress);
-        timer.start();
+        fileReference.addEventListener(ProgressEvent.PROGRESS, onProgress);
+        fileReference.upload(new URLRequest(DB.host_autocomplete(console.currentSession.server) + "upload"));
       }
       
-      protected function updateProgress(e:TimerEvent):void
-      {
-        count++;
-        progressBar.setProgress(count, 100);
-      }
-      
-      protected function complete():void
-      {
-        dispatchEvent(new UploadEvent(UploadEvent.COMPLETE));
+      private function onProgress(event:ProgressEvent):void {
+        progressBar.setProgress(event.bytesLoaded, event.bytesTotal);
       }
       
     ]]>
   </fx:Script>
 
-  <s:VGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" gap="10">
+  <s:VGroup width="100%" height="100%" gap="10" horizontalAlign="center" verticalAlign="middle">
     <s:Label color="#ffffff" text="Uploading file and saving rule..."/>
     <mx:ProgressBar id="progressBar" label="%3%%" color="#666666" fontSize="12" fontWeight="normal"
-                    labelPlacement="center" mode="manual" complete="complete()"/>
+                    labelPlacement="center" mode="manual"/>
   </s:VGroup>
   
   <s:filters>

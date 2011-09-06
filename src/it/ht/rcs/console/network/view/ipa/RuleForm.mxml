@@ -65,23 +65,22 @@
             manageReplace();
         }
         
-        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {});
-        
       }
       
       private function manageInject():void
       {
         populateCommonProperties();
+        rule.target_id = [target.selectedItem._id];
         rule.action_param = backdoors.selectedItem ? backdoors.selectedItem._id : null;
         
-        close();
+        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {close();});
       }
       
       private function manageReplace():void
       {
         populateCommonProperties();
         
-        close();
+        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {close();});
       }
       
       private var uploadPopup:UploadPopup;
@@ -110,7 +109,7 @@
         rule.action_param = event.data;
         rule.action_param_name = fileReference.name;
 
-        close();
+        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {close();});
       }
       
 
@@ -120,7 +119,7 @@
         rule.enabled = isEnabled.selected;
         rule.disable_sync = sync.selected;
         rule.probability = probability.value;
-        rule.target_id = target.selectedItem;
+        rule.target_id = [target.selectedItem._id];
         rule.ident = ident.selectedItem;
         rule.ident_param = ident_param.text;
         rule.resource = resource.text;
@@ -147,7 +146,7 @@
   <fx:Declarations>
     <s:ArrayCollection id="dataProvider">
       
-      <fx:Object label="Target 1" type="target"/>
+      <fx:Object label="Target 1" type="target" _id="4e314a052afb65157900005a"/>
       <fx:Object label="Backdoor 1" type="backdoor"/>
       <fx:Object label="Evidence 1" type="evidence"/>
       <fx:Object label="Operation 1" type="operation"/>

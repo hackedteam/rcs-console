@@ -56,7 +56,6 @@
       private function onAddedToStage():void
       {
         _proxy_view = ProxyManager.instance.getView();
-        trace('');
       }
       
       private function addProxy():void
@@ -102,24 +101,16 @@
       
       private function addRule():void
       {
-        var proxy:it.ht.rcs.console.network.model.Proxy = ipas.selectedItem;
-        proxy.rulesManager.addRule(proxy._id, function onSuccess(rule:ProxyRule):void {
-          rulesGrid.selectedItem = rule;
-          createRule(rule);
-        });
-      }
-      
-      protected function createRule(rule:ProxyRule):void
-      {
         var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
-        popup.rule = rule;
         popup.mode = 'create';
+        popup.proxy = ipas.selectedItem;
         PopUpManager.centerPopUp(popup);
       }
       
       protected function editRule():void
       {
         var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+        popup.mode = 'edit';
         popup.rule = rulesGrid.selectedItem as ProxyRule;
         PopUpManager.centerPopUp(popup);
       }

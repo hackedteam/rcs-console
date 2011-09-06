@@ -20,10 +20,10 @@ package it.ht.rcs.console.network.view.collectors
 
 		private var _db:DBRenderer;
 
-		private static const COLLECTORS_DISTANCE:int = 60;
-		private static const VERTICAL_DISTANCE:int = 55;
+		private static const COLLECTORS_DISTANCE:int  = 60;
+		private static const VERTICAL_DISTANCE:int    = 55;
 		private static const IP_VERTICAL_DISTANCE:int = 65;
-		private static const BOTTOM_DISTANCE:int = 0;
+		private static const BOTTOM_DISTANCE:int      = 0;
 
 		public function NetworkGraph()
 		{
@@ -35,9 +35,15 @@ package it.ht.rcs.console.network.view.collectors
       addEventListener(MouseEvent.CLICK, onClick);
 		}
     
+    public function set rootNode(root:DBRenderer):void
+    {
+      _db = root;
+      rebuildGraph();
+    }
+    
     private function onClick(event:MouseEvent):void
     {
-      for each (var cr:CollectorRenderer in db.collectors) {
+      for each (var cr:CollectorRenderer in _db.collectors) {
         cr.selectNode(false);
         while (cr.nextHop != null) {
           cr = cr.nextHop;
@@ -61,14 +67,7 @@ package it.ht.rcs.console.network.view.collectors
 			if (!(e is NodeEvent) || e.target == this)
 				return;
 
-			trace('NetworkGraph: onNodeEvent');
-			rebuildGraph();
-			//document.dispatchEvent(e);
-		}
-
-		public function set rootNode(root:DBRenderer):void
-		{
-			_db = root;
+			trace('NetworkGraph: NodeEvent');
 			rebuildGraph();
 		}
 
@@ -78,7 +77,7 @@ package it.ht.rcs.console.network.view.collectors
     
     public function selectNode(c:Collector):void
     {
-      for each (var cr:CollectorRenderer in db.collectors) {
+      for each (var cr:CollectorRenderer in _db.collectors) {
         cr.selectNode(false);
         while (cr.nextHop != null) {
           cr = cr.nextHop;
@@ -127,10 +126,10 @@ package it.ht.rcs.console.network.view.collectors
 
 		}
 
-		public function get db():DBRenderer
-		{
-			return _db;
-		}
+//		public function get db():DBRenderer
+//		{
+//			return _db;
+//		}
 
 		override protected function measure():void
 		{

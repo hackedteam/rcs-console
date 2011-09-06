@@ -5,7 +5,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
   public class IPRenderer extends NetworkObject
 	{
     
-    private static const WIDTH:Number = 120;
+    private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 40;
 	
     public var text:String;

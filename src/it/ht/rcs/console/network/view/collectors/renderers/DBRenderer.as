@@ -5,14 +5,15 @@ package it.ht.rcs.console.network.view.collectors.renderers
   public class DBRenderer extends NetworkObject
 	{
 	
-    private static const WIDTH:Number = 120;
+    private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 40;
     
     public var collectors:Vector.<CollectorRenderer>;
 		
 		private var textLabel:Label;
 
-		override protected function createChildren():void {
+		override protected function createChildren():void
+    {
 			super.createChildren();
 			
       if (textLabel == null)
@@ -27,7 +28,8 @@ package it.ht.rcs.console.network.view.collectors.renderers
       }
 		}
 		
-		override protected function measure():void {
+		override protected function measure():void
+    {
 			super.measure();
 			
 			width = measuredWidth = WIDTH;

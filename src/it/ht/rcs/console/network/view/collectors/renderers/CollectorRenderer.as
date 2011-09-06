@@ -17,9 +17,13 @@ package it.ht.rcs.console.network.view.collectors.renderers
   public class CollectorRenderer extends NetworkObject
 	{
     
-    private static const WIDTH:Number = 120;
+    private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 32;
-	
+    
+    private static const NORMAL_COLOR:Number   = 0xbbbbbb;
+    private static const SELECTED_COLOR:Number = 0x8888bb;
+    private static const DRAG_COLOR:Number     = 0x5555bb;
+	  
 		public var collector:Collector;
 		
 		private var textLabel:Label;
@@ -31,7 +35,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
 			this.collector = collector;
   	  this.buttonMode = collector.type == 'remote';
       
-			setStyle('backgroundColor', 0xbbbbbb);
+			setStyle('backgroundColor', NORMAL_COLOR);
 			
       addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
 			addEventListener(DragEvent.DRAG_ENTER, dragEnter);
@@ -46,8 +50,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
       if (textLabel == null)
       {
   			textLabel = new Label();
-        BindingUtils.bindProperty(textLabel, "text", collector, "name");
-  			//textLabel.text = collector.name;
+        BindingUtils.bindProperty(textLabel, 'text', collector, 'name');
   			textLabel.setStyle('fontSize', 12);
         textLabel.setStyle('textAlign', 'center');
         textLabel.width = WIDTH - 20;
@@ -75,15 +78,13 @@ package it.ht.rcs.console.network.view.collectors.renderers
     
     
     
-    
     public function selectNode(select:Boolean):void
     {
-      setStyle('backgroundColor', select ? 0x8888bb : 0xbbbbbb);
+      setStyle('backgroundColor', select ? SELECTED_COLOR : NORMAL_COLOR);
     }
     
     private function mouseDown(event:MouseEvent):void
     {
-      trace("onMouseDown");
       if (this.collector.type == 'remote')
       {
         var dragInitiator:CollectorRenderer = event.currentTarget as CollectorRenderer;
@@ -107,13 +108,13 @@ package it.ht.rcs.console.network.view.collectors.renderers
         var dropTarget:UIComponent = UIComponent(event.currentTarget);					
         DragManager.acceptDragDrop(dropTarget);
         DragManager.showFeedback(DragManager.COPY);
-        setStyle('backgroundColor', 0x5555bb);
+        setStyle('backgroundColor', DRAG_COLOR);
       }
     }
     
     private function dragExit(event:DragEvent):void
     {
-      setStyle('backgroundColor', 0xbbbbbb);
+      setStyle('backgroundColor', NORMAL_COLOR);
     }
     
     private function dragDrop(event:DragEvent):void
@@ -129,10 +130,11 @@ package it.ht.rcs.console.network.view.collectors.renderers
         source.moveAfter(dest);
       }
       
-      setStyle('backgroundColor', 0xbbbbbb);
+      setStyle('backgroundColor', NORMAL_COLOR);
       
-      dispatchEvent(new NodeEvent(NodeEvent.CHANGED));
-      //(parent as NetworkGraph).rebuildGraph();
+      var e:NodeEvent = new NodeEvent(NodeEvent.CHANGED);
+      e.node = collector;
+      dispatchEvent(e);
     }
     
     

@@ -26,7 +26,7 @@ package it.ht.rcs.console.utils
       
       /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
-        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
         SessionManager.instance.forceLogout();
         return; 
       }
@@ -44,7 +44,7 @@ package it.ht.rcs.console.utils
         decoded = JSON.decode(e.fault.content as String);
       } catch (json_error:JSONParseError) {
         decoded = e.fault.content as String;
-        AlertPopUp.show(decoded, ResourceManager.getInstance().getString('localized_main', 'ERROR'));
+        AlertPopUp.show(decoded, ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
         return;
       }
       

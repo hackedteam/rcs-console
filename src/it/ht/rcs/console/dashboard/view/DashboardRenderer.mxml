@@ -8,6 +8,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
       
       [Bindable]
       private var _data:Object
@@ -16,7 +17,8 @@
       {
         _data = o;
         
-        currentState = _data._kind;
+        if (_data != null)
+          currentState = _data._kind;
       }
     ]]>
   </fx:Script>
@@ -28,7 +30,7 @@
   </s:states>
 
   <s:HGroup paddingBottom="5" paddingTop="5" paddingLeft="5" paddingRight="5" width="100%">
-    <utils:TitleWindowMinMaxCloseMXML title="{_data.name}" width="100%"> 
+    <utils:TitleWindowMinMaxCloseMXML title="{_data.name}" width="100%" close="{DashboardController.instance.removeItem(_data)}"> 
       
       <s:HGroup width="100%" height="100%">
         <s:SkinnableContainer width="80" height="100%">

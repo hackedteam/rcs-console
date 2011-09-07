@@ -26,8 +26,7 @@ package it.ht.rcs.console.utils.items
     
     private var _dataProvider:ArrayCollection;
     private var _selectedItem:Object;
-
-    public var types:Array;
+    private var _types:Array;
     
     private var numberOfCategories:int = 0;
 
@@ -46,7 +45,7 @@ package it.ht.rcs.console.utils.items
       doubleClickEnabled = true;
       
       dropDown = new DropDown();
-      dropDown.addEventListener(ItemEvent.ITEM_SELECTED, itemSelected);
+      dropDown.addEventListener(ItemEvent.ITEM_SELECTED, onItemSelected);
       
       addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
       addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
@@ -76,9 +75,20 @@ package it.ht.rcs.console.utils.items
       for each (var o:Object in _dataProvider)
         if (o.separator)
           numberOfCategories++;
-      numberOfCategories = (types == null || types.length == 0) ? numberOfCategories : types.length;
+      numberOfCategories = (_types == null || _types.length == 0) ? numberOfCategories : _types.length;
       
       _dataProvider.refresh();
+    }
+    
+    public function set types(t:Array):void
+    {
+      _types = t;
+      _dataProvider.refresh();
+    }
+    
+    public function get dataProvider():ArrayCollection
+    {
+      return _dataProvider;
     }
     
     private function filter(item:Object):Boolean
@@ -93,10 +103,10 @@ package it.ht.rcs.console.utils.items
     
     private function isVisibleType(type:String):Boolean
     {
-      if (types == null || types.length == 0)
+      if (_types == null || _types.length == 0)
         return true;
       
-      for each (var t:String in types)
+      for each (var t:String in _types)
         if (type == t)
           return true;
       
@@ -104,12 +114,12 @@ package it.ht.rcs.console.utils.items
     }
     
     private function showDropDown():void {
-      // _dataProvider ? _dataProvider.length > numberOfCategories : false;
       var point:Point = localToGlobal(new Point(x, y));
       dropDown.x = point.x - x;
       dropDown.y = point.y - y + height + 5;
        if (dropDown.x + dropDown.width > owner.width)
          dropDown.x = point.x - x - (dropDown.width - width);
+      //dropDown.selectedItem = _selectedItem;
       dropDown.visible = true;
     }
     
@@ -118,9 +128,9 @@ package it.ht.rcs.console.utils.items
       if (event.keyCode == Keyboard.DOWN) {
         showDropDown();
         dropDown.setFocus();
-      } else if (event.keyCode == Keyboard.ESCAPE) {
-        text = '';
-        dropDown.hide();
+//      } else if (event.keyCode == Keyboard.ESCAPE) {
+//        text = '';
+//        dropDown.hide();
       } else if (event.keyCode == Keyboard.ENTER) {
       } else if (event.charCode != 0 && _dataProvider) {
         _dataProvider.refresh();
@@ -133,17 +143,29 @@ package it.ht.rcs.console.utils.items
       showDropDown();
     }
     
-    private function itemSelected(event:ItemEvent):void
+    private function onItemSelected(event:ItemEvent):void
     {
-      _selectedItem = event.selectedItem;
-      text = _selectedItem.label;
+      _selectedItem = dropDown.selectedItem;
+      text = dropDown.selectedItem.label;
       dropDown.hide();
       dispatchEvent(event.clone());
     }
     
-    public function get selectedItem():Object
+    public function get selectedItem():*
     {
       return _selectedItem;
+    }
+    
+    public function set selectedItem(value:*):void
+    {
+      if (value) dropDown.selectedItem = value;
+      if (dropDown.selectedItem !== undefined) {
+        _selectedItem = value;
+        text = value.label;
+      } else {
+        _selectedItem = undefined;
+        text = '';
+      }
     }
     
     private function onAddedToStage(event:Event):void

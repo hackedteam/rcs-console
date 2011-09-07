@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <items:ExcludeSelectionList xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:items="it.ht.rcs.console.utils.items.*"
-                             visible="false" minWidth="300" minHeight="220" maxWidth="300"
-                             maxHeight="220" doubleClick="onDoubleClick()" doubleClickEnabled="true"
-                             filters="{[dropShadow]}" hideEffect="{fadeOut}"
-                             keyDown="onKeyDown(event)" mouseDownOutside="hide()"
-                             showEffect="{fadeIn}">
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            xmlns:items="it.ht.rcs.console.utils.items.*"
+                            visible="false" minWidth="300" minHeight="220" maxWidth="300"
+                            maxHeight="220" click="onClick()" filters="{[dropShadow]}"
+                            hideEffect="{fadeOut}" keyDown="onKeyDown(event)"
+                            mouseDownOutside="hide()" requireSelection="false" showEffect="{fadeIn}">
   
   <fx:Script>
     <![CDATA[
@@ -16,16 +15,18 @@
       {
         if (event.keyCode == Keyboard.ENTER && selectedItem != null)
           dispatchSelectedItemEvent(selectedItem);
-        else if (event.keyCode == Keyboard.ESCAPE)
-          hide();
+//        else if (event.keyCode == Keyboard.ESCAPE)
+//          hide();
       }
       
-      private function onDoubleClick():void
+      private function onClick():void
       {
-        dispatchSelectedItemEvent(selectedItem);
+        if (selectedItem !== undefined)
+          dispatchSelectedItemEvent(selectedItem);
       }
       
-      private function dispatchSelectedItemEvent(item:Object):void {
+      private function dispatchSelectedItemEvent(item:Object):void
+      {
         var event:ItemEvent = new ItemEvent(ItemEvent.ITEM_SELECTED);
         event.selectedItem = item;
         dispatchEvent(event);

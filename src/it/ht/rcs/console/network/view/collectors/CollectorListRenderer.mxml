@@ -18,8 +18,18 @@
         addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
       }
       
-      override public function set data(value:Object):void {
+      override public function set data(value:Object):void
+      {
         super.data = value;
+        
+        var color:uint = 0x000000;
+        var c:Collector = value as Collector;
+        if (c.type == 'remote' && 
+           (c.prev == null || c.prev.length == 0) && 
+           (c.next == null || c.next.length == 0))
+          color = 0xff0000;
+
+        bottomLabel.setStyle('color', color);
         this.buttonMode = data && data.type == 'remote';
       }
       

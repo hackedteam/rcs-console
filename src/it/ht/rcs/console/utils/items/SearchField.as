@@ -133,6 +133,7 @@ package it.ht.rcs.console.utils.items
 //        dropDown.hide();
       } else if (event.keyCode == Keyboard.ENTER) {
       } else if (event.charCode != 0 && _dataProvider) {
+        _selectedItem = dropDown.selectedItem = undefined;
         _dataProvider.refresh();
         showDropDown();
       }

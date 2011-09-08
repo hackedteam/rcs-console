@@ -59,6 +59,7 @@ package it.ht.rcs.console.network.view.collectors
       else return;
 
       node.selectNode(true);
+      trace('prev: ' + (node.prevHop == null ? 'null' : node.prevHop.collector._id) + ', next: ' + (node.nextHop == null ? 'null' : node.nextHop.collector._id));
       (this.parentDocument as Collectors).collectors.selectedItem = node.collector;
     }
 
@@ -125,12 +126,7 @@ package it.ht.rcs.console.network.view.collectors
 			invalidateDisplayList();
 
 		}
-
-//		public function get db():DBRenderer
-//		{
-//			return _db;
-//		}
-
+    
 		override protected function measure():void
 		{
 			super.measure();

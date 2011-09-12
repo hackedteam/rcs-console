@@ -10,6 +10,8 @@
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.network.view.collectors.renderers.CollectorRenderer;
       
+      import locale.R;
+      
       import mx.core.DragSource;
       import mx.managers.DragManager;
       import mx.managers.PopUpManager;
@@ -23,12 +25,16 @@
         super.data = value;
         
         var color:uint = 0x000000;
+        var tt:String = '';
         var c:Collector = value as Collector;
         if (c.type == 'remote' && 
            (c.prev == null || c.prev.length == 0) && 
-           (c.next == null || c.next.length == 0))
-          color = 0xff0000;
+           (c.next == null || c.next.length == 0)) {
+          color = 0xff3333;
+          tt = R.get('NODE_NOT_ATTACHED');
+        }
 
+        toolTip = tt;
         bottomLabel.setStyle('color', color);
         this.buttonMode = data && data.type == 'remote';
       }
@@ -53,6 +59,7 @@
       }
     ]]>
   </fx:Script>
+  
   <s:SkinnableContainer width="70">
     <mx:Image top="5" width="70" height="60" source="img/items/user.png"/>
     <s:Label id="bottomLabel" top="72" width="70" paddingBottom="5" text="{data.name}"

@@ -11,6 +11,8 @@ package it.ht.rcs.console.utils.items
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
+  import mx.collections.IList;
+  import mx.collections.ListCollectionView;
   import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
   
@@ -24,17 +26,17 @@ package it.ht.rcs.console.utils.items
     
     private var dropDown:DropDown;
     
-    private var _dataProvider:ArrayCollection;
+    private var _dataProvider:ListCollectionView;
     private var _selectedItem:Object;
     private var _types:Array;
     
     private var numberOfCategories:int = 0;
 
     private var categories:ArrayList = new ArrayList([
-      {label: 'Targets', separator: true, type: 'target'},
-      {label: 'Backdoors', separator: true, type: 'backdoor'},
-      {label: 'Evidences', separator: true, type: 'evidence'},
-      {label: 'Operations', separator: true, type: 'operation'}
+      {name: 'Targets', separator: true, _kind: 'target'},
+      {name: 'Backdoors', separator: true, _kind: 'backdoor'},
+      {name: 'Evidences', separator: true, _kind: 'evidence'},
+      {name: 'Operations', separator: true, _kind: 'operation'}
     ]);
     
     public function SearchField()
@@ -59,7 +61,7 @@ package it.ht.rcs.console.utils.items
       dropDown.dataProvider = _dataProvider;
     }
     
-    public function set dataProvider(dp:ArrayCollection):void
+    public function set dataProvider(dp:ListCollectionView):void
     {
       _dataProvider = new ArrayCollection();
       _dataProvider.addAllAt(dp, 0);
@@ -67,9 +69,9 @@ package it.ht.rcs.console.utils.items
       _dataProvider.filterFunction = filter;
       
       var sort:Sort = new Sort();
-      sort.fields = [new SortField('type',      false, false),
+      sort.fields = [new SortField('_kind',      false, false),
                      new SortField('separator', false, false),
-                     new SortField('label',     false, false)];
+                     new SortField('name',     false, false)];
       _dataProvider.sort = sort;
       
       for each (var o:Object in _dataProvider)
@@ -80,24 +82,24 @@ package it.ht.rcs.console.utils.items
       _dataProvider.refresh();
     }
     
-    public function set types(t:Array):void
+    public function set kinds(t:Array):void
     {
       _types = t;
       _dataProvider.refresh();
     }
     
-    public function get dataProvider():ArrayCollection
+    public function get dataProvider():ListCollectionView
     {
       return _dataProvider;
     }
     
     private function filter(item:Object):Boolean
     {
-      if (!isVisibleType(item.type)) return false;
+      if (!isVisibleType(item._kind)) return false;
       if (item.separator) return true;
       if (text == '') return true;
       
-      var result:int = String(item.label.toLowerCase()).indexOf(text.toLowerCase());
+      var result:int = String(item.name.toLowerCase()).indexOf(text.toLowerCase());
       return result >= 0;
     }
     
@@ -147,7 +149,7 @@ package it.ht.rcs.console.utils.items
     private function onItemSelected(event:ItemEvent):void
     {
       _selectedItem = dropDown.selectedItem;
-      text = dropDown.selectedItem.label;
+      text = dropDown.selectedItem.name;
       dropDown.hide();
       dispatchEvent(event.clone());
     }
@@ -162,7 +164,7 @@ package it.ht.rcs.console.utils.items
       if (value) dropDown.selectedItem = value;
       if (dropDown.selectedItem !== undefined) {
         _selectedItem = value;
-        text = value.label;
+        text = value.name;
       } else {
         _selectedItem = undefined;
         text = '';

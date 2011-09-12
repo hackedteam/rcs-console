@@ -2,8 +2,63 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
-          left="5" right="5" top="0" bottom="5">
+          xmlns:system="it.ht.rcs.console.network.view.system.*"
+          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage(event)"
+          removedFromStage="onRemovedFromStage(event)">
 
+  
+  <s:Scroller id="stageScroller" width="100%" height="100%">
+    <system:SystemGraph id="systemGraph" rootNode="{rootNode}"/>
+  </s:Scroller>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.network.view.system.renderers.DBRenderer;
+      import it.ht.rcs.console.network.view.system.renderers.ShardRenderer;
+      import it.ht.rcs.console.system.controller.ShardManager;
+      import it.ht.rcs.console.system.model.Shard;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      
+      [Bindable]
+      private var _shard_view:ListCollectionView;
+      
+      [Bindable]
+      private var rootNode:DBRenderer;
+      
+      private function onAddedToStage(event:Event):void
+      {
+        ShardManager.instance.addEventListener('dataLoaded', onRefresh);
+        _shard_view = ShardManager.instance.getView();
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
 
-
+      private function onRemovedFromStage(event:Event):void
+      {
+        ShardManager.instance.removeEventListener('dataLoaded', onRefresh);
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRefresh(event:Event):void
+      {
+        buildGraph();
+      }
+      
+      public function buildGraph():void
+      {
+        var shards:Vector.<ShardRenderer> = new Vector.<ShardRenderer>();
+        for each (var el:Shard in _shard_view)
+          shards.push(new ShardRenderer(el));
+        
+        var db:DBRenderer = new DBRenderer();
+        db.shards = shards;
+        rootNode = db;
+      }
+      
+    ]]>
+  </fx:Script>
+  
 </s:VGroup>

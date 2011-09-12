@@ -23,7 +23,7 @@
   
   <s:HGroup>
     <s:Button width="30" height="20" skinClass="it.ht.rcs.console.skins.HeartbeatButton"
-              toolTip="{R.get('HEALTH_CHECK')}"/>
+              toolTip="{R.get('HEALTH_CHECK')}" click="onHealthCheck()"/>
     <s:Button width="30" height="20" skinClass="it.ht.rcs.console.skins.ApplyButton"
               toolTip="{R.get('APPLY_TOPOLOGY')}"/>
   </s:HGroup>
@@ -45,6 +45,7 @@
       
       import locale.R;
       
+      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
@@ -60,10 +61,10 @@
       
       private function onAddedToStage(event:Event):void
       {
+        CollectorManager.instance.addEventListener('dataLoaded', onDataLoaded);
         _collector_view = CollectorManager.instance.getView();
         addEventListener(NodeEvent.CHANGED, onNodeChanged);
         FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-        CollectorManager.instance.addEventListener("dataLoaded", onDataLoaded);
       }
       
       private function onDataLoaded(event:Event):void {
@@ -72,6 +73,7 @@
       
       private function onRemovedFromStage(event:Event):void
       {
+        CollectorManager.instance.removeEventListener('dataLoaded', onDataLoaded);
         removeEventListener(NodeEvent.CHANGED, onNodeChanged);
         FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       }
@@ -162,6 +164,20 @@
       private function onCollectorsListSelection(event:IndexChangeEvent):void
       {
         networkGraph.selectNode(collectors.selectedItem);
+      }
+      
+      protected function onHealthCheck():void
+      {
+        var ips:ArrayCollection = new ArrayCollection();
+        for each (var c:CollectorRenderer in rootNode.collectors) {
+          while (c.nextHop != null)
+           c = c.nextHop;
+          ips.addItem(c.collector.address);
+        }
+          
+        var popup:HealthCheckWindow = PopUpManager.createPopUp(this.parentDocument as DisplayObject, HealthCheckWindow, true) as HealthCheckWindow;
+        popup.ips = ips;
+        PopUpManager.centerPopUp(popup);
       }
       
     ]]>

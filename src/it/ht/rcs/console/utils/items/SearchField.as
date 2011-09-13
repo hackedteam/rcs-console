@@ -7,11 +7,11 @@ package it.ht.rcs.console.utils.items
   import flash.geom.Point;
   import flash.ui.Keyboard;
   
+  import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.skins.TextInputSearchSkin;
   
   import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
-  import mx.collections.IList;
   import mx.collections.ListCollectionView;
   import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
@@ -22,8 +22,7 @@ package it.ht.rcs.console.utils.items
 
   [Event(name="itemSelected", type="it.ht.rcs.console.utils.items.ItemEvent")]
   public class SearchField extends TextInput
-  {
-    
+  {   
     private var dropDown:DropDown;
     
     private var _dataProvider:ListCollectionView;
@@ -31,12 +30,11 @@ package it.ht.rcs.console.utils.items
     private var _types:Array;
     
     private var numberOfCategories:int = 0;
-
+    
     private var categories:ArrayList = new ArrayList([
+      {name: 'Operations', separator: true, _kind: 'operation'},
       {name: 'Targets', separator: true, _kind: 'target'},
-      {name: 'Backdoors', separator: true, _kind: 'backdoor'},
-      {name: 'Evidences', separator: true, _kind: 'evidence'},
-      {name: 'Operations', separator: true, _kind: 'operation'}
+      {name: 'Backdoors', separator: true, _kind: 'backdoor'}
     ]);
     
     public function SearchField()
@@ -61,17 +59,21 @@ package it.ht.rcs.console.utils.items
       dropDown.dataProvider = _dataProvider;
     }
     
-    public function set dataProvider(dp:ListCollectionView):void
+    public function get dataProvider():ListCollectionView
     {
-      _dataProvider = new ArrayCollection();
-      _dataProvider.addAllAt(dp, 0);
+      return _dataProvider;
+    }
+    
+    public function set dataProvider(source:ListCollectionView):void
+    { 
+      _dataProvider = source;
       _dataProvider.addAllAt(categories, 0);
       _dataProvider.filterFunction = filter;
       
       var sort:Sort = new Sort();
-      sort.fields = [new SortField('_kind',      false, false),
-                     new SortField('separator', false, false),
-                     new SortField('name',     false, false)];
+      sort.fields = [new SortField('_kind', false, false),
+                     new SortField('separator', true, false),
+                     new SortField('name', false, false)];
       _dataProvider.sort = sort;
       
       for each (var o:Object in _dataProvider)
@@ -88,19 +90,14 @@ package it.ht.rcs.console.utils.items
       _dataProvider.refresh();
     }
     
-    public function get dataProvider():ListCollectionView
-    {
-      return _dataProvider;
-    }
-    
     private function filter(item:Object):Boolean
     {
       if (!isVisibleType(item._kind)) return false;
       if (item.separator) return true;
-      if (text == '') return true;
+      if (this.text == '') return true;
       
-      var result:int = String(item.name.toLowerCase()).indexOf(text.toLowerCase());
-      return result >= 0;
+      var result:Boolean = String(item.name.toLowerCase()).indexOf(this.text.toLowerCase()) >= 0 || String(item.desc.toLowerCase()).indexOf(this.text.toLowerCase()) >= 0;
+      return result;
     }
     
     private function isVisibleType(type:String):Boolean
@@ -130,9 +127,6 @@ package it.ht.rcs.console.utils.items
       if (event.keyCode == Keyboard.DOWN) {
         showDropDown();
         dropDown.setFocus();
-//      } else if (event.keyCode == Keyboard.ESCAPE) {
-//        text = '';
-//        dropDown.hide();
       } else if (event.keyCode == Keyboard.ENTER) {
       } else if (event.charCode != 0 && _dataProvider) {
         _selectedItem = dropDown.selectedItem = undefined;
@@ -173,6 +167,8 @@ package it.ht.rcs.console.utils.items
     
     private function onAddedToStage(event:Event):void
     {
+      // don't know why, but we must reassing dataProvider, otherwise filtering doesn't work anymore ...
+      dropDown.dataProvider = _dataProvider;
       PopUpManager.addPopUp(dropDown, this, false);
     }
     

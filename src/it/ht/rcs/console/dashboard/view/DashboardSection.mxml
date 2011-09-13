@@ -8,24 +8,32 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.search.controller.SearchManager;
       
       import mx.collections.ListCollectionView;
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       private var _dashboard_items:ListCollectionView;
+      [Bindable]
+      private var _search_items:ListCollectionView;
       
       private function added():void
       {
         /* the controller needs the current user */
         DashboardController.instance.user = console.currentSession.user;
         DashboardController.instance.start();
+        SearchManager.instance.start();
         _dashboard_items = DashboardController.instance.getView();
+        _search_items = SearchManager.instance.getView();
       }
       
       private function removed():void
       {
         DashboardController.instance.stop();
+        SearchManager.instance.stop();
       }
       
     ]]>
@@ -35,7 +43,7 @@
   <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="30" backgroundAlpha="0.0">
     <s:Button x="0" y="0" label="S" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SORT_BY_TIME')}" skinClass="it.ht.rcs.console.skins.SortTimeButton"/>
     <s:Button x="40" y="0" label="S" width="30" height="20" toolTip="{resourceManager.getString('localized_main', 'SORT_BY_NAME')}" skinClass="it.ht.rcs.console.skins.SortNameButton"/>
-    <items:SearchField dataProvider="{_dashboard_items}" right="5" top="0"/>
+    <items:SearchField id="searchField" dataProvider="{_search_items}" right="5" top="0"/>
   </s:BorderContainer>
   
   <!-- item list -->

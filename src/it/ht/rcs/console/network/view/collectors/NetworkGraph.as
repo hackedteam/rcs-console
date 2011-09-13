@@ -169,7 +169,7 @@ package it.ht.rcs.console.network.view.collectors
 
 				_db.move(_width / 2 - _db.measuredWidth / 2, _height - BOTTOM_DISTANCE - _db.measuredHeight);
 
-				// Where to draw the first Collector?
+				// Where to draw the first collector?
 				if (_db.collectors.length > 0)
 				{
 					var offsetFromCenter:int = 0;

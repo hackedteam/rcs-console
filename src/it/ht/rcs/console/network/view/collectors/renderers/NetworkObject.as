@@ -13,6 +13,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
 		
 		public function NetworkObject()
 		{
+      super();
 			var layout:HorizontalLayout = new HorizontalLayout();
 			layout.horizontalAlign = 'center';
 			layout.verticalAlign = 'middle';

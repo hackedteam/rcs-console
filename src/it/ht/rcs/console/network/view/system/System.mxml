@@ -5,7 +5,7 @@
           xmlns:system="it.ht.rcs.console.network.view.system.*"
           left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage(event)"
           removedFromStage="onRemovedFromStage(event)">
-
+  
   
   <s:Scroller id="stageScroller" width="100%" height="100%">
     <system:SystemGraph id="systemGraph" rootNode="{rootNode}"/>
@@ -21,7 +21,10 @@
       import it.ht.rcs.console.system.model.Shard;
       
       import mx.collections.ListCollectionView;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
       import mx.core.FlexGlobals;
+      
       
       [Bindable]
       private var _shard_view:ListCollectionView;
@@ -32,10 +35,12 @@
       private function onAddedToStage(event:Event):void
       {
         ShardManager.instance.addEventListener('dataLoaded', onRefresh);
-        _shard_view = ShardManager.instance.getView();
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('_id', true, false, false)];
+        _shard_view = ShardManager.instance.getView(sort);
         FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       }
-
+      
       private function onRemovedFromStage(event:Event):void
       {
         ShardManager.instance.removeEventListener('dataLoaded', onRefresh);
@@ -50,8 +55,11 @@
       public function buildGraph():void
       {
         var shards:Vector.<ShardRenderer> = new Vector.<ShardRenderer>();
-        for each (var el:Shard in _shard_view)
-          shards.push(new ShardRenderer(el));
+        for each (var el:Shard in _shard_view) {
+          var sr:ShardRenderer = new ShardRenderer();
+          sr.shard = el;
+          shards.push(sr);
+        }
         
         var db:DBRenderer = new DBRenderer();
         db.shards = shards;

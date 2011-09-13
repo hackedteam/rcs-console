@@ -15,9 +15,9 @@ package it.ht.rcs.console.network.view.system
     
 		private var _db:DBRenderer;
 
-		private static const SHARDS_DISTANCE:int   = 60;
+		private static const SHARDS_DISTANCE:int   = 80;
 		private static const VERTICAL_DISTANCE:int = 55;
-		private static const BOTTOM_DISTANCE:int   = 0;
+		private static const TOP_DISTANCE:int      = 30;
 
 		public function SystemGraph()
 		{
@@ -35,7 +35,7 @@ package it.ht.rcs.console.network.view.system
     private function onClick(event:MouseEvent):void
     {
     }
-
+    
 		// List of IP renderer
 		private var ips:ArrayCollection;
     private var map:Dictionary;
@@ -87,7 +87,7 @@ package it.ht.rcs.console.network.view.system
 				var maxBranch:Number = 0, branch:Number = 0;
 				for each (var shard:ShardRenderer in _db.shards)
 				{
-					branch = BOTTOM_DISTANCE + _db.height + VERTICAL_DISTANCE;
+					branch = TOP_DISTANCE + _db.height + VERTICAL_DISTANCE;
 //					while (nextHop != null)
 //					{
 //						branch += VERTICAL_DISTANCE;
@@ -113,9 +113,9 @@ package it.ht.rcs.console.network.view.system
 			if (_db != null)
 			{
 
-				_db.move(_width / 2 - _db.measuredWidth / 2, _height - BOTTOM_DISTANCE - _db.measuredHeight);
+				_db.move(_width / 2 - _db.measuredWidth / 2, TOP_DISTANCE);
 
-				// Where to draw the first Collector?
+				// Where to draw the first shard?
 				if (_db.shards.length > 0)
 				{
 					var offsetFromCenter:int = 0;
@@ -125,18 +125,18 @@ package it.ht.rcs.console.network.view.system
 					else
 						offsetFromCenter = _width / 2 - (Math.floor(_db.shards.length / 2) * (SHARDS_DISTANCE + renderer.measuredWidth)) - renderer.measuredWidth / 2;
 				}
-				// Draw collectors
+				// Draw shards
 				for (var collectorIndex:int = 0; collectorIndex < _db.shards.length; collectorIndex++)
 				{
 
 					var shard:ShardRenderer = _db.shards[collectorIndex];
 
 					var cX:int = offsetFromCenter + collectorIndex * (SHARDS_DISTANCE + shard.measuredWidth) + shard.measuredWidth / 2;
-					var cY:int = _db.y - VERTICAL_DISTANCE;
+					var cY:int = _db.y + _db.measuredHeight + VERTICAL_DISTANCE;
           shard.move(cX - shard.measuredWidth / 2, cY);
 
-					graphics.moveTo(_width / 2, _height - BOTTOM_DISTANCE - _db.measuredHeight / 2);
-					graphics.lineTo(cX, cY + shard.measuredHeight);
+					graphics.moveTo(_width / 2, TOP_DISTANCE + _db.measuredHeight / 2);
+					graphics.lineTo(cX, cY);
 
 				} // End collectors
 

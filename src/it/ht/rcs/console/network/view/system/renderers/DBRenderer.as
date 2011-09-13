@@ -4,6 +4,7 @@ package it.ht.rcs.console.network.view.system.renderers
   
   import spark.components.Group;
   import spark.components.Label;
+  import spark.filters.DropShadowFilter;
   import spark.layouts.HorizontalLayout;
 
   public class DBRenderer extends Group
@@ -23,6 +24,8 @@ package it.ht.rcs.console.network.view.system.renderers
       hl.verticalAlign = 'middle';
       hl.paddingTop = 2;
       layout = hl;
+      
+      filters = [new DropShadowFilter(3, 45, 0x333333, 1, 3, 3, 1, 2, false, false, false)];
     }
     
 		override protected function createChildren():void

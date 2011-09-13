@@ -35,6 +35,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.view.collectors.healthCheck.HealthCheckWindow;
       import it.ht.rcs.console.events.NodeEvent;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
@@ -168,15 +169,15 @@
       
       protected function onHealthCheck():void
       {
-        var ips:ArrayCollection = new ArrayCollection();
+        var nodes:ArrayCollection = new ArrayCollection();
         for each (var c:CollectorRenderer in rootNode.collectors) {
           while (c.nextHop != null)
            c = c.nextHop;
-          ips.addItem(c.collector.address);
+          nodes.addItem({ ip: c.collector.address, name: c.collector.name });
         }
           
         var popup:HealthCheckWindow = PopUpManager.createPopUp(this.parentDocument as DisplayObject, HealthCheckWindow, true) as HealthCheckWindow;
-        popup.ips = ips;
+        popup.nodes = nodes;
         PopUpManager.centerPopUp(popup);
       }
       

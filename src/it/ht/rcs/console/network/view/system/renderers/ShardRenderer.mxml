@@ -1,0 +1,62 @@
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         creationComplete="init()">
+  
+  <s:layout>
+    <s:VerticalLayout horizontalAlign="center" paddingTop="2" verticalAlign="middle"/>
+  </s:layout>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.system.model.Shard;
+      
+      import spark.components.Group;
+      import spark.components.Label;
+      import spark.layouts.HorizontalLayout;
+        
+      private static const WIDTH:Number  = 250;
+      private static const HEIGHT:Number = 200;
+      
+      private static const NORMAL_COLOR:Number   = 0xbbbbbb;
+      private static const SELECTED_COLOR:Number = 0x8888bb;
+      
+      [Bindable]
+      public var shard:Shard;
+      
+      private var textLabel:Label;
+      
+      public function init():void
+      {
+        setStyle('backgroundColor', NORMAL_COLOR);
+      }
+      
+      override protected function measure():void
+      {
+        super.measure();
+        
+        width = measuredWidth = WIDTH;
+        height = measuredHeight = HEIGHT;
+      }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+      {
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        
+        graphics.beginFill(getStyle('backgroundColor'));
+        graphics.drawRoundRect(0, 0, measuredWidth, measuredHeight, 20, 20);
+        graphics.endFill();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="{WIDTH - 20}" fontSize="12" maxDisplayedLines="1" text="{shard.host}"
+           textAlign="center"/>
+  
+  
+  <s:filters>
+    <s:DropShadowFilter angle="45" blurX="3" blurY="3" color="#333" distance="3" quality="2"
+                        strength="1"/>
+  </s:filters>
+  
+</s:Group>

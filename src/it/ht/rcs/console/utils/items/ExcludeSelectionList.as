@@ -33,14 +33,13 @@ package it.ht.rcs.console.utils.items
     
     private function defaultExcludeFunction(index:int, item:Object):Boolean
     {
-      return item.separator;
+      return (item.separator);
     }
     
     private function defaultItemRendererFunction(item:Object):IFactory
     {
       return new ClassFactory(itemSelectable(item) ? SearchListItemRenderer : SearchListCategoryItemRenderer);
     }
-    
     
     //----------------------------------
     //  excludeType

@@ -58,10 +58,9 @@
         var entry:HealthCheckEntry = grid.dataProvider.getItemAt(index) as HealthCheckEntry;
         currentEntry = entry;
         currentEntry.status = HealthCheckEntry.CHECKING;
-        trace('--- checking ' + currentEntry.ip + ' ' + currentEntry.name);
         
         var http:HTTPService = new HTTPService();
-        http.url = 'http://'+entry.ip+':8080';
+        http.url = 'http://'+entry.ip+':80';
         http.requestTimeout = 3;
         http.addEventListener(ResultEvent.RESULT, manageResult);
         http.addEventListener(FaultEvent.FAULT, manageFault);
@@ -70,7 +69,6 @@
       
       private function manageResult(e:ResultEvent):void
       {
-        trace('    result ' + currentEntry.name);
         currentEntry.status = HealthCheckEntry.OK;
         grid.invalidateDisplayList();
         checkNext();
@@ -78,7 +76,6 @@
       
       private function manageFault(e:FaultEvent):void
       {
-        trace('    fault ' + currentEntry.name);
         currentEntry.status = HealthCheckEntry.KO;
         grid.invalidateDisplayList();
         checkNext();
@@ -95,9 +92,9 @@
   <s:DataGrid id="grid" width="100%" height="207">
     <s:columns>
       <s:ArrayList>
-        <s:GridColumn dataField="name" headerText="Name"/>
-        <s:GridColumn dataField="ip" headerText="Address"/>
-        <s:GridColumn dataField="status" headerText="Status"
+        <s:GridColumn dataField="name" headerText="{R.get('NAME')}"/>
+        <s:GridColumn dataField="ip" headerText="{R.get('ADDRESS')}"/>
+        <s:GridColumn dataField="status" headerText="{R.get('STATUS')}"
                       itemRenderer="it.ht.rcs.console.network.view.collectors.healthCheck.StatusRenderer"/>
       </s:ArrayList>
     </s:columns>

@@ -2,13 +2,68 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
-                height="22">
+                height="22" autoDrawBackground="true">
   
-  <s:layout>
-    <s:HorizontalLayout verticalAlign="middle"/>
-  </s:layout>
+  <fx:Script>
+    <![CDATA[
+      
+      [Embed(source="img/privs/admin.png")]
+      private static var backdoorIcon:Class;
+      
+      [Embed(source="img/privs/sys.png")]
+      private static var targetIcon:Class;
+      
+      [Embed(source="img/privs/tech.png")]
+      private static var operationIcon:Class;
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        if (data) {
+          switch (data._kind) {
+            case 'backdoor':
+              setStyle('color', 0xf0f0ff);
+              setStyle('rollOverColor', 0xc0c0ff);
+              setStyle('selectionColor', 0xa0a0ff);
+              icon.source = backdoorIcon;
+              break;
+            case 'target':
+              setStyle('color', 0xfff0f0);
+              setStyle('rollOverColor', 0xffc0c0);
+              setStyle('selectionColor', 0xffa0a0);
+              icon.source = targetIcon;
+              break;
+            case 'operation':
+              setStyle('color', 0xf0fff0);
+              setStyle('rollOverColor', 0xc0ffc0);
+              setStyle('selectionColor', 0xa0ffa0);
+              icon.source = operationIcon;
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      
+    ]]>
+  </fx:Script>
   
-  <!-- Gli stessi padding del DefaultItemRenderer -->
-  <s:Label paddingBottom="5" paddingLeft="3" paddingRight="3" paddingTop="5" text="{data.text}"/>
+  <s:states>
+    <s:State name="normal"/>
+    <s:State name="hovered"/>
+    <s:State name="selected"/>
+  </s:states>
+  
+  <s:Rect width="100%" height="100%">
+    <s:fill>
+      <s:SolidColor id="bgColor" color="{getStyle('color')}"
+                    color.hovered="{getStyle('rollOverColor')}"
+                    color.selected="{getStyle('selectionColor')}"/>
+    </s:fill>
+  </s:Rect>
+  <s:HGroup verticalAlign="middle" height="100%" width="100%" paddingLeft="5">
+    <s:Image id="icon" width="15" height="15"/>
+    <s:Label text="{data.text}" paddingTop="2"/>
+  </s:HGroup>
   
 </s:ItemRenderer>

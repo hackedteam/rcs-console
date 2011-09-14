@@ -6,8 +6,7 @@
                title="{R.get('HEALTH_CHECK')}">
   
   <s:layout>
-    <s:VerticalLayout gap="40" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
-                      paddingRight="10" paddingTop="40"/>
+    <s:VerticalLayout horizontalAlign="center" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
   </s:layout>
 
   <fx:Script>
@@ -29,13 +28,14 @@
         for each (var o:Object in nodes)
         entries.addItem(new HealthCheckEntry(o));
         grid.dataProvider = entries;
+        
+        start();
       }
       
       private var currentIndex:int;
       private var currentEntry:HealthCheckEntry;
       private function start():void
       {
-        checkButton.enabled = false;
         currentIndex = -1;
         if (grid.dataProvider.length > 0) {
           for each (var entry:HealthCheckEntry in grid.dataProvider)
@@ -49,8 +49,6 @@
         currentIndex++;
         if (grid.dataProvider.length > currentIndex)
           check(currentIndex);
-        else
-          checkButton.enabled = true;
       }
       
       private function check(index:int):void
@@ -84,11 +82,6 @@
     ]]>
   </fx:Script>
   
-  <s:Label text="{R.get('HEALTH_CHECK_TEXT')}"/>
-  
-  <s:Button id="checkButton" height="40" label="Start Configuration Check" click="start()"
-            fontSize="22"/>
-
   <s:DataGrid id="grid" width="100%" height="207">
     <s:columns>
       <s:ArrayList>

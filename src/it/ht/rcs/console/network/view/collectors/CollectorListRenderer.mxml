@@ -16,6 +16,9 @@
       import mx.managers.DragManager;
       import mx.managers.PopUpManager;
 
+      [Bindable]
+      private var linked:Boolean;
+      
       private function init():void {
         addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
       }
@@ -24,18 +27,23 @@
       {
         super.data = value;
         
-        var color:uint = 0x000000;
         var tt:String = '';
         var c:Collector = value as Collector;
         if (c.type == 'remote' && 
            (c.prev == null || c.prev.length == 0) && 
            (c.next == null || c.next.length == 0)) {
-          color = 0xff3333;
           tt = R.get('NODE_NOT_ATTACHED');
+          linked = false;
+        } else {
+          linked = true;
         }
 
+        if (c.type == 'remote')
+          currentState = 'remote';
+        else if (c.type == 'local')
+          currentState = 'local';
+        
         toolTip = tt;
-        bottomLabel.setStyle('color', color);
         this.buttonMode = data && data.type == 'remote';
       }
       
@@ -60,10 +68,15 @@
     ]]>
   </fx:Script>
   
+  <s:states>
+    <s:State name="local"/>
+    <s:State name="remote"/>
+  </s:states>
+  
   <s:SkinnableContainer width="70">
-    <mx:Image top="5" width="70" height="60" source="img/items/user.png"/>
-    <s:Label id="bottomLabel" top="72" width="70" paddingBottom="5" text="{data.name}"
-             textAlign="center"/>
+    <mx:Image top="5" width="70" height="60" source.local="img/items/collector.png" source.remote="img/items/anonymizer.png"/>
+    <mx:Image top="5" width="70" height="60" source="img/items/linked.png" visible="{linked}"/>
+    <s:Label id="bottomLabel" top="72" width="70" paddingBottom="5" text="{data.name}" textAlign="center"/>
   </s:SkinnableContainer>
   
 </s:ItemRenderer>

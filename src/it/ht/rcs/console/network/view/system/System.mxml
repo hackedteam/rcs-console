@@ -34,6 +34,7 @@
       
       private function onAddedToStage(event:Event):void
       {
+        ShardManager.instance.start();
         ShardManager.instance.addEventListener('dataLoaded', onRefresh);
         var sort:Sort = new Sort();
         sort.fields = [new SortField('_id', true, false, false)];
@@ -43,6 +44,7 @@
       
       private function onRemovedFromStage(event:Event):void
       {
+        ShardManager.instance.stop();
         ShardManager.instance.removeEventListener('dataLoaded', onRefresh);
         FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       }

@@ -23,7 +23,7 @@ package it.ht.rcs.console.network.view.collectors
 		private static const COLLECTORS_DISTANCE:int  = 60;
 		private static const VERTICAL_DISTANCE:int    = 55;
 		private static const IP_VERTICAL_DISTANCE:int = 65;
-		private static const BOTTOM_DISTANCE:int      = 0;
+		private static const BOTTOM_DISTANCE:int      = 15;
 
 		public function NetworkGraph()
 		{

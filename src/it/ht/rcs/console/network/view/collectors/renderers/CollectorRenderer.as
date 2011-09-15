@@ -200,7 +200,7 @@ package it.ht.rcs.console.network.view.collectors.renderers
         _nextHop.collector.prev = [_prevHop.collector._id];
       }
       _prevHop._nextHop = _nextHop;
-      this.collector.prev = this.collector.next = null;
+      this.collector.prev[0] = this.collector.next[0] = null;
     }
 		
 	}

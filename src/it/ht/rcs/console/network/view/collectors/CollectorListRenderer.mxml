@@ -31,27 +31,26 @@
         
         var tt:String = '';
         var c:Collector = value as Collector;
-        if (c.type == 'remote' && 
-           (c.prev == null || c.prev.length == 0) && 
-           (c.next == null || c.next.length == 0)) {
+        if (c.type == 'remote' && c.prev[0] == null && c.next[0] == null) {
           tt = R.get('NODE_NOT_ATTACHED');
           linked = false;
         } else {
           linked = true;
         }
 
-        if (c.type == 'remote')
-          currentState = 'remote';
-        else if (c.type == 'local')
-          currentState = 'local';
+//        if (c.type == 'remote')
+//          currentState = 'remote';
+//        else if (c.type == 'local')
+//          currentState = 'local';
+        currentState = c.type;
         
         toolTip = tt;
-        this.buttonMode = data && data.type == 'remote';
+        this.buttonMode = data.type == 'remote';
       }
       
       private function mouseDown(event:MouseEvent):void
       {
-        if (data.type == 'remote' && data.prev == null && data.next == null)
+        if (data.type == 'remote' && data.prev[0] == null && data.next[0] == null)
         {
           var dragInitiator:CollectorListRenderer = event.currentTarget as CollectorListRenderer;
           var dragSource:DragSource = new DragSource();

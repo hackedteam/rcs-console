@@ -142,13 +142,24 @@
                         R.get('CONFIRM'),
                         AlertPopUp.YES | AlertPopUp.NO,
                         null,
-                        function(e:CloseEvent):void {
-                          if (e.detail == AlertPopUp.YES) {
-                            CollectorManager.instance.removeItem(collectors.selectedItem);
-                            buildGraph();
-                          }
-                        },
+                        doDeleteCollector,
                         null, AlertPopUp.NO);
+      }
+      
+      private function doDeleteCollector(e:CloseEvent):void {
+        if (e.detail == AlertPopUp.YES) {
+//          var coll:Collector = collectors.selectedItem as Collector;
+//          if (coll.prev != null && coll.prev.length > 0)
+//            getCollectorById(coll.prev[0]).next = [];
+//          while (coll.next
+          CollectorManager.instance.removeItem(collectors.selectedItem);
+          buildGraph();
+        }
+      }
+      
+      private function getCollectorById(id:String):Collector
+      {
+        return null;
       }
       
       private function enter(event:KeyboardEvent):void

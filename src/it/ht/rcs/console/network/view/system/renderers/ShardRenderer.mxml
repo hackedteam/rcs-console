@@ -9,22 +9,35 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.system.controller.ShardManager;
       import it.ht.rcs.console.system.model.Shard;
+      import it.ht.rcs.console.system.model.ShardStat;
+      import it.ht.rcs.console.utils.Size;
       
       import spark.components.Group;
       import spark.components.Label;
       import spark.layouts.HorizontalLayout;
         
-      private static const WIDTH:Number  = 250;
-      private static const HEIGHT:Number = 200;
+      private static const WIDTH:Number  = 200;
+      private static const HEIGHT:Number = 150;
       
       private static const NORMAL_COLOR:Number   = 0xbbbbbb;
       private static const SELECTED_COLOR:Number = 0x8888bb;
       
       [Bindable]
-      public var shard:Shard;
+      private var _shard:Shard;
+      [Bindable]
+      private var _shard_stat:ShardStat;
       
       private var textLabel:Label;
+      
+      public function set shard(value:Shard):void
+      {
+        _shard = value;
+        ShardManager.instance.getStats(_shard._id, function (e:ShardStat):void {
+          _shard_stat = e;
+        });
+      }
       
       public function init():void
       {
@@ -49,14 +62,22 @@
       }
     ]]>
   </fx:Script>
-  
-  <s:Label width="{WIDTH - 20}" fontSize="12" maxDisplayedLines="1" text="{shard.host}"
-           textAlign="center"/>
-  
+  <s:SkinnableContainer width="100%" height="100%">
+    <s:Image left="5" top="5" source="img/items/shard.png"/>
+    <s:Label left="10" top="70" fontSize="12" fontWeight="bold" maxDisplayedLines="1" text="{_shard._id}"/>
+    <s:Label left="80" top="30" fontSize="12" text="{_shard.host}"/>   
+    <s:TextArea left="80" top="50" width="120" height="30" color="#00EE00" fontSize="12" text="OK" visible="{_shard_stat.ok == 1}" borderVisible="false" contentBackgroundAlpha="0.0" />
+    <s:TextArea left="80" top="50" width="120" height="30" color="#FF0000" fontSize="12" text="{_shard_stat.errmsg}" visible="{_shard_stat.ok != 1}" borderVisible="false" contentBackgroundAlpha="0.0"  />   
+    
+    <s:Label left="10" top="100" text="Data Size:"/>
+    <s:Label left="80" top="100" fontSize="12" text="{Size.toHumanBytes(_shard_stat.dataSize)}"/>   
+
+    <s:Label left="10" top="120" text="On Disk:"/>
+    <s:Label left="80" top="120" fontSize="12" text="{Size.toHumanBytes(_shard_stat.storageSize)}"/>   
+  </s:SkinnableContainer>
   
   <s:filters>
-    <s:DropShadowFilter angle="45" blurX="3" blurY="3" color="#333" distance="3" quality="2"
-                        strength="1"/>
+    <s:DropShadowFilter angle="45" blurX="3" blurY="3" color="#333" distance="3" quality="2" strength="1"/>
   </s:filters>
   
 </s:Group>

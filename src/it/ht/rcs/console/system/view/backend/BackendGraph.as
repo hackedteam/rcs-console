@@ -15,9 +15,9 @@ package it.ht.rcs.console.system.view.backend
     
 		private var _db:DBRenderer;
 
-		private static const SHARDS_DISTANCE:int   = 80;
-		private static const VERTICAL_DISTANCE:int = 55;
-		private static const TOP_DISTANCE:int      = 30;
+		private static const SHARDS_DISTANCE:int   = 70;
+		private static const VERTICAL_DISTANCE:int = 40;
+		private static const TOP_DISTANCE:int      = 20;
 
 		public function BackendGraph()
 		{

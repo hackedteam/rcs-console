@@ -63,6 +63,7 @@
       
       private function onAddedToStage(event:Event):void
       {
+        CollectorManager.instance.start();
         CollectorManager.instance.addEventListener('dataLoaded', onDataLoaded);
         _collector_view = CollectorManager.instance.getView();
         addEventListener(NodeEvent.CHANGED, onNodeChanged);
@@ -75,6 +76,7 @@
       
       private function onRemovedFromStage(event:Event):void
       {
+        CollectorManager.instance.stop();
         CollectorManager.instance.removeEventListener('dataLoaded', onDataLoaded);
         removeEventListener(NodeEvent.CHANGED, onNodeChanged);
         FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);

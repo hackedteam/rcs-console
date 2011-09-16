@@ -1,10 +1,10 @@
-package it.ht.rcs.console.network.view.system
+package it.ht.rcs.console.system.view.backend
 {
 	import flash.events.MouseEvent;
 	import flash.utils.Dictionary;
 	
-	import it.ht.rcs.console.network.view.system.renderers.DBRenderer;
-	import it.ht.rcs.console.network.view.system.renderers.ShardRenderer;
+	import it.ht.rcs.console.system.view.backend.renderers.DBRenderer;
+	import it.ht.rcs.console.system.view.backend.renderers.ShardRenderer;
 	
 	import mx.collections.ArrayCollection;
 	

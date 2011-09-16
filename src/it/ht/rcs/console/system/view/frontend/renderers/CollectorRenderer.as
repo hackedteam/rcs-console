@@ -1,10 +1,10 @@
-package it.ht.rcs.console.network.view.collectors.renderers
+package it.ht.rcs.console.system.view.frontend.renderers
 {
   import flash.events.MouseEvent;
   
   import it.ht.rcs.console.events.NodeEvent;
   import it.ht.rcs.console.network.model.Collector;
-  import it.ht.rcs.console.network.view.collectors.CollectorListRenderer;
+  import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
   
   import mx.binding.utils.BindingUtils;
   import mx.core.DragSource;

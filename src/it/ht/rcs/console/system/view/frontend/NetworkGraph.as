@@ -1,4 +1,4 @@
-package it.ht.rcs.console.network.view.collectors
+package it.ht.rcs.console.system.view.frontend
 {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
@@ -6,9 +6,9 @@ package it.ht.rcs.console.network.view.collectors
 	
 	import it.ht.rcs.console.events.NodeEvent;
 	import it.ht.rcs.console.network.model.Collector;
-	import it.ht.rcs.console.network.view.collectors.renderers.CollectorRenderer;
-	import it.ht.rcs.console.network.view.collectors.renderers.DBRenderer;
-	import it.ht.rcs.console.network.view.collectors.renderers.IPRenderer;
+	import it.ht.rcs.console.system.view.frontend.renderers.CollectorRenderer;
+	import it.ht.rcs.console.system.view.frontend.renderers.DBRenderer;
+	import it.ht.rcs.console.system.view.frontend.renderers.IPRenderer;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -60,7 +60,7 @@ package it.ht.rcs.console.network.view.collectors
 
       node.selectNode(true);
       trace('prev: ' + (node.prevHop == null ? 'null' : node.prevHop.collector._id) + ', next: ' + (node.nextHop == null ? 'null' : node.nextHop.collector._id));
-      (this.parentDocument as Collectors).collectors.selectedItem = node.collector;
+      (this.parentDocument as Frontend).collectors.selectedItem = node.collector;
     }
 
 		private function onNodeEvent(e:Event):void

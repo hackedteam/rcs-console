@@ -1,33 +1,17 @@
-package it.ht.rcs.console.network.view.system.renderers
+package it.ht.rcs.console.system.view.frontend.renderers
 {
-  import flash.events.Event;
-  
-  import spark.components.Group;
   import spark.components.Label;
-  import spark.filters.DropShadowFilter;
-  import spark.layouts.HorizontalLayout;
 
-  public class DBRenderer extends Group
+  public class DBRenderer extends NetworkObject
 	{
 	
     private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 40;
     
-    public var shards:Vector.<ShardRenderer>;
-    
+    public var collectors:Vector.<CollectorRenderer>;
+		
 		private var textLabel:Label;
-    
-    public function DBRenderer()
-    {
-      var hl:HorizontalLayout = new HorizontalLayout();
-      hl.horizontalAlign = 'center';
-      hl.verticalAlign = 'middle';
-      hl.paddingTop = 2;
-      layout = hl;
-      
-      filters = [new DropShadowFilter(3, 45, 0x333333, 1, 3, 3, 1, 2, false, false, false)];
-    }
-    
+
 		override protected function createChildren():void
     {
 			super.createChildren();
@@ -43,7 +27,7 @@ package it.ht.rcs.console.network.view.system.renderers
         addElement(textLabel);
       }
 		}
-    
+		
 		override protected function measure():void
     {
 			super.measure();

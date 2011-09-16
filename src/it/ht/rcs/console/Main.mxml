@@ -32,14 +32,22 @@
       {
         trace("SECTION: " + event.label.toUpperCase());
         /* dispatch the event for all */
-        FlexGlobals.topLevelApplication.dispatchEvent(new SectionEvent(event.label.toLowerCase()));
+        var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        sectionEvent.section = event.label.toLowerCase();
+        FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+      }
+      
+      private function changeSection(event:SectionEvent):void
+      {
         /* change the state to the current section */
-        currentState = event.label;
+        currentState = event.section;
       }
     
       private function added():void 
       {
-        trace("Entering main section...")  
+        trace("Entering main section...") ;
+        
+        FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, changeSection);
         
         /* different view based on privileges */
         main_sections = new Array();
@@ -54,9 +62,9 @@
   
         /* default state is Console */
         if (console.currentSession.user.is_any())
-          currentState = "Operations";
+          currentState = "operations";
         else
-          currentState = "Nothing";
+          currentState = "nothing";
   
         /* initialize the monitor counter */
         if (console.currentSession.user.is_any()) {
@@ -93,15 +101,15 @@
   </fx:Declarations>
 
   <s:states>
-    <s:State name="Nothing"/>
-    <s:State name="Accounting"/>
-    <s:State name="Operations"/>
-    <s:State name="Dashboard"/>
-    <s:State name="Correlation"/>
-    <s:State name="Network"/>
-    <s:State name="Alerting"/>
-    <s:State name="Audit"/>
-    <s:State name="Monitor"/>
+    <s:State name="nothing"/>
+    <s:State name="accounting"/>
+    <s:State name="operations"/>
+    <s:State name="dashboard"/>
+    <s:State name="alerting"/>
+    <s:State name="correlation"/>
+    <s:State name="network"/>
+    <s:State name="audit"/>
+    <s:State name="monitor"/>
   </s:states>
 
   <!-- title bar (the banner) -->
@@ -109,28 +117,32 @@
   
   <!-- tool bar on top -->
   <main:ButtonBar id="mainButtonBar" top="50" left="10" />
-  <mx:ToggleButtonBar id="sectionsButtonBar" top="50" right="10" height="20" horizontalGap="10" buttonWidth="80" itemClick="mainButtonClickHandler(event);" dataProvider="{main_sections}" selectedIndex="{main_sections.indexOf(currentState)}"/>
+  <mx:ToggleButtonBar id="sectionsButtonBar" top="50" right="10" height="20" horizontalGap="10" buttonWidth="80" dataProvider="{main_sections}"
+                      itemClick="mainButtonClickHandler(event);" selectedIndex="{main_sections.indexOf(currentState)}"/>
   
   <!-- all the sections -->
-  <accounting:AccountingSection includeIn="Accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <accounting:AccountingSection includeIn="accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <operations:OperationsSection includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <operations:OperationsSection includeIn="operations" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <dashboard:DashboardSection includeIn="Dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <dashboard:DashboardSection includeIn="dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <correlation:CorrelationSection includeIn="Correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <correlation:CorrelationSection includeIn="correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <network:NetworkSection includeIn="Network" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <network:NetworkSection includeIn="network" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <alerting:AlertingSection includeIn="Alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <alerting:AlertingSection includeIn="alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <audit:AuditSection includeIn="Audit" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <audit:AuditSection includeIn="audit" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <monitor:MonitorSection includeIn="monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
   
   <!-- special case if the user has no privilege -->
-  <s:Panel includeIn="Nothing" title="NOTHING TO DO" height="100%" top="75" left="0" right="0" bottom="0">
-    <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" text="{resourceManager.getString('localized_main', 'NOTHING_TO_DO_MESSAGE')}" width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="justify" borderVisible="false" contentBackgroundColor="#EAEAEA"/>
+  <s:Panel includeIn="nothing" title="NOTHING TO DO" height="100%" top="75" left="0" right="0" bottom="0">
+    <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" 
+                text="{resourceManager.getString('localized_main', 'NOTHING_TO_DO_MESSAGE')}" 
+                width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="justify" 
+                borderVisible="false" contentBackgroundColor="#EAEAEA"/>
   </s:Panel>
     
 </s:Group>

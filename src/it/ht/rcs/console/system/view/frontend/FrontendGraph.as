@@ -15,7 +15,7 @@ package it.ht.rcs.console.system.view.frontend
 	import spark.components.Group;
 
 	[Event(name="nodeChanged", type="it.ht.rcs.console.events.NodeEvent")]
-	public class NetworkGraph extends Group
+	public class FrontendGraph extends Group
 	{
 
 		private var _db:DBRenderer;
@@ -25,7 +25,7 @@ package it.ht.rcs.console.system.view.frontend
 		private static const IP_VERTICAL_DISTANCE:int = 65;
 		private static const BOTTOM_DISTANCE:int      = 15;
 
-		public function NetworkGraph()
+		public function FrontendGraph()
 		{
 			super();
 			layout = null;

@@ -10,7 +10,7 @@
          xmlns:correlation="it.ht.rcs.console.correlation.*"
          xmlns:dashboard="it.ht.rcs.console.dashboard.view.*"
          xmlns:monitor="it.ht.rcs.console.monitor.view.*"
-         xmlns:view="it.ht.rcs.console.system.view.*" 
+         xmlns:system="it.ht.rcs.console.system.view.*" 
          width="100%" height="100%" 
          addedToStage="added()"
          removedFromStage="removed()">
@@ -33,7 +33,7 @@
         trace("SECTION: " + event.label.toUpperCase());
         /* dispatch the event for all */
         var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
-        sectionEvent.section = event.label.toLowerCase();
+        sectionEvent.section = event.label;
         FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
       }
       
@@ -62,9 +62,9 @@
   
         /* default state is Console */
         if (console.currentSession.user.is_any())
-          currentState = "operations";
+          currentState = "Operations";
         else
-          currentState = "nothing";
+          currentState = "Nothing";
   
         /* initialize the monitor counter */
         if (console.currentSession.user.is_any()) {
@@ -101,15 +101,15 @@
   </fx:Declarations>
 
   <s:states>
-    <s:State name="nothing"/>
-    <s:State name="accounting"/>
-    <s:State name="operations"/>
-    <s:State name="dashboard"/>
-    <s:State name="alerting"/>
-    <s:State name="correlation"/>
-    <s:State name="system"/>
-    <s:State name="audit"/>
-    <s:State name="monitor"/>
+    <s:State name="Nothing"/>
+    <s:State name="Accounting"/>
+    <s:State name="Operations"/>
+    <s:State name="Dashboard"/>
+    <s:State name="Alerting"/>
+    <s:State name="Correlation"/>
+    <s:State name="System"/>
+    <s:State name="Audit"/>
+    <s:State name="Monitor"/>
   </s:states>
 
   <!-- title bar (the banner) -->
@@ -121,24 +121,24 @@
                       itemClick="mainButtonClickHandler(event);" selectedIndex="{main_sections.indexOf(currentState)}"/>
   
   <!-- all the sections -->
-  <accounting:AccountingSection includeIn="accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <accounting:AccountingSection includeIn="Accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <operations:OperationsSection includeIn="operations" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <operations:OperationsSection includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <dashboard:DashboardSection includeIn="dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <dashboard:DashboardSection includeIn="Dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <correlation:CorrelationSection includeIn="correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <correlation:CorrelationSection includeIn="Correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <view:SystemSection includeIn="System" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <system:SystemSection includeIn="System" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <alerting:AlertingSection includeIn="alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <alerting:AlertingSection includeIn="Alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <audit:AuditSection includeIn="audit" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <audit:AuditSection includeIn="Audit" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <monitor:MonitorSection includeIn="monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
   
   <!-- special case if the user has no privilege -->
-  <s:Panel includeIn="nothing" title="NOTHING TO DO" height="100%" top="75" left="0" right="0" bottom="0">
+  <s:Panel includeIn="Nothing" title="NOTHING TO DO" height="100%" top="75" left="0" right="0" bottom="0">
     <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" 
                 text="{resourceManager.getString('localized_main', 'NOTHING_TO_DO_MESSAGE')}" 
                 width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="justify" 

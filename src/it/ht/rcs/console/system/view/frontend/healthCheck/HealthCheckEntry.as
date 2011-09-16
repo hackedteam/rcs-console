@@ -1,4 +1,4 @@
-package it.ht.rcs.console.network.view.collectors.healthCheck
+package it.ht.rcs.console.system.view.frontend.healthCheck
 {
   public class HealthCheckEntry
   {

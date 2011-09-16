@@ -1,4 +1,4 @@
-package it.ht.rcs.console.network.view.collectors.renderers
+package it.ht.rcs.console.system.view.frontend.renderers
 {
   import flash.display.BitmapData;
   

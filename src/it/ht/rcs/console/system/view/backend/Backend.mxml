@@ -19,6 +19,7 @@
       import mx.collections.SortField;
       import mx.core.FlexGlobals;
       
+      import locale.R;
       
       [Bindable]
       private var _shard_view:ListCollectionView;
@@ -69,7 +70,27 @@
     <backend:SystemGraph id="systemGraph" rootNode="{rootNode}"/>
   </s:Scroller>
   
-  <s:DataGrid width="100%" height="300">
+  <mx:TabNavigator width="100%" height="250" backgroundColor="0xeaeaea">
+    <s:NavigatorContent label="{R.get('BACKUP_JOBS')}">
+      <s:VGroup width="100%" height="100%">
+        <s:HGroup>
+          <s:Spacer width="3" />
+          <s:Button width="30" height="20" label="New" 
+                    skinClass="it.ht.rcs.console.skins.NewButton"
+                    toolTip="{R.get('RULE_ADD')}"/>
+          <s:Button width="30" height="20" label="Edit" 
+                    enabled="{backupjobs.selectedItem != null}"
+                    skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
+          <s:Button width="30" height="20" label="Delete" enabled="{backupjobs.selectedItem != null}"
+                    skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
+        </s:HGroup>
+        <backend:BackupJobs id="backupjobs"/>
+      </s:VGroup>
+    </s:NavigatorContent>
     
-  </s:DataGrid>
+    <s:NavigatorContent label="{R.get('BACKUP_ARCHIVE')}">
+      <backend:BackupArchive/>
+    </s:NavigatorContent>
+  </mx:TabNavigator>
+  
 </s:VGroup>

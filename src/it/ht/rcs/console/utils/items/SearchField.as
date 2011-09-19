@@ -7,6 +7,7 @@ package it.ht.rcs.console.utils.items
   import flash.geom.Point;
   import flash.ui.Keyboard;
   
+  import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.skins.TextInputSearchSkin;
   
@@ -29,7 +30,7 @@ package it.ht.rcs.console.utils.items
     private var _selectedItem:Object;
     private var _types:Array;
     
-    private var numberOfCategories:int = 0;
+    //private var numberOfCategories:int = 0;
     
     private var categories:ArrayList = new ArrayList([
       {name: 'Operations', separator: true, _kind: 'operation'},
@@ -56,6 +57,7 @@ package it.ht.rcs.console.utils.items
     
     private function init(event:FlexEvent):void
     {
+      dataProvider = SearchManager.instance.getView();
       dropDown.dataProvider = _dataProvider;
     }
     
@@ -67,19 +69,19 @@ package it.ht.rcs.console.utils.items
     public function set dataProvider(source:ListCollectionView):void
     { 
       _dataProvider = source;
-      _dataProvider.addAllAt(categories, 0);
+      //_dataProvider.addAllAt(categories, 0);
       _dataProvider.filterFunction = filter;
       
       var sort:Sort = new Sort();
       sort.fields = [new SortField('_kind', false, false),
-                     new SortField('separator', true, false),
+                     //new SortField('separator', true, false),
                      new SortField('name', false, false)];
       _dataProvider.sort = sort;
       
-      for each (var o:Object in _dataProvider)
-        if (o.separator)
-          numberOfCategories++;
-      numberOfCategories = (_types == null || _types.length == 0) ? numberOfCategories : _types.length;
+//      for each (var o:Object in _dataProvider)
+//        if (o.separator)
+//          numberOfCategories++;
+//      numberOfCategories = (_types == null || _types.length == 0) ? numberOfCategories : _types.length;
       
       _dataProvider.refresh();
     }

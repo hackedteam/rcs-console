@@ -10,7 +10,7 @@ package it.ht.rcs.console.system.view.backend
 	
 	import spark.components.Group;
 
-	public class SystemGraph extends Group
+	public class BackendGraph extends Group
 	{
     
 		private var _db:DBRenderer;
@@ -19,7 +19,7 @@ package it.ht.rcs.console.system.view.backend
 		private static const VERTICAL_DISTANCE:int = 40;
 		private static const TOP_DISTANCE:int      = 20;
 
-		public function SystemGraph()
+		public function BackendGraph()
 		{
 			super();
 			layout = null;

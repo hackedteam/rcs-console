@@ -8,11 +8,12 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.system.view.backend.renderers.DBRenderer;
-      import it.ht.rcs.console.system.view.backend.renderers.ShardRenderer;
       import it.ht.rcs.console.shard.controller.ShardManager;
       import it.ht.rcs.console.shard.model.Shard;
+      import it.ht.rcs.console.system.view.backend.renderers.DBRenderer;
+      import it.ht.rcs.console.system.view.backend.renderers.ShardRenderer;
       
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
@@ -29,23 +30,24 @@
       
       private function onAddedToStage(event:Event):void
       {
+        ShardManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         ShardManager.instance.start();
-        ShardManager.instance.addEventListener('dataLoaded', onRefresh);
-        var sort:Sort = new Sort();
-        sort.fields = [new SortField('_id', true, false, false)];
-        _shard_view = ShardManager.instance.getView(sort);
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       }
       
       private function onRemovedFromStage(event:Event):void
       {
+        ShardManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         ShardManager.instance.stop();
-        ShardManager.instance.removeEventListener('dataLoaded', onRefresh);
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        _shard_view = null;
       }
       
-      private function onRefresh(event:Event):void
+      private function onDataLoaded(event:DataLoadedEvent):void
       {
+        if (_shard_view == null) {
+          var sort:Sort = new Sort();
+          sort.fields = [new SortField('_id', true, false, false)];
+          _shard_view = ShardManager.instance.getView(sort);
+        }
         buildGraph();
       }
       
@@ -67,7 +69,7 @@
   </fx:Script>
   
   <s:Scroller id="stageScroller" width="100%" height="100%">
-    <backend:SystemGraph id="systemGraph" rootNode="{rootNode}"/>
+    <backend:BackendGraph id="backendGraph" rootNode="{rootNode}"/>
   </s:Scroller>
   
   <mx:TabNavigator width="100%" height="250" backgroundColor="0xeaeaea">
@@ -92,5 +94,5 @@
       <backend:BackupArchive/>
     </s:NavigatorContent>
   </mx:TabNavigator>
-  
+
 </s:VGroup>

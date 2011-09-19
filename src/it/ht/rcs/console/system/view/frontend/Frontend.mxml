@@ -10,8 +10,8 @@
   <s:BorderContainer width="100%" height="120" dropShadowVisible="true">
     
     <frontend:CollectorList id="collectors" left="5" right="5" top="5" bottom="5" width="100%"
-                              borderVisible="false" change="onCollectorsListSelection(event)"
-                              dataProvider="{_collector_view}" keyDown="enter(event)"/>
+                            borderVisible="false" change="onCollectorsListSelection(event)"
+                            dataProvider="{_collector_view}" keyDown="enter(event)"/>
     
     <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteCollector()"
               enabled="{collectors.selectedItem != null}" styleName="AddRemove"
@@ -22,27 +22,27 @@
   </s:BorderContainer>
   
   <s:HGroup>
-    <s:Button width="30" height="20" skinClass="it.ht.rcs.console.skins.HeartbeatButton"
-              toolTip="{R.get('HEALTH_CHECK')}" click="onHealthCheck()"/>
-    <s:Button width="30" height="20" skinClass="it.ht.rcs.console.skins.ApplyButton"
-              toolTip="{R.get('APPLY_TOPOLOGY')}" click="applyTopology()"/>
+    <s:Button width="30" height="20" click="onHealthCheck()"
+              skinClass="it.ht.rcs.console.skins.HeartbeatButton" toolTip="{R.get('HEALTH_CHECK')}"/>
+    <s:Button width="30" height="20" click="applyTopology()"
+              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_TOPOLOGY')}"/>
   </s:HGroup>
   
   <s:Scroller id="stageScroller" width="100%" height="100%">
-    <frontend:NetworkGraph id="networkGraph" rootNode="{rootNode}"/>
+    <frontend:FrontendGraph id="networkGraph" rootNode="{rootNode}"/>
   </s:Scroller>
   
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.NodeEvent;
-      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
       import it.ht.rcs.console.system.view.frontend.renderers.CollectorRenderer;
       import it.ht.rcs.console.system.view.frontend.renderers.DBRenderer;
-      import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -63,27 +63,22 @@
       
       private function onAddedToStage(event:Event):void
       {
+        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         CollectorManager.instance.start();
-        CollectorManager.instance.addEventListener('dataLoaded', onDataLoaded);
-        _collector_view = CollectorManager.instance.getView();
         addEventListener(NodeEvent.CHANGED, onNodeChanged);
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-      }
-      
-      private function onDataLoaded(event:Event):void {
-        buildGraph();
       }
       
       private function onRemovedFromStage(event:Event):void
       {
+        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         CollectorManager.instance.stop();
-        CollectorManager.instance.removeEventListener('dataLoaded', onDataLoaded);
         removeEventListener(NodeEvent.CHANGED, onNodeChanged);
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        _collector_view = null;
       }
       
-      private function onRefresh(event:RefreshEvent):void
-      {
+      private function onDataLoaded(event:DataLoadedEvent):void {
+        if (_collector_view == null)
+          _collector_view = CollectorManager.instance.getView();
         buildGraph();
       }
       

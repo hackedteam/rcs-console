@@ -21,6 +21,7 @@
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
       
       import mx.core.FlexGlobals;
       import mx.events.ItemClickEvent;
@@ -41,6 +42,7 @@
       {
         /* change the state to the current section */
         currentState = event.section;
+        
       }
     
       private function added():void 
@@ -69,6 +71,7 @@
         /* initialize the monitor counter */
         if (console.currentSession.user.is_any()) {
           MonitorManager.instance.start_counters();
+          SearchManager.instance.start();
         }
 
         /* initialize the alert counter */
@@ -93,6 +96,7 @@
         /* remove the monitor and alert counter */
         MonitorManager.instance.stop_counters();
         AlertController.instance.stop_counters();
+        SearchManager.instance.stop();
       }
     ]]>
   </fx:Script>

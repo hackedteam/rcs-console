@@ -5,6 +5,7 @@ package it.ht.rcs.console.utils
   import flash.ui.Keyboard;
   
   import it.ht.rcs.console.events.SaveEvent;
+  import it.ht.rcs.console.skins.TitleWindowSaveCloseSkin;
   
   import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
@@ -25,15 +26,17 @@ package it.ht.rcs.console.utils
     public function TitleWindowSaveClose()
     {
       super();
+      setStyle('skinClass', TitleWindowSaveCloseSkin);
       addEventListener(FlexEvent.CREATION_COMPLETE, onShow);
     }
     
     private function onShow(event:FlexEvent):void
     {
-      addEventListener(KeyboardEvent.KEY_DOWN, esc);
+      addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+      setFocus();
     }
     
-    private function esc(event:KeyboardEvent):void
+    private function onKeyDown(event:KeyboardEvent):void
     {
       if (event.keyCode == Keyboard.ESCAPE)
         close(null);

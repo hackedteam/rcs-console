@@ -1,11 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
+         addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)"
          title="OPERATIONS">
 
-  <fx:Declarations>
-    <!-- Place non-visual elements (e.g., services, value objects) here -->
-  </fx:Declarations>
+  <s:layout>
+    <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </s:layout>
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.DataLoadedEvent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.operation.model.Operation;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _operation_view:ListCollectionView;
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        OperationManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        OperationManager.instance.start();
+      }
+      
+      private function onRemovedFromStage(event:Event):void
+      {
+        OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        OperationManager.instance.stop();
+      }
+      
+      private function onDataLoaded(event:DataLoadedEvent):void
+      {
+        if (_operation_view == null)
+          _operation_view = OperationManager.instance.getView(null, searchFilterFunction);
+      }
+      
+      private function searchFilterFunction(item:Object):Boolean
+      {
+        if (!searchField || searchField.text == '')
+          return true;
+        var result:Boolean = String(item.name.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
+        return result;
+      }
+      
+      private function newClick():void
+      {
+        OperationManager.instance.addOperation(function(operation:Operation):void {
+          var popup:OperationForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationForm, true) as OperationForm;
+          popup.mode = 'new';
+          popup.operation = operation;
+          PopUpManager.centerPopUp(popup);
+        });
+      }
+      
+      private function editClick():void
+      {
+        var popup:OperationForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationForm, true) as OperationForm;
+        popup.mode = 'edit';
+        popup.operation = opList.selectedItem as Operation;
+        PopUpManager.centerPopUp(popup);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:HGroup width="100%" height="30" gap="2" verticalAlign="middle">
+    <mx:LinkButton label="Operation" color="#333333"/>
+    <s:Label paddingTop="4" text="&gt;"/>
+    <mx:LinkButton label="Target" color="#333333"/>
+    <s:Label paddingTop="4" text="&gt;"/>
+    <mx:LinkButton label="Backdoor" color="#333333"/>
+  </s:HGroup>
+
+  <s:HGroup width="100%" gap="10">
+    <s:Button width="30" height="20" click="{views.selectedIndex = 0}"
+              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('HEALTH_CHECK')}"/>
+    <s:Button width="30" height="20" click="{views.selectedIndex = 1}"
+              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_TOPOLOGY')}"/>
+    <s:Spacer width="30"/>
+    <s:Button width="30" height="20" click="newClick()" skinClass="it.ht.rcs.console.skins.NewButton"
+              toolTip="{R.get('NEW')}"/>
+    <s:Button width="30" height="20" click="editClick()" enabled="{opList.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
+    <s:Button width="30" height="20" skinClass="it.ht.rcs.console.skins.DeleteButton"
+              toolTip="{R.get('DELETE')}"/>
+    <s:Spacer width="100%"/>
+    <s:TextInput id="searchField" width="200" keyUp="if (_operation_view) _operation_view.refresh()"
+                 skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
+  </s:HGroup>
+  
+  <mx:ViewStack id="views" width="100%" height="100%">
+    
+    <s:NavigatorContent icon="@Embed('img/buttons/apply.png')">
+      <s:List id="opList" width="100%" height="100%" dataProvider="{_operation_view}"
+              itemRenderer="it.ht.rcs.console.operations.OperationListRenderer" labelField="name">
+        <s:layout>
+          <s:TileLayout horizontalGap="10" paddingBottom="5" paddingLeft="5" paddingRight="5"
+                        paddingTop="5" verticalGap="10"/>
+        </s:layout>
+      </s:List>
+    </s:NavigatorContent>
+    
+    <s:NavigatorContent icon="@Embed('img/buttons/apply.png')">
+      <s:DataGrid width="100%" height="100%" dataProvider="{_operation_view}">
+      <s:columns>
+        <s:ArrayList>
+          <s:GridColumn dataField="name" headerText="Name"/>
+          <s:GridColumn dataField="desc" headerText="Description"/>
+          <s:GridColumn dataField="status" headerText="Status"/>
+          <s:GridColumn dataField="updated_at" headerText="Last Sync"/>
+          <s:GridColumn dataField="name" headerText="Path"/>
+          <s:GridColumn dataField="stat" headerText="Size"/>
+        </s:ArrayList>
+      </s:columns>
+      </s:DataGrid>
+    </s:NavigatorContent>
+    
+  </mx:ViewStack>
 
 </s:Panel>

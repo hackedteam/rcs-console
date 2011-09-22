@@ -35,7 +35,7 @@ package it.ht.rcs.console.utils.items
     private var categories:ArrayList = new ArrayList([
       {name: 'Operations', separator: true, _kind: 'operation'},
       {name: 'Targets', separator: true, _kind: 'target'},
-      {name: 'Backdoors', separator: true, _kind: 'backdoor'}
+      {name: 'Agents', separator: true, _kind: 'agent'}
     ]);
     
     public function SearchField()

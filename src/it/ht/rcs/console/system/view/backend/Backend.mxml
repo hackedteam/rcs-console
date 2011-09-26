@@ -8,7 +8,8 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.backup.controller.BackupManager;
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.shard.controller.ShardManager;
@@ -26,16 +27,20 @@
       [Bindable]
       private var _shard_view:ListCollectionView;
       [Bindable]
-      private var _backup_view:ListCollectionView;
-      
+      private var _backup_job_view:ListCollectionView;
+      [Bindable]
+      private var _backup_archive_view:ListCollectionView;
+            
       [Bindable]
       private var rootNode:DBRenderer;
       
       private function onAddedToStage(event:Event):void
       {
-        BackupManager.instance.start();
-        _backup_view = BackupManager.instance.getView(); 
-          
+        BackupJobManager.instance.start();
+        BackupArchiveManager.instance.start();
+        _backup_job_view = BackupJobManager.instance.getView(); 
+        _backup_archive_view = BackupArchiveManager.instance.getView(); 
+        
         ShardManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         ShardManager.instance.start();
       }
@@ -45,8 +50,10 @@
         ShardManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         ShardManager.instance.stop();
         _shard_view = null;
-        BackupManager.instance.stop();
-        _backup_view = null;
+        BackupJobManager.instance.stop();
+        _backup_job_view = null;
+        BackupArchiveManager.instance.stop();
+        _backup_archive_view = null;
       }
       
       private function onDataLoaded(event:DataLoadedEvent):void
@@ -94,12 +101,12 @@
           <s:Button width="30" height="20" label="Delete" enabled="{backupjobs.selectedItem != null}"
                     skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
         </s:HGroup>
-        <backend:BackupJobs id="backupjobs" dataProvider="{_backup_view}"/>
+        <backend:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}"/>
       </s:VGroup>
     </s:NavigatorContent>
     
     <s:NavigatorContent label="{R.get('BACKUP_ARCHIVE')}">
-      <backend:BackupArchive/>
+      <backend:BackupArchive dataProvider="{_backup_archive_view}"/>
     </s:NavigatorContent>
   </mx:TabNavigator>
 

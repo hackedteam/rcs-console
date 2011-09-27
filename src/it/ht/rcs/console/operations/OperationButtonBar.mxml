@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          gap="10">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.operation.model.Operation;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      // Parent section
+      [Bindable]
+      public var section:OperationsSection;
+      
+      private function newClick():void
+      {
+        OperationManager.instance.addOperation(function(operation:Operation):void {
+          var popup:OperationForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationForm, true) as OperationForm;
+          popup.mode = 'new';
+          popup.operation = operation;
+          PopUpManager.centerPopUp(popup);
+        });
+      }
+      
+      private function editClick():void
+      {
+        var popup:OperationForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationForm, true) as OperationForm;
+        popup.mode = 'edit';
+        popup.operation = section.itemList.selectedItem as Operation;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function deleteClick():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_OPERATION_DELETION') + ' ' + section.itemList.selectedItem.name + '?',
+          R.get('CONFIRM'),
+          AlertPopUp.YES | AlertPopUp.NO,
+          null,
+          doDelete,
+          null, AlertPopUp.NO);
+      }
+      
+      private function doDelete(e:CloseEvent):void
+      {
+        if (e.detail == AlertPopUp.YES)
+          OperationManager.instance.removeItem(section.itemList.selectedItem);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Button width="30" height="20" click="{section.views.selectedIndex = 0}"
+            skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('LIST_VIEW')}"/>
+  <s:Button width="30" height="20" click="{section.views.selectedIndex = 1}"
+            skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('GRID_VIEW')}"/>
+  
+  <s:Spacer width="30"/>
+  
+  <s:Button width="30" height="20" click="newClick()" skinClass="it.ht.rcs.console.skins.NewButton"
+            toolTip="{R.get('NEW')}"/>
+  <s:Button width="30" height="20" click="editClick()"
+            enabled="{section.itemList.selectedItem != null}"
+            skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
+  <s:Button width="30" height="20" click="deleteClick()"
+            enabled="{section.itemList.selectedItem != null}"
+            skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
+
+  <s:Spacer width="100%"/>
+  
+  <s:TextInput id="searchField" width="200"
+               keyUp="if (section._item_view) section._item_view.refresh()"
+               skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
+
+</s:HGroup>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                    xmlns:s="library://ns.adobe.com/flex/spark" 
+                    xmlns:mx="library://ns.adobe.com/flex/mx" clipAndEnableScrolling="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.search.controller.SearchManager;
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        if (data) {
+          var text:String = data[column.dataField];
+          
+          if (data[column.dataField].split(':').length == 2) {
+            text = data[column.dataField].split(':')[0] + ' \'' + SearchManager.instance.getItem(data[column.dataField].split(':')[1]).name + '\'';
+          }
+                
+          lblData.text = text;
+        }
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label id="lblData" top="9" left="7"/>
+  
+</s:GridItemRenderer>

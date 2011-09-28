@@ -6,26 +6,33 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.operation.model.Operation;
       [Bindable]
-      public var item:Object;
+      public var section:OperationsSection;
       
-      [Bindable]
-      public var op:Operation;
+      protected function onTargetClick():void
+      {
+        section.currentState = 'singleTarget';
+      }
+      
+      protected function onOperationClick():void
+      {
+        section.switchState('allOperations');
+      }
+      
     ]]>
   </fx:Script>
   
-  <mx:LinkButton visible="{item != null}" label="Operations" color="#333333"/>
+  <mx:LinkButton visible="{section.currentState != 'allOperations'}" label="All Operations" color="#333333" click="onOperationClick()"/>
   
-  <s:Label visible="{item &amp;&amp; item.path.length &gt;= 0}" paddingTop="4" text="&gt;"/>
-  <mx:LinkButton visible="{item &amp;&amp; item.path.length &gt;= 0}" label="{op.name}"
+  <s:Label visible="{section.selectedOperation != null}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.selectedOperation != null}" label="{section.selectedOperation.name}"
                  color="#333333"/>
   
-  <s:Label visible="{item &amp;&amp; item.path.length &gt;= 1}" paddingTop="4" text="&gt;"/>
-  <mx:LinkButton visible="{item &amp;&amp; item.path.length &gt;= 1}" label="Target Y"
-                 color="#333333"/>
+  <s:Label visible="{section.selectedTarget != null}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.selectedTarget != null}" label="{section.selectedTarget.name}"
+                 color="#333333" click="onTargetClick()"/>
   
-  <s:Label visible="{item &amp;&amp; item.path.length &gt;= 2}" paddingTop="4" text="&gt;"/>
-  <mx:LinkButton visible="{item &amp;&amp; item.path.length &gt;= 2}" label="Agent Z" color="#333333"/>
+  <s:Label visible="{section.selectedAgent != null}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.selectedAgent != null}" label="{section.selectedAgent.name}" color="#333333"/>
   
 </s:HGroup>

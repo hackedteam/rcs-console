@@ -8,11 +8,8 @@ package it.ht.rcs.console.utils.items
   import flash.ui.Keyboard;
   
   import it.ht.rcs.console.search.controller.SearchManager;
-  import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.skins.TextInputSearchSkin;
   
-  import mx.collections.ArrayCollection;
-  import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
@@ -23,20 +20,15 @@ package it.ht.rcs.console.utils.items
 
   [Event(name="itemSelected", type="it.ht.rcs.console.utils.items.ItemEvent")]
   public class SearchField extends TextInput
-  {   
+  {
+    
     private var dropDown:DropDown;
     
     private var _dataProvider:ListCollectionView;
     private var _selectedItem:Object;
-    private var _types:Array;
+    private var _kinds:Array;
     
-    //private var numberOfCategories:int = 0;
-    
-    private var categories:ArrayList = new ArrayList([
-      {name: 'Operations', separator: true, _kind: 'operation'},
-      {name: 'Targets', separator: true, _kind: 'target'},
-      {name: 'Agents', separator: true, _kind: 'agent'}
-    ]);
+    private static const kindOrder:Array = ['operation', 'target', 'agent'];
     
     public function SearchField()
     {
@@ -69,26 +61,28 @@ package it.ht.rcs.console.utils.items
     public function set dataProvider(source:ListCollectionView):void
     { 
       _dataProvider = source;
-      //_dataProvider.addAllAt(categories, 0);
       _dataProvider.filterFunction = filter;
       
       var sort:Sort = new Sort();
-      sort.fields = [new SortField('_kind', false, false),
-                     //new SortField('separator', true, false),
+      var kindSortField:SortField = new SortField('_kind', false, false);
+      kindSortField.compareFunction = kindCompareFunction;
+      sort.fields = [kindSortField,
                      new SortField('name', false, false)];
       _dataProvider.sort = sort;
-      
-//      for each (var o:Object in _dataProvider)
-//        if (o.separator)
-//          numberOfCategories++;
-//      numberOfCategories = (_types == null || _types.length == 0) ? numberOfCategories : _types.length;
       
       _dataProvider.refresh();
     }
     
+    private function kindCompareFunction(a:Object, b:Object):int
+    {
+      if (a._kind == b._kind) return 0;
+      var distance:int = kindOrder.indexOf(a._kind) - kindOrder.indexOf(b._kind);
+      return distance / Math.abs(distance);
+    }
+    
     public function set kinds(t:Array):void
     {
-      _types = t;
+      _kinds = t;
       _dataProvider.refresh();
     }
     
@@ -98,16 +92,17 @@ package it.ht.rcs.console.utils.items
       if (item.separator) return true;
       if (this.text == '') return true;
       
-      var result:Boolean = String(item.name.toLowerCase()).indexOf(this.text.toLowerCase()) >= 0 || String(item.desc.toLowerCase()).indexOf(this.text.toLowerCase()) >= 0;
+      var result:Boolean = String(item.name.toLowerCase()).indexOf(text.toLowerCase()) >= 0 || 
+                           String(item.desc.toLowerCase()).indexOf(text.toLowerCase()) >= 0;
       return result;
     }
     
     private function isVisibleType(type:String):Boolean
     {
-      if (_types == null || _types.length == 0)
+      if (_kinds == null || _kinds.length == 0)
         return true;
       
-      for each (var t:String in _types)
+      for each (var t:String in _kinds)
         if (type == t)
           return true;
       
@@ -120,7 +115,6 @@ package it.ht.rcs.console.utils.items
       dropDown.y = point.y - y + height + 5;
        if (dropDown.x + dropDown.width > owner.width)
          dropDown.x = point.x - x - (dropDown.width - width);
-      //dropDown.selectedItem = _selectedItem;
       dropDown.visible = true;
     }
     
@@ -164,6 +158,15 @@ package it.ht.rcs.console.utils.items
       } else {
         _selectedItem = undefined;
         text = '';
+      }
+    }
+    
+    public function set selectedItemId(id:String):void
+    {
+      for each (var item:Object in _dataProvider) {
+        if (item._id == id)
+          selectedItem = item;
+        break;
       }
     }
     

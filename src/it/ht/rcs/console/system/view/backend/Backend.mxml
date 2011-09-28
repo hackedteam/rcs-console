@@ -10,6 +10,7 @@
     <![CDATA[
       import it.ht.rcs.console.backup.controller.BackupArchiveManager;
       import it.ht.rcs.console.backup.controller.BackupJobManager;
+      import it.ht.rcs.console.backup.model.BackupJob;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.shard.controller.ShardManager;
@@ -23,6 +24,7 @@
       import mx.collections.Sort;
       import mx.collections.SortField;
       import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
       
       [Bindable]
       private var _shard_view:ListCollectionView;
@@ -80,6 +82,34 @@
         rootNode = db;
       }
       
+      private function addJob():void
+      {
+        BackupJobManager.instance.newJob(function onSuccess(j:BackupJob):void {
+          selectJob(j);
+          editJob(j);
+        });
+      }
+      
+      private function selectJob(j:BackupJob):void
+      {
+        backupjobs.selectedItem = j;
+      }
+      
+      private function editJob(j:BackupJob):void
+      {
+        var ej:BackupJobEdit = PopUpManager.createPopUp(root, BackupJobEdit, true) as BackupJobEdit;
+        ej.job = j;
+        PopUpManager.centerPopUp(ej);
+      }
+      
+      private function deleteJob(j:BackupJob):void
+      {
+        if (j == null)
+          return;
+        
+        BackupJobManager.instance.removeItem(j);
+      }
+      
     ]]>
   </fx:Script>
   
@@ -92,16 +122,11 @@
       <s:VGroup width="100%" height="100%">
         <s:HGroup>
           <s:Spacer width="3" />
-          <s:Button width="30" height="20" label="New" 
-                    skinClass="it.ht.rcs.console.skins.NewButton"
-                    toolTip="{R.get('RULE_ADD')}"/>
-          <s:Button width="30" height="20" label="Edit" 
-                    enabled="{backupjobs.selectedItem != null}"
-                    skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
-          <s:Button width="30" height="20" label="Delete" enabled="{backupjobs.selectedItem != null}"
-                    skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
+          <s:Button x="0" y="0" label="N" width="30" height="20" click="addJob()" toolTip="{resourceManager.getString('localized_main', 'NEW')}" skinClass="it.ht.rcs.console.skins.NewButton"/>
+          <s:Button x="40" y="0" label="E" width="30" height="20" click="editJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'EDIT')}" skinClass="it.ht.rcs.console.skins.EditButton"/>
+          <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
         </s:HGroup>
-        <backend:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}"/>
+        <backend:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}" doubleClickEnabled="true" doubleClick="editJob(backupjobs.selectedItem as BackupJob)"/>
       </s:VGroup>
     </s:NavigatorContent>
     

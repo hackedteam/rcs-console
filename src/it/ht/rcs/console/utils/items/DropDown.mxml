@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items:ExcludeSelectionList xmlns:fx="http://ns.adobe.com/mxml/2009"
-                            xmlns:s="library://ns.adobe.com/flex/spark"
-                            xmlns:mx="library://ns.adobe.com/flex/mx"
-                            xmlns:items="it.ht.rcs.console.utils.items.*"
-                            visible="false" minWidth="300" minHeight="220" maxWidth="300"
-                            maxHeight="220" click="onClick()" filters="{[dropShadow]}"
-                            hideEffect="{fadeOut}" keyDown="onKeyDown(event)"
-                            mouseDownOutside="hide()" requireSelection="false" showEffect="{fadeIn}">
+<s:List xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        visible="false" minWidth="300" maxWidth="300" maxHeight="222" click="onClick()"
+        filters="{[dropShadow]}" hideEffect="{fadeOut}"
+        itemRenderer="it.ht.rcs.console.utils.items.SearchListItemRenderer"
+        keyDown="onKeyDown(event)" mouseDownOutside="hide()" requireSelection="false"
+        showEffect="{fadeIn}">
   
   <fx:Script>
     <![CDATA[
@@ -15,8 +15,6 @@
       {
         if (event.keyCode == Keyboard.ENTER && selectedItem != null)
           dispatchSelectedItemEvent(selectedItem);
-//        else if (event.keyCode == Keyboard.ESCAPE)
-//          hide();
       }
       
       private function onClick():void
@@ -37,6 +35,12 @@
         visible = includeInLayout = false;
       }
       
+      override protected function measure():void
+      {
+        super.measure();
+        measuredHeight = Math.min(maxHeight, 2 + (dataProvider.length * 22));
+      }
+      
     ]]>
   </fx:Script>
   
@@ -47,4 +51,4 @@
                         distance="0" strength=".8"/>
   </fx:Declarations>
   
-</items:ExcludeSelectionList>
+</s:List>

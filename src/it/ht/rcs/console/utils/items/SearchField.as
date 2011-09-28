@@ -10,6 +10,7 @@ package it.ht.rcs.console.utils.items
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.skins.TextInputSearchSkin;
   
+  import mx.collections.IViewCursor;
   import mx.collections.ListCollectionView;
   import mx.events.FlexEvent;
   import mx.managers.PopUpManager;
@@ -80,10 +81,14 @@ package it.ht.rcs.console.utils.items
       return distance / Math.abs(distance);
     }
     
-    public function set kinds(t:Array):void
+    public function set kinds(value:Array):void
     {
-      _kinds = t;
-      _dataProvider.refresh();
+      _kinds = [];
+      for each (var k:* in value)
+        if (k !== undefined)
+          _kinds.push(k);
+      if (_dataProvider)
+        _dataProvider.refresh();
     }
     
     private function filter(item:Object):Boolean
@@ -151,7 +156,9 @@ package it.ht.rcs.console.utils.items
     
     public function set selectedItem(value:*):void
     {
-      if (value) dropDown.selectedItem = value;
+      if (value)
+        dropDown.selectedItem = value;
+      
       if (dropDown.selectedItem !== undefined) {
         _selectedItem = value;
         text = value.name;
@@ -163,18 +170,26 @@ package it.ht.rcs.console.utils.items
     
     public function set selectedItemId(id:String):void
     {
-      for each (var item:Object in _dataProvider) {
+      if (!id) {
+        selectedItem = null;
+        return;
+      }
+      
+      var cursor:IViewCursor = _dataProvider.createCursor();
+      while (!cursor.beforeFirst && !cursor.afterLast) {
+        var item:Object = cursor.current;
         if (item._id == id) {
           selectedItem = item;
           break;
         }
+        cursor.moveNext();
       }
     }
     
     private function onAddedToStage(event:Event):void
     {
       // don't know why, but we must reassing dataProvider, otherwise filtering doesn't work anymore ...
-      dropDown.dataProvider = _dataProvider;
+      //dropDown.dataProvider = _dataProvider;
       PopUpManager.addPopUp(dropDown, this, false);
     }
     

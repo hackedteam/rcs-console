@@ -45,11 +45,11 @@ package it.ht.rcs.console.utils.items
       addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
       addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
+      dataProvider = SearchManager.instance.getView();
     }
     
     private function init(event:FlexEvent):void
     {
-      dataProvider = SearchManager.instance.getView();
       dropDown.dataProvider = _dataProvider;
     }
     
@@ -90,7 +90,7 @@ package it.ht.rcs.console.utils.items
     {
       if (!isVisibleType(item._kind)) return false;
       if (item.separator) return true;
-      if (this.text == '') return true;
+      if (text == '') return true;
       
       var result:Boolean = String(item.name.toLowerCase()).indexOf(text.toLowerCase()) >= 0 || 
                            String(item.desc.toLowerCase()).indexOf(text.toLowerCase()) >= 0;
@@ -164,9 +164,10 @@ package it.ht.rcs.console.utils.items
     public function set selectedItemId(id:String):void
     {
       for each (var item:Object in _dataProvider) {
-        if (item._id == id)
+        if (item._id == id) {
           selectedItem = item;
-        break;
+          break;
+        }
       }
     }
     

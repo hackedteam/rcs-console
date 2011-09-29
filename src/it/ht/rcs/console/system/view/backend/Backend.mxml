@@ -118,7 +118,11 @@
         if (a == null)
           return;
         
-        BackupArchiveManager.instance.restoreArchive(a, false);
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              BackupArchiveManager.instance.restoreArchive(a, false);
+          }, null, AlertPopUp.NO);
       }
 
       private function deleteArchive(a:BackupArchive):void
@@ -126,7 +130,7 @@
         if (a == null)
           return;
         
-        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION') + ' ' + a.name + ' ?', R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES) 
               BackupArchiveManager.instance.removeItem(a);

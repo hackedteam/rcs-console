@@ -17,6 +17,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
@@ -42,9 +43,8 @@
       {
         /* change the state to the current section */
         currentState = event.section;
-        
       }
-    
+      
       private function added():void 
       {
         trace("Entering main section...") ;
@@ -61,13 +61,13 @@
         if (console.currentSession.user.is_sys() || console.currentSession.user.is_tech()) main_sections.push('System');
         if (console.currentSession.user.is_admin()) main_sections.push('Audit');
         if (console.currentSession.user.is_any()) main_sections.push('Monitor');
-  
+
         /* default state is Console */
         if (console.currentSession.user.is_any())
           currentState = "Operations";
         else
           currentState = "Nothing";
-  
+
         /* initialize the monitor counter */
         if (console.currentSession.user.is_any()) {
           MonitorManager.instance.start_counters();
@@ -79,12 +79,12 @@
           AlertController.instance.start_counters();
         }
         
-  //      /* initialize the download manager */
-  //      if (console.currentSession.user.is_any()) {
-  //        console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
-  //        //DownloadManager.instance.start_counters();
-  //      }
-  
+//      /* initialize the download manager */
+//      if (console.currentSession.user.is_any()) {
+//        console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
+//        //DownloadManager.instance.start_counters();
+//      }
+
         /* retrieve the current license limits */
         LicenseManager.instance.start();
       }

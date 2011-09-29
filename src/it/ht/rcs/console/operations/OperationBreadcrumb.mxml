@@ -9,30 +9,35 @@
       [Bindable]
       public var section:OperationsSection;
       
-      protected function onTargetClick():void
-      {
-        section.currentState = 'singleTarget';
-      }
-      
-      protected function onOperationClick():void
+      protected function onAllOperationsClick():void
       {
         section.switchState('allOperations');
       }
       
+      protected function onOperationClick():void
+      {
+        section.switchState('singleOperation');
+      }
+      
+      protected function onTargetClick():void
+      {
+        section.switchState('singleTarget');
+      }
     ]]>
   </fx:Script>
   
-  <mx:LinkButton visible="{section.currentState != 'allOperations'}" label="All Operations" color="#333333" click="onOperationClick()"/>
+  <mx:LinkButton label="All Operations" click="onAllOperationsClick()" color="#333333"/>
   
   <s:Label visible="{section.selectedOperation != null}" paddingTop="4" text="&gt;"/>
-  <mx:LinkButton visible="{section.selectedOperation != null}" label="{section.selectedOperation.name}"
-                 color="#333333"/>
+  <mx:LinkButton visible="{section.selectedOperation != null}"
+                 label="{section.selectedOperation.name}" click="onOperationClick()" color="#333333"/>
   
   <s:Label visible="{section.selectedTarget != null}" paddingTop="4" text="&gt;"/>
   <mx:LinkButton visible="{section.selectedTarget != null}" label="{section.selectedTarget.name}"
-                 color="#333333" click="onTargetClick()"/>
+                 click="onTargetClick()" color="#333333"/>
   
   <s:Label visible="{section.selectedAgent != null}" paddingTop="4" text="&gt;"/>
-  <mx:LinkButton visible="{section.selectedAgent != null}" label="{section.selectedAgent.name}" color="#333333"/>
+  <mx:LinkButton visible="{section.selectedAgent != null}" label="{section.selectedAgent.name}"
+                 color="#333333"/>
   
 </s:HGroup>

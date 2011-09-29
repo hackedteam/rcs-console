@@ -3,14 +3,14 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:operations="it.ht.rcs.console.operations.*"
-         addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)"
-         title="OPERATIONS">
+         creationComplete="init()" removedFromStage="onRemovedFromStage(event)" title="OPERATIONS">
 
   <s:layout>
     <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
   </s:layout>
   
   <s:states>
+    <s:State name="default"/>
     <s:State name="allOperations"/>
     <s:State name="singleOperation"/>
     <s:State name="singleTarget"/>
@@ -21,7 +21,6 @@
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
-      import it.ht.rcs.console.controller.ItemManager;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
@@ -43,8 +42,9 @@
       public var selectedAgent:Agent;
       
       private var CurrentManager:Class;
+      private var currentFilter:Function;
 
-      private function onAddedToStage(event:Event):void
+      private function init():void
       {
         switchState('allOperations');
       }
@@ -53,24 +53,17 @@
       {
         CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         CurrentManager.instance.stop();
-        //OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        //OperationManager.instance.stop();
       }
       
       private function onDataLoaded(event:DataLoadedEvent):void
       {
-        //if (_item_view == null)
-        // _item_view = CurrentManager.instance.getView(null, currentSearchFunction);
-        if (currentState == 'allOperations')
-          _item_view = OperationManager.instance.getView(null, searchFilterFunction);
-        else if (currentState == 'singleOperation')
-          _item_view = TargetManager.instance.getView(null, targetFilterFunction);
-        else if (currentState == 'singleTarget')
-          _item_view = AgentManager.instance.getView(null, agentFilterFunction);
+        _item_view = CurrentManager.instance.getView(null, currentFilter);
       }
       
       public function switchState(state:String):void
       {
+        if (currentState == state) return;
+        
         OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         OperationManager.instance.stop();
         
@@ -82,22 +75,31 @@
         
         switch (state) {
           case 'allOperations':
+            selectedOperation = null; selectedTarget = null; selectedAgent = null;
+            CurrentManager = OperationManager;
+            currentFilter = searchFilterFunction;
             OperationManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
             OperationManager.instance.start();
-            CurrentManager = OperationManager;
             currentState = 'allOperations';
             break;
           case 'singleOperation':
+            selectedTarget = null; selectedAgent = null;
+            CurrentManager = TargetManager;
+            currentFilter = targetFilterFunction;
             TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
             TargetManager.instance.start();
             currentState = 'singleOperation';
             break;
           case 'singleTarget':
+            selectedAgent = null;
+            CurrentManager = AgentManager;
+            currentFilter = agentFilterFunction;
             AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
             AgentManager.instance.start();
             currentState = 'singleTarget';
             break;
           case 'singleAgent':
+            currentState = 'singleAgent';
             break;
           default:
             break;
@@ -109,44 +111,23 @@
         // user clicked on an operation
         if (currentState == 'allOperations')
         {
-          
           selectedOperation = item;
-
-          OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          OperationManager.instance.stop();
-          
-          currentState = 'singleOperation';
-          
-          TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          TargetManager.instance.start();
-          
+          switchState('singleOperation');
         }
         
-        // user clicked on an target
+        // user clicked on a target
         else if (currentState == 'singleOperation')
         {
-          
           selectedTarget = item;
-          
-          TargetManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          TargetManager.instance.stop();
-          
-          currentState = 'singleTarget';
-          
-          AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          AgentManager.instance.start();
-          
+          switchState('singleTarget');
         }
         
+        // user clicked on an agent
         else if (currentState == 'singleTarget')
         {
-          
           selectedAgent = item;
-          
-          currentState = 'singleAgent';
-
+          switchState('singleAgent');
         }
-
       }
       
       private function searchFilterFunction(item:Object):Boolean

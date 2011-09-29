@@ -12,6 +12,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.backup.model.BackupJob;
+      import it.ht.rcs.console.backup.model.BackupJobTime;
       
       import locale.R;
       
@@ -46,6 +47,8 @@
         
         _job.what = what;
         
+        _job.when = new BackupJobTime({week: [], month: [], time: "10:00"})
+        
         /* reset the status on save */
         _job.lastrun = 0;
         _job.status = 'QUEUED';
@@ -74,8 +77,9 @@
       
     </s:FormItem>
     <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:TextInput id="formName" text="{_job.name}" width="200" restrict="^ " />
+      <s:TextInput id="formName" text="{_job.name}" width="200" restrict="^ /\\" />
     </s:FormItem>
+
     
   </s:Form>
 </utils:TitleWindowSaveClose>

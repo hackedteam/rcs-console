@@ -12,28 +12,29 @@
                  dataProvider="{_proxy_view}" keyDown="enter(event)"/>
     
     <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteProxy()"
-              enabled="{ipas.selectedItem != null}" styleName="AddRemove"
+              enabled="{console.currentSession.user.is_sys() &amp;&amp; ipas.selectedItem != null}" styleName="AddRemove"
               toolTip="{R.get('INJECTOR_DELETE')}"/>
-    <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addProxy()"
+    <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addProxy()" enabled="{console.currentSession.user.is_sys()}"
               styleName="AddRemove" toolTip="{R.get('INJECTOR_ADD')}"/>
 
   </s:BorderContainer>
   
-  <s:HGroup>
-    <s:Button width="30" height="20" label="New" click="addRule()"
-              enabled="{ipas.selectedItem != null}" skinClass="it.ht.rcs.console.skins.NewButton"
-              toolTip="{R.get('RULE_ADD')}"/>
-    <s:Button width="30" height="20" label="Edit" click="editRule()"
-              enabled="{rulesGrid.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
-    <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}" click="deleteRule()"
-              skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
-    <s:Spacer width="15"/>
-    <s:Button width="30" height="20" label="Apply" enabled="{ipas.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_RULES')}"/>
-  </s:HGroup>
-  
-  <nia:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipas.selectedItem.rules}"/>
+  <s:VGroup visible="{console.currentSession.user.is_tech()}" height="100%" width="100%">
+    <s:HGroup>
+      <s:Button width="30" height="20" label="New" click="addRule()"
+                enabled="{ipas.selectedItem != null}" skinClass="it.ht.rcs.console.skins.NewButton"
+                toolTip="{R.get('RULE_ADD')}"/>
+      <s:Button width="30" height="20" label="Edit" click="editRule()"
+                enabled="{rulesGrid.selectedItem != null}"
+                skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
+      <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}" click="deleteRule()"
+                skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
+      <s:Spacer width="15"/>
+      <s:Button width="30" height="20" label="Apply" enabled="{ipas.selectedItem != null}"
+                skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_RULES')}"/>
+    </s:HGroup>
+    <nia:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipas.selectedItem.rules}" />    
+  </s:VGroup>
   
   
   <fx:Script>

@@ -15,6 +15,10 @@
       import mx.managers.PopUpManager;
       protected function doubleClick(event:MouseEvent):void
       {
+        /* only tech can modify a rule */
+        if (!console.currentSession.user.is_tech())
+          return;
+        
         var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
         popup.mode = 'edit';
         popup.proxy = (parentDocument as NIA).ipas.selectedItem;
@@ -24,22 +28,23 @@
       
       private function targetname(item:Object, column:GridColumn):String
       {
-        var si:SearchItem = SearchManager.instance.getItem(item[column.dataField]);
-        if (si == null)
-          return '';
+        var target:SearchItem = SearchManager.instance.getItem(item[column.dataField]);
+        if (target == null)
+          return '*** *** ***';
         
-        return si.name;
+        return target.name;
       }
 
       private function agentname(item:Object, column:GridColumn):String
       {
         var agent:SearchItem = SearchManager.instance.getItem(item[column.dataField]);
-        
-        if (agent != null) {
-          return agent.name;
-        } 
-        
-        return item[column.dataField];
+        if (agent == null) {
+          if (item['action'] == 'REPLACE')
+            return item[column.dataField];
+          else
+            return '*** *** ***';
+        }
+        return agent.name;
       }
       
     ]]>

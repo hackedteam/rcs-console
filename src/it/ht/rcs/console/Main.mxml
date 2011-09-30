@@ -82,7 +82,7 @@
         if (console.currentSession.user.is_any()) {
           DownloadManager.instance.start();
           LicenseManager.instance.start();
-          currentState = "Operations";
+          currentState = "Home";
         } else {
           currentState = "Nothing";
         }
@@ -108,6 +108,7 @@
 
   <s:states>
     <s:State name="Nothing"/>
+    <s:State name="Home"/>
     <s:State name="Accounting"/>
     <s:State name="Operations"/>
     <s:State name="Dashboard"/>
@@ -143,8 +144,15 @@
   
   <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
   
+  <s:Panel includeIn="Home" title="Home" height="100%" top="75" left="0" right="0" bottom="0">
+    <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" 
+                text="some widgets here... :)" 
+                width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="center" 
+                borderVisible="false" contentBackgroundColor="#EAEAEA"/>
+  </s:Panel>
+  
   <!-- special case if the user has no privilege -->
-  <s:Panel includeIn="Nothing" title="NOTHING TO DO" height="100%" top="75" left="0" right="0" bottom="0">
+  <s:Panel includeIn="Nothing" height="100%" top="75" left="0" right="0" bottom="0">
     <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" 
                 text="{resourceManager.getString('localized_main', 'NOTHING_TO_DO_MESSAGE')}" 
                 width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="justify" 

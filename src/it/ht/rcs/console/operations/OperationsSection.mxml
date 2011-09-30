@@ -189,7 +189,7 @@
 
   <operations:OperationBreadcrumb width="100%" section="{this}"/>
   
-  <operations:OperationButtonBar id="bb" width="100%" section="{this}"/>
+  <operations:OperationButtonBar id="bb" width="100%" currentState="{currentState}" section="{this}"/>
   
   <mx:ViewStack id="views" width="100%" height="100%">
     
@@ -210,20 +210,11 @@
     
     <s:NavigatorContent hideEffect="{fadeOut}" icon="@Embed('img/buttons/apply.png')"
                         showEffect="{fadeIn}">
-      <s:DataGrid id="itemGrid" width="100%" height="100%" dataProvider="{_item_view}"
-                  selectedItem="{itemList.selectedItem}">
-      <s:columns>
-        <s:ArrayList>
-          <s:GridColumn dataField="name" headerText="Name"/>
-          <s:GridColumn dataField="desc" headerText="Description"/>
-          <s:GridColumn dataField="status" headerText="Status"/>
-          <s:GridColumn dataField="updated_at" headerText="Last Sync"/>
-          <s:GridColumn dataField="name" headerText="Path"/>
-          <s:GridColumn dataField="stat" headerText="Size"
-                        visible.singleOperation="false"/>
-        </s:ArrayList>
-      </s:columns>
-      </s:DataGrid>
+
+      <operations:OperationGrid id="itemGrid" width="100%" height="100%"
+                                currentState="{currentState}" dataProvider="{_item_view}"
+                                selectedItem="{itemList.selectedItem}"/>
+      
     </s:NavigatorContent>
     
   </mx:ViewStack>

@@ -4,6 +4,14 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           gap="10">
 
+  <s:states>
+    <s:State name="default"/>
+    <s:State name="allOperations"/>
+    <s:State name="singleOperation"/>
+    <s:State name="singleTarget"/>
+    <s:State name="singleAgent"/>
+  </s:states>
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operation.controller.OperationManager;
@@ -64,13 +72,22 @@
   <s:Spacer width="30"/>
   
   <s:Button width="30" height="20" click="newClick()" skinClass="it.ht.rcs.console.skins.NewButton"
-            toolTip="{R.get('NEW')}"/>
+            toolTip="{R.get('NEW')}"
+            visible.allOperations="{console.currentSession.user.is_admin()}"
+            visible.singleOperation="{console.currentSession.user.is_admin()}"
+            visible.singleTarget="{console.currentSession.user.is_tech()}"/>
   <s:Button width="30" height="20" click="editClick()"
             enabled="{section.itemList.selectedItem != null}"
-            skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
+            skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"
+            visible.allOperations="{console.currentSession.user.is_admin()}"
+            visible.singleOperation="{console.currentSession.user.is_admin()}"
+            visible.singleTarget="{console.currentSession.user.is_tech()}"/>
   <s:Button width="30" height="20" click="deleteClick()"
             enabled="{section.itemList.selectedItem != null}"
-            skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
+            skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"
+            visible.allOperations="{console.currentSession.user.is_admin()}"
+            visible.singleOperation="{console.currentSession.user.is_admin()}"
+            visible.singleTarget="{console.currentSession.user.is_tech()}"/>
 
   <s:Spacer width="100%"/>
   

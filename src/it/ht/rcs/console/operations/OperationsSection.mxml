@@ -67,8 +67,11 @@
       
       private function onRemovedFromStage(event:Event):void
       {
-        CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        CurrentManager.instance.stop();
+        if (CurrentManager)
+        {
+          CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+          CurrentManager.instance.stop();
+        }
       }
       
       private function onDataLoaded(event:DataLoadedEvent):void
@@ -99,15 +102,18 @@
             currentState = 'singleOperation';
             break;
           case 'singleTarget':
-            selectedAgent = null;
-            CurrentManager = AgentManager;
-            currentFilter = agentFilterFunction;
-            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-            AgentManager.instance.start();
-            currentState = 'singleTarget';
+            if (console.currentSession.user.is_tech()) {
+              selectedAgent = null;
+              CurrentManager = AgentManager;
+              currentFilter = agentFilterFunction;
+              AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+              AgentManager.instance.start();
+              currentState = 'singleTarget';
+            }
             break;
           case 'singleAgent':
-            currentState = 'singleAgent';
+            if (console.currentSession.user.is_view())
+              currentState = 'singleAgent';
             break;
           default:
             break;
@@ -138,8 +144,10 @@
         // user clicked on a target
         else if (currentState == 'singleOperation')
         {
-          selectedTarget = item;
-          switchState('singleTarget');
+          if (console.currentSession.user.is_tech()) {
+            selectedTarget = item;
+            switchState('singleTarget');
+          }
         }
         
         // user clicked on an agent

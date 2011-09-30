@@ -3,7 +3,8 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:operations="it.ht.rcs.console.operations.*"
-         creationComplete="init()" removedFromStage="onRemovedFromStage(event)" title="OPERATIONS">
+         addedToStage="onAddedToStage(event)" creationComplete="init()"
+         removedFromStage="onRemovedFromStage(event)" title="OPERATIONS">
 
   <s:layout>
     <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
@@ -22,12 +23,14 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.events.DataLoadedEvent;
+      import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
       
       import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
       
       [Bindable]
       public var _item_view:ListCollectionView;
@@ -43,10 +46,23 @@
       
       private var CurrentManager:Class;
       private var currentFilter:Function;
-
+      
       private function init():void
       {
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
         switchState('allOperations');
+      }
+      
+      private function onAddedToStage(event:Event):void
+      {
+        switchState(currentState);
+      }
+      
+      private function onLoggingOut(event:SessionEvent):void
+      {
+        stopManagers();
+        selectedOperation = null; selectedTarget = null; selectedAgent = null;
+        currentState = 'allOperations';
       }
       
       private function onRemovedFromStage(event:Event):void
@@ -62,16 +78,8 @@
       
       public function switchState(state:String):void
       {
-        if (currentState == state) return;
         
-        OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        OperationManager.instance.stop();
-        
-        TargetManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        TargetManager.instance.stop();
-        
-        AgentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        AgentManager.instance.stop();
+        stopManagers();
         
         switch (state) {
           case 'allOperations':
@@ -104,6 +112,18 @@
           default:
             break;
         }
+      }
+      
+      private function stopManagers():void
+      {
+        OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        OperationManager.instance.stop();
+        
+        TargetManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        TargetManager.instance.stop();
+        
+        AgentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        AgentManager.instance.stop();
       }
       
       private function changeItem(item:*):void
@@ -158,7 +178,7 @@
       }
     ]]>
   </fx:Script>
-  
+
   <operations:OperationBreadcrumb width="100%" section="{this}"/>
   
   <operations:OperationButtonBar id="bb" width="100%" section="{this}"/>

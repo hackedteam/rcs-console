@@ -11,7 +11,14 @@
           var text:String = data[column.dataField];
           
           if (data[column.dataField].split(':').length == 2) {
-            text = data[column.dataField].split(':')[0] + ' \'' + SearchManager.instance.getItem(data[column.dataField].split(':')[1]).name + '\'';
+            var type:String = data[column.dataField].split(':')[0]; 
+            var id:String = data[column.dataField].split(':')[1];
+            var name:String = id;
+            
+            if (SearchManager.instance.getItem(id) != null)
+              name = SearchManager.instance.getItem(id).name;
+            
+            text = type + ' \'' + name + '\'';
           }
                 
           lblData.text = text;

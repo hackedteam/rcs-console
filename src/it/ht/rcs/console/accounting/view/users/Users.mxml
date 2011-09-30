@@ -14,6 +14,8 @@
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.TimeUtils;
       
+      import locale.R;
+      
       import mx.collections.ListCollectionView;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
@@ -48,7 +50,7 @@
         if (user == null)
           return;
         
-        AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_USER_DELETION') + ' ' + user.name + ' ?', resourceManager.getString('localized_main', 'CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+        AlertPopUp.show(R.get('CONFIRM_USER_DELETION', [user.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES) 
               UserManager.instance.removeItem(user);

@@ -23,6 +23,7 @@
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
       import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       
       import mx.core.FlexGlobals;
       import mx.events.ItemClickEvent;
@@ -54,49 +55,50 @@
         /* different view based on privileges */
         main_sections = new Array();
         if (console.currentSession.user.is_admin()) main_sections.push('Accounting');
-        if (console.currentSession.user.is_any()) main_sections.push('Operations');
+        if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) main_sections.push('Operations');
         if (console.currentSession.user.is_view()) main_sections.push('Dashboard');
         if (console.currentSession.user.is_view()) main_sections.push('Alerting');
         //if (console.currentSession.user.is_view()) main_sections.push('Correlation');
         if (console.currentSession.user.is_sys() || console.currentSession.user.is_tech()) main_sections.push('System');
         if (console.currentSession.user.is_admin()) main_sections.push('Audit');
-        if (console.currentSession.user.is_any()) main_sections.push('Monitor');
+        if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) main_sections.push('Monitor');
 
-        /* default state is Console */
-        if (console.currentSession.user.is_any())
-          currentState = "Operations";
-        else
-          currentState = "Nothing";
+        /* initialize the managers */
 
-        /* initialize the monitor counter */
-        if (console.currentSession.user.is_any()) {
-          MonitorManager.instance.start_counters();
-          SearchManager.instance.start();
+        if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
+          SearchManager.instance.start();          
         }
-
-        /* initialize the alert counter */
+        
+        if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) {
+          MonitorManager.instance.start_counters();        
+        }
+        
         if (console.currentSession.user.is_view()) {
           AlertController.instance.start_counters();
         }
-        
-//      /* initialize the download manager */
-//      if (console.currentSession.user.is_any()) {
-//        console.downloadManagerWindow = PopUpManager.createPopUp(root, DownloadManagerWindow, false) as DownloadManagerWindow;
-//        //DownloadManager.instance.start_counters();
-//      }
 
-        /* retrieve the current license limits */
-        LicenseManager.instance.start();
+        // TODO: default state is "home"
+        
+        if (console.currentSession.user.is_any()) {
+          DownloadManager.instance.start();
+          LicenseManager.instance.start();
+          currentState = "Operations";
+        } else {
+          currentState = "Nothing";
+        }
+        
       }
       
       private function removed():void 
       {
         trace("Exiting main section...")
   
-        /* remove the monitor and alert counter */
+        /* stop the managers */
+        DownloadManager.instance.stop();
         MonitorManager.instance.stop_counters();
-        AlertController.instance.stop_counters();
         SearchManager.instance.stop();
+        AlertController.instance.stop_counters();
+        LicenseManager.instance.stop();
       }
     ]]>
   </fx:Script>

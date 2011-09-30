@@ -12,6 +12,7 @@
       import it.ht.rcs.console.accounting.model.Group;
       import it.ht.rcs.console.accounting.model.User;
       import it.ht.rcs.console.events.EditEvent;
+      import it.ht.rcs.console.operation.model.Operation;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -104,6 +105,24 @@
         return u.name;
       }
       
+      private function removeOperationFromGroup(uid:String, group:Group):void
+      {
+      }
+      
+      private function addOperationToGroup(event:MenuEvent):void 
+      {
+      }
+      
+      private function initMenuOperation():void
+      {
+      }
+      
+      private function operationFromId(o:Object):String
+      {
+        return ""; 
+      }
+      
+      
     ]]>
   </fx:Script>
   
@@ -152,6 +171,14 @@
         
         <s:Label text="{resourceManager.getString('localized_main', 'ASSOCIATED_OPERATIONS')}" styleName="AccountingTitles"/>
         <s:BorderContainer width="100%" height="50%" dropShadowVisible="true" backgroundColor="#EAEAEA">
+          <s:List id="operationsingroup" left="5" right="5" top="5" bottom="20" borderVisible="false" contentBackgroundColor="#EAEAEA" 
+                  dataProvider="{(groupslist.selectedItem as Group).item_ids}" labelFunction="operationFromId"/>
+          <s:Button label="-" width="30" height="20" right="51" bottom="1" styleName="AddRemove"
+                    enabled="{operationsingroup.selectedItem != null}"
+                    click="{removeOperationFromGroup(operationsingroup.selectedItem, groupslist.selectedItem as Group)}"/>
+          <mx:PopUpButton id="addoperButton" label="+" right="1" bottom="1" width="50" height="20" styleName="AddRemove"
+                          enabled="{groupslist.selectedItem != null}"
+                          openAlways="true" creationComplete="initMenuOperation()"/>
         </s:BorderContainer>
       </s:VGroup>
     </s:BorderContainer>

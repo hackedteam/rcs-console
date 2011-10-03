@@ -8,6 +8,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.controller.OperationManager;
       import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.Group;
       import it.ht.rcs.console.accounting.model.User;
@@ -102,6 +103,7 @@
       private function userFromId(o:Object):String
       {
         var u:User = UserManager.instance.getItem(o as String);
+        if (u == null) return "<invalid>";
         return u.name;
       }
       
@@ -115,13 +117,21 @@
       
       private function initMenuOperation():void
       {
+        var _menu:Menu;
+        _menu = new Menu();
+        _menu.dataProvider = OperationManager.instance.getView();
+        _menu.labelField = 'name';
+        _menu.selectedIndex = 0;
+        _menu.addEventListener(MenuEvent.ITEM_CLICK, addOperationToGroup);
+        addOperButton.popUp = _menu;
       }
       
       private function operationFromId(o:Object):String
       {
-        return ""; 
+        var op:Operation = OperationManager.instance.getItem(o as String);
+        if (op == null) return "<invalid>";
+        return op.name;
       }
-      
       
     ]]>
   </fx:Script>
@@ -176,7 +186,7 @@
           <s:Button label="-" width="30" height="20" right="51" bottom="1" styleName="AddRemove"
                     enabled="{operationsingroup.selectedItem != null}"
                     click="{removeOperationFromGroup(operationsingroup.selectedItem, groupslist.selectedItem as Group)}"/>
-          <mx:PopUpButton id="addoperButton" label="+" right="1" bottom="1" width="50" height="20" styleName="AddRemove"
+          <mx:PopUpButton id="addOperButton" label="+" right="1" bottom="1" width="50" height="20" styleName="AddRemove"
                           enabled="{groupslist.selectedItem != null}"
                           openAlways="true" creationComplete="initMenuOperation()"/>
         </s:BorderContainer>

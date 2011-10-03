@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                    xmlns:s="library://ns.adobe.com/flex/spark" 
+                    xmlns:mx="library://ns.adobe.com/flex/mx" clipAndEnableScrolling="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.backup.model.BackupJobTime;
+      
+      import locale.R;
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        if (data) {
+          var bw:BackupJobTime = data[column.dataField] as BackupJobTime;
+          
+          if (bw.week.length != 0) {
+            var daysOfWeek:Array = [R.get('WEEK_DAY_0'), R.get('WEEK_DAY_1'), R.get('WEEK_DAY_2'), R.get('WEEK_DAY_3'), R.get('WEEK_DAY_4'), R.get('WEEK_DAY_5'), R.get('WEEK_DAY_6')];
+            
+            var days:String = "";
+            
+            bw.week.source.forEach(function (element:*, index:int, arr:Array):void {
+              days += daysOfWeek[element as int] + ' ';
+            });
+            
+            lblData.text = R.get('BACKUP_EVERY_WEEK', [days, bw.time]);
+            return;
+          }
+
+          if (bw.month.length != 0) {
+            lblData.text = R.get('BACKUP_EVERY_MONTH', [bw.month, bw.time]);
+            return;
+          }
+          
+          lblData.text = R.get('BACKUP_EVERY_DAY', [bw.time]);
+        }
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label id="lblData" top="9" left="7"/>
+  
+</s:GridItemRenderer>

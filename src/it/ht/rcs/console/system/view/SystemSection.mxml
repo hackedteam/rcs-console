@@ -16,10 +16,10 @@
       
       private function onAdded():void
       {
-        if (console.currentSession.user.is_tech())
-          currentState = 'tech';
-        else
+        if (console.currentSession.user.is_sys())
           currentState = 'sys';
+        else
+          currentState = 'tech';
       }
       
     ]]>
@@ -29,7 +29,7 @@
     <s:State name="tech"/>
   </s:states>
 
-  <mx:TabNavigator left="5" right="5" top="5" bottom="5" backgroundColor="0xeaeaea">
+  <mx:TabNavigator left="5" right="5" top="5" bottom="5" backgroundColor="0xeaeaea" selectedIndex="0">
     
     <s:NavigatorContent includeIn="sys" label="{R.get('FRONTEND')}">
       <frontend:Frontend/>
@@ -39,7 +39,7 @@
       <backend:Backend/>
     </s:NavigatorContent>
     
-    <s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}">
+    <s:NavigatorContent includeIn="sys,tech" label="{R.get('NETWORK_INJECTORS')}">
       <nia:NIA/>
     </s:NavigatorContent>
     

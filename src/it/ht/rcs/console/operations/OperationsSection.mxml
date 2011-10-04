@@ -32,6 +32,9 @@
       import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
       
+      import spark.collections.Sort;
+      import spark.collections.SortField;
+      
       [Bindable]
       public var _item_view:ListCollectionView;
       
@@ -46,9 +49,15 @@
       
       private var CurrentManager:Class;
       private var currentFilter:Function;
+      private var customTypeSort:Sort;
       
       private function init():void
       {
+        customTypeSort = new Sort();
+        var customTypeSortField:SortField = new SortField('customType', false, false);
+        customTypeSortField.compareFunction = customTypeCompareFunction;
+        customTypeSort.fields = [customTypeSortField, new SortField('name', false, false)];
+        
         FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
         switchState('allOperations');
       }
@@ -76,7 +85,19 @@
       
       private function onDataLoaded(event:DataLoadedEvent):void
       {
-        _item_view = CurrentManager.instance.getView(null, currentFilter);
+        _item_view = CurrentManager.instance.getView(customTypeSort, currentFilter);
+        if (CurrentManager == AgentManager) {
+          _item_view.addItemAt({name: 'File System', customType: 'filesystem'}, 0);
+          _item_view.addItemAt({name: 'Evidences',   customType: 'evidences'}, 0);
+        }
+      }
+      
+      private function customTypeCompareFunction(a:Object, b:Object):int
+      {
+        if (  a.hasOwnProperty('customType') &&  b.hasOwnProperty('customType') ||
+             !a.hasOwnProperty('customType') && !b.hasOwnProperty('customType') )
+          return 0;
+        if (a.hasOwnProperty('customType')) return -1 else return 1;
       }
       
       public function switchState(state:String):void
@@ -175,6 +196,7 @@
       
       private function agentFilterFunction(item:Object):Boolean
       {
+        if (!(item is Agent)) return true;
         if (item.path[1] == selectedTarget._id)
           return searchFilterFunction(item);
         else return false;
@@ -187,7 +209,10 @@
     ]]>
   </fx:Script>
 
-  <operations:OperationBreadcrumb width="100%" section="{this}"/>
+  <s:HGroup width="100%">
+    <operations:BreadcrumbPath width="100%" section="{this}"/>
+    <operations:BreadcrumbType section="{this}"/>
+  </s:HGroup>
   
   <operations:OperationButtonBar id="bb" width="100%" currentState="{currentState}" section="{this}"/>
   
@@ -196,7 +221,7 @@
     <s:NavigatorContent hideEffect="{fadeOut}" icon="@Embed('img/buttons/apply.png')"
                         showEffect="{fadeIn}">
       
-      <s:List id="itemList" width="100%" height="100%" dataProvider="{_item_view}"
+      <s:List id="itemList" width="100%" height="100%" dataProvider="{_item_view}" 
               doubleClick="onDoubleClick(event)" doubleClickEnabled="true"
               itemRenderer="it.ht.rcs.console.operations.OperationListRenderer" labelField="name"
               selectedItem="{itemGrid.selectedItem}">

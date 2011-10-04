@@ -3,15 +3,21 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             xmlns:utils="it.ht.rcs.console.utils.*"
-                            width="400" creationComplete="init()" save="onSave(event)"
+                            creationComplete="init()" save="onSave(event)"
                             title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
       
       import locale.R;
+      
+      import spark.events.IndexChangeEvent;
       
       [Bindable]
       public var mode:String;
@@ -21,6 +27,9 @@
       
       private function init():void
       {
+        GroupManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onGroupDataLoaded);
+        GroupManager.instance.start();
+        
         if (mode == 'edit')
           for each (var s:Object in statuses)
             if (s.label == operation.status)
@@ -28,43 +37,113 @@
               status.selectedItem = s;
               break;
             }
+        
         opName.setFocus();
+      }
+      
+      private function onGroupDataLoaded(event:DataLoadedEvent):void
+      {
+        groups.dataProvider = operation.group_ids;
+        initGroupMenu();
+      }
+      
+      private function initGroupMenu():void
+      {
+        var list:List;
+        list = new List();
+        list.dataProvider = GroupManager.instance.getView();
+        list.labelField = 'name';
+        list.addEventListener(IndexChangeEvent.CHANGE, addGroup);
+        addGroupButton.popUp = list;
+      }
+      
+      private function addGroup(event:IndexChangeEvent):void {
+        if (groups.dataProvider.getItemIndex(event.currentTarget.selectedItem._id) == -1)
+          groups.dataProvider.addItem(event.currentTarget.selectedItem._id);
+      }
+      
+      private function removeGroup(event:MouseEvent):void
+      {
+        var idx:int = groups.dataProvider.getItemIndex(groups.selectedItem);
+        groups.dataProvider.removeItemAt(idx);
+      }
+      
+      private function groupLabelFunction(o:Object):String
+      {
+        var group:Group = GroupManager.instance.getItem(o as String);
+        return group.name;
       }
       
       private function onSave(event:SaveEvent):void
       {
+        if (hasValidationErrors())
+          return;
+        
         operation.name = opName.text;
         operation.desc = desc.text;
         operation.contact = contact.text;
+        operation.group_ids = groups.dataProvider.toArray();
         operation.status = mode == 'new' ? 'OPEN' : status.selectedItem.label;
         
-        close(null);
+        if (mode == 'new')
+          OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(null); });
+        else
+          close(null);
       }
       
+      private function hasValidationErrors():Boolean
+      {
+        var hasError:Boolean = false;
+        
+        groupsC.errorString = '';
+        if (groups.dataProvider.length == 0) {
+          groupsC.errorString = 'Please select at least a group';
+          hasError = true;
+        }
+        
+        return hasError;
+      }
+      
+      override protected function close(event:MouseEvent=null):void
+      {
+        GroupManager.instance.stop();
+        super.close(event);
+      }
     ]]>
   </fx:Script>
   
   <s:Form width="100%">
 
-    <s:FormItem label="{R.get('NAME')}">
+    <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextInput id="opName" width="250" text="{operation.name}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('DESCRIPTION')}">
+    <s:FormItem label="{R.get('DESCRIPTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextArea id="desc" width="250" text="{operation.desc}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('CONTACT')}">
+    <s:FormItem label="{R.get('CONTACT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextInput id="contact" width="250" text="{operation.contact}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}">
+    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}"
+                skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="status" width="150" selectedIndex="0">
         <s:ArrayCollection id="statuses">
           <fx:Object label="OPEN"/>
           <fx:Object label="CLOSED"/>
         </s:ArrayCollection>
       </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('GROUPS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:BorderContainer id="groupsC" backgroundColor="#EAEAEA" borderVisible="false">
+        <s:List id="groups" bottom="20" width="150" height="120" labelFunction="groupLabelFunction"/>
+        <s:Button right="51" bottom="0" width="30" height="20" label="-" click="removeGroup(event)"
+                  enabled="{groups.selectedItem != null}" styleName="AddRemove"/>
+        <mx:PopUpButton id="addGroupButton" right="1" bottom="0" width="50" height="20" label="+"
+                        openAlways="true" styleName="AddRemove"/>
+      </s:BorderContainer>
     </s:FormItem>
     
   </s:Form>

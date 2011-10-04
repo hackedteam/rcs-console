@@ -21,6 +21,7 @@
       import mx.collections.ListCollectionView;
       import mx.controls.Menu;
       import mx.events.CloseEvent;
+      import mx.events.ListEvent;
       import mx.events.MenuEvent;
       import mx.managers.PopUpManager;
       
@@ -123,13 +124,20 @@
       
       private function initMenuOperation():void
       {
-        var _menu:Menu;
-        _menu = new Menu();
-        _menu.dataProvider = OperationManager.instance.getView();
-        _menu.labelField = 'name';
-        _menu.selectedIndex = 0;
-        _menu.addEventListener(MenuEvent.ITEM_CLICK, addOperationToGroup);
-        addOperButton.popUp = _menu;
+//        var _menu:Menu;
+//        _menu = new Menu();
+//        _menu.dataProvider = OperationManager.instance.getView();
+//        _menu.labelField = 'name';
+//        _menu.selectedIndex = 0;
+//        _menu.addEventListener(MenuEvent.ITEM_CLICK, addOperationToGroup);
+        
+        var list:List = new List();
+        list.dataProvider = OperationManager.instance.getView();
+        list.labelField = 'name';
+        //list.addEventListener(ListEvent., addOperationToGroup);
+        list.width = 250;
+        list.maxHeight = 150;
+        addOperButton.popUp = list;
       }
       
       private function operationFromId(o:Object):String

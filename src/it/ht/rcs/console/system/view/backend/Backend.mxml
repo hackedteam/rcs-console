@@ -113,6 +113,15 @@
         BackupJobManager.instance.removeItem(j);
       }
       
+      private function runJob(j:BackupJob):void
+      {
+        if (j == null)
+          return;
+        
+        BackupJobManager.instance.runJob(j);
+        BackupJobManager.instance.refresh();
+      }
+      
       private function restoreArchive(a:BackupArchive):void
       {
         if (a == null)
@@ -147,11 +156,12 @@
   <mx:TabNavigator width="100%" height="250" backgroundColor="0xeaeaea">
     <s:NavigatorContent label="{R.get('BACKUP_JOBS')}">
       <s:VGroup width="100%" height="100%">
-        <s:HGroup>
+        <s:HGroup width="100%">
           <s:Spacer width="3" />
           <s:Button x="0" y="0" label="N" width="30" height="20" click="addJob()" toolTip="{resourceManager.getString('localized_main', 'NEW')}" skinClass="it.ht.rcs.console.skins.NewButton"/>
-          <s:Button x="40" y="0" label="E" width="30" height="20" click="editJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'EDIT')}" skinClass="it.ht.rcs.console.skins.EditButton"/>
-          <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
+          <s:Button x="40" y="0" label="E" width="30" height="20" click="editJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{R.get('EDIT')}" skinClass="it.ht.rcs.console.skins.EditButton"/>
+          <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{R.get('DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
+          <s:Button x="120" y="0" label="R" width="30" height="20" click="runJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{R.get('RUN_NOW')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
         </s:HGroup>
         <backend:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}" doubleClickEnabled="true" doubleClick="editJob(backupjobs.selectedItem as BackupJob)"/>
       </s:VGroup>

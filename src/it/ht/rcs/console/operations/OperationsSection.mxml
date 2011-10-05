@@ -131,6 +131,14 @@
             TargetManager.instance.start();
             currentState = 'singleOperation';
             break;
+          case 'allTargets':
+            selectedOperation = null; selectedTarget = null; selectedAgent = null;
+            CurrentManager = TargetManager;
+            currentFilter = searchFilterFunction;
+            TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+            TargetManager.instance.start();
+            currentState = 'allTargets';
+            break;
           case 'singleTarget':
             if (console.currentSession.user.is_tech()) {
               selectedAgent = null;
@@ -164,15 +172,13 @@
       
       private function changeItem(item:*):void
       {
-        // user clicked on an operation
-        if (currentState == 'allOperations')
+        if (item is Operation)
         {
           selectedOperation = item;
           switchState('singleOperation');
         }
         
-        // user clicked on a target
-        else if (currentState == 'singleOperation')
+        else if (item is Target)
         {
           if (console.currentSession.user.is_tech()) {
             selectedTarget = item;
@@ -180,8 +186,7 @@
           }
         }
         
-        // user clicked on an agent
-        else if (currentState == 'singleTarget')
+        else if (item is Agent)
         {
           selectedAgent = item;
           switchState('singleAgent');
@@ -222,8 +227,7 @@
   
   <mx:ViewStack id="views" width="100%" height="100%">
     
-    <s:NavigatorContent hideEffect="{fadeOut}" icon="@Embed('img/buttons/apply.png')"
-                        showEffect="{fadeIn}">
+    <s:NavigatorContent hideEffect="{fadeOut}" showEffect="{fadeIn}">
       
       <s:List id="itemList" width="100%" height="100%" dataProvider="{_item_view}"
               doubleClick="changeItem(itemList.selectedItem)" doubleClickEnabled="true"
@@ -237,8 +241,7 @@
       
     </s:NavigatorContent>
     
-    <s:NavigatorContent hideEffect="{fadeOut}" icon="@Embed('img/buttons/apply.png')"
-                        showEffect="{fadeIn}">
+    <s:NavigatorContent hideEffect="{fadeOut}" showEffect="{fadeIn}">
 
       <operations:OperationGrid id="itemGrid" width="100%" height="100%"
                                 currentState="{currentState}" dataProvider="{_item_view}"

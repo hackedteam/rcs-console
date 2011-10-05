@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009" 
             xmlns:s="library://ns.adobe.com/flex/spark" 
-            xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+            xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" addedToStage="added()">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
+      
+      import mx.resources.ResourceManager;
+      
+      private function added():void
+      {
+        BackupJobManager.instance.refresh(); 
+      }
       
       private function formatdate(item:Object, column:GridColumn):String
       {
@@ -19,6 +27,11 @@
       
     ]]>
   </fx:Script>
+  
+  <fx:Metadata>
+    [ResourceBundle("localized_main")]
+    [ResourceBundle("localized_db_messages")] 
+  </fx:Metadata>
   
   <s:columns>
     <s:ArrayList>
@@ -34,7 +47,7 @@
         </s:itemRenderer>
       </s:GridColumn>
       <s:GridColumn headerText="{R.get('WHAT')}" dataField="what" itemRenderer="it.ht.rcs.console.system.view.backend.renderers.BackupWhatRenderer"/>
-      <s:GridColumn headerText="{R.get('WHEN')}" dataField="when" width="200" itemRenderer="it.ht.rcs.console.system.view.backend.renderers.BackupWhenRenderer"/>
+      <s:GridColumn headerText="{R.get('WHEN')}" dataField="when" width="250" itemRenderer="it.ht.rcs.console.system.view.backend.renderers.BackupWhenRenderer"/>
       <s:GridColumn headerText="{R.get('NAME')}" dataField="name" />
       <s:GridColumn headerText="{R.get('LAST_RUN')}" dataField="lastrun" labelFunction="formatdate" resizable="false" width="130" />
       <s:GridColumn headerText="{R.get('STATUS')}" dataField="status" resizable="false" width="100" itemRenderer="it.ht.rcs.console.system.view.backend.renderers.BackupStatusRenderer" />

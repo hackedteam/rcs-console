@@ -7,7 +7,7 @@
                              save="saveMe()"
                              title="{resourceManager.getString('localized_main', 'EDIT_BACKUP').toUpperCase()}" 
                              xmlns:view="it.ht.rcs.console.system.view.*" 
-                             xmlns:items="it.ht.rcs.console.utils.items.*">
+                             xmlns:items="it.ht.rcs.console.utils.items.*" xmlns:backend="it.ht.rcs.console.system.view.backend.*">
 
   <fx:Script>
     <![CDATA[
@@ -47,7 +47,7 @@
         
         _job.what = what;
         
-        _job.when = new BackupJobTime({week: [], month: [], time: "10:00"})
+        _job.when = formWhen.data;
         
         /* reset the status on save */
         _job.lastrun = 0;
@@ -74,7 +74,7 @@
       </s:HGroup>
     </s:FormItem>
     <s:FormItem label="{R.get('WHEN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      
+      <backend:BackupJobWhen id="formWhen" data="{_job.when}"/>
     </s:FormItem>
     <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextInput id="formName" text="{_job.name}" width="200" restrict="^ /\\" />

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
-                            xmlns:s="library://ns.adobe.com/flex/spark"
-                            xmlns:mx="library://ns.adobe.com/flex/mx"
-                            xmlns:utils="it.ht.rcs.console.utils.*"
-                            creationComplete="init()" save="onSave(event)"
-                            title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
+<operations:ItemPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                      xmlns:s="library://ns.adobe.com/flex/spark"
+                      xmlns:mx="library://ns.adobe.com/flex/mx"
+                      xmlns:operations="it.ht.rcs.console.operations.*"
+                      creationComplete="init()" save="onSave(event)"
+                      title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
   <fx:Script>
     <![CDATA[
@@ -20,10 +20,12 @@
       import spark.events.IndexChangeEvent;
       
       [Bindable]
-      public var mode:String;
-      
-      [Bindable]
       public var operation:Operation;
+      
+      override public function set item(item:*):void
+      {
+        operation = item;
+      }
       
       private function init():void
       {
@@ -148,4 +150,4 @@
     
   </s:Form>
   
-</utils:TitleWindowSaveClose>
+</operations:ItemPopup>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<operations:ItemPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                      xmlns:s="library://ns.adobe.com/flex/spark"
+                      xmlns:mx="library://ns.adobe.com/flex/mx"
+                      xmlns:utils="it.ht.rcs.console.utils.*"
+                      xmlns:operations="it.ht.rcs.console.operations.*"
+                      creationComplete="init()" save="onSave(event)"
+                      title="{mode == 'new' ? R.get('NEW_TARGET') : R.get('EDIT_TARGET')}">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.target.model.Target;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var target:Target;
+      
+      override public function set item(item:*):void
+      {
+        target = item;
+      }
+      
+      private function init():void
+      {
+        opName.setFocus();
+      }
+      
+      private function onSave(event:SaveEvent):void
+      {
+        target.name = opName.text;
+        target.desc = desc.text;
+        
+        close(null);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:Form width="100%">
+
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="opName" width="250" text="{target.name}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DESCRIPTION')}">
+      <s:TextArea id="desc" width="250" text="{target.desc}"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</operations:ItemPopup>

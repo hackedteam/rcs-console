@@ -12,9 +12,14 @@
   
   <s:states>
     <s:State name="default"/>
+    
     <s:State name="allOperations"/>
     <s:State name="singleOperation"/>
+    
+    <s:State name="allTargets"/>
     <s:State name="singleTarget"/>
+    
+    <s:State name="allAgents"/>
     <s:State name="singleAgent"/>
   </s:states>
 
@@ -62,6 +67,14 @@
         switchState('allOperations');
       }
       
+      private function customTypeCompareFunction(a:Object, b:Object):int
+      {
+        var aHas:Boolean = a.hasOwnProperty('customType');
+        var bHas:Boolean = b.hasOwnProperty('customType');
+        if ((aHas &&  bHas) || (!aHas && !bHas)) return 0;
+        if (aHas) return -1 else return 1;
+      }
+      
       private function onAddedToStage(event:Event):void
       {
         switchState(currentState);
@@ -85,20 +98,16 @@
       
       private function onDataLoaded(event:DataLoadedEvent):void
       {
-        _item_view = CurrentManager.instance.getView(customTypeSort, currentFilter);
         if (CurrentManager == AgentManager) {
+          _item_view = CurrentManager.instance.getView(customTypeSort, currentFilter);
           _item_view.addItemAt({name: 'File System', customType: 'filesystem'}, 0);
           _item_view.addItemAt({name: 'Evidences',   customType: 'evidences'}, 0);
+        } else {
+          _item_view = CurrentManager.instance.getView(null, currentFilter);
         }
       }
       
-      private function customTypeCompareFunction(a:Object, b:Object):int
-      {
-        if (  a.hasOwnProperty('customType') &&  b.hasOwnProperty('customType') ||
-             !a.hasOwnProperty('customType') && !b.hasOwnProperty('customType') )
-          return 0;
-        if (a.hasOwnProperty('customType')) return -1 else return 1;
-      }
+
       
       public function switchState(state:String):void
       {
@@ -201,11 +210,6 @@
           return searchFilterFunction(item);
         else return false;
       }
-      
-      private function onDoubleClick(event:MouseEvent):void
-      {
-        changeItem(itemList.selectedItem);
-      }
     ]]>
   </fx:Script>
 
@@ -221,8 +225,8 @@
     <s:NavigatorContent hideEffect="{fadeOut}" icon="@Embed('img/buttons/apply.png')"
                         showEffect="{fadeIn}">
       
-      <s:List id="itemList" width="100%" height="100%" dataProvider="{_item_view}" 
-              doubleClick="onDoubleClick(event)" doubleClickEnabled="true"
+      <s:List id="itemList" width="100%" height="100%" dataProvider="{_item_view}"
+              doubleClick="changeItem(itemList.selectedItem)" doubleClickEnabled="true"
               itemRenderer="it.ht.rcs.console.operations.OperationListRenderer" labelField="name"
               selectedItem="{itemGrid.selectedItem}">
         <s:layout>
@@ -238,7 +242,8 @@
 
       <operations:OperationGrid id="itemGrid" width="100%" height="100%"
                                 currentState="{currentState}" dataProvider="{_item_view}"
-                                selectedItem="{itemList.selectedItem}"/>
+                                doubleClick="changeItem(itemGrid.selectedItem)"
+                                doubleClickEnabled="true" selectedItem="{itemList.selectedItem}"/>
       
     </s:NavigatorContent>
     

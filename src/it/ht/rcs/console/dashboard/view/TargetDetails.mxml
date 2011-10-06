@@ -3,9 +3,25 @@
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx" width="100%">
 
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operation.model.Stat;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      [Bindable]
+      private var _stat:Stat;
+      
+      public function set stat(o:Object):void
+      {
+        _stat = o as Stat;
+      }
+      
+    ]]>
+  </fx:Script>
+  
   <!-- infos -->
   <s:Label left="5" top="10" fontWeight="bold" text="Sync time"/>
-  <s:Label left="70" top="10" text="2011-06-02 15:30:00"/>
+  <s:Label left="70" top="10" text="{TimeUtils.timestampFormatter(_stat.last_sync * 1000)}"/>
 
   <s:Label left="200" top="10" fontWeight="bold" text="Last Device"/>
   <s:Label left="280" top="10" text="WIN-7"/>

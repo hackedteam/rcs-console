@@ -12,6 +12,7 @@
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.items.ItemEvent;
       
       import mx.collections.ListCollectionView;
@@ -38,8 +39,13 @@
       
       private function onDashboardDataLoaded(event:DataLoadedEvent):void
       {
-        if (_dashboard_items == null)
+        if (_dashboard_items == null) {
+          var sort:Sort = new Sort();
           _dashboard_items = DashboardController.instance.getView();
+          sort.compareFunction = compareSyncTime;
+          _dashboard_items.sort = sort;
+          _dashboard_items.refresh();
+        }
       }
       
       private function removed():void
@@ -54,10 +60,19 @@
         DashboardController.instance.newDashItem(event.selectedItem._id);  
       }
       
+      private function compareSyncTime(a:SearchItem, b:SearchItem, fields:Array=null):int {
+        if (a.stat.last_sync < b.stat.last_sync)
+          return 1;
+        else if (a.stat.last_sync > b.stat.last_sync)
+          return -1;
+        else
+          return 0
+      };
+      
       private function sort_by_time():void
       {
         var sort:Sort = new Sort();
-        sort.fields = [new SortField('lastsync', true, true, true)];
+        sort.compareFunction = compareSyncTime;
         _dashboard_items.sort = sort;
         _dashboard_items.refresh();
       }
@@ -78,10 +93,10 @@
                      borderVisible="false">
     <s:Button x="0" y="0" width="30" height="20" label="S"
               skinClass="it.ht.rcs.console.skins.SortTimeButton"
-              toolTip="{resourceManager.getString('localized_main', 'SORT_BY_TIME')}"/>
+              toolTip="{resourceManager.getString('localized_main', 'SORT_BY_TIME')}" click="sort_by_time()"/>
     <s:Button x="40" y="0" width="30" height="20" label="S"
               skinClass="it.ht.rcs.console.skins.SortNameButton"
-              toolTip="{resourceManager.getString('localized_main', 'SORT_BY_NAME')}"/>
+              toolTip="{resourceManager.getString('localized_main', 'SORT_BY_NAME')}" click="sort_by_name()"/>
     <items:SearchField id="searchField" right="5" top="0" kinds="{['operation', 'target', 'agent']}"/>
   </s:BorderContainer>
   

@@ -9,13 +9,14 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.search.model.SearchItem;
       
       [Bindable]
-      private var _data:Object
+      private var _data:SearchItem;
       
       override public function set data(o:Object):void
       {
-        _data = o;
+        _data = o as SearchItem;
         
         if (_data != null)
           currentState = _data._kind;
@@ -42,9 +43,9 @@
           <s:Label top="80" horizontalCenter="0" text="{_data.status != 'open' ? _data.status : ''}"/>
         </s:SkinnableContainer>
         <s:SkinnableContainer width="100%" height="100%">
-          <view:OperationDetails includeIn="operation" />
-          <view:TargetDetails includeIn="target" />
-          <view:AgentDetails includeIn="agent" />
+          <view:OperationDetails includeIn="operation" stat="{_data.stat}"/>
+          <view:TargetDetails includeIn="target" stat="{_data.stat}" />
+          <view:AgentDetails includeIn="agent" stat="{_data.stat}" />
         </s:SkinnableContainer>
       </s:HGroup>
      

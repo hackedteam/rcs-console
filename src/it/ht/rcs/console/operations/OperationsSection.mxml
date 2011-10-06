@@ -28,6 +28,7 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.events.DataLoadedEvent;
+      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
@@ -35,6 +36,7 @@
       import it.ht.rcs.console.target.model.Target;
       
       import mx.collections.ListCollectionView;
+      import mx.controls.Alert;
       import mx.core.FlexGlobals;
       
       import spark.collections.Sort;
@@ -64,7 +66,20 @@
         customTypeSort.fields = [customTypeSortField, new SortField('name', false, false)];
         
         FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
-        switchState('allOperations');
+        //switchState('allOperations');
+        
+        //OperationManager.instance.start();
+        TargetManager.instance.start();
+        AgentManager.instance.start();
+      }
+      
+      public function changeSection(event:SectionEvent):void
+      {
+        if (event.sectionState == 'singleOperation') {
+          selectedOperation = OperationManager.instance.getItem(event.itemId);
+          //itemList.selectedItem = selectedOperation;
+        }
+        switchState(event.sectionState);
       }
       
       private function customTypeCompareFunction(a:Object, b:Object):int
@@ -107,8 +122,6 @@
         }
       }
       
-
-      
       public function switchState(state:String):void
       {
         
@@ -148,6 +161,10 @@
               AgentManager.instance.start();
               currentState = 'singleTarget';
             }
+            break;
+          case 'allAgents':
+            if (console.currentSession.user.is_view())
+              currentState = 'allAgents';
             break;
           case 'singleAgent':
             if (console.currentSession.user.is_view())

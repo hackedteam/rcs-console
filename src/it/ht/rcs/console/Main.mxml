@@ -17,13 +17,14 @@
   
   <fx:Script>
     <![CDATA[
-
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
+      import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.task.controller.DownloadManager;
       
       import mx.core.FlexGlobals;
@@ -45,6 +46,8 @@
       {
         /* change the state to the current section */
         currentState = event.section;
+        if (this[event.section].hasOwnProperty('changeSection'))
+          this[event.section].changeSection(event);
       }
       
 
@@ -83,6 +86,10 @@
         if (console.currentSession.user.is_view()) {
           AlertController.instance.start_counters();
         }
+        
+        OperationManager.instance.refresh(null);
+        TargetManager.instance.refresh(null);
+        AgentManager.instance.refresh(null);
 
         // TODO: default state is "home"
         
@@ -98,7 +105,9 @@
       
       private function removed():void 
       {
-        trace("Exiting main section...")
+        trace("Exiting main section...");
+        
+        FlexGlobals.topLevelApplication.removeEventListener(SectionEvent.CHANGE_SECTION, changeSection);
   
         /* stop the managers */
         DownloadManager.instance.stop();
@@ -135,21 +144,21 @@
                       itemClick="mainButtonClickHandler(event);" selectedIndex="{main_sections.indexOf(currentState)}"/>
   
   <!-- all the sections -->
-  <accounting:AccountingSection includeIn="Accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <accounting:AccountingSection id="Accounting" includeIn="Accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <operations:OperationsSection includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <operations:OperationsSection id="Operations" includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <dashboard:DashboardSection includeIn="Dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <dashboard:DashboardSection id="Dashboard" includeIn="Dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
 
-  <correlation:CorrelationSection includeIn="Correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <correlation:CorrelationSection id="Correlation" includeIn="Correlation" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <system:SystemSection includeIn="System" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <system:SystemSection id="System" includeIn="System" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <alerting:AlertingSection includeIn="Alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <alerting:AlertingSection id="Alerting" includeIn="Alerting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <audit:AuditSection includeIn="Audit" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <audit:AuditSection id="Audit" includeIn="Audit" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <monitor:MonitorSection includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <monitor:MonitorSection id="Monitor" includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
   
   <s:Panel includeIn="Home" title="Home" height="100%" top="75" left="0" right="0" bottom="0">
     <s:Image x="0" y="0" width="1280" alpha="0.40" smooth="true" source="@Embed('img/vitruvian.png')"/>

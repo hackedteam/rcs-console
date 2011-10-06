@@ -6,8 +6,9 @@
 
 <fx:Script>
   <![CDATA[
-    import it.ht.rcs.console.events.RefreshEvent;
     import it.ht.rcs.console.accounting.controller.SessionManager;
+    import it.ht.rcs.console.events.RefreshEvent;
+    import it.ht.rcs.console.events.SectionEvent;
     
     import mx.core.FlexGlobals;
 
@@ -38,6 +39,15 @@
       FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
     }
     
+    private function test():void
+    {
+      var evt:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+      evt.section = "Operations";
+      evt.sectionState = "singleOperation";
+      evt.itemId = "4df7246d963d350964000001";
+      FlexGlobals.topLevelApplication.dispatchEvent(evt);
+    }
+    
   ]]>
 </fx:Script>
 
@@ -60,5 +70,8 @@
   <s:Spacer width="5"/>
   <s:Button id="RefreshButton" click="refresh()" skinClass="it.ht.rcs.console.skins.RefreshButton"
             toolTip="{resourceManager.getString('localized_main', 'REFRESH')}"/>
+  
+  <s:Spacer width="5"/>
+  <s:Button click="test()" label="Test"/>
   
 </s:HGroup>

@@ -15,6 +15,8 @@
       import it.ht.rcs.console.utils.items.ItemEvent;
       
       import mx.collections.ListCollectionView;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
       
       [Bindable]
       private var _dashboard_items:ListCollectionView;
@@ -48,6 +50,22 @@
       private function onSelectSearchItem(event:ItemEvent):void
       {
         DashboardController.instance.newDashItem(event.selectedItem._id);  
+      }
+      
+      private function sort_by_time():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('lastsync', true, true, true)];
+        _dashboard_items.sort = sort;
+        _dashboard_items.refresh();
+      }
+      
+      private function sort_by_name():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('name', true, false, false)];
+        _dashboard_items.sort = sort;
+        _dashboard_items.refresh();
       }
       
     ]]>

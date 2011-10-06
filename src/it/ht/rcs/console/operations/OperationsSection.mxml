@@ -36,7 +36,6 @@
       import it.ht.rcs.console.target.model.Target;
       
       import mx.collections.ListCollectionView;
-      import mx.controls.Alert;
       import mx.core.FlexGlobals;
       
       import spark.collections.Sort;
@@ -58,6 +57,7 @@
       private var currentFilter:Function;
       private var customTypeSort:Sort;
       
+      private var hasAlreadySwitchedState:Boolean = false;
       private function init():void
       {
         customTypeSort = new Sort();
@@ -66,20 +66,30 @@
         customTypeSort.fields = [customTypeSortField, new SortField('name', false, false)];
         
         FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
-        //switchState('allOperations');
+        if (!hasAlreadySwitchedState)
+          switchState('allOperations');
         
         //OperationManager.instance.start();
-        TargetManager.instance.start();
-        AgentManager.instance.start();
+        //TargetManager.instance.start();
+        //AgentManager.instance.start();
       }
       
       public function changeSection(event:SectionEvent):void
       {
-        if (event.sectionState == 'singleOperation') {
-          selectedOperation = OperationManager.instance.getItem(event.itemId);
-          //itemList.selectedItem = selectedOperation;
+        if (event.item == null) { return };
+        
+        var targetState:String;
+        switch (event.item._kind) {
+          case 'operation':
+            targetState = 'singleOperation';
+            break;
+          default:
+            break;
         }
-        switchState(event.sectionState);
+        selectedOperation = OperationManager.instance.getItem(event.item._id);
+        
+        switchState(targetState);
+        hasAlreadySwitchedState = true;
       }
       
       private function customTypeCompareFunction(a:Object, b:Object):int

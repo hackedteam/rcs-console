@@ -9,7 +9,10 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.model.SearchItem;
+      
+      import mx.core.FlexGlobals;
       
       [Bindable]
       private var _data:SearchItem;
@@ -21,6 +24,15 @@
         if (_data != null)
           currentState = _data._kind;
       }
+      
+      protected function onImageClick(e:MouseEvent):void
+      {
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = "Operations";
+        event.item = _data;
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
+      }
+      
     ]]>
   </fx:Script>
   
@@ -37,6 +49,7 @@
         <s:SkinnableContainer width="80" height="100%">
           <!-- item icon -->
           <s:Image top="10" horizontalCenter="0" 
+                   click="onImageClick(event)" buttonMode="true"
                    source.operation="@Embed('img/items/operation_black.png')" 
                    source.target="@Embed('img/items/target_black.png')" 
                    source.agent="@Embed('img/items/agent_black.png')"/>

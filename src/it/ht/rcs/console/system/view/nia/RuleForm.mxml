@@ -30,6 +30,9 @@
       private var fileReference:FileReference;
       private var fileChanged:Boolean = false;
       
+      [Bindable] 
+      private var _selectedTarget: Object;
+      
       public function init():void
       {
         
@@ -212,7 +215,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <items:SearchField id="target" width="200" kinds="{['target']}" selectedItemId="{rule.target_id}"></items:SearchField>
+      <items:SearchField id="target" width="200" kinds="{['target']}" selectedItem="@{_selectedTarget}" selectedItemId="{rule.target_id}"></items:SearchField>
     </s:FormItem>
     
     <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
@@ -255,7 +258,7 @@
     
     <s:FormItem label="{R.get('AGENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem"
                 visible="{action.selectedItem != 'REPLACE'}" includeInLayout="{action.selectedItem != 'REPLACE'}">
-      <items:SearchField id="agent" width="200" kinds="{['factory']}" selectedItemId="{rule.action_param}"></items:SearchField>   
+      <items:SearchField id="agent" width="200" kinds="{['factory']}" path="{_selectedTarget}" selectedItemId="{rule.action_param}"></items:SearchField>   
     </s:FormItem>
    
     <s:FormItem label="{R.get('FILE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem"

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:main="it.ht.rcs.console.operations.main.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.OperationsSection;
+      
+      [Bindable]
+      private var section:OperationsSection;
+    ]]>
+  </fx:Script>
+  
+  <mx:ViewStack id="viewStack" width="100%" height="100%">
+    
+    <s:NavigatorContent hideEffect="{fadeOut}" showEffect="{fadeIn}">
+      <main:OperationList id="itemList" dataProvider="{section._item_view}"
+                          selectedItem="{itemGrid.selectedItem}"/>
+    </s:NavigatorContent>
+    
+    <s:NavigatorContent hideEffect="{fadeOut}" showEffect="{fadeIn}">
+      <main:OperationGrid id="itemGrid" currentState="{section.currentState}"
+                          dataProvider="{section._item_view}" selectedItem="{itemList.selectedItem}"/>
+    </s:NavigatorContent>
+    
+  </mx:ViewStack>
+  
+  <main:EvidenceView/>
+  
+  <main:FileSystemView/>
+  
+  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
+  </fx:Declarations>
+  
+  
+</s:Group>

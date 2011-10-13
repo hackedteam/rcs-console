@@ -10,6 +10,7 @@ package it.ht.rcs.console.utils.items
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.skins.TextInputSearchSkin;
   
+  import mx.collections.ArrayCollection;
   import mx.collections.IViewCursor;
   import mx.collections.ListCollectionView;
   import mx.events.FlexEvent;
@@ -26,8 +27,10 @@ package it.ht.rcs.console.utils.items
     private var dropDown:DropDown;
     
     private var _dataProvider:ListCollectionView;
+    [Bindable]
     private var _selectedItem:Object;
     private var _kinds:Array;
+    private var _path:ArrayCollection;
     
     private static const kindOrder:Array = ['operation', 'target', 'agent'];
     
@@ -47,6 +50,8 @@ package it.ht.rcs.console.utils.items
       addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
       dataProvider = SearchManager.instance.getView();
+      
+      _path = new ArrayCollection();
     }
     
     private function init(event:FlexEvent):void
@@ -81,6 +86,14 @@ package it.ht.rcs.console.utils.items
       return distance / Math.abs(distance);
     }
     
+    public function set path(item:Object):void
+    {
+       _path = item.path;
+       _path.addItem(item._id);
+       trace("_path = " + _path.toArray());
+       _dataProvider.refresh();
+    }
+    
     public function set kinds(value:Array):void
     {
       _kinds = [];
@@ -97,6 +110,18 @@ package it.ht.rcs.console.utils.items
       if (item.separator) return true;
       if (text == '') return true;
       
+      if (_path.length > item.path.length) return true;
+      trace(item.path.toArray());
+      trace(_path.toArray());
+      for (var i:int = 0; i < _path.length; i++) {
+        if (item.path[i] != _path[i]) {
+          trace(item.path[i] + " == " + _path[i] + "? ... NO!");
+          return false;
+        }
+        trace(item.path[i] + " == " + _path[i] + "? ... YES!");
+      }
+      
+      // check that item path matches filtering path
       var result:Boolean = String(item.name.toLowerCase()).indexOf(text.toLowerCase()) >= 0 || 
                            String(item.desc.toLowerCase()).indexOf(text.toLowerCase()) >= 0;
       return result;
@@ -147,8 +172,10 @@ package it.ht.rcs.console.utils.items
       text = dropDown.selectedItem.name;
       dropDown.hide();
       dispatchEvent(event.clone());
+      dispatchEvent(new Event("internalItemChange"));
     }
     
+    [Bindable(event="internalItemChange")]
     public function get selectedItem():*
     {
       return _selectedItem;
@@ -166,6 +193,7 @@ package it.ht.rcs.console.utils.items
         _selectedItem = undefined;
         text = '';
       }
+      dispatchEvent(new Event("internalItemChange"));
     }
     
     public function set selectedItemId(id:String):void

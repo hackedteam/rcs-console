@@ -31,13 +31,14 @@
               skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
     <s:Spacer width="15"/>
     <s:Button width="30" height="20" label="Apply" enabled="{ipas.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_RULES')}"/>
+              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_RULES')}" click="applyRules()"/>
   </s:HGroup>
    
   <nia:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{ipas.selectedItem.rules}" />    
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.network.controller.ProxyController;
       import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
@@ -133,6 +134,13 @@
               rulesGrid.dataProvider.removeItemAt(rulesGrid.selectedIndex);
           },
           null, AlertPopUp.NO);
+      }
+      
+      protected function applyRules():void
+      {
+        DB.instance.proxy.apply_rules(ipas.selectedItem._id, function (e:*):void {
+          AlertPopUp.show(R.get('RULES_APPLIED'), "", AlertPopUp.OK);
+        });
       }
       
     ]]>

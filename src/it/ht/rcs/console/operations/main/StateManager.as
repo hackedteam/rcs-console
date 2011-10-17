@@ -1,5 +1,7 @@
 package it.ht.rcs.console.operations.main
 {
+  import flash.events.Event;
+  
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.events.DataLoadedEvent;

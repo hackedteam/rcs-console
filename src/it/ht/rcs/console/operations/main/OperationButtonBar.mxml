@@ -49,7 +49,7 @@
       private function editClick():void
       {
         var PopupClass:Class;
-        var item:* = section.body.itemList.selectedItem;
+        var item:* = section.body.listGridView.itemList.selectedItem;
         if (item is Operation) PopupClass = OperationForm;
         else if (item is Target) PopupClass = TargetForm;
         
@@ -61,7 +61,7 @@
       
       private function deleteClick():void
       {
-        AlertPopUp.show(R.get('CONFIRM_OPERATION_DELETION', [section.body.itemList.selectedItem.name]),
+        AlertPopUp.show(R.get('CONFIRM_OPERATION_DELETION', [section.body.listGridView.itemList.selectedItem.name]),
           R.get('CONFIRM'),
           AlertPopUp.YES | AlertPopUp.NO,
           null,
@@ -72,14 +72,14 @@
       private function doDelete(e:CloseEvent):void
       {
         if (e.detail == AlertPopUp.YES)
-          OperationManager.instance.removeItem(section.body.itemList.selectedItem);
+          OperationManager.instance.removeItem(section.body.listGridView.itemList.selectedItem);
       }
     ]]>
   </fx:Script>
   
-  <s:Button width="30" height="20" click="{section.body.viewStack.selectedIndex = 0}"
+  <s:Button width="30" height="20" click="{section.body.listGridView.selectedIndex = 0}"
             skinClass="it.ht.rcs.console.skins.IconsButton" toolTip="{R.get('GRID_VIEW')}"/>
-  <s:Button width="30" height="20" click="{section.body.viewStack.selectedIndex = 1}"
+  <s:Button width="30" height="20" click="{section.body.listGridView.selectedIndex = 1}"
             skinClass="it.ht.rcs.console.skins.ListButton" toolTip="{R.get('LIST_VIEW')}"/>
   
   <s:Spacer width="30"/>
@@ -90,13 +90,13 @@
             visible.singleOperation="{console.currentSession.user.is_admin()}"
             visible.singleTarget="{console.currentSession.user.is_tech()}"/>
   <s:Button width="30" height="20" click="editClick()"
-            enabled="{section.body.itemList.selectedItem != null}"
+            enabled="{section.body.listGridView.itemList.selectedItem != null}"
             skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"
             visible.allOperations="{console.currentSession.user.is_admin()}"
             visible.singleOperation="{console.currentSession.user.is_admin()}"
             visible.singleTarget="{console.currentSession.user.is_tech()}"/>
   <s:Button width="30" height="20" click="deleteClick()"
-            enabled="{section.body.itemList.selectedItem != null}"
+            enabled="{section.body.listGridView.itemList.selectedItem != null}"
             skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"
             visible.allOperations="{console.currentSession.user.is_admin()}"
             visible.singleOperation="{console.currentSession.user.is_admin()}"
@@ -105,7 +105,7 @@
   <s:Spacer width="100%"/>
   
   <s:TextInput id="searchField" width="200"
-               keyUp="if (section._item_view) section._item_view.refresh()"
+               keyUp="if (section.stateManager._item_view) section.stateManager._item_view.refresh()"
                skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
 
 </s:HGroup>

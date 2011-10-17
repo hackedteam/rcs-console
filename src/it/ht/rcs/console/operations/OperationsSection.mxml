@@ -26,9 +26,10 @@
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.operations.main.StateManager;
+      
+      import mx.core.FlexGlobals;
       
       [Bindable]
       public var stateManager:StateManager;
@@ -37,24 +38,25 @@
       private function init():void
       {
         stateManager = new StateManager(this);
-//        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
-//        if (!hasAlreadySwitchedState)
-//          stateManager.switchState('allOperations');
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
+        stateManager.setState('allOperations');
       }
       
       private function onAddedToStage(event:Event):void
       {
-        stateManager.setState(currentState);
+        if (stateManager)
+          stateManager.setState(currentState);
       }
       
       private function onRemovedFromStage(event:Event):void
       {
-        stateManager.stopManagers();
+        if (stateManager)
+          stateManager.stopManagers();
       }
       
       private function onLoggingOut(event:SessionEvent):void
       {
-        //stateManager.resetState();
+        stateManager.resetState();
       }
       
 //      public function changeSection(event:SectionEvent):void
@@ -80,8 +82,8 @@
   
   <breadcrumbs:OperationBreadcrumbs/>
   
-  <!--main:OperationButtonBar id="buttonBar" currentState="{currentState}"/>
+  <main:OperationButtonBar id="buttonBar" currentState="{currentState}" section="{this}"/>
   
-  <main:OperationBody id="body"/-->
+  <main:OperationBody id="body"/>
   
 </s:Panel>

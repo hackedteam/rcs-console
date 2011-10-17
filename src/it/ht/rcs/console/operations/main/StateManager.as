@@ -98,30 +98,43 @@ package it.ht.rcs.console.operations.main
           section.currentState = 'singleOperation';
           break;
         case 'allTargets':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null;
-          CurrentManager = TargetManager;
-          currentFilter = searchFilterFunction;
-          TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          TargetManager.instance.start();
-          section.currentState = 'allTargets';
+          if (console.currentSession.user.is_tech()) {
+            selectedOperation = null; selectedTarget = null; selectedAgent = null;
+            section.currentState = 'allTargets';
+            CurrentManager = TargetManager;
+            currentFilter = searchFilterFunction;
+            TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+            TargetManager.instance.start();
+          }
           break;
         case 'singleTarget':
           if (console.currentSession.user.is_tech()) {
             selectedAgent = null;
+            section.currentState = 'singleTarget';
             CurrentManager = AgentManager;
             currentFilter = agentFilterFunction;
             AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
             AgentManager.instance.start();
-            section.currentState = 'singleTarget';
           }
           break;
         case 'allAgents':
-          if (console.currentSession.user.is_view())
+          if (console.currentSession.user.is_view()) {
+            selectedOperation = null; selectedTarget = null; selectedAgent = null;
             section.currentState = 'allAgents';
+            CurrentManager = AgentManager;
+            currentFilter = searchFilterFunction;
+            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+            AgentManager.instance.start();
+          }
           break;
         case 'singleAgent':
-          if (console.currentSession.user.is_view())
+          if (console.currentSession.user.is_view()) {
             section.currentState = 'singleAgent';
+            CurrentManager = AgentManager;
+            currentFilter = searchFilterFunction;
+            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+            AgentManager.instance.start();
+          }
           break;
         default:
           break;
@@ -149,7 +162,7 @@ package it.ht.rcs.console.operations.main
     
     private function onDataLoaded(event:DataLoadedEvent):void
     {
-      if (CurrentManager == AgentManager) {
+      if (section.currentState == 'singleTarget' || section.currentState == 'singleAgent') {
         _item_view = CurrentManager.instance.getView(customTypeSort, currentFilter);
         _item_view.addItemAt({name: 'File System', customType: 'filesystem'}, 0);
         _item_view.addItemAt({name: 'Evidences',   customType: 'evidences'}, 0);
@@ -172,15 +185,15 @@ package it.ht.rcs.console.operations.main
     
     private function searchFilterFunction(item:Object):Boolean
     {
-//      if (!section.buttonBar || !section.buttonBar.searchField || section.buttonBar.searchField.text == '')
-//        return true;
-//      var result:Boolean = String(item.name.toLowerCase()).indexOf(section.buttonBar.searchField.text.toLowerCase()) >= 0;
-//      return result;
-      return true;
+      if (!section.buttonBar || !section.buttonBar.searchField || section.buttonBar.searchField.text == '')
+        return true;
+      var result:Boolean = String(item.name.toLowerCase()).indexOf(section.buttonBar.searchField.text.toLowerCase()) >= 0;
+      return result;
     }
     
     private function targetFilterFunction(item:Object):Boolean
     {
+      if (!(item is Target)) return true;
       if (item.path[0] == selectedOperation._id)
         return searchFilterFunction(item);
       else return false;

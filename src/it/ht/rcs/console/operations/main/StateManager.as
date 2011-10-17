@@ -177,11 +177,6 @@ package it.ht.rcs.console.operations.main
       }
     }
     
-//    private function getOperationByTargetId(targetId:String):Operation
-//    {
-//      return null;
-//    }
-    
     private var CurrentManager:Class;
     private var currentFilter:Function;
     private var customTypeSort:Sort;

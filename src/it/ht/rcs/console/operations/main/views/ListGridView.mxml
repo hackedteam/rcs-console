@@ -11,18 +11,24 @@
       
       [Bindable]
       public var section:OperationsSection;
+      
+      private function onDoubleClick(event:MouseEvent):void
+      {
+        var item:* = itemList.visible ? itemList.selectedItem : itemGrid.selectedItem;
+        section.stateManager.manageItemSelection(item);
+      }
     ]]>
   </fx:Script>
   
   <s:NavigatorContent hideEffect="{fadeOut}" showEffect="{fadeIn}">
     <views:OperationList id="itemList" dataProvider="{section.stateManager._item_view}"
-                         selectedItem="{itemGrid.selectedItem}"/>
+                         doubleClick="onDoubleClick(event)" selectedItem="{itemGrid.selectedItem}"/>
   </s:NavigatorContent>
   
   <s:NavigatorContent hideEffect="{fadeOut}" showEffect="{fadeIn}">
     <views:OperationGrid id="itemGrid" currentState="{section.currentState}"
                          dataProvider="{section.stateManager._item_view}"
-                         selectedItem="{itemList.selectedItem}"/>
+                         doubleClick="onDoubleClick(event)" selectedItem="{itemList.selectedItem}"/>
   </s:NavigatorContent>
   
   <fx:Declarations>

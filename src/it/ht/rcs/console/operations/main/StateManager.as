@@ -9,6 +9,8 @@ package it.ht.rcs.console.operations.main
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
   
+  import locale.R;
+  
   import mx.collections.ListCollectionView;
   import mx.controls.Alert;
   
@@ -42,7 +44,7 @@ package it.ht.rcs.console.operations.main
       customTypeSort.fields = [customTypeSortField, new SortField('name', false, false)];
     }
     
-    private function manageItemSelection(item:*):void
+    public function manageItemSelection(item:*):void
     {
       if (item is Operation)
       {
@@ -60,8 +62,10 @@ package it.ht.rcs.console.operations.main
       
       else if (item is Agent)
       {
-        selectedAgent = item;
-        setState('singleAgent');
+        if (console.currentSession.user.is_view()) {
+          selectedAgent = item;
+          setState('singleAgent');
+        }
       }
       
       else if (item is Object && item.customType == 'evidences')
@@ -83,19 +87,19 @@ package it.ht.rcs.console.operations.main
       switch (state) {
         case 'allOperations':
           selectedOperation = null; selectedTarget = null; selectedAgent = null;
+          section.currentState = 'allOperations';
           CurrentManager = OperationManager;
           currentFilter = searchFilterFunction;
           OperationManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           OperationManager.instance.start();
-          section.currentState = 'allOperations';
           break;
         case 'singleOperation':
           selectedTarget = null; selectedAgent = null;
+          section.currentState = 'singleOperation';
           CurrentManager = TargetManager;
           currentFilter = targetFilterFunction;
           TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           TargetManager.instance.start();
-          section.currentState = 'singleOperation';
           break;
         case 'allTargets':
           if (console.currentSession.user.is_tech()) {
@@ -109,7 +113,7 @@ package it.ht.rcs.console.operations.main
           break;
         case 'singleTarget':
           if (console.currentSession.user.is_tech()) {
-            selectedAgent = null;
+            selectedOperation = OperationManager.instance.getItem(selectedTarget.path[0]); selectedAgent = null;
             section.currentState = 'singleTarget';
             CurrentManager = AgentManager;
             currentFilter = agentFilterFunction;
@@ -129,6 +133,8 @@ package it.ht.rcs.console.operations.main
           break;
         case 'singleAgent':
           if (console.currentSession.user.is_view()) {
+            selectedOperation = OperationManager.instance.getItem(selectedAgent.path[0]);
+            selectedTarget = TargetManager.instance.getItem(selectedAgent.path[1]);
             section.currentState = 'singleAgent';
             CurrentManager = AgentManager;
             currentFilter = searchFilterFunction;
@@ -164,12 +170,17 @@ package it.ht.rcs.console.operations.main
     {
       if (section.currentState == 'singleTarget' || section.currentState == 'singleAgent') {
         _item_view = CurrentManager.instance.getView(customTypeSort, currentFilter);
-        _item_view.addItemAt({name: 'File System', customType: 'filesystem'}, 0);
-        _item_view.addItemAt({name: 'Evidences',   customType: 'evidences'}, 0);
+        _item_view.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem'}, 0);
+        _item_view.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences'},  0);
       } else {
         _item_view = CurrentManager.instance.getView(null, currentFilter);
       }
     }
+    
+//    private function getOperationByTargetId(targetId:String):Operation
+//    {
+//      return null;
+//    }
     
     private var CurrentManager:Class;
     private var currentFilter:Function;
@@ -193,7 +204,7 @@ package it.ht.rcs.console.operations.main
     
     private function targetFilterFunction(item:Object):Boolean
     {
-      if (!(item is Target)) return true;
+      if (!(item is Target) || !(selectedOperation)) return true;
       if (item.path[0] == selectedOperation._id)
         return searchFilterFunction(item);
       else return false;
@@ -201,7 +212,7 @@ package it.ht.rcs.console.operations.main
     
     private function agentFilterFunction(item:Object):Boolean
     {
-      if (!(item is Agent)) return true;
+      if (!(item is Agent) || !(selectedTarget)) return true;
       if (item.path[1] == selectedTarget._id)
         return searchFilterFunction(item);
       else return false;

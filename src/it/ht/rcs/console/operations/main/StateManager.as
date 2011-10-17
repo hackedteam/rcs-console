@@ -11,6 +11,8 @@ package it.ht.rcs.console.operations.main
   
   import locale.R;
   
+  import mx.collections.ArrayCollection;
+  import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   import mx.controls.Alert;
   
@@ -136,10 +138,13 @@ package it.ht.rcs.console.operations.main
             selectedOperation = OperationManager.instance.getItem(selectedAgent.path[0]);
             selectedTarget = TargetManager.instance.getItem(selectedAgent.path[1]);
             section.currentState = 'singleAgent';
-            CurrentManager = AgentManager;
-            currentFilter = searchFilterFunction;
-            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-            AgentManager.instance.start();
+            CurrentManager = null;
+            currentFilter = null;
+            _item_view = new ListCollectionView(new ArrayList());
+            addCustomTypes();
+            _item_view.sort = customTypeSort;
+            _item_view.filterFunction = searchFilterFunction;
+            _item_view.refresh();
           }
           break;
         default:
@@ -166,12 +171,25 @@ package it.ht.rcs.console.operations.main
       section.currentState = 'allOperations';
     }
     
-    private function onDataLoaded(event:DataLoadedEvent):void
+    private function addCustomTypes():void
     {
       if (section.currentState == 'singleTarget' || section.currentState == 'singleAgent') {
+        _item_view.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences',  order: 0}, 0);
+        _item_view.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
+      }
+      if (section.currentState == 'singleAgent') {
+        _item_view.addItemAt({name: R.get('INFO'),     customType: 'info',     order: 2}, 0);
+        _item_view.addItemAt({name: R.get('CONFIG'),   customType: 'config',   order: 3}, 0);
+        _item_view.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',   order: 4}, 0);
+        _item_view.addItemAt({name: R.get('DOWNLOAD'), customType: 'download', order: 5}, 0);
+      }
+    }
+    
+    private function onDataLoaded(event:DataLoadedEvent = null):void
+    {
+      if (section.currentState == 'singleTarget') {
         _item_view = CurrentManager.instance.getView(customTypeSort, currentFilter);
-        _item_view.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem'}, 0);
-        _item_view.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences'},  0);
+        addCustomTypes();
       } else {
         _item_view = CurrentManager.instance.getView(null, currentFilter);
       }
@@ -185,7 +203,11 @@ package it.ht.rcs.console.operations.main
     {
       var aHas:Boolean = a.hasOwnProperty('customType');
       var bHas:Boolean = b.hasOwnProperty('customType');
-      if ((aHas &&  bHas) || (!aHas && !bHas)) return 0;
+      if (!aHas && !bHas) return 0;
+      if (aHas && bHas) {
+        var distance:int = a.order - b.order;
+        return distance / Math.abs(distance);
+      }
       if (aHas) return -1 else return 1;
     }
     

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.audit.view.filters.*"
+                             creationComplete="init()" show="show()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.utils.Clock;
+      import it.ht.rcs.console.utils.DateUtils;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import mx.core.FlexGlobals;
+      
+      private var today:Date;
+
+      private static const DEFAULT_RANGE:int = 5;
+      public var range:int = DEFAULT_RANGE;
+      
+      private function init():void
+      {
+        hasFilter = true;
+        today = new Date();
+        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
+      }
+      
+      override public function commit(fireEvent:Boolean=true):void
+      {
+        filter.from = getFromTimestamp();
+        filter.to = getToTimestamp();
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        today.hours = 0; today.minutes = 0;
+        filter.from = DateUtils.addDays(today, -range).time / 1000;
+        setFromTimestamp(filter.from);
+        
+        today.hours = 23; today.minutes = 59;
+        filter.to = today.time / 1000;
+        setToTimestamp(filter.to);
+        
+        adjust();
+        commit(fireEvent);
+      }
+      
+      private function adjust():void
+      {
+        var fromTS:int = getFromTimestamp();
+        var toTS:int = getToTimestamp();
+        
+        if (fromTS > toTS)
+          setToTimestamp(fromTS);
+      }
+      
+      protected function show():void
+      {
+        fromH.setFocus();
+        setFromTimestamp(filter.from);
+        setToTimestamp(filter.to);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup gap="10" styleName="auditFilter">
+    
+    <s:HGroup verticalAlign="middle">
+      <s:Label width="40" text="From"/>
+      <mx:DateField id="from" width="120" change="adjust()"
+                    showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
+      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="pad" value="0" change="adjust()"/>
+      <s:Label text=":"/>
+      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="pad" value="0" change="adjust()"/>
+    </s:HGroup>
+    
+    <s:HGroup verticalAlign="middle">
+      <s:Label width="40" text="To"/>
+      <mx:DateField id="to" width="120" change="adjust()"
+                    showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
+      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="pad" value="23" change="adjust()"/>
+      <s:Label text=":"/>
+      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="pad" value="59" change="adjust()"/>
+    </s:HGroup>
+    
+    <s:HGroup width="100%" verticalAlign="middle">
+      <s:Spacer width="100%"/>
+      <s:Button label="Last year" click="reset()"/>
+    </s:HGroup>
+    
+  </s:VGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      
+      private function getFromTimestamp():int
+      {
+        from.selectedDate.hours = fromH.value;
+        from.selectedDate.minutes = fromM.value;
+        return Clock.instance.toUTCTime(from.selectedDate) / 1000;
+      }
+      private function getToTimestamp():int
+      {
+        to.selectedDate.hours = toH.value;
+        to.selectedDate.minutes = toM.value;
+        return Clock.instance.toUTCTime(to.selectedDate) / 1000;
+      }
+      
+      private function setFromTimestamp(ts:int):void
+      {
+        var fromDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
+        from.selectedDate = fromDate;
+        fromH.value = fromDate.hours;
+        fromM.value = fromDate.minutes;
+      }
+      private function setToTimestamp(ts:int):void
+      {
+        var toDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
+        to.selectedDate = toDate;
+        toH.value = toDate.hours;
+        toM.value = toDate.minutes;
+      }
+      
+      private function pad(n:Number):String
+      {
+        return TimeUtils.zeroPad(n, 2);
+      }
+      
+    ]]>
+  </fx:Script>
+
+</filters:AbstractFilterPopup>

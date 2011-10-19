@@ -10,6 +10,7 @@
     <![CDATA[
       import it.ht.rcs.console.audit.controller.AuditManager;
       import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.task.view.TaskPopup;
       
       import mx.collections.ListCollectionView;
@@ -29,6 +30,31 @@
       private function onRemovedFromStage():void
       {
         AuditManager.instance.stop();
+      }
+      
+      private function refresh(event:Event=null):void
+      {
+        if (event is RefreshEvent)
+          console.currentDB.audit.filters(onFiltersResult);
+        
+        if(!grid.filter.hasOwnProperty('from'))
+          setDefaultDate();
+        
+        printFilterObject();
+        console.currentDB.audit.all(grid.filter, onResult);
+      }
+
+      private function onFiltersResult(event:ResultEvent):void
+      {
+        var e:FilterEvent = new FilterEvent(FilterEvent.FILTER_VALUES_CHANGED);
+        e.filterValues = event.result;
+        FlexGlobals.topLevelApplication.dispatchEvent(e);
+      }
+      
+      private function onResult(e:ResultEvent):void
+      {
+        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
+        grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
       }
       
       private function resetFilters(event:MouseEvent):void

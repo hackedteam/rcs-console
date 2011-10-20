@@ -81,6 +81,7 @@ package it.ht.rcs.console.utils.items
     
     private function kindCompareFunction(a:Object, b:Object):int
     {
+      if (!a || !b) return 0;
       if (a._kind == b._kind) return 0;
       var distance:int = kindOrder.indexOf(a._kind) - kindOrder.indexOf(b._kind);
       return distance / Math.abs(distance);
@@ -183,10 +184,10 @@ package it.ht.rcs.console.utils.items
     
     public function set selectedItem(value:*):void
     {
-      if (value)
-        dropDown.selectedItem = value;
+      if (!value)
+        dropDown.selectedIndex = -1;
       
-      if (dropDown.selectedItem !== undefined) {
+      if (dropDown.selectedItem) {
         _selectedItem = value;
         text = value.name;
       } else {

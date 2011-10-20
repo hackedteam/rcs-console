@@ -3,17 +3,19 @@
             xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
             xmlns:audit="it.ht.rcs.console.audit.*"
-            xmlns:filters="it.ht.rcs.console.audit.view.filters.*" typicalItem="{typicalObject}" variableRowHeight="true">
+            xmlns:filters="it.ht.rcs.console.audit.view.filters.*"
+            typicalItem="{typicalObject}" variableRowHeight="true">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.audit.controller.AuditManager;
       import it.ht.rcs.console.utils.TimeUtils;
       
       [Bindable]
-      public var filter:Object = {};
+      public var filter:Object = AuditManager.instance.filter;
       
-      [Bindable]
-      public var filterValues:Object = {};
+//      [Bindable]
+//      public var filterValues:Object = {};
       
       private function dateLabelFunction(item:Object, column:GridColumn):String {
         return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
@@ -30,11 +32,12 @@
   <s:columns>
     <s:ArrayList>
       
-      <s:GridColumn dataField="time" headerText="Date" sortable="false" labelFunction="dateLabelFunction" resizable="false" width="132">
+      <s:GridColumn width="132" dataField="time" headerText="Date" labelFunction="dateLabelFunction"
+                    resizable="false" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.DateFilterPopup" filter="{outerDocument.filter}"
-                                            mandatory="true"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}" mandatory="true"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.DateFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -42,7 +45,8 @@
       <s:GridColumn dataField="actor" headerText="Actor" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -50,7 +54,8 @@
       <s:GridColumn dataField="action" headerText="Action" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -58,7 +63,8 @@
       <s:GridColumn dataField="user" headerText="User" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -66,7 +72,8 @@
       <s:GridColumn dataField="group" headerText="Group" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -74,7 +81,8 @@
       <s:GridColumn dataField="operation" headerText="Operation" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -82,7 +90,8 @@
       <s:GridColumn dataField="target" headerText="Target" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -90,7 +99,8 @@
       <s:GridColumn dataField="agent" headerText="Agent" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.ComboFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>
@@ -98,7 +108,8 @@
       <s:GridColumn dataField="desc" headerText="Description" sortable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer popupFactory="it.ht.rcs.console.audit.view.filters.TextFilterPopup" filter="{outerDocument.filter}"/>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.audit.view.filters.TextFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
       </s:GridColumn>

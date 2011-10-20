@@ -4,57 +4,29 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:audit="it.ht.rcs.console.audit.*"
          xmlns:view="it.ht.rcs.console.audit.view.*"
-         addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" title="AUDIT">
-
+         addedToStage="onAddedToStage()" creationPolicy="all"
+         removedFromStage="onRemovedFromStage()" title="AUDIT">
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.audit.controller.AuditManager;
       import it.ht.rcs.console.events.FilterEvent;
-      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.task.view.TaskPopup;
       
       import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
       import mx.managers.PopUpManager;
       import mx.resources.ResourceManager;
-      
-      [Bindable]
-      private var _audit_view:ListCollectionView;
-      
+
       private function onAddedToStage():void
       {
         AuditManager.instance.start();
-        _audit_view = AuditManager.instance.getView();
       }
       
       private function onRemovedFromStage():void
       {
         AuditManager.instance.stop();
-      }
-      
-      private function refresh(event:Event=null):void
-      {
-        if (event is RefreshEvent)
-          console.currentDB.audit.filters(onFiltersResult);
-        
-        if(!grid.filter.hasOwnProperty('from'))
-          setDefaultDate();
-        
-        printFilterObject();
-        console.currentDB.audit.all(grid.filter, onResult);
-      }
-
-      private function onFiltersResult(event:ResultEvent):void
-      {
-        var e:FilterEvent = new FilterEvent(FilterEvent.FILTER_VALUES_CHANGED);
-        e.filterValues = event.result;
-        FlexGlobals.topLevelApplication.dispatchEvent(e);
-      }
-      
-      private function onResult(e:ResultEvent):void
-      {
-        grid.dataProvider = new AsyncListView(e.result as ArrayCollection);
-        grid.dataProvider.addEventListener(CollectionEvent.COLLECTION_CHANGE, onDataProviderChange);
       }
       
       private function resetFilters(event:MouseEvent):void
@@ -63,7 +35,7 @@
         AuditManager.instance.refresh();
       }
       
-      protected function export():void
+      private function export():void
       {
         var popup:TaskPopup = new TaskPopup();
         PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
@@ -71,8 +43,9 @@
       }
     ]]>
   </fx:Script>
-
-  <s:VGroup width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+  
+  <s:VGroup width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5"
+            paddingTop="5">
     
     <s:HGroup>
       <s:Button height="20" label="Reset filters" click="resetFilters(event)"
@@ -83,7 +56,8 @@
                 toolTip="{ResourceManager.getInstance().getString('localized_main', 'EXPORT')}"/>
     </s:HGroup>
     
-    <view:AuditTable id="grid" width="100%" height="100%" dataProvider="{AuditManager.instance._view}"/>
+    <view:AuditTable id="grid" width="100%" height="100%"
+                     dataProvider="{AuditManager.instance._view}"/>
     
   </s:VGroup>
   

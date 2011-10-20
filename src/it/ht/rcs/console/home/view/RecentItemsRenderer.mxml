@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                xmlns:s="library://ns.adobe.com/flex/spark" 
+                xmlns:mx="library://ns.adobe.com/flex/mx" 
+                autoDrawBackground="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.search.model.SearchItem;
+      
+      import spark.components.List;
+      import mx.core.FlexGlobals;
+      
+      [Embed(source="img/privs/tech.png")]
+      private static var operationIcon:Class;
+      
+      [Embed(source="img/privs/sys.png")]
+      private static var targetIcon:Class;
+      
+      [Embed(source="img/privs/admin.png")]
+      private static var agentIcon:Class;
+      
+      [Embed(source="img/privs/view.png")]
+      private static var factoryIcon:Class;
+      
+      [Bindable]
+      private var _item:SearchItem;
+      
+      override public function set data(value:Object):void
+      {
+        if (value) {
+          
+          _item = SearchManager.instance.getItem(value as String);
+          
+          switch (_item._kind) {
+            case 'operation':
+              setStyle('color', 0xf0fff0);
+              setStyle('rollOverColor', 0xc0ffc0);
+              setStyle('selectionColor', 0xa0ffa0);
+              icon.source = operationIcon;
+              break;
+            case 'target':
+              setStyle('color', 0xfff0f0);
+              setStyle('rollOverColor', 0xffc0c0);
+              setStyle('selectionColor', 0xffa0a0);
+              icon.source = targetIcon;
+              break;
+            case 'agent':
+              setStyle('color', 0xf0f0ff);
+              setStyle('rollOverColor', 0xc0c0ff);
+              setStyle('selectionColor', 0xa0a0ff);
+              icon.source = agentIcon;
+              break;
+            case 'factory':
+              setStyle('color', 0xf0fff0);
+              setStyle('rollOverColor', 0xc0ffc0);
+              setStyle('selectionColor', 0xa0ffa0);
+              icon.source = operationIcon;
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      
+      protected function goto():void
+      {
+        (this.owner as List).selectedIndex = -1;
+        
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = 'Operations';
+        event.item = _item;
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:states>
+    <s:State name="normal"/>
+    <s:State name="hovered"/>
+    <s:State name="selected"/>
+  </s:states>
+  
+  <s:Rect width="100%" height="100%">
+    <s:fill>
+      <s:SolidColor id="bgColor" color="{getStyle('color')}"
+                    color.hovered="{getStyle('rollOverColor')}"
+                    color.selected="{getStyle('selectionColor')}"/>
+    </s:fill>
+  </s:Rect>
+  <s:HGroup verticalAlign="middle" width="100%" paddingLeft="5" height="20" doubleClickEnabled="true" doubleClick="goto()">
+    <s:Image id="icon" width="15" height="15"/>
+    <s:Label text="{_item.name} - {_item.desc}" paddingTop="2"/>
+  </s:HGroup>
+  
+</s:ItemRenderer>

@@ -4,7 +4,25 @@
                       xmlns:mx="library://ns.adobe.com/flex/mx"
                       width="100%" backgroundColor="0xffffff">
   
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SectionEvent;
+      
+      import mx.core.FlexGlobals;
+      
+      protected function go_home(event:MouseEvent):void
+      {
+        var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        sectionEvent.section = "Home";
+        FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+      }
+    ]]>
+  </fx:Script>
+  
+  
   <s:Image id="banner" x="0" y="0" width="1280" height="75" source="img/Banner.png"/>
   <s:Label id="ver" right="10" top="10" color="0x000000" fontSize="13" fontWeight="bold" text="ver {console.rcsVersion}"/>
   <s:Label id="build" right="10" top="30" color="0x000000" text="build {console.appVersion}"/>
+  <s:BorderContainer x="10" y="13" width="352" height="29" backgroundAlpha="0.0" borderVisible="false" buttonMode="true" click="go_home(event)"/>
+  
 </s:SkinnableContainer>

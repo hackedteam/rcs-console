@@ -11,9 +11,10 @@
          xmlns:dashboard="it.ht.rcs.console.dashboard.view.*"
          xmlns:monitor="it.ht.rcs.console.monitor.view.*"
          xmlns:system="it.ht.rcs.console.system.view.*" 
+         xmlns:home="it.ht.rcs.console.home.view.*"
          width="100%" height="100%" 
          addedToStage="added()"
-         removedFromStage="removed()" creationComplete="init()">
+         removedFromStage="removed()" creationComplete="init()" xmlns:view="it.ht.rcs.console.home.view.*">
   
   <fx:Script>
     <![CDATA[
@@ -76,7 +77,8 @@
         /* initialize the managers */
 
         if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
-          SearchManager.instance.start();          
+          SearchManager.instance.start();     
+          AgentManager.instance.refresh(null);
         }
         
         if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) {
@@ -86,21 +88,15 @@
         if (console.currentSession.user.is_view()) {
           AlertController.instance.start_counters();
         }
-        
-        OperationManager.instance.refresh(null);
-        TargetManager.instance.refresh(null);
-        AgentManager.instance.refresh(null);
-
-        // TODO: default state is "home"
-        
+                
         if (console.currentSession.user.is_any()) {
           DownloadManager.instance.start();
           LicenseManager.instance.start();
-          currentState = "Home";
-        } else {
-          currentState = "Nothing";
+          OperationManager.instance.refresh(null);
+          TargetManager.instance.refresh(null);
         }
-        
+
+        currentState = "Home";        
       }
       
       private function removed():void 
@@ -123,7 +119,6 @@
   </fx:Declarations>
 
   <s:states>
-    <s:State name="Nothing"/>
     <s:State name="Home"/>
     <s:State name="Accounting"/>
     <s:State name="Operations"/>
@@ -160,20 +155,6 @@
   
   <monitor:MonitorSection id="Monitor" includeIn="Monitor" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <s:Panel includeIn="Home" title="Home" height="100%" top="75" left="0" right="0" bottom="0">
-    <s:Image x="0" y="0" width="1280" alpha="0.40" smooth="true" source="@Embed('img/vitruvian.png')"/>
-    <s:Label x="391" y="41" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="70" text="RCS"/>
-    <s:Label x="670" y="130" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="36" text="da Vinci"/>
-    <s:Label x="236" y="503" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="36" text="simplicity is the ultimate sophistication"/>
-    <s:Label x="922" y="619" color="#3082c4" fontFamily="Courier New" fontSize="24" fontWeight="bold" text="developer preview"/>
-  </s:Panel>
-  
-  <!-- special case if the user has no privilege -->
-  <s:Panel includeIn="Nothing" height="100%" top="75" left="0" right="0" bottom="0">
-    <s:TextArea horizontalCenter="0" verticalCenter="0" editable="false" enabled="true" 
-                text="{resourceManager.getString('localized_main', 'NOTHING_TO_DO_MESSAGE')}" 
-                width="700" height="150" fontSize="20" fontFamily="Verdana" verticalAlign="top" textAlign="justify" 
-                borderVisible="false" contentBackgroundColor="#EAEAEA"/>
-  </s:Panel>
+  <home:HomeSection id="Home" includeIn="Home" height="100%" top="75" left="0" right="0" bottom="0"/>
     
 </s:Group>

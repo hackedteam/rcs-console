@@ -2,10 +2,32 @@
 <s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         title="HOME" width="100%" height="100%" xmlns:items="it.ht.rcs.console.utils.items.*">
+         title="HOME" width="100%" height="100%" xmlns:items="it.ht.rcs.console.utils.items.*"
+         creationComplete="init()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.model.SearchItem;
+      import it.ht.rcs.console.utils.items.ItemEvent;
+      
       import locale.R;
+      
+      import mx.core.FlexGlobals;
+      
+      private function init():void
+      {
+        gotoItems.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
+      }
+      
+      private function onSelectSearchItem(e:ItemEvent):void
+      {
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = 'Operations';
+        event.item = e.selectedItem as SearchItem;
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
+      }
+      
     ]]>
   </fx:Script>
   
@@ -20,7 +42,7 @@
     <s:Button x="48" y="41" label="{R.get('QUICK_AGENT')}" fontSize="15"/>
     <s:HGroup x="49" y="88" verticalAlign="middle">
       <s:Label fontSize="16" text="{R.get('GO_TO')}:"/>
-      <items:SearchField width="160"/>
+      <items:SearchField width="160" id="gotoItems"/>
     </s:HGroup>
   </s:BorderContainer>
   

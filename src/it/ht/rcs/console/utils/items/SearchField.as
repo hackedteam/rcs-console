@@ -32,7 +32,7 @@ package it.ht.rcs.console.utils.items
     private var _kinds:Array;
     private var _path:ArrayCollection;
     
-    private static const kindOrder:Array = ['operation', 'target', 'agent'];
+    private static const kindOrder:Array = ['operation', 'target', 'factory', 'agent'];
     
     public function SearchField()
     {

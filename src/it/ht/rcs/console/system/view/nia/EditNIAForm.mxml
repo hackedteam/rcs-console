@@ -3,21 +3,44 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            width="815" height="480" save="save()"
+                            width="815" height="480" save="save()" creationComplete="init()"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
-                            title="{R.get('EDIT_PROXY') + ' ' + proxy.name}">
+                            title="{R.get('EDIT') + ' ' + proxy.name}">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
+      
+      import mx.collections.ArrayCollection;
       
       public var mode:String = 'create';
       
       [Bindable]
       public var proxy:it.ht.rcs.console.network.model.Proxy;
 
+      private function init():void
+      {
+        getLogs();
+      }
+      
+      private function getLogs():void
+      {
+        ProxyManager.instance.getLogs(proxy._id, function(logs:ArrayCollection):void {
+          logTable.dataProvider = logs;
+        });
+      }
+      
+      private function clearLogs():void
+      {
+        ProxyManager.instance.clearLogs(proxy._id, function():void {
+          logTable.dataProvider = null;
+        });
+      }
+      
       protected function save():void
       {
         /* keep the name the first to be modified */
@@ -28,6 +51,11 @@
         proxy.poll = poll.selected;
         
         close();
+      }
+      
+      private function formatdate(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
       }
       
     ]]>
@@ -47,18 +75,16 @@
   <s:Label left="610" top="56" text="{R.get('POLL')}"/>
   <s:CheckBox id="poll" left="670" top="50" selected="{proxy.poll}"/>
 
-  <s:Button right="50" top="135" skinClass="it.ht.rcs.console.skins.RefreshButton"
-            toolTip="{R.get('REFRESH')}"/>
-  <s:Button right="10" top="135" skinClass="it.ht.rcs.console.skins.DeleteButton"
-            toolTip="{R.get('CLEAR_LOGS')}"/>
+  <s:Button right="50" top="135" skinClass="it.ht.rcs.console.skins.RefreshButton" toolTip="{R.get('REFRESH')}" click="getLogs()"/>
+  <s:Button right="10" top="135" skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('CLEAR_LOGS')}" click="clearLogs()"/>
   
   <s:Label left="10" top="140" fontSize="14" fontWeight="bold" text="{R.get('LOGS')}"/>
-  <s:DataGrid left="10" right="10" bottom="10" height="274" requestedRowCount="4">
+  <s:DataGrid id="logTable" left="10" right="10" bottom="10" height="274" requestedRowCount="4">
     <s:columns>
       <s:ArrayList>
-        <s:GridColumn width="150" dataField="time" headerText="{R.get('TIME')}"></s:GridColumn>
+        <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>
         <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
-        <s:GridColumn dataField="info" headerText="{R.get('INFO')}"></s:GridColumn>
+        <s:GridColumn dataField="desc" headerText="{R.get('INFO')}"></s:GridColumn>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>

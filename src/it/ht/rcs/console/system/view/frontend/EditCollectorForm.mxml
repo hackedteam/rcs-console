@@ -5,12 +5,13 @@
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             width="815" height="480" creationComplete="init()" save="save()"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
-                            title="{R.get('EDIT_COLLECTOR') + ' ' + collector.name}">
+                            title="{R.get('EDIT') + ' ' + collector.name}">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
@@ -50,6 +51,11 @@
         close();
       }
       
+      private function formatdate(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+      
     ]]>
   </fx:Script>
   
@@ -77,9 +83,9 @@
   <s:DataGrid id="logTable" left="10" right="10" bottom="10" height="274" requestedRowCount="4">
     <s:columns>
       <s:ArrayList>
-        <s:GridColumn width="150" dataField="time" headerText="{R.get('TIME')}"></s:GridColumn>
+        <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>
         <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
-        <s:GridColumn dataField="info" headerText="{R.get('INFO')}"></s:GridColumn>
+        <s:GridColumn dataField="desc" headerText="{R.get('INFO')}"></s:GridColumn>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>

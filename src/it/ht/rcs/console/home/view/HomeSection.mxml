@@ -3,7 +3,7 @@
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx"
          title="HOME" width="100%" height="100%" xmlns:items="it.ht.rcs.console.utils.items.*"
-         creationComplete="init()">
+         creationComplete="init()" addedToStage="added()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.UserManager;
@@ -17,7 +17,16 @@
       
       private function init():void
       {
-        gotoItems.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
+        if (gotoItems)
+          gotoItems.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
+      }
+      
+      private function added():void
+      {
+        if (console.currentSession.user.is_any())
+          currentState = 'any';
+        else
+          currentState = 'none';
       }
       
       private function onSelectSearchItem(e:ItemEvent):void
@@ -28,8 +37,22 @@
         FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
       
+      private function enable_quick_agent():Boolean
+      {
+        return console.currentSession.user.is_admin() && console.currentSession.user.is_tech();
+      }
+      
+      private function enable_items():Boolean
+      {
+        return console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view();
+      }
+      
     ]]>
   </fx:Script>
+  <s:states>
+    <s:State name="any"/>
+    <s:State name="none"/>
+  </s:states>
   
 
   <s:Image x="0" y="0" width="1280" alpha="0.40" smooth="true" source="@Embed('img/vitruvian.png')"/>
@@ -38,17 +61,30 @@
   <s:Label x="236" y="503" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="36" text="simplicity is the ultimate sophistication"/>
   <s:Label x="922" y="619" color="#3082c4" fontFamily="Courier New" fontSize="24" fontWeight="bold" text="developer preview"/>
   
-  <s:BorderContainer x="155" y="210" width="353" height="214" backgroundAlpha="0.45">
-    <s:Button x="48" y="41" label="{R.get('QUICK_AGENT')}" fontSize="15"/>
-    <s:HGroup x="49" y="88" verticalAlign="middle">
+  <s:BorderContainer x="155" y="210" width="353" height="214" backgroundAlpha="0.45" includeIn="any">
+  
+    <s:HGroup left="25" top="20" verticalAlign="middle" visible="{enable_items()}">
       <s:Label fontSize="16" text="{R.get('GO_TO')}:"/>
-      <items:SearchField width="160" id="gotoItems"/>
+      <items:SearchField width="260" id="gotoItems"/>
     </s:HGroup>
+
+    <s:Button visible="{enable_quick_agent()}" left="25" top="60" label="{R.get('QUICK_AGENT')}..." fontSize="15"/>
+  
   </s:BorderContainer>
   
-  <s:BorderContainer x="748" y="208" width="364" height="216" backgroundAlpha="0.45">
-    <s:Label x="25" top="20" fontSize="18" text="{R.get('RECENT_ITEMS')}:"/>
-    <s:List left="25" right="25" top="45" bottom="25" dataProvider="{console.currentSession.user.recent_ids}" itemRenderer="it.ht.rcs.console.home.view.RecentItemsRenderer"></s:List>
+  <s:BorderContainer x="748" y="208" width="364" height="216" backgroundAlpha="0.45" includeIn="any">
+    <s:VGroup visible="{enable_items()}" left="25" right="25" top="20" bottom="20">
+      <s:Label fontSize="18" text="{R.get('RECENT_ITEMS')}:"/>
+      <s:List width="100%" height="100%"
+              dataProvider="{console.currentSession.user.recent_ids}"
+              itemRenderer="it.ht.rcs.console.home.view.RecentItemsRenderer"></s:List>      
+    </s:VGroup>
   </s:BorderContainer>
   
+  <s:BorderContainer x="155" y="210" width="956" height="214" backgroundAlpha="0.45" includeIn="none">
+    <s:Label left="25" right="25" fontSize="18" text="{R.get('NOTHING_TO_DO_MESSAGE')}"
+             textAlign="center" verticalAlign="middle" verticalCenter="0"/>
+  </s:BorderContainer>
+    
+   
 </s:Panel>

@@ -21,6 +21,7 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.factory.controller.FactoryManager;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
       import it.ht.rcs.console.operation.controller.OperationManager;
@@ -77,8 +78,13 @@
         /* initialize the managers */
 
         if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
-          SearchManager.instance.start();     
+          OperationManager.instance.refresh(null);
+          TargetManager.instance.refresh(null);
+        }
+
+        if (console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
           AgentManager.instance.refresh(null);
+          FactoryManager.instance.refresh(null);
         }
         
         if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) {
@@ -92,8 +98,7 @@
         if (console.currentSession.user.is_any()) {
           DownloadManager.instance.start();
           LicenseManager.instance.start();
-          OperationManager.instance.refresh(null);
-          TargetManager.instance.refresh(null);
+          SearchManager.instance.start();
         }
 
         currentState = "Home";        

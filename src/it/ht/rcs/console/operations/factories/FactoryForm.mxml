@@ -4,13 +4,14 @@
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             creationComplete="init()" save="onSave(event)"
-                            title="{mode == 'new' ? R.get('NEW_TARGET') : R.get('EDIT_TARGET')}">
+                            title="{mode == 'new' ? R.get('NEW_FACTORY') : R.get('EDIT_FACTORY')}">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.factory.controller.FactoryManager;
+      import it.ht.rcs.console.factory.model.Factory;
       import it.ht.rcs.console.operation.model.Operation;
-      import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
       
       import locale.R;
@@ -24,6 +25,9 @@
       [Bindable]
       public var target:Target;
       
+      [Bindable]
+      public var factory:Factory;
+      
       private function init():void
       {
         opName.setFocus();
@@ -31,11 +35,11 @@
       
       private function onSave(event:SaveEvent):void
       {
-        target.name = opName.text;
-        target.desc = desc.text;
+        factory.name = opName.text;
+        factory.desc = desc.text;
         
         if (mode == 'new')
-          TargetManager.instance.addTarget(target, operation, function(target:Target):void { close(); });
+          FactoryManager.instance.addFactory(factory, operation, target, function(factory:Factory):void { close(); });
         else
           close();
       }
@@ -46,11 +50,11 @@
   <s:Form width="100%">
 
     <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="opName" width="250" text="{target.name}"/>
+      <s:TextInput id="opName" width="250" text="{factory.name}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('DESCRIPTION')}">
-      <s:TextArea id="desc" width="250" text="{target.desc}"/>
+      <s:TextArea id="desc" width="250" text="{factory.desc}"/>
     </s:FormItem>
     
   </s:Form>

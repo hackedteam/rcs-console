@@ -26,21 +26,27 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operations.main.StateManager;
+      import it.ht.rcs.console.target.controller.TargetManager;
       
       import mx.core.FlexGlobals;
       
       [Bindable]
       public var stateManager:StateManager;
       
-//      private var hasAlreadySwitchedState:Boolean = false;
+      private var itemToSelect:Object = null;
       private function init():void
       {
         stateManager = new StateManager(this);
         FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGGING_OUT, onLoggingOut);
-        stateManager.setState('allOperations');
+        if (itemToSelect)
+          stateManager.manageItemSelection(itemToSelect);
+        else
+          stateManager.setState('allOperations');
       }
       
       private function onAddedToStage(event:Event):void
@@ -62,21 +68,29 @@
       
       public function changeSection(event:SectionEvent):void
       {
-        trace('');
-//        if (event.item == null) { return };
-//        
-//        var targetState:String;
-//        switch (event.item._kind) {
-//          case 'operation':
-//            targetState = 'singleOperation';
-//            break;
-//          default:
-//            break;
-//        }
-//        selectedOperation = OperationManager.instance.getItem(event.item._id);
-//        
-//        switchState(targetState);
-//        hasAlreadySwitchedState = true;
+        if (event.item == null) { return };
+        
+        var item:* = null;
+        switch (event.item._kind) {
+          case 'operation':
+            item = OperationManager.instance.getItem(event.item._id);
+            break;
+          case 'target':
+            item = TargetManager.instance.getItem(event.item._id);
+            break;
+          case 'agent':
+            item = AgentManager.instance.getItem(event.item._id);
+            break;
+          default:
+            break;
+        }
+        
+        if (item) {
+          if (stateManager)
+            stateManager.manageItemSelection(item);
+          else
+            itemToSelect = item;
+        }
       }
     ]]>
   </fx:Script>

@@ -21,6 +21,7 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.factory.controller.FactoryManager;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
       import it.ht.rcs.console.operation.controller.OperationManager;
@@ -77,8 +78,9 @@
         /* initialize the managers */
 
         if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
-          SearchManager.instance.start();     
+          SearchManager.instance.start();
           AgentManager.instance.refresh(null);
+          FactoryManager.instance.refresh(null);
         }
         
         if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) {

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<operations:ItemPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
-                      xmlns:s="library://ns.adobe.com/flex/spark"
-                      xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:operations="it.ht.rcs.console.operations.*"
-                      creationComplete="init()" save="onSave(event)"
-                      title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            creationComplete="init()" save="onSave(event)"
+                            title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
   <fx:Script>
     <![CDATA[
@@ -20,12 +20,10 @@
       import spark.events.IndexChangeEvent;
       
       [Bindable]
-      public var operation:Operation;
+      public var mode:String;
       
-      override public function set item(item:*):void
-      {
-        operation = item;
-      }
+      [Bindable]
+      public var operation:Operation;
       
       private function init():void
       {
@@ -128,8 +126,7 @@
       <s:TextInput id="contact" width="250" text="{operation.contact}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}"
-                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:DropDownList id="status" width="150" selectedIndex="0">
         <s:ArrayCollection id="statuses">
           <fx:Object label="OPEN"/>
@@ -150,4 +147,4 @@
     
   </s:Form>
   
-</operations:ItemPopup>
+</utils:TitleWindowSaveClose>

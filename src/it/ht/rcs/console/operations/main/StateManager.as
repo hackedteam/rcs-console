@@ -1,10 +1,12 @@
 package it.ht.rcs.console.operations.main
 {
+  import flash.events.Event;
+  
+  import it.ht.rcs.console.agent.controller.AgentController;
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.controller.ItemManager;
   import it.ht.rcs.console.events.DataLoadedEvent;
-  import it.ht.rcs.console.factory.controller.FactoryManager;
   import it.ht.rcs.console.factory.model.Factory;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
@@ -126,16 +128,18 @@ package it.ht.rcs.console.operations.main
           if (console.currentSession.user.is_tech()) {
             selectedOperation = OperationManager.instance.getItem(selectedTarget.path[0]); selectedAgent = null;
             section.currentState = 'singleTarget';
-            CurrentManager = null;
-            currentFilter = null;
-            _item_view = new ListCollectionView(new ArrayList());
-            addCustomTypes();
-            _item_view.sort = customTypeSort;
-            _item_view.filterFunction = agentFactoryFilterFunction;
-            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
-            AgentManager.instance.start();
-            FactoryManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
-            FactoryManager.instance.start();
+            CurrentManager = AgentController;
+            currentFilter = agentFactoryFilterFunction;
+            AgentController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+            AgentController.instance.start();
+//            _item_view = new ListCollectionView(new ArrayList());
+//            addCustomTypes();
+//            _item_view.sort = customTypeSort;
+//            _item_view.filterFunction = agentFactoryFilterFunction;
+//            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
+//            AgentManager.instance.start();
+//            FactoryManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
+//            FactoryManager.instance.start();
           }
           break;
         case 'allAgents':
@@ -167,23 +171,6 @@ package it.ht.rcs.console.operations.main
       }
     }
     
-    public function stopManagers():void
-    {
-      OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      OperationManager.instance.stop();
-      
-      TargetManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      TargetManager.instance.stop();
-      
-      AgentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      AgentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
-      AgentManager.instance.stop();
-      
-      FactoryManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      FactoryManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
-      FactoryManager.instance.stop();
-    }
-    
     public function resetState():void
     {
       stopManagers();
@@ -210,12 +197,25 @@ package it.ht.rcs.console.operations.main
       _item_view = CurrentManager.instance.getView(null, currentFilter);
     }
     
-    private function onDataLoadedMerge(event:DataLoadedEvent = null):void {
+    private function onDataLoadedMerge(event:DataLoadedEvent = null):void
+    {
       var list:IList = (event.manager as ItemManager).getView().list;
       list.toArray().forEach(function(element:*, index:int, arr:Array):void {
         _item_view.addItem(element);
       });
       _item_view.refresh();
+    }
+    
+    public function stopManagers():void
+    {
+      OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+      OperationManager.instance.stop();
+      
+      TargetManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+      TargetManager.instance.stop();
+      
+      AgentController.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+      AgentController.instance.stop();
     }
     
     private var CurrentManager:Class;

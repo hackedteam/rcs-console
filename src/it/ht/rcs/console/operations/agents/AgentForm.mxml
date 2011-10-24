@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            creationComplete="init()" save="onSave(event)"
+                            title="{R.get('EDIT_AGENT')}">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SaveEvent;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var mode:String;
+      
+      [Bindable]
+      public var agent:Agent;
+      
+      private function init():void
+      {
+        opName.setFocus();
+      }
+      
+      private function onSave(event:SaveEvent):void
+      {
+        agent.name = opName.text;
+        agent.desc = desc.text;
+        
+        close();
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:Form width="100%">
+
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="opName" width="250" text="{agent.name}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DESCRIPTION')}">
+      <s:TextArea id="desc" width="250" text="{agent.desc}"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</utils:TitleWindowSaveClose>

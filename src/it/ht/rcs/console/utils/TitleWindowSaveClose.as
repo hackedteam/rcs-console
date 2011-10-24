@@ -1,5 +1,6 @@
 package it.ht.rcs.console.utils
 {
+  import flash.events.Event;
   import flash.events.KeyboardEvent;
   import flash.events.MouseEvent;
   import flash.ui.Keyboard;
@@ -38,10 +39,10 @@ package it.ht.rcs.console.utils
     
     private function onKeyDown(event:KeyboardEvent):void
     {
-      if (event.keyCode == Keyboard.ESCAPE)
-        close(null);
+      if (event.keyCode == Keyboard.ESCAPE && event.controlKey)
+        close();
       else if (event.keyCode == Keyboard.ENTER && event.controlKey)
-        save(null)
+        save();
     }
     
     override protected function partAdded(partName:String, instance:Object):void
@@ -65,7 +66,7 @@ package it.ht.rcs.console.utils
       PopUpManager.removePopUp(this);
     }
     
-    private function save(event:MouseEvent):void
+    private function save(event:MouseEvent=null):void
     {
       dispatchEvent(new SaveEvent(SaveEvent.SAVE));
     }

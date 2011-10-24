@@ -15,6 +15,11 @@
       
       import mx.core.FlexGlobals;
       
+      [Bindable]
+      private var enable_quick_agent:Boolean;
+      [Bindable]
+      private var enable_items:Boolean;
+      
       private function init():void
       {
         if (gotoItems)
@@ -27,6 +32,9 @@
           currentState = 'any';
         else
           currentState = 'none';
+        
+        enable_quick_agent = (console.currentSession.user.is_admin() && console.currentSession.user.is_tech());
+        enable_items = (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view());
       }
       
       private function onSelectSearchItem(e:ItemEvent):void
@@ -36,17 +44,7 @@
         event.item = e.selectedItem as SearchItem;
         FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
-      
-      private function enable_quick_agent():Boolean
-      {
-        return console.currentSession.user.is_admin() && console.currentSession.user.is_tech();
-      }
-      
-      private function enable_items():Boolean
-      {
-        return console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view();
-      }
-      
+        
     ]]>
   </fx:Script>
   <s:states>
@@ -63,17 +61,17 @@
   
   <s:BorderContainer x="155" y="210" width="353" height="214" backgroundAlpha="0.45" includeIn="any">
   
-    <s:HGroup left="25" top="20" verticalAlign="middle" visible="{enable_items()}">
+    <s:HGroup left="25" top="20" verticalAlign="middle" visible="{enable_items}">
       <s:Label fontSize="16" text="{R.get('GO_TO')}:"/>
       <items:SearchField width="260" id="gotoItems"/>
     </s:HGroup>
 
-    <s:Button visible="{enable_quick_agent()}" left="25" top="60" label="{R.get('QUICK_AGENT')}..." fontSize="15"/>
+    <s:Button visible="{enable_quick_agent}" left="25" top="60" label="{R.get('QUICK_AGENT')}..." fontSize="15"/>
   
   </s:BorderContainer>
   
   <s:BorderContainer x="748" y="208" width="364" height="216" backgroundAlpha="0.45" includeIn="any">
-    <s:VGroup visible="{enable_items()}" left="25" right="25" top="20" bottom="20">
+    <s:VGroup visible="{enable_items}" left="25" right="25" top="20" bottom="20">
       <s:Label fontSize="18" text="{R.get('RECENT_ITEMS')}:"/>
       <s:List width="100%" height="100%"
               dataProvider="{console.currentSession.user.recent_ids}"

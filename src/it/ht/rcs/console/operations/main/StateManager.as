@@ -76,6 +76,7 @@ package it.ht.rcs.console.operations.main
       else if (item is Factory)
       {
         if (console.currentSession.user.is_tech()) {
+          // launch configuration
         }
       }
       
@@ -222,6 +223,9 @@ package it.ht.rcs.console.operations.main
     
     private function customTypeCompareFunction(a:Object, b:Object):int
     {
+      if (!a && b) return  0;
+      if (!a && b) return  1;
+      if (!b && a) return -1;
       var aHas:Boolean = a.hasOwnProperty('customType');
       var bHas:Boolean = b.hasOwnProperty('customType');
       if (!aHas && !bHas) return 0;

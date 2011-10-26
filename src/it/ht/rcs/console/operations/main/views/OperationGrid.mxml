@@ -17,14 +17,24 @@
     <s:State name="singleAgent"/>
   </s:states>
   
+  <fx:Script>
+    <![CDATA[
+      private function statSortCompareFunction(a:Object, b:Object, column:GridColumn):int
+      {
+        // TODO: should ignore object without the given property (maybe set them to the bottom)
+        return 0;
+      }
+    ]]>
+  </fx:Script>
+  
   <s:columns>
     <s:ArrayList>
       
       <s:GridColumn dataField="name" headerText="Name"/>
       <s:GridColumn dataField="desc" headerText="Description"/>
       <s:GridColumn dataField="status" headerText="Status"/>
-      <s:GridColumn dataField="updated_at" headerText="Last Sync"/> 
-      <s:GridColumn dataField="stat" headerText="Size"
+      <s:GridColumn dataField="updated_at" headerText="Last Sync"/>
+      <s:GridColumn dataField="stat" headerText="Size" sortCompareFunction="statSortCompareFunction"
                     visible.singleOperation="false"/>
     
     </s:ArrayList>

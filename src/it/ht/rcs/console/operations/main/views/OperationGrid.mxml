@@ -19,6 +19,15 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      private function dateLabel(item:Object, column:GridColumn):String
+      {
+        if (item.hasOwnProperty('stat'))
+          return TimeUtils.timestampFormatter(item.stat.last_sync * 1000);
+        else return '';
+      }
+      
       private function statSortCompareFunction(a:Object, b:Object, column:GridColumn):int
       {
         // TODO: should ignore object without the given property (maybe set them to the bottom)
@@ -33,7 +42,16 @@
       <s:GridColumn dataField="name" headerText="Name"/>
       <s:GridColumn dataField="desc" headerText="Description"/>
       <s:GridColumn dataField="status" headerText="Status"/>
-      <s:GridColumn dataField="updated_at" headerText="Last Sync"/>
+      <s:GridColumn visible="false" dataField="instance" headerText="Instance"
+                    visible.allAgents="true"
+                    visible.singleTarget="true"/>
+      <s:GridColumn visible="false" dataField="ident" headerText="Ident"
+                    visible.allAgents="true"
+                    visible.singleTarget="true"/>
+      <s:GridColumn visible="false" dataField="version" headerText="Version"
+                    visible.allAgents="true"
+                    visible.singleTarget="true"/>
+      <s:GridColumn dataField="stat.last_sync" headerText="Last Sync" labelFunction="dateLabel"/>
       <s:GridColumn dataField="stat" headerText="Size" sortCompareFunction="statSortCompareFunction"
                     visible.singleOperation="false"/>
     

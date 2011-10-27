@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.operations.OperationsSection;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      private function dateLabel(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+      
+      protected function onDoubleClick(event:MouseEvent):void
+      {
+        section.body.currentState = 'config';
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:DataGrid width="100%" height="100%" dataProvider="{section.stateManager.selectedAgent.configs}" doubleClickEnabled="true" doubleClick="onDoubleClick(event)">
+    <s:columns>
+      <s:ArrayList>
+        
+        <s:GridColumn dataField="desc" headerText="Description"/>
+        <s:GridColumn dataField="user" headerText="User"/>
+        <s:GridColumn dataField="sent" headerText="Sent" labelFunction="dateLabel"/>
+        <s:GridColumn dataField="activated" headerText="Activated" labelFunction="dateLabel"/>
+        <s:GridColumn dataField="saved" headerText="Saved" labelFunction="dateLabel"/>
+        
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+  
+</s:Group>

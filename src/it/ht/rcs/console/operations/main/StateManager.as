@@ -5,6 +5,7 @@ package it.ht.rcs.console.operations.main
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.controller.ItemManager;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.factory.model.Config;
   import it.ht.rcs.console.factory.model.Factory;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
@@ -80,6 +81,14 @@ package it.ht.rcs.console.operations.main
         }
       }
       
+      else if (item is Config)
+      {
+        if (console.currentSession.user.is_tech()) {
+          selectedTarget = item;
+          setState('singleTarget');
+        }
+      }
+      
       else if (item is Object && item.customType == 'evidences')
       {
         Alert.show('Show Evidence Component');
@@ -88,6 +97,16 @@ package it.ht.rcs.console.operations.main
       else if (item is Object && item.customType == 'filesystem')
       {
         Alert.show('Show Filesystem Component');
+      }
+      
+      else if (item is Object && item.customType == 'info')
+      {
+        Alert.show('Show Info Component');
+      }
+        
+      else if (item is Object && item.customType == 'config')
+      {
+        section.body.currentState = 'configList';
       }
     }
     
@@ -100,6 +119,7 @@ package it.ht.rcs.console.operations.main
         case 'allOperations':
           selectedOperation = null; selectedTarget = null; selectedAgent = null;
           section.currentState = 'allOperations';
+          section.body.currentState = 'listgrid';
           CurrentManager = OperationManager;
           currentFilter = searchFilterFunction;
           OperationManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -108,6 +128,7 @@ package it.ht.rcs.console.operations.main
         case 'singleOperation':
           selectedTarget = null; selectedAgent = null;
           section.currentState = 'singleOperation';
+          section.body.currentState = 'listgrid';
           CurrentManager = TargetManager;
           currentFilter = targetFilterFunction;
           TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -117,6 +138,7 @@ package it.ht.rcs.console.operations.main
           if (console.currentSession.user.is_tech()) {
             selectedOperation = null; selectedTarget = null; selectedAgent = null;
             section.currentState = 'allTargets';
+            section.body.currentState = 'listgrid';
             CurrentManager = TargetManager;
             currentFilter = searchFilterFunction;
             TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -127,6 +149,7 @@ package it.ht.rcs.console.operations.main
           if (console.currentSession.user.is_tech()) {
             selectedOperation = OperationManager.instance.getItem(selectedTarget.path[0]); selectedAgent = null;
             section.currentState = 'singleTarget';
+            section.body.currentState = 'listgrid';
             CurrentManager = AgentController;
             currentFilter = agentFactoryFilterFunction;
             AgentController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -145,6 +168,7 @@ package it.ht.rcs.console.operations.main
           if (console.currentSession.user.is_view()) {
             selectedOperation = null; selectedTarget = null; selectedAgent = null;
             section.currentState = 'allAgents';
+            section.body.currentState = 'listgrid';
             CurrentManager = AgentManager;
             currentFilter = searchFilterFunction;
             AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -156,6 +180,7 @@ package it.ht.rcs.console.operations.main
             selectedOperation = OperationManager.instance.getItem(selectedAgent.path[0]);
             selectedTarget = TargetManager.instance.getItem(selectedAgent.path[1]);
             section.currentState = 'singleAgent';
+            section.body.currentState = 'listgrid';
             CurrentManager = null;
             currentFilter = null;
             _item_view = new ListCollectionView(new ArrayList());

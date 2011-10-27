@@ -40,7 +40,7 @@ package it.ht.rcs.console.utils
       /* get the current offset from UTC */
       var currentOffset:Number = date.timezoneOffset * 60 * 1000;
       
-      /* going back to UTC, then add the console offset */
+      /* going back to UTC, then add the console offset */ 
       date.setTime(t + currentOffset + Clock.instance.consoleTimeZoneOffset);
       
       /* format the date */

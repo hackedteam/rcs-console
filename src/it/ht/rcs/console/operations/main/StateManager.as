@@ -266,6 +266,8 @@ package it.ht.rcs.console.operations.main
       if (!section.buttonBar || !section.buttonBar.searchField || section.buttonBar.searchField.text == '')
         return true;
       var result:Boolean = String(item.name.toLowerCase()).indexOf(section.buttonBar.searchField.text.toLowerCase()) >= 0;
+      if (!result && item.instance)
+        result = String(item.instance.toLowerCase()).indexOf(section.buttonBar.searchField.text.toLowerCase()) >= 0;
       return result;
     }
     

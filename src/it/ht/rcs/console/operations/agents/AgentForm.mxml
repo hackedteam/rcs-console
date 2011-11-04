@@ -21,6 +21,14 @@
       
       private function init():void
       {
+        if (mode == 'edit')
+          for each (var s:Object in statuses)
+          if (s.label == agent.status)
+          {
+            status.selectedItem = s;
+            break;
+          }
+        
         opName.setFocus();
       }
       
@@ -28,6 +36,7 @@
       {
         agent.name = opName.text;
         agent.desc = desc.text;
+        agent.status = status.selectedItem.label;
         
         close();
       }
@@ -43,6 +52,15 @@
     
     <s:FormItem label="{R.get('DESCRIPTION')}">
       <s:TextArea id="desc" width="250" text="{agent.desc}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="status" width="150" selectedIndex="0">
+        <s:ArrayCollection id="statuses">
+          <fx:Object label="OPEN"/>
+          <fx:Object label="CLOSED"/>
+        </s:ArrayCollection>
+      </s:DropDownList>
     </s:FormItem>
     
   </s:Form>

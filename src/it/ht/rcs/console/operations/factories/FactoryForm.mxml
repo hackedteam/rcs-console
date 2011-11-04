@@ -30,6 +30,14 @@
       
       private function init():void
       {
+        if (mode == 'edit')
+          for each (var t:Object in types)
+          if (t.label == factory.type)
+          {
+            type.selectedItem = t;
+            break;
+          }
+        
         opName.setFocus();
       }
       
@@ -37,6 +45,8 @@
       {
         factory.name = opName.text;
         factory.desc = desc.text;
+        factory.type = type.selectedItem.label;
+        factory.demo = demo.selected;
         
         if (mode == 'new')
           FactoryManager.instance.addFactory(factory, operation, target, function(factory:Factory):void { close(); });
@@ -49,12 +59,25 @@
   
   <s:Form width="100%">
 
-    <s:FormItem label="{R.get('NAME')}">
+    <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextInput id="opName" width="250" text="{factory.name}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('DESCRIPTION')}">
+    <s:FormItem label="{R.get('DESCRIPTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <s:TextArea id="desc" width="250" text="{factory.desc}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'new'}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:DropDownList id="type" width="150" selectedIndex="0">
+        <s:ArrayCollection id="types">
+          <fx:Object label="DESKTOP"/>
+          <fx:Object label="MOBILE"/>
+        </s:ArrayCollection>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DEMO')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:CheckBox id="demo"/>
     </s:FormItem>
     
   </s:Form>

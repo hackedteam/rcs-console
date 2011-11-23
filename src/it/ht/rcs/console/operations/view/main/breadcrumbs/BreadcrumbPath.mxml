@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          width="100%" height="26" gap="2" verticalAlign="middle">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var section:OperationsSection;
+    ]]>
+  </fx:Script>
+  
+  <mx:LinkButton visible="{section.stateManager.selectedOperation != null}" label="All Operations"
+                 click="section.stateManager.setState('allOperations')" color="#333333"/>
+  
+  <s:Label visible="{section.stateManager.selectedOperation != null}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.stateManager.selectedOperation != null}"
+                 label="{section.stateManager.selectedOperation.name}"
+                 click="section.stateManager.setState('singleOperation')" color="#333333"/>
+  
+  <s:Label visible="{section.stateManager.selectedTarget != null}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.stateManager.selectedTarget != null}"
+                 label="{section.stateManager.selectedTarget.name}"
+                 click="section.stateManager.setState('singleTarget')" color="#333333"/>
+  
+  <s:Label visible="{section.stateManager.selectedAgent != null}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.stateManager.selectedAgent != null}"
+                 label="{section.stateManager.selectedAgent.name}"
+                 click="section.stateManager.setState('singleAgent')" color="#333333"/>
+  
+  <s:Label visible="{section.body.currentState.indexOf('config') &gt; -1}" paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.body.currentState.indexOf('config') &gt; -1}"
+                 label="{R.get('CONFIG')}" click="section.body.currentState = 'configList'"
+                 color="#333333"/>
+  
+</s:HGroup>

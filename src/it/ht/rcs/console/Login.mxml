@@ -21,7 +21,7 @@
       
       private function init():void
       {
-        this.title = "RCS Console " + console.rcsVersion.substring(0, console.rcsVersion.length-2);
+        this.title = "RCS Console " + Console.rcsVersion.substring(0, Console.rcsVersion.length-2);
       }
       
       private function added():void
@@ -57,17 +57,17 @@
       private function onSuccess(sess:Session):void
       {
         /* take the current session from result */
-        console.currentSession = sess;
+        Console.currentSession = sess;
         /* reset the password field (if someone logout, he will not find the password already filled */
         PasswordText.text = '';
         /* set the locale of the current user */
-        resourceManager.localeChain = [console.currentSession.user.locale];
+        resourceManager.localeChain = [Console.currentSession.user.locale];
         /* update the clock timezone */
-        Clock.instance.setConsoleTimezone(console.currentSession.user.timezone);
+        Clock.instance.setConsoleTimezone(Console.currentSession.user.timezone);
         /* send the global LOGIN event */
         FlexGlobals.topLevelApplication.dispatchEvent(new SessionEvent(SessionEvent.LOGGING_IN));
         /* switch to the main stage */
-        FlexGlobals.topLevelApplication.currentState = console.LOGGED_IN_STATE;
+        FlexGlobals.topLevelApplication.currentState = 'loggedIn';
         /* check for console update */
         Update.check();
       }

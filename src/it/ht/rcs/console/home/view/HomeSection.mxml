@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         title="HOME" width="100%" height="100%" xmlns:items="it.ht.rcs.console.utils.items.*"
-         creationComplete="init()" addedToStage="added()">
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:items="it.ht.rcs.console.utils.items.*"
+              xmlns:main="it.ht.rcs.console.main.*"
+              addedToStage="onAddedToStage()" creationComplete="init()">
+
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.items.ItemEvent;
@@ -22,19 +23,18 @@
       
       private function init():void
       {
-        if (gotoItems)
-          gotoItems.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
+        gotoItems.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
       }
       
-      private function added():void
+      private function onAddedToStage():void
       {
-        if (console.currentSession.user.is_any())
+        if (Console.currentSession.user.is_any())
           currentState = 'any';
         else
           currentState = 'none';
         
-        enable_quick_agent = (console.currentSession.user.is_admin() && console.currentSession.user.is_tech());
-        enable_items = (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view());
+        enable_quick_agent = (Console.currentSession.user.is_admin() && Console.currentSession.user.is_tech());
+        enable_items = (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view());
       }
       
       private function onSelectSearchItem(e:ItemEvent):void
@@ -47,42 +47,45 @@
         
     ]]>
   </fx:Script>
-  <s:states>
+  
+  <main:states>
     <s:State name="any"/>
     <s:State name="none"/>
-  </s:states>
+  </main:states>
   
-
   <s:Image x="0" y="0" width="1280" alpha="0.40" smooth="true" source="@Embed('img/vitruvian.png')"/>
-  <s:Label x="391" y="41" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="70" text="RCS"/>
-  <s:Label x="670" y="130" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="36" text="da Vinci"/>
-  <s:Label x="236" y="503" color="#a06720" alpha="0.40" styleName="zapfino" fontSize="36" text="simplicity is the ultimate sophistication"/>
-  <s:Label x="922" y="619" color="#3082c4" fontFamily="Courier New" fontSize="24" fontWeight="bold" text="developer preview"/>
+  <s:Label x="391" y="41" alpha="0.40" color="#a06720" fontSize="70" styleName="zapfino" text="RCS"/>
+  <s:Label x="670" y="130" alpha="0.40" color="#a06720" fontSize="36" styleName="zapfino"
+           text="da Vinci"/>
+  <s:Label x="236" y="503" alpha="0.40" color="#a06720" fontSize="36" styleName="zapfino"
+           text="simplicity is the ultimate sophistication"/>
+  <s:Label x="922" y="619" color="#3082c4" fontFamily="Courier New" fontSize="24" fontWeight="bold"
+           text="developer preview"/>
   
-  <s:BorderContainer x="155" y="210" width="353" height="214" backgroundAlpha="0.45" includeIn="any">
+  <s:BorderContainer includeIn="any" x="155" y="210" width="353" height="214" backgroundAlpha="0.45">
   
-    <s:HGroup left="25" top="20" verticalAlign="middle" visible="{enable_items}">
+    <s:HGroup visible="{enable_items}" left="25" top="20" verticalAlign="middle">
       <s:Label fontSize="16" text="{R.get('GO_TO')}:"/>
-      <items:SearchField width="260" id="gotoItems"/>
+      <items:SearchField id="gotoItems" width="260"/>
     </s:HGroup>
 
-    <s:Button visible="{enable_quick_agent}" left="25" top="60" label="{R.get('QUICK_AGENT')}..." fontSize="15"/>
+    <s:Button visible="{enable_quick_agent}" left="25" top="60" label="{R.get('QUICK_AGENT')}..."
+              fontSize="15"/>
   
   </s:BorderContainer>
   
-  <s:BorderContainer x="748" y="208" width="364" height="216" backgroundAlpha="0.45" includeIn="any">
+  <s:BorderContainer includeIn="any" x="748" y="208" width="364" height="216" backgroundAlpha="0.45">
     <s:VGroup visible="{enable_items}" left="25" right="25" top="20" bottom="20">
       <s:Label fontSize="18" text="{R.get('RECENT_ITEMS')}:"/>
-      <s:List width="100%" height="100%"
-              dataProvider="{console.currentSession.user.recent_ids}"
+      <s:List width="100%" height="100%" dataProvider="{Console.currentSession.user.recent_ids}"
               itemRenderer="it.ht.rcs.console.home.view.RecentItemsRenderer"></s:List>      
     </s:VGroup>
   </s:BorderContainer>
   
-  <s:BorderContainer x="155" y="210" width="956" height="214" backgroundAlpha="0.45" includeIn="none">
+  <s:BorderContainer includeIn="none" x="155" y="210" width="956" height="214" backgroundAlpha="0.45">
     <s:Label left="25" right="25" fontSize="18" text="{R.get('NOTHING_TO_DO_MESSAGE')}"
              textAlign="center" verticalAlign="middle" verticalCenter="0"/>
   </s:BorderContainer>
     
    
-</s:Panel>
+</main:Section>

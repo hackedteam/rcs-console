@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%" creationComplete="init()">
+
+  <!-- Parent class for Section components -->
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.containers.ViewStack;
+      
+      [Bindable]
+      public var subSections:ViewStack;
+      
+      private function init():void
+      {
+        subSections = findSubSections();
+      }
+      
+      /* if a section has subsections, it must expose a ViewStack with id == 'subSections' as its first element */
+      
+      private function findSubSections():ViewStack
+      {
+        var subSections:Object = this.getElementAt(0);
+        return (subSections is ViewStack && subSections.id == 'subSections') ? subSections as ViewStack : null;
+      }
+    ]]>
+  </fx:Script>
+  
+</s:Group>

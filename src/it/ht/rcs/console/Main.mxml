@@ -14,7 +14,7 @@
          xmlns:home="it.ht.rcs.console.home.view.*"
          width="100%" height="100%" 
          addedToStage="added()"
-         removedFromStage="removed()" creationComplete="init()" xmlns:view="it.ht.rcs.console.home.view.*">
+         removedFromStage="removed()" xmlns:view="it.ht.rcs.console.operations.view.*">
   
   <fx:Script>
     <![CDATA[
@@ -52,57 +52,51 @@
           this[event.section].changeSection(event);
       }
       
-
-      private function init():void
+      private function added():void
       {
-        
-      }
-      
-      private function added():void 
-      {
-        trace("Entering main section...") ;
+        trace("Entering main section...");
         
         FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, changeSection);
         
         /* different view based on privileges */
         main_sections = new Array();
-        if (console.currentSession.user.is_admin()) main_sections.push('Accounting');
-        if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) main_sections.push('Operations');
-        if (console.currentSession.user.is_view()) main_sections.push('Dashboard');
-        if (console.currentSession.user.is_view()) main_sections.push('Alerting');
+        if (Console.currentSession.user.is_admin()) main_sections.push('Accounting');
+        if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) main_sections.push('Operations');
+        if (Console.currentSession.user.is_view()) main_sections.push('Dashboard');
+        if (Console.currentSession.user.is_view()) main_sections.push('Alerting');
         //if (console.currentSession.user.is_view()) main_sections.push('Correlation');
-        if (console.currentSession.user.is_sys() || console.currentSession.user.is_tech()) main_sections.push('System');
-        if (console.currentSession.user.is_admin()) main_sections.push('Audit');
-        if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) main_sections.push('Monitor');
+        if (Console.currentSession.user.is_sys() || Console.currentSession.user.is_tech()) main_sections.push('System');
+        if (Console.currentSession.user.is_admin()) main_sections.push('Audit');
+        if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys()) main_sections.push('Monitor');
 
         /* initialize the managers */
 
-        if (console.currentSession.user.is_admin() || console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
+        if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
           SearchManager.instance.start();
-          OperationManager.instance.refresh(null);
-          TargetManager.instance.refresh(null);
+          OperationManager.instance.refresh();
+          TargetManager.instance.refresh();
         }
 
-        if (console.currentSession.user.is_tech() || console.currentSession.user.is_view()) {
-          AgentManager.instance.refresh(null);
-          FactoryManager.instance.refresh(null);
+        if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
+          AgentManager.instance.refresh();
+          FactoryManager.instance.refresh();
         }
         
-        if (console.currentSession.user.is_admin() || console.currentSession.user.is_sys()) {
+        if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys()) {
           MonitorManager.instance.start_counters();        
         }
         
-        if (console.currentSession.user.is_view()) {
+        if (Console.currentSession.user.is_view()) {
           AlertController.instance.start_counters();
         }
                 
-        if (console.currentSession.user.is_any()) {
+        if (Console.currentSession.user.is_any()) {
           DownloadManager.instance.start();
           LicenseManager.instance.start();
           SearchManager.instance.start();
         }
 
-        currentState = "Home";        
+        currentState = "Home";
       }
       
       private function removed():void 
@@ -121,9 +115,6 @@
     ]]>
   </fx:Script>
   
-  <fx:Declarations>
-  </fx:Declarations>
-
   <s:states>
     <s:State name="Home"/>
     <s:State name="Accounting"/>
@@ -147,7 +138,7 @@
   <!-- all the sections -->
   <accounting:AccountingSection id="Accounting" includeIn="Accounting" height="100%" top="75" left="0" right="0" bottom="0"/>
   
-  <operations:OperationsSection id="Operations" includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
+  <view:OperationsSection id="Operations" includeIn="Operations" height="100%" top="75" left="0" right="0" bottom="0"/>
 
   <dashboard:DashboardSection id="Dashboard" includeIn="Dashboard" height="100%" top="75" left="0" right="0" bottom="0"/>
 

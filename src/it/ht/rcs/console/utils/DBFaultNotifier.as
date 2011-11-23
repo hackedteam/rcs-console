@@ -20,7 +20,7 @@ package it.ht.rcs.console.utils
       var message:String = "ERROR";
       
       /* avoid multiple messages, by checking if the currentSession is valid */
-      if (console.currentSession == null) {
+      if (Console.currentSession == null) {
         return;
       }
       

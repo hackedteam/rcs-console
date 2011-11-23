@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:effects="it.ht.rcs.console.effects.*"
+         width="100%" height="100%" addedToStage="onAddedToStage()" creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.accounting.model.Session;
+      import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.Clock;
+      import it.ht.rcs.console.utils.DBFaultNotifier;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.CursorManager;
+      
+      private function init():void
+      {
+        /* User clicked on Close button */
+        FlexGlobals.topLevelApplication.addEventListener(Event.CLOSING, onClosing);
+        /* User wants to logout but there is something he needs to know */
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.ABORT_LOGOUT, onAbortLogout);
+        /* User finally logged out (priority used to be sure this handler gets called last) */
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, onLogout, false, Number.NEGATIVE_INFINITY);
+      }
+      
+      private function onLogin():void
+      {
+        CursorManager.setBusyCursor();
+        login.enabled = false;
+        
+        errorMessage.text = '';
+        
+        SessionManager.instance.login(username.text, password.text, server.text, new DBFaultNotifier(), new R(), onSuccess, onFailure);
+      }
+      
+      private function onSuccess(session:Session):void
+      {
+        CursorManager.removeBusyCursor();
+        login.enabled = true;
+
+        /* take the current session from result */
+        Console.currentSession = session;
+        /* set the locale of the current user */
+        resourceManager.localeChain = [Console.currentSession.user.locale];
+        /* update the clock timezone */
+        Clock.instance.setConsoleTimezone(Console.currentSession.user.timezone);
+        /* switch to the main stage */
+        FlexGlobals.topLevelApplication.currentState = 'loggedIn';
+        /* send the global LOGIN event */
+        FlexGlobals.topLevelApplication.dispatchEvent(new SessionEvent(SessionEvent.LOGIN));
+        /* check for console update */
+        //Update.check();
+      }
+      
+      private function onFailure(message:String):void
+      {
+        CursorManager.removeBusyCursor();
+        login.enabled = true;
+        
+        errorMessage.text = message;
+        
+        //shake.play();
+      }
+      
+      private function onClosing(e:Event):void
+      {
+        e.preventDefault();
+        SessionManager.instance.logout(true);
+      }
+      
+      private function onAbortLogout(e:SessionEvent):void
+      {
+        AlertPopUp.show(R.get('CONFIRM_LOGOUT'), R.get('CONFIRM'),
+                        AlertPopUp.OK | AlertPopUp.CANCEL, null,
+                        function(event:CloseEvent):void {
+                          if(event.detail == AlertPopUp.OK)
+                            SessionManager.instance.forceLogout(e.exitApplicationAfterLogout);
+                        });
+      }
+      
+      private function onLogout(e:SessionEvent):void
+      {
+        FlexGlobals.topLevelApplication.currentState = 'loggedOut';
+        Console.currentSession = null;
+      }
+      
+      private function onAddedToStage():void
+      {
+        password.text = '';
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+  </s:layout>
+  
+  <s:Label id="errorMessage" color="#ff0000" paddingBottom="20"/>
+  
+  <s:Panel id="panel"
+           title="{'RCS Console ' + Console.rcsVersion.substring(0, Console.rcsVersion.length - 2)}">
+    
+    <s:Form addedToStage="username.setFocus()" defaultButton="{login}">
+      
+      <s:FormItem label="Username">
+        <s:TextInput id="username" width="200" text="{SessionManager.instance.lastUsername}"/>
+      </s:FormItem>
+      <s:FormItem label="Password">
+        <s:TextInput id="password" width="200" displayAsPassword="true"/>
+      </s:FormItem>
+      <s:FormItem label="Server">
+        <s:TextInput id="server" width="200" text="{SessionManager.instance.lastServer}"/>
+      </s:FormItem>
+      <s:FormItem>
+        <s:layout>
+          <s:HorizontalLayout horizontalAlign="right"/>
+        </s:layout>
+        <s:Button id="login" label="Login" click="onLogin()"/>
+      </s:FormItem>
+      
+    </s:Form>
+    
+  </s:Panel>
+  <effects:Reflector alpha="0.5" blurAmount="0.5" falloff="0.5" target="{panel}"/>
+
+</s:Group>

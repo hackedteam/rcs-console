@@ -30,7 +30,7 @@ package it.ht.rcs.console.utils
       DB.instance.update.all(function (e:ResultEvent):void {
         
         var versions:UpdateVersions = e.result as UpdateVersions;
-        var current_version:String = console.appVersion.replace(/\./g, "");
+        var current_version:String = Console.appVersion.replace(/\./g, "");
         var update_version:String = versions.console;
         
         trace("UpdateCheck -- current: " + current_version + " update: " + update_version);
@@ -53,7 +53,7 @@ package it.ht.rcs.console.utils
     
     private static function update(version:String):void 
     {
-      var urlString:String = DB.host_autocomplete(console.currentSession.server) + "version/" + version; 
+      var urlString:String = DB.hostAutocomplete(Console.currentSession.server) + "version/" + version; 
       var urlReq:URLRequest = new URLRequest(urlString); 
       var urlStream:URLStream = new URLStream(); 
       

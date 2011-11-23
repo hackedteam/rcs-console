@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SectionEvent;
+      
+      import mx.collections.IList;
+      import mx.core.FlexGlobals;
+      
+      import spark.events.IndexChangeEvent;
+      
+      [Bindable]
+      public var sections:IList;
+      
+      protected function onButtonClick(event:IndexChangeEvent):void
+      {
+        var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        sectionEvent.section = sections.getItemAt(event.newIndex) as String;
+        FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:HorizontalLayout gap="0" horizontalAlign="left" paddingBottom="8" paddingLeft="5"
+                        paddingTop="8" verticalAlign="middle"/>
+  </s:layout>
+  
+  <s:ButtonBar change="onButtonClick(event)" dataProvider="{sections}" requireSelection="true"
+               selectedIndex="{sections.getItemIndex(parentDocument.sections.currentState)}"
+               skinClass="it.ht.rcs.console.main.skins.RCSMenuSectionSkin"/>
+  
+</s:Group>

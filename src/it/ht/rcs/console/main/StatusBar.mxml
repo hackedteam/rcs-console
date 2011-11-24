@@ -6,16 +6,20 @@
 
   <fx:Script>
     <![CDATA[
-      import mx.controls.Alert;
+      import it.ht.rcs.console.accounting.view.users.ClockProfile;
+      import it.ht.rcs.console.accounting.view.users.UserProfile;
+      import it.ht.rcs.console.utils.Clock;
+      
+      import mx.managers.PopUpManager;
       
       private function onUserClick(event:MouseEvent):void
       {
-        Alert.show('User Profile');
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, UserProfile, true));
       }
       
       private function onDateClick(event:MouseEvent):void
       {
-        Alert.show('Date Config');
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, ClockProfile, true));
       }
     ]]>
   </fx:Script>
@@ -25,12 +29,13 @@
   </s:layout>
 
   <s:BitmapImage source="@Embed('/img/windows/user.png')"/>
-  <s:Label id="user" buttonMode="true" click="onUserClick(event)" color="#555555" fontFamily="Myriad"
-           fontSize="12" maxDisplayedLines="1" text="demo@demo"/>
+  <s:Label buttonMode="true" click="onUserClick(event)" color="#555555" fontFamily="Myriad"
+           fontSize="12" maxDisplayedLines="1"
+           text="{Console.currentSession.user.name}\@{Console.currentSession.server}"/>
   
   <s:Spacer width="100%"/>
   
-  <s:Label id="time" buttonMode="true" click="onDateClick(event)" color="#555555" fontFamily="Myriad"
-           fontSize="12" maxDisplayedLines="1" text="Wed 4:45 pm"/>
+  <s:Label buttonMode="true" click="onDateClick(event)" color="#555555" fontFamily="Myriad"
+           fontSize="12" maxDisplayedLines="1" text="{Clock.instance.statusBarTime}"/>
   
 </s:Group>

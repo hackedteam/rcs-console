@@ -7,8 +7,7 @@
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              show="show()">
 
-  <xt:FilterComboBox id="combo" width="150" enter="commit()" matchedTextStyleName="matched" prompt="{PROMPT}"
-                     styleName="auditFilter"/>
+  <s:ComboBox id="combo" width="150" styleName="auditFilter"/>
   
   <fx:Script>
     <![CDATA[
@@ -16,10 +15,9 @@
       
       import it.ht.rcs.console.events.FilterEvent;
       
+      import mx.collections.IList;
       import mx.core.FlexGlobals;
       
-      public static const PROMPT:String = 'Type';
-
       override public function commit(fireEvent:Boolean=true):void
       {
         var values:Array = getValues();
@@ -32,11 +30,11 @@
       
       override public function reset(fireEvent:Boolean=true):void
       {
-        combo.text = '';
+        combo.selectedItem = '';
         commit(fireEvent);
       }
       
-      override public function set filterValues(filterValues:Object):void
+      override public function set filterValues(filterValues:IList):void
       {
         combo.dataProvider = filterValues;
         combo.selectedItem = filter[property];
@@ -45,26 +43,25 @@
       private function getValues():Array
       {
         
-        combo.text = StringUtil.trim(combo.text);
-        combo.prompt = combo.text;
-        
-        if (combo.text == '' || combo.text == PROMPT)
+        if (!combo.selectedItem || combo.selectedItem == '')
           return [];
         
-        if (combo.text.indexOf(',') != -1)
-          return combo.text.split(',');
+        combo.selectedItem = StringUtil.trim(combo.selectedItem);
         
-        if (combo.dropdown.selectedItems.length == 1)
-          return [combo.dropdown.selectedItem];
+        if (combo.selectedItem.indexOf(',') != -1)
+          return combo.selectedItem.split(',');
         
-        if (combo.filteredCollection.length > 0) {
-          var values:Array = [];
-          for each (var item:String in combo.filteredCollection)
-            values.push(item);
-          return values;
-        }
+//        if (combo.selectedItems.length == 1)
+//          return [combo.dropdown.selectedItem];
+//        
+//        if (combo.filteredCollection.length > 0) {
+//          var values:Array = [];
+//          for each (var item:String in combo.filteredCollection)
+//            values.push(item);
+//          return values;
+//        }
         
-        return [combo.text];
+        return [combo.selectedItem];
         
       }
       
@@ -73,7 +70,6 @@
         combo.setFocus();
         combo.selectedItem = filter[property];
       }
-      
     ]]>
   </fx:Script>
   

@@ -2,13 +2,13 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
-                   width="300" height="80" addedEffect="{fadeIn}" addedToStage="added()"
-                   backgroundAlpha=".95" backgroundColor="#333333" click="onClick()"
+                   width="280" height="80" addedEffect="{fadeIn}" addedToStage="onAddedToStage()"
+                   backgroundAlpha=".80" backgroundColor="#333333" click="onClick()"
                    cornerRadius="10" creationPolicy="all" removedEffect="{fadeOut}"
-                   removedFromStage="removed()">
+                   removedFromStage="onRemovedFromStage()">
 
   <s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
-    <s:RichText id="message" color="white" fontSize="13" lineHeight="18"/>
+    <s:RichText id="message" color="#ffffff" fontFamily="Myriad" fontSize="16" lineHeight="18"/>
   </s:HGroup>
   
   <fx:Script>
@@ -18,7 +18,6 @@
       import it.ht.rcs.console.events.SessionEvent;
       
       import mx.core.FlexGlobals;
-      import mx.events.AIREvent;
       import mx.managers.PopUpManager;
       
       protected function onClick():void
@@ -34,21 +33,21 @@
         popup.message.textFlow = TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
       }
       
-      private function added():void
+      private function onAddedToStage():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.FORCE_LOG_OUT, doHide);
-        //NativeApplication.nativeApplication.activeWindow.addEventListener(Event.RESIZE, adjustPosition);
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, doHide);
+        NativeApplication.nativeApplication.activeWindow.addEventListener(Event.RESIZE, adjustPosition);
       }
       
-      private function removed():void
+      private function onRemovedFromStage():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.FORCE_LOG_OUT, doHide);
-        //NativeApplication.nativeApplication.activeWindow.removeEventListener(Event.RESIZE, adjustPosition);
+        FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.LOGOUT, doHide);
+        NativeApplication.nativeApplication.activeWindow.removeEventListener(Event.RESIZE, adjustPosition);
       }
       
       private function adjustPosition(event:Event=null):void {
-        this.x = 100;
-        this.y = FlexGlobals.topLevelApplication.height - this.height - 30;
+        this.x = NativeApplication.nativeApplication.activeWindow.width / 2 - this.width / 2;
+        this.y = FlexGlobals.topLevelApplication.height - this.height - 40;
       }
       
       private function doHide(event:Event=null):void {
@@ -69,9 +68,6 @@
     </s:Parallel>
   </fx:Declarations>
   
-  <s:filters>
-    <s:DropShadowFilter angle="0" blurX="5" blurY="5" color="#666666" distance="0" quality="2"
-                        strength="1"/>
-  </s:filters>
+
 
 </s:BorderContainer>

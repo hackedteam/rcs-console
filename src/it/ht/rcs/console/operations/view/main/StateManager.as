@@ -154,14 +154,6 @@ package it.ht.rcs.console.operations.view.main
             currentFilter = agentFactoryFilterFunction;
             AgentController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
             AgentController.instance.start();
-//            _item_view = new ListCollectionView(new ArrayList());
-//            addCustomTypes();
-//            _item_view.sort = customTypeSort;
-//            _item_view.filterFunction = agentFactoryFilterFunction;
-//            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
-//            AgentManager.instance.start();
-//            FactoryManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
-//            FactoryManager.instance.start();
           }
           break;
         case 'allAgents':
@@ -219,6 +211,17 @@ package it.ht.rcs.console.operations.view.main
     private function onDataLoaded(event:DataLoadedEvent = null):void
     {
       _item_view = CurrentManager.instance.getView(null, currentFilter);
+      if (section.currentState == 'singleTarget') {
+      //            _item_view = new ListCollectionView(new ArrayList());
+      addCustomTypes();
+      _item_view.sort = customTypeSort;
+      _item_view.filterFunction = agentFactoryFilterFunction;
+      _item_view.refresh();
+      //            AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
+      //            AgentManager.instance.start();
+      //            FactoryManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoadedMerge);
+      //            FactoryManager.instance.start();
+      }      
     }
     
     private function onDataLoadedMerge(event:DataLoadedEvent = null):void

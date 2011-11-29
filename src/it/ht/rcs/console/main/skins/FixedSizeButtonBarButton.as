@@ -1,6 +1,9 @@
-package it.ht.rcs.console.main
+package it.ht.rcs.console.main.skins
 {
+  import mx.controls.Alert;
+  
   import spark.components.ButtonBarButton;
+  import spark.components.Label;
   
   public class FixedSizeButtonBarButton extends ButtonBarButton
   {
@@ -13,7 +16,8 @@ package it.ht.rcs.console.main
     override public function set label(value:String):void
     {
       super.label = value;
-      width = measureText(value).width + 40;
+      var size:int = parseInt((labelDisplay as Label).getStyle('fontSize'));
+      width = measureText(value).width + (size * 3);
     }
     
   }

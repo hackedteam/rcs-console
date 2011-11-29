@@ -16,6 +16,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.model.Session;
+      import it.ht.rcs.console.main.Main;
       
       import mx.collections.ArrayCollection;
       
@@ -46,6 +47,17 @@
         if (Screen.mainScreen.bounds.width <= 1280)
           maximize();
       }
+      
+      public function goLoggedIn():void {
+        currentState = 'loggedIn';
+        mainContainer.addElement(new Main());
+      }
+      
+      public function goLoggedOut():void {
+        currentState = 'loggedOut';
+        if (mainContainer) // can be null if quitting before first login
+          mainContainer.removeAllElements();
+      }
     ]]>
   </fx:Script>
   
@@ -58,6 +70,6 @@
   <main:Login includeIn="loggedOut"/>
   
   <!-- LoggedIn state -->
-  <main:Main includeIn="loggedIn"/>
+  <s:Group id="mainContainer" includeIn="loggedIn" width="100%" height="100%"/>
   
 </s:WindowedApplication>

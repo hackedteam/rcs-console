@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
-         xmlns:s="library://ns.adobe.com/flex/spark"
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:view="it.ht.rcs.console.system.view.*"
-         xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
-         xmlns:nia="it.ht.rcs.console.system.view.nia.*"
-         xmlns:rmi="it.ht.rcs.console.system.view.rmi.*"
-         xmlns:backend="it.ht.rcs.console.system.view.backend.*"
-         width="100%" height="100%" 
-         title="SYSTEM" addedToStage="onAdded()">
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:main="it.ht.rcs.console.main.*"
+              xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
+              xmlns:backend="it.ht.rcs.console.system.view.backend.*"
+              xmlns:nia="it.ht.rcs.console.system.view.nia.*"
+              xmlns:rmi="it.ht.rcs.console.system.view.rmi.*"
+              addedToStage="onAddedToStage()">
   
   <fx:Script>
     <![CDATA[
       import locale.R;
       
-      private function onAdded():void
+      private function onAddedToStage():void
       {
         if (Console.currentSession.user.is_sys())
           currentState = 'sys';
         else
           currentState = 'tech';
       }
-      
     ]]>
   </fx:Script>
-  <s:states>
+  
+  <main:states>
     <s:State name="sys"/>
     <s:State name="tech"/>
-  </s:states>
+  </main:states>
 
-  <mx:TabNavigator left="5" right="5" top="5" bottom="5" backgroundColor="0xeaeaea" selectedIndex="0">
+  <mx:ViewStack id="subSections" width="100%" height="100%">
     
     <s:NavigatorContent includeIn="sys" label="{R.get('FRONTEND')}">
       <frontend:Frontend/>
@@ -47,6 +46,6 @@
       <rmi:RMI/>
     </s:NavigatorContent>
     
-  </mx:TabNavigator>
+  </mx:ViewStack>
 
-</s:Panel>
+</main:Section>

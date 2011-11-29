@@ -52,7 +52,8 @@
         /* update the clock timezone */
         Clock.instance.setConsoleTimezone(Console.currentSession.user.timezone);
         /* switch to the main stage */
-        FlexGlobals.topLevelApplication.currentState = 'loggedIn';
+        //FlexGlobals.topLevelApplication.currentState = 'loggedIn';
+        (FlexGlobals.topLevelApplication as Console).goLoggedIn();
         /* send the global LOGIN event */
         FlexGlobals.topLevelApplication.dispatchEvent(new SessionEvent(SessionEvent.LOGIN));
         /* check for console update */
@@ -87,7 +88,8 @@
       
       private function onLogout(e:SessionEvent):void
       {
-        FlexGlobals.topLevelApplication.currentState = 'loggedOut';
+        //FlexGlobals.topLevelApplication.currentState = 'loggedOut';
+        (FlexGlobals.topLevelApplication as Console).goLoggedOut();
         Console.currentSession = null;
       }
       

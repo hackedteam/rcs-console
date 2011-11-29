@@ -3,7 +3,7 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             xmlns:utils="it.ht.rcs.console.utils.*"
-                            width="300" height="175" showCloseButton="false" save="saveMe()"
+                            width="300" height="175" save="saveMe()" showCloseButton="false"
                             skinClass="it.ht.rcs.console.skins.TitleWindowSaveCloseSkin"
                             title="{resourceManager.getString('localized_main', 'CLOCK_SETTINGS').toUpperCase()}">
   <fx:Script>
@@ -21,31 +21,32 @@
       
       private function saveMe():void
       {
-        PopUpManager.removePopUp(this);  
+        PopUpManager.removePopUp(this);
       }
       
       private function changeTimeZone():void
       {
         Clock.instance.setConsoleTimezone(dropTimeList.selectedIndex - 12);
-        /* save the timezone in the user profile */ 
+        /* save the timezone in the user profile */
         Console.currentSession.user.timezone = dropTimeList.selectedIndex - 12;
         UserManager.instance.update(Console.currentSession.user, {timezone: Console.currentSession.user.timezone});
       }
     ]]>
   </fx:Script>
   
-  <s:Form skinClass="it.ht.rcs.console.skins.CompactForm" top="5" bottom="5" left="5" right="5">
-    <s:FormItem label="{resourceManager.getString('localized_main', 'UTC_TIME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+  <s:Form left="5" right="5" top="5" bottom="5">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'UTC_TIME')}">
       <s:Label text="{Clock.instance.currentUTCTime}"/>
     </s:FormItem>
-    <s:FormItem label="{resourceManager.getString('localized_main', 'LOCAL_TIME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'LOCAL_TIME')}">
       <s:Label text="{Clock.instance.currentLocalTime}"/>
     </s:FormItem>
-    <s:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIME')}">
       <s:Label text="{Clock.instance.currentConsoleTime}"/>
     </s:FormItem>
-    <s:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:DropDownList id="dropTimeList" change="changeTimeZone()" dataProvider="{timezones}" selectedIndex="{Clock.instance.consoleOffset + 12}"/>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}">
+      <s:DropDownList id="dropTimeList" change="changeTimeZone()" dataProvider="{timezones}"
+                      selectedIndex="{Clock.instance.consoleOffset + 12}"/>
     </s:FormItem>
   </s:Form>
     

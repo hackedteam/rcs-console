@@ -77,7 +77,7 @@ package it.ht.rcs.console.operations.view.main
       else if (item is Factory)
       {
         if (Console.currentSession.user.is_tech()) {
-          // launch configuration
+          section.body.currentState = 'config';
         }
       }
       

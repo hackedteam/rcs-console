@@ -2,13 +2,15 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
-                   width="280" height="80" addedEffect="{fadeIn}" addedToStage="onAddedToStage()"
-                   backgroundAlpha=".80" backgroundColor="#333333" click="onClick()"
-                   cornerRadius="10" creationPolicy="all" removedEffect="{fadeOut}"
-                   removedFromStage="onRemovedFromStage()">
+                   width="280" height="80" addedToStage="onAddedToStage()" backgroundAlpha=".8"
+                   backgroundColor="#333333" borderVisible="false" click="dispose()"
+                   creationPolicy="all">
 
-  <s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
-    <s:RichText id="message" color="#ffffff" fontFamily="Myriad" fontSize="16" lineHeight="18"/>
+  <s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle"
+            verticalCenter="1">
+    
+    <s:RichText id="message" color="#ffffff" fontFamily="Myriad" fontSize="16" lineHeight="20"/>
+    
   </s:HGroup>
   
   <fx:Script>
@@ -20,11 +22,6 @@
       import mx.core.FlexGlobals;
       import mx.managers.PopUpManager;
       
-      protected function onClick():void
-      {
-        PopUpManager.removePopUp(this);
-      }
-      
       public static function showNotification(message:String):void
       {
         var popup:NotificationPopup = new NotificationPopup();
@@ -35,39 +32,44 @@
       
       private function onAddedToStage():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, doHide);
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, dispose);
         NativeApplication.nativeApplication.activeWindow.addEventListener(Event.RESIZE, adjustPosition);
+        fadeIn.play();
       }
       
-      private function onRemovedFromStage():void
+      private function dispose(event:Event=null):void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.LOGOUT, doHide);
+        FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.LOGOUT, dispose);
         NativeApplication.nativeApplication.activeWindow.removeEventListener(Event.RESIZE, adjustPosition);
+        fadeOut.play(); // Will remove the popup at the end
       }
       
-      private function adjustPosition(event:Event=null):void {
-        this.x = NativeApplication.nativeApplication.activeWindow.width / 2 - this.width / 2;
-        this.y = FlexGlobals.topLevelApplication.height - this.height - 40;
-      }
-      
-      private function doHide(event:Event=null):void {
+      private function fadeOutEnd():void
+      {
         PopUpManager.removePopUp(this);
       }
       
+      private function adjustPosition(event:Event=null):void
+      {
+        this.x = NativeApplication.nativeApplication.activeWindow.width / 2 - this.width / 2;
+        this.y = FlexGlobals.topLevelApplication.height - this.height - 40;
+      }      
     ]]>
   </fx:Script>
   
   <fx:Declarations>
-    <s:Parallel id="fadeIn">
-      <s:Fade alphaFrom="0" alphaTo="1" duration="200"/>
-      <s:Move duration="200" yFrom="{this.y + 50}" yTo="{this.y}"/>
-    </s:Parallel>
-    <s:Parallel id="fadeOut">
-      <s:Fade alphaFrom="1" alphaTo="0" duration="200"/>
-      <s:Move duration="200" yFrom="{this.y}" yTo="{this.y - 50}"/>
+    <s:Sequence id="fadeIn" target="{this}">
+      <s:Parallel duration="200">
+        <s:Fade alphaFrom="0" alphaTo="1"/>
+        <s:Move yFrom="{this.y + 50}" yTo="{this.y}"/>
+      </s:Parallel>
+      <s:Fade alphaFrom="1" alphaTo="0.3" duration="100"/>
+      <s:Fade alphaFrom="0.3" alphaTo="1" duration="100"/>
+    </s:Sequence>
+    <s:Parallel id="fadeOut" duration="200" effectEnd="fadeOutEnd()" target="{this}">
+      <s:Fade alphaFrom="1" alphaTo="0"/>
+      <s:Move yFrom="{this.y}" yTo="{this.y - 50}"/>
     </s:Parallel>
   </fx:Declarations>
-  
-
 
 </s:BorderContainer>

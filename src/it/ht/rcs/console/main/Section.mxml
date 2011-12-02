@@ -22,8 +22,12 @@
       
       private function findSubSections():ViewStack
       {
-        var subSections:Object = this.getElementAt(0);
-        return (subSections is ViewStack && subSections.id == 'subSections') ? subSections as ViewStack : null;
+        try {
+          var subSections:Object = this.getElementAt(0); // can throw Error. Unlikely though (why empty section?)
+          return (subSections is ViewStack && subSections.id == 'subSections') ? subSections as ViewStack : null;
+        } catch (e:Error) {
+        }
+        return null;
       }
     ]]>
   </fx:Script>

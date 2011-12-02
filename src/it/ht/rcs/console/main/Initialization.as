@@ -33,6 +33,7 @@ package it.ht.rcs.console.main
       if (Console.currentSession.user.is_sys() || Console.currentSession.user.is_tech()) mainSections.addItem('System');
       if (Console.currentSession.user.is_admin()) mainSections.addItem('Audit');
       if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys()) mainSections.addItem('Monitor');
+      if (Console.currentSession.user.is_any()) mainSections.addItem('Playground');
       
       /* initialize the managers */
       

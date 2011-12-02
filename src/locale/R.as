@@ -11,15 +11,15 @@ package locale
     private static var resourceManager:IResourceManager = ResourceManager.getInstance();
     
     // this is for console
-    public static function get(string:String, parameters:Array = null):String
+    public static function get(string:String, parameters:Array=null):String
     {
       return resourceManager.getString('localized_main', string, parameters);
     }
     
     // this is for console-library
-    public function get(string:String, parameters:Array = null):String
+    public function get(string:String, parameters:Array=null):String
     {
-      return resourceManager.getString('localized_main', string, parameters);
+      return R.get(string, parameters);
     }
     
   }

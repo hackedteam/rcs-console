@@ -10,14 +10,15 @@
       import it.ht.rcs.console.task.controller.DownloadTask;
       import it.ht.rcs.console.utils.AlertPopUp;
       
+      import locale.R;
+      
       import mx.events.CloseEvent;
       
       private function cancel():void
       {
         if (data.isCreating() || data.isDownloading())
-          AlertPopUp.show(resourceManager.getString('localized_main', 'CONFIRM_TASK_DELETION'),
-                     resourceManager.getString('localized_main', 'CONFIRM'),
-                     AlertPopUp.OK | AlertPopUp.CANCEL, null, doCancel);
+          AlertPopUp.show(R.get('CONFIRM_TASK_DELETION'), R.get('CONFIRM'),
+                          AlertPopUp.OK | AlertPopUp.CANCEL, null, doCancel);
         else
           DownloadManager.instance.removeTask(data as DownloadTask);
       }
@@ -27,19 +28,18 @@
         if(event.detail == AlertPopUp.OK)
           DownloadManager.instance.removeTask(data as DownloadTask);
       }
-      
     ]]>
   </fx:Script>
   
   <s:SkinnableContainer width="100%" height="60" toolTip="{data.task.time}">
-    <s:Label left="5" top="8" fontWeight="bold" text="{data.task.desc + '  ( ' + data.task.file_name + ' )'}"/>
+    <s:Label left="5" top="8" fontWeight="bold"
+             text="{data.task.desc + '  ( ' + data.task.file_name + ' )'}"/>
     <mx:ProgressBar left="5" right="10" top="20" label="%3%%" labelPlacement="right" mode="polled"
                     name="creationProgress" source="{data.creation_percentage}"/>
     <mx:ProgressBar left="5" right="10" top="30" label="%3%%" labelPlacement="right" mode="polled"
                     name="downloadProgress" source="{data.download_percentage}"/>
     <s:Button right="5" top="5" width="15" height="15" click="cancel()"
-              skinClass="spark.skins.spark.TitleWindowCloseButtonSkin"
-              toolTip="{resourceManager.getString('localized_main', 'CANCEL')}"/>
+              skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" toolTip="{R.get('CANCEL')}"/>
   </s:SkinnableContainer>
   
 </s:ItemRenderer>

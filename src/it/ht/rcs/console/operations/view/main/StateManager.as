@@ -91,7 +91,8 @@ package it.ht.rcs.console.operations.view.main
       
       else if (item is Object && item.customType == 'evidences')
       {
-        Alert.show('Show Evidence Component');
+        section.body.currentState = 'evidence';
+        //Alert.show('Show Evidence Component');
       }
       
       else if (item is Object && item.customType == 'filesystem')

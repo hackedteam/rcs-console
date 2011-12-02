@@ -162,7 +162,7 @@ package it.ht.rcs.console.system.view.frontend
 			var _width:Number = unscaledWidth > measuredWidth ? unscaledWidth : measuredWidth;
 			var _height:Number = unscaledHeight > measuredHeight ? unscaledHeight : measuredHeight;
 
-			graphics.lineStyle(1, 0x222222, 1, true);
+			graphics.lineStyle(1, 0x999999, 1, true);
 
 			if (_db != null)
 			{
@@ -190,7 +190,8 @@ package it.ht.rcs.console.system.view.frontend
 					collector.move(cX - collector.measuredWidth / 2, cY);
 
 					graphics.moveTo(_width / 2, _height - BOTTOM_DISTANCE - _db.measuredHeight / 2);
-					graphics.lineTo(cX, cY + collector.measuredHeight);
+					graphics.lineTo(cX, cY + COLLECTORS_DISTANCE + BOTTOM_DISTANCE);
+          graphics.lineTo(cX, cY + collector.measuredHeight);
 
 					var anonymizer:CollectorRenderer = collector.nextHop;
 					while (anonymizer != null)

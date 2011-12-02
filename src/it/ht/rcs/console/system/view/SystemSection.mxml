@@ -7,18 +7,21 @@
               xmlns:backend="it.ht.rcs.console.system.view.backend.*"
               xmlns:nia="it.ht.rcs.console.system.view.nia.*"
               xmlns:rmi="it.ht.rcs.console.system.view.rmi.*"
-              addedToStage="onAddedToStage()">
+              creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
       import locale.R;
       
-      private function onAddedToStage():void
+      private function init():void
       {
-        if (Console.currentSession.user.is_sys())
-          currentState = 'sys';
-        else
-          currentState = 'tech';
+        currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
+        // Bestiality: using "includeIn" on NavigationContent elements will cause the menu to be out of sync with the view
+        if (currentState == 'tech') {
+          subSections.removeElementAt(3);
+          subSections.removeElementAt(1);
+          subSections.removeElementAt(0);
+        }
       }
     ]]>
   </fx:Script>
@@ -28,21 +31,21 @@
     <s:State name="tech"/>
   </main:states>
 
-  <mx:ViewStack id="subSections" width="100%" height="100%">
+  <mx:ViewStack id="subSections" width="100%" height="100%" selectedIndex="0">
     
-    <s:NavigatorContent includeIn="sys" label="{R.get('FRONTEND')}">
+    <s:NavigatorContent label="{R.get('FRONTEND')}">
       <frontend:Frontend/>
     </s:NavigatorContent>
     
-    <s:NavigatorContent includeIn="sys" label="{R.get('BACKEND')}">
+    <s:NavigatorContent label="{R.get('BACKEND')}">
       <backend:Backend/>
     </s:NavigatorContent>
     
-    <s:NavigatorContent includeIn="sys,tech" label="{R.get('NETWORK_INJECTORS')}">
+    <s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}">
       <nia:NIA/>
     </s:NavigatorContent>
     
-    <s:NavigatorContent includeIn="sys" label="{R.get('MODEMS')}">
+    <s:NavigatorContent label="{R.get('MODEMS')}">
       <rmi:RMI/>
     </s:NavigatorContent>
     

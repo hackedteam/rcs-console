@@ -12,27 +12,29 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
-      //public var okCallback:Function = null;
-      
-      private function init():void {
+      private function init():void
+      {
         fileName.setFocus();
       }
       
-      private function close():void {
+      private function close():void
+      {
         PopUpManager.removePopUp(this);
       }
       
       private function onClick():void
       {
-        DownloadManager.instance.createTask("audit", fileName.text, onSuccess, onFailure);
+        DownloadManager.instance.createTask('audit', fileName.text, onSuccess, onFailure);
       }
 		  
-  	  private function onSuccess(e:ResultEvent):void {
+  	  private function onSuccess(e:ResultEvent):void
+      {
         close();
   	  }
   		
-  	  private function onFailure(e:FaultEvent):void {
-  		  fileName.errorString = "File name is already taken. Please choose a different one!";
+  	  private function onFailure(e:FaultEvent):void
+      {
+  		  fileName.errorString = 'File name is already taken. Please choose a different one!';
   	  }
     ]]>
   </fx:Script>
@@ -42,8 +44,8 @@
                       paddingRight="20" paddingTop="20"/>
   </s:layout>
   
-  <s:Label x="10" top="20" text="Choose a name for the file that will be created"/>
-  <s:TextInput id="fileName" x="10" y="44" width="200" enter="onClick()" />
-  <s:Button x="125" bottom="10" label="OK" click="onClick()"/>
+  <s:Label text="Choose a name for the file that will be created"/>
+  <s:TextInput id="fileName" width="200" enter="onClick()"/>
+  <s:Button label="OK" click="onClick()"/>
 
 </s:TitleWindow>

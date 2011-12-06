@@ -12,15 +12,16 @@
   <actionbar:ActionBar>
     <s:Button label="New Config" icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
     <actionbar:Separator width="20"/>
-    <s:Button label="Build" icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+    <s:Button label="Build" icon="@Embed('/img/windows/user2.png')" iconPlacement="top" click="build(event)"/>
   </actionbar:ActionBar>
 
   <fx:Script>
     <![CDATA[
-      
-      
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.factories.build.BuildForm;
       import it.ht.rcs.console.operations.view.main.views.configuration.renderers.EventRenderer;
+      
+      import mx.managers.PopUpManager;
       
       [Bindable]
       public var section:OperationsSection;
@@ -162,6 +163,13 @@
 //        } // End db
         
       }
+      
+      protected function build(event:MouseEvent):void
+      {
+        var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
+        PopUpManager.centerPopUp(b);
+      }
+      
     ]]>
   </fx:Script>
   

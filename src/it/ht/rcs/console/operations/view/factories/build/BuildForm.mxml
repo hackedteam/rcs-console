@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               width="600" height="400" close="close(event)" title="Build an Agent from a Factory" xmlns:build="it.ht.rcs.console.operations.view.factories.build.*">
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ICollectionView;
+      import mx.collections.XMLListCollection;
+      import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
+      import mx.events.ListEvent;
+      import mx.managers.PopUpManager;
+      
+      import spark.events.TextOperationEvent;
+      
+      [Bindable]
+      private var treeData_desktop:XMLList =
+        <>
+          <node label="Silent Installer" desc=''>
+            <node label="OSX" state='dsk_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+            <node label="Windows" state='dsk_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+          </node>
+          <node label="Melted Application" desc=''>
+            <node label="OSX" state='dsk_melted' desc='You can provide an already existing application and it will be melted with the agent. When the resulting application is executed the agent is installed as well'/>
+            <node label="Windows" state='dsk_melted' desc='You can provide an already existing application and it will be melted with the agent. When the resulting application is executed the agent is installed as well'/>
+          </node>
+          <node label="U3 Installation" desc=''>
+            <node label="Windows" state='dsk_U3' desc='When the U3 key is inserted into the target system, it will execute the U3Launcher as usual but the agent will be installed'/>
+          </node>
+          <node label="Offline Installation" desc=''>
+            <node label="Multi-Platform" state='dsk_offline' desc="You can use this bootable device to install the agent on systems that are switched off. The same media can be used on both OSX or Windows"/>
+          </node>            
+          <node label="Exploit" desc=''>
+            <node label="OSX" state='exploit' desc='Exploits are powerful installation vectors since they allow you to embed the agent inside common documents. Once the document is opened the agent will be installed'/>
+            <node label="Windows" state='exploit' desc='Exploits are powerful installation vectors since they allow you to embed the agent inside common documents. Once the document is opened the agent will be installed'/>
+          </node>
+        </>;
+      
+      [Bindable]
+      private var treeData_mobile:XMLList =
+        <>
+          <node label="Local Installation" state="none">
+            <node label="Blackberry" state='mob_local' desc='Direct agent installation via USB cable. The blackberry must be connected to a computer'/>
+            <node label="WinMo" state='mob_local' desc='Installation via autorun on SD/MMC cards. Once the card is inserted into the phone the agent is installed'/> 
+          </node>
+          <node label="Installation Package" state="none">
+            <node label="Android" state='mob_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+            <node label="Blackberry" state='mob_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+            <node label="iOS" state='mob_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+            <node label="Symbian" state='mob_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+            <node label="WinMo" state='mob_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
+          </node>
+          <node label="Melted Application" state="none">
+            <node label="WinMo" state='mob_melted' desc='You can provide an already existing application installer and it will be melted with the agent. When the application installer is executed the agent is installed as well'/>
+          </node>
+          <node label="Wap Push Message" state="none">
+            <node label="MultiPlatform" state='mob_wap' desc='You can send a message to the target phone (usign its phone number) and the phone will install the agent upon user acceptance'/>
+            <node label="Android" state='mob_wap' desc='You can send a message to the target phone (usign its phone number) and the phone will install the agent upon user acceptance'/>
+            <node label="Blackberry" state='mob_wap' desc='You can send a message to the target phone (usign its phone number) and the phone will install the agent upon user acceptance'/>
+            <node label="Symbian" state='mob_wap' desc='You can send a message to the target phone (usign its phone number) and the phone will install the agent upon user acceptance'/>
+            <node label="WinMo" state='mob_wap' desc='You can send a message to the target phone (usign its phone number) and the phone will install the agent upon user acceptance'/>
+          </node>
+          <node label="Exploit" state="none">
+            <node label="iOS" state='exploit' desc='Exploits are powerful installation vectors since they allow you to embed the agent inside common documents. Once the document is opened the agent will be installed'/>
+          </node>
+        </>;
+      
+      protected function close(event:CloseEvent):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+     
+      private function filterFunc(node:Object):ICollectionView
+      {
+        var str:String = searchTree.text.replace(/\s/g,"\\s");
+        var re:RegExp = new RegExp(str, "i");
+        //trace (node.@label + " " + node.descendants().length());
+        return new XMLListCollection( node.*.(@label.match(re) || @desc.match(re) || descendants().(@label.match(re) || @desc.match(re)).length() > 0) );
+      }
+      
+
+      protected function searchTree_changeHandler(event:TextOperationEvent):void
+      {
+        if (searchTree.text) {
+          openAllTreeNodes(vectorTree); 
+        } else {
+          closeAllTreeNodes(vectorTree);
+        }
+        vectorTree.invalidateList();
+      }
+      
+      private function openAllTreeNodes(tree:Tree):void {
+        tree.openItems = tree.dataProvider;
+      }
+      
+      private function closeAllTreeNodes(tree:Tree):void {
+        tree.openItems = [];
+      }
+      
+      protected function vectorTree_changeHandler(event:ListEvent):void
+      {
+        leftPanel.desc = vectorTree.selectedItem.@desc;
+        leftPanel.currentState = vectorTree.selectedItem.@state;
+
+        leftPanel.platform = null;
+
+        if (vectorTree.selectedItem.@state != 'none')
+          leftPanel.platform = vectorTree.selectedItem.@label.toLowerCase();
+
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:TextInput id="searchTree" left="10" top="10" width="200" change="searchTree_changeHandler(event)" skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
+  
+  <mx:Tree id="vectorTree" left="10" top="35" bottom="10" width="200" 
+           dataProvider="{treeData_mobile}"
+           dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
+           change="vectorTree_changeHandler(event)"
+           labelField="@label"/>
+  
+  <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" />
+    
+</s:TitleWindow>

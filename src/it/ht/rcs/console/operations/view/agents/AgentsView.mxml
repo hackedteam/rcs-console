@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
+         width="100%" height="100%">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      private function onDoubleClick(event:MouseEvent):void
+      {
+        var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
+        if (item) section.stateManager.manageItemSelection(item);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:VerticalLayout gap="5"/>
+  </s:layout>
+  
+  
+  <agents:AgentsActionBar section="{section}" selectedObject="{list.selectedItem}" viewStack="{views}"/>
+  
+  
+  <mx:ViewStack id="views" width="100%" height="100%" creationPolicy="all">
+    <s:NavigatorContent label="{R.get('ICON_VIEW')}" hideEffect="{fadeOut}"
+                        icon="@Embed('/img/windows/icon.png')" showEffect="{fadeIn}">
+      
+      
+      <agents:AgentsList id="list" dataProvider="{section.stateManager._item_view}"
+                         doubleClick="onDoubleClick(event)" selectedItem="{grid.selectedItem}"/>
+      
+      
+    </s:NavigatorContent>
+    <s:NavigatorContent label="{R.get('TABLE_VIEW')}" hideEffect="{fadeOut}"
+                        icon="@Embed('/img/windows/list.png')" showEffect="{fadeIn}">
+      
+      
+      <agents:AgentsGrid id="grid" dataProvider="{section.stateManager._item_view}"
+                         doubleClick="onDoubleClick(event)" selectedItem="{list.selectedItem}"/>
+      
+      
+    </s:NavigatorContent>
+  </mx:ViewStack>
+  
+  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
+  </fx:Declarations>
+    
+</s:Group>

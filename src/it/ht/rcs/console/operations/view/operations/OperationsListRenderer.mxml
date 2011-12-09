@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<operations:BaseListRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:operations="it.ht.rcs.console.operations.view.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operation.model.Operation;
+      
+      [Embed(source="img/items/operation_black.png")]
+      private static const operationIcon:Class;
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        icon.source = operationIcon;
+        alpha = (data as Operation).status.toLowerCase() == 'open' ? 1 : .5;
+      }
+    ]]>
+  </fx:Script>
+  
+</operations:BaseListRenderer>

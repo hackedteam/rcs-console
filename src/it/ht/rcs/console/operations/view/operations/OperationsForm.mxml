@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveClose xmlns:fx="http://ns.adobe.com/mxml/2009"
-                            xmlns:s="library://ns.adobe.com/flex/spark"
-                            xmlns:mx="library://ns.adobe.com/flex/mx"
-                            xmlns:utils="it.ht.rcs.console.utils.*"
-                            creationComplete="init()" save="onSave(event)"
-                            title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="onSave(event)"
+                             title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
   <fx:Script>
     <![CDATA[
@@ -83,7 +83,7 @@
         operation.desc = desc.text;
         operation.contact = contact.text;
         operation.group_ids = groups.dataProvider.toArray();
-        operation.status = mode == 'new' ? 'OPEN' : status.selectedItem.label;
+        operation.status = mode == 'new' ? 'open' : status.selectedItem.label.toLowerCase();
         
         if (mode == 'new')
           OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(); });
@@ -104,7 +104,7 @@
         return hasError;
       }
       
-      override protected function close(event:MouseEvent=null):void
+      override protected function close(event:Event=null):void
       {
         GroupManager.instance.stop();
         super.close(event);
@@ -112,21 +112,21 @@
     ]]>
   </fx:Script>
   
-  <s:Form width="100%">
+  <s:Form width="100%" defaultButton="{saveButton}">
 
-    <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('NAME')}">
       <s:TextInput id="opName" width="250" text="{operation.name}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('DESCRIPTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('DESCRIPTION')}">
       <s:TextArea id="desc" width="250" text="{operation.desc}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('CONTACT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('CONTACT')}">
       <s:TextInput id="contact" width="250" text="{operation.contact}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}">
       <s:DropDownList id="status" width="150" selectedIndex="0">
         <s:ArrayCollection id="statuses">
           <fx:Object label="OPEN"/>
@@ -135,7 +135,7 @@
       </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('GROUPS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('GROUPS')}">
       <s:BorderContainer id="groupsC" backgroundColor="#EAEAEA" borderVisible="false">
         <s:List id="groups" bottom="20" width="150" height="120" labelFunction="groupLabelFunction"/>
         <s:Button right="51" bottom="0" width="30" height="20" label="-" click="removeGroup(event)"
@@ -147,4 +147,4 @@
     
   </s:Form>
   
-</utils:TitleWindowSaveClose>
+</utils:TitleWindowSaveCancel>

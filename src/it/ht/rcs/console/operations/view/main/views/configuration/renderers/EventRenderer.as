@@ -1,16 +1,6 @@
 package it.ht.rcs.console.operations.view.main.views.configuration.renderers
 {
-  import flash.events.MouseEvent;
-  
-  import it.ht.rcs.console.events.NodeEvent;
-  import it.ht.rcs.console.network.model.Collector;
-  import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
-  
   import mx.binding.utils.BindingUtils;
-  import mx.core.DragSource;
-  import mx.core.UIComponent;
-  import mx.events.DragEvent;
-  import mx.managers.DragManager;
   
   import spark.components.Label;
 

@@ -6,6 +6,18 @@
               xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
               xmlns:toDelete="it.ht.rcs.console.x.toDelete.*">
 
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.view.factories.build.BuildForm;
+      
+      import mx.managers.PopUpManager;
+      protected function build(event:MouseEvent):void
+      {
+        var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
+        PopUpManager.centerPopUp(b);
+      }
+    ]]>
+  </fx:Script>
   <main:layout>
     <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
   </main:layout>
@@ -16,6 +28,8 @@
     <s:Button label="Edit User" icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
     <actionbar:Separator width="40"/>
     <s:ButtonBar dataProvider="{views}" requireSelection="true"/>
+    <actionbar:Separator width="20"/>
+    <s:Button label="Build" icon="@Embed('/img/windows/user2.png')" iconPlacement="top" click="build(event)"/>
     <s:Spacer width="100%"/>
     <s:TextInput skinClass="it.ht.rcs.console.main.skins.RCSSearchFieldSkin"/>
   </actionbar:ActionBar>

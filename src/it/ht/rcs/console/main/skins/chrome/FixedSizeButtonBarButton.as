@@ -1,4 +1,4 @@
-package it.ht.rcs.console.main.skins
+package it.ht.rcs.console.main.skins.chrome
 {
   import mx.controls.Alert;
   

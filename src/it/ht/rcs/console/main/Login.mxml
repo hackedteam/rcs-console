@@ -3,7 +3,8 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:effects="it.ht.rcs.console.effects.*"
-         width="100%" height="100%" addedToStage="onAddedToStage()" creationComplete="init()">
+         width="100%" height="100%" addedToStage="onAddedToStage()" clipAndEnableScrolling="true"
+         creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
@@ -100,36 +101,46 @@
     ]]>
   </fx:Script>
   
-  <s:layout>
-    <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
-  </s:layout>
   
-  <s:Label id="errorMessage" color="#ff0000" paddingBottom="20"/>
+  <s:BitmapImage horizontalCenter="0" source="@Embed('/img/windows/sfondo.png')" verticalCenter="-80"/>
   
-  <s:Panel id="panel"
-           title="{'RCS Console ' + Console.rcsVersion.substring(0, Console.rcsVersion.length - 2)}">
+  
+  <s:Group width="100%" height="100%">
     
-    <s:Form addedToStage="username.setFocus()" defaultButton="{login}">
-      
-      <s:FormItem label="Username">
-        <s:TextInput id="username" width="200" text="{SessionManager.instance.lastUsername}"/>
-      </s:FormItem>
-      <s:FormItem label="Password">
-        <s:TextInput id="password" width="200" displayAsPassword="true"/>
-      </s:FormItem>
-      <s:FormItem label="Server">
-        <s:TextInput id="server" width="200" text="{SessionManager.instance.lastServer}"/>
-      </s:FormItem>
-      <s:FormItem>
-        <s:layout>
-          <s:HorizontalLayout horizontalAlign="right"/>
-        </s:layout>
-        <s:Button id="login" label="Login" click="onLogin()"/>
-      </s:FormItem>
-      
-    </s:Form>
+    <s:layout>
+      <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+    </s:layout>
     
-  </s:Panel>
-  <effects:Reflector alpha="0.5" blurAmount="0.5" falloff="0.5" target="{panel}"/>
-
+    <s:Label id="errorMessage" color="#ff0000" paddingBottom="20"/>
+    
+    <s:Panel id="panel"
+             title="{'RCS Console ' + Console.rcsVersion.substring(0, Console.rcsVersion.length - 2)}">
+      
+      <s:Form addedToStage="username.setFocus()" defaultButton="{login}">
+        
+        <s:FormItem label="Username">
+          <s:TextInput id="username" width="200" text="{SessionManager.instance.lastUsername}"/>
+        </s:FormItem>
+        <s:FormItem label="Password">
+          <s:TextInput id="password" width="200" displayAsPassword="true"/>
+        </s:FormItem>
+        <s:FormItem label="Server">
+          <s:TextInput id="server" width="200" text="{SessionManager.instance.lastServer}"/>
+        </s:FormItem>
+        <s:FormItem>
+          <s:layout>
+            <s:HorizontalLayout horizontalAlign="right"/>
+          </s:layout>
+          <s:Button id="login" label="Login" click="onLogin()"
+                    skinClass="it.ht.rcs.console.main.skins.chrome.RCSLoginButton"/>
+        </s:FormItem>
+        
+      </s:Form>
+      
+    </s:Panel>
+    
+    <effects:Reflector alpha="0.8" blurAmount="0.5" falloff="0.5" target="{panel}"/>
+    
+  </s:Group>
+  
 </s:Group>

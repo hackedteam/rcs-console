@@ -2,54 +2,53 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true" doubleClickEnabled="true"
-                toolTipCreate="onTooltipCreate(event)" toolTip=" " toolTipShow="onTooltipShow(event)">
+                autoDrawBackground="true" doubleClickEnabled="true">
+  <!-- toolTipCreate="onTooltipCreate(event)" toolTip=" " toolTipShow="onTooltipShow(event)" -->
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.factory.model.Factory;
       import it.ht.rcs.console.operation.model.Operation;
-      import it.ht.rcs.console.operations.view.agents.AgentTooltip;
       import it.ht.rcs.console.target.model.Target;
       
-      import mx.controls.List;
-      import mx.events.ToolTipEvent;
-      import mx.managers.ToolTipManager;
-      
-      [Embed(source="img/items/operation_black.png")]
+      [Embed(source='img/items/operation_black.png')]
       private static const operationIcon:Class;
       
-      [Embed(source="img/items/target_black.png")]
+      [Embed(source='img/items/target_black.png')]
       private static const targetIcon:Class;
       
-      [Embed(source="img/items/agent_black.png")]
+      [Embed(source='img/items/agent_black.png')]
       private static const agentIcon:Class;
       
-      [Embed(source="img/items/factory_black.png")]
+      [Embed(source='img/items/factory_black.png')]
       private static const factoryIcon:Class;
-
-      [Embed(source="img/evidence/square.png")]
+      
+      [Embed(source='img/evidence/square.png')]
       private static const evidenceIcon:Class;
       
-      [Embed(source="img/evidence/square.png")]
+      [Embed(source='img/evidence/square.png')]
       private static const fsIcon:Class;
       
-      [Embed(source="img/evidence/square_black.png")]
+      [Embed(source='img/evidence/square_black.png')]
       private static const infoIcon:Class;
       
-      [Embed(source="img/evidence/square_black.png")]
+      [Embed(source='img/evidence/square_black.png')]
       private static const configIcon:Class;
       
-      [Embed(source="img/evidence/square_black.png")]
+      [Embed(source='img/evidence/square_black.png')]
       private static const uploadIcon:Class;
       
-      [Embed(source="img/evidence/square_black.png")]
+      [Embed(source='img/evidence/square_black.png')]
       private static const downloadIcon:Class;
       
       override public function set data(value:Object):void
       {
         super.data = value;
+        if (data == null) return;
+        
+        bottomLabel.text = data.name;
+        
         if (data is Operation)
           icon.source = operationIcon;
         else if (data is Target)
@@ -58,6 +57,7 @@
           icon.source = agentIcon;
         else if (data is Factory)
           icon.source = factoryIcon;
+          
         else if (data is Object && data.customType == 'evidences')
           icon.source = evidenceIcon;
         else if (data is Object && data.customType == 'filesystem')
@@ -70,29 +70,31 @@
           icon.source = uploadIcon;
         else if (data is Object && data.customType == 'download')
           icon.source = downloadIcon;
+        
+        if (data.hasOwnProperty('status') && data.status)
+          alpha = data.status.toLowerCase() == 'open' ? 1 : .5;
       }
       
-      protected function onTooltipCreate(event:ToolTipEvent):void
-      {
-        if (event.currentTarget.data is Agent)
-          event.toolTip = new AgentTooltip();
-      }
-      
-      protected function onTooltipShow(event:ToolTipEvent):void
-      {
-        // To avoid showing an empty tooltip on elements that do not have a custom one.
-        // Setting tooltip = null or visible = false has no effect.
-        if (!(event.currentTarget.data is Agent))
-          event.toolTip.alpha = 0;
-      }
+//      protected function onTooltipCreate(event:ToolTipEvent):void
+//      {
+//        if (event.currentTarget.data is Agent)
+//          event.toolTip = new AgentTooltip();
+//      }
+//      
+//      protected function onTooltipShow(event:ToolTipEvent):void
+//      {
+//        // To avoid showing an empty tooltip on elements that do not have a custom one.
+//        // Setting tooltip = null or visible = false has no effect.
+//        if (!(event.currentTarget.data is Agent))
+//          event.toolTip.alpha = 0;
+//      }
       
     ]]>
   </fx:Script>
-                                                   
-  <s:SkinnableContainer width="80">
-    <s:Image id="icon" top="5" width="70" height="60" horizontalCenter="0"/>
-    <s:Label id="bottomLabel" top="72" width="80" horizontalCenter="0" paddingBottom="5"
-             text="{data.name}" textAlign="center"/>
-  </s:SkinnableContainer>
+  
+  <s:Image id="icon" top="5" width="70" height="60" horizontalCenter="0"/>
+  
+  <s:Label id="bottomLabel" top="72" width="80" horizontalCenter="0" paddingBottom="5"
+           textAlign="center"/>
   
 </s:ItemRenderer>

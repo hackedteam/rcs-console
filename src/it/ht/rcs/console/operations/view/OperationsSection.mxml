@@ -1,87 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
               xmlns:s="library://ns.adobe.com/flex/spark"
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:main="it.ht.rcs.console.main.*"
-              xmlns:operations="it.ht.rcs.console.operations.view.main.*"
-              xmlns:breadcrumbs="it.ht.rcs.console.operations.view.main.breadcrumbs.*"
+              xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
+              xmlns:targets="it.ht.rcs.console.operations.view.targets.*"
+              xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
+              xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+              xmlns:view="it.ht.rcs.console.operations.view.*"
               addedToStage="onAddedToStage(event)" creationComplete="init()"
               removedFromStage="onRemovedFromStage(event)">
   
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.agent.controller.AgentManager;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.events.SessionEvent;
-      import it.ht.rcs.console.operation.controller.OperationManager;
-      import it.ht.rcs.console.operations.view.main.StateManager;
-      import it.ht.rcs.console.target.controller.TargetManager;
-      
-      import mx.core.FlexGlobals;
-      
-      [Bindable]
-      public var stateManager:StateManager;
-      
-      private var itemToSelect:Object = null;
-      private function init():void
-      {
-        stateManager = new StateManager(this);
-        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.BEFORE_LOGOUT, onBeforeLogout);
-        if (itemToSelect)
-          stateManager.manageItemSelection(itemToSelect);
-        else
-          stateManager.setState('allOperations');
-      }
-      
-      private function onAddedToStage(event:Event):void
-      {
-        if (stateManager)
-          stateManager.setState(currentState);
-      }
-      
-      private function onRemovedFromStage(event:Event):void
-      {
-        if (stateManager)
-          stateManager.stopManagers();
-      }
-      
-      private function onBeforeLogout(event:SessionEvent):void
-      {
-        stateManager.resetState();
-      }
-      
-      public function changeSection(event:SectionEvent):void
-      {
-        if (event.item == null) { return };
-        
-        var item:* = null;
-        switch (event.item._kind) {
-          case 'operation':
-            item = OperationManager.instance.getItem(event.item._id);
-            break;
-          case 'target':
-            item = TargetManager.instance.getItem(event.item._id);
-            break;
-          case 'agent':
-            item = AgentManager.instance.getItem(event.item._id);
-            break;
-          default:
-            break;
-        }
-        
-        if (item) {
-          if (stateManager)
-            stateManager.manageItemSelection(item);
-          else
-            itemToSelect = item;
-        }
-      }
-    ]]>
-  </fx:Script>
-  
-  <s:states>
-    <s:State name="default"/>
-    
+  <main:states>    
     <s:State name="allOperations"/>
     <s:State name="singleOperation"/>
     
@@ -90,16 +20,95 @@
     
     <s:State name="allAgents"/>
     <s:State name="singleAgent"/>
-  </s:states>
+    
+    <s:State name="singleFactory"/>
+  </main:states>
   
-  <s:layout>
-    <s:VerticalLayout gap="5"/>
-  </s:layout>
+  <main:layout>
+    <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
   
+  <view:Breadcrumb section="{this}"/>
+  
+  <operations:OperationsView includeIn="allOperations" section="{this}"/>
+  
+  <targets:TargetsView includeIn="singleOperation,allTargets" section="{this}"/>
+  
+  <agents:AgentsView includeIn="singleTarget,allAgents,singleAgent" section="{this}"/>
+  
+  <configuration:ConfigurationView includeIn="singleFactory" section="{this}"/>
+  
+  <!--
   <breadcrumbs:OperationBreadcrumbs/>
   
   <operations:OperationButtonBar id="buttonBar" currentState="{currentState}" section="{this}"/>
   
-  <operations:OperationBody id="body"/>
   
-</s:Panel>
+  <operations:OperationBody id="body"/>
+  -->
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      
+      import mx.core.FlexGlobals;
+      
+      [Bindable]
+      public var stateManager:OperationsSectionStateManager;
+      
+      private var itemToSelect:Object = null;
+      private function init():void
+      {
+        stateManager = new OperationsSectionStateManager(this);
+//        if (itemToSelect)
+//          stateManager.manageItemSelection(itemToSelect);
+//        else
+          stateManager.setState('allOperations');
+      }
+      
+      private function onAddedToStage(event:Event):void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRemovedFromStage(event:Event):void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRefresh(event:RefreshEvent):void
+      {
+        stateManager.setState(currentState);
+      }
+      
+      public function changeSection(event:SectionEvent):void
+      {
+        //        if (event.item == null) { return };
+        //        
+        //        var item:* = null;
+        //        switch (event.item._kind) {
+        //          case 'operation':
+        //            item = OperationManager.instance.getItem(event.item._id);
+        //            break;
+        //          case 'target':
+        //            item = TargetManager.instance.getItem(event.item._id);
+        //            break;
+        //          case 'agent':
+        //            item = AgentManager.instance.getItem(event.item._id);
+        //            break;
+        //          default:
+        //            break;
+        //        }
+        //        
+        //        if (item) {
+        //          if (stateManager)
+        //            stateManager.manageItemSelection(item);
+        //          else
+        //            itemToSelect = item;
+        //        }
+      }
+    ]]>
+  </fx:Script>
+  
+</main:Section>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     xmlns:view="it.ht.rcs.console.operations.view.*">
+  
+  <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
+            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+  
+  <s:Spacer width="10"/>
+  
+  <s:Button label="{R.get('EDIT')}" click="onEditClick()"
+            enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
+            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+  
+  <s:Spacer width="10"/>
+  
+  <s:Button label="{R.get('DELETE')}" click="onEditClick()"
+            enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
+            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+  
+  <actionbar:Separator width="40"/>
+  
+  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <view:Shortcuts section="{section}"/>
+  
+  <s:TextInput id="searchInput" addedToStage="onShow()" keyUp="onKeyUp(event)"
+               removedFromStage="onRemovedFromStage()"/>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.factory.model.Factory;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.factories.FactoriesForm;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      private function onNewClick():void
+      {
+        section.stateManager._item_view.refresh();
+//        var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
+//        popup.mode = 'new';
+//        popup.factory = new Factory(Factory.defaultFactory());
+//        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onEditClick():void
+      {
+        var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
+        popup.mode = 'edit';
+        popup.factory = selectedObject as Factory;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onShow():void
+      {
+        section.stateManager.searchField = searchInput;
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        searchInput.text = '';
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        section.stateManager._item_view.refresh();
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

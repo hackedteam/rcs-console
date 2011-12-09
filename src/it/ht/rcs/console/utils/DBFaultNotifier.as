@@ -1,7 +1,5 @@
 package it.ht.rcs.console.utils
 {
-  import com.adobe.serialization.json.JSON;
-  import com.adobe.serialization.json.JSONParseError;
   
   import it.ht.rcs.console.IFaultNotifier;
   import it.ht.rcs.console.accounting.controller.SessionManager;
@@ -41,8 +39,8 @@ package it.ht.rcs.console.utils
       /* decode the message from the server */
       var decoded:*;
       try {
-        decoded = JSON.decode(e.fault.content as String);
-      } catch (json_error:JSONParseError) {
+        decoded = JSON.parse(e.fault.content as String);
+      } catch (je:*) {
         decoded = e.fault.content as String;
         AlertPopUp.show(decoded, ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
         return;

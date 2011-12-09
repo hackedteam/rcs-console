@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+  <fx:Script>
+    <![CDATA[
+      import locale.R;   
+     
+      private var fileReference:FileReference;
+      
+      private function browse():void
+      {
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.browse();
+      }
+      
+      private function fileSelection(event:Event):void
+      {
+      }
+      
+    ]]>
+  </fx:Script>
+
+  <s:states>
+    <s:State name='all'/>
+    <s:State name='android'/>
+    <s:State name='blackberry'/>
+    <s:State name='ios'/>
+    <s:State name='symbian'/>
+    <s:State name='winmo'/>
+  </s:states>
+  
+  <s:CheckBox left="10" top="10" id="demo" label="Demo Mode" fontWeight="bold"/>
+  <s:TextArea left="25" top="25" width="280" height="42" borderVisible="false"
+              contentBackgroundAlpha="0.0" editable="false"
+              text="You can use the demo mode to try the agent in the lab, it will not consume a license."/>
+
+
+  <s:HGroup left="10" top="70" verticalAlign="middle">
+    <s:Label fontWeight="bold" text="Application Name"/>    
+    <s:TextInput text="installer"/>
+  </s:HGroup>
+
+  <s:Form includeIn="blackberry" left="10" top="95">
+    <s:FormItem label="Name">    
+      <s:TextInput text="RIM Compatibility Library" width="150"/>
+    </s:FormItem>
+    <s:FormItem label="Description">        
+      <s:TextInput text="RIM Compatibility Library used by applications in the App World" width="200"/>
+    </s:FormItem>
+    <s:FormItem label="Vendor">       
+      <s:TextInput text="Research In Motion" width="150"/>
+    </s:FormItem>
+    <s:FormItem label="Version">       
+      <s:TextInput text="1.1.0" width="100"/>
+    </s:FormItem>
+  </s:Form>
+
+  <s:Form includeIn="symbian" left="10" top="95">
+    <s:FormItem label="Certificate bound to phone IMEI">    
+      <s:Button width="100" label="{R.get('BROWSE')}" click="browse()"/>
+    </s:FormItem>
+  </s:Form>
+  
+  <s:Button right="20" bottom="20" label="Create..."/>
+  
+</s:Group>

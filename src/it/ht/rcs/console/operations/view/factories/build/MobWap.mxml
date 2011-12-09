@@ -6,6 +6,13 @@
     <![CDATA[
       import locale.R;
       
+      public function set platform(value:*):void {
+        if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
+          currentState = value;
+        else
+          currentState = 'all';
+      }
+      
       private var fileReference:FileReference;
       
       private function browse():void
@@ -29,11 +36,8 @@
   <s:states>
     <s:State name='all'/>
     <s:State name='multiplatform'/>
-    <s:State name='android'/>
     <s:State name='blackberry'/>
-    <s:State name='ios'/>
     <s:State name='symbian'/>
-    <s:State name='winmo'/>
   </s:states>
   
   <s:CheckBox left="10" top="10" id="demo" label="Demo Mode" fontWeight="bold"/>
@@ -54,9 +58,12 @@
     </s:FormItem>
     <s:FormItem label="Service Type">    
       <s:HGroup>
-        <s:RadioButton label="Loading" groupName="Service"/>
-        <s:RadioButton label="Indication" groupName="Service"/>
+        <s:RadioButton id="servloading" label="Loading" groupName="Service" selected="true"/>
+        <s:RadioButton id="servindication" label="Indication" groupName="Service"/>
       </s:HGroup>
+    </s:FormItem>
+    <s:FormItem label="Description" visible="{servindication.selected}">    
+      <s:TextInput text=""/>
     </s:FormItem>
   </s:Form>
   
@@ -77,7 +84,7 @@
   
   <s:Form includeIn="symbian" left="10" top="95">
     <s:FormItem label="Certificate bound to phone IMEI">    
-      <s:Button width="100" label="{R.get('BROWSE')}" click="browse()"/>
+      <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
     </s:FormItem>
   </s:Form>
   

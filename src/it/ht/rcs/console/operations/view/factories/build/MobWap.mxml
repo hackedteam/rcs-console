@@ -4,7 +4,25 @@
          xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      
       import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      private var urls:ListCollectionView;
+      
+      public function set platform(value:*):void {
+        if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
+          currentState = value;
+        else
+          currentState = 'all';
+        
+        // get the list of entry points 
+        CollectorManager.instance.refresh();
+        urls = CollectorManager.instance.getEntryPointsView();
+      }
       
       private var fileReference:FileReference;
       
@@ -19,6 +37,14 @@
       {
       }
       
+      private function collName(o:Object):String
+      {
+        if (o != null)
+          return "http://" + o['address'] + '/';
+        
+        return '';
+      }
+      
     ]]>
   </fx:Script>
   <fx:Declarations>
@@ -29,11 +55,8 @@
   <s:states>
     <s:State name='all'/>
     <s:State name='multiplatform'/>
-    <s:State name='android'/>
     <s:State name='blackberry'/>
-    <s:State name='ios'/>
     <s:State name='symbian'/>
-    <s:State name='winmo'/>
   </s:states>
   
   <s:CheckBox left="10" top="10" id="demo" label="Demo Mode" fontWeight="bold"/>
@@ -50,13 +73,16 @@
       <s:TextInput text=""/>
     </s:FormItem>
     <s:FormItem label="URL">    
-      <s:ComboBox />
+      <s:ComboBox dataProvider="{urls}" labelFunction="collName"/>
     </s:FormItem>
     <s:FormItem label="Service Type">    
       <s:HGroup>
-        <s:RadioButton label="Loading" groupName="Service"/>
-        <s:RadioButton label="Indication" groupName="Service"/>
+        <s:RadioButton id="servloading" label="Loading" groupName="Service" selected="true"/>
+        <s:RadioButton id="servindication" label="Indication" groupName="Service"/>
       </s:HGroup>
+    </s:FormItem>
+    <s:FormItem label="Description" visible="{servindication.selected}">    
+      <s:TextInput text=""/>
     </s:FormItem>
   </s:Form>
   
@@ -77,7 +103,7 @@
   
   <s:Form includeIn="symbian" left="10" top="95">
     <s:FormItem label="Certificate bound to phone IMEI">    
-      <s:Button width="100" label="{R.get('BROWSE')}" click="browse()"/>
+      <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
     </s:FormItem>
   </s:Form>
   

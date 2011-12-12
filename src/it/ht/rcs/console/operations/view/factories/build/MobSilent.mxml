@@ -6,6 +6,13 @@
     <![CDATA[
       import locale.R;   
      
+      public function set platform(value:*):void {
+        if (value == 'blackberry' || value == 'symbian')
+          currentState = value;
+        else
+          currentState = 'all';
+      }
+      
       private var fileReference:FileReference;
       
       private function browse():void
@@ -24,11 +31,8 @@
 
   <s:states>
     <s:State name='all'/>
-    <s:State name='android'/>
     <s:State name='blackberry'/>
-    <s:State name='ios'/>
     <s:State name='symbian'/>
-    <s:State name='winmo'/>
   </s:states>
   
   <s:CheckBox left="10" top="10" id="demo" label="Demo Mode" fontWeight="bold"/>
@@ -59,7 +63,7 @@
 
   <s:Form includeIn="symbian" left="10" top="95">
     <s:FormItem label="Certificate bound to phone IMEI">    
-      <s:Button width="100" label="{R.get('BROWSE')}" click="browse()"/>
+      <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
     </s:FormItem>
   </s:Form>
   

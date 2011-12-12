@@ -3,7 +3,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           visible="{section.stateManager.selectedOperation != null}" width="100%" gap="2"
-          includeInLayout="{section.stateManager.selectedOperation != null}" verticalAlign="middle">
+          includeInLayout="{section.stateManager.selectedOperation != null}" verticalAlign="middle" xmlns:view="it.ht.rcs.console.operations.view.*">
   
   <fx:Script>
     <![CDATA[
@@ -14,9 +14,7 @@
     ]]>
   </fx:Script>
   
-  <mx:LinkButton visible="{section.stateManager.selectedOperation != null}"
-                 includeInLayout="{section.stateManager.selectedOperation != null}"
-                 label="{R.get('ALL_OPERATIONS')}"
+  <mx:LinkButton label="{R.get('ALL_OPERATIONS')}"
                  click="section.stateManager.setState('allOperations')" color="#333333"/>
   
   
@@ -55,6 +53,25 @@
                  label="{section.stateManager.selectedFactory.name}"
                  color="#333333"/>
   
+  <s:Label visible="{section.currentState == 'evidences'}"
+           includeInLayout="{section.currentState == 'evidences'}"
+           paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.currentState == 'evidences'}"
+                 includeInLayout="{section.currentState == 'evidences'}"
+                 label="{R.get('EVIDENCES')}"
+                 color="#333333"/>
+  
+  <s:Label visible="{section.currentState == 'singleAgentConfig'}"
+           includeInLayout="{section.currentState == 'singleAgentConfig'}"
+           paddingTop="4" text="&gt;"/>
+  <mx:LinkButton visible="{section.currentState == 'singleAgentConfig'}"
+                 includeInLayout="{section.currentState == 'singleAgentConfig'}"
+                 label="{R.get('CONFIGURATIONS')}"
+                 color="#333333"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <view:Shortcuts/>
   <!--
   <s:Label visible="{section.body.currentState.indexOf('config') &gt; -1}" paddingTop="4" text="&gt;"/>
   <mx:LinkButton visible="{section.body.currentState.indexOf('config') &gt; -1}"

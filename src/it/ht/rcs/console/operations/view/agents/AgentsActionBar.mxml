@@ -5,22 +5,31 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
-            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+  <s:Group visible="{section.currentState == 'singleTarget'}"
+           includeInLayout="{section.currentState == 'singleTarget'}">
   
-  <s:Spacer width="10"/>
+    <s:layout>
+      <s:HorizontalLayout gap="0" horizontalAlign="center" verticalAlign="middle"/>
+    </s:layout>
+    
+    <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
+              icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+    
+    <s:Spacer width="10"/>
+    
+    <s:Button label="{R.get('EDIT')}" click="onEditClick()"
+              enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
+              icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+    
+    <s:Spacer width="10"/>
+    
+    <s:Button label="{R.get('DELETE')}" click="onEditClick()"
+              enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
+              icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+    
+    <actionbar:Separator width="40"/>
   
-  <s:Button label="{R.get('EDIT')}" click="onEditClick()"
-            enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
-            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
-  
-  <s:Spacer width="10"/>
-  
-  <s:Button label="{R.get('DELETE')}" click="onEditClick()"
-            enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
-            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
-  
-  <actionbar:Separator width="40"/>
+  </s:Group>
   
   <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
   

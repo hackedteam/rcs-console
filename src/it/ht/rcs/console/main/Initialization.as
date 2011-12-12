@@ -33,7 +33,7 @@ package it.ht.rcs.console.main
       if (Console.currentSession.user.is_sys() || Console.currentSession.user.is_tech()) mainSections.addItem('System');
       if (Console.currentSession.user.is_admin()) mainSections.addItem('Audit');
       if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys()) mainSections.addItem('Monitor');
-      if (Console.currentSession.user.is_any()) mainSections.addItem('Playground');
+      //if (Console.currentSession.user.is_any()) mainSections.addItem('Playground');
       
       /* initialize the managers */
       
@@ -43,15 +43,15 @@ package it.ht.rcs.console.main
         //DownloadManager.instance.start();
       }
 
-//      if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
-//        OperationManager.instance.refresh();
-//        TargetManager.instance.refresh();
-//      }
-//      
-//      if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
-//        AgentManager.instance.refresh();
-//        FactoryManager.instance.refresh();
-//      }
+      if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
+        OperationManager.instance.refresh();
+        TargetManager.instance.refresh();
+      }
+      
+      if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
+        AgentManager.instance.refresh();
+        FactoryManager.instance.refresh();
+      }
 //      
 //      if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys()) {
 //        //MonitorManager.instance.start_counters();        

@@ -5,6 +5,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.factory.controller.FactoryManager;
+  import it.ht.rcs.console.factory.model.Config;
   import it.ht.rcs.console.factory.model.Factory;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
@@ -14,15 +15,12 @@ package it.ht.rcs.console.operations.view
   import locale.R;
   
   import mx.collections.ArrayList;
-  import mx.collections.ISort;
   import mx.collections.ListCollectionView;
-  import mx.collections.Sort;
-  import mx.collections.SortField;
   import mx.controls.Alert;
-  import mx.events.CollectionEvent;
-  import mx.events.CollectionEventKind;
   
+  import spark.collections.Sort;
   import spark.components.TextInput;
+  import spark.globalization.SortingCollator;
 
   public class OperationsSectionStateManager
   {
@@ -42,21 +40,22 @@ package it.ht.rcs.console.operations.view
     [Bindable]
     public var selectedFactory:Factory;
     
+    [Bindable]
+    public var selectedConfig:Config;
+    
     private var section:OperationsSection;
     
-    private var alphabeticalSort:Sort;
     private var customTypeSort:Sort;
+    private var collator:SortingCollator;
     public function OperationsSectionStateManager(section:OperationsSection)
     {
       this.section = section;
       
-      var alphabeticalSort:Sort = new Sort();
-      alphabeticalSort.fields = [new SortField('name', true, false, false)];
+      collator = new SortingCollator();
+      collator.ignoreCase = true;
       
       customTypeSort = new Sort();
-      var customTypeSortField:SortField = new SortField('customType', true, false, false);
-      customTypeSortField.compareFunction = customTypeCompareFunction;
-      customTypeSort.fields = [customTypeSortField, new SortField('name', true, false, false)];
+      customTypeSort.compareFunction = customTypeCompareFunction;
     }
     
     public function manageItemSelection(item:*):void
@@ -82,36 +81,35 @@ package it.ht.rcs.console.operations.view
       else if (item is Factory)
       {
         selectedFactory = item;
-        section.currentState = 'singleFactory';
+        section.currentState = 'configuration';
       }
-//      
-//      else if (item is Config)
-//      {
-//        if (Console.currentSession.user.is_tech()) {
-//          selectedTarget = item;
-//          setState('singleTarget');
-//        }
-//      }
-//      
-//      else if (item is Object && item.customType == 'evidences')
-//      {
-//        section.body.currentState = 'evidence';
-//      }
-//      
+      
+      else if (item is Object && item.customType == 'config')
+      {
+        section.currentState = 'singleAgentConfig';
+      }
+      
+      else if (item is Config)
+      {
+        selectedConfig = item;
+        setState('configuration');
+      }
+      
+      else if (item is Object && item.customType == 'evidences')
+      {
+        section.currentState = 'evidences';
+      }
+      
       else if (item is Object && item.customType == 'filesystem')
       {
         Alert.show('Show Filesystem Component');
       }
-//      
-//      else if (item is Object && item.customType == 'info')
-//      {
-//        Alert.show('Show Info Component');
-//      }
-//      
-//      else if (item is Object && item.customType == 'config')
-//      {
-//        section.body.currentState = 'configList';
-//      }
+      
+      else if (item is Object && item.customType == 'info')
+      {
+        Alert.show('Show Info Component');
+      }
+      
     }
     
     private var currentState:String;
@@ -126,7 +124,6 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'allOperations';
           CurrentManager = OperationManager;
           currentFilter = searchFilterFunction;
-          currentSort = alphabeticalSort;
           OperationManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           OperationManager.instance.start();
           break;
@@ -135,7 +132,6 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'singleOperation';
           CurrentManager = TargetManager;
           currentFilter = singleOperationFilterFunction;
-          currentSort = alphabeticalSort;
           TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           TargetManager.instance.start();
           break;
@@ -144,7 +140,6 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'allTargets';
           CurrentManager = TargetManager;
           currentFilter = searchFilterFunction;
-          currentSort = alphabeticalSort;
           TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           TargetManager.instance.start();
           break;
@@ -154,7 +149,6 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'singleTarget';
           CurrentManager = AgentController;
           currentFilter = singleTargetFilterFunction;
-          currentSort = customTypeSort;
           AgentController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           AgentController.instance.start();
           break;
@@ -163,7 +157,6 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'allAgents';
           CurrentManager = AgentManager;
           currentFilter = searchFilterFunction;
-          currentSort = alphabeticalSort;
           AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           AgentManager.instance.start();
           break;
@@ -174,7 +167,6 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'singleAgent';
           CurrentManager = null;
           currentFilter = searchFilterFunction;
-          currentSort = customTypeSort;
           onDataLoaded(null);
           break;
         default:
@@ -186,34 +178,34 @@ package it.ht.rcs.console.operations.view
     {
       stopManagers();
       
-      var originalData:ListCollectionView = null;
-      if (CurrentManager)
-        originalData = CurrentManager.instance.getView();
+      var originalData:ListCollectionView = CurrentManager ? CurrentManager.instance.getView() : null;
       
-      _item_view = new ListCollectionView(new ArrayList());
+      var currentData:ListCollectionView = new ListCollectionView(new ArrayList());
       if (originalData)
-        _item_view.addAll(originalData);
+        currentData.addAll(originalData);
       
-      _item_view.sort = currentSort;
-      _item_view.filterFunction = currentFilter;
+      currentData.sort = customTypeSort;
+      currentData.filterFunction = currentFilter;
       
       if (currentState == 'singleTarget' || currentState == 'singleAgent')
-        addCustomTypes();
+        addCustomTypes(currentData);
 
-      _item_view.refresh();
+      currentData.refresh();
+      
+      _item_view = currentData;
     }
     
-    private function addCustomTypes():void
+    private function addCustomTypes(list:ListCollectionView):void
     {
       if (currentState == 'singleTarget' || currentState == 'singleAgent') {
-        _item_view.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences',  order: 0}, 0);
-        _item_view.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
+        list.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences',  order: 0}, 0);
+        list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
       }
       if (currentState == 'singleAgent') {
-        _item_view.addItemAt({name: R.get('INFO'),     customType: 'info',     order: 2}, 0);
-        _item_view.addItemAt({name: R.get('CONFIG'),   customType: 'config',   order: 3}, 0);
-        _item_view.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',   order: 4}, 0);
-        _item_view.addItemAt({name: R.get('DOWNLOAD'), customType: 'download', order: 5}, 0);
+        list.addItemAt({name: R.get('INFO'),     customType: 'info',     order: 2}, 0);
+        list.addItemAt({name: R.get('CONFIG'),   customType: 'config',   order: 3}, 0);
+        list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',   order: 4}, 0);
+        list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download', order: 5}, 0);
       }
     }
     
@@ -236,13 +228,13 @@ package it.ht.rcs.console.operations.view
     }
     
     private var CurrentManager:Class;
-    private var currentSort:ISort;
+    private var currentSort:Sort;
     private var currentFilter:Function;
     
     // First, custom types, custom order
     // Second, factories, alphabetical oder
     // Third, agents, alphabetical order
-    private function customTypeCompareFunction(a:Object, b:Object):int
+    private function customTypeCompareFunction(a:Object, b:Object, fields:Array=null):int
     {
       if (!a && !b) return  0;
       if ( a && !b) return  1;
@@ -260,7 +252,8 @@ package it.ht.rcs.console.operations.view
       if (aIsCustom) return -1;
       if (bIsCustom) return  1;
       
-      if ((aIsFactory && bIsFactory) || (!aIsFactory && !bIsFactory)) return 0;
+      if ((aIsFactory && bIsFactory) || (!aIsFactory && !bIsFactory))
+        return collator.compare(a.name, b.name); // 0
       
       return aIsFactory ? -1 : 1;
     }

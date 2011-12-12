@@ -1,4 +1,4 @@
-package it.ht.rcs.console.operations.view.main.views.configuration.renderers
+package it.ht.rcs.console.operations.view.configuration.renderers
 {
   import mx.binding.utils.BindingUtils;
   

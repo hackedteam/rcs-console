@@ -4,13 +4,24 @@
          xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      
       import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      private var urls:ListCollectionView;
       
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
           currentState = value;
         else
           currentState = 'all';
+        
+        // get the list of entry points 
+        CollectorManager.instance.refresh();
+        urls = CollectorManager.instance.getEntryPointsView();
       }
       
       private var fileReference:FileReference;
@@ -24,6 +35,14 @@
       
       private function fileSelection(event:Event):void
       {
+      }
+      
+      private function collName(o:Object):String
+      {
+        if (o != null)
+          return "http://" + o['address'] + '/';
+        
+        return '';
       }
       
     ]]>
@@ -54,7 +73,7 @@
       <s:TextInput text=""/>
     </s:FormItem>
     <s:FormItem label="URL">    
-      <s:ComboBox />
+      <s:ComboBox dataProvider="{urls}" labelFunction="collName"/>
     </s:FormItem>
     <s:FormItem label="Service Type">    
       <s:HGroup>

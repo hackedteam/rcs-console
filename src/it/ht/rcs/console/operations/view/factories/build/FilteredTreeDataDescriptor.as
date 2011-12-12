@@ -45,7 +45,8 @@ package it.ht.rcs.console.operations.view.factories.build
 		 */
 		public function isBranch(node:Object, model:Object=null):Boolean
 		{
-			return hasChildren(node, model);
+      return node.@folder == 'true';
+			//return hasChildren(node, model);
 		}
 		
 		public function getData(node:Object, model:Object=null):Object

@@ -310,7 +310,6 @@ package it.ht.rcs.console.operations.view.configuration
         
       } // End actions
       
-      trace('');
       // Draw lines starting from events
       if (lines != null && lines.length > 0) {
         var line:ConnectionLine;

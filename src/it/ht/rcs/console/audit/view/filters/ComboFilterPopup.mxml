@@ -7,14 +7,14 @@
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              show="show()">
 
-  <s:ComboBox id="combo" width="150" styleName="auditFilter"/>
+  <s:ComboBox id="combo" width="150" styleName="auditFilter" keyUp="onKeyUp(event)"/>
   
   <fx:Script>
     <![CDATA[
-      
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.collections.IList;
+      import mx.controls.Alert;
       import mx.core.FlexGlobals;
       import mx.utils.StringUtil;
       
@@ -65,11 +65,18 @@
         
       }
       
-      protected function show():void
+      private function show():void
       {
         combo.setFocus();
         combo.selectedItem = filter[property];
       }
+      
+      protected function onKeyUp(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ENTER)
+          commit();
+      }
+      
     ]]>
   </fx:Script>
   

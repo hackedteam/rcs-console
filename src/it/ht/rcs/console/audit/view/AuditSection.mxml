@@ -9,7 +9,8 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.audit.controller.AuditManager;
-
+      
+      private var created:Boolean = false;
       private function init():void
       {
         created = true;
@@ -17,12 +18,11 @@
       }
       
       // Why this "created" check?
-      // The callback of the refresh (called by start) fire an event
+      // The callback of refresh() (called by start()) fire an event
       // that should be received by table header to populate filters.
-      // These headers are not created when this method fires for the first time.
-      // So, the first time we call it via creationComplete, subsequent calls will use
-      // the standard addedToStage.
-      private var created:Boolean = false;
+      // These headers are not yet created when the callback fires for the first time.
+      // So, the first time we call it via creationComplete(), subsequent calls will use
+      // the standard addedToStage().
       private function onAddedToStage():void
       {
         if (created)

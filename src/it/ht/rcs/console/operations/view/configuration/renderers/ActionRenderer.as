@@ -7,7 +7,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import spark.components.Group;
   import spark.components.Label;
 
-  public class EventRenderer extends Group implements Linkable
+  public class ActionRenderer extends Group implements Linkable
 	{
     private static const WIDTH:Number = 120;
     private static const HEIGHT:Number = 50;
@@ -16,28 +16,25 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     private static const SELECTED_COLOR:Number = 0x8888bb;
     private var backgroundColor:uint = NORMAL_COLOR;
 	  
-		public var event:Object;
+		public var action:Object;
 		
 		private var textLabel:Label;
     
-    public var inBound:ConnectionLine;
+    private var inBound:ConnectionLine;
+    private var outBound:ConnectionLine;
     public function getInBound():ConnectionLine { return inBound; }
     public function setInBound(conn:ConnectionLine):void { inBound = conn; }
-    public function getOutBound():ConnectionLine { return null; }
-    public function setOutBound(conn:ConnectionLine):void {}
-    
-    public var startPin:Pin;
-    public var repeatPin:Pin;
-    public var endPin:Pin;
+    public function getOutBound():ConnectionLine { return outBound; }
+    public function setOutBound(conn:ConnectionLine):void { outBound = conn; }
 		
-		public function EventRenderer(event:Object)
+		public function ActionRenderer(action:Object)
 		{
 			super();
       layout = null;
       width = WIDTH;
       height = HEIGHT;
       
-			this.event = event;
+			this.action = action;
 		}
     
     override protected function createChildren():void
@@ -46,32 +43,11 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 
       if (textLabel == null) {
   			textLabel = new Label();
-        BindingUtils.bindProperty(textLabel, 'text', event, 'desc');
+        BindingUtils.bindProperty(textLabel, 'text', action, 'desc');
         textLabel.width = WIDTH;
-        textLabel.height = HEIGHT - 5;
+        textLabel.height = HEIGHT;
         textLabel.maxDisplayedLines = 2;
   			addElement(textLabel);
-      }
-
-      if (startPin == null) {
-        startPin = new Pin();
-        startPin.x = 0;
-        startPin.y = height;
-        addElement(startPin);
-      }
-      
-      if (repeatPin == null) {
-        repeatPin = new Pin();
-        repeatPin.x = width/2;
-        repeatPin.y = height;
-        addElement(repeatPin);
-      }
-      
-      if (endPin == null) {
-        endPin = new Pin();
-        endPin.x = width;
-        endPin.y = height;
-        addElement(endPin);
       }
 		}
 		

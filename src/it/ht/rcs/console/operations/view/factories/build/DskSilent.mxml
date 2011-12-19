@@ -5,6 +5,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       protected function create(event:MouseEvent):void
       {
         var params:Object = {platform: parentDocument.platform, binary: {demo: demo.selected, admin: admin.selected}, melt: {admin: admin.selected} };
@@ -20,8 +21,10 @@
               text="When the agent is installed the system will request the higher possible privileges"/>
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold"/>
-    <s:Button right="10" label="Create..." click="create(event)"/>    
+    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
+                enabled="{LicenseManager.instance.canBuild(parentDocument.platform)}"
+                selected="{!demo.enabled}"/>
+    <s:Button right="10" label="Create..." click="create(event)" />    
   </s:HGroup>
   
 </s:Group>

@@ -5,6 +5,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       protected function create(event:MouseEvent):void
       {
         var params:Object = {platform: 'u3', generate: {platforms: ['windows'], binary: {demo: demo.selected}, melt: {admin: false} } }
@@ -15,8 +16,10 @@
   
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold"/>
-    <s:Button right="10" label="Create..." click="create(event)"/>    
+    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
+                enabled="{LicenseManager.instance.canBuild(parentDocument.platform)}"
+                selected="{!demo.enabled}"/>
+    <s:Button right="10" label="Create..." click="create(event)" />    
   </s:HGroup>
   
 </s:Group>

@@ -5,6 +5,7 @@
     
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'winmo')
@@ -40,7 +41,9 @@
               contentBackgroundAlpha="0.0" editable="false" text="Insert the card in the console machine before clicking on the 'create' button"/>
 
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold"/>
+    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
+                enabled="{LicenseManager.instance.canBuild(parentDocument.platform)}"
+                selected="{!demo.enabled}"/>
     <s:Button right="10" label="Create..." click="create(event)"/>    
   </s:HGroup>
   

@@ -5,9 +5,18 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       protected function create(event:MouseEvent):void
       {
-        var params:Object = {platform: 'applet', generate: {platforms: ['windows', 'osx'], binary: {demo: demo.selected, admin: false}, melt: {admin: false, appname: appname.text} } }
+        var platforms:Array = [];
+        
+        if (LicenseManager.instance.haveDemo('windows'))
+          platforms.push('windows');
+
+        if (LicenseManager.instance.haveDemo('osx'))
+          platforms.push('osx');
+
+        var params:Object = {platform: 'applet', generate: {platforms: platforms, binary: {demo: demo.selected, admin: false}, melt: {admin: false, appname: appname.text} } }
           
       }
     ]]>
@@ -19,8 +28,10 @@
   </s:HGroup>
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold"/>
-    <s:Button right="10" label="Create..." click="create(event)"/>    
+    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
+                enabled="{LicenseManager.instance.canBuild('windows') || LicenseManager.instance.canBuild('osx')}"
+                selected="{!demo.enabled}"/>
+    <s:Button right="10" label="Create..." click="create(event)" />    
   </s:HGroup>
   
 </s:Group>

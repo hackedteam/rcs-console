@@ -1,16 +1,10 @@
 package it.ht.rcs.console.main
 {
-  import flash.events.Event;
-  
   import it.ht.rcs.console.agent.controller.AgentManager;
-  import it.ht.rcs.console.alert.controller.AlertController;
   import it.ht.rcs.console.factory.controller.FactoryManager;
-  import it.ht.rcs.console.monitor.controller.LicenseManager;
-  import it.ht.rcs.console.monitor.controller.MonitorManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.target.controller.TargetManager;
-  import it.ht.rcs.console.task.controller.DownloadManager;
   
   import mx.collections.ArrayList;
   
@@ -42,17 +36,17 @@ package it.ht.rcs.console.main
         //LicenseManager.instance.start();
         //DownloadManager.instance.start();
       }
-
-//      if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
-//        OperationManager.instance.refresh();
-//        TargetManager.instance.refresh();
-//      }
-//      
-//      if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
-//        AgentManager.instance.refresh();
-//        FactoryManager.instance.refresh();
-//      }
-//      
+      
+      if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
+        OperationManager.instance.refresh();
+        TargetManager.instance.refresh();
+      }
+      
+      if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {
+        AgentManager.instance.refresh();
+        FactoryManager.instance.refresh();
+      }
+      
 //      if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys()) {
 //        //MonitorManager.instance.start_counters();        
 //      }

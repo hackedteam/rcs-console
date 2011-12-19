@@ -7,9 +7,11 @@
               xmlns:targets="it.ht.rcs.console.operations.view.targets.*"
               xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
               xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+              xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
               xmlns:view="it.ht.rcs.console.operations.view.*"
               addedToStage="onAddedToStage(event)" creationComplete="init()"
               removedFromStage="onRemovedFromStage(event)">
+  
   
   <main:states>    
     <s:State name="allOperations"/>
@@ -20,13 +22,18 @@
     
     <s:State name="allAgents"/>
     <s:State name="singleAgent"/>
+    <s:State name="singleAgentConfig"/>
     
-    <s:State name="singleFactory"/>
+    <s:State name="configuration"/>
+    
+    <s:State name="evidences"/>
   </main:states>
   
+  
   <main:layout>
-    <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+    <s:VerticalLayout gap="2" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
   </main:layout>
+  
   
   <view:Breadcrumb section="{this}"/>
   
@@ -36,21 +43,20 @@
   
   <agents:AgentsView includeIn="singleTarget,allAgents,singleAgent" section="{this}"/>
   
-  <configuration:ConfigurationView includeIn="singleFactory" section="{this}"/>
+  <agents:AgentsConfigListView includeIn="singleAgentConfig" section="{this}"/>
   
-  <!--
-  <breadcrumbs:OperationBreadcrumbs/>
+  <configuration:ConfigurationView includeIn="configuration" section="{this}"/>
   
-  <operations:OperationButtonBar id="buttonBar" currentState="{currentState}" section="{this}"/>
+  <evidences:EvidencesView includeIn="evidences" section="{this}"/>
   
-  
-  <operations:OperationBody id="body"/>
-  -->
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.target.controller.TargetManager;
       
       import mx.core.FlexGlobals;
       
@@ -61,9 +67,10 @@
       private function init():void
       {
         stateManager = new OperationsSectionStateManager(this);
-//        if (itemToSelect)
-//          stateManager.manageItemSelection(itemToSelect);
-//        else
+        
+        if (itemToSelect)
+          stateManager.manageItemSelection(itemToSelect);
+        else
           stateManager.setState('allOperations');
       }
       
@@ -84,29 +91,29 @@
       
       public function changeSection(event:SectionEvent):void
       {
-        //        if (event.item == null) { return };
-        //        
-        //        var item:* = null;
-        //        switch (event.item._kind) {
-        //          case 'operation':
-        //            item = OperationManager.instance.getItem(event.item._id);
-        //            break;
-        //          case 'target':
-        //            item = TargetManager.instance.getItem(event.item._id);
-        //            break;
-        //          case 'agent':
-        //            item = AgentManager.instance.getItem(event.item._id);
-        //            break;
-        //          default:
-        //            break;
-        //        }
-        //        
-        //        if (item) {
-        //          if (stateManager)
-        //            stateManager.manageItemSelection(item);
-        //          else
-        //            itemToSelect = item;
-        //        }
+        if (!event.item) { return };
+        
+        var item:* = null;
+        switch (event.item._kind) {
+          case 'operation':
+            item = OperationManager.instance.getItem(event.item._id);
+            break;
+          case 'target':
+            item = TargetManager.instance.getItem(event.item._id);
+            break;
+          case 'agent':
+            item = AgentManager.instance.getItem(event.item._id);
+            break;
+          default:
+            break;
+        }
+        
+        // This method is called before init if we never entered the operation section,
+        // so we check if the stateManager is present, otherwise we delay the item selection
+        if (stateManager)
+          stateManager.manageItemSelection(item);
+        else
+          itemToSelect = item;
       }
     ]]>
   </fx:Script>

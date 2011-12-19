@@ -3,59 +3,45 @@
               xmlns:s="library://ns.adobe.com/flex/spark"
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:main="it.ht.rcs.console.main.*"
-              xmlns:audit="it.ht.rcs.console.audit.view.*"
+              xmlns:audit="it.ht.rcs.console.audit.view.*" creationComplete="init()"
               addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.audit.controller.AuditManager;
-      import it.ht.rcs.console.events.FilterEvent;
-      import it.ht.rcs.console.task.view.TaskPopup;
+
+      private function init():void
+      {
+        created = true;
+        AuditManager.instance.start();
+      }
       
-      import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;
-      import mx.resources.ResourceManager;
-      
+      // Why this "created" check?
+      // The callback of the refresh (called by start) fire an event
+      // that should be received by table header to populate filters.
+      // These headers are not created when this method fires for the first time.
+      // So, the first time we call it via creationComplete, subsequent calls will use
+      // the standard addedToStage.
+      private var created:Boolean = false;
       private function onAddedToStage():void
       {
-        AuditManager.instance.start();
+        if (created)
+          AuditManager.instance.start();
       }
       
       private function onRemovedFromStage():void
       {
         AuditManager.instance.stop();
       }
-      
-      private function resetFilters(event:MouseEvent):void
-      {
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
-        AuditManager.instance.refresh();
-      }
-      
-      private function export():void
-      {
-        var popup:TaskPopup = new TaskPopup();
-        PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
-        PopUpManager.centerPopUp(popup);
-      }
     ]]>
   </fx:Script>
   
+  <main:layout>
+    <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
+  <audit:AuditActionBar/>
+  
   <audit:AuditTable dataProvider="{AuditManager.instance._view}"/>
   
-  <!--
-  <s:VGroup width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5"
-            paddingTop="5">
-    
-    <s:HGroup>
-      <s:Button height="20" label="Reset filters" click="resetFilters(event)"
-                skinClass="it.ht.rcs.console.skins.DeleteButton"
-                toolTip="{ResourceManager.getInstance().getString('localized_main', 'RESET_FILTERS')}"/>
-      <s:Button height="20" label="Export" click="export()"
-                skinClass="it.ht.rcs.console.skins.DownloadButton"
-                toolTip="{ResourceManager.getInstance().getString('localized_main', 'EXPORT')}"/>
-    </s:HGroup>
-    
-  </s:VGroup>
-  -->
 </main:Section>

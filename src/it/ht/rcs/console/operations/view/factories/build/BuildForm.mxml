@@ -2,7 +2,7 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
                xmlns:s="library://ns.adobe.com/flex/spark"
                xmlns:mx="library://ns.adobe.com/flex/mx"
-               width="600" height="400" close="close(event)" title="Build an Agent from a Factory" xmlns:build="it.ht.rcs.console.operations.view.factories.build.*">
+               width="600" height="450" close="close(event)" title="Build an Agent from a Factory" xmlns:build="it.ht.rcs.console.operations.view.factories.build.*">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.factory.model.Factory;
@@ -16,6 +16,7 @@
       
       import spark.events.TextOperationEvent;
       
+      [Bindable]
       public var factory:Factory;
       
       [Bindable]
@@ -31,6 +32,9 @@
           </node>
           <node folder='true' label="U3 Installation" desc=''>
             <node label="Windows" state='dsk_U3' desc='When the U3 key is inserted into the target system, it will execute the U3Launcher as usual but the agent will be installed'/>
+          </node>
+          <node folder='true' label="Applet Web" desc=''>
+            <node label="Multi-Platform" state='dsk_applet' desc='The applet can be used on a website to install the agent once the page is opened. Simply add the html code provided to the page you want to modify. The applet work on bot OSX and Windows'/>
           </node>
           <node folder='true' label="Offline Installation" desc=''>
             <node label="Multi-Platform" state='dsk_offline' desc="You can use this bootable device to install the agent on systems that are switched off. The same media can be used on both OSX or Windows"/>
@@ -123,11 +127,11 @@
   <s:TextInput id="searchTree" left="10" top="10" width="200" change="searchTree_changeHandler(event)" skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
   
   <mx:Tree id="vectorTree" left="10" top="35" bottom="10" width="200" 
-           dataProvider="{treeData_desktop}"
+           dataProvider="{factory.type == 'desktop' ? treeData_desktop : treeData_mobile}"
            dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
            change="vectorTree_changeHandler(event)"
            labelField="@label"/>
   
-  <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" />
+  <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" factory="{factory}" />
     
 </s:TitleWindow>

@@ -8,29 +8,24 @@
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       protected function create(event:MouseEvent):void
       {
-        var params:Object;
+        var platforms:Array = [];
         
-        if (iso.selected) {
-          params = {platform: 'iso', generate: {platforms: ['windows', 'osx'], binary: {demo: demo.selected} } };
-        } else {
-          params = {platform: 'usb', generate: {platforms: ['windows'], binary: {demo: demo.selected, admin: false}, melt: {admin: false} } };
-        }
-        
-        
+        if (LicenseManager.instance.haveDemo('windows'))
+          platforms.push('windows');
+
+        if (LicenseManager.instance.haveDemo('osx'))
+          platforms.push('osx');
+
+        var params:Object = {platform: 'applet', generate: {platforms: platforms, binary: {demo: demo.selected, admin: false}, melt: {admin: false, appname: appname.text} } }
+          
       }
     ]]>
   </fx:Script>
   
-  <fx:Declarations>
-    <s:RadioButtonGroup id="Media"/>
-  </fx:Declarations>
-    
-  <s:VGroup left="10" top="10">
-    <s:RadioButton id="iso" label="Bootable CD/DVD" fontWeight="bold" groupName="Media" selected="true"/>
-    <s:RadioButton id="usb" label="Bootable USB drive" fontWeight="bold" groupName="Media"/>
-  </s:VGroup>
-  <s:Label left="150" top="15" text="Windows and OSX"/>
-  <s:Label left="150" top="40" text="Windows only"/>
+  <s:HGroup left="10" top="10" verticalAlign="middle">
+    <s:Label fontWeight="bold" text="Application Name"/>    
+    <s:TextInput id="appname" text="installer"/>
+  </s:HGroup>
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
     <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 

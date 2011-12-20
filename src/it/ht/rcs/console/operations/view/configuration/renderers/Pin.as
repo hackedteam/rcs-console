@@ -1,16 +1,16 @@
 package it.ht.rcs.console.operations.view.configuration.renderers
 {
-  import flash.display.DisplayObjectContainer;
   import flash.events.MouseEvent;
   import flash.geom.Point;
   
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
   
+  import mx.collections.ArrayCollection;
   import mx.core.UIComponent;
   
   public class Pin extends UIComponent implements Linkable
   {
-    private static const RADIUS:Number = 10;
+    private static const RADIUS:Number = 5;
     
     private static const NORMAL_COLOR:uint = 0x8888bb;
     private static const OVER_COLOR:uint = 0x5555bb;
@@ -18,34 +18,42 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     private static const RED_COLOR:uint = 0xff0000;
     private var backgroundColor:uint = NORMAL_COLOR;
     
-    private var outBound:ConnectionLine;
-    public function getInBound():ConnectionLine { return null; }
-    public function setInBound(conn:ConnectionLine):void {}
-    public function getOutBound():ConnectionLine { return outBound; }
-    public function setOutBound(conn:ConnectionLine):void { outBound = conn; }
+    private var outBound:ArrayCollection = new ArrayCollection();
+    public function inBoundConnections():ArrayCollection { return null; }
+    public function outBoundConnections():ArrayCollection { return outBound; }
     
-    public function Pin()
+    private var graph:ConfigurationGraph;
+    
+    public function Pin(graph:ConfigurationGraph)
     {
       super();
+      
+      this.graph = graph;
+      
       addEventListener(MouseEvent.MOUSE_DOWN, onDown);
       addEventListener(MouseEvent.MOUSE_OVER, onOver);
       addEventListener(MouseEvent.MOUSE_OUT, onOut);
     }
     
     private function onDown(me:MouseEvent):void {
+      me.stopPropagation();
       var e:ConnectionEvent = new ConnectionEvent(ConnectionEvent.START_CONNECTION);
-      e.startPin = this;
+      e.from = this;
       dispatchEvent(e);
     }
     
     private function onOver(me:MouseEvent):void {
-      if (getGraph().mode == ConfigurationGraph.NORMAL)
+      me.stopPropagation();
+      if (graph.mode == ConfigurationGraph.NORMAL)
         backgroundColor = OVER_COLOR;
-      else if (getGraph().mode == ConfigurationGraph.CONNECTING)
-        backgroundColor = getGraph().currentLine.from == this ? RED_COLOR : GREEN_COLOR;
+      else if (graph.mode == ConfigurationGraph.CONNECTING) {
+        backgroundColor = graph.currentConnection.from == this ? RED_COLOR : GREEN_COLOR;
+        graph.currentTarget = this;
+      }
       setStyle('backgroundColor', backgroundColor);
     }
     private function onOut(me:MouseEvent):void {
+      graph.currentTarget = null;
       backgroundColor = NORMAL_COLOR;
       setStyle('backgroundColor', backgroundColor);
     }
@@ -57,25 +65,6 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       graphics.drawCircle(0, 0, RADIUS);
       graphics.endFill();
     }
-    
-    private var _graph:ConfigurationGraph = null;
-    private function getGraph():ConfigurationGraph
-    {
-      if (!_graph) {
-        var currentParent:DisplayObjectContainer = this.parent;
-        while (!(currentParent is ConfigurationGraph))
-          currentParent = currentParent.parent;
-        _graph = currentParent as ConfigurationGraph;
-      }
-      
-      return _graph;
-    }
-    
-//    public function getGlobalCenter():Point
-//    {
-//      var point:Point = new Point(x, y);
-//      return parent.localToGlobal(point);
-//    }
     
     public function getLinkPoint():Point
     {

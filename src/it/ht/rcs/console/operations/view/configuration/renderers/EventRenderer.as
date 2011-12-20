@@ -2,7 +2,10 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 {
   import flash.geom.Point;
   
+  import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
+  
   import mx.binding.utils.BindingUtils;
+  import mx.collections.ArrayCollection;
   
   import spark.components.Group;
   import spark.components.Label;
@@ -20,17 +23,17 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 		
 		private var textLabel:Label;
     
-    public var inBound:ConnectionLine;
-    public function getInBound():ConnectionLine { return inBound; }
-    public function setInBound(conn:ConnectionLine):void { inBound = conn; }
-    public function getOutBound():ConnectionLine { return null; }
-    public function setOutBound(conn:ConnectionLine):void {}
+    public var inBound:ArrayCollection = new ArrayCollection();
+    public function inBoundConnections():ArrayCollection { return inBound; }
+    public function outBoundConnections():ArrayCollection { return null; }
     
     public var startPin:Pin;
     public var repeatPin:Pin;
     public var endPin:Pin;
+    
+    private var graph:ConfigurationGraph;
 		
-		public function EventRenderer(event:Object)
+		public function EventRenderer(event:Object, graph:ConfigurationGraph)
 		{
 			super();
       layout = null;
@@ -38,6 +41,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       height = HEIGHT;
       
 			this.event = event;
+      this.graph = graph;
 		}
     
     override protected function createChildren():void
@@ -54,21 +58,21 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
 
       if (startPin == null) {
-        startPin = new Pin();
+        startPin = new Pin(graph);
         startPin.x = 0;
         startPin.y = height;
         addElement(startPin);
       }
       
       if (repeatPin == null) {
-        repeatPin = new Pin();
+        repeatPin = new Pin(graph);
         repeatPin.x = width/2;
         repeatPin.y = height;
         addElement(repeatPin);
       }
       
       if (endPin == null) {
-        endPin = new Pin();
+        endPin = new Pin(graph);
         endPin.x = width;
         endPin.y = height;
         addElement(endPin);
@@ -86,7 +90,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     public function getLinkPoint():Point
     {
-      return new Point(x + width/2, y + height/2);
+      return new Point(x + width/3, y + height);
     }
 		
 	}

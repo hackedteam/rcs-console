@@ -1,15 +1,18 @@
 package it.ht.rcs.console.operations.view.configuration
 {
-	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.ui.Keyboard;
+	import flash.ui.Mouse;
+	import flash.ui.MouseCursor;
 	
 	import it.ht.rcs.console.operations.view.configuration.renderers.ActionRenderer;
+	import it.ht.rcs.console.operations.view.configuration.renderers.Connection;
 	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionEvent;
-	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionLine;
 	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
-	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
+	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
+	import it.ht.rcs.console.utils.NativeCursor;
+	
+	import mx.events.FlexEvent;
 	
 	import spark.components.Group;
 	import spark.components.supportClasses.ScrollBarBase;
@@ -19,129 +22,157 @@ package it.ht.rcs.console.operations.view.configuration
 	public class ConfigurationGraph extends Group
 	{
 
+    // The original config object
     public var config:Object;
     
-    public static const NORMAL:String = 'normal';
+    // Modes of operation
+    public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
-    private var _mode:String = ConfigurationGraph.NORMAL;
+    public static const DRAGGING:String   = 'dragging';
+    private var _mode:String = NORMAL;
     public function get mode():String { return _mode; }
     
+    // A reference to the currently selected connection
+    public var selectedConnection:Connection;
+    public function deselectConnection():void
+    {
+      if (selectedConnection != null) {
+        selectedConnection.selected = false;
+        selectedConnection = null;
+      }
+    }
+    
+    
+    // Constructor
 		public function ConfigurationGraph()
 		{
 			super();
 			layout = null;
-      setStyle('paddingLeft', 50);
+      addEventListener(FlexEvent.CREATION_COMPLETE, init);
       
-      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-      
-      addEventListener(ConnectionEvent.START_CONNECTION, onStartConnection);
-      
-      addEventListener(KeyboardEvent.KEY_DOWN, onKey);
+      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown); // Dragging
+      addEventListener(ConnectionEvent.START_CONNECTION, onStartConnection); // Connecting
 		}
     
-//    addEventListener(MouseEvent.MOUSE_OVER, put);
-//    addEventListener(MouseEvent.MOUSE_OUT, rem);
-//    private function put(me:MouseEvent):void {
-//      Mouse.cursor = NativeCursor.HAND_OPEN;
-//    }
-//    private function rem(me:MouseEvent):void {
-//      Mouse.cursor = MouseCursor.AUTO;
-//    }
-    
-    private var selectedLine:ConnectionLine = null;
-    private function onMouseDown(me:MouseEvent):void
+    // Creation complete handler. Cache some useful references
+    private var hScrollBar:ScrollBarBase, vScrollBar:ScrollBarBase;
+    private function init(e:FlexEvent):void
     {
-      setFocus(); // To receive keyboard events
-      
-      if (selectedLine) {
-        selectedLine.selected = false;
-        selectedLine = null;
-      }
-      
-      if (me.target is ConnectionLine) {
-        selectedLine = me.target as ConnectionLine;
-        selectedLine.selected = true;
-      }
-      
-      if (me.target == this) {
-        dragX = me.stageX;
-        dragY = me.stageY;
-        addEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
-        addEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
-      }
-      
+      hScrollBar = (this.parent as ScrollerSkin).hostComponent.horizontalScrollBar;
+      vScrollBar = (this.parent as ScrollerSkin).hostComponent.verticalScrollBar;
     }
     
+    
+    
+    
+    
+    // ----- DRAGGING -----
+
+    // This flag tells if there actually was some dragging.
+    // If we go through MOUSE_DOWN and MOUSE_UP events without dragging,
+    // we can simulate a CLICK
+    private var dragged:Boolean = false;
     private var dragX:Number, dragY:Number;
+    
+    // Any other MOUSE_DOWN propagation is stopped by target sub-components,
+    // so we only get events fired when the pointer is on the white background,
+    // meaning we want to start dragging
+    private function onMouseDown(me:MouseEvent):void
+    {
+      trace('down on graph');
+      _mode = DRAGGING;
+      dragged = false;
+      
+      dragX = me.stageX;
+      dragY = me.stageY;
+      addEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
+      addEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
+      Mouse.cursor = NativeCursor.HAND_CLOSE;
+    }
+    
     private function onDraggingMove(me:MouseEvent):void
     {
-      var scrollBar:ScrollBarBase = (this.parent as ScrollerSkin).hostComponent.horizontalScrollBar;
-      scrollBar.value = scrollBar.value + dragX - me.stageX;
+      trace('move on graph');
+      dragged = true;
+      
+      hScrollBar.value = hScrollBar.value + dragX - me.stageX;
       dragX = me.stageX;
       
-      scrollBar = (this.parent as ScrollerSkin).hostComponent.verticalScrollBar;
-      scrollBar.value = scrollBar.value + dragY - me.stageY;
+      vScrollBar.value = vScrollBar.value + dragY - me.stageY;
       dragY = me.stageY;
     }
     
     private function onDraggingUp(me:MouseEvent):void
     {
+      trace('up on graph');
       removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
+      Mouse.cursor = MouseCursor.AUTO;
+      
+      _mode = NORMAL;
+      
+      // No dragging. We can simulate a click
+      if (!dragged)
+        deselectConnection();
     }
     
     
     
-    private function onKey(ke:KeyboardEvent):void
-    {
-      if (ke.keyCode == Keyboard.DELETE && selectedLine) {
-        removeElement(selectedLine);
-        selectedLine.from.setOutBound(null);
-        selectedLine.to.setInBound(null);
-        selectedLine = null;
-      }
-    }
     
     
+    // ----- CONNECTING -----
     
-    public var currentLine:ConnectionLine;
+    // A reference to the currently dragged connection
+    public var currentConnection:Connection;
+    // A reference to the link target (this is set by sub-components)
+    [Bindable] public var currentTarget:Linkable;
+    
     private function onStartConnection(ce:ConnectionEvent):void
     {
-//      _mode = ConfigurationGraph.CONNECTING;
-//      
-//      currentLine = new ConnectionLine();
-//      currentLine.from = ce.startPin;
-//      ce.startPin.outBound = currentLine;
-//      
-//      var start:Point = globalToLocal(ce.startPin.getGlobalCenter());
-//      currentLine.startX = start.x;
-//      currentLine.startY = start.y;
-//      currentLine.endX = start.x;
-//      currentLine.endY = start.y;
-//      currentLine.depth = -10; // Will appear under other elements
-//      
-//      addElement(currentLine);
-//      
-//      addEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
-//      addEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
+      _mode = CONNECTING;
+      
+      deselectConnection();
+      
+      currentConnection = new Connection(this);
+      currentConnection.from = ce.from;
+      
+      var start:Point = ce.from.getLinkPoint();
+      currentConnection.start = start;
+      currentConnection.end = start;
+      currentConnection.depth = -10; // The line will appear under other elements
+      
+      addElement(currentConnection);
+      
+      addEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
+      addEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
     }
     
     private function onDrawingMove(me:MouseEvent):void
     {
-      var pt:Point = new Point(me.stageX, me.stageY);
-      pt = globalToLocal(pt);
+      // We set a small 1 pixel offset because if the line ends exactely on the mouse pointer,
+      // we get problems with MOUSE_OVER events
+      var end:Point = globalToLocal(new Point(me.stageX - 1, me.stageY - 1));
+      currentConnection.end = end;
       
-      currentLine.endX = pt.x - 1; // -1 because if the line ends exactely on the mouse pointer, we get problems with mouse overs
-      currentLine.endY = pt.y - 1;
-      
-      currentLine.invalidateDisplayList();
+      currentConnection.invalidateDisplayList();
     }
     
     private function onDrawingUp(me:MouseEvent):void
     {
-      currentLine = null;
+      if (currentTarget != null) { // Dropping the line on a target
+        currentConnection.to = currentTarget;
+        var end:Point = currentTarget.getLinkPoint();
+        currentConnection.end = end;
+        currentConnection.invalidateDisplayList();
+      } else { // Dropping the line nowhere... cancel connecting operation
+        removeElement(currentConnection);
+      }
+      
       removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
+      currentConnection = null;
+      currentTarget = null;
+      
       _mode = ConfigurationGraph.NORMAL;
     }
     
@@ -149,53 +180,25 @@ package it.ht.rcs.console.operations.view.configuration
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    // ----- RENDERING -----
     
     private var bg:Rect;
     private var events:Vector.<EventRenderer>;
     private var actions:Vector.<ActionRenderer>;
-    private var lines:Vector.<ConnectionLine>;
+    private var lines:Vector.<Connection>;
 		public function rebuildGraph():void
 		{
 			removeAllElements();
       
+      // Saving references will make positioning and drawing of elements so much easier...
       events = new Vector.<EventRenderer>();
       actions = new Vector.<ActionRenderer>();
-      lines = new Vector.<ConnectionLine>;
+      lines = new Vector.<Connection>();
       
       // Adding event renderers
       var er:EventRenderer;
       for each (var e:Object in config.events) {
-        er = new EventRenderer(e);
+        er = new EventRenderer(e, this);
         events.push(er);
 				addElement(er);
       }
@@ -203,38 +206,46 @@ package it.ht.rcs.console.operations.view.configuration
       // Adding actions
       var ar:ActionRenderer;
       for each (var a:Object in config.actions) {
-        ar = new ActionRenderer(a);
+        ar = new ActionRenderer(a, this);
         actions.push(ar);
         addElement(ar);
       }
       
       // Adding connections from events to actions
       for each (er in events) {
-        if (er.event.hasOwnProperty('start'))  addLine(er.startPin,  actions[er.event.start]);
-        if (er.event.hasOwnProperty('repeat')) addLine(er.repeatPin, actions[er.event.repeat]);
-        if (er.event.hasOwnProperty('end'))    addLine(er.endPin,    actions[er.event.end]);
+        if (er.event.hasOwnProperty('start'))  createConnection(er.startPin,  actions[er.event.start]);
+        if (er.event.hasOwnProperty('repeat')) createConnection(er.repeatPin, actions[er.event.repeat]);
+        if (er.event.hasOwnProperty('end'))    createConnection(er.endPin,    actions[er.event.end]);
       }
       
+      // Adding connections from actions to events
+      for each (ar in actions) {
+        // cycle in action's subactions and look for event action...
+        // if (er.event.hasOwnProperty('start')) createConnection(ar.startPin, events[subaction.start]);
+        // if (er.event.hasOwnProperty('stop'))  createConnection(ar.stopPin,  events[subaction.stop]);
+      }
+      
+      // The background. We need a dummy component as background for two reasons:
+      // 1) it defines maximum sizes
+      // 2) will react to mouse events when the user clicks "nowhere" (eg, dragging)
       var p:Point = computeSize();
       bg = new Rect();
-      bg.visible = false; // it just defines boundaries, save rendering time...
+      bg.visible = false; // No need to see it, save rendering time...
       bg.width = p.x;
       bg.height = p.y;
-      bg.depth = -1000; // bottom layer
+      bg.depth = -1000; // Very bottom layer
       addElement(bg);
       
 			invalidateSize();
 			invalidateDisplayList();
 		}
     
-    private function addLine(startPin:Pin, action:ActionRenderer):void
+    private function createConnection(from:Linkable, to:Linkable):void
     {
-      var line:ConnectionLine = new ConnectionLine();
+      var line:Connection = new Connection(this);
       line.depth = -10;
-      line.from = startPin;
-      line.to = action;
-      startPin.setOutBound(line);
-      action.setInBound(line);
+      line.from = from;
+      line.to = to;
       lines.push(line);
       addElement(line);
     }
@@ -248,7 +259,7 @@ package it.ht.rcs.console.operations.view.configuration
       var x:Number = 0, y:Number = 0;
       if (events != null && events.length > 0) {
         x = (events[0].width * events.length) + (NODE_DISTANCE * (events.length - 1)) + HORIZONTAL_PAD * 2;
-        y = 1500;
+        y = 1500; // TODO: Compute real height!!!
       }
       return new Point(x, y);
     }
@@ -310,17 +321,13 @@ package it.ht.rcs.console.operations.view.configuration
         
       } // End actions
       
-      // Draw lines starting from events
+      // Draw lines
+      var line:Connection;
       if (lines != null && lines.length > 0) {
-        var line:ConnectionLine;
         for (i = 0; i < lines.length; i++) {
           line = lines[i];
-          var start:Point = line.from.getLinkPoint();
-          var end:Point = line.to.getLinkPoint();
-          line.startX = start.x;
-          line.startY = start.y;
-          line.endX = end.x;
-          line.endY = end.y;
+          line.start = line.from.getLinkPoint();
+          line.end = line.to.getLinkPoint();
         }
       }
       

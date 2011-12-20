@@ -1,5 +1,6 @@
 package it.ht.rcs.console.operations.view.configuration.renderers
 {
+  import flash.events.MouseEvent;
   import flash.geom.Point;
   
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
@@ -42,7 +43,14 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       
 			this.event = event;
       this.graph = graph;
+      
+      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 		}
+    
+    private function onMouseDown(me:MouseEvent):void
+    {
+      me.stopPropagation();
+    }
     
     override protected function createChildren():void
     {

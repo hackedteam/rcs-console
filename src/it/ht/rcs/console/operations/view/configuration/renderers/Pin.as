@@ -37,9 +37,11 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onDown(me:MouseEvent):void {
       me.stopPropagation();
-      var e:ConnectionEvent = new ConnectionEvent(ConnectionEvent.START_CONNECTION);
-      e.from = this;
-      dispatchEvent(e);
+      if (outBound.length < 1) {
+        var e:ConnectionEvent = new ConnectionEvent(ConnectionEvent.START_CONNECTION);
+        e.from = this;
+        dispatchEvent(e);
+      }
     }
     
     private function onOver(me:MouseEvent):void {

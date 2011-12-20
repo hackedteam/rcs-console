@@ -14,7 +14,6 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
       
       [Bindable]
       public var section:OperationsSection;
@@ -85,11 +84,19 @@
         graph.config = config;
         graph.rebuildGraph();
       }
+      
+      protected function addEvent(event:MouseEvent):void
+      {
+        config.events.push({"event": "timer", "desc": "new"});
+        graph.rebuildGraph();
+      }
+      
     ]]>
   </fx:Script>
   
   <configuration:ConfigurationActionBar section="{section}"/>
-  <s:Label text="{graph.currentTarget}"/>
+  <s:Label text="Click me to add an event" click="addEvent(event)"/>
+  <s:Label text="{graph.currentTarget}" />
   <s:Scroller id="graphScroller" width="100%" height="100%">
     <configuration:ConfigurationGraph id="graph"/>
   </s:Scroller>

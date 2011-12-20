@@ -135,11 +135,9 @@ package it.ht.rcs.console.operations.view.configuration
       
       currentConnection = new Connection(this);
       currentConnection.from = ce.from;
-      
       var start:Point = ce.from.getLinkPoint();
       currentConnection.start = start;
       currentConnection.end = start;
-      currentConnection.depth = -10; // The line will appear under other elements
       
       addElement(currentConnection);
       
@@ -149,11 +147,8 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDrawingMove(me:MouseEvent):void
     {
-      // We set a small 1 pixel offset because if the line ends exactely on the mouse pointer,
-      // we get problems with MOUSE_OVER events
-      var end:Point = globalToLocal(new Point(me.stageX - 1, me.stageY - 1));
+      var end:Point = globalToLocal(new Point(me.stageX, me.stageY));
       currentConnection.end = end;
-      
       currentConnection.invalidateDisplayList();
     }
     
@@ -161,11 +156,10 @@ package it.ht.rcs.console.operations.view.configuration
     {
       if (currentTarget != null) { // Dropping the line on a target
         currentConnection.to = currentTarget;
-        var end:Point = currentTarget.getLinkPoint();
-        currentConnection.end = end;
+        currentConnection.end = currentTarget.getLinkPoint();
         currentConnection.invalidateDisplayList();
       } else { // Dropping the line nowhere... cancel connecting operation
-        removeElement(currentConnection);
+        currentConnection.deleteConnection();
       }
       
       removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
@@ -243,7 +237,6 @@ package it.ht.rcs.console.operations.view.configuration
     private function createConnection(from:Linkable, to:Linkable):void
     {
       var line:Connection = new Connection(this);
-      line.depth = -10;
       line.from = from;
       line.to = to;
       lines.push(line);

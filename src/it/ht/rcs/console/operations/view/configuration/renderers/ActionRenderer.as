@@ -7,6 +7,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   
   import mx.binding.utils.BindingUtils;
   import mx.collections.ArrayCollection;
+  import mx.controls.Alert;
   
   import spark.components.Group;
   import spark.components.Label;
@@ -39,15 +40,23 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 		{
 			super();
       layout = null;
+      doubleClickEnabled = true;
       width = WIDTH;
       height = HEIGHT;
       
 			this.action = action;
       this.graph = graph;
       
+      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+      addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 		}
+    
+    private function onMouseDown(me:MouseEvent):void
+    {
+      me.stopPropagation();
+    }
     
     private function onMouseOver(me:MouseEvent):void
     {
@@ -60,10 +69,16 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       setStyle('backgroundColor', backgroundColor);
     }
     
-    private function onMouseOut(me:MouseEvent):void {
+    private function onMouseOut(me:MouseEvent):void
+    {
       graph.currentTarget = null;
       backgroundColor = NORMAL_COLOR;
       setStyle('backgroundColor', backgroundColor);
+    }
+    
+    private function onDoubleClick(me:MouseEvent):void
+    {
+      Alert.show('Show editing form');
     }
     
     override protected function createChildren():void

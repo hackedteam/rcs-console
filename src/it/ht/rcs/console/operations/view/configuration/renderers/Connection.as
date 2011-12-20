@@ -18,16 +18,10 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private var _from:Linkable;
     public function get from():Linkable { return _from; }
-    public function set from(item:Linkable):void {
-      _from = item;
-      item.outBoundConnections().addItem(this);
-    }
+    public function set from(item:Linkable):void { _from = item; item.outBoundConnections().addItem(this); }
     private var _to:Linkable;
     public function get to():Linkable { return _to; }
-    public function set to(item:Linkable):void {
-      _to = item;
-      item.inBoundConnections().addItem(this);
-    }
+    public function set to(item:Linkable):void { _to = item; item.inBoundConnections().addItem(this); }
     
     private static const NORMAL_THICKNESS:Number = 1;
     private static const SELECTED_THICKNESS:Number = 3;
@@ -35,7 +29,10 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private var graph:ConfigurationGraph;
     
-    public function Connection(graph:ConfigurationGraph) {
+    public function Connection(graph:ConfigurationGraph)
+    {
+      super();
+      depth = -10; // Connections will appear under other elements
       
       this.graph = graph;
       
@@ -60,21 +57,25 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         deleteConnection();
     }
     
-    private function deleteConnection():void
+    public function deleteConnection():void
     {
       var index:int;
       
-      // Visually remove it
+      // Visually remove the connection
       graph.removeElement(this);
       
       // Clear references
-      var outBounds:ArrayCollection = _from.outBoundConnections();
-      index = outBounds.getItemIndex(this);
-      if (index != -1) outBounds.removeItemAt(index);
+      if (_from != null) {
+        var outBounds:ArrayCollection = _from.outBoundConnections();
+        index = outBounds.getItemIndex(this);
+        if (index != -1) outBounds.removeItemAt(index);
+      }
       
-      var inBounds:ArrayCollection = _to.inBoundConnections();
-      index = inBounds.getItemIndex(this);
-      if (index != -1) inBounds.removeItemAt(index);
+      if (_to != null) {
+        var inBounds:ArrayCollection = _to.inBoundConnections();
+        index = inBounds.getItemIndex(this);
+        if (index != -1) inBounds.removeItemAt(index);
+      }
     }
     
     private var _selected:Boolean = false;

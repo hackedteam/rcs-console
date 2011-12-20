@@ -14,7 +14,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 
   public class ActionRenderer extends Group implements Linkable
 	{
-    private static const WIDTH:Number = 120;
+    private static const WIDTH:Number = 200;
     private static const HEIGHT:Number = 50;
     
     private static const NORMAL_COLOR:Number   = 0xbbbbbb;
@@ -78,7 +78,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onDoubleClick(me:MouseEvent):void
     {
-      Alert.show('Show editing form');
+      //Alert.show('Show editing form');
+      graph.highlightElement(this);
     }
     
     override protected function createChildren():void
@@ -98,6 +99,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         startPin = new Pin(graph);
         startPin.x = width;
         startPin.y = 0;
+        startPin.toolTip = 'Start';
         addElement(startPin);
       }
       
@@ -105,6 +107,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         stopPin = new Pin(graph);
         stopPin.x = width;
         stopPin.y = height;
+        stopPin.toolTip = 'Stop';
         addElement(stopPin);
       }
 		}

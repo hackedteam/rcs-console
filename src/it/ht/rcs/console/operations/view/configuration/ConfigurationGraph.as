@@ -12,6 +12,8 @@ package it.ht.rcs.console.operations.view.configuration
 	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
+	import mx.collections.ArrayCollection;
+	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	
 	import spark.components.Group;
@@ -173,6 +175,16 @@ package it.ht.rcs.console.operations.view.configuration
     
     
     
+    public function highlightElement(element:Linkable):void
+    {
+      var component:UIComponent = element as UIComponent;
+      if (getElementIndex(component) == -1) return;
+      component.alpha = .5;
+      var inBound:ArrayCollection = element.inBoundConnections();
+      if (inBound != null)
+        for each (var x:UIComponent in inBound)
+          x.alpha = .5;
+    }
     
     // ----- RENDERING -----
     
@@ -247,14 +259,20 @@ package it.ht.rcs.console.operations.view.configuration
     private static const VERTICAL_DISTANCE:int = 60;
     private static const VERTICAL_GAP:int      = 200;
     private static const HORIZONTAL_PAD:int    = 50;
+    // TODO: Comment...
     private function computeSize():Point
     {
-      var x:Number = 0, y:Number = 0;
+      var eventsX:Number = 0, eventsY:Number = 0;
       if (events != null && events.length > 0) {
-        x = (events[0].width * events.length) + (NODE_DISTANCE * (events.length - 1)) + HORIZONTAL_PAD * 2;
-        y = 1500; // TODO: Compute real height!!!
+        eventsX = (events[0].width * events.length) + (NODE_DISTANCE * (events.length - 1)) + HORIZONTAL_PAD * 2;
+        eventsY = 1000; // TODO: Compute real height!!!
       }
-      return new Point(x, y);
+      var actionsX:Number = 0, actionsY:Number = 0;
+      if (actions != null && actions.length > 0) {
+        actionsX = (actions[0].width * actions.length) + (NODE_DISTANCE * (actions.length - 1)) + HORIZONTAL_PAD * 2;
+        actionsY = 1000; // TODO: Compute real height!!!
+      }
+      return new Point(Math.max(eventsX, actionsX), Math.max(eventsY, actionsY));
     }
     
 		override protected function measure():void
@@ -313,6 +331,7 @@ package it.ht.rcs.console.operations.view.configuration
         }
         
       } // End actions
+      
       
       // Draw lines
       var line:Connection;

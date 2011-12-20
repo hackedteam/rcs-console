@@ -69,6 +69,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         startPin = new Pin(graph);
         startPin.x = 0;
         startPin.y = height;
+        startPin.toolTip = 'Start';
         addElement(startPin);
       }
       
@@ -76,6 +77,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         repeatPin = new Pin(graph);
         repeatPin.x = width/2;
         repeatPin.y = height;
+        repeatPin.toolTip = 'Repeat';
         addElement(repeatPin);
       }
       
@@ -83,6 +85,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         endPin = new Pin(graph);
         endPin.x = width;
         endPin.y = height;
+        endPin.toolTip = 'End';
         addElement(endPin);
       }
 		}

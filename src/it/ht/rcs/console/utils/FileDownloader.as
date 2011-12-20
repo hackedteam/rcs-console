@@ -9,6 +9,8 @@ package it.ht.rcs.console.utils {
   import flash.net.URLStream;
   import flash.utils.ByteArray;
   
+  import it.ht.rcs.console.DB;
+  
   public class FileDownloader {
     
     public static const STATE_DOWNLOADING:String = 'downloading';
@@ -45,7 +47,7 @@ package it.ht.rcs.console.utils {
         localStream = new FileStream();
         bytes = new ByteArray();
         
-        var url:String = "https://localhost:4444/" + remotePath
+        var url:String = DB.hostAutocomplete(Console.currentSession.server) + remotePath
         var request:URLRequest = new URLRequest(url);
         trace("downloading from " + url);
         

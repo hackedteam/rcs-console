@@ -35,7 +35,7 @@ package it.ht.rcs.console.main
       if (Console.currentSession.user.is_any()) {
         SearchManager.instance.refresh();
         //LicenseManager.instance.start();
-        DownloadManager.instance.refresh();
+        DownloadManager.instance.start();
       }
       
       if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {

@@ -6,18 +6,44 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
       protected function create(event:MouseEvent):void
       {
         var params:Object;
+        var filename:String;
         
         if (iso.selected) {
           params = {platform: 'iso', generate: {platforms: ['windows', 'osx'], binary: {demo: demo.selected} } };
+          filename = parentDocument.factory.name + '_offline.iso'
         } else {
           params = {platform: 'usb', generate: {platforms: ['windows'], binary: {demo: demo.selected, admin: false}, melt: {admin: false} } };
+          filename = parentDocument.factory.name + '_usb.zip'
         }
         
+        params['factory'] = {_id: parentDocument.factory._id};
         
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
       }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
+      }
+      
     ]]>
   </fx:Script>
   

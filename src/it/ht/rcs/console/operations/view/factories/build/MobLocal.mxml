@@ -6,6 +6,12 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.task.view.TaskPopup;
+      
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
       
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'winmo')
@@ -16,14 +22,23 @@
         
       protected function create(event:MouseEvent):void
       {
-        var params:Object
+        var params:Object;
         
         if (currentState == 'blackberry') {
           params = {platform: parentDocument.platform, binary: {demo: demo.selected}, melt: {}, 'package': {type: 'local'} };
         } else {
           params = {platform: 'card', generate: {platforms: ['winmo'], binary: {demo: demo.selected} } };
         }
-
+        
+        params['factory'] = {_id: parentDocument.factory._id};
+        
+        var popup:TaskPopup = new TaskPopup();
+        popup.type = "build";
+        popup.params = params;
+        PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
+        PopUpManager.centerPopUp(popup);
+        
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
       }
       
     ]]>

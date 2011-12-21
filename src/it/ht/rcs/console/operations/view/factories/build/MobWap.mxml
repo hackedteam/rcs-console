@@ -6,12 +6,16 @@
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.collections.ListCollectionView;
+      import mx.core.UIComponent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       private var urls:ListCollectionView;
@@ -95,6 +99,19 @@
         params['deliver']['url'] = url.selectedItem + appname.text;
         params['deliver']['service'] = servindication.selected ? 'indication' : 'loading';
         
+        params['factory'] = {_id: parentDocument.factory._id};
+        
+        DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
       
     ]]>

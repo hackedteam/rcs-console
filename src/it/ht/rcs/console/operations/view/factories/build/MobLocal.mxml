@@ -6,12 +6,17 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.task.view.TaskPopup;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
       
       import mx.core.FlexGlobals;
       import mx.core.IFlexDisplayObject;
       import mx.core.UIComponent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
       
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'winmo')
@@ -32,13 +37,19 @@
         
         params['factory'] = {_id: parentDocument.factory._id};
         
-        var popup:TaskPopup = new TaskPopup();
-        popup.type = "build";
-        popup.params = params;
-        PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
-        PopUpManager.centerPopUp(popup);
+        var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_local.zip'
         
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
         PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
       
     ]]>

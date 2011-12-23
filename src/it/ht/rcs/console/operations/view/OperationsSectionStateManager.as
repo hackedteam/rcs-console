@@ -3,10 +3,8 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.controller.AgentController;
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
+  import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.events.DataLoadedEvent;
-  import it.ht.rcs.console.factory.controller.FactoryManager;
-  import it.ht.rcs.console.factory.model.Config;
-  import it.ht.rcs.console.factory.model.Factory;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.target.controller.TargetManager;
@@ -37,8 +35,10 @@ package it.ht.rcs.console.operations.view
     [Bindable]
     public var selectedAgent:Agent;
     
+    /*
     [Bindable]
     public var selectedFactory:Factory;
+    */
     
     [Bindable]
     public var selectedConfig:Config;
@@ -78,11 +78,13 @@ package it.ht.rcs.console.operations.view
         setState('singleAgent');
       }
       
+      /*
       else if (item is Factory)
       {
         selectedFactory = item;
         section.currentState = 'configuration';
       }
+      */
       
       else if (item is Object && item.customType == 'config')
       {
@@ -222,9 +224,10 @@ package it.ht.rcs.console.operations.view
       
       AgentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
       AgentManager.instance.stop();
-      
+      /*
       FactoryManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
       FactoryManager.instance.stop();
+      */
     }
     
     private var CurrentManager:Class;
@@ -241,9 +244,9 @@ package it.ht.rcs.console.operations.view
       if (!a &&  b) return -1;
       
       var aIsCustom:Boolean  = a.hasOwnProperty('customType');
-      var aIsFactory:Boolean = a is Factory;
+      var aIsFactory:Boolean = a._kind == 'factory';// is Factory;
       var bIsCustom:Boolean  = b.hasOwnProperty('customType');
-      var bIsFactory:Boolean = b is Factory;
+      var bIsFactory:Boolean = b._kind == 'factory';// is Factory;
 
       if (aIsCustom && bIsCustom) {
         var distance:int = a.order - b.order;

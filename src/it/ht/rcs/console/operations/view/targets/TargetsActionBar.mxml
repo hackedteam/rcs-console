@@ -14,14 +14,14 @@
   
   <actionbar:Separator width="40"/>
   
-  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  <s:HGroup height="100%" verticalAlign="middle">
+    <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  </s:HGroup>
   
   <s:Spacer width="100%"/>
-  <!--
-  <view:Shortcuts section="{section}"/>
-  -->
-  <s:TextInput id="searchInput" addedToStage="onShow()" keyUp="onKeyUp(event)"
-               removedFromStage="onRemovedFromStage()"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)" removedFromStage="onRemovedFromStage()"/>
+  
   
   <fx:Script>
     <![CDATA[
@@ -52,11 +52,6 @@
         PopUpManager.centerPopUp(popup);
       }
       
-      private function onShow():void
-      {
-        section.stateManager.searchField = searchInput;
-      }
-      
       private function onRemovedFromStage():void
       {
         searchInput.text = '';
@@ -64,6 +59,7 @@
       
       private function onKeyUp(event:KeyboardEvent):void
       {
+        section.stateManager.searchField = searchInput;
         section.stateManager.view.refresh();
       }
     ]]>

@@ -2,8 +2,7 @@ package it.ht.rcs.console.operations.view
 {
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
-  import it.ht.rcs.console.factory.model.Config;
-  import it.ht.rcs.console.factory.model.Factory;
+  import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.target.controller.TargetManager;
@@ -23,11 +22,10 @@ package it.ht.rcs.console.operations.view
     
     [Bindable]
     public var view:ListCollectionView;
-    
+
     [Bindable] public var selectedOperation:Operation;
     [Bindable] public var selectedTarget:Target;
     [Bindable] public var selectedAgent:Agent;
-    [Bindable] public var selectedFactory:Factory;
     [Bindable] public var selectedConfig:Config;
     
     private var section:OperationsSection;
@@ -60,18 +58,18 @@ package it.ht.rcs.console.operations.view
         setState('singleTarget');
       }
       
-      else if (item is Agent /* && item.kind == 'agent' */)
+      else if (item is Agent /* && item._kind == 'agent' */)
       {
         selectedAgent = item;
         setState('singleAgent');
       }
       
-      else if (item is Agent /* && item.kind == 'factory' */)
+      else if (item is Agent /* && item._kind == 'factory' */)
       {
         selectedAgent = item;
         setState('factoryConfig');
       }
-      
+            
       else if (item is Config)
       {
         selectedConfig = item;
@@ -209,9 +207,9 @@ package it.ht.rcs.console.operations.view
       if (!a &&  b) return -1;
       
       var aIsCustom:Boolean  = a.hasOwnProperty('customType');
-      var aIsFactory:Boolean = a is Factory;
+      var aIsFactory:Boolean = a._kind == 'factory';// is Factory;
       var bIsCustom:Boolean  = b.hasOwnProperty('customType');
-      var bIsFactory:Boolean = b is Factory;
+      var bIsFactory:Boolean = b._kind == 'factory';// is Factory;
 
       if (aIsCustom && bIsCustom) {
         var distance:int = a.order - b.order;

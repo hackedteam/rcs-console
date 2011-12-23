@@ -48,16 +48,20 @@
       private function onNewClick():void
       {
         var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
-        popup.mode = 'new';
+        popup.operation = section.stateManager.selectedOperation;
+        popup.target = section.stateManager.selectedTarget;
         popup.factory = new Factory(Factory.defaultFactory());
+        popup.currentState = FactoriesForm.CREATE;
         PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
         var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
-        popup.mode = 'edit';
+        popup.operation = section.stateManager.selectedOperation;
+        popup.target = section.stateManager.selectedTarget;
         popup.factory = selectedObject as Factory;
+        popup.currentState = FactoriesForm.EDIT;
         PopUpManager.centerPopUp(popup);
       }
       

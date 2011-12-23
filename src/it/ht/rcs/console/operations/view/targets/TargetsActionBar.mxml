@@ -39,16 +39,18 @@
       private function onNewClick():void
       {
         var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
-        popup.mode = 'new';
+        popup.operation = section.stateManager.selectedOperation;
         popup.target = new Target(Target.defaultTarget());
+        popup.currentState = TargetsForm.CREATE;
         PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
         var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
-        popup.mode = 'edit';
+        popup.operation = section.stateManager.selectedOperation;
         popup.target = selectedObject as Target;
+        popup.currentState = TargetsForm.EDIT;
         PopUpManager.centerPopUp(popup);
       }
       

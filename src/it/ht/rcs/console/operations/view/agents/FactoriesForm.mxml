@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              creationComplete="init()" save="onSave(event)"
-                             title="{mode == 'new' ? R.get('NEW_FACTORY') : R.get('EDIT_FACTORY')}">
+                             title="{currentState == CREATE ? R.get('NEW_FACTORY') : R.get('EDIT_FACTORY')}">
 
   <fx:Script>
     <![CDATA[
@@ -16,27 +16,20 @@
       
       import locale.R;
       
-      [Bindable]
-      public var mode:String;
+      public static const CREATE:String = 'create';
+      public static const EDIT:String = 'edit';
       
-      [Bindable]
-      public var operation:Operation;
-      
-      [Bindable]
-      public var target:Target;
-      
-      [Bindable]
-      public var factory:Factory;
+      [Bindable] public var operation:Operation;
+      [Bindable] public var target:Target;
+      [Bindable] public var factory:Factory;
       
       private function init():void
       {
-        if (mode == 'edit')
+        if (currentState == EDIT) {
           for each (var t:Object in types)
-          if (t.label == factory.type)
-          {
-            type.selectedItem = t;
-            break;
-          }
+            if (t.label == factory.type)
+              type.selectedItem = t;
+        }
         
         opName.setFocus();
       }
@@ -47,7 +40,7 @@
         factory.desc = desc.text;
         factory.type = type.selectedItem.label;
         
-        if (mode == 'new')
+        if (currentState == CREATE)
           FactoryManager.instance.addFactory(factory, operation, target, function(factory:Factory):void { close(); });
         else
           close();
@@ -66,7 +59,7 @@
       <s:TextArea id="desc" width="250" text="{factory.desc}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('TYPE')}" enabled="{mode == 'new'}">
+    <s:FormItem label="{R.get('TYPE')}" enabled="{currentState == CREATE}">
       <s:DropDownList id="type" width="150" selectedIndex="0">
         <s:ArrayCollection id="types">
           <fx:Object label="DESKTOP"/>

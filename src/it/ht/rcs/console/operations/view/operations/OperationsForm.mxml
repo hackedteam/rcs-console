@@ -5,35 +5,31 @@
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
                              creationComplete="init()" save="{onSave(event)}"
-                             title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
+                             title="{currentState == CREATE ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.GroupManager;
-      import it.ht.rcs.console.accounting.model.Group;
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
       
       import locale.R;
       
-      [Bindable]
-      public var mode:String;
+      public static const CREATE:String = 'create';
+      public static const EDIT:String = 'edit';
       
-      [Bindable]
-      public var operation:Operation;
+      [Bindable] public var operation:Operation;
       
       private function init():void
       {
-        if (mode == 'edit')
+        if (currentState == EDIT) {
           for each (var s:Object in statuses)
             if (s.label == operation.status)
-            {
               status.selectedItem = s;
-              break;
-            }
+        }
         
-        opName.setFocus();
+        operationName.setFocus();
       }
       
       private function onSave(event:SaveEvent):void
@@ -41,13 +37,13 @@
         if (hasValidationErrors())
           return;
         
-        operation.name = opName.text;
+        operation.name = operationName.text;
         operation.desc = desc.text;
         operation.contact = contact.text;
         //operation.group_ids = groups.dataProvider.toArray();
-        operation.status = mode == 'new' ? 'open' : status.selectedItem.label.toLowerCase();
+        operation.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
         
-        if (mode == 'new')
+        if (currentState == CREATE)
           OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(); });
         else
           close();
@@ -77,7 +73,7 @@
   <s:Form width="100%" defaultButton="{saveButton}">
 
     <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="opName" width="250" text="{operation.name}"/>
+      <s:TextInput id="operationName" width="250" text="{operation.name}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('DESCRIPTION')}">
@@ -88,8 +84,8 @@
       <s:TextInput id="contact" width="250" text="{operation.contact}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('STATUS')}" enabled="{mode == 'edit'}">
-      <s:DropDownList id="status" width="150" selectedIndex="0">
+    <s:FormItem label="{R.get('STATUS')}" enabled="{currentState == EDIT}">
+      <s:DropDownList id="status" width="150" requireSelection="true">
         <s:ArrayCollection id="statuses">
           <fx:Object label="OPEN"/>
           <fx:Object label="CLOSED"/>

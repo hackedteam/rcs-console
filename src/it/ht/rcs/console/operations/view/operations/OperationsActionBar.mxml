@@ -6,11 +6,11 @@
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
   <s:Button label="{R.get('NEW_OPERATION')}" click="onNewClick()"
-            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+            icon="@Embed('/img/windows/user2.png')"/>
   
   <s:Button label="{R.get('EDIT_OPERATION')}" click="onEditClick()"
-            enabled="{selectedObject &amp;&amp; selectedObject.status == 'open'}"
-            icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+            
+            icon="@Embed('/img/windows/user2.png')"/>
   
   <actionbar:Separator width="40"/>
   
@@ -26,8 +26,10 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.target.model.Target;
       
       import locale.R;
       
@@ -39,18 +41,20 @@
       
       private function onNewClick():void
       {
-        var popup:OperationsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationsForm, true) as OperationsForm;
-        popup.mode = 'new';
-        popup.operation = new Operation(Operation.defaultOperation());
-        PopUpManager.centerPopUp(popup);
+//        var popup:OperationsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationsForm, true) as OperationsForm;
+//        popup.mode = 'new';
+//        popup.operation = new Operation(Operation.defaultOperation());
+//        PopUpManager.centerPopUp(popup);
+        OperationManager.instance.addItem(new Operation({name:'operation'}));
       }
       
       private function onEditClick():void
       {
-        var popup:OperationsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationsForm, true) as OperationsForm;
-        popup.mode = 'edit';
-        popup.operation = selectedObject as Operation;
-        PopUpManager.centerPopUp(popup);
+//        var popup:OperationsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, OperationsForm, true) as OperationsForm;
+//        popup.mode = 'edit';
+//        popup.operation = selectedObject as Operation;
+//        PopUpManager.centerPopUp(popup);
+        OperationManager.instance.addItem(new Target({name:'target'}));
       }
       
       private function onShow():void
@@ -66,7 +70,7 @@
       private function onKeyUp(event:KeyboardEvent):void
       {
         section.stateManager.searchField = searchInput;
-        section.stateManager._item_view.refresh();
+        section.stateManager.view.refresh();
       }
     ]]>
   </fx:Script>

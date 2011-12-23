@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      
+      import mx.collections.ArrayList;
+      import mx.collections.IList;
+      import mx.controls.Alert;
+      import mx.events.ItemClickEvent;
+      
+      import spark.events.IndexChangeEvent;
+      
+      private function groupLabelFunction(_id:*):String
+      {
+        var group:Group = GroupManager.instance.getItem(_id as String);
+        return group.name;
+      }
+      
+      private function addGroup(event:Event):void {
+        dataProvider.addItem("+++");
+//        if (groups.dataProvider.getItemIndex(event.currentTarget.selectedItem._id) == -1)
+//          groups.dataProvider.addItem(event.currentTarget.selectedItem._id);
+      }
+      
+      private function removeGroup(event:MouseEvent):void
+      {
+        var idx:int = groups.dataProvider.getItemIndex(groups.selectedItem);
+        groups.dataProvider.removeItemAt(idx);
+      }
+      
+      [Bindable]
+      public var dataProvider:IList;
+      
+      private function init():void
+      {
+        if (dataProvider == null)
+          dataProvider = new ArrayList();
+        
+        var list:List = new List();
+        list.dataProvider = GroupManager.instance.getView(null, listFilterFunction);
+        list.labelField = 'name';
+        list.addEventListener(IndexChangeEvent.CHANGE, addGroup);
+        addButton.popUp = list;
+      }
+      
+      private function listFilterFunction(item:Object):Boolean
+      {
+        return groups.dataProvider.getItemIndex(item._id) == -1;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:List id="groups" width="100%" height="120" dataProvider="{dataProvider}"/>
+  
+  <mx:PopUpButton id="addButton" right="0" bottom="0" width="50" height="20" label="+"
+                  openAlways="true"/>
+  
+  <s:Button right="50" bottom="0" width="30" height="20" label="-" click="removeGroup(event)"
+            enabled="{groups.selectedItem != null}"/>
+  
+  
+</s:Group>

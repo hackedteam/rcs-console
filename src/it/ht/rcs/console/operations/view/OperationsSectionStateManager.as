@@ -1,10 +1,7 @@
 package it.ht.rcs.console.operations.view
 {
-  import it.ht.rcs.console.agent.controller.AgentController;
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
-  import it.ht.rcs.console.events.DataLoadedEvent;
-  import it.ht.rcs.console.factory.controller.FactoryManager;
   import it.ht.rcs.console.factory.model.Config;
   import it.ht.rcs.console.factory.model.Factory;
   import it.ht.rcs.console.operation.controller.OperationManager;
@@ -14,7 +11,6 @@ package it.ht.rcs.console.operations.view
   
   import locale.R;
   
-  import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   import mx.controls.Alert;
   
@@ -26,22 +22,13 @@ package it.ht.rcs.console.operations.view
   {
     
     [Bindable]
-    public var _item_view:ListCollectionView;
+    public var view:ListCollectionView;
     
-    [Bindable]
-    public var selectedOperation:Operation;
-    
-    [Bindable]
-    public var selectedTarget:Target;
-    
-    [Bindable]
-    public var selectedAgent:Agent;
-    
-    [Bindable]
-    public var selectedFactory:Factory;
-    
-    [Bindable]
-    public var selectedConfig:Config;
+    [Bindable] public var selectedOperation:Operation;
+    [Bindable] public var selectedTarget:Target;
+    [Bindable] public var selectedAgent:Agent;
+    [Bindable] public var selectedFactory:Factory;
+    [Bindable] public var selectedConfig:Config;
     
     private var section:OperationsSection;
     
@@ -60,6 +47,7 @@ package it.ht.rcs.console.operations.view
     
     public function manageItemSelection(item:*):void
     {
+      
       if (item is Operation)
       {
         selectedOperation = item;
@@ -72,27 +60,27 @@ package it.ht.rcs.console.operations.view
         setState('singleTarget');
       }
       
-      else if (item is Agent)
+      else if (item is Agent /* && item.kind == 'agent' */)
       {
         selectedAgent = item;
         setState('singleAgent');
       }
       
-      else if (item is Factory)
+      else if (item is Agent /* && item.kind == 'factory' */)
       {
-        selectedFactory = item;
-        section.currentState = 'configuration';
-      }
-      
-      else if (item is Object && item.customType == 'config')
-      {
-        section.currentState = 'singleAgentConfig';
+        selectedAgent = item;
+        setState('factoryConfig');
       }
       
       else if (item is Config)
       {
         selectedConfig = item;
-        setState('configuration');
+        setState('agentConfig');
+      }
+      
+      else if (item is Object && item.customType == 'config')
+      {
+        section.currentState = 'configList';
       }
       
       else if (item is Object && item.customType == 'evidences')
@@ -120,79 +108,77 @@ package it.ht.rcs.console.operations.view
       
       switch (currentState) {
         case 'allOperations':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null; selectedFactory = null;
+          selectedOperation = null; selectedTarget = null; selectedAgent = null;
           section.currentState = 'allOperations';
           CurrentManager = OperationManager;
           currentFilter = searchFilterFunction;
-          OperationManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          OperationManager.instance.start();
-          break;
-        case 'singleOperation':
-          selectedTarget = null; selectedAgent = null; selectedFactory =null;
-          section.currentState = 'singleOperation';
-          CurrentManager = TargetManager;
-          currentFilter = singleOperationFilterFunction;
-          TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          TargetManager.instance.start();
+          update();
           break;
         case 'allTargets':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null; selectedFactory = null;
+          selectedOperation = null; selectedTarget = null; selectedAgent = null;
           section.currentState = 'allTargets';
           CurrentManager = TargetManager;
           currentFilter = searchFilterFunction;
-          TargetManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          TargetManager.instance.start();
-          break;
-        case 'singleTarget':
-          selectedOperation = OperationManager.instance.getItem(selectedTarget.path[0]);
-          selectedAgent = null; selectedFactory = null;
-          section.currentState = 'singleTarget';
-          CurrentManager = AgentController;
-          currentFilter = singleTargetFilterFunction;
-          AgentController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          AgentController.instance.start();
+          update();
           break;
         case 'allAgents':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null; selectedFactory = null;
+          selectedOperation = null; selectedTarget = null; selectedAgent = null;
           section.currentState = 'allAgents';
           CurrentManager = AgentManager;
           currentFilter = searchFilterFunction;
-          AgentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-          AgentManager.instance.start();
+          update();
+          break;
+        
+        case 'singleOperation':
+          selectedTarget = null; selectedAgent = null;
+          section.currentState = 'singleOperation';
+          CurrentManager = TargetManager;
+          currentFilter = singleOperationFilterFunction;
+          update();
+          break;
+        case 'singleTarget':
+          selectedOperation = OperationManager.instance.getItem(selectedTarget.path[0]);
+          selectedAgent = null;
+          section.currentState = 'singleTarget';
+          CurrentManager = AgentManager;
+          currentFilter = singleTargetFilterFunction;
+          update();
           break;
         case 'singleAgent':
           selectedOperation = OperationManager.instance.getItem(selectedAgent.path[0]);
           selectedTarget = TargetManager.instance.getItem(selectedAgent.path[1]);
-          selectedFactory = null;
           section.currentState = 'singleAgent';
           CurrentManager = null;
           currentFilter = searchFilterFunction;
-          onDataLoaded(null);
+          update();
           break;
         default:
           break;
       }
+      
     }
     
-    private function onDataLoaded(event:DataLoadedEvent):void
+    private function update():void
     {
-      stopManagers();
+      //stopManagers();
       
-      var originalData:ListCollectionView = CurrentManager ? CurrentManager.instance.getView() : null;
-      
-      var currentData:ListCollectionView = new ListCollectionView(new ArrayList());
-      if (originalData)
-        currentData.addAll(originalData);
-      
-      currentData.sort = customTypeSort;
-      currentData.filterFunction = currentFilter;
-      
-      if (currentState == 'singleTarget' || currentState == 'singleAgent')
-        addCustomTypes(currentData);
-
-      currentData.refresh();
-      
-      _item_view = currentData;
+//      var originalData:ListCollectionView = CurrentManager ? CurrentManager.instance.getView() : null;
+//      
+//      var currentData:ListCollectionView = new ListCollectionView(new ArrayList());
+//      if (originalData)
+//        currentData.addAll(originalData);
+//      
+//      currentData.sort = customTypeSort;
+//      currentData.filterFunction = currentFilter;
+//      
+//      if (currentState == 'singleTarget' || currentState == 'singleAgent')
+//        addCustomTypes(currentData);
+//
+//      currentData.refresh();
+//      
+//      _item_view = currentData;
+      view = CurrentManager.instance.getView(customTypeSort, currentFilter);
+      addCustomTypes(view);
     }
     
     private function addCustomTypes(list:ListCollectionView):void
@@ -207,24 +193,6 @@ package it.ht.rcs.console.operations.view
         list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',   order: 4}, 0);
         list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download', order: 5}, 0);
       }
-    }
-    
-    public function stopManagers():void
-    {
-      OperationManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      OperationManager.instance.stop();
-      
-      TargetManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      TargetManager.instance.stop();
-      
-      AgentController.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      AgentController.instance.stop();
-      
-      AgentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      AgentManager.instance.stop();
-      
-      FactoryManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      FactoryManager.instance.stop();
     }
     
     private var CurrentManager:Class;
@@ -258,6 +226,7 @@ package it.ht.rcs.console.operations.view
       return aIsFactory ? -1 : 1;
     }
     
+    // This reference is injected by the action bars, when they are displayed
     public var searchField:TextInput;
     private function searchFilterFunction(item:Object):Boolean
     {
@@ -285,7 +254,7 @@ package it.ht.rcs.console.operations.view
     {
       if (item.hasOwnProperty('customType'))
         return searchFilterFunction(item);
-      if (selectedTarget && (item is Agent || item is Factory) && item.path[1] == selectedTarget._id)
+      if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
         return searchFilterFunction(item);
       else return false;
     }

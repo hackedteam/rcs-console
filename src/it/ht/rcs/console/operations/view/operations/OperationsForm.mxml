@@ -3,21 +3,19 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
-                             creationComplete="init()" save="onSave(event)"
+                             xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
+                             creationComplete="init()" save="{onSave(event)}"
                              title="{mode == 'new' ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.model.Group;
-      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
       
       import locale.R;
-      
-      import spark.events.IndexChangeEvent;
       
       [Bindable]
       public var mode:String;
@@ -27,9 +25,6 @@
       
       private function init():void
       {
-        GroupManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onGroupDataLoaded);
-        GroupManager.instance.start();
-        
         if (mode == 'edit')
           for each (var s:Object in statuses)
             if (s.label == operation.status)
@@ -41,39 +36,6 @@
         opName.setFocus();
       }
       
-      private function onGroupDataLoaded(event:DataLoadedEvent):void
-      {
-        groups.dataProvider = operation.group_ids;
-        initGroupMenu();
-      }
-      
-      private function initGroupMenu():void
-      {
-        var list:List;
-        list = new List();
-        list.dataProvider = GroupManager.instance.getView();
-        list.labelField = 'name';
-        list.addEventListener(IndexChangeEvent.CHANGE, addGroup);
-        addGroupButton.popUp = list;
-      }
-      
-      private function addGroup(event:IndexChangeEvent):void {
-        if (groups.dataProvider.getItemIndex(event.currentTarget.selectedItem._id) == -1)
-          groups.dataProvider.addItem(event.currentTarget.selectedItem._id);
-      }
-      
-      private function removeGroup(event:MouseEvent):void
-      {
-        var idx:int = groups.dataProvider.getItemIndex(groups.selectedItem);
-        groups.dataProvider.removeItemAt(idx);
-      }
-      
-      private function groupLabelFunction(o:Object):String
-      {
-        var group:Group = GroupManager.instance.getItem(o as String);
-        return group.name;
-      }
-      
       private function onSave(event:SaveEvent):void
       {
         if (hasValidationErrors())
@@ -82,7 +44,7 @@
         operation.name = opName.text;
         operation.desc = desc.text;
         operation.contact = contact.text;
-        operation.group_ids = groups.dataProvider.toArray();
+        //operation.group_ids = groups.dataProvider.toArray();
         operation.status = mode == 'new' ? 'open' : status.selectedItem.label.toLowerCase();
         
         if (mode == 'new')
@@ -95,18 +57,18 @@
       {
         var hasError:Boolean = false;
         
-        groupsC.errorString = '';
-        if (groups.dataProvider.length == 0) {
-          groupsC.errorString = 'Please select at least a group';
-          hasError = true;
-        }
+//        groupsC.errorString = '';
+//        if (groups.dataProvider.length == 0) {
+//          groupsC.errorString = 'Please select at least a group';
+//          hasError = true;
+//        }
         
         return hasError;
       }
       
       override protected function close(event:Event=null):void
       {
-        GroupManager.instance.stop();
+        GroupManager.instance.unlistenRefresh();
         super.close(event);
       }
     ]]>
@@ -136,13 +98,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('GROUPS')}">
-      <s:BorderContainer id="groupsC" backgroundColor="#EAEAEA" borderVisible="false">
-        <s:List id="groups" bottom="20" width="150" height="120" labelFunction="groupLabelFunction"/>
-        <s:Button right="51" bottom="0" width="30" height="20" label="-" click="removeGroup(event)"
-                  enabled="{groups.selectedItem != null}" styleName="AddRemove"/>
-        <mx:PopUpButton id="addGroupButton" right="1" bottom="0" width="50" height="20" label="+"
-                        openAlways="true" styleName="AddRemove"/>
-      </s:BorderContainer>
+      <groups:GroupSelector id="groups" width="250"/>
     </s:FormItem>
     
   </s:Form>

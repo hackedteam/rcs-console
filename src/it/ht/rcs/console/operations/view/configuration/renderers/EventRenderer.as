@@ -66,7 +66,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
 
       if (startPin == null) {
-        startPin = new Pin(graph);
+        startPin = new Pin(graph, 0, 1);
         startPin.x = 0;
         startPin.y = height;
         startPin.toolTip = 'Start';
@@ -74,7 +74,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
       
       if (repeatPin == null) {
-        repeatPin = new Pin(graph);
+        repeatPin = new Pin(graph, 0, 1);
         repeatPin.x = width/2;
         repeatPin.y = height;
         repeatPin.toolTip = 'Repeat';
@@ -82,7 +82,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
       
       if (endPin == null) {
-        endPin = new Pin(graph);
+        endPin = new Pin(graph, 0, 1);
         endPin.x = width;
         endPin.y = height;
         endPin.toolTip = 'End';

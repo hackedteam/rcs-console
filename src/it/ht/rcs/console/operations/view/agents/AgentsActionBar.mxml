@@ -5,43 +5,37 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:Group visible="{section.currentState == 'singleTarget'}"
-           includeInLayout="{section.currentState == 'singleTarget'}">
+  <s:HGroup visible="{section.currentState == 'singleTarget'}" gap="0"
+            includeInLayout="{section.currentState == 'singleTarget'}" verticalAlign="middle">
   
-    <s:layout>
-      <s:HorizontalLayout gap="0" horizontalAlign="center" verticalAlign="middle"/>
-    </s:layout>
-    
     <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
-              icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+              icon="@Embed('/img/windows/user2.png')"/>
     
     <s:Button label="{R.get('EDIT_FACTORY')}" click="onEditClick()"
               enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
-              icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+              icon="@Embed('/img/windows/user2.png')"/>
     
     <s:Button label="{R.get('DELETE')}" click="onEditClick()"
               enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
-              icon="@Embed('/img/windows/user2.png')" iconPlacement="top"/>
+              icon="@Embed('/img/windows/user2.png')"/>
     
     <actionbar:Separator width="40"/>
   
-  </s:Group>
+  </s:HGroup>
   
-  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  <s:HGroup height="100%" verticalAlign="middle">
+    <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  </s:HGroup>
   
   <s:Spacer width="100%"/>
-  <!--
-  <view:Shortcuts section="{section}"/>
-  -->
-  <s:TextInput id="searchInput" addedToStage="onShow()" keyUp="onKeyUp(event)"
-               removedFromStage="onRemovedFromStage()"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)" removedFromStage="onRemovedFromStage()"/>
   
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.factory.model.Factory;
       import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.operations.view.factories.FactoriesForm;
       
       import locale.R;
       
@@ -53,11 +47,10 @@
       
       private function onNewClick():void
       {
-        section.stateManager._item_view.refresh();
-//        var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
-//        popup.mode = 'new';
-//        popup.factory = new Factory(Factory.defaultFactory());
-//        PopUpManager.centerPopUp(popup);
+        var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
+        popup.mode = 'new';
+        popup.factory = new Factory(Factory.defaultFactory());
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
@@ -68,11 +61,6 @@
         PopUpManager.centerPopUp(popup);
       }
       
-      private function onShow():void
-      {
-        section.stateManager.searchField = searchInput;
-      }
-      
       private function onRemovedFromStage():void
       {
         searchInput.text = '';
@@ -80,7 +68,8 @@
       
       private function onKeyUp(event:KeyboardEvent):void
       {
-        section.stateManager._item_view.refresh();
+        section.stateManager.searchField = searchInput;
+        section.stateManager.view.refresh();
       }
     ]]>
   </fx:Script>

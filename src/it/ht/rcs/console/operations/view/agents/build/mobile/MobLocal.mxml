@@ -11,8 +11,6 @@
       
       import locale.R;
       
-      import mx.core.FlexGlobals;
-      import mx.core.IFlexDisplayObject;
       import mx.core.UIComponent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
@@ -39,6 +37,7 @@
         
         var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_local.zip'
         
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
         DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
       }
       
@@ -54,6 +53,7 @@
       
     ]]>
   </fx:Script>
+  
   <s:states>
     <s:State name='all'/>
     <s:State name='blackberry'/>

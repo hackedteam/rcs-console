@@ -96,7 +96,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
       
       if (startPin == null) {
-        startPin = new Pin(graph);
+        startPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        BindingUtils.bindProperty(startPin, 'visible', graph, {name: 'mode', getter: isStartVisible });
         startPin.x = width;
         startPin.y = 0;
         startPin.toolTip = 'Start';
@@ -104,13 +105,26 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
       
       if (stopPin == null) {
-        stopPin = new Pin(graph);
+        stopPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        BindingUtils.bindProperty(stopPin, 'visible', graph, {name: 'mode', getter: isStopVisible });
         stopPin.x = width;
         stopPin.y = height;
         stopPin.toolTip = 'Stop';
         addElement(stopPin);
       }
 		}
+    
+    private function isStartVisible(graph:ConfigurationGraph):Boolean {
+      return isVisible(graph, startPin);
+    }
+    private function isStopVisible(graph:ConfigurationGraph):Boolean {
+      return isVisible(graph, stopPin);
+    }
+    private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
+      if (graph.mode == ConfigurationGraph.CONNECTING)
+        return graph.currentConnection.from == pin ? true : false;
+      else return true;
+    }
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
 		{
@@ -123,7 +137,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     public function getLinkPoint():Point
     {
-      return new Point(x + width/2, y + height/2);
+      return new Point(x + width/2, y);
     }
 		
 	}

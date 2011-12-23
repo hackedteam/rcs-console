@@ -32,7 +32,7 @@
         DashboardController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
         /* the controller needs the current user */
         DashboardController.instance.user = Console.currentSession.user;
-        DashboardController.instance.start();
+        DashboardController.instance.listenRefresh();
         if (searchField)
           searchField.selectedItem = null;
       }
@@ -51,7 +51,7 @@
       private function removed():void
       {
         DashboardController.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
-        DashboardController.instance.stop();
+        DashboardController.instance.unlistenRefresh();
         _dashboard_items = null;
       }
       

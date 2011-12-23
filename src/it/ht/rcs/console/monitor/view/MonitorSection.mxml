@@ -21,9 +21,9 @@
       
       private function added():void
       {
-        LicenseManager.instance.start();
+        LicenseManager.instance.listenRefresh();
         /* start the auto refresh when the section is open */
-        MonitorManager.instance.start();
+        MonitorManager.instance.listenRefresh();
         
         /* default sorting: status */
         var sort:Sort = new Sort();
@@ -33,9 +33,9 @@
       
       private function removed():void
       {
-        LicenseManager.instance.stop();
+        LicenseManager.instance.unlistenRefresh();
         /* stop the auto refresh when going away */
-        MonitorManager.instance.stop();
+        MonitorManager.instance.unlistenRefresh();
       }
       
       private function showAlertingGroup():void

@@ -18,29 +18,29 @@
     <s:fill><s:SolidColor color="#dddddd"/></s:fill>
   </s:Rect>
   
-  <s:HGroup width="100%" gap="2" verticalAlign="middle" paddingTop="3" paddingBottom="3">
+  <s:HGroup width="100%" gap="2" paddingBottom="3" paddingTop="3" verticalAlign="middle">
     
-    <mx:LinkButton label="{R.get('ALL_OPERATIONS')}"
-                   visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
-                   includeInLayout="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
-                   click="section.stateManager.setState('allOperations')" color="#333333"/>
     
-    <mx:LinkButton label="{R.get('ALL_TARGETS')}"
-                   visible="{section.currentState == 'allTargets'}"
-                   includeInLayout="{section.currentState == 'allTargets'}"
-                   color="#333333"/>
+    <mx:LinkButton visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
+                   label="{R.get('ALL_OPERATIONS')}"
+                   click="section.stateManager.setState('allOperations')"
+                   includeInLayout="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"/>
     
-    <mx:LinkButton label="{R.get('ALL_AGENTS')}"
-                   visible="{section.currentState == 'allAgents'}"
-                   includeInLayout="{section.currentState == 'allAgents'}"
-                   color="#333333"/>
+    <mx:LinkButton visible="{section.currentState == 'allTargets'}"
+                   label="{R.get('ALL_TARGETS')}"
+                   includeInLayout="{section.currentState == 'allTargets'}"/>
+    
+    <mx:LinkButton visible="{section.currentState == 'allAgents'}"
+                   label="{R.get('ALL_AGENTS')}"
+                   includeInLayout="{section.currentState == 'allAgents'}"/>
+    
     
     <s:Label visible="{section.stateManager.selectedOperation != null}"
              includeInLayout="{section.stateManager.selectedOperation != null}" paddingTop="4"
              text="&gt;"/>
     <mx:LinkButton visible="{section.stateManager.selectedOperation != null}"
                    label="{section.stateManager.selectedOperation.name}"
-                   click="section.stateManager.setState('singleOperation')" color="#333333"
+                   click="section.stateManager.setState('singleOperation')"
                    includeInLayout="{section.stateManager.selectedOperation != null}"/>
     
     
@@ -49,7 +49,7 @@
              text="&gt;"/>
     <mx:LinkButton visible="{section.stateManager.selectedTarget != null}"
                    label="{section.stateManager.selectedTarget.name}"
-                   click="section.stateManager.setState('singleTarget')" color="#333333"
+                   click="section.stateManager.setState('singleTarget')"
                    includeInLayout="{section.stateManager.selectedTarget != null}"/>
     
     
@@ -58,37 +58,34 @@
              text="&gt;"/>
     <mx:LinkButton visible="{section.stateManager.selectedAgent != null}"
                    label="{section.stateManager.selectedAgent.name}"
-                   click="section.stateManager.setState('singleAgent')" color="#333333"
+                   click="section.stateManager.setState('singleAgent')"
                    includeInLayout="{section.stateManager.selectedAgent != null}"/>
     
     <s:Label visible="{section.stateManager.selectedFactory != null}"
              includeInLayout="{section.stateManager.selectedFactory != null}" paddingTop="4"
              text="&gt;"/>
     <mx:LinkButton visible="{section.stateManager.selectedFactory != null}"
-                   label="{section.stateManager.selectedFactory.name}" color="#333333"
+                   label="{section.stateManager.selectedFactory.name}"
                    includeInLayout="{section.stateManager.selectedFactory != null}"/>
     
     <s:Label visible="{section.currentState == 'evidences'}"
              includeInLayout="{section.currentState == 'evidences'}" paddingTop="4" text="&gt;"/>
     <mx:LinkButton visible="{section.currentState == 'evidences'}" label="{R.get('EVIDENCES')}"
-                   color="#333333" includeInLayout="{section.currentState == 'evidences'}"/>
+                   includeInLayout="{section.currentState == 'evidences'}"/>
     
     <s:Label visible="{section.currentState == 'singleAgentConfig'}"
              includeInLayout="{section.currentState == 'singleAgentConfig'}" paddingTop="4"
              text="&gt;"/>
     <mx:LinkButton visible="{section.currentState == 'singleAgentConfig'}"
-                   label="{R.get('CONFIGURATIONS')}" color="#333333"
+                   label="{R.get('CONFIGURATIONS')}"
                    includeInLayout="{section.currentState == 'singleAgentConfig'}"/>
+    
     
     <s:Spacer width="100%"/>
     
+    
     <view:Shortcuts section="{section}"/>
-    <!--
-    <s:Label visible="{section.body.currentState.indexOf('config') &gt; -1}" paddingTop="4" text="&gt;"/>
-    <mx:LinkButton visible="{section.body.currentState.indexOf('config') &gt; -1}"
-                   label="{R.get('CONFIG')}" click="section.body.currentState = 'configList'"
-                   color="#333333"/>
-    -->
+    
     
   </s:HGroup>
   

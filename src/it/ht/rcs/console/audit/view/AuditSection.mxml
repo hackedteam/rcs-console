@@ -14,7 +14,7 @@
       private function init():void
       {
         created = true;
-        AuditManager.instance.start();
+        AuditManager.instance.listenRefresh();
       }
       
       // Why this "created" check?
@@ -26,12 +26,12 @@
       private function onAddedToStage():void
       {
         if (created)
-          AuditManager.instance.start();
+          AuditManager.instance.listenRefresh();
       }
       
       private function onRemovedFromStage():void
       {
-        AuditManager.instance.stop();
+        AuditManager.instance.unlistenRefresh();
       }
     ]]>
   </fx:Script>

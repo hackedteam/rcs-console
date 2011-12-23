@@ -98,17 +98,17 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       graphics.lineTo(end.x, end.y);
       
       // Curved Line
-      // var offset:Number = startX > endX ? 50 : -50;
-      // var controlX:Number = startX - (startX-endX)/2 + offset;
-      // var controlY:Number = endY - (endY-startY)/2;
-      // graphics.curveTo(controlX, controlY, endX, endY);
+//      var offset:Number = start.x > end.x ? 50 : -50;
+//      var controlX:Number = start.x - (start.x - end.x)/2 + offset;
+//      var controlY:Number = end.y - (end.y - start.y)/2;
+//      graphics.curveTo(controlX, controlY, end.x, end.y);
       
       // A thick line to ease selection
       graphics.lineStyle(20, 0x000000, 0, true);
       graphics.moveTo(start.x, start.y);
       
       graphics.lineTo(end.x, end.y);
-      // graphics.curveTo(controlX, controlY, endX, endY);
+      //graphics.curveTo(controlX, controlY, end.x, end.y);
     }
     
   }

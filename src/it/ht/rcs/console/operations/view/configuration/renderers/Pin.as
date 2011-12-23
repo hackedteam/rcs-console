@@ -23,12 +23,15 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     public function outBoundConnections():ArrayCollection { return outBound; }
     
     private var graph:ConfigurationGraph;
+    private var maxIn:Number, maxOut:Number;
     
-    public function Pin(graph:ConfigurationGraph)
+    public function Pin(graph:ConfigurationGraph, maxIn:Number, maxOut:Number)
     {
       super();
       
       this.graph = graph;
+      this.maxIn = maxIn;
+      this.maxOut = maxOut;
       
       addEventListener(MouseEvent.MOUSE_DOWN, onDown);
       addEventListener(MouseEvent.MOUSE_OVER, onOver);
@@ -37,7 +40,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onDown(me:MouseEvent):void {
       me.stopPropagation();
-      if (outBound.length < 1) {
+      if (outBound.length < maxOut) {
         var e:ConnectionEvent = new ConnectionEvent(ConnectionEvent.START_CONNECTION);
         e.from = this;
         dispatchEvent(e);

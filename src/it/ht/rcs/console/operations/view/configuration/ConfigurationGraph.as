@@ -31,8 +31,9 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
-    private var _mode:String = NORMAL;
-    public function get mode():String { return _mode; }
+    [Bindable]
+    public var mode:String = NORMAL;
+    //public function get mode():String { return _mode; }
     
     // A reference to the currently selected connection
     public var selectedConnection:Connection;
@@ -82,7 +83,7 @@ package it.ht.rcs.console.operations.view.configuration
     private function onMouseDown(me:MouseEvent):void
     {
       trace('down on graph');
-      _mode = DRAGGING;
+      mode = DRAGGING;
       dragged = false;
       
       dragX = me.stageX;
@@ -111,7 +112,7 @@ package it.ht.rcs.console.operations.view.configuration
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
       Mouse.cursor = MouseCursor.AUTO;
       
-      _mode = NORMAL;
+      mode = NORMAL;
       
       // No dragging. We can simulate a click
       if (!dragged)
@@ -131,7 +132,6 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onStartConnection(ce:ConnectionEvent):void
     {
-      _mode = CONNECTING;
       
       deselectConnection();
       
@@ -145,6 +145,7 @@ package it.ht.rcs.console.operations.view.configuration
       
       addEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
       addEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
+      mode = CONNECTING;
     }
     
     private function onDrawingMove(me:MouseEvent):void
@@ -169,7 +170,7 @@ package it.ht.rcs.console.operations.view.configuration
       currentConnection = null;
       currentTarget = null;
       
-      _mode = ConfigurationGraph.NORMAL;
+      mode = ConfigurationGraph.NORMAL;
     }
     
     

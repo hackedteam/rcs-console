@@ -2,22 +2,22 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
                xmlns:s="library://ns.adobe.com/flex/spark"
                xmlns:mx="library://ns.adobe.com/flex/mx"
-               width="600" height="450" close="close(event)" title="Build an Agent from a Factory" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
+               xmlns:build="it.ht.rcs.console.operations.view.agents.build.*"
+               width="600" height="450" close="close(event)" title="Build an Agent from a Factory">
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.factory.model.Factory;
+      import it.ht.rcs.console.agent.model.Agent;
       
       import mx.collections.ICollectionView;
       import mx.collections.XMLListCollection;
       import mx.events.CloseEvent;
-      import mx.events.FlexEvent;
       import mx.events.ListEvent;
       import mx.managers.PopUpManager;
       
       import spark.events.TextOperationEvent;
       
       [Bindable]
-      public var factory:Factory;
+      public var factory:Agent;
       
       [Bindable]
       private var treeData_desktop:XMLList =
@@ -124,14 +124,16 @@
     ]]>
   </fx:Script>
   
-  <s:TextInput id="searchTree" left="10" top="10" width="200" change="searchTree_changeHandler(event)" skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
+  <s:TextInput id="searchTree" left="10" top="10" width="200"
+               change="searchTree_changeHandler(event)"
+               skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
   
-  <mx:Tree id="vectorTree" left="10" top="35" bottom="10" width="200" 
-           dataProvider="{factory.type == 'desktop' ? treeData_desktop : treeData_mobile}"
-           dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
+  <mx:Tree id="vectorTree" left="10" top="35" bottom="10" width="200"
            change="vectorTree_changeHandler(event)"
+           dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
+           dataProvider="{factory.type == 'desktop' ? treeData_desktop : treeData_mobile}"
            labelField="@label"/>
   
-  <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" factory="{factory}" />
+  <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" factory="{factory}"/>
     
 </s:TitleWindow>

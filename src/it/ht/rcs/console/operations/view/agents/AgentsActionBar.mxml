@@ -12,11 +12,17 @@
               icon="@Embed('/img/windows/user2.png')"/>
     
     <s:Button label="{R.get('EDIT_FACTORY')}" click="onEditClick()"
-              enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
+              enabled="{selectedObject &amp;&amp;
+                        selectedObject is Agent &amp;&amp;
+                        selectedObject._kind == 'factory' &amp;&amp;
+                        selectedObject.status == 'open'}"
               icon="@Embed('/img/windows/user2.png')"/>
     
     <s:Button label="{R.get('DELETE')}" click="onEditClick()"
-              enabled="{selectedObject &amp;&amp; selectedObject is Factory &amp;&amp; selectedObject.status == 'open'}"
+              enabled="{selectedObject &amp;&amp;
+                        selectedObject is Agent &amp;&amp;
+                        selectedObject._kind == 'factory' &amp;&amp;
+                        selectedObject.status == 'open'}"
               icon="@Embed('/img/windows/user2.png')"/>
     
     <actionbar:Separator width="40"/>
@@ -34,7 +40,7 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.factory.model.Factory;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import locale.R;
@@ -50,7 +56,7 @@
         var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
         popup.operation = section.stateManager.selectedOperation;
         popup.target = section.stateManager.selectedTarget;
-        popup.factory = new Factory(Factory.defaultFactory());
+        popup.factory = new Agent(Agent.defaultAgent());
         popup.currentState = FactoriesForm.CREATE;
         PopUpManager.centerPopUp(popup);
       }
@@ -60,7 +66,7 @@
         var popup:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
         popup.operation = section.stateManager.selectedOperation;
         popup.target = section.stateManager.selectedTarget;
-        popup.factory = selectedObject as Factory;
+        popup.factory = selectedObject as Agent;
         popup.currentState = FactoriesForm.EDIT;
         PopUpManager.centerPopUp(popup);
       }

@@ -26,6 +26,7 @@ package it.ht.rcs.console.operations.view
     [Bindable] public var selectedOperation:Operation;
     [Bindable] public var selectedTarget:Target;
     [Bindable] public var selectedAgent:Agent;
+    [Bindable] public var selectedFactory:Agent;
     [Bindable] public var selectedConfig:Config;
     
     private var section:OperationsSection;
@@ -58,18 +59,19 @@ package it.ht.rcs.console.operations.view
         setState('singleTarget');
       }
       
-      else if (item is Agent /* && item._kind == 'agent' */)
+      else if (item is Agent && item._kind == 'agent')
       {
         selectedAgent = item;
         setState('singleAgent');
       }
       
-      else if (item is Agent /* && item._kind == 'factory' */)
+      else if (item is Agent && item._kind == 'factory')
       {
-        selectedAgent = item;
+        selectedFactory = item;
         setState('factoryConfig');
+        section.currentState = 'factoryConfig';
       }
-            
+      
       else if (item is Config)
       {
         selectedConfig = item;

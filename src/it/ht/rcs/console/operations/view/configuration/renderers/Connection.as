@@ -6,6 +6,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import flash.ui.Keyboard;
   
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.renderers.utils.GraphicsUtil;
   
   import mx.collections.ArrayCollection;
   import mx.core.UIComponent;
@@ -42,7 +43,6 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onClick(me:MouseEvent):void
     {
-      trace('click on connection');
       me.stopPropagation();
       graph.deselectConnection();
       graph.selectedConnection = this;
@@ -52,7 +52,6 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onKeyDown(ke:KeyboardEvent):void
     {
-      trace('key on connection');
       if (ke.keyCode == Keyboard.DELETE)
         deleteConnection();
     }
@@ -90,25 +89,26 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
     {
       graphics.clear();
-      graphics.lineStyle(thickness, 0x000000, 1, true);
-      
-      graphics.moveTo(start.x, start.y);
-      
-      // Straight Line
-      graphics.lineTo(end.x, end.y);
-      
-      // Curved Line
-//      var offset:Number = start.x > end.x ? 50 : -50;
-//      var controlX:Number = start.x - (start.x - end.x)/2 + offset;
-//      var controlY:Number = end.y - (end.y - start.y)/2;
-//      graphics.curveTo(controlX, controlY, end.x, end.y);
+      graphics.lineStyle(1, 0x666666, 1, true);
+
+      graphics.beginFill(0x666666);
+      GraphicsUtil.drawArrow(graphics, start, end, {shaftThickness: thickness});
+      graphics.endFill();
       
       // A thick line to ease selection
       graphics.lineStyle(20, 0x000000, 0, true);
       graphics.moveTo(start.x, start.y);
-      
       graphics.lineTo(end.x, end.y);
+      
+      // Straight Line
+      //graphics.lineTo(end.x, end.y);
+      
+      // Curved Line
+      //var offset:Number = start.x > end.x ? 50 : -50;
+      //var controlX:Number = start.x - (start.x - end.x)/2 + offset;
+      //var controlY:Number = end.y - (end.y - start.y)/2;
       //graphics.curveTo(controlX, controlY, end.x, end.y);
+      
     }
     
   }

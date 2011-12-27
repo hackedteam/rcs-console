@@ -33,8 +33,8 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
-    [Bindable] private var _mode:String = NORMAL;
-    public function get mode():String { return _mode; }
+    [Bindable] public var mode:String = NORMAL;
+    //[Bindable] public function get mode():String { return _mode; }
     
     // A reference to the currently selected connection
     public var selectedConnection:Connection;
@@ -84,7 +84,7 @@ package it.ht.rcs.console.operations.view.configuration
     // meaning we want to start dragging
     private function onMouseDown(me:MouseEvent):void
     {
-      _mode = DRAGGING;
+      mode = DRAGGING;
       dragged = false;
       
       dragX = me.stageX;
@@ -111,7 +111,7 @@ package it.ht.rcs.console.operations.view.configuration
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
       Mouse.cursor = MouseCursor.AUTO;
       
-      _mode = NORMAL;
+      mode = NORMAL;
       
       // No dragging. We can simulate a click
       if (!dragged)
@@ -144,7 +144,7 @@ package it.ht.rcs.console.operations.view.configuration
       
       addEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
       addEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
-      _mode = CONNECTING;
+      mode = CONNECTING;
     }
     
     private function onDrawingMove(me:MouseEvent):void
@@ -159,6 +159,7 @@ package it.ht.rcs.console.operations.view.configuration
       if (currentTarget != null) { // Dropping the line on a target
         currentConnection.to = currentTarget;
         currentConnection.end = currentTarget.getLinkPoint();
+        lines.push(currentConnection);
         currentConnection.invalidateDisplayList();
       } else { // Dropping the line nowhere... cancel connecting operation
         currentConnection.deleteConnection();
@@ -169,7 +170,7 @@ package it.ht.rcs.console.operations.view.configuration
       currentConnection = null;
       currentTarget = null;
       
-      _mode = ConfigurationGraph.NORMAL;
+      mode = ConfigurationGraph.NORMAL;
     }
     
     
@@ -178,6 +179,7 @@ package it.ht.rcs.console.operations.view.configuration
     private var highlightedElement:Linkable;
     public function highlightElement(element:Linkable):void
     {
+      deselectConnection();
       removeHighlight();
       
       var component:UIComponent = element as UIComponent;      

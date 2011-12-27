@@ -16,9 +16,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     private static const WIDTH:Number = 200;
     private static const HEIGHT:Number = 50;
     
-    private static const NORMAL_COLOR:Number   = 0xbbbbbb;
-    private static const OVER_COLOR:Number     = 0xaaaaaa;
-    private static const SELECTED_COLOR:Number = 0x88bb88;
+    private static const NORMAL_COLOR:Number = 0xbbbbbb;
+    private static const OVER_COLOR:Number   = 0x88bb88;
     private var backgroundColor:uint = NORMAL_COLOR;
 	  
 		public var action:Object;
@@ -39,7 +38,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 		{
 			super();
       layout = null;
-      //doubleClickEnabled = true;
+      doubleClickEnabled = true;
       width = WIDTH;
       height = HEIGHT;
       
@@ -49,6 +48,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+      addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       addEventListener(MouseEvent.CLICK, onClick);
 		}
     
@@ -59,25 +59,30 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onMouseOver(me:MouseEvent):void
     {
-      if (graph.mode == ConfigurationGraph.NORMAL) {
-        backgroundColor = OVER_COLOR;
-      } else if (graph.mode == ConfigurationGraph.CONNECTING) {
-        backgroundColor = graph.currentConnection.from == this ? NORMAL_COLOR : SELECTED_COLOR;
+      if (graph.mode == ConfigurationGraph.CONNECTING) {
+        backgroundColor = graph.currentConnection.from == this ? NORMAL_COLOR : OVER_COLOR;
         graph.currentTarget = this;
+        setStyle('backgroundColor', backgroundColor);
       }
-      setStyle('backgroundColor', backgroundColor);
     }
     
     private function onMouseOut(me:MouseEvent):void
     {
-      graph.currentTarget = null;
+      if (graph.mode == ConfigurationGraph.CONNECTING) {
+        graph.currentTarget = null;
+        backgroundColor = NORMAL_COLOR;
+        setStyle('backgroundColor', backgroundColor);
+      }
+    }
+    
+    private function onMouseUp(me:MouseEvent):void
+    {
       backgroundColor = NORMAL_COLOR;
       setStyle('backgroundColor', backgroundColor);
     }
     
     private function onClick(me:MouseEvent):void
     {
-      //Alert.show('Show editing form');
       graph.highlightElement(this);
     }
     

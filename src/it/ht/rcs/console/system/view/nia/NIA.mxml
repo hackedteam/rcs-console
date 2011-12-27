@@ -43,6 +43,7 @@
       import it.ht.rcs.console.network.controller.ProxyManager;
       import it.ht.rcs.console.network.model.Proxy;
       import it.ht.rcs.console.network.model.ProxyRule;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -50,6 +51,8 @@
       import mx.collections.ListCollectionView;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       private var _proxy_view:ListCollectionView;
@@ -57,6 +60,7 @@
       private function onAddedToStage():void
       {
         ProxyController.instance.listenRefresh();
+        ProxyController.instance.refresh();
         _proxy_view = ProxyManager.instance.getView();
       }
       
@@ -138,9 +142,17 @@
       
       protected function applyRules():void
       {
-        DB.instance.proxy.apply_rules(ipas.selectedItem._id, function (e:*):void {
-          AlertPopUp.show(R.get('RULES_APPLIED'), "", AlertPopUp.OK);
-        });
+        DownloadManager.instance.createTask("proxy", null, {proxy_id: ipas.selectedItem._id}, onSuccess, onFailure);  
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        AlertPopUp.show(R.get('RULES_APPLIED'), "", AlertPopUp.OK);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        
       }
       
     ]]>

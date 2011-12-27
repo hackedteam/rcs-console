@@ -2,7 +2,7 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="100%" height="100%">
+         width="100%" height="100%" xmlns:agents="it.ht.rcs.console.operations.view.agents.*">
 
   <fx:Script>
     <![CDATA[
@@ -16,17 +16,28 @@
       
       private function dateLabel(item:Object, column:GridColumn):String
       {
-        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+        try {
+          return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+        } catch (e:Error) {}
+        return '';
       }
       
       private function onDoubleClick(event:MouseEvent):void
       {
-        section.currentState = 'configuration';
+        section.stateManager.manageItemSelection(grid.selectedItem);
       }
     ]]>
   </fx:Script>
   
-  <s:DataGrid width="100%" height="100%" dataProvider="{section.stateManager.selectedAgent.configs}"
+  <s:layout>
+    <s:VerticalLayout gap="5"/>
+  </s:layout>
+  
+  
+  <agents:AgentsConfigListActionBar section="{section}"/>
+  
+  <s:DataGrid id="grid" width="100%" height="100%"
+              dataProvider="{section.stateManager.selectedAgent.configs}"
               doubleClick="onDoubleClick(event)" doubleClickEnabled="true">
     <s:columns>
       <s:ArrayList>

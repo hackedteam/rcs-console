@@ -24,7 +24,7 @@ package it.ht.rcs.console.main
       if (user.is_sys() || user.is_tech())                     mainSections.addItem('System');
       if (user.is_admin())                                     mainSections.addItem('Audit');
       if (user.is_admin() || user.is_sys())                    mainSections.addItem('Monitor');
-      //if (user.is_any())                                       mainSections.addItem('Playground');
+      if (user.is_any())                                       mainSections.addItem('Playground');
       
       
       // Initialize the managers

@@ -44,34 +44,38 @@
       override public function set data(value:Object):void
       {
         super.data = value;
-        if (data == null) return;
         
-        bottomLabel.text = data.name;
-        
+        bottomLabel.text = data ? data.name : '';
+        icon.source = data ? getImage() : null;
+        alpha = data && data.hasOwnProperty('status') && data.status && data.status.toLowerCase() == 'closed' ? .5 : 1;
+      }
+      
+      private function getImage():Class
+      {
         if (data is Operation)
-          icon.source = operationIcon;
+          return operationIcon;
         else if (data is Target)
-          icon.source = targetIcon;
-        else if (data._kind == 'agent')
-          icon.source = agentIcon;
-        else if (data._kind == 'factory')
-          icon.source = factoryIcon;
-        
-        // see addCustomTypes() in stateManager
+          return targetIcon;
+        else if (data is Agent && data._kind == 'agent')
+          return agentIcon;
+        else if (data is Agent && data._kind == 'factory')
+          return factoryIcon;
+          
+          // see addCustomTypes() in stateManager
         else if (data is Object && data.customType == 'evidences')
-          icon.source = evidenceIcon;
+          return evidenceIcon;
         else if (data is Object && data.customType == 'filesystem')
-          icon.source = fsIcon;
+          return fsIcon;
         else if (data is Object && data.customType == 'info')
-          icon.source = infoIcon;
-        else if (data is Object && data.customType == 'config')
-          icon.source = configIcon;
+          return infoIcon;
+        else if (data is Object && data.customType == 'configlist')
+          return configIcon;
         else if (data is Object && data.customType == 'upload')
-          icon.source = uploadIcon;
+          return uploadIcon;
         else if (data is Object && data.customType == 'download')
-          icon.source = downloadIcon;
+          return downloadIcon;
         
-        alpha = data.hasOwnProperty('status') && data.status && data.status.toLowerCase() == 'closed' ? .5 : 1;
+        return null;
       }
       
 //      protected function onTooltipCreate(event:ToolTipEvent):void

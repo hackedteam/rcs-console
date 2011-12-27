@@ -13,8 +13,10 @@ package it.ht.rcs.console.operations.view.configuration
 	import it.ht.rcs.console.utils.NativeCursor;
 	
 	import mx.collections.ArrayCollection;
+	import mx.collections.ArrayList;
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
+	import mx.utils.ArrayUtil;
 	
 	import spark.components.Group;
 	import spark.components.supportClasses.ScrollBarBase;
@@ -31,14 +33,14 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
-    [Bindable]
-    public var mode:String = NORMAL;
-    //public function get mode():String { return _mode; }
+    [Bindable] private var _mode:String = NORMAL;
+    public function get mode():String { return _mode; }
     
     // A reference to the currently selected connection
     public var selectedConnection:Connection;
     public function deselectConnection():void
     {
+      removeHighlight();
       if (selectedConnection != null) {
         selectedConnection.selected = false;
         selectedConnection = null;
@@ -82,8 +84,7 @@ package it.ht.rcs.console.operations.view.configuration
     // meaning we want to start dragging
     private function onMouseDown(me:MouseEvent):void
     {
-      trace('down on graph');
-      mode = DRAGGING;
+      _mode = DRAGGING;
       dragged = false;
       
       dragX = me.stageX;
@@ -95,7 +96,6 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDraggingMove(me:MouseEvent):void
     {
-      trace('move on graph');
       dragged = true;
       
       hScrollBar.value = hScrollBar.value + dragX - me.stageX;
@@ -107,12 +107,11 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDraggingUp(me:MouseEvent):void
     {
-      trace('up on graph');
       removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
       Mouse.cursor = MouseCursor.AUTO;
       
-      mode = NORMAL;
+      _mode = NORMAL;
       
       // No dragging. We can simulate a click
       if (!dragged)
@@ -126,7 +125,7 @@ package it.ht.rcs.console.operations.view.configuration
     // ----- CONNECTING -----
     
     // A reference to the currently dragged connection
-    public var currentConnection:Connection;
+    [Bindable] public var currentConnection:Connection;
     // A reference to the link target (this is set by sub-components)
     [Bindable] public var currentTarget:Linkable;
     
@@ -145,7 +144,7 @@ package it.ht.rcs.console.operations.view.configuration
       
       addEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
       addEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
-      mode = CONNECTING;
+      _mode = CONNECTING;
     }
     
     private function onDrawingMove(me:MouseEvent):void
@@ -170,21 +169,45 @@ package it.ht.rcs.console.operations.view.configuration
       currentConnection = null;
       currentTarget = null;
       
-      mode = ConfigurationGraph.NORMAL;
+      _mode = ConfigurationGraph.NORMAL;
     }
     
     
-    
-    
+    private static const FULL_ALPHA:Number = 1;
+    private static const FADED_ALPHA:Number = .3;
+    private var highlightedElement:Linkable;
     public function highlightElement(element:Linkable):void
     {
-      var component:UIComponent = element as UIComponent;
-      if (getElementIndex(component) == -1) return;
-      component.alpha = .5;
+      removeHighlight();
+      
+      var component:UIComponent = element as UIComponent;      
+      var list:Vector.<UIComponent> = new Vector.<UIComponent>();
+      list = list.concat(events); list = list.concat(actions); list = list.concat(lines);
+      list.splice(list.indexOf(component), 1);
+      
       var inBound:ArrayCollection = element.inBoundConnections();
       if (inBound != null)
         for each (var x:UIComponent in inBound)
-          x.alpha = .5;
+          list.splice(list.indexOf(x), 1);
+      
+      for each (x in list)  
+        x.alpha = FADED_ALPHA;
+      
+      highlightedElement = element;
+    }
+    
+    public function removeHighlight():void
+    {
+      if (highlightedElement == null) return;
+      
+      var component:UIComponent = highlightedElement as UIComponent;
+      var list:Vector.<UIComponent> = new Vector.<UIComponent>();
+      list = list.concat(events); list = list.concat(actions); list = list.concat(lines);
+      
+      for each (var x:UIComponent in list)
+        x.alpha = FULL_ALPHA;
+      
+      highlightedElement = null;
     }
     
     // ----- RENDERING -----

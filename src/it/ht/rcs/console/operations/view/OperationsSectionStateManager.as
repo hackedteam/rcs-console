@@ -10,6 +10,7 @@ package it.ht.rcs.console.operations.view
   
   import locale.R;
   
+  import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   import mx.controls.Alert;
   
@@ -68,19 +69,18 @@ package it.ht.rcs.console.operations.view
       else if (item is Agent && item._kind == 'factory')
       {
         selectedFactory = item;
-        setState('factoryConfig');
-        section.currentState = 'factoryConfig';
+        setState('config');
       }
       
       else if (item is Config)
       {
         selectedConfig = item;
-        setState('agentConfig');
+        setState('config');
       }
       
-      else if (item is Object && item.customType == 'config')
+      else if (item is Object && item.customType == 'configlist')
       {
-        section.currentState = 'configList';
+        setState('agentConfigList');
       }
       
       else if (item is Object && item.customType == 'evidences')
@@ -100,6 +100,11 @@ package it.ht.rcs.console.operations.view
       
     }
     
+    private function clearVars():void
+    {
+      selectedOperation = null; selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
+    }
+    
     private var currentState:String;
     public function setState(state:String):void
     {
@@ -108,21 +113,21 @@ package it.ht.rcs.console.operations.view
       
       switch (currentState) {
         case 'allOperations':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null;
+          clearVars();
           section.currentState = 'allOperations';
           CurrentManager = OperationManager;
           currentFilter = searchFilterFunction;
           update();
           break;
         case 'allTargets':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null;
+          clearVars();
           section.currentState = 'allTargets';
           CurrentManager = TargetManager;
           currentFilter = searchFilterFunction;
           update();
           break;
         case 'allAgents':
-          selectedOperation = null; selectedTarget = null; selectedAgent = null;
+          clearVars();
           section.currentState = 'allAgents';
           CurrentManager = AgentManager;
           currentFilter = searchFilterFunction;
@@ -130,24 +135,39 @@ package it.ht.rcs.console.operations.view
           break;
         
         case 'singleOperation':
-          selectedTarget = null; selectedAgent = null;
+          selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
           section.currentState = 'singleOperation';
           CurrentManager = TargetManager;
           currentFilter = singleOperationFilterFunction;
           update();
           break;
         case 'singleTarget':
+          selectedAgent = null; selectedFactory = null; selectedConfig = null;
           selectedOperation = OperationManager.instance.getItem(selectedTarget.path[0]);
-          selectedAgent = null;
           section.currentState = 'singleTarget';
           CurrentManager = AgentManager;
           currentFilter = singleTargetFilterFunction;
           update();
           break;
         case 'singleAgent':
+          selectedFactory = null; selectedConfig = null;
           selectedOperation = OperationManager.instance.getItem(selectedAgent.path[0]);
           selectedTarget = TargetManager.instance.getItem(selectedAgent.path[1]);
           section.currentState = 'singleAgent';
+          CurrentManager = null;
+          currentFilter = searchFilterFunction;
+          update();
+          break;
+        
+        case 'agentConfigList':
+          section.currentState = 'agentConfigList';
+          break;
+        
+        case 'config':
+          var agent:Agent = selectedAgent ? selectedAgent : selectedFactory;
+          selectedOperation = OperationManager.instance.getItem(agent.path[0]);
+          selectedTarget = TargetManager.instance.getItem(agent.path[1]);
+          section.currentState = 'config';
           CurrentManager = null;
           currentFilter = searchFilterFunction;
           update();
@@ -160,39 +180,48 @@ package it.ht.rcs.console.operations.view
     
     private function update():void
     {
-      //stopManagers();
-      
-//      var originalData:ListCollectionView = CurrentManager ? CurrentManager.instance.getView() : null;
-//      
-//      var currentData:ListCollectionView = new ListCollectionView(new ArrayList());
-//      if (originalData)
-//        currentData.addAll(originalData);
-//      
-//      currentData.sort = customTypeSort;
-//      currentData.filterFunction = currentFilter;
-//      
-//      if (currentState == 'singleTarget' || currentState == 'singleAgent')
-//        addCustomTypes(currentData);
-//
-//      currentData.refresh();
-//      
-//      _item_view = currentData;
-      view = CurrentManager.instance.getView(customTypeSort, currentFilter);
+      removeCustomTypes(view);
+      view = getView();
       addCustomTypes(view);
+    }
+    
+    private function removeCustomTypes(list:ListCollectionView):void
+    {
+      if (list != null && list.length > 0)
+      for (var i:int = 0; i < list.length; i++)
+        if (list.getItemAt(i).hasOwnProperty('customType')) {
+          list.removeItemAt(i);
+          i--;
+        }
     }
     
     private function addCustomTypes(list:ListCollectionView):void
     {
+      if (list == null) return;
       if (currentState == 'singleTarget' || currentState == 'singleAgent') {
         list.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences',  order: 0}, 0);
         list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
       }
       if (currentState == 'singleAgent') {
-        list.addItemAt({name: R.get('INFO'),     customType: 'info',     order: 2}, 0);
-        list.addItemAt({name: R.get('CONFIG'),   customType: 'config',   order: 3}, 0);
-        list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',   order: 4}, 0);
-        list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download', order: 5}, 0);
+        list.addItemAt({name: R.get('INFO'),     customType: 'info',       order: 2}, 0);
+        list.addItemAt({name: R.get('CONFIG'),   customType: 'configlist', order: 3}, 0);
+        list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',     order: 4}, 0);
+        list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download',   order: 5}, 0);
       }
+    }
+    
+    private function getView():ListCollectionView
+    {
+      var lcv:ListCollectionView;
+      if (CurrentManager != null) {
+        lcv = CurrentManager.instance.getView(customTypeSort, currentFilter);
+      } else if (currentState == 'singleAgent') {
+        lcv = new ListCollectionView(new ArrayList());
+        lcv.sort = customTypeSort;
+        lcv.filterFunction = currentFilter;
+        lcv.refresh();
+      }
+      return lcv;
     }
     
     private var CurrentManager:Class;

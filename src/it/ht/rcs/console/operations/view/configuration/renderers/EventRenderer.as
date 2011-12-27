@@ -6,7 +6,6 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
   
   import mx.binding.utils.BindingUtils;
-  import mx.collections.ArrayCollection;
   
   import spark.components.Group;
   import spark.components.Label;
@@ -24,9 +23,9 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 		
 		private var textLabel:Label;
     
-    public var inBound:ArrayCollection = new ArrayCollection();
-    public function inBoundConnections():ArrayCollection { return inBound; }
-    public function outBoundConnections():ArrayCollection { return null; }
+    public var inBound:Vector.<Connection> = new Vector.<Connection>();
+    public function inBoundConnections():Vector.<Connection> { return inBound; }
+    public function outBoundConnections():Vector.<Connection> { return null; }
     
     public var startPin:Pin;
     public var repeatPin:Pin;
@@ -48,6 +47,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+      addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       addEventListener(MouseEvent.CLICK, onClick);
 		}
     
@@ -72,6 +72,12 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         backgroundColor = NORMAL_COLOR;
         setStyle('backgroundColor', backgroundColor);
       }
+    }
+    
+    private function onMouseUp(me:MouseEvent):void
+    {
+      backgroundColor = NORMAL_COLOR;
+      setStyle('backgroundColor', backgroundColor);
     }
     
     private function onClick(me:MouseEvent):void

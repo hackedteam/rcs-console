@@ -10,13 +10,11 @@ package it.ht.rcs.console.operations.view.configuration
 	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionEvent;
 	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
+	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
-	import mx.collections.ArrayCollection;
-	import mx.collections.ArrayList;
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
-	import mx.utils.ArrayUtil;
 	
 	import spark.components.Group;
 	import spark.components.supportClasses.ScrollBarBase;
@@ -33,6 +31,8 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
+    // Public because we need to bind on it to hide Pins while drawing lines.
+    // Should be binded on getter but should also fire an event to notify changes...
     [Bindable] public var mode:String = NORMAL;
     //[Bindable] public function get mode():String { return _mode; }
     
@@ -174,43 +174,117 @@ package it.ht.rcs.console.operations.view.configuration
     }
     
     
+    
+    
+    
+    // ----- HIGHLIGHTING -----
+    
     private static const FULL_ALPHA:Number = 1;
-    private static const FADED_ALPHA:Number = .3;
-    private var highlightedElement:Linkable;
-    public function highlightElement(element:Linkable):void
+    private static const FADED_ALPHA:Number = .2;
+    private var highlightedElement:UIComponent;
+    public function highlightElement(element:UIComponent):void
     {
-      deselectConnection();
+      if (!(element is Connection)) deselectConnection();
       removeHighlight();
       
-      var component:UIComponent = element as UIComponent;      
-      var list:Vector.<UIComponent> = new Vector.<UIComponent>();
-      list = list.concat(events); list = list.concat(actions); list = list.concat(lines);
-      list.splice(list.indexOf(component), 1);
+      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
+      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
       
-      var inBound:ArrayCollection = element.inBoundConnections();
-      if (inBound != null)
-        for each (var x:UIComponent in inBound)
-          list.splice(list.indexOf(x), 1);
+      var toExclude:Vector.<UIComponent> = new Vector.<UIComponent>();
+      toExclude.push(element);
       
-      for each (x in list)  
-        x.alpha = FADED_ALPHA;
+      if (element is Connection) {
+        toExclude = toExclude.concat(getConnectionBounds(element as Connection));
+      } else {
+        toExclude = toExclude.concat(getOutBoundElements(element));
+        toExclude = toExclude.concat(getDestinations(toExclude));
+      }
+      
+      var component:UIComponent;
+      for each (component in toExclude)
+        all.splice(all.indexOf(component), 1);
+      
+      for each (component in all)  
+        component.alpha = FADED_ALPHA;
       
       highlightedElement = element;
+    }
+    
+    private function getOutBoundElements(element:UIComponent):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      if (element is EventRenderer) {
+        var er:EventRenderer = element as EventRenderer;
+        v = v.concat(er.startPin.outBoundConnections());
+        v = v.concat(er.repeatPin.outBoundConnections());
+        v = v.concat(er.endPin.outBoundConnections());
+      }
+      
+      if (element is ActionRenderer) {
+        var ar:ActionRenderer = element as ActionRenderer;
+        v = v.concat(ar.startPin.outBoundConnections());
+        v = v.concat(ar.stopPin.outBoundConnections());
+      }
+      
+      return v;
+    }
+    
+//    private function getInBoundElements(element:UIComponent):Vector.<UIComponent>
+//    {
+//      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+//      
+//      if (element is EventRenderer) {
+//        var er:EventRenderer = element as EventRenderer;
+//        v = v.concat(er.inBoundConnections());
+//      }
+//      
+//      if (element is ActionRenderer) {
+//        var ar:ActionRenderer = element as ActionRenderer;
+//        v = v.concat(ar.inBoundConnections());
+//      }
+//      
+//      return v;
+//    }
+    
+    private function getDestinations(elements:Vector.<UIComponent>):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      for each (var c:UIComponent in elements)
+        if (c is Connection)
+          v.push((c as Connection).to);
+      
+      return v;
+    }
+    
+    private function getConnectionBounds(connection:Connection):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      v.push((connection.from as Pin).parent);
+      v.push(connection.to);
+      
+      return v;
     }
     
     public function removeHighlight():void
     {
       if (highlightedElement == null) return;
       
-      var component:UIComponent = highlightedElement as UIComponent;
-      var list:Vector.<UIComponent> = new Vector.<UIComponent>();
-      list = list.concat(events); list = list.concat(actions); list = list.concat(lines);
+      var component:UIComponent;
+      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
+      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
       
-      for each (var x:UIComponent in list)
-        x.alpha = FULL_ALPHA;
+      for each (component in all)
+        component.alpha = FULL_ALPHA;
       
       highlightedElement = null;
     }
+    
+    
+    
+    
     
     // ----- RENDERING -----
     

@@ -6,7 +6,6 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
   
   import mx.binding.utils.BindingUtils;
-  import mx.collections.ArrayCollection;
   
   import spark.components.Group;
   import spark.components.Label;
@@ -24,10 +23,10 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 		
 		private var textLabel:Label;
     
-    private var inBound:ArrayCollection = new ArrayCollection();
-    private var outBound:ArrayCollection = new ArrayCollection();
-    public function inBoundConnections():ArrayCollection { return inBound; }
-    public function outBoundConnections():ArrayCollection { return outBound; }
+    private var inBound:Vector.<Connection> = new Vector.<Connection>();
+    private var outBound:Vector.<Connection> = new Vector.<Connection>();
+    public function inBoundConnections():Vector.<Connection> { return inBound; }
+    public function outBoundConnections():Vector.<Connection> { return outBound; }
     
     public var startPin:Pin;
     public var stopPin:Pin;

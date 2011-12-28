@@ -69,6 +69,7 @@ package it.ht.rcs.console.operations.view
       else if (item is Agent && item._kind == 'factory')
       {
         selectedFactory = item;
+        selectedConfig = item.configs[0];
         setState('config');
       }
       

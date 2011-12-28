@@ -1,6 +1,5 @@
 package it.ht.rcs.console.utils.items
 {
-  
   import flash.events.Event;
   import flash.events.KeyboardEvent;
   import flash.events.MouseEvent;
@@ -108,7 +107,6 @@ package it.ht.rcs.console.utils.items
     private function filter(item:Object):Boolean
     {
       if (!isVisibleType(item._kind)) return false;
-      if (item.separator) return true;
       if (text == '') return true;
       
       if (_path.length > item.path.length) return true;

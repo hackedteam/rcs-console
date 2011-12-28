@@ -16,6 +16,8 @@
       
       import locale.R;
       
+      import mx.collections.ArrayList;
+      
       public static const CREATE:String = 'create';
       public static const EDIT:String = 'edit';
       
@@ -25,7 +27,7 @@
       {
         if (currentState == EDIT) {
           for each (var s:Object in statuses)
-            if (s.label == operation.status)
+            if (s.label.toLowerCase() == operation.status)
               status.selectedItem = s;
         }
         
@@ -40,7 +42,7 @@
         operation.name = operationName.text;
         operation.desc = desc.text;
         operation.contact = contact.text;
-        //operation.group_ids = groups.dataProvider.toArray();
+        operation.group_ids = groups.dataProvider.toArray();
         operation.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
         
         if (currentState == CREATE)
@@ -53,11 +55,11 @@
       {
         var hasError:Boolean = false;
         
-//        groupsC.errorString = '';
-//        if (groups.dataProvider.length == 0) {
-//          groupsC.errorString = 'Please select at least a group';
-//          hasError = true;
-//        }
+        groups.errorString = '';
+        if (groups.dataProvider.length == 0) {
+          groups.errorString = 'Please select at least a group';
+          hasError = true;
+        }
         
         return hasError;
       }
@@ -69,6 +71,11 @@
       }
     ]]>
   </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
   
   <s:Form width="100%" defaultButton="{saveButton}">
 
@@ -84,7 +91,7 @@
       <s:TextInput id="contact" width="250" text="{operation.contact}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('STATUS')}" enabled="{currentState == EDIT}">
+    <s:FormItem label="{R.get('STATUS')}" enabled="{currentState == EDIT &amp;&amp; operation.status == 'open'}">
       <s:DropDownList id="status" width="150" requireSelection="true">
         <s:ArrayCollection id="statuses">
           <fx:Object label="OPEN"/>
@@ -94,7 +101,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('GROUPS')}">
-      <groups:GroupSelector id="groups" width="250"/>
+      <groups:GroupSelector id="groups" width="250" dataProvider="{operation.group_ids}"/>
     </s:FormItem>
     
   </s:Form>

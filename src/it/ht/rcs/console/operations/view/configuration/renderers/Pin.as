@@ -5,22 +5,21 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
   
-  import mx.collections.ArrayCollection;
   import mx.core.UIComponent;
   
   public class Pin extends UIComponent implements Linkable
   {
     private static const RADIUS:Number = 5;
     
-    private static const NORMAL_COLOR:uint = 0x8888bb;
-    private static const OVER_COLOR:uint = 0x5555bb;
+    private static const NORMAL_COLOR:uint = 0xbbbbbb;//0x8888bb;
+    private static const OVER_COLOR:uint = 0x4444bb;
     private static const GREEN_COLOR:uint = 0x00ff00;
     private static const RED_COLOR:uint = 0xff0000;
     private var backgroundColor:uint = NORMAL_COLOR;
     
-    private var outBound:ArrayCollection = new ArrayCollection();
-    public function inBoundConnections():ArrayCollection { return null; }
-    public function outBoundConnections():ArrayCollection { return outBound; }
+    private var outBound:Vector.<Connection> = new Vector.<Connection>();
+    public function inBoundConnections():Vector.<Connection> { return null; }
+    public function outBoundConnections():Vector.<Connection> { return outBound; }
     
     private var graph:ConfigurationGraph;
     private var maxIn:Number, maxOut:Number;

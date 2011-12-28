@@ -10,9 +10,9 @@ package it.ht.rcs.console.operations.view.configuration
 	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionEvent;
 	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
+	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
-	import mx.collections.ArrayCollection;
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	
@@ -31,14 +31,16 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
-    [Bindable]
-    public var mode:String = NORMAL;
-    //public function get mode():String { return _mode; }
+    // Public because we need to bind on it to hide Pins while drawing lines.
+    // Should be binded on getter but should also fire an event to notify changes...
+    [Bindable] public var mode:String = NORMAL;
+    //[Bindable] public function get mode():String { return _mode; }
     
     // A reference to the currently selected connection
     public var selectedConnection:Connection;
     public function deselectConnection():void
     {
+      removeHighlight();
       if (selectedConnection != null) {
         selectedConnection.selected = false;
         selectedConnection = null;
@@ -82,7 +84,6 @@ package it.ht.rcs.console.operations.view.configuration
     // meaning we want to start dragging
     private function onMouseDown(me:MouseEvent):void
     {
-      trace('down on graph');
       mode = DRAGGING;
       dragged = false;
       
@@ -95,7 +96,6 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDraggingMove(me:MouseEvent):void
     {
-      trace('move on graph');
       dragged = true;
       
       hScrollBar.value = hScrollBar.value + dragX - me.stageX;
@@ -107,7 +107,6 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDraggingUp(me:MouseEvent):void
     {
-      trace('up on graph');
       removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
       Mouse.cursor = MouseCursor.AUTO;
@@ -126,7 +125,7 @@ package it.ht.rcs.console.operations.view.configuration
     // ----- CONNECTING -----
     
     // A reference to the currently dragged connection
-    public var currentConnection:Connection;
+    [Bindable] public var currentConnection:Connection;
     // A reference to the link target (this is set by sub-components)
     [Bindable] public var currentTarget:Linkable;
     
@@ -160,6 +159,7 @@ package it.ht.rcs.console.operations.view.configuration
       if (currentTarget != null) { // Dropping the line on a target
         currentConnection.to = currentTarget;
         currentConnection.end = currentTarget.getLinkPoint();
+        lines.push(currentConnection);
         currentConnection.invalidateDisplayList();
       } else { // Dropping the line nowhere... cancel connecting operation
         currentConnection.deleteConnection();
@@ -176,16 +176,115 @@ package it.ht.rcs.console.operations.view.configuration
     
     
     
-    public function highlightElement(element:Linkable):void
+    
+    // ----- HIGHLIGHTING -----
+    
+    private static const FULL_ALPHA:Number = 1;
+    private static const FADED_ALPHA:Number = .2;
+    private var highlightedElement:UIComponent;
+    public function highlightElement(element:UIComponent):void
     {
-      var component:UIComponent = element as UIComponent;
-      if (getElementIndex(component) == -1) return;
-      component.alpha = .5;
-      var inBound:ArrayCollection = element.inBoundConnections();
-      if (inBound != null)
-        for each (var x:UIComponent in inBound)
-          x.alpha = .5;
+      if (!(element is Connection)) deselectConnection();
+      removeHighlight();
+      
+      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
+      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
+      
+      var toExclude:Vector.<UIComponent> = new Vector.<UIComponent>();
+      toExclude.push(element);
+      
+      if (element is Connection) {
+        toExclude = toExclude.concat(getConnectionBounds(element as Connection));
+      } else {
+        toExclude = toExclude.concat(getOutBoundElements(element));
+        toExclude = toExclude.concat(getDestinations(toExclude));
+      }
+      
+      var component:UIComponent;
+      for each (component in toExclude)
+        all.splice(all.indexOf(component), 1);
+      
+      for each (component in all)  
+        component.alpha = FADED_ALPHA;
+      
+      highlightedElement = element;
     }
+    
+    private function getOutBoundElements(element:UIComponent):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      if (element is EventRenderer) {
+        var er:EventRenderer = element as EventRenderer;
+        v = v.concat(er.startPin.outBoundConnections());
+        v = v.concat(er.repeatPin.outBoundConnections());
+        v = v.concat(er.endPin.outBoundConnections());
+      }
+      
+      if (element is ActionRenderer) {
+        var ar:ActionRenderer = element as ActionRenderer;
+        v = v.concat(ar.startEventPin.outBoundConnections());
+        v = v.concat(ar.stopEventPin.outBoundConnections());
+      }
+      
+      return v;
+    }
+    
+//    private function getInBoundElements(element:UIComponent):Vector.<UIComponent>
+//    {
+//      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+//      
+//      if (element is EventRenderer) {
+//        var er:EventRenderer = element as EventRenderer;
+//        v = v.concat(er.inBoundConnections());
+//      }
+//      
+//      if (element is ActionRenderer) {
+//        var ar:ActionRenderer = element as ActionRenderer;
+//        v = v.concat(ar.inBoundConnections());
+//      }
+//      
+//      return v;
+//    }
+    
+    private function getDestinations(elements:Vector.<UIComponent>):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      for each (var c:UIComponent in elements)
+        if (c is Connection)
+          v.push((c as Connection).to);
+      
+      return v;
+    }
+    
+    private function getConnectionBounds(connection:Connection):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      v.push((connection.from as Pin).parent);
+      v.push(connection.to);
+      
+      return v;
+    }
+    
+    public function removeHighlight():void
+    {
+      if (highlightedElement == null) return;
+      
+      var component:UIComponent;
+      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
+      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
+      
+      for each (component in all)
+        component.alpha = FULL_ALPHA;
+      
+      highlightedElement = null;
+    }
+    
+    
+    
+    
     
     // ----- RENDERING -----
     

@@ -21,11 +21,13 @@
     
     <s:State name="allAgents"/>
     <s:State name="singleAgent"/>
-    <s:State name="agentConfig"/>
+    <s:State name="agentConfigList"/>
     
-    <s:State name="factoryConfig"/>
+    <s:State name="config"/>
     
     <s:State name="evidences"/>
+    <s:State name="fileSystem"/>
+    <s:State name="info"/>
   </main:states>
   
   
@@ -43,9 +45,9 @@
   
   <agents:AgentsView includeIn="singleTarget,allAgents,singleAgent" section="{this}"/>
   
-  <agents:AgentsConfigListView includeIn="agentConfig" section="{this}"/>
+  <agents:AgentsConfigListView includeIn="agentConfigList" section="{this}"/>
   
-  <configuration:ConfigurationView includeIn="factoryConfig" section="{this}"/>
+  <configuration:ConfigurationView includeIn="config" section="{this}"/>
   
   <evidences:EvidencesView includeIn="evidences" section="{this}"/>
   
@@ -84,6 +86,7 @@
             item = TargetManager.instance.getItem(event.item._id);
             break;
           case 'agent':
+          case 'factory':
             item = AgentManager.instance.getItem(event.item._id);
             break;
           default:

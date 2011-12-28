@@ -92,8 +92,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (textLabel == null) {
   			textLabel = new Label();
         BindingUtils.bindProperty(textLabel, 'text', event, 'desc');
-        textLabel.width = WIDTH;
-        textLabel.height = HEIGHT - 5;
+        textLabel.width = width;
+        textLabel.height = height;
         textLabel.maxDisplayedLines = 2;
   			addElement(textLabel);
       }
@@ -101,7 +101,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (startPin == null) {
         startPin = new Pin(graph, 0, 1);
         BindingUtils.bindProperty(startPin, 'visible', graph, {name: 'mode', getter: isStartVisible });
-        startPin.x = 0;
+        startPin.x = 5;
         startPin.y = height;
         startPin.toolTip = 'Start';
         addElement(startPin);
@@ -110,7 +110,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (repeatPin == null) {
         repeatPin = new Pin(graph, 0, 1);
         BindingUtils.bindProperty(repeatPin, 'visible', graph, {name: 'mode', getter: isRepeatVisible });
-        repeatPin.x = width/2;
+        repeatPin.x = width / 2;
         repeatPin.y = height;
         repeatPin.toolTip = 'Repeat';
         addElement(repeatPin);
@@ -119,7 +119,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (endPin == null) {
         endPin = new Pin(graph, 0, 1);
         BindingUtils.bindProperty(endPin, 'visible', graph, {name: 'mode', getter: isEndVisible });
-        endPin.x = width;
+        endPin.x = width - 5;
         endPin.y = height;
         endPin.toolTip = 'End';
         addElement(endPin);
@@ -140,7 +140,9 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(backgroundColor);
-      graphics.drawRoundRect(0, 0, width, height, 10, 10);
+      graphics.drawRect(0, 0, width, height);
+      //graphics.drawRoundRect(0, 0, width, height, 10, 10);
+      //graphics.drawRoundRectComplex(0, 0, width, height, 5, 5, 0, 0);
 			graphics.endFill();
 		}
     

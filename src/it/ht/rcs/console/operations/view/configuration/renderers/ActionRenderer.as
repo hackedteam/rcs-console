@@ -95,8 +95,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (textLabel == null) {
   			textLabel = new Label();
         BindingUtils.bindProperty(textLabel, 'text', action, 'desc');
-        textLabel.width = WIDTH;
-        textLabel.height = HEIGHT;
+        textLabel.width = width;
+        textLabel.height = height;
         textLabel.maxDisplayedLines = 2;
   			addElement(textLabel);
       }
@@ -104,7 +104,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (startEventPin == null) {
         startEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
         BindingUtils.bindProperty(startEventPin, 'visible', graph, {name: 'mode', getter: isStartEventVisible });
-        startEventPin.x = 0;
+        startEventPin.x = width - 45;
         startEventPin.y = 0;
         startEventPin.toolTip = 'Start events';
         addElement(startEventPin);
@@ -113,7 +113,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (stopEventPin == null) {
         stopEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
         BindingUtils.bindProperty(stopEventPin, 'visible', graph, {name: 'mode', getter: isStopEventVisible });
-        stopEventPin.x = width;
+        stopEventPin.x = width - 5;
         stopEventPin.y = 0;
         stopEventPin.toolTip = 'Stop events';
         addElement(stopEventPin);
@@ -122,7 +122,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (startModulePin == null) {
         startModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
         BindingUtils.bindProperty(startModulePin, 'visible', graph, {name: 'mode', getter: isStartModuleVisible });
-        startModulePin.x = 0;
+        startModulePin.x = width / 2 - 20;
         startModulePin.y = height;
         startModulePin.toolTip = 'Start modules';
         addElement(startModulePin);
@@ -131,7 +131,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (stopModulePin == null) {
         stopModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
         BindingUtils.bindProperty(stopModulePin, 'visible', graph, {name: 'mode', getter: isStopModuleVisible });
-        stopModulePin.x = width;
+        stopModulePin.x = width / 2 + 20;
         stopModulePin.y = height;
         stopModulePin.toolTip = 'Stop modules';
         addElement(stopModulePin);
@@ -153,7 +153,9 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
 			
 			graphics.beginFill(backgroundColor);
-      graphics.drawRoundRect(0, 0, width, height, 10, 10);
+      graphics.drawRect(0, 0, width, height);
+      //graphics.drawRoundRect(0, 0, width, height, 10, 10);
+      //graphics.drawRoundRectComplex(0, 0, width, height, 5, 5, 5, 5);
 			graphics.endFill();
 		}
     

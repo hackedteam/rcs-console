@@ -69,7 +69,6 @@ package it.ht.rcs.console.operations.view
       else if (item is Agent && item._kind == 'factory')
       {
         selectedFactory = item;
-        selectedConfig = item.configs[0];
         setState('config');
       }
       
@@ -239,9 +238,9 @@ package it.ht.rcs.console.operations.view
       if (!a &&  b) return -1;
       
       var aIsCustom:Boolean  = a.hasOwnProperty('customType');
-      var aIsFactory:Boolean = a._kind == 'factory';// is Factory;
+      var aIsFactory:Boolean = a._kind == 'factory';
       var bIsCustom:Boolean  = b.hasOwnProperty('customType');
-      var bIsFactory:Boolean = b._kind == 'factory';// is Factory;
+      var bIsFactory:Boolean = b._kind == 'factory';
 
       if (aIsCustom && bIsCustom) {
         var distance:int = a.order - b.order;

@@ -15,18 +15,22 @@
       {
         created = true;
         AuditManager.instance.listenRefresh();
+        AuditManager.instance.refresh();
       }
       
       // Why this "created" check?
-      // The callback of refresh() (called by start()) fire an event
-      // that should be received by table header to populate filters.
+      // Short version: It's needed.
+      // Long version: The callback of refresh() (called by start()) fires an event
+      // that should be received by table headers to populate filters.
       // These headers are not yet created when the callback fires for the first time.
       // So, the first time we call it via creationComplete(), subsequent calls will use
       // the standard addedToStage().
       private function onAddedToStage():void
       {
-        if (created)
+        if (created) {
           AuditManager.instance.listenRefresh();
+          AuditManager.instance.refresh();
+        }
       }
       
       private function onRemovedFromStage():void

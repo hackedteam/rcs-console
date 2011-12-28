@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:main="it.ht.rcs.console.main.*"
+         xmlns:dashboard="it.ht.rcs.console.dashboard.view.*"
          xmlns:search="it.ht.rcs.console.operations.search.*"
          xmlns:items="it.ht.rcs.console.utils.items.*"
-         width="100%" height="100%" addedToStage="added()" removedFromStage="removed()" creationComplete="init()"
-         title="DASHBOARD">
+         addedToStage="onAddedToStage()" creationComplete="init()"
+         removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.controller.Sort;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.events.DataLoadedEvent;
-      import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.items.ItemEvent;
       
+      import mx.collections.ISort;
       import mx.collections.ListCollectionView;
-      import mx.collections.Sort;
       import mx.collections.SortField;
       
       [Bindable]
@@ -24,35 +26,35 @@
       
       private function init():void
       {
-        searchField.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
+        //searchField.addEventListener(ItemEvent.ITEM_SELECTED, onSelectSearchItem);
       }
       
-      private function added():void
+      private function onAddedToStage():void
       {
         DashboardController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
-        /* the controller needs the current user */
         DashboardController.instance.user = Console.currentSession.user;
-        DashboardController.instance.listenRefresh();
-        if (searchField)
-          searchField.selectedItem = null;
+        DashboardController.instance.startAutoRefresh();
+        DashboardController.instance.refresh();
+//        if (searchField)
+//          searchField.selectedItem = null;
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        DashboardController.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
+        DashboardController.instance.stopAutoRefresh();
+        _dashboard_items = null;
       }
       
       private function onDashboardDataLoaded(event:DataLoadedEvent):void
       {
         if (_dashboard_items == null) {
-          var sort:Sort = new Sort();
+          var sort:ISort = new Sort();
           _dashboard_items = DashboardController.instance.getView();
           sort.compareFunction = compareSyncTime;
           _dashboard_items.sort = sort;
           _dashboard_items.refresh();
         }
-      }
-      
-      private function removed():void
-      {
-        DashboardController.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
-        DashboardController.instance.unlistenRefresh();
-        _dashboard_items = null;
       }
       
       private function onSelectSearchItem(event:ItemEvent):void
@@ -79,30 +81,34 @@
       
       private function sort_by_name():void
       {
-        var sort:Sort = new Sort();
-        sort.fields = [new SortField('name', true, false, false)];
-        _dashboard_items.sort = sort;
+        _dashboard_items.sort = new Sort();
         _dashboard_items.refresh();
       }
       
     ]]>
   </fx:Script>
   
-  <!-- button bar (transparent container) -->  
+  <main:layout>
+    <s:VerticalLayout gap="5" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
+  <dashboard:DashboardActionBar/>
+  
+  <!--
   <s:BorderContainer left="5" right="5" top="5" height="30" backgroundAlpha="0.0"
                      borderVisible="false">
-    <s:Button x="0" y="0" width="30" height="20" label="S"
+    <s:Button x="0" y="0" width="30" height="20" label="S" click="sort_by_time()"
               skinClass="it.ht.rcs.console.skins.SortTimeButton"
-              toolTip="{resourceManager.getString('localized_main', 'SORT_BY_TIME')}" click="sort_by_time()"/>
-    <s:Button x="40" y="0" width="30" height="20" label="S"
+              toolTip="{resourceManager.getString('localized_main', '')}"/>
+    <s:Button x="40" y="0" width="30" height="20" label="S" click="sort_by_name()"
               skinClass="it.ht.rcs.console.skins.SortNameButton"
-              toolTip="{resourceManager.getString('localized_main', 'SORT_BY_NAME')}" click="sort_by_name()"/>
-    <items:SearchField id="searchField" right="5" top="0" kinds="{['operation', 'target', 'agent']}"/>
+              toolTip="{resourceManager.getString('localized_main', '')}"/>
+    
   </s:BorderContainer>
+  -->
   
-  <!-- item list -->
-  <s:List id="items" left="5" right="5" top="30" bottom="5" click="{items.selectedIndex = -1}"
+  <s:List id="items" click="{items.selectedIndex = -1}" width="100%" height="100%"
           dataProvider="{_dashboard_items}"
           itemRenderer="it.ht.rcs.console.dashboard.view.DashboardRenderer"/>
   
-</s:Panel>
+</main:Section>

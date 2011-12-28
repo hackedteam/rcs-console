@@ -13,7 +13,12 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.rpc.events.ResultEvent;
+      
+      
       
       [Bindable]
       public var section:OperationsSection;
@@ -78,10 +83,29 @@
           '"nohide": []' +
           '}' +
         '}');
+      
+      public var config2:Object = JSON.parse(
+        '{' +
+        '"events":' +
+        '[' +
+        /*0*/     '{"event": "timer",   "start": 0, "repeat": 0,           "ts": "00:00:00", "te": "23:59:59", "delay": 60,               "enabled": true,  "desc": "timer"}' +
+        '],' +
+        '' +
+        '"actions":' +
+        '[' +
+        /*0*/     '{"desc": "Synchronize",        "subactions": [{"action": "synchronize", "stop": false, "host": "192.168.100.100", "bandwidth": 1024000, "mindelay": 0, "maxdelay": 0, "wifi": false, "cell": false}]},' +
+        /*1*/     '{"desc": "Uninstall",          "subactions": [{"action": "event", "start": 0}]}' +
+        ']' +
+        '}');
 
       private function onAddedToStage(event:Event):void
       {
-        graph.config = config;
+        AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
+      }
+      
+      private function build(event:ResultEvent):void
+      {
+        graph.config = JSON.parse(event.result.configs[0].config);
         graph.rebuildGraph();
       }
       

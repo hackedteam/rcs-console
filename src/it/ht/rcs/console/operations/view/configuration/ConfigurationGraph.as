@@ -251,9 +251,12 @@ package it.ht.rcs.console.operations.view.configuration
     {
       var v:Vector.<UIComponent> = new Vector.<UIComponent>();
       
-      for each (var c:UIComponent in elements)
-        if (c is Connection)
-          v.push((c as Connection).to);
+      for each (var element:UIComponent in elements)
+        if (element is Connection) {
+          var destination:Linkable = (element as Connection).to;
+          if (v.indexOf(destination) == -1)
+            v.push(destination);
+        }
       
       return v;
     }

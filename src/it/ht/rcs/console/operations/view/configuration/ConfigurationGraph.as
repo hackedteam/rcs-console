@@ -223,8 +223,8 @@ package it.ht.rcs.console.operations.view.configuration
       
       if (element is ActionRenderer) {
         var ar:ActionRenderer = element as ActionRenderer;
-        v = v.concat(ar.startPin.outBoundConnections());
-        v = v.concat(ar.stopPin.outBoundConnections());
+        v = v.concat(ar.startEventPin.outBoundConnections());
+        v = v.concat(ar.stopEventPin.outBoundConnections());
       }
       
       return v;

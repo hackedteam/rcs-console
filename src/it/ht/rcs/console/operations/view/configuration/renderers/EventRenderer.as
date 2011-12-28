@@ -126,15 +126,9 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
 		}
     
-    private function isStartVisible(graph:ConfigurationGraph):Boolean {
-      return isVisible(graph, startPin);
-    }
-    private function isRepeatVisible(graph:ConfigurationGraph):Boolean {
-      return isVisible(graph, repeatPin);
-    }
-    private function isEndVisible(graph:ConfigurationGraph):Boolean {
-      return isVisible(graph, endPin);
-    }
+    private function isStartVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, startPin); }
+    private function isRepeatVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, repeatPin); }
+    private function isEndVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, endPin); }
     private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
       if (graph.mode == ConfigurationGraph.CONNECTING)
         return graph.currentConnection.from == pin ? true : false;

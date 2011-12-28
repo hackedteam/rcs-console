@@ -28,8 +28,11 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     public function inBoundConnections():Vector.<Connection> { return inBound; }
     public function outBoundConnections():Vector.<Connection> { return outBound; }
     
-    public var startPin:Pin;
-    public var stopPin:Pin;
+    public var startEventPin:Pin;
+    public var stopEventPin:Pin;
+    
+    public var startModulePin:Pin;
+    public var stopModulePin:Pin;
     
     private var graph:ConfigurationGraph;
     
@@ -98,31 +101,47 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   			addElement(textLabel);
       }
       
-      if (startPin == null) {
-        startPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
-        BindingUtils.bindProperty(startPin, 'visible', graph, {name: 'mode', getter: isStartVisible });
-        startPin.x = width;
-        startPin.y = 0;
-        startPin.toolTip = 'Start';
-        addElement(startPin);
+      if (startEventPin == null) {
+        startEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        BindingUtils.bindProperty(startEventPin, 'visible', graph, {name: 'mode', getter: isStartEventVisible });
+        startEventPin.x = 0;
+        startEventPin.y = 0;
+        startEventPin.toolTip = 'Start events';
+        addElement(startEventPin);
       }
       
-      if (stopPin == null) {
-        stopPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
-        BindingUtils.bindProperty(stopPin, 'visible', graph, {name: 'mode', getter: isStopVisible });
-        stopPin.x = width;
-        stopPin.y = height;
-        stopPin.toolTip = 'Stop';
-        addElement(stopPin);
+      if (stopEventPin == null) {
+        stopEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        BindingUtils.bindProperty(stopEventPin, 'visible', graph, {name: 'mode', getter: isStopEventVisible });
+        stopEventPin.x = width;
+        stopEventPin.y = 0;
+        stopEventPin.toolTip = 'Stop events';
+        addElement(stopEventPin);
+      }
+      
+      if (startModulePin == null) {
+        startModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        BindingUtils.bindProperty(startModulePin, 'visible', graph, {name: 'mode', getter: isStartModuleVisible });
+        startModulePin.x = 0;
+        startModulePin.y = height;
+        startModulePin.toolTip = 'Start modules';
+        addElement(startModulePin);
+      }
+      
+      if (stopModulePin == null) {
+        stopModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        BindingUtils.bindProperty(stopModulePin, 'visible', graph, {name: 'mode', getter: isStopModuleVisible });
+        stopModulePin.x = width;
+        stopModulePin.y = height;
+        stopModulePin.toolTip = 'Stop modules';
+        addElement(stopModulePin);
       }
 		}
     
-    private function isStartVisible(graph:ConfigurationGraph):Boolean {
-      return isVisible(graph, startPin);
-    }
-    private function isStopVisible(graph:ConfigurationGraph):Boolean {
-      return isVisible(graph, stopPin);
-    }
+    private function isStartEventVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, startEventPin); }
+    private function isStopEventVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, stopEventPin); }
+    private function isStartModuleVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, startModulePin); }
+    private function isStopModuleVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, stopModulePin); }
     private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
       if (graph.mode == ConfigurationGraph.CONNECTING)
         return graph.currentConnection.from == pin ? true : false;

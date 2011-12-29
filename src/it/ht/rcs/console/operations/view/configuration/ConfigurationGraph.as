@@ -4,12 +4,14 @@ package it.ht.rcs.console.operations.view.configuration
 	import flash.geom.Point;
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
+	import flash.utils.Dictionary;
 	
 	import it.ht.rcs.console.operations.view.configuration.renderers.ActionRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Connection;
 	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionEvent;
 	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
+	import it.ht.rcs.console.operations.view.configuration.renderers.ModuleRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
@@ -187,8 +189,7 @@ package it.ht.rcs.console.operations.view.configuration
       if (!(element is Connection)) deselectConnection();
       removeHighlight();
       
-      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
-      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
+      var all:Vector.<UIComponent> = getAllElements();
       
       var toExclude:Vector.<UIComponent> = new Vector.<UIComponent>();
       toExclude.push(element);
@@ -225,27 +226,12 @@ package it.ht.rcs.console.operations.view.configuration
         var ar:ActionRenderer = element as ActionRenderer;
         v = v.concat(ar.startEventPin.outBoundConnections());
         v = v.concat(ar.stopEventPin.outBoundConnections());
+        v = v.concat(ar.startModulePin.outBoundConnections());
+        v = v.concat(ar.stopModulePin.outBoundConnections());
       }
       
       return v;
     }
-    
-//    private function getInBoundElements(element:UIComponent):Vector.<UIComponent>
-//    {
-//      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
-//      
-//      if (element is EventRenderer) {
-//        var er:EventRenderer = element as EventRenderer;
-//        v = v.concat(er.inBoundConnections());
-//      }
-//      
-//      if (element is ActionRenderer) {
-//        var ar:ActionRenderer = element as ActionRenderer;
-//        v = v.concat(ar.inBoundConnections());
-//      }
-//      
-//      return v;
-//    }
     
     private function getDestinations(elements:Vector.<UIComponent>):Vector.<UIComponent>
     {
@@ -271,13 +257,19 @@ package it.ht.rcs.console.operations.view.configuration
       return v;
     }
     
+    private function getAllElements():Vector.<UIComponent>
+    {
+      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
+      all = all.concat(events); all = all.concat(actions); all = all.concat(lines); all = all.concat(modules);
+      return all;
+    }
+    
     public function removeHighlight():void
     {
       if (highlightedElement == null) return;
       
       var component:UIComponent;
-      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
-      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
+      var all:Vector.<UIComponent> = getAllElements();
       
       for each (component in all)
         component.alpha = FULL_ALPHA;
@@ -294,7 +286,9 @@ package it.ht.rcs.console.operations.view.configuration
     private var bg:Rect;
     private var events:Vector.<EventRenderer>;
     private var actions:Vector.<ActionRenderer>;
+    private var modules:Vector.<ModuleRenderer>;
     private var lines:Vector.<Connection>;
+    private var modulesMap:Dictionary;
 		public function rebuildGraph():void
 		{
 			removeAllElements();
@@ -302,9 +296,11 @@ package it.ht.rcs.console.operations.view.configuration
       // Saving references will make positioning and drawing of elements so much easier...
       events = new Vector.<EventRenderer>();
       actions = new Vector.<ActionRenderer>();
+      modules = new Vector.<ModuleRenderer>();
       lines = new Vector.<Connection>();
+      modulesMap = new Dictionary();
       
-      // Adding event renderers
+      // Adding events
       var er:EventRenderer;
       for each (var e:Object in config.events) {
         er = new EventRenderer(e, this);
@@ -327,11 +323,27 @@ package it.ht.rcs.console.operations.view.configuration
         if (er.event.hasOwnProperty('end'))    createConnection(er.endPin,    actions[er.event.end]);
       }
       
-      // Adding connections from actions to events
+      // Adding modules
+      var mr:ModuleRenderer;
+      for each (var m:Object in config.modules) {
+        mr = new ModuleRenderer(m, this);
+        modules.push(mr);
+        modulesMap[m.module] = mr;
+        addElement(mr);
+      }
+      
+      // Adding connections from actions to events and from actions to modules
       for each (ar in actions) {
-        // cycle in action's subactions and look for event action...
-        // if (er.event.hasOwnProperty('start')) createConnection(ar.startPin, events[subaction.start]);
-        // if (er.event.hasOwnProperty('stop'))  createConnection(ar.stopPin,  events[subaction.stop]);
+        for each (var subaction:Object in ar.action.subactions) {
+          if (subaction.action == 'event') {
+            if (subaction.hasOwnProperty('start')) createConnection(ar.startEventPin, events[subaction.start]);
+            if (subaction.hasOwnProperty('stop'))  createConnection(ar.stopEventPin,  events[subaction.stop]);
+          }
+          if (subaction.action == 'module') {
+            if (subaction.status == 'start') createConnection(ar.startModulePin, modulesMap[subaction.module]);
+            if (subaction.status == 'stop')  createConnection(ar.stopModulePin,  modulesMap[subaction.module]);
+          }
+        }
       }
       
       // The background. We need a dummy component as background for two reasons:
@@ -362,7 +374,7 @@ package it.ht.rcs.console.operations.view.configuration
     private static const VERTICAL_DISTANCE:int = 60;
     private static const VERTICAL_GAP:int      = 200;
     private static const HORIZONTAL_PAD:int    = 50;
-    // TODO: Comment...
+    // TODO: Comment this method...
     private function computeSize():Point
     {
       var eventsX:Number = 0, eventsY:Number = 0;
@@ -436,6 +448,25 @@ package it.ht.rcs.console.operations.view.configuration
       } // End actions
       
       
+      // Draw modules
+      if (modules != null && modules.length > 0) {
+        
+        // Where to draw the first module?
+        var moduleRenderer:ModuleRenderer = modules[0];
+        offsetFromCenter = modules.length % 2 == 0 ?
+          _width / 2 - (modules.length / 2 * (NODE_DISTANCE + moduleRenderer.width)) + NODE_DISTANCE / 2 : // Even
+          _width / 2 - (Math.floor(modules.length / 2) * (NODE_DISTANCE + moduleRenderer.width)) - moduleRenderer.width / 2; // Odd
+        
+        cY = VERTICAL_DISTANCE + VERTICAL_GAP * 2;
+        for (i = 0; i < modules.length; i++) {
+          moduleRenderer = modules[i];
+          cX = offsetFromCenter + i * (NODE_DISTANCE + moduleRenderer.width);
+          moduleRenderer.move(cX, cY);
+        }
+        
+      } // End modules
+      
+      
       // Draw lines
       var line:Connection;
       if (lines != null && lines.length > 0) {
@@ -443,6 +474,7 @@ package it.ht.rcs.console.operations.view.configuration
           line = lines[i];
           line.start = line.from.getLinkPoint();
           line.end = line.to.getLinkPoint();
+          line.invalidateDisplayList();
         }
       }
       

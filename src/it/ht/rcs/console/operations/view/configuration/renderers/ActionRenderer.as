@@ -12,14 +12,12 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 
   public class ActionRenderer extends Group implements Linkable
 	{
-    private static const WIDTH:Number = 200;
+    private static const WIDTH:Number  = 200;
     private static const HEIGHT:Number = 50;
     
-    private static const NORMAL_COLOR:Number = 0xbbbbbb;
-    private static const OVER_COLOR:Number   = 0x88bb88;
+    private static const NORMAL_COLOR:uint = 0xbbbbbb;
+    private static const OVER_COLOR:uint   = 0x88bb88;
     private var backgroundColor:uint = NORMAL_COLOR;
-	  
-		public var action:Object;
 		
 		private var textLabel:Label;
     
@@ -35,6 +33,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     public var stopModulePin:Pin;
     
     private var graph:ConfigurationGraph;
+    
+    public var action:Object;
     
 		public function ActionRenderer(action:Object, graph:ConfigurationGraph)
 		{

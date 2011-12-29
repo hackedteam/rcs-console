@@ -27,6 +27,10 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     private static const SELECTED_THICKNESS:Number = 3;
     private var thickness:Number = NORMAL_THICKNESS;
     
+    private static const NORMAL_COLOR:uint = 0xbbbbbb;
+    private static const SELECTED_COLOR:Number = 0x333333;
+    private var color:uint = NORMAL_COLOR;
+    
     private var graph:ConfigurationGraph;
     
     public function Connection(graph:ConfigurationGraph)
@@ -81,6 +85,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     {
       _selected = s;
       thickness = _selected ? SELECTED_THICKNESS : NORMAL_THICKNESS;
+      color = _selected ? SELECTED_COLOR : NORMAL_COLOR;
       invalidateDisplayList();
     }
     
@@ -88,12 +93,12 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     {
       graphics.clear();
       
-      graphics.beginFill(0x444444);
+      graphics.beginFill(color);
       GraphicsUtil.drawArrow(graphics, start, end, {shaftThickness: thickness});
       graphics.endFill();
       
       // A thick line to ease selection
-      graphics.lineStyle(20, 0x000000, 0, true);
+      graphics.lineStyle(10, 0x000000, 0, true);
       graphics.moveTo(start.x, start.y);
       graphics.lineTo(end.x, end.y);
       

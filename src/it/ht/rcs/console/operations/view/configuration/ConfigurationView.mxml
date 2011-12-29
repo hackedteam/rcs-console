@@ -84,32 +84,44 @@
       
       public var config2:Object = JSON.parse(
         '{' +
+        '"modules":' +
+        '[' +
+        '{"module": "application"},' +
+        '{"module": "call", "buffer": 524288, "compression": 5},' +
+        '{"module": "camera", "quality": "med"}' +
+        '],' +
+        '' +
         '"events":' +
         '[' +
-        /*0*/     '{"event": "timer",   "start": 0, "repeat": 0,           "ts": "00:00:00", "te": "23:59:59", "delay": 60,               "enabled": true,  "desc": "timer"}' +
+        /*0*/     '{"event": "timer",   "start": 0, "repeat": 0, "stop": 3, "ts": "00:00:00", "te": "23:59:59", "delay": 60,               "enabled": true,  "desc": "timer"}' +
         '],' +
         '' +
         '"actions":' +
         '[' +
         /*0*/     '{"desc": "Synchronize",        "subactions": [{"action": "synchronize", "stop": false, "host": "192.168.100.100", "bandwidth": 1024000, "mindelay": 0, "maxdelay": 0, "wifi": false, "cell": false}]},' +
-        /*1*/     '{"desc": "Uninstall",          "subactions": [{"action": "event", "start": 0}]}' +
+        /*1*/     '{"desc": "Uninstall",          "subactions": [{"action": "event", "start": 0}]},' +
+        /*2*/     '{"desc": "Uninstall",          "subactions": [{"action": "event", "start": 0, "stop": 0}, {"action": "module", "status": "stop", "module": "call"}]},' +
+        /*3*/     '{"desc": "Uninstall",          "subactions": [{"action": "module", "status": "start", "module": "camera"}]}' +
         ']' +
         '}');
 
       private function onAddedToStage(event:Event):void
       {
-        AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
+        //AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
+        graph.config = config2;
+        graph.rebuildGraph();
       }
       
       private function build(event:ResultEvent):void
       {
-        graph.config = JSON.parse(event.result.configs[0].config);
+        //graph.config = JSON.parse(event.result.configs[0].config);
+        graph.config = config2;
         graph.rebuildGraph();
       }
       
       protected function addEvent(event:MouseEvent):void
       {
-        config.events.push({"event": "timer", "desc": "new"});
+        graph.config.events.push({"event": "timer", "desc": "new"});
         graph.rebuildGraph();
       }
       
@@ -117,7 +129,6 @@
   </fx:Script>
   
   <configuration:ConfigurationActionBar section="{section}"/>
-  
   
   <s:Label click="addEvent(event)" text="Click me to add an event"/>
   <s:Label text="{graph.currentTarget}"/>

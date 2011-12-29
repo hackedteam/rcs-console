@@ -12,14 +12,12 @@ package it.ht.rcs.console.operations.view.configuration.renderers
 
   public class EventRenderer extends Group implements Linkable
 	{
-    private static const WIDTH:Number = 120;
+    private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 50;
     
-    private static const NORMAL_COLOR:Number = 0xbbbbbb;
-    private static const OVER_COLOR:Number   = 0x88bb88;
+    private static const NORMAL_COLOR:uint = 0xbbbbbb;
+    private static const OVER_COLOR:uint   = 0x88bb88;
     private var backgroundColor:uint = NORMAL_COLOR;
-	  
-		public var event:Object;
 		
 		private var textLabel:Label;
     
@@ -32,6 +30,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     public var endPin:Pin;
     
     private var graph:ConfigurationGraph;
+    
+    public var event:Object;
 		
 		public function EventRenderer(event:Object, graph:ConfigurationGraph)
 		{
@@ -148,7 +148,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     public function getLinkPoint():Point
     {
-      return new Point(x + width/3, y + height);
+      return new Point(x + width/4, y + height);
     }
 		
 	}

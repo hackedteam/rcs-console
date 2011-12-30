@@ -13,7 +13,6 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import mx.rpc.events.ResultEvent;
@@ -87,21 +86,21 @@
         '"modules":' +
         '[' +
         '{"module": "application"},' +
-        '{"module": "call", "buffer": 524288, "compression": 5},' +
-        '{"module": "camera", "quality": "med"}' +
+        '{"module": "call"},' +
+        '{"module": "camera"}' +
         '],' +
         '' +
         '"events":' +
         '[' +
-        /*0*/     '{"event": "timer",   "start": 0, "repeat": 0, "stop": 3, "ts": "00:00:00", "te": "23:59:59", "delay": 60,               "enabled": true,  "desc": "timer"}' +
+        /*0*/     '{"event": "timer", "start": 0, "repeat": 0, "stop": 3, "desc": "timer"}' +
         '],' +
         '' +
         '"actions":' +
         '[' +
-        /*0*/     '{"desc": "Synchronize",        "subactions": [{"action": "synchronize", "stop": false, "host": "192.168.100.100", "bandwidth": 1024000, "mindelay": 0, "maxdelay": 0, "wifi": false, "cell": false}]},' +
-        /*1*/     '{"desc": "Uninstall",          "subactions": [{"action": "event", "start": 0}]},' +
-        /*2*/     '{"desc": "Uninstall",          "subactions": [{"action": "event", "start": 0, "stop": 0}, {"action": "module", "status": "stop", "module": "call"}]},' +
-        /*3*/     '{"desc": "Uninstall",          "subactions": [{"action": "module", "status": "start", "module": "camera"}]}' +
+        /*0*/     '{"desc": "Synchronize", "subactions": [{"action": "synchronize", "stop": false}]},' +
+        /*1*/     '{"desc": "Uninstall",   "subactions": [{"action": "event", "start": 0}]},' +
+        /*2*/     '{"desc": "Uninstall",   "subactions": [{"action": "event", "start": 0, "stop": 0}, {"action": "module", "status": "stop", "module": "call"}]},' +
+        /*3*/     '{"desc": "Uninstall",   "subactions": [{"action": "module", "status": "start", "module": "camera"}]}' +
         ']' +
         '}');
 
@@ -114,23 +113,44 @@
       
       private function build(event:ResultEvent):void
       {
-        //graph.config = JSON.parse(event.result.configs[0].config);
-        graph.config = config2;
+        graph.config = JSON.parse(event.result.configs[0].config);
         graph.rebuildGraph();
       }
       
-      protected function addEvent(event:MouseEvent):void
+      
+      private function addEvent(event:MouseEvent):void
       {
         graph.config.events.push({"event": "timer", "desc": "new"});
         graph.rebuildGraph();
       }
       
+      private function addAction(event:MouseEvent):void
+      {
+        graph.config.actions.push({"desc": "New action", "subactions": []});
+        graph.rebuildGraph();
+      }
+      
+      private function log(event:MouseEvent):void
+      {
+        graph.log();
+        trace(JSON.stringify(graph.config));
+      }
+
+      private function rebuild(event:MouseEvent):void
+      {
+        graph.rebuildGraph();
+      }
     ]]>
   </fx:Script>
   
   <configuration:ConfigurationActionBar section="{section}"/>
   
-  <s:Label click="addEvent(event)" text="Click me to add an event"/>
+  <s:HGroup>
+  <s:Label click="addEvent(event)" text="Add event"/>
+  <s:Label click="addAction(event)" text="Add action"/>
+  <s:Label click="log(event)" text="Trace log"/>
+  <s:Label click="rebuild(event)" text="Rebuild graph"/>
+  </s:HGroup>
   <s:Label text="{graph.currentTarget}"/>
   
   <s:Scroller id="graphScroller" width="100%" height="100%">

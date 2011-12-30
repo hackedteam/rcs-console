@@ -1,7 +1,11 @@
 package it.ht.rcs.console.operations.view.configuration.renderers
 {
+  import flash.events.KeyboardEvent;
   import flash.events.MouseEvent;
   import flash.geom.Point;
+  import flash.ui.Keyboard;
+  import flash.ui.Mouse;
+  import flash.ui.MouseCursor;
   
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
   
@@ -15,14 +19,16 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 50;
     
-    private static const NORMAL_COLOR:uint = 0xbbbbbb;
-    private static const OVER_COLOR:uint   = 0x88bb88;
+    private static const NORMAL_COLOR:uint   = 0xbbbbbb;
+    private static const SELECTED_COLOR:uint = 0x999999;
+    private static const ACCEPT_COLOR:uint   = 0x99bb99;
+    private static const REJECT_COLOR:uint   = 0xbb9999;
     private var backgroundColor:uint = NORMAL_COLOR;
 		
 		private var textLabel:Label;
     
     public var inBound:Vector.<Connection> = new Vector.<Connection>();
-    public function inBoundConnections():Vector.<Connection> { return inBound; }
+    public function inBoundConnections():Vector.<Connection>  { return inBound; }
     public function outBoundConnections():Vector.<Connection> { return null; }
     
     public var startPin:Pin;
@@ -49,6 +55,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
       addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       addEventListener(MouseEvent.CLICK, onClick);
+      addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		}
     
     private function onMouseDown(me:MouseEvent):void
@@ -58,11 +65,27 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     private function onMouseOver(me:MouseEvent):void
     {
+      me.stopPropagation();
+      Mouse.cursor = MouseCursor.AUTO;
+      
       if (graph.mode == ConfigurationGraph.CONNECTING) {
-        backgroundColor = graph.currentConnection.from == this ? NORMAL_COLOR : OVER_COLOR;
-        graph.currentTarget = this;
-        setStyle('backgroundColor', backgroundColor);
+        graph.currentTarget = null;
+        backgroundColor = REJECT_COLOR;
+        var origin:Object = graph.currentConnection.from['parent'];
+        if (origin is ActionRenderer && !isConnected(origin)) { // Accept only inbound connections from actions not already connected
+          graph.currentTarget = this;
+          backgroundColor = ACCEPT_COLOR;
+        }
+        invalidateDisplayList();
       }
+    }
+    
+    private function isConnected(origin:Object):Boolean
+    {
+      for each (var c:Connection in inBound)
+        if (c.from['parent'] === origin)
+          return true;
+      return false;
     }
     
     private function onMouseOut(me:MouseEvent):void
@@ -70,19 +93,66 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       if (graph.mode == ConfigurationGraph.CONNECTING) {
         graph.currentTarget = null;
         backgroundColor = NORMAL_COLOR;
-        setStyle('backgroundColor', backgroundColor);
+        invalidateDisplayList();
       }
     }
     
     private function onMouseUp(me:MouseEvent):void
     {
-      backgroundColor = NORMAL_COLOR;
-      setStyle('backgroundColor', backgroundColor);
+      if (graph.mode == ConfigurationGraph.CONNECTING) {
+        backgroundColor = NORMAL_COLOR;
+        invalidateDisplayList();
+      }
     }
     
     private function onClick(me:MouseEvent):void
     {
+      me.stopPropagation();
+      graph.removeSelection();
+      
+      selected = true;
+      graph.selectedElement = this;
+      
+      setFocus();
       graph.highlightElement(this);
+    }
+    
+    private function onKeyDown(ke:KeyboardEvent):void
+    {
+      if (ke.keyCode == Keyboard.DELETE)
+        deleteEvent();
+    }
+    
+    public function deleteEvent():void
+    {
+      graph.removeSelection();
+      graph.removeHighlight();
+      
+      var conns:Vector.<Connection> = getAllConnections();
+      for each (var c:Connection in conns)
+        c.deleteConnection();
+      
+      graph.removeElement(this);
+      graph.config.events.splice(graph.config.events.indexOf(event), 1);
+    }
+    
+    private function getAllConnections():Vector.<Connection>
+    {
+      var v:Vector.<Connection> = new Vector.<Connection>();
+      v = v.concat(inBoundConnections());
+      v = v.concat(startPin.outBoundConnections());
+      v = v.concat(repeatPin.outBoundConnections());
+      v = v.concat(endPin.outBoundConnections());
+      return v;
+    }
+    
+    private var _selected:Boolean = false;
+    public function get selected():Boolean { return _selected; }
+    public function set selected(s:Boolean):void
+    {
+      _selected = s;
+      backgroundColor = _selected ? SELECTED_COLOR : NORMAL_COLOR;
+      invalidateDisplayList();
     }
     
     override protected function createChildren():void
@@ -126,9 +196,9 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       }
 		}
     
-    private function isStartVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, startPin); }
+    private function isStartVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, startPin);  }
     private function isRepeatVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, repeatPin); }
-    private function isEndVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, endPin); }
+    private function isEndVisible(graph:ConfigurationGraph):Boolean    { return isVisible(graph, endPin);    }
     private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
       if (graph.mode == ConfigurationGraph.CONNECTING)
         return graph.currentConnection.from == pin ? true : false;

@@ -4,6 +4,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import flash.events.MouseEvent;
   import flash.geom.Point;
   import flash.ui.Keyboard;
+  import flash.ui.Mouse;
+  import flash.ui.MouseCursor;
   
   import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
   import it.ht.rcs.console.operations.view.configuration.renderers.utils.GraphicsUtil;
@@ -40,16 +42,25 @@ package it.ht.rcs.console.operations.view.configuration.renderers
       
       this.graph = graph;
       
+      addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_DOWN, onClick);
       addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+    }
+    
+    private function onMouseOver(me:MouseEvent):void
+    {
+      me.stopPropagation();
+      Mouse.cursor = MouseCursor.AUTO;
     }
     
     private function onClick(me:MouseEvent):void
     {
       me.stopPropagation();
-      graph.deselectConnection();
-      graph.selectedConnection = this;
+      graph.removeSelection();
+
       selected = true;
+      graph.selectedElement = this;
+      
       setFocus();
       graph.highlightElement(this);
     }
@@ -62,8 +73,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
     
     public function deleteConnection():void
     {
-      // Visually remove the connection
-      graph.removeElement(this);
+      graph.removeSelection();
+      graph.removeHighlight();
       
       // Clear references
       if (_from != null) {
@@ -76,7 +87,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
         inBounds.splice(inBounds.indexOf(this), 1);
       }
       
-      graph.removeHighlight();
+      graph.removeElement(this);
     }
     
     private var _selected:Boolean = false;

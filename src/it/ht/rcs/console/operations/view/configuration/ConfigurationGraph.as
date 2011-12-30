@@ -8,13 +8,13 @@ package it.ht.rcs.console.operations.view.configuration
 	
 	import it.ht.rcs.console.operations.view.configuration.renderers.ActionRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Connection;
-	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionEvent;
 	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
 	import it.ht.rcs.console.operations.view.configuration.renderers.ModuleRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
+	import mx.core.IVisualElement;
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	
@@ -33,19 +33,18 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
-    // Public because we need to bind on it to hide Pins while drawing lines.
+    // Public because we need to bind on it to hide pins while drawing connections.
     // Should be binded on getter but should also fire an event to notify changes...
     [Bindable] public var mode:String = NORMAL;
     //[Bindable] public function get mode():String { return _mode; }
     
-    // A reference to the currently selected connection
-    public var selectedConnection:Connection;
-    public function deselectConnection():void
+    // A reference to the currently selected element
+    public var selectedElement:UIComponent;
+    public function removeSelection():void
     {
-      removeHighlight();
-      if (selectedConnection != null) {
-        selectedConnection.selected = false;
-        selectedConnection = null;
+      if (selectedElement != null) {
+        selectedElement['selected'] = false;
+        selectedElement = null;
       }
     }
     
@@ -58,10 +57,11 @@ package it.ht.rcs.console.operations.view.configuration
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
       
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown); // Dragging
-      addEventListener(ConnectionEvent.START_CONNECTION, onStartConnection); // Connecting
+      addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+      addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		}
     
-    // Creation complete handler. Cache some useful references
+    // Creation complete handler. Cache some useful references.
     private var hScrollBar:ScrollBarBase, vScrollBar:ScrollBarBase;
     private function init(e:FlexEvent):void
     {
@@ -71,6 +71,17 @@ package it.ht.rcs.console.operations.view.configuration
     
     
     
+    private function onMouseOver(me:MouseEvent):void
+    {
+      if (mode == NORMAL)
+        Mouse.cursor = NativeCursor.HAND_OPEN;
+      else if (mode == DRAGGING)
+        Mouse.cursor = NativeCursor.HAND_CLOSE;
+    }
+    private function onMouseOut(me:MouseEvent):void
+    {
+      Mouse.cursor = MouseCursor.AUTO;
+    }
     
     
     // ----- DRAGGING -----
@@ -111,13 +122,16 @@ package it.ht.rcs.console.operations.view.configuration
     {
       removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
-      Mouse.cursor = MouseCursor.AUTO;
+      Mouse.cursor = NativeCursor.HAND_OPEN;
       
       mode = NORMAL;
       
       // No dragging. We can simulate a click
-      if (!dragged)
-        deselectConnection();
+      if (!dragged) {
+        removeSelection();
+        removeHighlight();
+        setFocus();
+      }
     }
     
     
@@ -131,14 +145,14 @@ package it.ht.rcs.console.operations.view.configuration
     // A reference to the link target (this is set by sub-components)
     [Bindable] public var currentTarget:Linkable;
     
-    private function onStartConnection(ce:ConnectionEvent):void
+    public function startConnection(from:Linkable):void
     {
-      
-      deselectConnection();
+      removeSelection();
+      removeHighlight();
       
       currentConnection = new Connection(this);
-      currentConnection.from = ce.from;
-      var start:Point = ce.from.getLinkPoint();
+      currentConnection.from = from;
+      var start:Point = from.getLinkPoint();
       currentConnection.start = start;
       currentConnection.end = start;
       
@@ -151,8 +165,7 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDrawingMove(me:MouseEvent):void
     {
-      var end:Point = globalToLocal(new Point(me.stageX, me.stageY));
-      currentConnection.end = end;
+      currentConnection.end = globalToLocal(new Point(me.stageX, me.stageY));
       currentConnection.invalidateDisplayList();
     }
     
@@ -161,18 +174,18 @@ package it.ht.rcs.console.operations.view.configuration
       if (currentTarget != null) { // Dropping the line on a target
         currentConnection.to = currentTarget;
         currentConnection.end = currentTarget.getLinkPoint();
-        lines.push(currentConnection);
+        connections.push(currentConnection);
         currentConnection.invalidateDisplayList();
       } else { // Dropping the line nowhere... cancel connecting operation
         currentConnection.deleteConnection();
       }
       
-      removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
-      removeEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
       currentConnection = null;
       currentTarget = null;
       
-      mode = ConfigurationGraph.NORMAL;
+      removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
+      removeEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
+      mode = NORMAL;
     }
     
     
@@ -186,7 +199,6 @@ package it.ht.rcs.console.operations.view.configuration
     private var highlightedElement:UIComponent;
     public function highlightElement(element:UIComponent):void
     {
-      if (!(element is Connection)) deselectConnection();
       removeHighlight();
       
       var all:Vector.<UIComponent> = getAllElements();
@@ -260,7 +272,7 @@ package it.ht.rcs.console.operations.view.configuration
     private function getAllElements():Vector.<UIComponent>
     {
       var all:Vector.<UIComponent> = new Vector.<UIComponent>();
-      all = all.concat(events); all = all.concat(actions); all = all.concat(lines); all = all.concat(modules);
+      all = all.concat(events); all = all.concat(actions); all = all.concat(connections); all = all.concat(modules);
       return all;
     }
     
@@ -287,7 +299,7 @@ package it.ht.rcs.console.operations.view.configuration
     private var events:Vector.<EventRenderer>;
     private var actions:Vector.<ActionRenderer>;
     private var modules:Vector.<ModuleRenderer>;
-    private var lines:Vector.<Connection>;
+    private var connections:Vector.<Connection>;
     private var modulesMap:Dictionary;
 		public function rebuildGraph():void
 		{
@@ -297,7 +309,7 @@ package it.ht.rcs.console.operations.view.configuration
       events = new Vector.<EventRenderer>();
       actions = new Vector.<ActionRenderer>();
       modules = new Vector.<ModuleRenderer>();
-      lines = new Vector.<Connection>();
+      connections = new Vector.<Connection>();
       modulesMap = new Dictionary();
       
       // Adding events
@@ -366,7 +378,7 @@ package it.ht.rcs.console.operations.view.configuration
       var line:Connection = new Connection(this);
       line.from = from;
       line.to = to;
-      lines.push(line);
+      connections.push(line);
       addElement(line);
     }
     
@@ -469,9 +481,9 @@ package it.ht.rcs.console.operations.view.configuration
       
       // Draw lines
       var line:Connection;
-      if (lines != null && lines.length > 0) {
-        for (i = 0; i < lines.length; i++) {
-          line = lines[i];
+      if (connections != null && connections.length > 0) {
+        for (i = 0; i < connections.length; i++) {
+          line = connections[i];
           line.start = line.from.getLinkPoint();
           line.end = line.to.getLinkPoint();
           line.invalidateDisplayList();
@@ -480,6 +492,25 @@ package it.ht.rcs.console.operations.view.configuration
       
 
 		}
+    
+    override public function removeElement(element:IVisualElement):IVisualElement
+    {
+           if (element is EventRenderer && events.indexOf(element) != -1) events.splice(events.indexOf(element), 1);
+      else if (element is ActionRenderer && actions.indexOf(element) != -1) actions.splice(actions.indexOf(element), 1);
+      else if (element is Connection && connections.indexOf(element) != -1) connections.splice(connections.indexOf(element), 1);
+      
+      invalidateDisplayList();
+      
+      return super.removeElement(element);
+    }
+    
+    public function log():void
+    {
+      trace('Events: ' + events.length as String);
+      trace('Actions: ' + actions.length as String);
+      trace('Connections: ' + connections.length as String);
+      trace('=====');
+    }
 
 	}
 

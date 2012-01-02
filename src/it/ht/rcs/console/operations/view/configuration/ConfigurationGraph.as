@@ -4,15 +4,17 @@ package it.ht.rcs.console.operations.view.configuration
 	import flash.geom.Point;
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
+	import flash.utils.Dictionary;
 	
 	import it.ht.rcs.console.operations.view.configuration.renderers.ActionRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Connection;
-	import it.ht.rcs.console.operations.view.configuration.renderers.ConnectionEvent;
 	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
+	import it.ht.rcs.console.operations.view.configuration.renderers.ModuleRenderer;
 	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
+	import mx.core.IVisualElement;
 	import mx.core.UIComponent;
 	import mx.events.FlexEvent;
 	
@@ -31,19 +33,18 @@ package it.ht.rcs.console.operations.view.configuration
     public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
     public static const DRAGGING:String   = 'dragging';
-    // Public because we need to bind on it to hide Pins while drawing lines.
+    // Public because we need to bind on it to hide pins while drawing connections.
     // Should be binded on getter but should also fire an event to notify changes...
     [Bindable] public var mode:String = NORMAL;
     //[Bindable] public function get mode():String { return _mode; }
     
-    // A reference to the currently selected connection
-    public var selectedConnection:Connection;
-    public function deselectConnection():void
+    // A reference to the currently selected element
+    public var selectedElement:UIComponent;
+    public function removeSelection():void
     {
-      removeHighlight();
-      if (selectedConnection != null) {
-        selectedConnection.selected = false;
-        selectedConnection = null;
+      if (selectedElement != null) {
+        selectedElement['selected'] = false;
+        selectedElement = null;
       }
     }
     
@@ -56,10 +57,11 @@ package it.ht.rcs.console.operations.view.configuration
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
       
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown); // Dragging
-      addEventListener(ConnectionEvent.START_CONNECTION, onStartConnection); // Connecting
+      addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+      addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		}
     
-    // Creation complete handler. Cache some useful references
+    // Creation complete handler. Cache some useful references.
     private var hScrollBar:ScrollBarBase, vScrollBar:ScrollBarBase;
     private function init(e:FlexEvent):void
     {
@@ -69,6 +71,17 @@ package it.ht.rcs.console.operations.view.configuration
     
     
     
+    private function onMouseOver(me:MouseEvent):void
+    {
+      if (mode == NORMAL)
+        Mouse.cursor = NativeCursor.HAND_OPEN;
+      else if (mode == DRAGGING)
+        Mouse.cursor = NativeCursor.HAND_CLOSE;
+    }
+    private function onMouseOut(me:MouseEvent):void
+    {
+      Mouse.cursor = MouseCursor.AUTO;
+    }
     
     
     // ----- DRAGGING -----
@@ -109,13 +122,16 @@ package it.ht.rcs.console.operations.view.configuration
     {
       removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
-      Mouse.cursor = MouseCursor.AUTO;
+      Mouse.cursor = NativeCursor.HAND_OPEN;
       
       mode = NORMAL;
       
       // No dragging. We can simulate a click
-      if (!dragged)
-        deselectConnection();
+      if (!dragged) {
+        removeSelection();
+        removeHighlight();
+        setFocus();
+      }
     }
     
     
@@ -129,14 +145,14 @@ package it.ht.rcs.console.operations.view.configuration
     // A reference to the link target (this is set by sub-components)
     [Bindable] public var currentTarget:Linkable;
     
-    private function onStartConnection(ce:ConnectionEvent):void
+    public function startConnection(from:Linkable):void
     {
-      
-      deselectConnection();
+      removeSelection();
+      removeHighlight();
       
       currentConnection = new Connection(this);
-      currentConnection.from = ce.from;
-      var start:Point = ce.from.getLinkPoint();
+      currentConnection.from = from;
+      var start:Point = from.getLinkPoint();
       currentConnection.start = start;
       currentConnection.end = start;
       
@@ -149,8 +165,7 @@ package it.ht.rcs.console.operations.view.configuration
     
     private function onDrawingMove(me:MouseEvent):void
     {
-      var end:Point = globalToLocal(new Point(me.stageX, me.stageY));
-      currentConnection.end = end;
+      currentConnection.end = globalToLocal(new Point(me.stageX, me.stageY));
       currentConnection.invalidateDisplayList();
     }
     
@@ -159,18 +174,18 @@ package it.ht.rcs.console.operations.view.configuration
       if (currentTarget != null) { // Dropping the line on a target
         currentConnection.to = currentTarget;
         currentConnection.end = currentTarget.getLinkPoint();
-        lines.push(currentConnection);
+        connections.push(currentConnection);
         currentConnection.invalidateDisplayList();
       } else { // Dropping the line nowhere... cancel connecting operation
         currentConnection.deleteConnection();
       }
       
-      removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
-      removeEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
       currentConnection = null;
       currentTarget = null;
       
-      mode = ConfigurationGraph.NORMAL;
+      removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
+      removeEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
+      mode = NORMAL;
     }
     
     
@@ -184,11 +199,9 @@ package it.ht.rcs.console.operations.view.configuration
     private var highlightedElement:UIComponent;
     public function highlightElement(element:UIComponent):void
     {
-      if (!(element is Connection)) deselectConnection();
       removeHighlight();
       
-      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
-      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
+      var all:Vector.<UIComponent> = getAllElements();
       
       var toExclude:Vector.<UIComponent> = new Vector.<UIComponent>();
       toExclude.push(element);
@@ -225,27 +238,12 @@ package it.ht.rcs.console.operations.view.configuration
         var ar:ActionRenderer = element as ActionRenderer;
         v = v.concat(ar.startEventPin.outBoundConnections());
         v = v.concat(ar.stopEventPin.outBoundConnections());
+        v = v.concat(ar.startModulePin.outBoundConnections());
+        v = v.concat(ar.stopModulePin.outBoundConnections());
       }
       
       return v;
     }
-    
-//    private function getInBoundElements(element:UIComponent):Vector.<UIComponent>
-//    {
-//      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
-//      
-//      if (element is EventRenderer) {
-//        var er:EventRenderer = element as EventRenderer;
-//        v = v.concat(er.inBoundConnections());
-//      }
-//      
-//      if (element is ActionRenderer) {
-//        var ar:ActionRenderer = element as ActionRenderer;
-//        v = v.concat(ar.inBoundConnections());
-//      }
-//      
-//      return v;
-//    }
     
     private function getDestinations(elements:Vector.<UIComponent>):Vector.<UIComponent>
     {
@@ -271,13 +269,19 @@ package it.ht.rcs.console.operations.view.configuration
       return v;
     }
     
+    private function getAllElements():Vector.<UIComponent>
+    {
+      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
+      all = all.concat(events); all = all.concat(actions); all = all.concat(connections); all = all.concat(modules);
+      return all;
+    }
+    
     public function removeHighlight():void
     {
       if (highlightedElement == null) return;
       
       var component:UIComponent;
-      var all:Vector.<UIComponent> = new Vector.<UIComponent>();
-      all = all.concat(events); all = all.concat(actions); all = all.concat(lines);
+      var all:Vector.<UIComponent> = getAllElements();
       
       for each (component in all)
         component.alpha = FULL_ALPHA;
@@ -294,7 +298,9 @@ package it.ht.rcs.console.operations.view.configuration
     private var bg:Rect;
     private var events:Vector.<EventRenderer>;
     private var actions:Vector.<ActionRenderer>;
-    private var lines:Vector.<Connection>;
+    private var modules:Vector.<ModuleRenderer>;
+    private var connections:Vector.<Connection>;
+    private var modulesMap:Dictionary;
 		public function rebuildGraph():void
 		{
 			removeAllElements();
@@ -302,9 +308,11 @@ package it.ht.rcs.console.operations.view.configuration
       // Saving references will make positioning and drawing of elements so much easier...
       events = new Vector.<EventRenderer>();
       actions = new Vector.<ActionRenderer>();
-      lines = new Vector.<Connection>();
+      modules = new Vector.<ModuleRenderer>();
+      connections = new Vector.<Connection>();
+      modulesMap = new Dictionary();
       
-      // Adding event renderers
+      // Adding events
       var er:EventRenderer;
       for each (var e:Object in config.events) {
         er = new EventRenderer(e, this);
@@ -327,11 +335,27 @@ package it.ht.rcs.console.operations.view.configuration
         if (er.event.hasOwnProperty('end'))    createConnection(er.endPin,    actions[er.event.end]);
       }
       
-      // Adding connections from actions to events
+      // Adding modules
+      var mr:ModuleRenderer;
+      for each (var m:Object in config.modules) {
+        mr = new ModuleRenderer(m, this);
+        modules.push(mr);
+        modulesMap[m.module] = mr;
+        addElement(mr);
+      }
+      
+      // Adding connections from actions to events and from actions to modules
       for each (ar in actions) {
-        // cycle in action's subactions and look for event action...
-        // if (er.event.hasOwnProperty('start')) createConnection(ar.startPin, events[subaction.start]);
-        // if (er.event.hasOwnProperty('stop'))  createConnection(ar.stopPin,  events[subaction.stop]);
+        for each (var subaction:Object in ar.action.subactions) {
+          if (subaction.action == 'event') {
+            if (subaction.hasOwnProperty('start')) createConnection(ar.startEventPin, events[subaction.start]);
+            if (subaction.hasOwnProperty('stop'))  createConnection(ar.stopEventPin,  events[subaction.stop]);
+          }
+          if (subaction.action == 'module') {
+            if (subaction.status == 'start') createConnection(ar.startModulePin, modulesMap[subaction.module]);
+            if (subaction.status == 'stop')  createConnection(ar.stopModulePin,  modulesMap[subaction.module]);
+          }
+        }
       }
       
       // The background. We need a dummy component as background for two reasons:
@@ -354,7 +378,7 @@ package it.ht.rcs.console.operations.view.configuration
       var line:Connection = new Connection(this);
       line.from = from;
       line.to = to;
-      lines.push(line);
+      connections.push(line);
       addElement(line);
     }
     
@@ -362,7 +386,7 @@ package it.ht.rcs.console.operations.view.configuration
     private static const VERTICAL_DISTANCE:int = 60;
     private static const VERTICAL_GAP:int      = 200;
     private static const HORIZONTAL_PAD:int    = 50;
-    // TODO: Comment...
+    // TODO: Comment this method...
     private function computeSize():Point
     {
       var eventsX:Number = 0, eventsY:Number = 0;
@@ -436,18 +460,57 @@ package it.ht.rcs.console.operations.view.configuration
       } // End actions
       
       
+      // Draw modules
+      if (modules != null && modules.length > 0) {
+        
+        // Where to draw the first module?
+        var moduleRenderer:ModuleRenderer = modules[0];
+        offsetFromCenter = modules.length % 2 == 0 ?
+          _width / 2 - (modules.length / 2 * (NODE_DISTANCE + moduleRenderer.width)) + NODE_DISTANCE / 2 : // Even
+          _width / 2 - (Math.floor(modules.length / 2) * (NODE_DISTANCE + moduleRenderer.width)) - moduleRenderer.width / 2; // Odd
+        
+        cY = VERTICAL_DISTANCE + VERTICAL_GAP * 2;
+        for (i = 0; i < modules.length; i++) {
+          moduleRenderer = modules[i];
+          cX = offsetFromCenter + i * (NODE_DISTANCE + moduleRenderer.width);
+          moduleRenderer.move(cX, cY);
+        }
+        
+      } // End modules
+      
+      
       // Draw lines
       var line:Connection;
-      if (lines != null && lines.length > 0) {
-        for (i = 0; i < lines.length; i++) {
-          line = lines[i];
+      if (connections != null && connections.length > 0) {
+        for (i = 0; i < connections.length; i++) {
+          line = connections[i];
           line.start = line.from.getLinkPoint();
           line.end = line.to.getLinkPoint();
+          line.invalidateDisplayList();
         }
       }
       
 
 		}
+    
+    override public function removeElement(element:IVisualElement):IVisualElement
+    {
+           if (element is EventRenderer && events.indexOf(element) != -1) events.splice(events.indexOf(element), 1);
+      else if (element is ActionRenderer && actions.indexOf(element) != -1) actions.splice(actions.indexOf(element), 1);
+      else if (element is Connection && connections.indexOf(element) != -1) connections.splice(connections.indexOf(element), 1);
+      
+      invalidateDisplayList();
+      
+      return super.removeElement(element);
+    }
+    
+    public function log():void
+    {
+      trace('Events: ' + events.length as String);
+      trace('Actions: ' + actions.length as String);
+      trace('Connections: ' + connections.length as String);
+      trace('=====');
+    }
 
 	}
 

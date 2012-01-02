@@ -72,25 +72,26 @@
       
       private function collName(o:Object):String
       {
-        if (o != null)
-          return "http://" + o['address'] + '/';
+        // TODO: instead of this check, filter only valid collectors
+        if (o != null && o['address'] != '')
+          return "http://" + o['address']  + '/';
         
-        return '';
+        return 'invalid address';
       }
       
       protected function send(event:MouseEvent):void
       {        
-        params = {platform: 'wap', generate: {platforms: [parentDocument.platform], binary: {demo: demo.selected}, melt: { appname: appname.text }, deliver: {} } };
-
+        params = {platform: 'wap', deliver: {}, generate: {platforms: [parentDocument.platform], binary: {demo: demo.selected}, melt: { appname: appname.text }, sign: {} } };
+        
         if (currentState == 'blackberry') {
-          params['binary']['name'] = nameForm.text;
-          params['binary']['desc'] = descForm.text;
-          params['binary']['vendor'] = vendorForm.text;
-          params['binary']['version'] = versionForm.text;
+          params['generate']['binary']['name'] = nameForm.text;
+          params['generate']['binary']['desc'] = descForm.text;
+          params['generate']['binary']['vendor'] = vendorForm.text;
+          params['generate']['binary']['version'] = versionForm.text;
         }
         
         if (currentState == 'symbian') {
-          params['sign']['edition'] = edition.selectedItem;
+          params['generate']['sign']['edition'] = edition.selectedItem;
         }
 
         if (currentState == 'multiplatform') {

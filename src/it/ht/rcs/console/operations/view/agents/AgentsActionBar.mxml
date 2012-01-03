@@ -19,7 +19,11 @@
               icon="@Embed('/img/windows/user2.png')"/>
     
     <actionbar:Separator width="40"/>
-  
+
+    <s:Button label="{R.get('EVIDENCE_IMPORT')}" click="importEvidence(event)"
+              icon="@Embed('/img/windows/user2.png')" enabled="{Console.currentSession.user.is_tech()}"/>
+
+    <actionbar:Separator width="40"/>
   </s:HGroup>
   
   <s:HGroup height="100%" verticalAlign="middle">
@@ -35,6 +39,7 @@
     <![CDATA[
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
       
       import locale.R;
       
@@ -75,6 +80,13 @@
         section.stateManager.searchField = searchInput;
         section.stateManager.view.refresh();
       }
+      
+      protected function importEvidence(event:MouseEvent):void
+      {
+        var popup:EvidenceImport = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EvidenceImport, true) as EvidenceImport;
+        PopUpManager.centerPopUp(popup);
+      }
+      
     ]]>
   </fx:Script>
 

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="250" close="closeMe(event)" title="{R.get('EVIDENCE_IMPORT')}">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      private var dirReference:File;
+      
+      protected function closeMe(event:*):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      protected function browse(event:MouseEvent):void
+      {
+        dirReference = new File();
+        dirReference.addEventListener(Event.SELECT, dirSelection);
+        dirReference.browseForDirectory('');
+      }
+      
+      private function dirSelection(event:Event):void
+      {
+        var pattern:RegExp;
+        var results:Array;
+        var fileStream:FileStream = new FileStream();
+        var buffer:ByteArray = new ByteArray();
+        var iniFile:File = new File(dirReference.nativePath + "/offline.ini");
+        
+        if (!iniFile.exists) {
+          AlertPopUp.show(R.get('EVIDENCE_IMPORT_INVALID_DIR'));
+          return;
+        }
+        
+        dir.text = dirReference.name;
+        
+        fileStream.open(iniFile, FileMode.READ);
+        fileStream.readBytes(buffer);
+        
+        pattern = /FACTORY=(\w*)/;
+        results = buffer.toString().match(pattern);
+        factory.text = results[1];
+
+        pattern = /INSTANCE=(\w*)/;
+        results = buffer.toString().match(pattern);
+        instance.text = results[1];
+
+        pattern = /PLATFORM=(\w*)/;
+        results = buffer.toString().match(pattern);
+        platform.text = results[1];
+
+        pattern = /VERSION=(\w*)/;
+        results = buffer.toString().match(pattern);
+        version.text = results[1];
+
+        pattern = /USERID=(\w*)/;
+        results = buffer.toString().match(pattern);
+        user.text = results[1];
+        
+        pattern = /DEVICEID=(\w*)/;
+        results = buffer.toString().match(pattern);
+        device.text = results[1];
+        
+        importbtn.enabled = true;
+      }
+      
+      protected function importDir(event:MouseEvent):void
+      {
+        currentState = "uploading";
+        var contents:Array = dirReference.getDirectoryListing(); 
+        var dataTotal:Object = {bytesTotal: contents.length - 1, bytesLoaded: 0};
+        
+        progTotal.source = dataTotal;
+        
+        EvidenceManager.instance.sync(factory.text, instance.text, platform.text, version.text, user.text, device.text,
+          function (event:ResultEvent):void 
+          {
+        
+            for (var i:uint = 0; i < contents.length; i++) {
+        
+              if (contents[i].name.indexOf('offline.ini') != -1)
+                continue;
+             
+              EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[i], 
+                function ():void {
+                  dataTotal['bytesLoaded']++;
+                }, 
+                function ():void {
+                  AlertPopUp.show(R.get('UPLOAD_ERROR', [contents[i].name]));
+                }
+              );
+            }
+          
+        } );
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:states>
+    <s:State name="select"/>
+    <s:State name="uploading"/>
+  </s:states>
+  
+
+  <s:Button includeIn="select" left="20" top="15" label="Select Directory..." click="browse(event)"/>
+  <s:Label includeIn="select" y="50" left="20" fontWeight="bold" text="Directory:"/>
+  <s:Label includeIn="select" y="70" left="20" fontWeight="bold" text="Factory:"/>
+  <s:Label includeIn="select" y="90" left="20" fontWeight="bold" text="Instance:"/>
+  <s:Label includeIn="select" y="110" left="20" fontWeight="bold" text="Platform:"/>
+  <s:Label includeIn="select" y="130" left="20" fontWeight="bold" text="Version:"/>
+  <s:Label includeIn="select" y="150" left="20" fontWeight="bold" text="User:"/>
+  <s:Label includeIn="select" y="170" left="20" fontWeight="bold" text="Device:"/>
+  <s:Label id="dir" includeIn="select" y="50" left="100"/>
+  <s:Label id="factory" includeIn="select" y="70" left="100"/>
+  <s:Label id="instance" includeIn="select" y="90" left="100"/>
+  <s:Label id="platform" includeIn="select" y="110" left="100"/>
+  <s:Label id="version" includeIn="select" y="130" left="100"/>
+  <s:Label id="user" includeIn="select" y="150" left="100"/>
+  <s:Label id="device" includeIn="select" y="170" left="100"/>
+  
+  <s:Button id="importbtn" includeIn="select" enabled="false" right="20" bottom="15" label="{R.get('IMPORT')}..." click="importDir(event)"/>
+
+  <s:Label includeIn="uploading" left="20" fontWeight="bold" text="{R.get('EVIDENCE_IMPORTING')}..." verticalCenter="-20"/>
+
+  <mx:ProgressBar id="progTotal" includeIn="uploading" left="20" right="20" label="%3%%" labelPlacement="right" mode="polled" verticalCenter="0"/>
+  
+  <s:Button includeIn="uploading" right="20" bottom="15" enabled="{progTotal.percentComplete == 100}" label="{R.get('CLOSE')}" click="closeMe(event)"/>
+
+</s:TitleWindow>

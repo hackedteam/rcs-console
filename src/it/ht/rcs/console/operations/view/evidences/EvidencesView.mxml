@@ -2,24 +2,48 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="100%" height="100%">
+         width="100%" height="100%" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       [Bindable]
       public var section:OperationsSection;
+      
+      private function onAddedToStage():void
+      {
+        
+        EvidenceManager.instance.filter = {target: section.stateManager.selectedTarget._id}
+        if (section.stateManager.selectedAgent != null)
+          EvidenceManager.instance.filter['agent'] = section.stateManager.selectedAgent._id;
+          
+        EvidenceManager.instance.listenRefresh();
+        EvidenceManager.instance.refresh();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        EvidenceManager.instance.unlistenRefresh();
+      }
+      
+      private function dateLabelFunction(item:Object, column:GridColumn):String {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+      
     ]]>
   </fx:Script>
-  <s:DataGrid left="0" right="0" top="0" bottom="0" requestedRowCount="4">
+  <s:DataGrid left="0" right="0" top="0" bottom="0" requestedRowCount="4" dataProvider="{EvidenceManager.instance._view}">
     <s:columns>
       <s:ArrayList>
-        <s:GridColumn dataField="dataField1" headerText="Id" width="30" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="dataField2" headerText="Tag" width="40" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="dataField3" headerText="Date" width="100" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="dataField3" headerText="Type" width="100" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="dataField3" headerText="Info"></s:GridColumn>
+        <s:GridColumn dataField="_id" headerText="Id" width="30" resizable="false"></s:GridColumn>
+        <s:GridColumn dataField="relevance" headerText="Tag" width="40" resizable="false" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"></s:GridColumn>
+        <s:GridColumn dataField="acquired" headerText="Date" width="130" labelFunction="dateLabelFunction" resizable="false"></s:GridColumn>
+        <s:GridColumn dataField="received" headerText="Date" width="130" labelFunction="dateLabelFunction" resizable="false"></s:GridColumn>
+        <s:GridColumn dataField="type" headerText="Type" width="100" resizable="false"></s:GridColumn>
+        <s:GridColumn dataField="data" headerText="Info"></s:GridColumn>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>

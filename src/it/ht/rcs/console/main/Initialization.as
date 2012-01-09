@@ -57,7 +57,7 @@ package it.ht.rcs.console.main
 //      if (user.is_admin() || user.is_sys()) {
 //        MonitorManager.instance.start_counters();        
 //      }
-//      
+      
 //      if (user.is_view()) {
 //        AlertController.instance.start_counters();
 //      }

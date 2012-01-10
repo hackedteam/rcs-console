@@ -11,8 +11,8 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.network.model.Proxy;
-      import it.ht.rcs.console.network.model.ProxyRule;
+      import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.network.model.InjectorRule;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -21,9 +21,9 @@
       import mx.managers.PopUpManager;
       
       [Bindable]
-      public var rule:ProxyRule;
+      public var rule:InjectorRule;
       
-      public var proxy:it.ht.rcs.console.network.model.Proxy;
+      public var injector:it.ht.rcs.console.network.model.Injector;
       
       public var mode:String = 'edit';
       
@@ -38,7 +38,7 @@
         
         if (mode == 'create') {
           
-          rule = new ProxyRule(ProxyRule.defaultProxyRule());
+          rule = new InjectorRule(InjectorRule.defaultInjectorRule());
           
         } else if (mode == 'edit') {
           
@@ -186,7 +186,7 @@
       private function saveRule():void
       {
         if (mode == 'create')
-          proxy.rulesManager.addRule(proxy._id, rule, function(rule:ProxyRule):void { close(); });
+          injector.rulesManager.addRule(injector._id, rule, function(rule:InjectorRule):void { close(); });
         else
           close();
       }

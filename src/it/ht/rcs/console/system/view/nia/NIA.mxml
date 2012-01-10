@@ -39,10 +39,10 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.network.controller.ProxyController;
-      import it.ht.rcs.console.network.controller.ProxyManager;
-      import it.ht.rcs.console.network.model.Proxy;
-      import it.ht.rcs.console.network.model.ProxyRule;
+      import it.ht.rcs.console.network.controller.InjectorController;
+      import it.ht.rcs.console.network.controller.InjectorManager;
+      import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.network.model.InjectorRule;
       import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
@@ -59,35 +59,35 @@
       
       private function onAddedToStage():void
       {
-        ProxyController.instance.listenRefresh();
-        ProxyController.instance.refresh();
-        _proxy_view = ProxyManager.instance.getView();
+        InjectorController.instance.listenRefresh();
+        InjectorController.instance.refresh();
+        _proxy_view = InjectorManager.instance.getView();
       }
       
       private function onRemovedFromStage():void
       {
-        ProxyController.instance.unlistenRefresh();
+        InjectorController.instance.unlistenRefresh();
       }
       
       private function addProxy():void
       {
-        ProxyController.instance.addProxy(function onSuccess(proxy:it.ht.rcs.console.network.model.Proxy):void {
-          ipas.selectedItem = proxy;
-          createProxy(proxy);
+        InjectorController.instance.addProxy(function onSuccess(injector:it.ht.rcs.console.network.model.Injector):void {
+          ipas.selectedItem = injector;
+          createProxy(injector);
         });
       }
       
-      private function createProxy(proxy:it.ht.rcs.console.network.model.Proxy):void
+      private function createProxy(injector:it.ht.rcs.console.network.model.Injector):void
       {
         var popup:CreateNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateNIAForm, true) as CreateNIAForm;
-        popup.proxy = proxy;
+        popup.injector = injector;
         PopUpManager.centerPopUp(popup);
       }
       
-      private function editProxy(proxy:it.ht.rcs.console.network.model.Proxy):void
+      private function editProxy(proxy:it.ht.rcs.console.network.model.Injector):void
       {
         var popup:EditNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditNIAForm, true) as EditNIAForm;
-        popup.proxy = proxy;
+        popup.injector = proxy;
         PopUpManager.centerPopUp(popup);
       }
       
@@ -99,7 +99,7 @@
                         null,
                         function(e:CloseEvent):void {
                           if (e.detail == AlertPopUp.YES) 
-                            ProxyController.instance.removeItem(ipas.selectedItem);
+                            InjectorController.instance.removeItem(ipas.selectedItem);
                         },
                         null, AlertPopUp.NO);
       }
@@ -114,7 +114,7 @@
       {
         var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
         popup.mode = 'create';
-        popup.proxy = ipas.selectedItem;
+        popup.injector = ipas.selectedItem;
         PopUpManager.centerPopUp(popup);
       }
       
@@ -122,8 +122,8 @@
       {
         var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
         popup.mode = 'edit';
-        popup.proxy = ipas.selectedItem;
-        popup.rule = rulesGrid.selectedItem as ProxyRule;
+        popup.injector = ipas.selectedItem;
+        popup.rule = rulesGrid.selectedItem as InjectorRule;
         PopUpManager.centerPopUp(popup);
       }
       
@@ -142,7 +142,7 @@
       
       protected function applyRules():void
       {
-        DownloadManager.instance.createTask("proxy", null, {proxy_id: ipas.selectedItem._id}, onSuccess, onFailure);  
+        DownloadManager.instance.createTask("injector", null, {injector_id: ipas.selectedItem._id}, onSuccess, onFailure);  
       }
       
       private function onSuccess(e:ResultEvent):void

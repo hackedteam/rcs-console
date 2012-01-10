@@ -4,12 +4,12 @@
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             width="815" height="480" save="save()" creationComplete="init()"
-                            title="{R.get('EDIT') + ' ' + proxy.name}">
+                            title="{R.get('EDIT') + ' ' + injector.name}">
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.network.controller.ProxyManager;
-      import it.ht.rcs.console.network.model.Proxy;
+      import it.ht.rcs.console.network.controller.InjectorManager;
+      import it.ht.rcs.console.network.model.Injector;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
@@ -19,7 +19,7 @@
       public var mode:String = 'create';
       
       [Bindable]
-      public var proxy:it.ht.rcs.console.network.model.Proxy;
+      public var injector:it.ht.rcs.console.network.model.Injector;
 
       private function init():void
       {
@@ -28,14 +28,14 @@
       
       private function getLogs():void
       {
-        ProxyManager.instance.getLogs(proxy._id, function(logs:ArrayCollection):void {
+        InjectorManager.instance.getLogs(injector._id, function(logs:ArrayCollection):void {
           logTable.dataProvider = logs;
         });
       }
       
       private function clearLogs():void
       {
-        ProxyManager.instance.clearLogs(proxy._id, function():void {
+        InjectorManager.instance.clearLogs(injector._id, function():void {
           logTable.dataProvider = null;
         });
       }
@@ -43,11 +43,11 @@
       protected function save():void
       {
         /* keep the name the first to be modified */
-        proxy.name = nameField.text;
-        proxy.address = address.text;
-        proxy.desc = desc.text;
-        proxy.redirect = "auto";
-        proxy.poll = poll.selected;
+        injector.name = nameField.text;
+        injector.address = address.text;
+        injector.desc = desc.text;
+        injector.redirect = "auto";
+        injector.poll = poll.selected;
         
         close();
       }
@@ -61,20 +61,20 @@
   </fx:Script>
   
   <s:Label left="10" top="16" text="{R.get('NAME')}"/>
-  <s:TextInput id="nameField" left="90" top="10" width="200" text="{proxy.name}"/>
+  <s:TextInput id="nameField" left="90" top="10" width="200" text="{injector.name}"/>
   <s:Label left="330" top="16" text="{R.get('ADDRESS')}"/>
-  <s:TextInput id="address" left="390" top="10" width="180" text="{proxy.address}"/>
+  <s:TextInput id="address" left="390" top="10" width="180" text="{injector.address}"/>
   <s:Label left="610" top="16" text="{R.get('VERSION')}"/>
-  <s:TextInput left="670" width="75" top="10" enabled="false" text="{proxy.version}"/>
+  <s:TextInput left="670" width="75" top="10" enabled="false" text="{injector.version}"/>
   
   <s:Label left="10" top="56" text="{R.get('DESCRIPTION')}"/>
-  <s:TextArea id="desc" left="90" top="50" width="200" height="60" text="{proxy.desc}"/>
+  <s:TextArea id="desc" left="90" top="50" width="200" height="60" text="{injector.desc}"/>
   <!--
   <s:Label left="330" top="56" text="{R.get('REDIRECT')}"/>
   <s:TextInput id="redirect" left="390" top="50" width="180" text="{proxy.redirect}"/>
   -->
   <s:Label left="610" top="56" text="{R.get('POLL')}"/>
-  <s:CheckBox id="poll" left="670" top="50" selected="{proxy.poll}"/>
+  <s:CheckBox id="poll" left="670" top="50" selected="{injector.poll}"/>
 
   <s:Button right="50" top="135" skinClass="it.ht.rcs.console.skins.RefreshButton" toolTip="{R.get('REFRESH')}" click="getLogs()"/>
   <s:Button right="10" top="135" skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('CLEAR_LOGS')}" click="clearLogs()"/>

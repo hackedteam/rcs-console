@@ -3,6 +3,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.accounting.controller.GroupManager;
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.agent.controller.AgentManager;
+  import it.ht.rcs.console.network.controller.CollectorManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.target.controller.TargetManager;
@@ -41,19 +42,22 @@ package it.ht.rcs.console.main
       }
       
       
-      if (user.is_admin() || user.is_tech() || user.is_view())
+      if (user.is_admin())
       {
         GroupManager.instance.refresh();
+      }
+      
+      if (user.is_admin() || user.is_tech() || user.is_view())
+      {
         OperationManager.instance.refresh();
         TargetManager.instance.refresh();
       }
-      
       
       if (user.is_tech() || user.is_view())
       {
         AgentManager.instance.refresh();
       }
-      
+      CollectorManager.instance.refresh();
 //      if (user.is_admin() || user.is_sys()) {
 //        MonitorManager.instance.start_counters();        
 //      }

@@ -12,6 +12,7 @@
       
       import mx.collections.ArrayList;
       import mx.core.FlexGlobals;
+      import mx.managers.FocusManager;
       
       [Bindable]
       private var mainSections:ArrayList;
@@ -31,12 +32,15 @@
       
       private function changeSection(event:SectionEvent):void
       {
-        /* change the state to the current section */
-        sections.currentState = event.section;
+        /* change the state to the current section if it isn't in dirty state */
+        //if (!(sections[sections.currentState] as Section).isDirty)
+        //{
+          sections.currentState = event.section;
         
-        /* check if the new section has an handler to manage the event */
-        if (sections[event.section].hasOwnProperty('changeSection'))
-          sections[event.section].changeSection(event);
+          /* check if the new section has an handler to manage the event */
+          if (sections[event.section].hasOwnProperty('changeSection'))
+            sections[event.section].changeSection(event);
+        //}
       }
     ]]>
   </fx:Script>

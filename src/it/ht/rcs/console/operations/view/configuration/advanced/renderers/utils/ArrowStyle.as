@@ -1,4 +1,4 @@
-package it.ht.rcs.console.operations.view.configuration.renderers.utils {
+package it.ht.rcs.console.operations.view.configuration.advanced.renderers.utils {
 	
 	/**
 	 * 

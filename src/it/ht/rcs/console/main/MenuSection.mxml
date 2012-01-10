@@ -9,7 +9,9 @@
       import it.ht.rcs.console.events.SectionEvent;
       
       import mx.collections.IList;
+      import mx.controls.Alert;
       import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
       
       import spark.events.IndexChangeEvent;
       
@@ -22,6 +24,26 @@
         sectionEvent.section = sections.getItemAt(event.newIndex) as String;
         FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
       }
+      
+      private var toChange:int;
+      protected function onChanging(event:IndexChangeEvent):void
+      {
+        if ((parentDocument.sections[parentDocument.sections.currentState] as Section).isDirty) {
+          event.preventDefault();
+          toChange = event.newIndex;
+          Alert.show('Do you want to lose all the changes?', 'Dirty state', Alert.OK|Alert.CANCEL, null, pippo);
+        }
+      }
+      
+      private function pippo(event:CloseEvent):void
+      {
+        if (event.detail == Alert.OK) {
+          var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+          sectionEvent.section = sections.getItemAt(toChange) as String;
+          FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+        }
+      }
+      
     ]]>
   </fx:Script>
   
@@ -30,7 +52,7 @@
                         paddingRight="5" paddingTop="12" verticalAlign="middle"/>
   </s:layout>
   
-  <s:ButtonBar change="onButtonClick(event)" dataProvider="{sections}" requireSelection="true"
+  <s:ButtonBar change="onButtonClick(event)" changing="onChanging(event)" dataProvider="{sections}" requireSelection="true"
                selectedIndex="{sections.getItemIndex(parentDocument.sections.currentState)}"
                skinClass="it.ht.rcs.console.main.skins.chrome.RCSMenuSectionSkin"/>
   

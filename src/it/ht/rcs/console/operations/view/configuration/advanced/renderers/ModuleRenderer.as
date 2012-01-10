@@ -1,4 +1,4 @@
-package it.ht.rcs.console.operations.view.configuration.renderers
+package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 {
   import flash.display.BitmapData;
   import flash.display.Sprite;
@@ -7,7 +7,7 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
   
-  import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   
   import mx.core.UIComponent;
   

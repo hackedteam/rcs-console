@@ -1,4 +1,4 @@
-package it.ht.rcs.console.operations.view.configuration.renderers
+package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 {
   import flash.events.KeyboardEvent;
   import flash.events.MouseEvent;
@@ -7,8 +7,8 @@ package it.ht.rcs.console.operations.view.configuration.renderers
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
   
-  import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
-  import it.ht.rcs.console.operations.view.configuration.renderers.utils.GraphicsUtil;
+  import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.advanced.renderers.utils.GraphicsUtil;
   
   import mx.core.UIComponent;
   

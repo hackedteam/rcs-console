@@ -1,9 +1,9 @@
-package it.ht.rcs.console.operations.view.configuration.renderers
+package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 {
   import flash.events.MouseEvent;
   import flash.geom.Point;
   
-  import it.ht.rcs.console.operations.view.configuration.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   
   import mx.core.UIComponent;
   

@@ -1,4 +1,4 @@
-package it.ht.rcs.console.operations.view.configuration
+package it.ht.rcs.console.operations.view.configuration.advanced
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
@@ -6,12 +6,12 @@ package it.ht.rcs.console.operations.view.configuration
 	import flash.ui.MouseCursor;
 	import flash.utils.Dictionary;
 	
-	import it.ht.rcs.console.operations.view.configuration.renderers.ActionRenderer;
-	import it.ht.rcs.console.operations.view.configuration.renderers.Connection;
-	import it.ht.rcs.console.operations.view.configuration.renderers.EventRenderer;
-	import it.ht.rcs.console.operations.view.configuration.renderers.Linkable;
-	import it.ht.rcs.console.operations.view.configuration.renderers.ModuleRenderer;
-	import it.ht.rcs.console.operations.view.configuration.renderers.Pin;
+	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ActionRenderer;
+	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Connection;
+	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
+	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Linkable;
+	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleRenderer;
+	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Pin;
 	import it.ht.rcs.console.utils.NativeCursor;
 	
 	import mx.core.IVisualElement;
@@ -69,8 +69,7 @@ package it.ht.rcs.console.operations.view.configuration
       vScrollBar = (this.parent as ScrollerSkin).hostComponent.verticalScrollBar;
     }
     
-    
-    
+    // Mouse pointer handling
     private function onMouseOver(me:MouseEvent):void
     {
       if (mode == NORMAL)

@@ -25,6 +25,7 @@
       {
         /* start the auto refresh when the section is open */
         AlertController.instance.listenRefresh();
+        AlertController.instance.refresh();
               
         _alert_view = AlertController.instance.getView();
       }
@@ -86,6 +87,13 @@
         }
       }
       
+      private function labelEvidence(item:Object, column:GridColumn):String {
+        if (item[column.dataField])
+          return item[column.dataField].toString().toUpperCase();
+        
+        return '';
+      }
+      
     ]]>
   </fx:Script>
   
@@ -133,7 +141,7 @@
             </s:GridColumn>
             <s:GridColumn dataField="action" headerText="{resourceManager.getString('localized_main', 'ALERT_EVENT')}" width="80"/>
             <s:GridColumn dataField="path" headerText="{resourceManager.getString('localized_main', 'PATH')}" itemRenderer="it.ht.rcs.console.alerting.view.PathRenderer" />
-            <s:GridColumn dataField="evidence" headerText="Evidence" width="90"/>
+            <s:GridColumn dataField="evidence" headerText="Evidence" width="100" labelFunction="labelEvidence"/>
             <s:GridColumn dataField="keywords" headerText="{resourceManager.getString('localized_main', 'KEYWORD')}"></s:GridColumn>
             <s:GridColumn dataField="tag" headerText="{resourceManager.getString('localized_main', 'TAG')}" width="35" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
             <s:GridColumn dataField="type" headerText="{resourceManager.getString('localized_main', 'TYPE')}" width="50"/>

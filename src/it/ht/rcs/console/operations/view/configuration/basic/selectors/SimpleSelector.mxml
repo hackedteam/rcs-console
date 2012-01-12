@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:srilabs="com.srilabs.*"
+                   width="100%" borderColor="#aaaaaa" cornerRadius="5" creationPolicy="all">
+  
+  <fx:Script>
+    <![CDATA[
+      [Bindable]
+      public var text:String;
+      
+      public function set selected(s:Boolean):void
+      {
+        check.selected = s;
+      }
+      
+      private function onSwitch(event:MouseEvent):void
+      {
+        dispatchEvent(new Event('switch', true, true));
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Rect width="100%" height="100" radiusX="5" radiusY="5">
+    <s:fill>
+      <s:LinearGradient rotation="90">
+        <s:entries>
+          <s:GradientEntry color="#f5f5f5"/>
+          <s:GradientEntry color="#d5d5d5"/>
+        </s:entries>
+      </s:LinearGradient>
+    </s:fill>
+  </s:Rect>
+  
+  <srilabs:iCheckBox id="check" right="15" top="15" width="110" height="28" animated="false"
+                     click="onSwitch(event)" text1="ON" text2="OFF"/>
+  
+  <s:Label left="15" top="15" height="28" fontFamily="Myriad" fontSize="18" fontWeight="bold"
+           text="{text}" verticalAlign="middle"/>
+  
+</s:BorderContainer>

@@ -27,7 +27,7 @@
       {
         if (currentState == EDIT) {
           for each (var t:Object in types)
-            if (t.label == factory.type)
+            if (t.label.toLowerCase() == factory.type)
               type.selectedItem = t;
         }
         
@@ -38,7 +38,7 @@
       {
         factory.name = opName.text;
         factory.desc = desc.text;
-        factory.type = type.selectedItem.label;
+        factory.type = type.selectedItem.label.toLowerCase();
         
         if (currentState == CREATE)
           AgentManager.instance.addFactory(factory, operation, target, function(factory:Agent):void { close(); });

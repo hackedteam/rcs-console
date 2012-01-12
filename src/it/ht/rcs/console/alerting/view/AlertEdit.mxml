@@ -34,16 +34,22 @@
       
       private function saveMe():void
       {
+        var path:ArrayCollection;
+        
         _alert.enabled = formEnabled.selected;
         _alert.type = formType.selectedItem;
 
-        var path:ArrayCollection = new ArrayCollection(formPath.selectedItem.path.source);
-        path.addItem(formPath.selectedItem._id);
+        if (formPath.selectedItem) {
+          path = new ArrayCollection(formPath.selectedItem.path.source);
+          path.addItem(formPath.selectedItem._id);
+        } else {
+          path = new ArrayCollection();
+        }
         _alert.path = path;
         
         _alert.action = formAction.selectedItem;
         if (_alert.action == 'EVIDENCE') {
-          _alert.evidence = formEvidence.selectedItem;
+          _alert.evidence = formEvidence.selectedItem.toLowerCase();
           _alert.keywords = formKeyword.text;
           _alert.tag = formTag.value;
         } else {
@@ -76,7 +82,7 @@
     </s:FormItem>
     
     <s:FormItem label="Evidence" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
-      <s:DropDownList id="formEvidence" width="120" dataProvider="{evidence}" selectedIndex="{evidence.toArray().indexOf(_alert.evidence)}"/>
+      <s:DropDownList id="formEvidence" width="120" dataProvider="{evidence}" selectedIndex="{evidence.toArray().indexOf(_alert.evidence.toUpperCase())}"/>
     </s:FormItem>
     <s:FormItem label="{resourceManager.getString('localized_main', 'KEYWORD')}" skinClass="it.ht.rcs.console.skins.CompactFormItem" enabled="{formAction.selectedItem == 'EVIDENCE'}">
       <s:TextInput id="formKeyword" text="{_alert.keywords}" width="200"/>

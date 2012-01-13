@@ -1,7 +1,5 @@
 package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 {
-  import flash.display.BitmapData;
-  import flash.display.Sprite;
   import flash.events.MouseEvent;
   import flash.geom.Point;
   import flash.ui.Mouse;
@@ -9,21 +7,21 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   
-  import mx.core.UIComponent;
+  import mx.graphics.BitmapSmoothingQuality;
   
   import spark.components.Group;
-  import spark.primitives.BitmapImage;
+  import spark.components.Image;
   
   public class ModuleRenderer extends Group implements Linkable
   {
-    private static const WIDTH:Number  = 48;
-    private static const HEIGHT:Number = 48;
+    private static const WIDTH:Number  = 36;
+    private static const HEIGHT:Number = 36;
     
     private static const NORMAL_COLOR:uint = 0xffffff;
     private static const OVER_COLOR:uint   = 0x99bb99;
     private var backgroundColor:uint = NORMAL_COLOR;
     
-    private var icon:BitmapImage;
+    private var icon:Image;
     
     private var inBound:Vector.<Connection> = new Vector.<Connection>();
     public function inBoundConnections():Vector.<Connection>  { return inBound; }
@@ -89,7 +87,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       super.createChildren();
       
       if (icon == null) {
-        icon = new BitmapImage();
+        icon = new Image();
+        icon.toolTip = module.module;
+        icon.smooth = true;
         icon.source = ModuleIcons[module.module];
         icon.width = width;
         icon.height = height;

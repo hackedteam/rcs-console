@@ -310,7 +310,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       modules = new Vector.<ModuleRenderer>();
       connections = new Vector.<Connection>();
       modulesMap = new Dictionary();
-      
+      if (config == null) return;
       // Adding events
       var er:EventRenderer;
       for each (var e:Object in config.events) {
@@ -382,6 +382,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     }
     
     private static const NODE_DISTANCE:int     = 60;
+    private static const MODULE_DISTANCE:int   = 20;
     private static const VERTICAL_DISTANCE:int = 60;
     private static const VERTICAL_GAP:int      = 200;
     private static const HORIZONTAL_PAD:int    = 50;
@@ -398,7 +399,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         actionsX = (actions[0].width * actions.length) + (NODE_DISTANCE * (actions.length - 1)) + HORIZONTAL_PAD * 2;
         actionsY = 1000; // TODO: Compute real height!!!
       }
-      return new Point(Math.max(eventsX, actionsX), Math.max(eventsY, actionsY));
+      var modulesX:Number = 0;
+      if (modules != null && modules.length > 0) {
+        modulesX = (modules[0].width * modules.length) + (MODULE_DISTANCE * (modules.length - 1)) + HORIZONTAL_PAD * 2;
+      }
+      return new Point(Math.max(eventsX, actionsX, modulesX), Math.max(eventsY, actionsY));
     }
     
 		override protected function measure():void
@@ -465,13 +470,13 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         // Where to draw the first module?
         var moduleRenderer:ModuleRenderer = modules[0];
         offsetFromCenter = modules.length % 2 == 0 ?
-          _width / 2 - (modules.length / 2 * (NODE_DISTANCE + moduleRenderer.width)) + NODE_DISTANCE / 2 : // Even
-          _width / 2 - (Math.floor(modules.length / 2) * (NODE_DISTANCE + moduleRenderer.width)) - moduleRenderer.width / 2; // Odd
+          _width / 2 - (modules.length / 2 * (MODULE_DISTANCE + moduleRenderer.width)) + MODULE_DISTANCE / 2 : // Even
+          _width / 2 - (Math.floor(modules.length / 2) * (MODULE_DISTANCE + moduleRenderer.width)) - moduleRenderer.width / 2; // Odd
         
         cY = VERTICAL_DISTANCE + VERTICAL_GAP * 2;
         for (i = 0; i < modules.length; i++) {
           moduleRenderer = modules[i];
-          cX = offsetFromCenter + i * (NODE_DISTANCE + moduleRenderer.width);
+          cX = offsetFromCenter + i * (MODULE_DISTANCE + moduleRenderer.width);
           moduleRenderer.move(cX, cY);
         }
         

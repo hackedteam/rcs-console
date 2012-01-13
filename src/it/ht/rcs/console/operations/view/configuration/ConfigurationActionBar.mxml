@@ -2,11 +2,12 @@
 <actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
                      xmlns:s="library://ns.adobe.com/flex/spark"
                      xmlns:mx="library://ns.adobe.com/flex/mx"
-                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     addedToStage="onAddedToStage(event)">
 
   <s:Button label="New" icon="@Embed('/img/windows/user2.png')"/>
   
-  <s:Button label="Save" icon="@Embed('/img/windows/user2.png')"/>
+  <s:Button label="Save" icon="@Embed('/img/windows/user2.png')" click="onSave()"/>
   
   <actionbar:Separator width="20"/>
   
@@ -25,12 +26,24 @@
       import mx.managers.PopUpManager;
       
       public var section:OperationsSection;
+      public var configView:ConfigurationView;
       
       private function build(event:MouseEvent):void
       {
         var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
         b.factory = section.stateManager.selectedFactory;
         PopUpManager.centerPopUp(b);
+      }
+      
+      private function onAddedToStage(event:Event):void
+      {
+        configView = parent as ConfigurationView;
+      }
+      
+      private function onSave():void
+      {
+        var c:Object = configView.basic.getConfig();
+        trace(c);
       }
     ]]>
   </fx:Script>

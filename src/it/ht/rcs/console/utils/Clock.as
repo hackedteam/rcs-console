@@ -44,7 +44,7 @@ package it.ht.rcs.console.utils
       trace('UTC clock initialization...');
       
       clockFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
-      statusBarClockFormatter.formatString = "EEE, MMM D   JJ:NN";
+      statusBarClockFormatter.formatString = "EEE, MMM D   JJ:NN:SS";
       
       /* initialize to UTC, the profile value will be set on currentSession creation */
       consoleOffset = 0;

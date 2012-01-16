@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:users="it.ht.rcs.console.accounting.view.users.*"
+          width="100%" height="100%" addedToStage="onAddedToStage()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      public var dataProvider:ListCollectionView;
+      
+      private function onAddedToStage():void
+      {
+        dataProvider = UserManager.instance.getView(null, searchFilterFunction);
+      }
+      
+      private function searchFilterFunction(item:Object):Boolean
+      {
+        try {
+          return item.name.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+        } catch (e:Error) {}
+        return true;
+      }
+    ]]>
+  </fx:Script>
+  
+  <users:UserActionBar id="actionBar" selectedObject="{userList.list.selectedItem}"
+                       view="{dataProvider}" viewStack="{views}"/>
+  
+  <mx:ViewStack id="views" width="100%" height="100%" creationPolicy="all">
+    
+    <s:NavigatorContent label="{R.get('ICON_VIEW')}" hideEffect="{fadeOut}"
+                        icon="@Embed('/img/windows/icon.png')" showEffect="{fadeIn}">
+      <users:UserList id="userList" dataProvider="{dataProvider}"/>
+    </s:NavigatorContent>
+    
+    <s:NavigatorContent label="{R.get('TABLE_VIEW')}" hideEffect="{fadeOut}"
+                        icon="@Embed('/img/windows/list.png')" showEffect="{fadeIn}">
+      <users:UserTable id="userTable" dataProvider="{dataProvider}"/>
+    </s:NavigatorContent>
+    
+  </mx:ViewStack>
+  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
+  </fx:Declarations>
+  
+</s:VGroup>

@@ -9,7 +9,6 @@ package it.ht.rcs.console.utils
   
   import spark.components.Button;
   import spark.components.TitleWindow;
-  import it.ht.rcs.console.main.skins.RCSTitleWindowSaveCancelSkin;
   
   [Event(name='save', type='it.ht.rcs.console.events.SaveEvent')]
   public class TitleWindowSaveCancel extends TitleWindow
@@ -29,7 +28,6 @@ package it.ht.rcs.console.utils
     public function TitleWindowSaveCancel()
     {
       super();
-      setStyle('skinClass', RCSTitleWindowSaveCancelSkin);
     }
     
     override protected function partAdded(partName:String, instance:Object):void

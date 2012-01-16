@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                xmlns:s="library://ns.adobe.com/flex/spark" 
-                xmlns:mx="library://ns.adobe.com/flex/mx" 
-                autoDrawBackground="true"
-                doubleClickEnabled="true" doubleClick="edit()">
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true" doubleClick="onDoubleClick()" doubleClickEnabled="true">
+  
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.accounting.model.User;
-      import it.ht.rcs.console.events.EditEvent;
-
-      private function edit():void
+      private function onDoubleClick():void
       {
-        var evt:EditEvent = new EditEvent(EditEvent.USER, true);
-        evt.user = data as User;
-        dispatchEvent(evt);
+//        var evt:EditEvent = new EditEvent(EditEvent.USER, true);
+//        evt.user = data as User;
+//        dispatchEvent(evt);
       }
     ]]>
   </fx:Script>
-  <s:SkinnableContainer x="0" y="0" width="80" >
-    <mx:Image source="img/items/user.png" left="5" top="5" width="70" height="60" alpha="{(data.enabled) ? 1 : 0.4}"/>
-    <s:Label text="{data.name}" top="70" horizontalCenter="0" width="80" textAlign="center"/>
-  </s:SkinnableContainer>
+  
+  <!-- <s:Image left="15" top="5" source="@Embed('/img/items/user.png')"/>  50x50 -->
+  <s:Rect top="8" width="50" height="50" alpha="{data.enabled ? 1 : .5}" horizontalCenter="0">
+    <s:fill><s:SolidColor color="#000000"/></s:fill>
+  </s:Rect>
+  <s:Label left="8" right="8" top="70" bottom="8" minWidth="90" maxWidth="90" fontFamily="Myriad"
+           fontSize="14" lineHeight="15" maxDisplayedLines="2" text="{data.name}" textAlign="center"
+           verticalAlign="middle"/>
   
 </s:ItemRenderer>

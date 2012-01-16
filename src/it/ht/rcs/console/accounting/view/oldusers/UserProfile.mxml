@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="close()"
+                             title="{R.get('USER_PROFILE')}">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function init():void
+      {
+        localeList.setFocus();
+      }
+      
+      private function changeLocale():void
+      {
+        /* change on the fly the locale of the console */
+        resourceManager.localeChain = [localeList.selectedItem];
+       
+        /* save the pref in the user profile */
+        Console.currentSession.user.locale = localeList.selectedItem;
+        UserManager.instance.update(Console.currentSession.user, {locale: Console.currentSession.user.locale});
+      }
+      
+      private function changePassword():void
+      {
+        var popup:ChangePassword = PopUpManager.createPopUp(root, ChangePassword, true) as ChangePassword;
+        popup.user = Console.currentSession.user;
+        PopUpManager.centerPopUp(popup);
+      } 
+      
+    ]]>
+  </fx:Script>  
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('USER')}">
+      <s:Label text="{Console.currentSession.user.name}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('CONTACT')}">
+      <s:Label text="{Console.currentSession.user.contact}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PRIVILEGES')}">
+      <s:Label text="{Console.currentSession.user.privs.source.join(' | ')}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('LANGUAGE')}">
+      <s:DropDownList id="localeList" width="100" change="changeLocale()"
+                      dataProvider="{Console.locales}"
+                      selectedIndex="{Console.locales.getItemIndex(Console.currentSession.user.locale)}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PASSWORD')}">
+      <s:Button width="100" label="{R.get('CHANGE')}..." click="changePassword()"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</utils:TitleWindowSaveCancel>

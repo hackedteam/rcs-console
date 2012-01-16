@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     xmlns:view="it.ht.rcs.console.operations.view.*">
+  
+  <s:Button label="{R.get('NEW_USER')}" click="onNewClick()" icon="@Embed('/img/windows/user2.png')"/>
+  
+  <s:Button label="{R.get('EDIT_USER')}" click="onEditClick()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/windows/user2.png')"/>
+  
+  <actionbar:Separator width="40"/>
+  
+  <s:Button label="Disconnect user" enabled="{selectedObject.enabled}"/>
+  
+  <actionbar:Separator width="40"/>
+  
+  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function onNewClick():void
+      {
+        var popup:UserEdit = PopUpManager.createPopUp(root, UserEdit, true) as UserEdit;
+        //popup.user = u;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onEditClick():void
+      {
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        if (view != null) view.refresh();
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

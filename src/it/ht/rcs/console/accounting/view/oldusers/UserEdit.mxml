@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" 
+               xmlns:utils="it.ht.rcs.console.utils.*" 
+               width="480" height="470"
+               close="closeMe()" save="saveMe()"
+               title="{resourceManager.getString('localized_main', 'EDIT_USER').toUpperCase()}">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
+      
+      import mx.collections.ArrayCollection;
+      import mx.controls.Menu;
+      import mx.events.MenuEvent;
+      import mx.managers.PopUpManager;
+            
+      [Bindable]
+      private var _user:User;
+      
+      public var callback:Function;
+      
+      private function closeMe():void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function saveMe():void
+      {
+        /* keep the name the first to be modified */
+        _user.name = formName.text;
+        _user.enabled = formEnabled.selected;
+        _user.desc = formDescription.text;
+        _user.contact = formContact.text;
+        _user.locale = formLocale.selectedItem;
+        _user.timezone = formConsoletime.selectedIndex - 12;
+        
+        var privs:ArrayCollection = new ArrayCollection();
+        if (formAdmin.selected) privs.addItem('ADMIN');
+        if (formSys.selected) privs.addItem('SYS');
+        if (formTech.selected)  privs.addItem('TECH');
+        if (formView.selected)  privs.addItem('VIEW');
+        
+        if (privs.toString() != _user.privs.toString())
+          _user.privs = privs;
+        
+        PopUpManager.removePopUp(this);
+        callback();
+      }
+      
+      public function set user(u:User):void
+      {
+        _user = u;
+      }
+      
+      private function changePass():void
+      {
+        var cp:ChangePassword = PopUpManager.createPopUp(root, ChangePassword, true) as ChangePassword;
+        cp.user = _user;
+        PopUpManager.centerPopUp(cp);
+      }
+      
+      private function removeGroup(gid:String):void
+      {
+        var group:Group = GroupManager.instance.getItem(gid);
+        GroupManager.instance.removeUser(group, _user);  
+      }
+      
+      private function addGroup(event:MenuEvent):void
+      {
+        var group:Group = event.item as Group;
+        GroupManager.instance.addUser(group, _user);   
+      }
+      
+      private function initMenuUser():void
+      {
+        var _menu:Menu;
+        _menu = new Menu();
+        _menu.dataProvider = GroupManager.instance.getView();
+        _menu.labelField = 'name';
+        _menu.selectedIndex = 0;
+        _menu.addEventListener(MenuEvent.ITEM_CLICK, addGroup);
+        addgroupButton.popUp = _menu;
+      }
+      
+      private function groupFromId(o:Object):String
+      {
+        var group:Group = GroupManager.instance.getItem(o as String);
+        return group.name;
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <fx:Metadata>
+    [ResourceBundle("localized_main")] 
+  </fx:Metadata>
+  
+  <s:Form top="0" right="10" left="10" skinClass="it.ht.rcs.console.skins.CompactForm">
+    <s:FormItem label="{resourceManager.getString('localized_main', 'ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">     
+      <!-- the current user cannot disable himself -->
+      <s:CheckBox selected="{_user.enabled}" id="formEnabled" enabled="{_user._id != Console.currentSession.user._id}"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">      
+      <s:TextInput width="150" maxChars="20" text="{_user.name}" id="formName"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'DESCRIPTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">      
+      <s:TextInput width="250" text="{_user.desc}" id="formDescription"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'CONTACT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">      
+      <s:TextInput width="250" text="{_user.contact}" id="formContact"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'PASSWORD')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">      
+      <s:Button label="{resourceManager.getString('localized_main', 'CHANGE')}..." width="75" click="changePass()"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'PRIVILEGES')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">     
+      <s:HGroup>
+        <!-- the current user cannot remove the ADMIN priv from himself -->
+        <s:CheckBox label="ADMIN" width="70" selected="{_user.privs.getItemIndex('ADMIN') != -1}" id="formAdmin" enabled="{_user._id != Console.currentSession.user._id}"/>
+		<s:CheckBox label="SYS" width="70" selected="{_user.privs.getItemIndex('SYS') != -1}" id="formSys"/>
+        <s:CheckBox label="TECH" width="70" selected="{_user.privs.getItemIndex('TECH') != -1}" id="formTech"/>
+        <s:CheckBox label="VIEW" width="70" selected="{_user.privs.getItemIndex('VIEW') != -1}" id="formView"/>
+      </s:HGroup>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'LANGUAGE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">      
+      <s:DropDownList width="80" dataProvider="{Console.locales}" selectedIndex="{Console.locales.toArray().indexOf(_user.locale)}" id="formLocale"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'CONSOLE_TIMEZONE')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">      
+      <s:DropDownList width="80" dataProvider="{ClockProfile.timezones}" selectedIndex="{_user.timezone + 12}" id="formConsoletime"/>
+    </s:FormItem>
+    <s:FormItem label="{resourceManager.getString('localized_main', 'GROUPS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:BorderContainer backgroundColor="#EAEAEA" borderVisible="false">
+        <s:List id="usergroups" bottom="20" width="150" height="115" dataProvider="{_user.group_ids}" labelFunction="groupFromId"/>
+          <s:Button right="51" bottom="0" width="30" height="20" label="-" styleName="AddRemove"
+                    enabled="{usergroups.selectedItem != null}"
+                    click="{removeGroup(usergroups.selectedItem)}"/>
+          <mx:PopUpButton id="addgroupButton" right="1" bottom="0" width="50" height="20" styleName="AddRemove" label="+" openAlways="true" creationComplete="initMenuUser()"/>
+      </s:BorderContainer>
+    </s:FormItem>
+  </s:Form>
+</utils:TitleWindowSaveCancel>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          width="100%" height="100%" creationComplete="init()" gap="-1">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
+      
+      import mx.collections.IList;
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      private var _group:Group;
+      
+      [Bindable] private var selectedDP:IList;
+      [Bindable] private var availableDP:ListCollectionView;
+      
+      private function init():void
+      {
+        availableDP = UserManager.instance.getView(null, listFilterFunction);
+//        if (selectedDP == null)
+//          selectedDP = new ArrayList();
+      }
+      
+      private function listFilterFunction(item:Object):Boolean
+      {
+        try {
+          return selectedDP.getItemIndex(item._id) == -1;
+        } catch (e:Error) {}
+        return true;
+      }
+      
+      public function set group(g:Group):void
+      {
+        _group = g;
+      }
+      
+      private function userLabelFunction(item:Object, column:GridColumn):String
+      {
+        var u:User = UserManager.instance.getItem(item as String);
+        if (u == null) return "<invalid> (" + item + ")";
+        return u.name;
+      }
+    ]]>
+  </fx:Script>
+
+  <s:HGroup width="100%" gap="-1" horizontalAlign="right">
+    
+    <s:Button width="30" label="-" cornerRadius="0"/>
+    
+    <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
+      <mx:popUp>
+        <s:List id="availableGroups" dataProvider="{availableDP}" filters="{[dropShadow]}"
+                labelField="name" textAlign="left"/>
+      </mx:popUp>
+    </mx:PopUpButton>
+    
+  </s:HGroup>
+  
+  <s:DataGrid width="100%" height="100%" dataProvider="{_group.user_ids}">
+    <s:columns>
+      <s:ArrayList>
+        <s:GridColumn headerText="Users in this Group" labelFunction="userLabelFunction"/>
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+
+  <fx:Declarations>
+    <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"
+                        distance="8"/>
+  </fx:Declarations>
+  
+</s:VGroup>

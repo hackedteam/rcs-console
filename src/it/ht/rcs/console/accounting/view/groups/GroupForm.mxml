@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_USER')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var group:Group;
+      
+      public var callback:Function;
+      
+      private function save():void
+      {
+        group.name = formName.text;
+        
+        if (currentState == 'create')
+          GroupManager.instance.addGroup(group, function(g:Group):void { close(); });
+        else
+          close();
+      }
+      
+      private function init():void
+      {
+        formName.setFocus();
+        if (currentState == 'create')
+          group = new Group(Group.defaultGroup());
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="formName" width="200" maxChars="20" text="{group.name}"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

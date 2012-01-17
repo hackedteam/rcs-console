@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
-                             save="saveMe()" title="{R.get('EDIT_USER')}" creationComplete="init()">
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_USER')}">
   
   <fx:Script>
     <![CDATA[
@@ -14,14 +14,13 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
-      import mx.managers.PopUpManager;
       
       [Bindable]
       private var _user:User;
       
       public var callback:Function;
       
-      private function saveMe():void
+      private function save():void
       {
         /* keep the name the first to be modified */
         _user.name = formName.text;
@@ -63,6 +62,11 @@
       }
     ]]>
   </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
   
   <s:Form defaultButton="{saveButton}">
     
@@ -114,7 +118,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('GROUPS')}">
-      <groups:GroupSelector dataProvider="{_user.group_ids}" width="100"/>
+      <groups:GroupSelector width="100" dataProvider="{_user.group_ids}"/>
     </s:FormItem>
     
   </s:Form>

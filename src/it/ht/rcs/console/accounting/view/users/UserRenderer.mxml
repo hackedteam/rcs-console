@@ -6,19 +6,23 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.model.User;
+      
+      import mx.managers.PopUpManager;
+      
       private function onDoubleClick():void
       {
-//        var evt:EditEvent = new EditEvent(EditEvent.USER, true);
-//        evt.user = data as User;
-//        dispatchEvent(evt);
+        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
+        popup.user = data as User;
+        popup.currentState = 'edit';
+        PopUpManager.centerPopUp(popup);
       }
     ]]>
   </fx:Script>
   
-  <!-- <s:Image left="15" top="5" source="@Embed('/img/items/user.png')"/>  50x50 -->
-  <s:Rect top="8" width="50" height="50" alpha="{data.enabled ? 1 : .5}" horizontalCenter="0">
-    <s:fill><s:SolidColor color="#000000"/></s:fill>
-  </s:Rect>
+  <s:Image top="8" alpha="{data.enabled ? 1 : .5}" horizontalCenter="0"
+           source="@Embed('/img/NEW/user.png')"/>
+
   <s:Label left="8" right="8" top="70" bottom="8" minWidth="90" maxWidth="90" fontFamily="Myriad"
            fontSize="14" lineHeight="15" maxDisplayedLines="2" text="{data.name}" textAlign="center"
            verticalAlign="middle"/>

@@ -2,13 +2,18 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true" doubleClick="onDoubleClick()" doubleClickEnabled="true">
+                autoDrawBackground="true" doubleClick="onDoubleClick()" doubleClickEnabled="true" toolTip="{data.enabled ? 'User is online' : null}">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.model.User;
       
       import mx.managers.PopUpManager;
+      
+      [Embed(source='/img/NEW/user.png')]
+      private static const offline:Class;
+      [Embed(source='/img/NEW/user_online.png')]
+      private static const online:Class;
       
       private function onDoubleClick():void
       {
@@ -21,7 +26,7 @@
   </fx:Script>
   
   <s:Image top="8" alpha="{data.enabled ? 1 : .5}" horizontalCenter="0"
-           source="@Embed('/img/NEW/user.png')"/>
+           source="{data.enabled ? online : offline}"/>
 
   <s:Label left="8" right="8" top="70" bottom="8" minWidth="90" maxWidth="90" fontFamily="Myriad"
            fontSize="14" lineHeight="15" maxDisplayedLines="2" text="{data.name}" textAlign="center"

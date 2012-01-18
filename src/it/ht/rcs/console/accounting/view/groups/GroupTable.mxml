@@ -16,14 +16,9 @@
       [Bindable]
       public var linkWith:List;
       
-      private function usersLabelFunction(item:Object, column:GridColumn):String
+      private function itemsLabelFunction(item:Object, column:GridColumn):String
       {
-        return item.user_ids.length;
-      }
-      
-      private function operationsLabelFunctions(item:Object, column:GridColumn):String
-      {
-        return item.item_ids.length;
+        return item[column.dataField].length;
       }
     ]]>
   </fx:Script>
@@ -33,8 +28,8 @@
     <s:columns>
       <s:ArrayList>
         <s:GridColumn dataField="name" headerText="Name"/>
-        <s:GridColumn headerText="Users" labelFunction="usersLabelFunction"/>
-        <s:GridColumn headerText="Operations" labelFunction="operationsLabelFunctions"/>
+        <s:GridColumn dataField="user_ids" headerText="Users" labelFunction="itemsLabelFunction"/>
+        <s:GridColumn dataField="item_ids" headerText="Operations" labelFunction="itemsLabelFunction"/>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>

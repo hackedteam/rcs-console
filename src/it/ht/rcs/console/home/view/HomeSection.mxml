@@ -8,6 +8,8 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.items.ItemEvent;
@@ -45,6 +47,11 @@
         FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
         
+      protected function button1_clickHandler(event:MouseEvent):void
+      {
+        AlertManager.instance.toggle();
+      }
+      
     ]]>
   </fx:Script>
   
@@ -63,7 +70,7 @@
            text="developer preview"/>
   
   <s:BorderContainer includeIn="any" x="155" y="210" width="353" height="214" backgroundAlpha="0.45">
-  
+  <s:Button label="test" click="button1_clickHandler(event)"/>
     <s:HGroup visible="{enable_items}" left="25" top="20" verticalAlign="middle">
       <s:Label fontSize="16" text="{R.get('GO_TO')}:"/>
       <items:SearchField id="gotoItems" width="260"/>

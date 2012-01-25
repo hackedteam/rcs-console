@@ -3,41 +3,34 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
-          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage(event)"
-          removedFromStage="onRemovedFromStage(event)">
-
+          width="100%" height="100%" addedToStage="onAddedToStage(event)"
+          removedFromStage="onRemovedFromStage(event)" creationComplete="init()">
   
-  <s:BorderContainer width="100%" height="120" dropShadowVisible="true">
-    
-    <frontend:CollectorList id="collectors" left="5" right="5" top="5" bottom="5" width="100%"
-                            borderVisible="false" change="onCollectorsListSelection(event)"
-                            dataProvider="{_collector_view}" keyDown="enter(event)"/>
-    
-    <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteCollector()"
-              enabled="{collectors.selectedItem != null}" styleName="AddRemove"
-              toolTip="{R.get('COLLECTOR_DELETE')}"/>
-    <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addCollector()"
-              styleName="AddRemove" toolTip="{R.get('COLLECTOR_ADD')}"/>
   
+  <frontend:FrontendActionBar selectedObject="{list.selectedItem}"/>
+  
+  <frontend:CollectorList id="list" change="onCollectorsListSelection(event)"
+                          dataProvider="{anonymizers}" keyDown="enter(event)"/>
+  
+  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderWeight="2" borderVisible="true" cornerRadius="10">
+    <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
+      <s:fill>
+        <s:LinearGradient rotation="90">
+          <s:GradientEntry color="#eeeeee"/>
+          <s:GradientEntry color="#ffffff"/>
+          <s:GradientEntry color="#ffffff"/>
+        </s:LinearGradient>
+      </s:fill>
+    </s:Rect>
+    <s:Scroller id="scroller" width="100%" height="100%">
+      <frontend:FrontendGraph id="graph"/>
+    </s:Scroller>
   </s:BorderContainer>
-  
-  <s:HGroup>
-    <s:Button width="30" height="20" click="onHealthCheck()"
-              skinClass="it.ht.rcs.console.skins.HeartbeatButton" toolTip="{R.get('HEALTH_CHECK')}"/>
-    <s:Button width="30" height="20" click="applyTopology()"
-              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_TOPOLOGY')}"/>
-  </s:HGroup>
-  
-  <s:Scroller id="stageScroller" width="100%" height="100%">
-    <frontend:FrontendGraph id="networkGraph" rootNode="{rootNode}"/>
-  </s:Scroller>
   
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.DataLoadedEvent;
-      import it.ht.rcs.console.events.NodeEvent;
-      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
@@ -50,8 +43,8 @@
       
       import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
-      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
       import mx.managers.PopUpManager;
       
       import spark.events.IndexChangeEvent;
@@ -60,22 +53,34 @@
       private var _collector_view:ListCollectionView;
       
       [Bindable]
-      private var rootNode:DBRenderer;
+      private var anonymizers:ListCollectionView;
+      
+      private function init():void
+      {
+        _collector_view = CollectorManager.instance.getView();
+        anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
+        buildGraph();
+      }
       
       private function onAddedToStage(event:Event):void
       {
-        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        CollectorManager.instance.listenRefresh();
-        addEventListener(NodeEvent.CHANGED, onNodeChanged);
-        CollectorManager.instance.refresh();
+//        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+//        CollectorManager.instance.listenRefresh();
+//        //addEventListener(NodeEvent.CHANGED, onNodeChanged);
+//        CollectorManager.instance.refresh();
       }
       
+      private function anonymizerFilterFunction(item:Object):Boolean
+      {
+        return item.type == 'remote';
+      }
+
       private function onRemovedFromStage(event:Event):void
       {
-        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        CollectorManager.instance.unlistenRefresh();
-        removeEventListener(NodeEvent.CHANGED, onNodeChanged);
-        _collector_view = null;
+//        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+//        CollectorManager.instance.unlistenRefresh();
+//        //removeEventListener(NodeEvent.CHANGED, onNodeChanged);
+//        _collector_view = null;
       }
       
       private function onDataLoaded(event:DataLoadedEvent):void {
@@ -87,20 +92,24 @@
       public function buildGraph():void
       {
         var nodes:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
-        for each (var el:Collector in _collector_view)
-          nodes.push(new CollectorRenderer(el));
+        for each (var el:Collector in _collector_view) {
+          var cr:CollectorRenderer = new CollectorRenderer(el, graph);
+          nodes.push(cr);
+        }
         
         var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
         for each (var node:CollectorRenderer in nodes) {
           if (node.collector.type == 'local')
             collectors.push(node);
           var nextHop:CollectorRenderer = node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
+          //var nextHop:CollectorRenderer = getRendererById(node.collector.next[0], nodes);
           node.nextHop = nextHop;
         }
         
         var db:DBRenderer = new DBRenderer();
         db.collectors = collectors;
-        rootNode = db;
+        graph.db = db;
+        graph.rebuildGraph();
       }
       
       private function getRendererById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer
@@ -117,7 +126,7 @@
       private function addCollector():void
       {
         CollectorManager.instance.addCollector(function onSuccess(collector:Collector):void {
-          collectors.selectedItem = collector;
+          list.selectedItem = collector;
           createCollector(collector);
         });
       }
@@ -138,7 +147,7 @@
       
       private function deleteCollector():void
       {
-        AlertPopUp.show(R.get('CONFIRM_COLLECTOR_DELETION', [collectors.selectedItem.name]),
+        AlertPopUp.show(R.get('CONFIRM_COLLECTOR_DELETION', [list.selectedItem.name]),
                         R.get('CONFIRM'),
                         AlertPopUp.YES | AlertPopUp.NO,
                         null,
@@ -152,7 +161,7 @@
 //          if (coll.prev != null && coll.prev.length > 0)
 //            getCollectorById(coll.prev[0]).next = [];
 //          while (coll.next
-          CollectorManager.instance.removeItem(collectors.selectedItem);
+          CollectorManager.instance.removeItem(list.selectedItem);
           buildGraph();
         }
       }
@@ -164,24 +173,24 @@
       
       private function enter(event:KeyboardEvent):void
       {
-        if (event.keyCode == Keyboard.ENTER && collectors.selectedItem != null)
-          editCollector(collectors.selectedItem);
+        if (event.keyCode == Keyboard.ENTER && list.selectedItem != null)
+          editCollector(list.selectedItem);
       }
-      
-      private function onNodeChanged(event:Event):void
-      {
-        trace("Collectors, NodeEvent");
-      }
+//      
+//      private function onNodeChanged(event:Event):void
+//      {
+//        trace("Collectors, NodeEvent");
+//      }
       
       private function onCollectorsListSelection(event:IndexChangeEvent):void
       {
-        networkGraph.selectNode(collectors.selectedItem);
+        //networkGraph.selectNode(collectors.selectedItem);
       }
       
       protected function onHealthCheck():void
       {
         var nodes:ArrayCollection = new ArrayCollection();
-        for each (var c:CollectorRenderer in rootNode.collectors) {
+        for each (var c:CollectorRenderer in graph.db.collectors) {
           while (c.nextHop != null)
            c = c.nextHop;
           nodes.addItem({ ip: c.collector.address, name: c.collector.name });
@@ -196,7 +205,6 @@
       {
         DownloadManager.instance.createTask("topology", null, {}); 
       }
-      
     ]]>
   </fx:Script>
   

@@ -15,7 +15,12 @@
       [Bindable]
       public var group:Group;
       
-      public var callback:Function;
+      private function init():void
+      {
+        formName.setFocus();
+        if (currentState == 'create')
+          group = new Group(Group.defaultGroup());
+      }
       
       private function save():void
       {
@@ -25,13 +30,6 @@
           GroupManager.instance.addGroup(group, function(g:Group):void { close(); });
         else
           close();
-      }
-      
-      private function init():void
-      {
-        formName.setFocus();
-        if (currentState == 'create')
-          group = new Group(Group.defaultGroup());
       }
     ]]>
   </fx:Script>

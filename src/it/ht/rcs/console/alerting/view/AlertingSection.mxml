@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:main="it.ht.rcs.console.main.*"
-         xmlns:alerting="it.ht.rcs.console.monitor.*"
-         addedToStage="added()"
-         removedFromStage="removed()">
-
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:main="it.ht.rcs.console.main.*"
+              xmlns:view="it.ht.rcs.console.alerting.view.*"
+              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+  
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.alert.model.AlertLog;
-      import it.ht.rcs.console.utils.TimeUtils;
       
-      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.managers.PopUpManager;
       
       [Bindable]
       private var _alert_view:ListCollectionView;
       
-      private function added():void
+      private function onAddedToStage():void
       {
         /* start the auto refresh when the section is open */
         AlertController.instance.listenRefresh();
         AlertController.instance.refresh();
-              
-        _alert_view = AlertController.instance.getView();
+        
+        _alert_view = AlertController.instance.getView(null, searchFilterFunction);
       }
       
-      private function removed():void
+      private function searchFilterFunction(item:Object):Boolean
+      {
+        try {
+          return item.keywords.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+        } catch (e:Error) {}
+        return true;
+      }
+      
+      private function onRemovedFromStage():void
       {
         /* stop the auto refresh when going away */
         AlertController.instance.unlistenRefresh();
-      }
-      
-      private function formatdate(item:Object, column:GridColumn):String
-      {
-        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
       }
       
       private function addAlert():void
@@ -56,7 +57,7 @@
       
       private function editAlert(a:Alert):void
       {
-        var ea:AlertEdit = PopUpManager.createPopUp(root, AlertEdit, true) as AlertEdit;
+        var ea:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
         ea.alert = a;
         PopUpManager.centerPopUp(ea);
       }
@@ -86,91 +87,22 @@
             alert.logs = null;
         }
       }
-      
-      private function labelEvidence(item:Object, column:GridColumn):String {
-        if (item[column.dataField])
-          return item[column.dataField].toString().toUpperCase();
-        
-        return '';
-      }
-      
     ]]>
   </fx:Script>
   
-  <fx:Metadata>
-    [ResourceBundle("localized_main")] 
-  </fx:Metadata>
   
-  <s:VGroup width="100%" height="100%">
-    
-    <!-- ALERT QUERIES -->
-    <s:SkinnableContainer width="100%" height="100%">
-      
-      <!-- button bar (transparent container) -->  
-      <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="20" backgroundAlpha="0.0">
-        <s:Button x="0" y="0" label="N" width="30" height="20" click="addAlert()" toolTip="{resourceManager.getString('localized_main', 'NEW')}" skinClass="it.ht.rcs.console.skins.NewButton"/>
-        <s:Button x="40" y="0" label="E" width="30" height="20" click="editAlert(alertlist.selectedItem as Alert)" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'EDIT')}" skinClass="it.ht.rcs.console.skins.EditButton"/>
-        <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteAlert(alertlist.selectedItem as Alert)" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-      </s:BorderContainer>
-      
-      <!-- alert queries -->
-      <s:DataGrid id="alertlist" left="5" right="5" top="30" height="100%" dataProvider="{_alert_view}" doubleClickEnabled="true" doubleClick="editAlert(alertlist.selectedItem as Alert)">
-        <s:columns>
-          <s:ArrayList>
-            <s:GridColumn dataField="logs.length" headerText="Logs" width="45">
-              <s:itemRenderer>
-                <fx:Component>
-                  <s:GridItemRenderer>
-                    <s:SkinnableContainer width="100%">
-                      <s:Label width="100%" text="{data.logs.length}" top="9" right="5" left="5" textAlign="right"/>                                          
-                    </s:SkinnableContainer>
-                  </s:GridItemRenderer>
-                </fx:Component>
-              </s:itemRenderer>
-            </s:GridColumn>
-            <s:GridColumn dataField="enabled" headerText="En" width="30" resizable="false">
-              <s:itemRenderer>
-                <fx:Component>
-                  <s:GridItemRenderer>
-                    <s:SkinnableContainer>
-                      <s:CheckBox selected="@{data.enabled}" top="4" right="5" left="8"/>                                          
-                    </s:SkinnableContainer>
-                  </s:GridItemRenderer>
-                </fx:Component>
-              </s:itemRenderer>
-            </s:GridColumn>
-            <s:GridColumn dataField="action" headerText="{resourceManager.getString('localized_main', 'ALERT_EVENT')}" width="80"/>
-            <s:GridColumn dataField="path" headerText="{resourceManager.getString('localized_main', 'PATH')}" itemRenderer="it.ht.rcs.console.alerting.view.PathRenderer" />
-            <s:GridColumn dataField="evidence" headerText="Evidence" width="100" labelFunction="labelEvidence"/>
-            <s:GridColumn dataField="keywords" headerText="{resourceManager.getString('localized_main', 'KEYWORD')}"></s:GridColumn>
-            <s:GridColumn dataField="tag" headerText="{resourceManager.getString('localized_main', 'TAG')}" width="35" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
-            <s:GridColumn dataField="type" headerText="{resourceManager.getString('localized_main', 'TYPE')}" width="50"/>
-          </s:ArrayList>
-        </s:columns>
-      </s:DataGrid>
-      
-    </s:SkinnableContainer>
+  <main:layout>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
 
-    <!-- ALERT LOGS -->
-    <s:SkinnableContainer width="100%" height="100%">
-      
-      <!-- button bar (transparent container) -->  
-      <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="20" backgroundAlpha="0.0">
-        <s:Button x="0" y="0" label="D" width="30" height="20" click="deleteLog(alertloglist.selectedItem as AlertLog)" enabled="{alertloglist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-        <s:Button x="40" y="0" label="A" width="30" height="20" click="deleteLog(null)" enabled="{alertlist.selectedItem != null &amp;&amp; alertlist.selectedItem.logs != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE_ALL')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-      </s:BorderContainer>
-      
-      <s:DataGrid id="alertloglist" left="5" right="5" top="30" bottom="5" requestedRowCount="4" dataProvider="{(alertlist.selectedItem as Alert).logs}">
-        <s:columns>
-          <s:ArrayList>
-            <s:GridColumn dataField="time" headerText="{resourceManager.getString('localized_main', 'TIME')}" width="130" labelFunction="formatdate" resizable="false"/>
-            <s:GridColumn dataField="path" headerText="{resourceManager.getString('localized_main', 'PATH')}" width="300" itemRenderer="it.ht.rcs.console.alerting.view.PathRenderer"/>
-            <s:GridColumn dataField="evidence" headerText="Evidence"></s:GridColumn>
-          </s:ArrayList>
-        </s:columns>
-      </s:DataGrid>
-      
-    </s:SkinnableContainer>
-  </s:VGroup>
+  <view:AlertingActionBar id="actionBar" view="{_alert_view}"/>
+  
+  <view:AlertingTable id="alertlist" dataProvider="{_alert_view}"/>
+  
+  <view:LogsActionBar/>
+
+  <view:LogsTable id="alertloglist" dataProvider="{(alertlist.selectedItem as Alert).logs}"/>
+
 
 </main:Section>

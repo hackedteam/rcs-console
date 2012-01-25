@@ -21,7 +21,7 @@
       private function onButtonClick(event:IndexChangeEvent):void
       {
         var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
-        sectionEvent.section = sections.getItemAt(event.newIndex) as String;
+        sectionEvent.section = sections.getItemAt(event.newIndex).label as String;
         FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
       }
       
@@ -31,15 +31,15 @@
         if ((parentDocument.sections[parentDocument.sections.currentState] as Section).isDirty) {
           event.preventDefault();
           toChange = event.newIndex;
-          Alert.show('Do you want to lose all the changes?', 'Dirty state', Alert.OK|Alert.CANCEL, null, pippo);
+          Alert.show('Do you want to lose all the changes?', 'Dirty state', Alert.OK|Alert.CANCEL, null, confirm);
         }
       }
       
-      private function pippo(event:CloseEvent):void
+      private function confirm(event:CloseEvent):void
       {
         if (event.detail == Alert.OK) {
           var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
-          sectionEvent.section = sections.getItemAt(toChange) as String;
+          sectionEvent.section = sections.getItemAt(toChange).label as String;
           FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
         }
       }
@@ -52,7 +52,7 @@
                         paddingRight="5" paddingTop="12" verticalAlign="middle"/>
   </s:layout>
   
-  <s:ButtonBar change="onButtonClick(event)" changing="onChanging(event)" dataProvider="{sections}" requireSelection="true"
+  <s:ButtonBar change="onButtonClick(event)" changing="onChanging(event)" dataProvider="{sections}" requireSelection="true" labelField="label"
                selectedIndex="{sections.getItemIndex(parentDocument.sections.currentState)}"
                skinClass="it.ht.rcs.console.main.skins.chrome.RCSMenuSectionSkin"/>
   

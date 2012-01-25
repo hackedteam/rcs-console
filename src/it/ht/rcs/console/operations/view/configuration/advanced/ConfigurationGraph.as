@@ -310,7 +310,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       modules = new Vector.<ModuleRenderer>();
       connections = new Vector.<Connection>();
       modulesMap = new Dictionary();
+      
       if (config == null) return;
+      
       // Adding events
       var er:EventRenderer;
       for each (var e:Object in config.events) {
@@ -418,8 +420,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 		{
 			super.updateDisplayList(unscaledWidth, unscaledHeight);
       
-			var _width:Number = unscaledWidth > measuredWidth ? unscaledWidth : measuredWidth;
-			var _height:Number = unscaledHeight > measuredHeight ? unscaledHeight : measuredHeight;
+      var _width:Number = Math.max(unscaledWidth, measuredWidth);
+      var _height:Number = Math.max(unscaledHeight, measuredHeight);
       
       var i:int = 0; // Generic loop index
       var cX:int = 0, cY:int = 0; // Generic currentX, currentY

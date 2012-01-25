@@ -15,8 +15,8 @@
   
   <actionbar:Separator width="40"/>
   
-  <s:Button label="{R.get('DISCONNECT_USER')}"
-            enabled="{selectedObject != null &amp;&amp; selectedObject.enabled}"
+  <s:Button label="{R.get('DISCONNECT_USER')}" click="onDisconnectClick()"
+            enabled="{selectedObject != null &amp;&amp; selectedObject.session}"
             icon="@Embed('/img/NEW/logout_32.png')"/>
   
   <actionbar:Separator width="40"/>
@@ -30,10 +30,14 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
       private function onNewClick():void
@@ -53,11 +57,22 @@
       
       private function onDeleteClick():void
       {
+        AlertPopUp.show(R.get('CONFIRM_USER_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+                        AlertPopUp.YES|AlertPopUp.NO, null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) 
+                            UserManager.instance.removeItem(selectedObject);
+                        }, null, AlertPopUp.NO);
       }
       
       private function onKeyUp(event:KeyboardEvent):void
       {
         if (view != null) view.refresh();
+      }
+      
+      private function onDisconnectClick():void
+      {
+        SessionManager.instance.disconnectUser(selectedObject as User);
       }
     ]]>
   </fx:Script>

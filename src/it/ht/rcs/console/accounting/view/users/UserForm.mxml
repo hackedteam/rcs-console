@@ -8,6 +8,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
       import it.ht.rcs.console.accounting.view.oldusers.ClockProfile;
       
@@ -16,19 +17,24 @@
       import mx.collections.ArrayCollection;
       
       [Bindable]
-      private var _user:User;
+      public var user:User;
       
-      public var callback:Function;
+      private function init():void
+      {
+        formName.setFocus();
+        if (currentState == 'create')
+          user = new User(User.defaultUser());
+      }
       
       private function save():void
       {
         /* keep the name the first to be modified */
-        _user.name = formName.text;
-        _user.enabled = formEnabled.selected;
-        _user.desc = formDescription.text;
-        _user.contact = formContact.text;
-        _user.locale = formLocale.selectedItem;
-        _user.timezone = formConsoletime.selectedIndex - 12;
+        user.name = formName.text;
+        user.enabled = formEnabled.selected;
+        user.desc = formDescription.text;
+        user.contact = formContact.text;
+        user.locale = formLocale.selectedItem;
+        user.timezone = formConsoletime.selectedIndex - 12;
         
         var privs:ArrayCollection = new ArrayCollection();
         if (formAdmin.selected) privs.addItem('ADMIN');
@@ -36,17 +42,13 @@
         if (formTech.selected)  privs.addItem('TECH');
         if (formView.selected)  privs.addItem('VIEW');
         
-        if (privs.toString() != _user.privs.toString())
-          _user.privs = privs;
-        
-//        PopUpManager.removePopUp(this);
-//        callback();
-        close();
-      }
-      
-      public function set user(u:User):void
-      {
-        _user = u;
+        if (privs.toString() != user.privs.toString())
+          user.privs = privs;
+
+        if (currentState == 'create')
+          UserManager.instance.addUser(user, function(u:User):void { close(); });
+        else
+          close();
       }
       
       private function changePass():void
@@ -54,11 +56,6 @@
 //        var cp:ChangePassword = PopUpManager.createPopUp(root, ChangePassword, true) as ChangePassword;
 //        cp.user = _user;
 //        PopUpManager.centerPopUp(cp);
-      }
-      
-      private function init():void
-      {
-        formName.setFocus();
       }
     ]]>
   </fx:Script>
@@ -72,20 +69,20 @@
     
     <s:FormItem label="{R.get('ENABLED')}">
       <!-- the current user cannot disable himself -->
-      <s:CheckBox id="formEnabled" enabled="{_user._id != Console.currentSession.user._id}"
-                  selected="{_user.enabled}"/>
+      <s:CheckBox id="formEnabled" enabled="{user._id != Console.currentSession.user._id}"
+                  selected="{user.enabled}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="formName" width="200" maxChars="20" text="{_user.name}"/>
+      <s:TextInput id="formName" width="200" maxChars="20" text="{user.name}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('DESCRIPTION')}">
-      <s:TextArea id="formDescription" width="200" heightInLines="2" text="{_user.desc}"/>
+      <s:TextArea id="formDescription" width="200" heightInLines="2" text="{user.desc}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('CONTACT')}">
-      <s:TextInput id="formContact" width="200" text="{_user.contact}"/>
+      <s:TextInput id="formContact" width="200" text="{user.contact}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('PASSWORD')}">
@@ -95,30 +92,30 @@
     <s:FormItem label="{R.get('PRIVILEGES')}">
       <s:TileGroup width="200" horizontalGap="5" verticalGap="8">
         <s:CheckBox id="formAdmin" width="82" label="ADMIN"
-                    enabled="{_user._id != Console.currentSession.user._id}"
-                    selected="{_user.privs.getItemIndex('ADMIN') != -1}"/>
+                    enabled="{user._id != Console.currentSession.user._id}"
+                    selected="{user.privs.getItemIndex('ADMIN') != -1}"/>
 		    <s:CheckBox id="formSys" width="82" label="SYS"
-                    selected="{_user.privs.getItemIndex('SYS') != -1}"/>
+                    selected="{user.privs.getItemIndex('SYS') != -1}"/>
         <s:CheckBox id="formTech" width="82" label="TECH"
-                    selected="{_user.privs.getItemIndex('TECH') != -1}"/>
+                    selected="{user.privs.getItemIndex('TECH') != -1}"/>
         <s:CheckBox id="formView" width="82" label="VIEW"
-                    selected="{_user.privs.getItemIndex('VIEW') != -1}"/>
+                    selected="{user.privs.getItemIndex('VIEW') != -1}"/>
       </s:TileGroup>
     </s:FormItem>
     
     <s:FormItem label="{R.get('LANGUAGE')}">
       <s:DropDownList id="formLocale" width="100" dataProvider="{Console.locales}"
                       requireSelection="true"
-                      selectedIndex="{Console.locales.getItemIndex(_user.locale)}"/>
+                      selectedIndex="{Console.locales.getItemIndex(user.locale)}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('CONSOLE_TIMEZONE')}">
       <s:DropDownList id="formConsoletime" width="100" dataProvider="{ClockProfile.timezones}"
-                      selectedIndex="{_user.timezone + 12}"/>
+                      selectedIndex="{user.timezone + 12}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('GROUPS')}">
-      <groups:GroupSelector width="100" dataProvider="{_user.group_ids}"/>
+      <groups:GroupSelector width="100" dataProvider="{user.group_ids}"/>
     </s:FormItem>
     
   </s:Form>

@@ -2,8 +2,7 @@
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true" creationComplete="init()" doubleClick="edit()"
-                doubleClickEnabled="true">
+                autoDrawBackground="true" creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
@@ -29,19 +28,18 @@
         if (!data)
           return;
         
-        var tt:String = '';
         var c:Collector = value as Collector;
         if (c.type == 'remote' && c.prev[0] == null && c.next[0] == null) {
-          tt = R.get('NODE_NOT_ATTACHED');
+          toolTip = R.get('NODE_NOT_ATTACHED');
           linked = false;
         } else {
+          toolTip = '';
           linked = true;
         }
 
         currentState = c.type;
         
-        toolTip = tt;
-        this.buttonMode = data.type == 'remote';
+        //this.buttonMode = data.type == 'remote';
       }
       
       private function mouseDown(event:MouseEvent):void
@@ -50,17 +48,10 @@
         {
           var dragInitiator:CollectorListRenderer = event.currentTarget as CollectorListRenderer;
           var dragSource:DragSource = new DragSource();
-          var coll:CollectorRenderer = new CollectorRenderer(data as Collector);
-          var offset:int = event.target === bottomLabel ? 70 : 0;
+          var coll:CollectorRenderer = new CollectorRenderer(data as Collector, null);
+          var offset:int = 0;//event.target === bottomLabel ? 70 : 0;
           DragManager.doDrag(dragInitiator, dragSource, event, coll, event.localX, event.localY + offset);
         }
-      }
-      
-      private function edit():void
-      {
-        var popup:EditCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditCollectorForm, true) as EditCollectorForm;
-        popup.collector = data as Collector;
-        PopUpManager.centerPopUp(popup);
       }
     ]]>
   </fx:Script>
@@ -70,10 +61,16 @@
     <s:State name="remote"/>
   </s:states>
   
-  <s:SkinnableContainer width="70">
-    <mx:Image top="5" width="70" height="60" source.local="img/items/collector.png" source.remote="img/items/anonymizer.png"/>
-    <mx:Image top="5" width="70" height="60" source="img/items/linked.png" visible="{linked}"/>
-    <s:Label id="bottomLabel" top="72" width="70" paddingBottom="5" text="{data.name}" textAlign="center" fontStyle="{(data.poll || data.type == 'local') ? 'normal' : 'italic'}"/>
-  </s:SkinnableContainer>
+  <s:layout>
+    <s:VerticalLayout gap="8" horizontalAlign="center" paddingBottom="8" paddingLeft="8"
+                      paddingRight="8" paddingTop="8" verticalAlign="top"/>
+  </s:layout>
   
+  <s:Group>
+    <s:BitmapImage source="@Embed('/img/NEW/anonymizer_50.png')"/>
+    <s:BitmapImage visible="{linked}" right="-3" bottom="-3" source="@Embed('/img/NEW/linked.png')"/>
+  </s:Group>
+  
+  <s:Label maxWidth="80" maxDisplayedLines="2" text="{data.name}" textAlign="center"/>
+    
 </s:ItemRenderer>

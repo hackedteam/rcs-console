@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
+            xmlns:mx="library://ns.adobe.com/flex/mx"
+            width="100%" height="100%" doubleClick="editAlert(selectedItem as Alert)"
+            doubleClickEnabled="true">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.alert.model.Alert;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function editAlert(a:Alert):void
+      {
+        var ea:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
+        ea.alert = a;
+        PopUpManager.centerPopUp(ea);
+      }
+      
+      private function labelEvidence(item:Object, column:GridColumn):String {
+        if (item[column.dataField])
+          return item[column.dataField].toString().toUpperCase();
+        return '';
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:columns>
+    <s:ArrayList>
+      
+      <s:GridColumn width="45" dataField="logs.length" headerText="Logs">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer width="100%">
+                <s:Label left="5" right="5" top="9" width="100%" text="{data.logs.length}"
+                         textAlign="right"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="30" dataField="enabled" headerText="En" resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer>
+                <s:CheckBox left="8" right="5" top="4" selected="@{data.enabled}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="80" dataField="action" headerText="{R.get('ALERT_EVENT')}"/>
+      <s:GridColumn dataField="path" headerText="{R.get('PATH')}"
+                    itemRenderer="it.ht.rcs.console.alerting.view.PathRenderer"/>
+      <s:GridColumn width="100" dataField="evidence" headerText="Evidence"
+                    labelFunction="labelEvidence"/>
+      <s:GridColumn dataField="keywords" headerText="{R.get('KEYWORD')}"></s:GridColumn>
+      <s:GridColumn width="35" dataField="tag" headerText="{R.get('TAG')}"
+                    itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"/>
+      <s:GridColumn width="50" dataField="type" headerText="{R.get('TYPE')}"/>
+      
+    </s:ArrayList>
+  </s:columns>
+
+</s:DataGrid>

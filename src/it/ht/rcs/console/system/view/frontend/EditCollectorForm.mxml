@@ -4,7 +4,7 @@
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
                             creationComplete="init()" save="save()"
-                            title="{R.get('EDIT') + ' ' + collector.name}">
+                            title="{R.get('EDIT') + ' ' + collector.name}" xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
 
   <fx:Script>
     <![CDATA[
@@ -58,42 +58,41 @@
     ]]>
   </fx:Script>
   
-  <s:VGroup>
+  <s:VGroup paddingLeft="20" paddingRight="20">
     
-    <s:HGroup gap="0">
+    <s:HGroup>
       
       <s:Form defaultButton="{saveButton}">
         <s:FormItem label="{R.get('NAME')}">
           <s:TextInput id="nameField" width="200" text="{collector.name}"/>
         </s:FormItem>
         <s:FormItem label="{R.get('DESCRIPTION')}">
-          <s:TextArea id="desc" width="200" height="40" text="{collector.desc}"/>
+          <s:TextArea id="desc" width="200" heightInLines="2" text="{collector.desc}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('VERSION')}">
+          <s:TextInput width="80" enabled="false" text="{collector.version}"/>
         </s:FormItem>
       </s:Form>
       
       <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('POLL')}">
+          <s:CheckBox id="poll" selected="{collector.poll}"/>
+        </s:FormItem>
         <s:FormItem label="{R.get('ADDRESS')}">
-          <s:TextInput id="address" width="200" text="{collector.address}"/>
+          <s:TextInput id="address" width="150" text="{collector.address}"/>
         </s:FormItem>
         <s:FormItem label="{R.get('PORT')}">
           <s:TextInput id="port" width="40" maxChars="5" restrict="0-9" text="{collector.port}"/>
         </s:FormItem>
       </s:Form>
       
-      <s:Form defaultButton="{saveButton}">
-        <s:FormItem label="{R.get('VERSION')}">
-          <s:TextInput width="80" enabled="false" text="{collector.version}"/>
-        </s:FormItem>
-        <s:FormItem label="{R.get('POLL')}">
-          <s:CheckBox id="poll" selected="{collector.poll}"/>
-        </s:FormItem>
-      </s:Form>
-      
     </s:HGroup>
   
+    <actionbar:ActionBar width="100%">
+      <s:Button icon="@Embed('/img/NEW/anonymizer.png')" label="Clear Logs"/>
+    </actionbar:ActionBar>
     
-    <s:Label fontSize="14" fontWeight="bold" text="{R.get('LOGS')}"/>
-    <s:DataGrid id="logTable" height="200">
+    <s:DataGrid id="logTable" height="200" width="100%">
       <s:columns>
         <s:ArrayList>
           <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>

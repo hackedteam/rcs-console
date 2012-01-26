@@ -27,7 +27,7 @@ package it.ht.rcs.console.system.view.frontend.renderers
     
     private static const NORMAL_COLOR:Number = 0xffffff;
     private static const SELECTED_COLOR:Number = 0xa8c6ee;
-    private static const DRAG_COLOR:Number = 0x000000;
+    private static const DRAG_COLOR:Number = 0x999999;
 	  
 		public var collector:Collector;
 		
@@ -175,11 +175,9 @@ package it.ht.rcs.console.system.view.frontend.renderers
         source.moveAfter(dest);
       }
       
-      setStyle('backgroundColor', NORMAL_COLOR);
+      container.setStyle('backgroundColor', NORMAL_COLOR);
       
-      var e:NodeEvent = new NodeEvent(NodeEvent.CHANGED);
-      e.node = collector;
-      dispatchEvent(e);
+      graph.rebuildGraph();
     }
 
     private var _nextHop:CollectorRenderer;

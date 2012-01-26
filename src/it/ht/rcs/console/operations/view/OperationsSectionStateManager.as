@@ -1,10 +1,12 @@
 package it.ht.rcs.console.operations.view
 {
+  import it.ht.rcs.console.accounting.controller.UserManager;
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
+  import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
   
@@ -52,24 +54,28 @@ package it.ht.rcs.console.operations.view
       {
         selectedOperation = item;
         setState('singleOperation');
+        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
       else if (item is Target)
       {
         selectedTarget = item;
         setState('singleTarget');
+        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
       else if (item is Agent && item._kind == 'agent')
       {
         selectedAgent = item;
         setState('singleAgent');
+        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
       else if (item is Agent && item._kind == 'factory')
       {
         selectedFactory = item;
         setState('config');
+        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
       else if (item is Config)

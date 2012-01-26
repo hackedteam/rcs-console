@@ -24,10 +24,13 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
       private function onNewClick():void
@@ -47,6 +50,11 @@
       
       private function onDeleteClick():void
       {
+        AlertPopUp.show(R.get('CONFIRM_GROUP_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              GroupManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
       }
       
       private function onKeyUp(event:KeyboardEvent):void

@@ -232,7 +232,7 @@ package it.ht.rcs.console.system.view.frontend
     private static const HORIZONTAL_DISTANCE:int = 60;
     private static const VERTICAL_DISTANCE:int   = 15;
     private static const HORIZONTAL_PAD:int      = 50;
-    private static const VERTICAL_PAD:int        = 20;
+    private static const VERTICAL_PAD:int        = 10;
     
     private function computeSize():Point
 		{

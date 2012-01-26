@@ -7,6 +7,7 @@ package it.ht.rcs.console.system.view.frontend.renderers
   import it.ht.rcs.console.events.NodeEvent;
   import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
+  import it.ht.rcs.console.system.view.frontend.Frontend;
   import it.ht.rcs.console.system.view.frontend.FrontendGraph;
   
   import mx.binding.utils.BindingUtils;
@@ -55,8 +56,11 @@ package it.ht.rcs.console.system.view.frontend.renderers
 			this.collector = collector;
       this.graph = graph;
 
+      doubleClickEnabled = true;
+      
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.CLICK, onClick);
+      addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
       
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			addEventListener(DragEvent.DRAG_ENTER, dragEnter);
@@ -115,8 +119,14 @@ package it.ht.rcs.console.system.view.frontend.renderers
       
       selected = true;
       graph.selectedElement = this;
+      (this.parentDocument as Frontend).list.selectedItem = collector;
       
       setFocus();
+    }
+    
+    private function onDoubleClick(me:MouseEvent):void
+    {
+      (this.parentDocument as Frontend).list.edit();
     }
     
     private var _selected:Boolean = false;

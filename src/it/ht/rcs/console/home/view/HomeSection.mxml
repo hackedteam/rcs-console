@@ -4,12 +4,11 @@
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:items="it.ht.rcs.console.utils.items.*"
               xmlns:main="it.ht.rcs.console.main.*"
-              addedToStage="onAddedToStage()" creationComplete="init()">
+              addedToStage="onAddedToStage()" creationComplete="init()" xmlns:quick="it.ht.rcs.console.home.view.quick.*">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.alert.controller.AlertManager;
-      import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.items.ItemEvent;
@@ -30,6 +29,9 @@
       
       private function onAddedToStage():void
       {
+        //SearchManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, asd);
+        if (recents)
+          recents.selectedItem = null;
         if (Console.currentSession.user.is_any())
           currentState = 'any';
         else
@@ -39,17 +41,17 @@
         enable_items = (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view());
       }
       
+      private function asd(event:Event):void
+      {
+        recents.dataProvider = Console.currentSession.user.recent_ids;
+      }
+      
       private function onSelectSearchItem(e:ItemEvent):void
       {
         var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
         event.section = 'Operations';
         event.item = e.selectedItem as SearchItem;
         FlexGlobals.topLevelApplication.dispatchEvent(event);
-      }
-        
-      protected function button1_clickHandler(event:MouseEvent):void
-      {
-        AlertManager.instance.toggle();
       }
     ]]>
   </fx:Script>
@@ -59,11 +61,13 @@
     <s:State name="none"/>
   </main:states>
   
+  
   <s:Image width="100%" height="100%" horizontalAlign="center"
            source="@Embed('/img/windows/sfondo.png')" verticalAlign="middle" verticalCenter="-20"/>
   
   
-  <s:VGroup width="100%" height="100%" gap="80" horizontalAlign="center" verticalAlign="middle">
+  <s:VGroup includeIn="any" width="100%" height="100%" gap="80" horizontalAlign="center"
+            verticalAlign="middle">
     
     <s:BorderContainer borderColor="#dddddd" borderWeight="2" cornerRadius="20">
       
@@ -89,22 +93,15 @@
         <s:Label fontFamily="Myriad" fontSize="16" fontWeight="bold" paddingTop="20"
                  text="{R.get('RECENT_ITEMS')}"/>
         
-        <s:List width="90%" height="100%" borderVisible="false" contentBackgroundAlpha="0"
-                dataProvider="{Console.currentSession.user.recent_ids}"
+        <s:List id="recents" width="90%" height="100%" borderVisible="false"
+                contentBackgroundAlpha="0" dataProvider="{Console.currentSession.user.recent_ids}"
                 itemRenderer="it.ht.rcs.console.home.view.RecentItemsRenderer"/>
         
       </s:VGroup>
       
     </s:BorderContainer>
     
-    <s:HGroup gap="60">
-      <s:Button width="150" label="Quick Agent Creation" icon="@Embed('/img/NEW/home_agent.png')"
-                iconPlacement="top" skinClass="RCSQuickButtonSkin"/>
-      <s:Button width="150" enabled="false" icon="@Embed('/img/NEW/home_empty.png')"
-                iconPlacement="top" skinClass="RCSQuickButtonSkin"/>
-      <s:Button width="150" enabled="false" icon="@Embed('/img/NEW/home_empty.png')"
-                iconPlacement="top" skinClass="RCSQuickButtonSkin"/>
-    </s:HGroup>
+    <quick:QuickButtons/>
     
   </s:VGroup>
   

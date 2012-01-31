@@ -11,48 +11,42 @@
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.controller.Sort;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
-      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.search.model.SearchItem;
-      import it.ht.rcs.console.utils.items.ItemEvent;
       
-      import mx.collections.ISort;
       import mx.collections.ListCollectionView;
       
       [Bindable]
-      private var _dashboard_items:ListCollectionView;
+      private var view:ListCollectionView;
       
       private function init():void
       {
-
+        view = DashboardController.instance.getView();
+        
+        DashboardController.instance.user = Console.currentSession.user;
+        DashboardController.instance.refresh();
       }
       
       private function onAddedToStage():void
       {
-        DashboardController.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
-        DashboardController.instance.user = Console.currentSession.user;
         DashboardController.instance.startAutoRefresh();
-        DashboardController.instance.refresh();
       }
       
       private function onRemovedFromStage():void
       {
-        DashboardController.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDashboardDataLoaded);
         DashboardController.instance.stopAutoRefresh();
-        _dashboard_items = null;
       }
       
-      private function onDashboardDataLoaded(event:DataLoadedEvent):void
-      {
-        if (_dashboard_items == null) {
-          var sort:ISort = new Sort();
-          _dashboard_items = DashboardController.instance.getView();
-          sort.compareFunction = compareSyncTime;
-          _dashboard_items.sort = sort;
-          _dashboard_items.refresh();
-        }
-      }
+//      private function onDashboardDataLoaded(event:DataLoadedEvent):void
+//      {
+//        if (_dashboard_items == null) {
+//          var sort:ISort = new Sort();
+//          _dashboard_items = DashboardController.instance.getView();
+//          sort.compareFunction = compareSyncTime;
+//          _dashboard_items.sort = sort;
+//          _dashboard_items.refresh();
+//        }
+//      }
       
       private function compareSyncTime(a:SearchItem, b:SearchItem, fields:Array=null):int {
         if (a.stat.last_sync < b.stat.last_sync)
@@ -63,20 +57,19 @@
           return 0
       };
       
-      private function sort_by_time():void
-      {
-        var sort:Sort = new Sort();
-        sort.compareFunction = compareSyncTime;
-        _dashboard_items.sort = sort;
-        _dashboard_items.refresh();
-      }
-      
-      private function sort_by_name():void
-      {
-        _dashboard_items.sort = new Sort();
-        _dashboard_items.refresh();
-      }
-      
+//      private function sort_by_time():void
+//      {
+//        var sort:Sort = new Sort();
+//        sort.compareFunction = compareSyncTime;
+//        _dashboard_items.sort = sort;
+//        _dashboard_items.refresh();
+//      }
+//      
+//      private function sort_by_name():void
+//      {
+//        _dashboard_items.sort = new Sort();
+//        _dashboard_items.refresh();
+//      }
     ]]>
   </fx:Script>
   
@@ -86,21 +79,7 @@
   
   <dashboard:DashboardActionBar/>
   
-  <!--
-  <s:BorderContainer left="5" right="5" top="5" height="30" backgroundAlpha="0.0"
-                     borderVisible="false">
-    <s:Button x="0" y="0" width="30" height="20" label="S" click="sort_by_time()"
-              skinClass="it.ht.rcs.console.skins.SortTimeButton"
-              toolTip="{resourceManager.getString('localized_main', '')}"/>
-    <s:Button x="40" y="0" width="30" height="20" label="S" click="sort_by_name()"
-              skinClass="it.ht.rcs.console.skins.SortNameButton"
-              toolTip="{resourceManager.getString('localized_main', '')}"/>
-    
-  </s:BorderContainer>
-  -->
-  
-  <s:List id="items" width="100%" height="100%" click="{items.selectedIndex = -1}"
-          dataProvider="{_dashboard_items}"
-          itemRenderer="it.ht.rcs.console.dashboard.view.DashboardRenderer"/>
+  <s:List width="100%" height="100%" borderVisible="false" dataProvider="{view}"
+          itemRenderer="it.ht.rcs.console.dashboard.view.renderer.DashboardRenderer"/>
   
 </main:Section>

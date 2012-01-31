@@ -4,10 +4,11 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:backend="it.ht.rcs.console.system.view.backend.*"
           left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage(event)"
-          removedFromStage="onRemovedFromStage(event)">
+          removedFromStage="onRemovedFromStage(event)" xmlns:graph="it.ht.rcs.console.system.view.backend.graph.*" xmlns:backups="it.ht.rcs.console.system.view.backend.backups.*">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.system.view.backend.backups.BackupJobEdit;
       import it.ht.rcs.console.backup.controller.BackupArchiveManager;
       import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupArchive;
@@ -16,8 +17,8 @@
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.shard.controller.ShardManager;
       import it.ht.rcs.console.shard.model.Shard;
-      import it.ht.rcs.console.system.view.backend.renderers.DBRenderer;
-      import it.ht.rcs.console.system.view.backend.renderers.ShardRenderer;
+      import it.ht.rcs.console.system.view.backend.graph.renderers.DBRenderer;
+      import it.ht.rcs.console.system.view.backend.graph.renderers.ShardRenderer;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -154,7 +155,7 @@
   </fx:Script>
   
   <s:Scroller id="stageScroller" width="100%" height="100%">
-    <backend:BackendGraph id="backendGraph" rootNode="{rootNode}"/>
+    <graph:BackendGraph id="backendGraph" rootNode="{rootNode}"/>
   </s:Scroller>
   
   <mx:TabNavigator width="100%" height="250" backgroundColor="0xeaeaea">
@@ -167,7 +168,7 @@
           <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{R.get('DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
           <s:Button x="120" y="0" label="R" width="30" height="20" click="runJob(backupjobs.selectedItem as BackupJob)" enabled="{backupjobs.selectedItem != null}" toolTip="{R.get('RUN_NOW')}" skinClass="it.ht.rcs.console.skins.RunButton"/>
         </s:HGroup>
-        <backend:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}" doubleClickEnabled="true" doubleClick="editJob(backupjobs.selectedItem as BackupJob)"/>
+        <backups:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}" doubleClickEnabled="true" doubleClick="editJob(backupjobs.selectedItem as BackupJob)"/>
       </s:VGroup>
     </s:NavigatorContent>
     
@@ -178,7 +179,7 @@
           <s:Button x="0" y="0" width="30" height="20" click="restoreArchive(backuparchives.selectedItem as BackupArchive)" enabled="{backuparchives.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'RESTORE')}" skinClass="it.ht.rcs.console.skins.RestoreButton"/>
           <s:Button x="40" y="0" width="30" height="20" click="deleteArchive(backuparchives.selectedItem as BackupArchive)" enabled="{backuparchives.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
         </s:HGroup>
-        <backend:BackupArchives id="backuparchives" dataProvider="{_backup_archive_view}"/>
+        <backups:BackupArchives id="backuparchives" dataProvider="{_backup_archive_view}"/>
       </s:VGroup>
     </s:NavigatorContent>
   </mx:TabNavigator>

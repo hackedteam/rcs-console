@@ -15,6 +15,7 @@
       import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.ObjectUtils;
       
       import locale.R;
       
@@ -33,16 +34,16 @@
       {
         var o:Operation = new Operation(Operation.defaultOperation());
         o.name = agentName.text;
-        OperationManager.instance.addOperation(o, function(o1:Operation):void
+        OperationManager.instance.addOperation(ObjectUtils.toHash(o), function(o1:Operation):void
         {
           var t:Target = new Target(Target.defaultTarget());
           t.name = agentName.text;
-          TargetManager.instance.addTarget(t, o1, function(t1:Target):void
+          TargetManager.instance.addTarget(ObjectUtils.toHash(t), o1, function(t1:Target):void
           {
             var a:Agent = new Agent(Agent.defaultAgent());
             a._kind = 'factory';
             a.name = agentName.text;
-            AgentManager.instance.addFactory(a, o1, t1, function(a1:Agent):void
+            AgentManager.instance.addFactory(ObjectUtils.toHash(a), o1, t1, function(a1:Agent):void
             {
               var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
               sectionEvent.section = 'Operations';

@@ -242,6 +242,8 @@ package it.ht.rcs.console.system.view.frontend.renderers
         _nextHop._prevHop = _prevHop;
         _prevHop.collector.next = [_nextHop.collector._id];
         _nextHop.collector.prev = [_prevHop.collector._id];
+      } else {
+        _prevHop.collector.next = [null];
       }
       _prevHop._nextHop = _nextHop;
       this.collector.prev = this.collector.next = [null];

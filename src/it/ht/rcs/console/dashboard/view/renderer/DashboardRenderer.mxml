@@ -19,8 +19,29 @@
       
       import locale.R;
       
+      import mx.events.FlexEvent;
+      
       [Bindable]
       private var item:DashboardItem;
+      
+      private var tick:Timer = new Timer(1000);
+      
+      private function onAddedToStage():void
+      {
+        tick.addEventListener(TimerEvent.TIMER, onTick);
+        tick.start();
+      }
+      
+      public function onRemovedFromStage():void
+      {
+        tick.removeEventListener(TimerEvent.TIMER, onTick);
+        tick.stop();
+      }
+      
+      private function onTick(e:Event):void
+      {
+        //refresh();
+      }
       
       override public function set data(value:Object):void
       {
@@ -68,9 +89,9 @@
         <s:Label fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}" width="300"/>
         
         <s:Label fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5" width="200"
-                 text="{R.get('LAST_SYNC') + ': ' + TimeUtils.timestampFormatter(data.last_sync * 1000)}"/>
+                 text="{R.get('LAST_SYNC') + ': ' + TimeUtils.timestampFormatter(item.lastSync * 1000)}"/>
         
-        <renderer:CounterBaloon visible="{!details.visible}" style="red" value="{item.totSync}"/>
+        <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red" value="{item.totSync}"/>
         <renderer:CounterBaloon visible="{!details.visible}" style="white" value="{item.totTot}"/>
         
         <s:Spacer width="100%"/>

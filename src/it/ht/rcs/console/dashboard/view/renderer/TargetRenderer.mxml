@@ -12,63 +12,7 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.ObjectUtils;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.search.model.SearchItem;
-      import it.ht.rcs.console.target.controller.TargetManager;
-      import it.ht.rcs.console.target.model.Target;
-      
-      import mx.collections.ArrayCollection;
       import mx.controls.Alert;
-      
-//      [Bindable]
-//      private var targetName:String;
-
-      override public function set data(value:Object):void
-      {
-        super.data = value;
-        if (!data) return;
-        SearchManager.instance.showItem(data._id, callback);
-      }
-      
-      private function callback(item:SearchItem):void
-      {
-        if (!data.baseline)
-          data.baseline = item.stat;
-        
-        data.name = item.name;
-        
-        var totTot:Number = 0;
-        var totSync:Number = 0;
-        var modules:ArrayCollection = new ArrayCollection();
-        
-        var evidenceHash:Object = ObjectUtils.toHash(item.stat.evidence);
-        var dashboardHash:Object = ObjectUtils.toHash(item.stat.dashboard);
-        
-        var ev:Object;
-        for (var type:String in evidenceHash)
-        {
-          if (evidenceHash[type] == 0)
-            continue;
-          
-          ev = {};
-          ev.type = type;
-          ev.tot = evidenceHash[type] - data.baseline.evidence[type];
-          totTot += ev.tot;
-          ev.sync = dashboardHash[type];
-          totSync += ev.sync;
-          modules.addItem(ev);
-        }
-        
-        if (data.baseline.last_sync == item.stat.last_sync) {
-          totSync = 0;
-          for each (var module:Object in modules)
-            module.sync = null;
-        }
-        
-        data.totTot = totTot;
-        data.totSync = totSync;
-      }
       
       private function onClick(event:MouseEvent):void
       {
@@ -78,10 +22,13 @@
   </fx:Script>
   
   <s:BorderContainer width="50" height="50" borderColor="#dddddd" cornerRadius="10">
+    
     <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
-                   source="@Embed('/img/NEW/user.png')" verticalCenter="0"/>
-    <renderer:CounterBaloon visible="{data.totSync != 0}" right="-6" top="-8" style="red" value="{data.totSync}"/>
-    <renderer:CounterBaloon right="-6" bottom="-8" style="white" value="{data.totTot}"/>
+                   source="@Embed('/img/NEW/target_36.png')" verticalCenter="0"/>
+    
+    <renderer:CounterBaloon visible="{data.sync}" right="-6" top="-8" style="red" value="{data.sync}"/>
+    <renderer:CounterBaloon right="-6" bottom="-8" style="white" value="{data.tot}"/>
+    
   </s:BorderContainer>
   
   <s:Label maxWidth="80" maxDisplayedLines="2" text="{data.name}"/>

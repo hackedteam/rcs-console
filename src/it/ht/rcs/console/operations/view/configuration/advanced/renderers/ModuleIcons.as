@@ -3,7 +3,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   public class ModuleIcons
   {
     
-    [Embed(source='/img/modules/mod.png')]
+    [Embed(source='/img/modules/addressbook.png')]
     public static const addressbook:Class;
     
     [Embed(source='/img/modules/mod (1).png')]
@@ -27,7 +27,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/modules/mod (7).png')]
     public static const crisis:Class;
     
-    [Embed(source='/img/modules/mod (8).png')]
+    [Embed(source='/img/modules/addressbook.png')]
     public static const device:Class;
     
     [Embed(source='/img/modules/mod (9).png')]

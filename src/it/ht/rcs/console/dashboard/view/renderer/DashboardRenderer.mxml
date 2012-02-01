@@ -5,7 +5,7 @@
                 xmlns:view="it.ht.rcs.console.dashboard.view.*"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
                 xmlns:utils="it.ht.rcs.console.utils.*"
-                autoDrawBackground="false">
+                autoDrawBackground="false" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
   
   <s:layout>
     <s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
@@ -40,7 +40,10 @@
       
       private function onTick(e:Event):void
       {
-        //refresh();
+        try {
+          lastSyncText.text = R.get('LAST_SYNC') + ':  ' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago (' +
+          TimeUtils.timestampFormatter(item.lastSync * 1000) + ')';
+        } catch (e:Error) {}
       }
       
       override public function set data(value:Object):void
@@ -88,8 +91,7 @@
         <s:BitmapImage id="icon"/>
         <s:Label fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}" width="300"/>
         
-        <s:Label fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5" width="200"
-                 text="{R.get('LAST_SYNC') + ': ' + TimeUtils.timestampFormatter(item.lastSync * 1000)}"/>
+        <s:Label id="lastSyncText" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5" width="180"/>
         
         <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red" value="{item.totSync}"/>
         <renderer:CounterBaloon visible="{!details.visible}" style="white" value="{item.totTot}"/>

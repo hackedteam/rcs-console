@@ -33,18 +33,10 @@
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
       import it.ht.rcs.console.system.view.frontend.renderers.CollectorRenderer;
       import it.ht.rcs.console.system.view.frontend.renderers.DBRenderer;
-      import it.ht.rcs.console.task.controller.DownloadManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
       
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
-      import mx.events.CloseEvent;
-      import mx.events.FlexEvent;
       import mx.managers.PopUpManager;
       
       import spark.events.IndexChangeEvent;
@@ -64,10 +56,8 @@
       
       private function onAddedToStage(event:Event):void
       {
-//        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-//        CollectorManager.instance.listenRefresh();
-//        //addEventListener(NodeEvent.CHANGED, onNodeChanged);
-//        CollectorManager.instance.refresh();
+        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CollectorManager.instance.listenRefresh();
       }
       
       private function anonymizerFilterFunction(item:Object):Boolean
@@ -77,10 +67,8 @@
 
       private function onRemovedFromStage(event:Event):void
       {
-//        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-//        CollectorManager.instance.unlistenRefresh();
-//        //removeEventListener(NodeEvent.CHANGED, onNodeChanged);
-//        _collector_view = null;
+        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CollectorManager.instance.unlistenRefresh();
       }
       
       private function onDataLoaded(event:DataLoadedEvent):void {

@@ -123,14 +123,7 @@
         return null;
       }
       
-      private function addCollector():void
-      {
-        CollectorManager.instance.addCollector(function onSuccess(collector:Collector):void {
-          list.selectedItem = collector;
-          createCollector(collector);
-        });
-      }
-      
+
       private function editCollector(collector:Collector):void
       {
         var popup:EditCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditCollectorForm, true) as EditCollectorForm;
@@ -138,33 +131,6 @@
         PopUpManager.centerPopUp(popup);
       }
       
-      private function createCollector(collector:Collector):void
-      {
-        var popup:CreateCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateCollectorForm, true) as CreateCollectorForm;
-        popup.collector = collector;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function deleteCollector():void
-      {
-        AlertPopUp.show(R.get('CONFIRM_COLLECTOR_DELETION', [list.selectedItem.name]),
-                        R.get('CONFIRM'),
-                        AlertPopUp.YES | AlertPopUp.NO,
-                        null,
-                        doDeleteCollector,
-                        null, AlertPopUp.NO);
-      }
-      
-      private function doDeleteCollector(e:CloseEvent):void {
-        if (e.detail == AlertPopUp.YES) {
-//          var coll:Collector = collectors.selectedItem as Collector;
-//          if (coll.prev != null && coll.prev.length > 0)
-//            getCollectorById(coll.prev[0]).next = [];
-//          while (coll.next
-          CollectorManager.instance.removeItem(list.selectedItem);
-          buildGraph();
-        }
-      }
       
       private function getCollectorById(id:String):Collector
       {
@@ -181,30 +147,13 @@
 //      {
 //        trace("Collectors, NodeEvent");
 //      }
-      
+ 
       private function onCollectorsListSelection(event:IndexChangeEvent):void
       {
         //networkGraph.selectNode(collectors.selectedItem);
       }
       
-      protected function onHealthCheck():void
-      {
-        var nodes:ArrayCollection = new ArrayCollection();
-        for each (var c:CollectorRenderer in graph.db.collectors) {
-          while (c.nextHop != null)
-           c = c.nextHop;
-          nodes.addItem({ ip: c.collector.address, name: c.collector.name });
-        }
-          
-        var popup:HealthCheckWindow = PopUpManager.createPopUp(this.parentDocument as DisplayObject, HealthCheckWindow, true) as HealthCheckWindow;
-        popup.nodes = nodes;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      protected function applyTopology():void
-      {
-        DownloadManager.instance.createTask("topology", null, {}); 
-      }
+
     ]]>
   </fx:Script>
   

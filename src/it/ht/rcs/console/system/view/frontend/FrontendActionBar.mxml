@@ -15,7 +15,7 @@
   
   <actionbar:Separator width="40"/>
   
-  <s:Button label="{R.get('DOWNLOAD_INSTALLER')}" click="applyTopology()" icon="@Embed('/img/NEW/build.png')"/>
+  <s:Button label="{R.get('DOWNLOAD_INSTALLER')}" click="downloadInstaller()" icon="@Embed('/img/NEW/build.png')"/>
   
   <actionbar:Separator width="40"/>
   
@@ -34,37 +34,55 @@
       import it.ht.rcs.console.accounting.controller.SessionManager;
       import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
+      import it.ht.rcs.console.system.view.frontend.renderers.CollectorRenderer;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.collections.ArrayCollection;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
       private function onNewClick():void
       {
-//        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
-//        popup.currentState = 'create';
-//        PopUpManager.centerPopUp(popup);
+        CollectorManager.instance.addCollector(function onSuccess(collector:Collector):void {
+          (parent as Frontend).list.selectedItem = collector;
+          createCollector(collector);
+        });
+      }
+      
+      private function createCollector(collector:Collector):void
+      {
+        var popup:CreateCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateCollectorForm, true) as CreateCollectorForm;
+        popup.collector = collector;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
-//        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
-//        popup.user = selectedObject as User;
-//        popup.currentState = 'edit';
-//        PopUpManager.centerPopUp(popup);
+        var popup:EditCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditCollectorForm, true) as EditCollectorForm;
+        popup.collector = selectedObject as Collector;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onDeleteClick():void
       {
-//        AlertPopUp.show(R.get('CONFIRM_USER_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-//                        AlertPopUp.YES|AlertPopUp.NO, null,
-//                        function(e:CloseEvent):void {
-//                          if (e.detail == AlertPopUp.YES) 
-//                            UserManager.instance.removeItem(selectedObject);
-//                        }, null, AlertPopUp.NO);
+        AlertPopUp.show(R.get('CONFIRM_COLLECTOR_DELETION', [selectedObject.name]),
+          R.get('CONFIRM'),
+          AlertPopUp.YES | AlertPopUp.NO,
+          null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              CollectorManager.instance.removeItem(selectedObject);
+              (parent as Frontend).buildGraph();
+            },
+          null, AlertPopUp.NO);
       }
+
       
       private function onKeyUp(event:KeyboardEvent):void
       {
@@ -73,12 +91,30 @@
       
       private function healthCheck():void
       {
+        var nodes:ArrayCollection = new ArrayCollection();
+        for each (var c:CollectorRenderer in (parent as Frontend).graph.db.collectors) {
+          while (c.nextHop != null)
+            c = c.nextHop;
+          nodes.addItem({ ip: c.collector.address, name: c.collector.name });
+        }
+        
+        var popup:HealthCheckWindow = PopUpManager.createPopUp(this.parentDocument as DisplayObject, HealthCheckWindow, true) as HealthCheckWindow;
+        popup.nodes = nodes;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function applyTopology():void
       {
-        //        if (view != null) view.refresh();
+        DownloadManager.instance.createTask("topology", null, {}); 
       }
+      
+      private function downloadInstaller():void
+      {
+        var params:Object = {platform: 'anon', binary: {demo: false}, melt: {admin: false} }
+        var filename:String = 'anon_installer.zip'
+        DownloadManager.instance.createTask("build", filename, params, null, null);
+      }
+      
     ]]>
   </fx:Script>
 

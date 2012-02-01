@@ -58,7 +58,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public static const print:Class;
     
     [Embed(source='/img/modules/mod (18).png')]
-    public static const snapshot:Class;
+    public static const screenshot:Class;
     
     [Embed(source='/img/modules/mod (19).png')]
     public static const url:Class;

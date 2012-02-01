@@ -8,8 +8,6 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.ObjectUtils;
-      import it.ht.rcs.console.accounting.controller.GroupManager;
-      import it.ht.rcs.console.accounting.model.Group;
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.events.SectionEvent;
@@ -31,31 +29,24 @@
       
       private function save():void
       {
-        var g:Group = new Group(Group.defaultGroup());
-        g.name = agentName.text + ' Group';
-        GroupManager.instance.addGroup(ObjectUtils.toHash(g), function(g1:Group):void
+        var o:Operation = new Operation(Operation.defaultOperation());
+        o.name = agentName.text;
+        OperationManager.instance.addOperation(ObjectUtils.toHash(o), function(o1:Operation):void
         {
-          GroupManager.instance.addUser(g1, Console.currentSession.user);
-          var o:Operation = new Operation(Operation.defaultOperation());
-          o.name = agentName.text;
-          o.group_ids.addItem(g1._id);
-          OperationManager.instance.addOperation(ObjectUtils.toHash(o), function(o1:Operation):void
+          var t:Target = new Target(Target.defaultTarget());
+          t.name = agentName.text;
+          TargetManager.instance.addTarget(ObjectUtils.toHash(t), o1, function(t1:Target):void
           {
-            var t:Target = new Target(Target.defaultTarget());
-            t.name = agentName.text;
-            TargetManager.instance.addTarget(ObjectUtils.toHash(t), o1, function(t1:Target):void
+            var a:Agent = new Agent(Agent.defaultAgent());
+            a._kind = 'factory';
+            a.name = agentName.text;
+            AgentManager.instance.addFactory(ObjectUtils.toHash(a), o1, t1, function(a1:Agent):void
             {
-              var a:Agent = new Agent(Agent.defaultAgent());
-              a._kind = 'factory';
-              a.name = agentName.text;
-              AgentManager.instance.addFactory(ObjectUtils.toHash(a), o1, t1, function(a1:Agent):void
-              {
-                var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
-                sectionEvent.section = 'Operations';
-                sectionEvent.item = new SearchItem(a1);
-                FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
-                close();
-              });
+              var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+              sectionEvent.section = 'Operations';
+              sectionEvent.item = new SearchItem(a1);
+              FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+              close();
             });
           });
         });

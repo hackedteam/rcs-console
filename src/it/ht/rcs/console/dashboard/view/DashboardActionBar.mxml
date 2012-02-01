@@ -4,14 +4,20 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:items="it.ht.rcs.console.utils.items.*">
-
+  
+  <s:Button label="Add to Dashboard" click="onAddToDashboard(event)"
+            icon="@Embed('/img/windows/user2.png')"/>
+  
+  <actionbar:Separator/>
+  
   <s:Button label="{R.get('SORT_BY_TIME')}" icon="@Embed('/img/windows/user2.png')"/>
   
   <s:Button label="{R.get('SORT_BY_NAME')}" icon="@Embed('/img/windows/user2.png')"/>
   
   <s:Spacer width="100%"/>
   
-  <items:SearchField kinds="{['operation', 'target', 'agent']}" itemSelected="onSelectSearchItem(event)"/>
+  <items:SearchField itemSelected="onSelectSearchItem(event)"
+                     kinds="{['operation', 'target', 'agent']}"/>
   
   <fx:Script>
     <![CDATA[
@@ -19,12 +25,15 @@
       import it.ht.rcs.console.utils.items.ItemEvent;
       
       import locale.R;
+
+      private function onAddToDashboard(event:MouseEvent):void
+      {
+      }
       
       private function onSelectSearchItem(event:ItemEvent):void
       {
-        DashboardController.instance.newDashItem(event.selectedItem._id);  
+        DashboardController.instance.newDashboardItem(event.selectedItem._id);  
       }
-      
     ]]>
   </fx:Script>
   

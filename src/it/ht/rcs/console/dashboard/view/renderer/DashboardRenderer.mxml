@@ -41,8 +41,7 @@
       private function onTick(e:Event):void
       {
         try {
-          lastSyncText.text = R.get('LAST_SYNC') + ':  ' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago (' +
-          TimeUtils.timestampFormatter(item.lastSync * 1000) + ')';
+          lastSyncText.text = TimeUtils.timestampFormatter(item.lastSync * 1000) + '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)';
         } catch (e:Error) {}
       }
       
@@ -91,7 +90,8 @@
         <s:BitmapImage id="icon"/>
         <s:Label fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}" width="300"/>
         
-        <s:Label id="lastSyncText" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5" width="180"/>
+        <s:Label fontFamily="Myriad" fontSize="13" fontWeight="bold" paddingRight="10" paddingTop="5" text="{R.get('LAST_SYNC')}"/>
+        <s:Label id="lastSyncText" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5" width="300"/>
         
         <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red" value="{item.totSync}"/>
         <renderer:CounterBaloon visible="{!details.visible}" style="white" value="{item.totTot}"/>

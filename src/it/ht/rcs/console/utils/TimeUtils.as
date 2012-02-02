@@ -29,7 +29,7 @@ package it.ht.rcs.console.utils
       clockFormatter.formatString = "JJ:NN:SS";
       
       if (days > 0)
-        return days.toString() + ' ' + clockFormatter.format(time);
+        return days.toString() + ' days, ' + clockFormatter.format(time);
       else
         return clockFormatter.format(time); 
     }

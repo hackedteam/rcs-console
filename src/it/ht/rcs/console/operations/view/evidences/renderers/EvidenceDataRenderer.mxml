@@ -5,9 +5,86 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.evidence.model.EvidenceData;
       override public function prepare(hasBeenRecycled:Boolean):void {
-        if (data)
-          lblData.text = data[column.dataField]
+        if (!data)
+          return;
+
+        lblData.text = data[column.dataField]
+        
+        switch (data.type) {
+          case 'device':
+            lblData.text = data.data.content
+            break;
+          
+          case 'chat':
+            lblData.text = '[' + data.data.program + '] [' + data.data.users + '] ' + data.data.content; 
+            break;
+            
+          case 'clipboard':
+            lblData.text = '[' + data.data.program + '] ' + data.data.content;
+            break;
+                      
+          case 'camera':
+            lblData.text = '';
+            break;
+            
+          case 'file':
+            lblData.text = data.data.path;
+            break;
+            
+          case 'keylog':
+            lblData.text = '[' + data.data.program + '] ' + data.data.content;
+            break;
+            
+          case 'mic':
+            lblData.text = '';
+            break;
+            
+          case 'password':
+            lblData.text = '[' + data.data.service + '] [' + data.data.user + '] [' + data.data.pass + ']';
+            break;
+            
+          case 'print':
+            lblData.text = data.data.s;
+            break;
+            
+          case 'screenshot':
+            lblData.text = '[' + data.data.program + '] [' + data.data.window + ']';
+            break;
+            
+          case 'url':
+            lblData.text = '[' + data.data.browser + '] ' + data.data.url;
+            break;
+            
+          case 'call':
+            lblData.text = '[' + data.data.program + '] ' + data.data.peer;
+            break;
+            
+          case 'message':
+            lblData.text = data.data.from + '  -->  ' + data.data.to + '  Subject: ' + data.data.subject;	
+            break;
+            
+          case 'position':
+            lblData.text = '[' + data.data.type + '] ' ;
+            break;
+            
+          case 'calendar':
+            lblData.text = '[' + data.data.event + '] ' + data.data.info;
+            break;
+            
+          case 'addressbook':
+            lblData.text = '[' + data.data.name + '] ' + data.data.contact; 
+            break;
+                        
+          case 'mouse':
+            lblData.text = '';
+            break;
+            
+          case 'application':
+            lblData.text = data.data.program + ' ' + data.data.action + ' ' + data.data.desc;
+            break;
+        }
       }
     ]]>
   </fx:Script>

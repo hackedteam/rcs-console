@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:items="it.ht.rcs.console.utils.items.*"
+                             creationComplete="init()" showCancelButton="false"
+                             showSaveButton="false" title="{R.get('ADD_TO_DASHBOARD')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.utils.items.ItemEvent;
+      
+      import locale.R;
+      
+      private function init():void
+      {
+        searchInput.setFocus();
+      }
+      
+      private function onSelectSearchItem(event:ItemEvent):void
+      {
+        DashboardController.instance.newDashboardItem(event.selectedItem._id);  
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup horizontalAlign="center" paddingLeft="20" paddingRight="20" paddingTop="20">
+
+    <items:SearchField id="searchInput" width="220" itemSelected="onSelectSearchItem(event)"
+                       kinds="{['operation', 'target', 'agent']}"/>
+    
+  </s:VGroup>
+  
+</utils:TitleWindowSaveCancel>

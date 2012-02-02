@@ -2,10 +2,9 @@
 <actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
                      xmlns:s="library://ns.adobe.com/flex/spark"
                      xmlns:mx="library://ns.adobe.com/flex/mx"
-                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
-                     xmlns:items="it.ht.rcs.console.utils.items.*">
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="Add to Dashboard" click="onAddToDashboard(event)"
+  <s:Button label="{R.get('ADD_TO_DASHBOARD')}" click="onAddToDashboard(event)"
             icon="@Embed('/img/windows/user2.png')"/>
   
   <actionbar:Separator/>
@@ -16,23 +15,46 @@
   
   <s:Spacer width="100%"/>
   
-  <items:SearchField itemSelected="onSelectSearchItem(event)"
-                     kinds="{['operation', 'target', 'agent']}"/>
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.dashboard.controller.DashboardController;
-      import it.ht.rcs.console.utils.items.ItemEvent;
-      
       import locale.R;
+      
+      import mx.managers.PopUpManager;
 
       private function onAddToDashboard(event:MouseEvent):void
       {
+        var popup:AddToDashboardPopup = PopUpManager.createPopUp(root, AddToDashboardPopup, true) as AddToDashboardPopup;
+        PopUpManager.centerPopUp(popup);
       }
       
-      private function onSelectSearchItem(event:ItemEvent):void
+//      private function compareSyncTime(a:SearchItem, b:SearchItem, fields:Array=null):int {
+//        if (a.stat.last_sync < b.stat.last_sync)
+//          return 1;
+//        else if (a.stat.last_sync > b.stat.last_sync)
+//          return -1;
+//        else
+//          return 0
+//      };
+      
+      //      private function sort_by_time():void
+      //      {
+      //        var sort:Sort = new Sort();
+      //        sort.compareFunction = compareSyncTime;
+      //        _dashboard_items.sort = sort;
+      //        _dashboard_items.refresh();
+      //      }
+      //      
+      //      private function sort_by_name():void
+      //      {
+      //        _dashboard_items.sort = new Sort();
+      //        _dashboard_items.refresh();
+      //      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
       {
-        DashboardController.instance.newDashboardItem(event.selectedItem._id);  
+        if (view) view.refresh();
       }
     ]]>
   </fx:Script>

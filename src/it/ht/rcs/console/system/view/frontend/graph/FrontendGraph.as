@@ -37,7 +37,7 @@ package it.ht.rcs.console.system.view.frontend.graph
         selectedElement = null;
       }
     }
-
+    
 		private function onNodeEvent(e:Event):void
 		{
 			if (!(e is NodeEvent) || e.target == this)

@@ -17,6 +17,8 @@
       
       import locale.R;
       
+      import mx.collections.ArrayList;
+      import mx.controls.Alert;
       import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.CursorManager;
@@ -43,15 +45,19 @@
       
       private function onSuccess(session:Session):void
       {
-        CursorManager.removeBusyCursor();
-        login.enabled = true;
-
         /* take the current session from result */
         Console.currentSession = session;
         /* set the locale of the current user */
         resourceManager.localeChain = [Console.currentSession.user.locale];
         /* update the clock timezone */
         Clock.instance.setConsoleTimezone(Console.currentSession.user.timezone);
+        Initialization.instance.addEventListener("pippo", onInitComplete);
+        Initialization.instance.initialize(loading);
+      }
+      
+      private function onInitComplete(e:Event):void {
+        CursorManager.removeBusyCursor();
+        login.enabled = true;
         /* switch to the main stage */
         (FlexGlobals.topLevelApplication as Console).goLoggedIn();
         /* send the global LOGIN event */
@@ -66,8 +72,6 @@
         login.enabled = true;
         
         errorMessage.text = message;
-        
-        //shake.play();
       }
       
       private function onClosing(e:Event):void
@@ -131,6 +135,8 @@
       </s:Form>
       
     </s:Panel>
+    
+    <mx:ProgressBar id="loading" label="" mode="manual"/>
 
   </s:VGroup>
   

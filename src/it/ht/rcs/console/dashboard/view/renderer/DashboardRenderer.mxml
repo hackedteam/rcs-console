@@ -5,7 +5,8 @@
                 xmlns:view="it.ht.rcs.console.dashboard.view.*"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
                 xmlns:utils="it.ht.rcs.console.utils.*"
-                autoDrawBackground="false" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+                addedToStage="onAddedToStage()" autoDrawBackground="false"
+                removedFromStage="onRemovedFromStage()">
   
   <s:layout>
     <s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
@@ -41,7 +42,7 @@
       private function onTick(e:Event):void
       {
         try {
-          lastSyncText.text = R.get('LAST_SYNC') + ':  ' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago (' +
+          lastSyncText.text = TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago (' +
           TimeUtils.timestampFormatter(item.lastSync * 1000) + ')';
         } catch (e:Error) {}
       }
@@ -89,9 +90,10 @@
       
       <s:HGroup width="100%" gap="8" verticalAlign="middle">
         <s:BitmapImage id="icon"/>
-        <s:Label fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}" width="300"/>
+        <s:Label width="300" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}"/>
         
-        <s:Label id="lastSyncText" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5" width="180"/>
+        <s:Label fontFamily="Myriad" fontSize="13" paddingTop="5" text="{R.get('LAST_SYNC')}: "/>
+        <s:Label id="lastSyncText" width="260" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5"/>
         
         <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red" value="{item.totSync}"/>
         <renderer:CounterBaloon visible="{!details.visible}" style="white" value="{item.totTot}"/>
@@ -99,12 +101,12 @@
         <s:Spacer width="100%"/>
         
         <s:Label buttonMode="true" click="onMinimize(event)" fontFamily="Myriad" fontSize="18" text="_"/>
-        <s:Label fontFamily="Myriad" fontSize="18" text="X" buttonMode="true" click="onDelete(event)"/>
+        <s:Label buttonMode="true" click="onDelete(event)" fontFamily="Myriad" fontSize="18" text="X"/>
       </s:HGroup>
       
       <s:HGroup id="details" width="100%">
-        <renderer:ModuleList dataProvider="{item.modules}" includeIn="target,agent"/>
-        <renderer:TargetList dataProvider="{item.targets}" includeIn="operation"/>
+        <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}"/>
+        <renderer:TargetList includeIn="operation" dataProvider="{item.targets}"/>
       </s:HGroup>
       
     </s:VGroup>

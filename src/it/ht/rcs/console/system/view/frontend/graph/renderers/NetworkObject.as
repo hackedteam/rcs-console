@@ -1,8 +1,8 @@
-package it.ht.rcs.console.system.view.frontend.renderers
+package it.ht.rcs.console.system.view.frontend.graph.renderers
 {
   import flash.display.BitmapData;
   
-  import it.ht.rcs.console.system.view.frontend.FrontendGraph;
+  import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
   
   import mx.core.UIComponent;
   

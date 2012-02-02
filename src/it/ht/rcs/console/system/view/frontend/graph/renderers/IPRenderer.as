@@ -1,4 +1,4 @@
-package it.ht.rcs.console.system.view.frontend.renderers
+package it.ht.rcs.console.system.view.frontend.graph.renderers
 {
   import it.ht.rcs.console.network.model.Collector;
   

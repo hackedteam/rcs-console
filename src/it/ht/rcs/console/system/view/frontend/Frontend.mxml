@@ -3,38 +3,17 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
-          width="100%" height="100%" addedToStage="onAddedToStage(event)"
-          removedFromStage="onRemovedFromStage(event)" creationComplete="init()">
-  
-  
-  <frontend:FrontendActionBar selectedObject="{list.selectedItem}"/>
-  
-  <frontend:CollectorList id="list" change="onCollectorsListSelection(event)"
-                          dataProvider="{anonymizers}" keyDown="enter(event)"/>
-  
-  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderWeight="2" borderVisible="true" cornerRadius="10">
-    <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
-      <s:fill>
-        <s:LinearGradient rotation="90">
-          <s:GradientEntry color="#eeeeee"/>
-          <s:GradientEntry color="#ffffff"/>
-          <s:GradientEntry color="#ffffff"/>
-        </s:LinearGradient>
-      </s:fill>
-    </s:Rect>
-    <s:Scroller id="scroller" width="100%" height="100%">
-      <frontend:FrontendGraph id="graph"/>
-    </s:Scroller>
-  </s:BorderContainer>
-  
+          xmlns:graph="it.ht.rcs.console.system.view.frontend.graph.*"
+          width="100%" height="100%" addedToStage="onAddedToStage(event)" creationComplete="init()"
+          removedFromStage="onRemovedFromStage(event)">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.system.view.frontend.renderers.CollectorRenderer;
-      import it.ht.rcs.console.system.view.frontend.renderers.DBRenderer;
+      import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
+      import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
       
       import mx.collections.ListCollectionView;
       import mx.managers.PopUpManager;
@@ -60,11 +39,6 @@
         CollectorManager.instance.listenRefresh();
       }
       
-      private function anonymizerFilterFunction(item:Object):Boolean
-      {
-        return item.type == 'remote';
-      }
-
       private function onRemovedFromStage(event:Event):void
       {
         CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -75,6 +49,11 @@
         if (_collector_view == null)
           _collector_view = CollectorManager.instance.getView();
         buildGraph();
+      }
+      
+      private function anonymizerFilterFunction(item:Object):Boolean
+      {
+        return item.type == 'remote' && item.prev[0] == null && item.next[0] == null;
       }
       
       public function buildGraph():void
@@ -90,7 +69,6 @@
           if (node.collector.type == 'local')
             collectors.push(node);
           var nextHop:CollectorRenderer = node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
-          //var nextHop:CollectorRenderer = getRendererById(node.collector.next[0], nodes);
           node.nextHop = nextHop;
         }
         
@@ -130,19 +108,37 @@
         if (event.keyCode == Keyboard.ENTER && list.selectedItem != null)
           editCollector(list.selectedItem);
       }
-//      
-//      private function onNodeChanged(event:Event):void
-//      {
-//        trace("Collectors, NodeEvent");
-//      }
- 
-      private function onCollectorsListSelection(event:IndexChangeEvent):void
-      {
-        //networkGraph.selectNode(collectors.selectedItem);
-      }
-      
-
     ]]>
   </fx:Script>
+  
+  <frontend:FrontendActionBar selectedObject="{list.selectedItem}"/>
+  
+  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true"
+                     borderWeight="2" cornerRadius="10">
+    
+    <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
+      <s:fill>
+        <s:LinearGradient rotation="90">
+          <s:GradientEntry color="#eeeeee"/>
+          <s:GradientEntry color="#ffffff"/>
+          <s:GradientEntry color="#ffffff"/>
+        </s:LinearGradient>
+      </s:fill>
+    </s:Rect>
+    
+    <s:VGroup width="100%" height="100%" gap="0">
+      
+      <frontend:CollectorList id="list" contentBackgroundAlpha="0" dataProvider="{anonymizers}"
+                              keyDown="enter(event)"/>
+      
+      <frontend:Separator/>
+      
+      <s:Scroller id="scroller" width="100%" height="100%">
+        <graph:FrontendGraph id="graph"/>
+      </s:Scroller>
+      
+    </s:VGroup>
+    
+  </s:BorderContainer>
   
 </s:VGroup>

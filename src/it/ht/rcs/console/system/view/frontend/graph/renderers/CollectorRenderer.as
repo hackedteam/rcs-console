@@ -1,4 +1,4 @@
-package it.ht.rcs.console.system.view.frontend.renderers
+package it.ht.rcs.console.system.view.frontend.graph.renderers
 {
   import flash.events.MouseEvent;
   import flash.ui.Mouse;
@@ -8,7 +8,7 @@ package it.ht.rcs.console.system.view.frontend.renderers
   import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
   import it.ht.rcs.console.system.view.frontend.Frontend;
-  import it.ht.rcs.console.system.view.frontend.FrontendGraph;
+  import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
   
   import mx.binding.utils.BindingUtils;
   import mx.core.DragSource;

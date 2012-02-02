@@ -13,6 +13,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
       import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
       
@@ -45,11 +46,13 @@
         (renderer.parent as FrontendGraph).rebuildGraph();
       }
       
-      public function edit():void
+      public function edit(collector:Collector=null):void
       {
-        if (selectedItem == null) return;
+        collector = collector || selectedItem;
+        if (!collector) return;
+        
         var popup:EditCollectorForm = PopUpManager.createPopUp(root, EditCollectorForm, true) as EditCollectorForm;
-        popup.collector = selectedItem;
+        popup.collector = collector;
         PopUpManager.centerPopUp(popup);
       }
     ]]>

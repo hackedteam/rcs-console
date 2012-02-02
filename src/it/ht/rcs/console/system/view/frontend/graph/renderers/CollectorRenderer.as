@@ -119,14 +119,14 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       
       selected = true;
       graph.selectedElement = this;
-      (this.parentDocument as Frontend).list.selectedItem = collector;
+      //(this.parentDocument as Frontend).list.selectedItem = collector;
       
       setFocus();
     }
     
     private function onDoubleClick(me:MouseEvent):void
     {
-      (this.parentDocument as Frontend).list.edit();
+      (this.parentDocument as Frontend).list.edit(collector);
     }
     
     private var _selected:Boolean = false;

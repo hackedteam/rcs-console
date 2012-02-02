@@ -215,38 +215,39 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       if (_prevHop === destination)
         return;
       
-      if (_prevHop != null)
-        _prevHop._nextHop = _nextHop;
-      if (_nextHop != null) {
-        _nextHop._prevHop = _prevHop;
-        _prevHop.collector.next = [_nextHop.collector._id];
-        _nextHop.collector.prev = [_prevHop.collector._id];
-      }
+      detach();
       
       if (destination._nextHop != null) {
         destination._nextHop._prevHop = this;
         destination._nextHop.collector.prev = [this.collector._id];
-      }
-      _nextHop = destination._nextHop;
-      if (destination._nextHop != null)
+        
+        _nextHop = destination._nextHop;
         this.collector.next = [destination._nextHop.collector._id];
-      _prevHop = destination;
-      this.collector.prev = [destination.collector._id];
+      }
+      
       destination._nextHop = this;
       destination.collector.next = [this.collector._id];
+      
+      _prevHop = destination;
+      this.collector.prev = [destination.collector._id];
     }
     
     public function detach():void
     {
-      if (_nextHop != null) {
-        _nextHop._prevHop = _prevHop;
-        _prevHop.collector.next = [_nextHop.collector._id];
-        _nextHop.collector.prev = [_prevHop.collector._id];
-      } else {
-        _prevHop.collector.next = [null];
+      if (_prevHop != null) {
+        if (_nextHop != null) {
+          _prevHop.nextHop = _nextHop;
+          _prevHop.collector.next = [_nextHop.collector._id];
+          
+          _nextHop._prevHop = _prevHop;
+          _nextHop.collector.prev = [_prevHop.collector._id];
+        } else {
+          _prevHop.nextHop = null;
+          _prevHop.collector.next = [null];
+        }
+        _prevHop = _nextHop = null;
+        this.collector.prev = this.collector.next = [null];
       }
-      _prevHop._nextHop = _nextHop;
-      this.collector.prev = this.collector.next = [null];
     }
 		
 	}

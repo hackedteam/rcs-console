@@ -3,22 +3,13 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nia="it.ht.rcs.console.system.view.nia.*"
-          left="5" right="5" top="0" bottom="5" addedToStage="onAddedToStage()">
+          width="100%" height="100%" addedToStage="onAddedToStage()">
   
   
-  <s:BorderContainer width="100%" height="120" dropShadowVisible="true">
-    
-    <nia:NIAList id="nias" left="5" right="5" top="5" bottom="5" width="100%" borderVisible="false"
-                 dataProvider="{_proxy_view}" keyDown="enter(event)"/>
-    
-    <s:Button right="33" bottom="1" width="32" height="20" label="-" click="deleteProxy()"
-              enabled="{Console.currentSession.user.is_sys() &amp;&amp; nias.selectedItem != null}" styleName="AddRemove"
-              toolTip="{R.get('INJECTOR_DELETE')}"/>
-    <s:Button right="1" bottom="1" width="32" height="20" label="+" click="addProxy()" enabled="{Console.currentSession.user.is_sys()}"
-              styleName="AddRemove" toolTip="{R.get('INJECTOR_ADD')}"/>
-
-  </s:BorderContainer>
+  <nia:NIAActionBar/>
   
+  <nia:NIAList id="nias" width="100%" borderVisible="false" dataProvider="{_proxy_view}"
+               keyDown="enter(event)"/>
 
   <s:HGroup visible="{Console.currentSession.user.is_tech()}">
     <s:Button width="30" height="20" label="New" click="addRule()"
@@ -27,14 +18,16 @@
     <s:Button width="30" height="20" label="Edit" click="editRule()"
               enabled="{rulesGrid.selectedItem != null}"
               skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
-    <s:Button width="30" height="20" label="Delete" enabled="{rulesGrid.selectedItem != null}" click="deleteRule()"
+    <s:Button width="30" height="20" label="Delete" click="deleteRule()"
+              enabled="{rulesGrid.selectedItem != null}"
               skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
     <s:Spacer width="15"/>
-    <s:Button width="30" height="20" label="Apply" enabled="{nias.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.ApplyButton" toolTip="{R.get('APPLY_RULES')}" click="applyRules()"/>
+    <s:Button width="30" height="20" label="Apply" click="applyRules()"
+              enabled="{nias.selectedItem != null}" skinClass="it.ht.rcs.console.skins.ApplyButton"
+              toolTip="{R.get('APPLY_RULES')}"/>
   </s:HGroup>
    
-  <nia:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{nias.selectedItem.rules}" />    
+  <nia:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{nias.selectedItem.rules}"/>    
 
   <fx:Script>
     <![CDATA[

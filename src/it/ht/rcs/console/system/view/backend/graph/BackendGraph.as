@@ -117,39 +117,41 @@ package it.ht.rcs.console.system.view.backend.graph
       var _width:Number = Math.max(unscaledWidth, measuredWidth);
       var _height:Number = Math.max(unscaledHeight, measuredHeight);
 
-			graphics.lineStyle(1, 0x222222, 1, true);
+      var i:int = 0; // Generic loop index
+      var cX:int = 0, cY:int = 0; // Generic currentX, currentY
+      var offsetFromCenter:int = 0; // Generic offset
+      
+			graphics.lineStyle(1, 0x999999, 1, true);
 
 
-      if (db != null)
-			{
+      if (db != null) {
 
 				db.move(_width / 2 - db.measuredWidth / 2, TOP_DISTANCE);
 
 				// Where to draw the first shard?
-				if (db.shards.length > 0)
-				{
-					var offsetFromCenter:int = 0;
-					var renderer:ShardRenderer = db.shards[0];
-					if (db.shards.length % 2 == 0)
-						offsetFromCenter = _width / 2 - (db.shards.length / 2 * (SHARDS_DISTANCE + renderer.width)) + SHARDS_DISTANCE / 2;
-					else
-						offsetFromCenter = _width / 2 - (Math.floor(db.shards.length / 2) * (SHARDS_DISTANCE + renderer.measuredWidth)) - renderer.measuredWidth / 2;
-				}
-				// Draw shards
-				for (var collectorIndex:int = 0; collectorIndex < db.shards.length; collectorIndex++)
-				{
-
-					var shard:ShardRenderer = db.shards[collectorIndex];
-
-					var cX:int = offsetFromCenter + collectorIndex * (SHARDS_DISTANCE + shard.width) + shard.width / 2;
-					var cY:int = db.y + db.height + VERTICAL_DISTANCE;
-          shard.move(cX - shard.width / 2, cY);
-
-					graphics.moveTo(_width / 2, TOP_DISTANCE + db.height / 2);
-					graphics.lineTo(cX, cY);
-
-				} // End collectors
-
+				if (db.shards != null && db.shards.length > 0) {
+          
+          var renderer:ShardRenderer = db.shards[0];
+          offsetFromCenter = db.shards.length % 2 == 0 ?
+            _width / 2 - (db.shards.length / 2 * (HORIZONTAL_DISTANCE + renderer.width)) + HORIZONTAL_DISTANCE / 2 : // Even
+            _width / 2 - (Math.floor(db.shards.length / 2) * (HORIZONTAL_DISTANCE + renderer.width)) - renderer.width / 2; // Odd
+				
+  				// Draw shards
+  				for (i = 0; i < db.shards.length; i++) {
+  
+            renderer = db.shards[i];
+  
+  					cX = offsetFromCenter + i * (SHARDS_DISTANCE + renderer.width) + renderer.width / 2;
+  					cY = db.y + db.height + VERTICAL_DISTANCE;
+            renderer.move(cX - renderer.width / 2, cY);
+  
+  					graphics.moveTo(_width / 2, TOP_DISTANCE + db.height / 2);
+  					graphics.lineTo(cX, cY);
+  
+  				} // End shards
+          
+        }
+        
 			} // End db
 
 		}

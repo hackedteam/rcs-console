@@ -5,12 +5,13 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   
-  <s:Button label="{R.get('RULE_ADD')}" enabled="{selectedInjector != null}" click="addRule()" icon="@Embed('/img/NEW/newRule.png')"/>
+  <s:Button label="{R.get('RULE_ADD')}" click="addRule()" enabled="{selectedInjector != null}"
+            icon="@Embed('/img/NEW/newRule.png')"/>
   
-  <s:Button label="{R.get('EDIT')}" click="editRule()" enabled="{selectedObject != null}"
+  <s:Button label="{R.get('EDIT')}" click="editRule()" enabled="{selectedRule != null}"
             icon="@Embed('/img/NEW/edit.png')"/>
   
-  <s:Button label="{R.get('DELETE')}" click="deleteRule()" enabled="{selectedObject != null}"
+  <s:Button label="{R.get('DELETE')}" click="deleteRule()" enabled="{selectedRule != null}"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <actionbar:Separator/>
@@ -22,9 +23,12 @@
     <![CDATA[
       import it.ht.rcs.console.network.model.Injector;
       import it.ht.rcs.console.network.model.InjectorRule;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
@@ -45,29 +49,29 @@
       
       private function editRule():void
       {
-//        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
-//        popup.mode = 'edit';
-//        popup.injector = nias.selectedItem;
-//        popup.rule = rulesGrid.selectedItem as InjectorRule;
-//        PopUpManager.centerPopUp(popup);
+        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+        popup.mode = 'edit';
+        popup.injector = selectedInjector;
+        popup.rule = selectedRule;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function deleteRule():void
       {
-//        AlertPopUp.show(R.get('CONFIRM_RULE_DELETION'),
-//          R.get('CONFIRM'),
-//          AlertPopUp.YES | AlertPopUp.NO,
-//          null,
-//          function(e:CloseEvent):void {
-//            if (e.detail == AlertPopUp.YES)
-//              rulesGrid.dataProvider.removeItemAt(rulesGrid.selectedIndex);
-//          },
-//          null, AlertPopUp.NO);
+        AlertPopUp.show(R.get('CONFIRM_RULE_DELETION'),
+          R.get('CONFIRM'),
+          AlertPopUp.YES | AlertPopUp.NO,
+          null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              selectedInjector.rules.removeItemAt(selectedInjector.rules.getItemIndex(selectedRule));
+          },
+          null, AlertPopUp.NO);
       }
       
       private function applyRules():void
       {
-        //DownloadManager.instance.createTask("injector", null, {injector_id: nias.selectedItem._id}, onSuccess, onFailure);  
+        DownloadManager.instance.createTask("injector", null, {injector_id: selectedInjector._id}, onSuccess, onFailure);  
       }
       
       private function onSuccess(e:ResultEvent):void

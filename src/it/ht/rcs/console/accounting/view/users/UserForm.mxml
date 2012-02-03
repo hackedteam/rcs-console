@@ -8,9 +8,9 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
-      import it.ht.rcs.console.accounting.view.oldusers.ClockProfile;
       
       import locale.R;
       
@@ -46,7 +46,7 @@
           user.privs = privs;
 
         if (currentState == 'create')
-          UserManager.instance.addUser(user, function(u:User):void { close(); });
+          UserManager.instance.addUser(ObjectUtils.toHash(user), function(u:User):void { close(); });
         else
           close();
       }
@@ -115,7 +115,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('GROUPS')}">
-      <groups:GroupSelector width="100" dataProvider="{user.group_ids}"/>
+      <groups:GroupSelector width="200" dataProvider="{user.group_ids}"/>
     </s:FormItem>
     
   </s:Form>

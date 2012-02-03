@@ -140,7 +140,7 @@ package it.ht.rcs.console.main
       currentGreenLights++;
       progress.setProgress(currentGreenLights, maxGreenLights);
       if (currentGreenLights == maxGreenLights)
-        dispatchEvent(new Event("pippo"));
+        dispatchEvent(new Event("initialized"));
     }
     
   }

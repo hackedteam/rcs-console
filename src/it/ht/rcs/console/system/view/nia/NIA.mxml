@@ -3,152 +3,44 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:nia="it.ht.rcs.console.system.view.nia.*"
-          width="100%" height="100%" addedToStage="onAddedToStage()">
+          width="100%" height="100%" addedToStage="onAddedToStage()" creationComplete="init()"
+          removedFromStage="onRemovedFromStage()">
   
-  
-  <nia:NIAActionBar/>
-  
-  <nia:NIAList id="nias" width="100%" borderVisible="false" dataProvider="{_proxy_view}"
-               keyDown="enter(event)"/>
-
-  <s:HGroup visible="{Console.currentSession.user.is_tech()}">
-    <s:Button width="30" height="20" label="New" click="addRule()"
-              enabled="{nias.selectedItem != null}" skinClass="it.ht.rcs.console.skins.NewButton"
-              toolTip="{R.get('RULE_ADD')}"/>
-    <s:Button width="30" height="20" label="Edit" click="editRule()"
-              enabled="{rulesGrid.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.EditButton" toolTip="{R.get('EDIT')}"/>
-    <s:Button width="30" height="20" label="Delete" click="deleteRule()"
-              enabled="{rulesGrid.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('DELETE')}"/>
-    <s:Spacer width="15"/>
-    <s:Button width="30" height="20" label="Apply" click="applyRules()"
-              enabled="{nias.selectedItem != null}" skinClass="it.ht.rcs.console.skins.ApplyButton"
-              toolTip="{R.get('APPLY_RULES')}"/>
-  </s:HGroup>
-   
-  <nia:RulesGrid id="rulesGrid" width="100%" height="100%" dataProvider="{nias.selectedItem.rules}"/>    
-
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.network.controller.InjectorController;
       import it.ht.rcs.console.network.controller.InjectorManager;
-      import it.ht.rcs.console.network.model.Injector;
       import it.ht.rcs.console.network.model.InjectorRule;
-      import it.ht.rcs.console.task.controller.DownloadManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
       
       import mx.collections.ListCollectionView;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
       
       [Bindable]
-      private var _proxy_view:ListCollectionView;
+      private var view:ListCollectionView;
+
+      private function init():void
+      {
+        view = InjectorManager.instance.getView();
+      }
       
       private function onAddedToStage():void
       {
         InjectorController.instance.listenRefresh();
-        InjectorController.instance.refresh();
-        _proxy_view = InjectorManager.instance.getView();
       }
       
       private function onRemovedFromStage():void
       {
         InjectorController.instance.unlistenRefresh();
       }
-      
-      private function addProxy():void
-      {
-        InjectorController.instance.addProxy(function onSuccess(injector:it.ht.rcs.console.network.model.Injector):void {
-          nias.selectedItem = injector;
-          createProxy(injector);
-        });
-      }
-      
-      private function createProxy(injector:it.ht.rcs.console.network.model.Injector):void
-      {
-        var popup:CreateNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateNIAForm, true) as CreateNIAForm;
-        popup.injector = injector;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function editProxy(proxy:it.ht.rcs.console.network.model.Injector):void
-      {
-        var popup:EditNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditNIAForm, true) as EditNIAForm;
-        popup.injector = proxy;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      protected function deleteProxy():void
-      {
-        AlertPopUp.show(R.get('CONFIRM_PROXY_DELETION', [nias.selectedItem.name]),
-                        R.get('CONFIRM'),
-                        AlertPopUp.YES | AlertPopUp.NO,
-                        null,
-                        function(e:CloseEvent):void {
-                          if (e.detail == AlertPopUp.YES) 
-                            InjectorController.instance.removeItem(nias.selectedItem);
-                        },
-                        null, AlertPopUp.NO);
-      }
-      
-      protected function enter(event:KeyboardEvent):void
-      {
-        if (event.keyCode == Keyboard.ENTER && nias.selectedItem != null)
-          editProxy(nias.selectedItem);
-      }
-      
-      private function addRule():void
-      {
-        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
-        popup.mode = 'create';
-        popup.injector = nias.selectedItem;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      protected function editRule():void
-      {
-        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
-        popup.mode = 'edit';
-        popup.injector = nias.selectedItem;
-        popup.rule = rulesGrid.selectedItem as InjectorRule;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      protected function deleteRule():void
-      {
-        AlertPopUp.show(R.get('CONFIRM_RULE_DELETION'),
-          R.get('CONFIRM'),
-          AlertPopUp.YES | AlertPopUp.NO,
-          null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES)
-              rulesGrid.dataProvider.removeItemAt(rulesGrid.selectedIndex);
-          },
-          null, AlertPopUp.NO);
-      }
-      
-      protected function applyRules():void
-      {
-        DownloadManager.instance.createTask("injector", null, {injector_id: nias.selectedItem._id}, onSuccess, onFailure);  
-      }
-      
-      private function onSuccess(e:ResultEvent):void
-      {
-        //AlertPopUp.show(R.get('RULES_APPLIED'), "", AlertPopUp.OK);
-      }
-      
-      private function onFailure(e:FaultEvent):void
-      {
-        
-      }
-      
     ]]>
   </fx:Script>
+  
+  <nia:NIAActionBar selectedObject="{nias.selectedItem}" view="{view}"/>
+  
+  <nia:NIAList id="nias" dataProvider="{view}"/>
+
+  <nia:RulesActionBar selectedInjector="{nias.selectedItem as Injector}"
+                      selectedRule="{rules.selectedItem as InjectorRule}"/>
+   
+  <nia:RulesGrid id="rules" dataProvider="{nias.selectedItem.rules}"/>    
 
 </s:VGroup>

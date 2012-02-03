@@ -11,6 +11,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.controller.Manager;
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.network.controller.CollectorManager;
+  import it.ht.rcs.console.network.controller.InjectorManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.target.controller.TargetManager;
@@ -118,6 +119,11 @@ package it.ht.rcs.console.main
       if (user.is_tech() || user.is_view())
       {
         managers.push(AgentManager.instance);
+      }
+      
+      if (user.is_tech())
+      {
+        managers.push(InjectorManager.instance);
       }
       
       maxGreenLights = managers.length;

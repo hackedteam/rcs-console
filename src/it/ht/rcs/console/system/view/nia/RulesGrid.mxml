@@ -2,7 +2,7 @@
 <s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
             xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
-            doubleClick="doubleClick(event)" doubleClickEnabled="true">
+            width="100%" height="100%" doubleClick="doubleClick(event)" doubleClickEnabled="true">
   
   <fx:Script>
     <![CDATA[
@@ -13,6 +13,7 @@
       import locale.R;
       
       import mx.managers.PopUpManager;
+      
       protected function doubleClick(event:MouseEvent):void
       {
         /* only tech can modify a rule */
@@ -50,39 +51,46 @@
     ]]>
   </fx:Script>
   
-  
   <s:columns>
-      <s:ArrayList>
-        <s:GridColumn width="30" dataField="enabled" headerText="{R.get('ENABLED_SHORT')}" resizable="false">
-          <s:itemRenderer>
-            <fx:Component>
-              <s:GridItemRenderer>
-                <s:SkinnableContainer>
-                  <s:CheckBox left="8" top="4" selected="@{data.enabled}"/>                                          
-                </s:SkinnableContainer>
-              </s:GridItemRenderer>
-            </fx:Component>
-          </s:itemRenderer>
-        </s:GridColumn>
-        <s:GridColumn width="30" dataField="disable_sync" headerText="{R.get('SYNC_SHORT')}" resizable="false">
-          <s:itemRenderer>
-            <fx:Component>
-              <s:GridItemRenderer>
-                <s:SkinnableContainer>
-                  <s:CheckBox left="9" top="4" enabled="false" selected="{data.disable_sync}"/>                                          
-                </s:SkinnableContainer>
-              </s:GridItemRenderer>
-            </fx:Component>
-          </s:itemRenderer>
-        </s:GridColumn>
-        <s:GridColumn width="35" dataField="probability" headerText="{R.get('PROBABILITY_SHORT')}" resizable="false"/>
-        <s:GridColumn dataField="target_id" labelFunction="targetname" headerText="{R.get('TARGET')}"/>
-        <s:GridColumn dataField="ident" headerText="{R.get('IDENT')}"/>
-        <s:GridColumn dataField="ident_param" headerText="{R.get('USER_PATTERN')}"/>
-        <s:GridColumn dataField="resource" headerText="{R.get('RESOURCE_PATTERN')}"/>
-        <s:GridColumn dataField="action" headerText="{R.get('ACTION')}"/>
-        <s:GridColumn dataField="action_param_name" labelFunction="agentname" headerText="{R.get('PARAMETERS')}"/>
-      </s:ArrayList>
-    </s:columns>
+    <s:ArrayList>
+      
+      
+      <s:GridColumn width="30" dataField="enabled" headerText="{R.get('ENABLED_SHORT')}"
+                    resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer>
+                <s:CheckBox left="8" top="4" selected="@{data.enabled}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="30" dataField="disable_sync" headerText="{R.get('SYNC_SHORT')}"
+                    resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer>
+                <s:CheckBox left="9" top="4" enabled="false" selected="{data.disable_sync}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="35" dataField="probability" headerText="{R.get('PROBABILITY_SHORT')}" resizable="false"/>
+      <s:GridColumn dataField="target_id" headerText="{R.get('TARGET')}" labelFunction="targetname"/>
+      <s:GridColumn dataField="ident" headerText="{R.get('IDENT')}"/>
+      <s:GridColumn dataField="ident_param" headerText="{R.get('USER_PATTERN')}"/>
+      <s:GridColumn dataField="resource" headerText="{R.get('RESOURCE_PATTERN')}"/>
+      <s:GridColumn dataField="action" headerText="{R.get('ACTION')}"/>
+      <s:GridColumn dataField="action_param_name" headerText="{R.get('PARAMETERS')}" labelFunction="agentname"/>
+    
+      
+    </s:ArrayList>
+  </s:columns>
   
 </s:DataGrid>

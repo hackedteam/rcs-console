@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  
+  <s:Button label="{R.get('RULE_ADD')}" enabled="{selectedInjector != null}" click="addRule()" icon="@Embed('/img/NEW/newRule.png')"/>
+  
+  <s:Button label="{R.get('EDIT')}" click="editRule()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/edit.png')"/>
+  
+  <s:Button label="{R.get('DELETE')}" click="deleteRule()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('APPLY_RULES')}" click="applyRules()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/confirm.png')"/>
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.network.model.InjectorRule;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      public var selectedInjector:Injector;
+      
+      [Bindable]
+      public var selectedRule:InjectorRule;
+      
+      private function addRule():void
+      {
+        var popup:RuleForm = PopUpManager.createPopUp(root, RuleForm, true) as RuleForm;
+        popup.mode = 'create';
+        popup.injector = selectedInjector;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function editRule():void
+      {
+//        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+//        popup.mode = 'edit';
+//        popup.injector = nias.selectedItem;
+//        popup.rule = rulesGrid.selectedItem as InjectorRule;
+//        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function deleteRule():void
+      {
+//        AlertPopUp.show(R.get('CONFIRM_RULE_DELETION'),
+//          R.get('CONFIRM'),
+//          AlertPopUp.YES | AlertPopUp.NO,
+//          null,
+//          function(e:CloseEvent):void {
+//            if (e.detail == AlertPopUp.YES)
+//              rulesGrid.dataProvider.removeItemAt(rulesGrid.selectedIndex);
+//          },
+//          null, AlertPopUp.NO);
+      }
+      
+      private function applyRules():void
+      {
+        //DownloadManager.instance.createTask("injector", null, {injector_id: nias.selectedItem._id}, onSuccess, onFailure);  
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

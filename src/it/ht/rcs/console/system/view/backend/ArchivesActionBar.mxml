@@ -14,13 +14,56 @@
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
-
+  <!--
+  <s:HGroup>
+    <s:Spacer width="3"/>
+    <s:Button x="0" y="0" width="30" height="20"
+              click="restoreArchive(backuparchives.selectedItem as BackupArchive)"
+              enabled="{backuparchives.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.RestoreButton"
+              toolTip="{resourceManager.getString('localized_main', 'RESTORE')}"/>
+    <s:Button x="40" y="0" width="30" height="20"
+              click="deleteArchive(backuparchives.selectedItem as BackupArchive)"
+              enabled="{backuparchives.selectedItem != null}"
+              skinClass="it.ht.rcs.console.skins.DeleteButton"
+              toolTip="{resourceManager.getString('localized_main', 'DELETE')}"/>
+  </s:HGroup>
+-->
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.model.BackupArchive;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.events.CloseEvent;
+      
+      
+      private function restoreArchive(a:BackupArchive):void
+      {
+        if (a == null)
+          return;
+        
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              BackupArchiveManager.instance.restoreArchive(a, false);
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function deleteArchive(a:BackupArchive):void
+      {
+        if (a == null)
+          return;
+        
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              BackupArchiveManager.instance.removeItem(a);
+          }, null, AlertPopUp.NO);
+      }
       
       
 //      private function addProxy():void

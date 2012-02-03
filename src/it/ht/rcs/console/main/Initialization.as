@@ -128,7 +128,6 @@ package it.ht.rcs.console.main
       }
       
       if (user.is_view()) {
-        AlertController.instance.start_counters();
         managers.push(AlertManager.instance);
       }
       

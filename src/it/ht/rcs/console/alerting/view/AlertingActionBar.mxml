@@ -29,31 +29,38 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.alert.controller.AlertController;
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
       import locale.R;
+      
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
       
       private function onNewClick():void
       {
-//        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
-//        popup.currentState = 'create';
-//        PopUpManager.centerPopUp(popup);
+        var popup:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
+        popup.currentState = 'create';
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
-//        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
-//        popup.user = selectedObject as User;
-//        popup.currentState = 'edit';
-//        PopUpManager.centerPopUp(popup);
+        var ea:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
+        ea.alert = selectedObject as Alert;
+        ea.currentState = 'edit';
+        PopUpManager.centerPopUp(ea);
       }
       
       private function onDeleteClick():void
       {
-//        AlertPopUp.show(R.get('CONFIRM_USER_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-//                        AlertPopUp.YES|AlertPopUp.NO, null,
-//                        function(e:CloseEvent):void {
-//                          if (e.detail == AlertPopUp.YES) 
-//                            UserManager.instance.removeItem(selectedObject);
-//                        }, null, AlertPopUp.NO);
+        AlertPopUp.show(R.get('CONFIRM_ALERT_DELETION'), R.get('CONFIRM'),
+                        AlertPopUp.YES|AlertPopUp.NO, null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) 
+                            AlertController.instance.removeItem(selectedObject);
+                        }, null, AlertPopUp.NO);
       }
       
       private function onKeyUp(event:KeyboardEvent):void

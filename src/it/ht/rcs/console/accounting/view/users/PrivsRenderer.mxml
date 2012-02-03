@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
                           xmlns:s="library://ns.adobe.com/flex/spark"
                           xmlns:mx="library://ns.adobe.com/flex/mx"
-                          width="65" height="15" focusEnabled="true"
-                          clipAndEnableScrolling="true">
+                          width="65" height="15" focusEnabled="true">
   
   <fx:Script>
     <![CDATA[
@@ -17,11 +16,8 @@
 		  [Bindable]
       private var _view:Boolean;
       
-      override public function prepare(hasBeenRecycled:Boolean):void {
-        if (data) {
-          
-          var o:* = data[column.dataField];
-          
+      public function set data(o:Object):void {
+                   
           _admin = false;
           _sys = false;
           _tech = false;
@@ -38,7 +34,6 @@
           
           if (o.source.indexOf('view') != -1 || o.source.indexOf('VIEW') != -1)
             _view = true;
-        }
       }
       
     ]]>
@@ -49,4 +44,4 @@
   <s:Image left="45" top="0" bottom="0" source="@Embed('img/privs/tech.png')"  visible="{_tech}"/>
   <s:Image left="65" top="0" bottom="0" source="@Embed('img/privs/view.png')"  visible="{_view}"/>
 
-</s:GridItemRenderer>
+</s:SkinnableContainer>

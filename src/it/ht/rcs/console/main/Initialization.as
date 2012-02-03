@@ -7,6 +7,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.accounting.controller.UserManager;
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.agent.controller.AgentManager;
+  import it.ht.rcs.console.alert.controller.AlertController;
   import it.ht.rcs.console.alert.controller.AlertManager;
   import it.ht.rcs.console.controller.Manager;
   import it.ht.rcs.console.events.DataLoadedEvent;
@@ -126,6 +127,10 @@ package it.ht.rcs.console.main
         managers.push(InjectorManager.instance);
       }
       
+      if (user.is_view()) {
+        managers.push(AlertManager.instance);
+      }
+      
       maxGreenLights = managers.length;
       for each (var manager:Manager in managers) {
         manager.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -140,7 +145,7 @@ package it.ht.rcs.console.main
       currentGreenLights++;
       progress.setProgress(currentGreenLights, maxGreenLights);
       if (currentGreenLights == maxGreenLights)
-        dispatchEvent(new Event("pippo"));
+        dispatchEvent(new Event("initialized"));
     }
     
   }

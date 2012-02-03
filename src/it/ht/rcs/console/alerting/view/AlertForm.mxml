@@ -5,10 +5,12 @@
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:view="it.ht.rcs.console.alerting.view.*"
                              xmlns:items="it.ht.rcs.console.utils.items.*"
-                             save="save()" title="{R.get('EDIT_ALERT')}">
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_ALERT')}">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.alert.controller.AlertController;
       import it.ht.rcs.console.alert.model.Alert;
       
       import locale.R;
@@ -24,8 +26,15 @@
       private var actions:ArrayCollection = new ArrayCollection(['EVIDENCE', 'SYNC', 'INSTANCE']);
       [Bindable]
       private var evidence:ArrayCollection = new ArrayCollection(['*', 'ADDRESSBOOK', 'APPLICATION', 'CALENDAR', 'CALL', 'CAMERA', 'CHAT', 'CLIPBOARD', 'DEVICE', 
-                                                                  'DOWNLOAD', 'FILECAP', 'FILEOPEN', 'FILESYSTEM', 'INFO', 'KEYLOG', 'LOCATION', 'MAIL', 'MIC', 
-                                                                  'MMS', 'MOUSE', 'PASSWORD', 'PRINT', 'SMS', 'SNAPSHOT', 'UPLOAD', 'URL']);
+                                                                  'DOWNLOAD', 'FILE', 'FILESYSTEM', 'INFO', 'KEYLOG', 'LOCATION', 'MESSAGE', 'MIC', 
+                                                                  'MOUSE', 'PASSWORD', 'PRINT', 'SCREESHOT', 'URL']);
+      
+      private function init():void
+      {
+        formAction.setFocus();
+        if (currentState == 'create')
+          alert = new Alert(Alert.defaultAlert());
+      }
       
       private function save():void
       {
@@ -36,7 +45,7 @@
 
         if (formPath.selectedItem) {
           path = new ArrayCollection(formPath.selectedItem.path.source);
-          path.addItem(formPath.selectedItem.id);
+          path.addItem(formPath.selectedItem._id);
         } else {
           path = new ArrayCollection();
         }
@@ -54,10 +63,18 @@
         }
         alert.suppression = parseInt(formSuppression.text);
         
-        close();
+        if (currentState == 'create')
+          AlertController.instance.addAlert(ObjectUtils.toHash(alert), function(a:Alert):void { close(); });
+        else
+          close();
       }
     ]]>
   </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
   
   <s:Form>
     

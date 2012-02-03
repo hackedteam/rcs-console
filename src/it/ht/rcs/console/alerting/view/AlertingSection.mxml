@@ -21,7 +21,6 @@
       
       private function onAddedToStage():void
       {
-        /* start the auto refresh when the section is open */
         AlertController.instance.listenRefresh();
         AlertController.instance.refresh();
         
@@ -38,36 +37,12 @@
       
       private function onRemovedFromStage():void
       {
-        /* stop the auto refresh when going away */
         AlertController.instance.unlistenRefresh();
       }
-      
-      private function addAlert():void
-      {
-        AlertController.instance.newAlert(function onSuccess(a:Alert):void {
-          selectAlert(a);
-          editAlert(a);
-        });
-      }
-      
+
       private function selectAlert(a:Alert):void
       {
         alertlist.selectedItem = a;
-      }
-      
-      private function editAlert(a:Alert):void
-      {
-        var ea:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
-        ea.alert = a;
-        PopUpManager.centerPopUp(ea);
-      }
-      
-      private function deleteAlert(a:Alert):void
-      {
-        if (a == null)
-          return;
-        
-        AlertController.instance.removeItem(a);
       }
       
       private function deleteLog(l:AlertLog):void
@@ -96,7 +71,7 @@
   </main:layout>
   
 
-  <view:AlertingActionBar id="actionBar" view="{_alert_view}"/>
+  <view:AlertingActionBar id="actionBar" view="{_alert_view}" selectedObject="{alertlist.selectedItem}"/>
   
   <view:AlertingTable id="alertlist" dataProvider="{_alert_view}"/>
   

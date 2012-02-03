@@ -7,6 +7,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.accounting.controller.UserManager;
   import it.ht.rcs.console.accounting.model.User;
   import it.ht.rcs.console.agent.controller.AgentManager;
+  import it.ht.rcs.console.alert.controller.AlertController;
   import it.ht.rcs.console.alert.controller.AlertManager;
   import it.ht.rcs.console.controller.Manager;
   import it.ht.rcs.console.events.DataLoadedEvent;
@@ -124,6 +125,11 @@ package it.ht.rcs.console.main
       if (user.is_tech())
       {
         managers.push(InjectorManager.instance);
+      }
+      
+      if (user.is_view()) {
+        AlertController.instance.start_counters();
+        managers.push(AlertManager.instance);
       }
       
       maxGreenLights = managers.length;

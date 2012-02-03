@@ -4,7 +4,7 @@
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:main="it.ht.rcs.console.main.*"
               xmlns:view="it.ht.rcs.console.alerting.view.*"
-              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" creationComplete="init()">
   
   
   <fx:Script>
@@ -19,12 +19,14 @@
       [Bindable]
       private var _alert_view:ListCollectionView;
       
+      private function init():void
+      {
+        _alert_view = AlertController.instance.getView(null, searchFilterFunction);        
+      }
+      
       private function onAddedToStage():void
       {
         AlertController.instance.listenRefresh();
-        AlertController.instance.refresh();
-        
-        _alert_view = AlertController.instance.getView(null, searchFilterFunction);
       }
       
       private function searchFilterFunction(item:Object):Boolean

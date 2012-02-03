@@ -10,8 +10,9 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.ObjectUtils;
-      import it.ht.rcs.console.alert.controller.AlertController;
+      import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.search.controller.SearchManager;
       
       import locale.R;
       
@@ -34,6 +35,9 @@
         formAction.setFocus();
         if (currentState == 'create')
           alert = new Alert(Alert.defaultAlert());
+        else {
+          formPath.selectedItemId = SearchManager.instance.getItem(alert.path.getItemAt(alert.path.length-1) as String);
+        }
       }
       
       private function save():void
@@ -64,7 +68,7 @@
         alert.suppression = parseInt(formSuppression.text);
         
         if (currentState == 'create')
-          AlertController.instance.addAlert(ObjectUtils.toHash(alert), function(a:Alert):void { close(); });
+          AlertManager.instance.addAlert(ObjectUtils.toHash(alert), function(a:Alert):void { close(); });
         else
           close();
       }

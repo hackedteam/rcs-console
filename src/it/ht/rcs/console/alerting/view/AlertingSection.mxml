@@ -4,29 +4,43 @@
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:main="it.ht.rcs.console.main.*"
               xmlns:view="it.ht.rcs.console.alerting.view.*"
-              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()" creationComplete="init()">
+              addedToStage="onAddedToStage()" creationComplete="init()"
+              removedFromStage="onRemovedFromStage()">
+  
+  
+  <main:layout>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
   
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.alert.controller.AlertController;
+      import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.alert.model.Alert;
-      import it.ht.rcs.console.alert.model.AlertLog;
       
       import mx.collections.ListCollectionView;
-      import mx.managers.PopUpManager;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
       
       [Bindable]
-      private var _alert_view:ListCollectionView;
+      private var view:ListCollectionView;
       
       private function init():void
       {
-        _alert_view = AlertController.instance.getView(null, searchFilterFunction);        
+        var defaultSort:Sort = new Sort();
+        defaultSort.fields = [new SortField('keywords')];
+        view = AlertManager.instance.getView(defaultSort, searchFilterFunction);        
       }
       
       private function onAddedToStage():void
       {
-        AlertController.instance.listenRefresh();
+        AlertManager.instance.listenRefresh();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        AlertManager.instance.unlistenRefresh();
       }
       
       private function searchFilterFunction(item:Object):Boolean
@@ -36,50 +50,17 @@
         } catch (e:Error) {}
         return true;
       }
-      
-      private function onRemovedFromStage():void
-      {
-        AlertController.instance.unlistenRefresh();
-      }
-
-      private function selectAlert(a:Alert):void
-      {
-        alertlist.selectedItem = a;
-      }
-      
-      private function deleteLog(l:AlertLog):void
-      {
-        var alert:Alert = (alertlist.selectedItem as Alert);
-        
-        if (l == null) {
-          /* if null is passed, delete all the logs */
-          alert.logs.removeAll();
-          /* to avoid displaying the 0 counter */
-          alert.logs = null;
-        } else {
-          var i:int = alert.logs.getItemIndex(l);
-          alert.logs.removeItemAt(i);
-          /* if there are no more items, invalidate the arracollection to avoid displaying the 0 counter */
-          if (alert.logs.length == 0)
-            alert.logs = null;
-        }
-      }
     ]]>
   </fx:Script>
   
-  
-  <main:layout>
-    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
-  </main:layout>
-  
 
-  <view:AlertingActionBar id="actionBar" view="{_alert_view}" selectedObject="{alertlist.selectedItem}"/>
+  <view:AlertingActionBar id="actionBar" selectedObject="{alerts.selectedItem||null}" view="{view}"/>
   
-  <view:AlertingTable id="alertlist" dataProvider="{_alert_view}"/>
+  <view:AlertingTable id="alerts" dataProvider="{view}"/>
   
   <view:LogsActionBar/>
 
-  <view:LogsTable id="alertloglist" dataProvider="{(alertlist.selectedItem as Alert).logs}"/>
+  <view:LogsTable id="logs" dataProvider="{(alerts.selectedItem as Alert).logs}"/>
 
 
 </main:Section>

@@ -36,8 +36,9 @@ package it.ht.rcs.console.main.skins.chrome
     private function onCounterChange(e:Event):void
     {
       if (baloon) {
-        baloon.visible = data.manager.instance[data.property];
-        baloon.value = data.manager.instance[data.property];
+        baloon.visible = data.manager.instance[data.property].value;
+        baloon.value = data.manager.instance[data.property].value;
+        baloon.style = data.manager.instance[data.property].style;
       }
     }
     

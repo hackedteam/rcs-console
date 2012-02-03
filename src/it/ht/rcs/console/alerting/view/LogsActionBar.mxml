@@ -5,38 +5,46 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}"
-            icon="@Embed('/img/NEW/delete_32.png')"/>
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
-  <s:Button label="{R.get('DELETE_ALL')}" click="onDeleteAllClick()"
-            icon="@Embed('/img/NEW/delete_all.png')"/>
+  <s:Button label="{R.get('DELETE_ALL')}" click="onDeleteAllClick()" icon="@Embed('/img/NEW/delete_all.png')"/>
   
-  <!--
-  delete deleteall
-  -->
-  
+ 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.alert.model.AlertLog;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
       import locale.R;
+      
+      import mx.events.CloseEvent;
       
       private function onDeleteClick():void
       {
-//        AlertPopUp.show(R.get('CONFIRM_USER_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-//                        AlertPopUp.YES|AlertPopUp.NO, null,
-//                        function(e:CloseEvent):void {
-//                          if (e.detail == AlertPopUp.YES) 
-//                            UserManager.instance.removeItem(selectedObject);
-//                        }, null, AlertPopUp.NO);
+        var alert:Alert = (parent as AlertingSection).alertlist.selectedItem as Alert;
+        var i:int = alert.logs.getItemIndex(selectedObject as AlertLog);
+        
+        alert.logs.removeItemAt(i);
+        /* if there are no more items, invalidate the arraycollection to avoid displaying the 0 counter */
+        if (alert.logs.length == 0)
+          alert.logs = null;
       }
       
       private function onDeleteAllClick():void
       {
-        //        AlertPopUp.show(R.get('CONFIRM_USER_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-        //                        AlertPopUp.YES|AlertPopUp.NO, null,
-        //                        function(e:CloseEvent):void {
-        //                          if (e.detail == AlertPopUp.YES) 
-        //                            UserManager.instance.removeItem(selectedObject);
-        //                        }, null, AlertPopUp.NO);
+        var alert:Alert = (parent as AlertingSection).alertlist.selectedItem as Alert;
+
+        AlertPopUp.show(R.get('CONFIRM_ALERT_LOG_DELETION'), R.get('CONFIRM'),
+                        AlertPopUp.YES|AlertPopUp.NO, null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) { 
+                            /* if null is passed, delete all the logs */
+                            alert.logs.removeAll();
+                            /* to avoid displaying the 0 counter */
+                            alert.logs = null;
+                          }
+                        }, null, AlertPopUp.NO);
       }
     ]]>
   </fx:Script>

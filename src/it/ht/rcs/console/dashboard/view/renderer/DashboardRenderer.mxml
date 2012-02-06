@@ -6,7 +6,7 @@
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
                 xmlns:utils="it.ht.rcs.console.utils.*"
                 addedToStage="onAddedToStage()" autoDrawBackground="false"
-                removedFromStage="onRemovedFromStage()">
+                removedFromStage="onRemovedFromStage()" xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   <s:layout>
     <s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
@@ -18,7 +18,6 @@
       import it.ht.rcs.console.dashboard.controller.DashboardItem;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
@@ -59,17 +58,15 @@
         currentState = item._kind;
       }
       
-      private function onMinimize(event:MouseEvent):void
+      public function minimize():void { details.visible = details.includeInLayout = false; }
+      public function maximize():void { details.visible = details.includeInLayout = true; }
+      
+      private function onToggle():void
       {
-        details.visible = details.includeInLayout = !details.visible;
+        details.visible ? minimize() : maximize();
       }
       
-      public function minimize():void
-      {
-        details.visible = details.includeInLayout = false;
-      }
-      
-      private function onDelete(event:MouseEvent):void
+      private function onDelete():void
       {
         DashboardController.instance.removeItem(data);
       }
@@ -118,12 +115,13 @@
         
         <s:Spacer width="100%"/>
         
-        <s:Label buttonMode="true" click="onMinimize(event)" fontFamily="Myriad" fontSize="18" text="_"/>
-        <s:Label buttonMode="true" click="onDelete(event)" fontFamily="Myriad" fontSize="18" text="X"/>
+        <s:Label buttonMode="true" click="onToggle()" fontFamily="Myriad" fontSize="18" text="_"/>
+        <s:Label buttonMode="true" click="onDelete()" fontFamily="Myriad" fontSize="18" text="X"/>
       </s:HGroup>
       
-      <s:HGroup id="details" width="100%" gap="30" verticalAlign="middle" paddingLeft="10">
+      <s:HGroup id="details" width="100%" gap="5" verticalAlign="middle" paddingLeft="10">
         <s:Image id="iconBig" buttonMode="true" click="onItemClick()"/>
+        <actionbar:Separator/>
         <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}"/>
         <renderer:TargetList includeIn="operation" dataProvider="{item.targets}"/>
       </s:HGroup>

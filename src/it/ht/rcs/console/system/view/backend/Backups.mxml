@@ -11,7 +11,7 @@
       import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupArchive;
       import it.ht.rcs.console.backup.model.BackupJob;
-      import it.ht.rcs.console.system.view.backend.backups.jobs.BackupJobEdit;
+      import it.ht.rcs.console.system.view.backend.backups.jobs.BackupJobForm;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -44,43 +44,11 @@
         _backup_archive_view = null;
       }
       
-      private function addJob():void
-      {
-        BackupJobManager.instance.newJob(function onSuccess(j:BackupJob):void {
-          selectJob(j);
-          editJob(j);
-        });
-      }
-      
       private function selectJob(j:BackupJob):void
       {
         backupjobs.selectedItem = j;
       }
       
-      private function editJob(j:BackupJob):void
-      {
-        var ej:BackupJobEdit = PopUpManager.createPopUp(root, BackupJobEdit, true) as BackupJobEdit;
-        ej.job = j;
-        PopUpManager.centerPopUp(ej);
-      }
-      
-      private function deleteJob(j:BackupJob):void
-      {
-        if (j == null)
-          return;
-        
-        BackupJobManager.instance.removeItem(j);
-      }
-      
-      private function runJob(j:BackupJob):void
-      {
-        if (j == null)
-          return;
-        
-        BackupJobManager.instance.runJob(j, function (j:BackupJob):void {
-          BackupJobManager.instance.refresh();
-        });
-      }
       
       private function restoreArchive(a:BackupArchive):void
       {
@@ -105,12 +73,21 @@
               BackupArchiveManager.instance.removeItem(a);
           }, null, AlertPopUp.NO);
       }
+		
+  		private function editJob(b:BackupJob):void
+  		{
+  			var popup:BackupJobForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, BackupJobForm, true) as BackupJobForm;
+  			popup.currentState = 'edit';
+  			popup.job = b;
+  			PopUpManager.centerPopUp(popup);
+  		}
+		
     ]]>
   </fx:Script>
   
   <s:NavigatorContent label="{R.get('BACKUP_JOBS')}">
     <s:VGroup width="100%" height="100%">
-      <jobs:JobsActionBar/>
+      <jobs:JobsActionBar view="{_backup_job_view}" selectedObject="{backupjobs.selectedItem}"/>
       
       <jobs:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}"
                           doubleClick="editJob(backupjobs.selectedItem as BackupJob)"
@@ -120,7 +97,7 @@
   
   <s:NavigatorContent label="{R.get('BACKUP_ARCHIVE')}">
     <s:VGroup width="100%" height="100%">
-      <backend:ArchivesActionBar/>
+      <archives:ArchivesActionBar/>
       
       <archives:BackupArchives id="backuparchives" dataProvider="{_backup_archive_view}"/>
     </s:VGroup>

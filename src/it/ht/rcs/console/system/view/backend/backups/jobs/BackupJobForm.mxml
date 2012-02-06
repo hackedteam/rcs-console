@@ -2,14 +2,19 @@
 <utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009" 
                              xmlns:s="library://ns.adobe.com/flex/spark" 
                              xmlns:mx="library://ns.adobe.com/flex/mx" 
-                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="340"
-                             save="saveMe()"
+                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="380"
+                             save="saveMe()" creationComplete="init()"
                              title="{resourceManager.getString('localized_main', 'EDIT_BACKUP').toUpperCase()}" 
                              xmlns:view="it.ht.rcs.console.system.view.*" 
-                             xmlns:items="it.ht.rcs.console.utils.items.*" xmlns:backend="it.ht.rcs.console.system.view.backend.*" xmlns:backups="it.ht.rcs.console.system.view.backend.backups.*" xmlns:jobs="it.ht.rcs.console.system.view.backend.backups.jobs.*">
+                             xmlns:items="it.ht.rcs.console.utils.items.*" 
+                             xmlns:backend="it.ht.rcs.console.system.view.backend.*"
+                             xmlns:backups="it.ht.rcs.console.system.view.backend.backups.*" 
+                             xmlns:jobs="it.ht.rcs.console.system.view.backend.backups.jobs.*">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupJob;
       import it.ht.rcs.console.backup.model.BackupJobTime;
       
@@ -27,6 +32,14 @@
 
       [Bindable]
       private var types:ArrayCollection = new ArrayCollection(['metadata', 'full', 'operation', 'target']);
+      
+      private function init():void
+      {
+        formType.setFocus();
+        if (currentState == 'create') {
+          job = new BackupJob(BackupJob.defaultJob());
+        }
+      }
       
       public function set job(j:BackupJob):void
       {
@@ -52,11 +65,19 @@
         _job.lastrun = "";
         _job.status = 'QUEUED';
         
-        PopUpManager.removePopUp(this);
+        if (currentState == 'create')
+          BackupJobManager.instance.addJob(ObjectUtils.toHash(_job), function(b:BackupJob):void { close(); });
+        else
+          close();
       }
       
     ]]>
   </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
   
   <fx:Metadata>
     [ResourceBundle("localized_main")] 

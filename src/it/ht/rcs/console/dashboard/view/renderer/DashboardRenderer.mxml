@@ -16,11 +16,14 @@
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.dashboard.controller.DashboardItem;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.search.model.SearchItem;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
-      import mx.events.FlexEvent;
+      import mx.core.FlexGlobals;
       
       [Bindable]
       private var item:DashboardItem;
@@ -52,6 +55,7 @@
         if (!data) return;
         item = value as DashboardItem;
         icon.source = Icons[item._kind];
+        iconBig.source = Icons[item._kind + 'Big'];
         currentState = item._kind;
       }
       
@@ -60,9 +64,22 @@
         details.visible = details.includeInLayout = !details.visible;
       }
       
+      public function minimize():void
+      {
+        details.visible = details.includeInLayout = false;
+      }
+      
       private function onDelete(event:MouseEvent):void
       {
         DashboardController.instance.removeItem(data);
+      }
+      
+      private function onItemClick():void
+      {
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = SectionEvent.OPERATIONS;
+        event.item = SearchManager.instance.getItem(item._id);
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
     ]]>
   </fx:Script>
@@ -88,8 +105,10 @@
     <s:VGroup width="100%" gap="15" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
       
       <s:HGroup width="100%" gap="8" verticalAlign="middle">
-        <s:BitmapImage id="icon"/>
-        <s:Label width="300" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}"/>
+        <s:HGroup width="320" gap="8" verticalAlign="middle">
+          <s:BitmapImage id="icon" includeInLayout="{!details.visible}" visible="{!details.visible}"/>
+          <s:Label width="100%" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}"/>
+        </s:HGroup>
         
         <s:Label fontFamily="Myriad" fontWeight="bold" fontSize="13" paddingTop="5" text="{R.get('LAST_SYNC')}: "/>
         <s:Label id="lastSyncText" width="260" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5"/>
@@ -103,7 +122,8 @@
         <s:Label buttonMode="true" click="onDelete(event)" fontFamily="Myriad" fontSize="18" text="X"/>
       </s:HGroup>
       
-      <s:HGroup id="details" width="100%">
+      <s:HGroup id="details" width="100%" gap="30" verticalAlign="middle" paddingLeft="10">
+        <s:Image id="iconBig" buttonMode="true" click="onItemClick()"/>
         <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}"/>
         <renderer:TargetList includeIn="operation" dataProvider="{item.targets}"/>
       </s:HGroup>

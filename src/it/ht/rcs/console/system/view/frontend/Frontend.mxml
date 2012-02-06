@@ -18,36 +18,32 @@
       import mx.collections.ListCollectionView;
       import mx.managers.PopUpManager;
       
-      import spark.events.IndexChangeEvent;
-      
       [Bindable]
-      private var _collector_view:ListCollectionView;
+      private var collectors:ListCollectionView;
       
       [Bindable]
       private var anonymizers:ListCollectionView;
       
       private function init():void
       {
-        _collector_view = CollectorManager.instance.getView();
-        anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
-        buildGraph();
+        refreshView();
       }
       
       private function onAddedToStage(event:Event):void
       {
-        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
         CollectorManager.instance.listenRefresh();
       }
       
       private function onRemovedFromStage(event:Event):void
       {
-        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
         CollectorManager.instance.unlistenRefresh();
       }
       
-      private function onDataLoaded(event:DataLoadedEvent):void {
-        if (_collector_view == null)
-          _collector_view = CollectorManager.instance.getView();
+      private function refreshView(event:DataLoadedEvent=null):void {
+        collectors = CollectorManager.instance.getView();
+        anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
         buildGraph();
       }
       
@@ -59,21 +55,21 @@
       public function buildGraph():void
       {
         var nodes:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
-        for each (var el:Collector in _collector_view) {
+        for each (var el:Collector in collectors) {
           var cr:CollectorRenderer = new CollectorRenderer(el, graph);
           nodes.push(cr);
         }
         
-        var collectors:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
+        var renderers:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>();
         for each (var node:CollectorRenderer in nodes) {
           if (node.collector.type == 'local')
-            collectors.push(node);
+            renderers.push(node);
           var nextHop:CollectorRenderer = node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
           node.nextHop = nextHop;
         }
         
         var db:DBRenderer = new DBRenderer();
-        db.collectors = collectors;
+        db.collectors = renderers;
         graph.db = db;
         graph.rebuildGraph();
       }
@@ -116,7 +112,7 @@
   <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true"
                      borderWeight="2" cornerRadius="10">
     
-    <s:Rect top="0" bottom="0" right="0" left="0" radiusX="10" radiusY="10">
+    <s:Rect left="0" right="0" top="0" bottom="0" radiusX="10" radiusY="10">
       <s:fill>
         <s:LinearGradient rotation="90">
           <s:GradientEntry color="#eeeeee"/>

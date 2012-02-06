@@ -14,6 +14,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.network.controller.InjectorManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.search.controller.SearchManager;
+  import it.ht.rcs.console.shard.controller.ShardManager;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.utils.Update;
   
@@ -102,6 +103,7 @@ package it.ht.rcs.console.main
         SearchManager.instance.listenRefresh();
         managers.push(SearchManager.instance);
         managers.push(CollectorManager.instance);
+        managers.push(ShardManager.instance);
       }
       
       if (user.is_admin())

@@ -51,52 +51,22 @@ package it.ht.rcs.console.system.view.backend.graph
 
 		}
     
-    private static const SHARDS_DISTANCE:int   = 70;
-    //private static const VERTICAL_DISTANCE:int = 40;
-    private static const TOP_DISTANCE:int      = 20;
-    
-    private static const HORIZONTAL_DISTANCE:int = 60;
-    private static const VERTICAL_DISTANCE:int   = 15;
-    private static const HORIZONTAL_PAD:int      = 50;
+    private static const HORIZONTAL_DISTANCE:int = 100;
+    private static const VERTICAL_DISTANCE:int   = 30;
+    private static const HORIZONTAL_PAD:int      = 40;
     private static const VERTICAL_PAD:int        = 10;
     
     private function computeSize():Point
     {
       var _width:Number = 0, _height:Number = 0;
       
-      if (db != null && db.shards.length > 0)
-      {
+      if (db != null && db.shards.length > 0) {
         
-        measuredWidth = measuredMinWidth = (db.shards[0].measuredWidth * db.shards.length) + (SHARDS_DISTANCE * (db.shards.length - 1));
-        
-        var maxBranch:Number = 0, branch:Number = 0;
-        for each (var shard:ShardRenderer in db.shards)
-        {
-          branch = TOP_DISTANCE + db.height + VERTICAL_DISTANCE;
-        }
-        measuredHeight = measuredMinHeight = maxBranch;
+        _width = (db.shards[0].width * db.shards.length) + (HORIZONTAL_DISTANCE * (db.shards.length - 1)) + HORIZONTAL_PAD * 2;
+        var shardHeight:Number = (db.shards.length > 0) ? db.shards[0].height : 0;
+        _height = db.height + VERTICAL_DISTANCE + shardHeight + VERTICAL_PAD * 2;
         
       }
-      
-//      if (db != null) {
-//        
-//        _width = (db.collectors[0].width * db.collectors.length) + (HORIZONTAL_DISTANCE * (db.collectors.length - 1)) + HORIZONTAL_PAD * 2;
-//        
-//        var branch:Number = 0;
-//        for each (var collector:CollectorRenderer in db.collectors)
-//        {
-//          branch = VERTICAL_PAD * 2 + db.height + VERTICAL_DISTANCE + collector.height;
-//          collector = collector.nextHop;
-//          while (collector != null)
-//          {
-//            branch += VERTICAL_DISTANCE + collector.height;
-//            collector = collector.nextHop;
-//          }
-//          branch += VERTICAL_DISTANCE + ips[0].height;
-//          _height = Math.max(branch, _height);
-//        }
-//        
-//      }
       
       return new Point(_width, _height);
     }
@@ -126,7 +96,7 @@ package it.ht.rcs.console.system.view.backend.graph
 
       if (db != null) {
 
-				db.move(_width / 2 - db.measuredWidth / 2, TOP_DISTANCE);
+				db.move(_width / 2 - db.width / 2, VERTICAL_PAD);
 
 				// Where to draw the first shard?
 				if (db.shards != null && db.shards.length > 0) {
@@ -141,12 +111,14 @@ package it.ht.rcs.console.system.view.backend.graph
   
             renderer = db.shards[i];
   
-  					cX = offsetFromCenter + i * (SHARDS_DISTANCE + renderer.width) + renderer.width / 2;
-  					cY = db.y + db.height + VERTICAL_DISTANCE;
-            renderer.move(cX - renderer.width / 2, cY);
+  					cX = offsetFromCenter + i * (HORIZONTAL_DISTANCE + renderer.width);
+  					cY = VERTICAL_PAD + db.height + VERTICAL_DISTANCE;
+            renderer.move(cX, cY);
   
-  					graphics.moveTo(_width / 2, TOP_DISTANCE + db.height / 2);
-  					graphics.lineTo(cX, cY);
+  					graphics.moveTo(_width / 2,              VERTICAL_PAD + db.height);
+            graphics.lineTo(_width / 2,              VERTICAL_PAD + db.height + VERTICAL_DISTANCE / 2);
+            graphics.lineTo(cX + renderer.width / 2, VERTICAL_PAD + db.height + VERTICAL_DISTANCE / 2);
+            graphics.lineTo(cX + renderer.width / 2, cY);
   
   				} // End shards
           

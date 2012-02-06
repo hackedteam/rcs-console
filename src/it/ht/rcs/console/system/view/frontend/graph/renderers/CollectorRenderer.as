@@ -119,7 +119,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       
       selected = true;
       graph.selectedElement = this;
-      //(this.parentDocument as Frontend).list.selectedItem = collector;
       
       setFocus();
     }
@@ -136,7 +135,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       _selected = s;
       container.setStyle('backgroundColor', _selected ? SELECTED_COLOR : NORMAL_COLOR);
     }
-    
     
     private function onMouseDown(me:MouseEvent):void
     {

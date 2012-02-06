@@ -12,7 +12,7 @@ package it.ht.rcs.console.system.view.backend.graph.renderers
   import spark.components.Label;
   import spark.primitives.BitmapImage;
 
-  public class ShardRenderer extends NetworkObject
+  public class ShardRenderer2 extends NetworkObject
 	{
     
     private static const WIDTH:Number  = 90; // 5*2 (padding) + 80 (width of label)
@@ -23,20 +23,20 @@ package it.ht.rcs.console.system.view.backend.graph.renderers
 	  
 		public var shard:Shard;
 		
-    [Embed(source='/img/NEW/database.png')]
-    private const shardIcon:Class;
+    [Embed(source='/img/NEW/demo.png')]
+    private static const shardIcon:Class;
     
     [Embed(source='/img/NEW/ok.png')]
-    private const okIcon:Class;
+    private static const okIcon:Class;
     [Embed(source='/img/NEW/error.png')]
-    private const errorIcon:Class;
+    private static const errorIcon:Class;
     
     private var container:BorderContainer;
     private var icon:BitmapImage;
     private var status:BitmapImage;
     private var textLabel:Label;
 		
-		public function ShardRenderer()
+		public function ShardRenderer2()
 		{
 			super();
       this.width = WIDTH;
@@ -61,7 +61,7 @@ package it.ht.rcs.console.system.view.backend.graph.renderers
         container.setStyle('cornerRadius', 10);
         
         icon = new BitmapImage();
-        icon.horizontalCenter = icon.verticalCenter = 0;
+        //icon.horizontalCenter = icon.verticalCenter = 0;
         icon.source = shardIcon;
         container.addElement(icon);
         

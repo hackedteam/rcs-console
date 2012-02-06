@@ -1,0 +1,106 @@
+<renderers:NetworkObject xmlns:fx="http://ns.adobe.com/mxml/2009"
+                         xmlns:s="library://ns.adobe.com/flex/spark"
+                         xmlns:mx="library://ns.adobe.com/flex/mx"
+                         xmlns:renderers="it.ht.rcs.console.system.view.backend.graph.renderers.*"
+                         width="{WIDTH}" height="{HEIGHT}" click="onClick(event)"
+                         mouseDown="onMouseDown(event)" mouseOver="onMouseOver(event)">
+  
+  <renderers:layout>
+    <s:VerticalLayout gap="6" horizontalAlign="center" paddingBottom="5" paddingLeft="5"
+                      paddingRight="5" paddingTop="5" verticalAlign="top"/>
+  </renderers:layout>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.shard.controller.ShardManager;
+      import it.ht.rcs.console.shard.model.Shard;
+      import it.ht.rcs.console.shard.model.ShardStat;
+      
+      import spark.components.Label;
+        
+      private static const WIDTH:Number  = 90; // 5*2 (padding) + 80 (width of label)
+      private static const HEIGHT:Number = 66 + 26; // 5*2 (padding) + 50 (height of container) + 6 (gap) + 26 (height of label)
+      
+      private static const NORMAL_COLOR:Number = 0xffffff;
+      private static const SELECTED_COLOR:Number = 0xa8c6ee;
+      
+      [Bindable]
+      public var shard:Shard;
+      
+      [Embed(source='/img/NEW/demo.png')]
+      private static const shardIcon:Class;
+      
+      [Embed(source='/img/NEW/ok.png')]
+      private static const okIcon:Class;
+      [Embed(source='/img/NEW/error.png')]
+      private static const errorIcon:Class;
+      
+      private function onMouseOver(me:MouseEvent):void
+      {
+        me.stopPropagation();
+        Mouse.cursor = MouseCursor.AUTO;
+      }
+      
+      private function onMouseDown(me:MouseEvent):void
+      {
+        me.stopPropagation();
+      }
+      
+      private function onClick(me:MouseEvent):void
+      {
+        me.stopPropagation();
+        currentState = currentState == 'expanded' ? 'collapsed' : 'expanded';
+        //container.width = 100;
+        //container.height = 100;
+      }
+      
+//      [Bindable]
+//      private var _shard:Shard;
+//      [Bindable]
+//      private var _shard_stat:ShardStat;
+//      
+//      public function set shard(value:Shard):void
+//      {
+//        _shard = value;
+//        ShardManager.instance.getStats(_shard._id, function (e:ShardStat):void {
+//          _shard_stat = e;
+//        });
+//      }
+    ]]>
+  </fx:Script>
+  
+  <renderers:states>
+    <s:State name="collapsed"/>
+    <s:State name="expanded"/>
+  </renderers:states>
+  
+  <s:BorderContainer id="container" width="50" height="50" backgroundColor="{NORMAL_COLOR}"
+                     borderColor="#dddddd" cornerRadius="10"
+                     width.expanded="100" height.expanded="100">
+    <s:BitmapImage source="{shardIcon}"/>
+    <s:BitmapImage right="-6" top="-6" source="{okIcon}"/>
+  </s:BorderContainer>
+  
+  <s:Label width="80" maxDisplayedLines="2" text="{shard.host}" textAlign="center"/>
+  
+  <!--
+  <s:SkinnableContainer width="100%" height="100%">
+    <s:Image left="5" top="5" source="@Embed('/img/NEW/database.png')"/>
+    <s:Label left="10" top="70" fontSize="12" fontWeight="bold" maxDisplayedLines="1"
+             text="{_shard._id}"/>
+    <s:Label left="80" top="30" fontSize="12" text="{_shard.host}"/>   
+    <s:TextArea visible="{_shard_stat.ok == 1}" left="80" top="50" width="120" height="30"
+                borderVisible="false" color="#00EE00" contentBackgroundAlpha="0.0" editable="false"
+                fontSize="12" text="OK"/>
+    <s:TextArea visible="{_shard_stat.ok != 1}" left="80" top="50" width="120" height="30"
+                borderVisible="false" color="#FF0000" contentBackgroundAlpha="0.0" editable="false"
+                fontSize="12" text="{_shard_stat.errmsg}"/>   
+    
+    <s:Label left="10" top="100" text="Data Size:"/>
+    <s:Label left="80" top="100" fontSize="12" text="{Size.toHumanBytes(_shard_stat.dataSize)}"/>   
+
+    <s:Label left="10" top="120" text="On Disk:"/>
+    <s:Label left="80" top="120" fontSize="12" text="{Size.toHumanBytes(_shard_stat.storageSize)}"/>   
+  </s:SkinnableContainer>
+-->
+</renderers:NetworkObject>

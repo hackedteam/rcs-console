@@ -49,30 +49,6 @@
         backupjobs.selectedItem = j;
       }
       
-      
-      private function restoreArchive(a:BackupArchive):void
-      {
-        if (a == null)
-          return;
-        
-        AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES) 
-              BackupArchiveManager.instance.restoreArchive(a, false);
-          }, null, AlertPopUp.NO);
-      }
-      
-      private function deleteArchive(a:BackupArchive):void
-      {
-        if (a == null)
-          return;
-        
-        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES) 
-              BackupArchiveManager.instance.removeItem(a);
-          }, null, AlertPopUp.NO);
-      }
 		
   		private function editJob(b:BackupJob):void
   		{
@@ -97,8 +73,8 @@
   
   <s:NavigatorContent label="{R.get('BACKUP_ARCHIVE')}">
     <s:VGroup width="100%" height="100%">
-      <archives:ArchivesActionBar/>
-      
+      <archives:ArchivesActionBar view="{_backup_archive_view}" selectedObject="{backuparchives.selectedItem}"/>
+    
       <archives:BackupArchives id="backuparchives" dataProvider="{_backup_archive_view}"/>
     </s:VGroup>
   </s:NavigatorContent>

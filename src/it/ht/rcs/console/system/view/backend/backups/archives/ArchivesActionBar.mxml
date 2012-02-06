@@ -5,30 +5,10 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   
-  <s:Button label="{R.get('NEW_INJECTOR')}" click="onNewClick()"
-            icon="@Embed('/img/NEW/newInjector.png')"/>
+  <s:Button label="{R.get('RESTORE')}" click="onRestoreClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/restoreBackup.png')"/>
+ 
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
-  <s:Button label="{R.get('EDIT')}" click="onEditClick()" enabled="{selectedObject != null}"
-            icon="@Embed('/img/NEW/edit.png')"/>
-  
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}"
-            icon="@Embed('/img/NEW/delete_32.png')"/>
-  
-  <!--
-  <s:HGroup>
-    <s:Spacer width="3"/>
-    <s:Button x="0" y="0" width="30" height="20"
-              click="restoreArchive(backuparchives.selectedItem as BackupArchive)"
-              enabled="{backuparchives.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.RestoreButton"
-              toolTip="{resourceManager.getString('localized_main', 'RESTORE')}"/>
-    <s:Button x="40" y="0" width="30" height="20"
-              click="deleteArchive(backuparchives.selectedItem as BackupArchive)"
-              enabled="{backuparchives.selectedItem != null}"
-              skinClass="it.ht.rcs.console.skins.DeleteButton"
-              toolTip="{resourceManager.getString('localized_main', 'DELETE')}"/>
-  </s:HGroup>
--->
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.backup.controller.BackupArchiveManager;
@@ -41,101 +21,30 @@
       import mx.events.CloseEvent;
       
       
-      private function restoreArchive(a:BackupArchive):void
+      private function onRestoreClick():void
       {
-        if (a == null)
+        if (selectedObject == null)
           return;
         
-        AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES) 
-              BackupArchiveManager.instance.restoreArchive(a, false);
+              BackupArchiveManager.instance.restoreArchive(selectedObject as BackupArchive, false);
           }, null, AlertPopUp.NO);
-      }
-      
-      private function deleteArchive(a:BackupArchive):void
-      {
-        if (a == null)
-          return;
-        
-        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION', [a.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES) 
-              BackupArchiveManager.instance.removeItem(a);
-          }, null, AlertPopUp.NO);
-      }
-      
-      
-//      private function addProxy():void
-//      {
-//        InjectorController.instance.addProxy(function onSuccess(injector:it.ht.rcs.console.network.model.Injector):void {
-//          nias.selectedItem = injector;
-//          createProxy(injector);
-//        });
-//      }
-//      
-//      private function createProxy(injector:it.ht.rcs.console.network.model.Injector):void
-//      {
-//        var popup:CreateNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateNIAForm, true) as CreateNIAForm;
-//        popup.injector = injector;
-//        PopUpManager.centerPopUp(popup);
-//      }
-//      
-//      private function editProxy(proxy:it.ht.rcs.console.network.model.Injector):void
-//      {
-//        var popup:EditNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditNIAForm, true) as EditNIAForm;
-//        popup.injector = proxy;
-//        PopUpManager.centerPopUp(popup);
-//      }
-//      
-//      protected function deleteProxy():void
-//      {
-//        AlertPopUp.show(R.get('CONFIRM_PROXY_DELETION', [nias.selectedItem.name]),
-//          R.get('CONFIRM'),
-//          AlertPopUp.YES | AlertPopUp.NO,
-//          null,
-//          function(e:CloseEvent):void {
-//            if (e.detail == AlertPopUp.YES) 
-//              InjectorController.instance.removeItem(nias.selectedItem);
-//          },
-//          null, AlertPopUp.NO);
-//      }
-      
-      private function onNewClick():void
-      {
-//        CollectorManager.instance.addCollector(function onSuccess(collector:Collector):void {
-//          (parent as Frontend).list.selectedItem = collector;
-//          createCollector(collector);
-//        });
-      }
-      
-      private function createCollector(collector:Collector):void
-      {
-//        var popup:CreateCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, CreateCollectorForm, true) as CreateCollectorForm;
-//        popup.collector = collector;
-//        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function onEditClick():void
-      {
-//        var popup:EditCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditCollectorForm, true) as EditCollectorForm;
-//        popup.collector = selectedObject as Collector;
-//        PopUpManager.centerPopUp(popup);
       }
       
       private function onDeleteClick():void
       {
-//        AlertPopUp.show(R.get('CONFIRM_COLLECTOR_DELETION', [selectedObject.name]),
-//          R.get('CONFIRM'),
-//          AlertPopUp.YES | AlertPopUp.NO,
-//          null,
-//          function(e:CloseEvent):void {
-//            if (e.detail == AlertPopUp.YES) 
-//              CollectorManager.instance.removeItem(selectedObject);
-//              (parent as Frontend).buildGraph();
-//            },
-//          null, AlertPopUp.NO);
+        if (selectedObject == null)
+          return;
+        
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              BackupArchiveManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
       }
+      
     ]]>
   </fx:Script>
 

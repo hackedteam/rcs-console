@@ -5,8 +5,9 @@
                 xmlns:view="it.ht.rcs.console.dashboard.view.*"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
                 xmlns:utils="it.ht.rcs.console.utils.*"
+                xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                 addedToStage="onAddedToStage()" autoDrawBackground="false"
-                removedFromStage="onRemovedFromStage()" xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+                removedFromStage="onRemovedFromStage()">
   
   <s:layout>
     <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
@@ -99,18 +100,23 @@
       </s:fill>
     </s:Rect>
     
-    <s:VGroup width="100%" gap="15" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+    <s:VGroup width="100%" gap="15" paddingBottom="10" paddingLeft="10" paddingRight="10"
+              paddingTop="10">
       
       <s:HGroup width="100%" gap="8" verticalAlign="middle">
         <s:HGroup width="320" gap="8" verticalAlign="middle">
-          <s:BitmapImage id="icon" includeInLayout="{!details.visible}" visible="{!details.visible}"/>
-          <s:Label width="100%" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2" text="{item.name}"/>
+          <s:BitmapImage id="icon" visible="{!details.visible}" includeInLayout="{!details.visible}"/>
+          <s:Label width="100%" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2"
+                   text="{item.name}"/>
         </s:HGroup>
         
-        <s:Label fontFamily="Myriad" fontWeight="bold" fontSize="13" paddingTop="5" text="{R.get('LAST_SYNC')}: "/>
-        <s:Label id="lastSyncText" width="260" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5"/>
+        <s:Label fontFamily="Myriad" fontSize="13" fontWeight="bold" paddingTop="5"
+                 text="{R.get('LAST_SYNC')}: "/>
+        <s:Label id="lastSyncText" width="260" fontFamily="Myriad" fontSize="13" paddingRight="10"
+                 paddingTop="5"/>
         
-        <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red" value="{item.totSync}"/>
+        <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red"
+                                value="{item.totSync}"/>
         <renderer:CounterBaloon visible="{!details.visible}" style="white" value="{item.totTot}"/>
         
         <s:Spacer width="100%"/>
@@ -119,7 +125,7 @@
         <s:Label buttonMode="true" click="onDelete()" fontFamily="Myriad" fontSize="18" text="X"/>
       </s:HGroup>
       
-      <s:HGroup id="details" width="100%" gap="5" verticalAlign="middle" paddingLeft="10">
+      <s:HGroup id="details" width="100%" gap="5" paddingLeft="10" verticalAlign="middle">
         <s:Image id="iconBig" buttonMode="true" click="onItemClick()"/>
         <actionbar:Separator/>
         <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}"/>

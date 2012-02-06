@@ -10,6 +10,14 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/agent_16.png')]
     public static const agent:Class;
+
+    [Embed(source='/img/NEW/operation.png')]
+    public static const operationBig:Class;
     
+    [Embed(source='/img/NEW/target.png')]
+    public static const targetBig:Class;
+    
+    [Embed(source='/img/NEW/agent.png')]
+    public static const agentBig:Class;
   }
 }

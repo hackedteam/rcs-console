@@ -23,7 +23,7 @@ package it.ht.rcs.console.system.view.frontend.graph
 			super();
 
       addEventListener(NodeEvent.CHANGED, onNodeEvent);
-			addEventListener(NodeEvent.ADDED, onNodeEvent);
+			addEventListener(NodeEvent.ADDED,   onNodeEvent);
 			addEventListener(NodeEvent.REMOVED, onNodeEvent);
 		}
     

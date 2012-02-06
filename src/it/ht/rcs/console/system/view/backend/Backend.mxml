@@ -5,7 +5,7 @@
           xmlns:backend="it.ht.rcs.console.system.view.backend.*"
           xmlns:graph="it.ht.rcs.console.system.view.backend.graph.*"
           xmlns:backups="it.ht.rcs.console.system.view.backend.backups.*"
-          width="100%" height="100%" addedToStage="onAddedToStage(event)"
+          width="100%" height="100%" addedToStage="onAddedToStage(event)" creationComplete="init()"
           removedFromStage="onRemovedFromStage(event)">
   
   <fx:Script>
@@ -19,43 +19,42 @@
       import mx.collections.ListCollectionView;
       
       [Bindable]
-      private var _shard_view:ListCollectionView;
-            
+      private var shards:ListCollectionView;
+
+      private function init():void
+      {
+        refreshView();
+      }
+      
       private function onAddedToStage(event:Event):void
       {
-        ShardManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        ShardManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
         ShardManager.instance.listenRefresh();
       }
       
       private function onRemovedFromStage(event:Event):void
       {
-        ShardManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        ShardManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
         ShardManager.instance.unlistenRefresh();
       }
       
-      private function onDataLoaded(event:DataLoadedEvent):void
+      private function refreshView(event:DataLoadedEvent=null):void
       {
-        if (_shard_view == null)
-          _shard_view = ShardManager.instance.getView();
+        shards = ShardManager.instance.getView();
         buildGraph();
-//        if (_shard_view == null) {
-//          var sort:Sort = new Sort();
-//          sort.fields = [new SortField('_id', true, false, false)];
-//          _shard_view = ShardManager.instance.getView(sort);
-//        }
       }
       
       public function buildGraph():void
       {
-        var shards:Vector.<ShardRenderer> = new Vector.<ShardRenderer>();
-        for each (var el:Shard in _shard_view) {
+        var renderers:Vector.<ShardRenderer> = new Vector.<ShardRenderer>();
+        for each (var el:Shard in shards) {
           var sr:ShardRenderer = new ShardRenderer();
           sr.shard = el;
-          shards.push(sr);
+          renderers.push(sr);
         }
         
         var db:DBRenderer = new DBRenderer();
-        db.shards = shards;
+        db.shards = renderers;
         graph.db = db;
         graph.rebuildGraph();
       }

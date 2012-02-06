@@ -9,9 +9,13 @@
   
   <actionbar:Separator/>
   
-  <s:Button label="{R.get('SORT_BY_TIME')}" icon="@Embed('/img/NEW/sortAZ.png')"/>
+  <s:Button label="{R.get('SORT_BY_TIME')}" icon="@Embed('/img/NEW/sort19.png')"/>
   
-  <s:Button label="{R.get('SORT_BY_NAME')}" icon="@Embed('/img/windows/user2.png')"/>
+  <s:Button label="{R.get('SORT_BY_NAME')}" icon="@Embed('/img/NEW/sortAZ.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="Collapse All" icon="@Embed('/img/NEW/sortAZ.png')" click="onCollapseAll()"/>
   
   <s:Spacer width="100%"/>
   
@@ -19,9 +23,13 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.dashboard.view.renderer.DashboardRenderer;
+      
       import locale.R;
       
       import mx.managers.PopUpManager;
+      
+      import spark.components.DataGroup;
 
       private function onAddToDashboard(event:MouseEvent):void
       {
@@ -55,6 +63,19 @@
       private function onKeyUp(event:KeyboardEvent):void
       {
         if (view) view.refresh();
+      }
+      
+      private function onCollapseAll():void
+      {
+        try {
+          var index:int = 0;
+          var dg:DataGroup = (parent as DashboardSection).list.dataGroup;
+          while (true) {
+            var dr:DashboardRenderer = dg.getChildAt(index) as DashboardRenderer;
+            dr.minimize();
+            index++;
+          }
+        } catch (e:Error) {}
       }
     ]]>
   </fx:Script>

@@ -5,7 +5,7 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   <s:Button label="{R.get('ADD_TO_DASHBOARD')}" click="onAddToDashboard(event)"
-            icon="@Embed('/img/windows/user2.png')"/>
+            icon="@Embed('/img/NEW/newDashboard.png')"/>
   
   <actionbar:Separator/>
   
@@ -15,7 +15,8 @@
   
   <actionbar:Separator/>
   
-  <s:Button label="Collapse All" icon="@Embed('/img/NEW/sortAZ.png')" click="onCollapseAll()"/>
+  <s:Button id="collapse" label="{R.get('COLLAPSE_ALL')}" click="onCollapseAll()"
+            icon="{collapseIcon}"/>
   
   <s:Spacer width="100%"/>
   
@@ -30,6 +31,14 @@
       import mx.managers.PopUpManager;
       
       import spark.components.DataGroup;
+      
+      [Bindable]
+      [Embed('/img/NEW/expand_all.png')]
+      private var expandIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/NEW/collapse_all.png')]
+      private var collapseIcon:Class;
 
       private function onAddToDashboard(event:MouseEvent):void
       {
@@ -65,6 +74,7 @@
         if (view) view.refresh();
       }
       
+      private var expanded:Boolean = true;
       private function onCollapseAll():void
       {
         try {
@@ -72,10 +82,13 @@
           var dg:DataGroup = (parent as DashboardSection).list.dataGroup;
           while (true) {
             var dr:DashboardRenderer = dg.getChildAt(index) as DashboardRenderer;
-            dr.minimize();
+            expanded ? dr.minimize() : dr.maximize();
             index++;
           }
         } catch (e:Error) {}
+        expanded = !expanded;
+        collapse.label = expanded ? R.get('COLLAPSE_ALL') : R.get('EXPAND_ALL');
+        collapse.iconDisplay.source = expanded ? collapseIcon : expandIcon;
       }
     ]]>
   </fx:Script>

@@ -3,14 +3,18 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            save="save()"
+                            save="save()" creationComplete="init(event)"
                             title="{R.get('ANONYMIZER_ADD')}">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
       
       import locale.R;
+      
+      import mx.events.FlexEvent;
       
       [Bindable]
       public var collector:Collector;
@@ -23,8 +27,14 @@
         collector.port = parseInt(port.text);
         collector.poll = poll.selected;
         
-        close();
+        CollectorManager.instance.addCollector(ObjectUtils.toHash(collector), function(i:Collector):void { close(); });
       }
+      
+      protected function init(event:FlexEvent):void
+      {
+        collector = new Collector(Collector.defaultCollector());        
+      }
+      
     ]]>
   </fx:Script>
   

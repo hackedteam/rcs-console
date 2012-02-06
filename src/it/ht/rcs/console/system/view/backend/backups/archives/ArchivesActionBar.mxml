@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  
+  <s:Button label="{R.get('RESTORE')}" click="onRestoreClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/restoreBackup.png')"/>
+ 
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.model.BackupArchive;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      
+      
+      private function onRestoreClick():void
+      {
+        if (selectedObject == null)
+          return;
+        
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              BackupArchiveManager.instance.restoreArchive(selectedObject as BackupArchive, false);
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function onDeleteClick():void
+      {
+        if (selectedObject == null)
+          return;
+        
+        AlertPopUp.show(R.get('CONFIRM_BACKUP_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              BackupArchiveManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
+      }
+      
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

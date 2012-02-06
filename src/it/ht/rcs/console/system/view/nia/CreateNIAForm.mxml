@@ -3,14 +3,18 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            save="save()"
+                            save="save()" creationComplete="init(event)"
                             title="{R.get('INJECTOR_ADD')}">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.network.controller.InjectorManager;
       import it.ht.rcs.console.network.model.Injector;
       
       import locale.R;
+      
+      import mx.events.FlexEvent;
       
       [Bindable]
       public var injector:it.ht.rcs.console.network.model.Injector;
@@ -23,8 +27,14 @@
         injector.redirect = "auto";
         injector.poll = poll.selected;
         
-        close();
+        InjectorManager.instance.addProxy(ObjectUtils.toHash(injector), function(i:Injector):void { close(); });
       }
+      
+      protected function init(event:FlexEvent):void
+      {
+        injector = new Injector(Injector.defaultInjector());
+      }
+      
     ]]>
   </fx:Script>
   

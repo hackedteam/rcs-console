@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:List xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        visible="false" minWidth="300" minHeight="0" maxWidth="300" maxHeight="250"
+        click="onClick(event)" filters="{[dropShadow]}"
+        itemRenderer="it.ht.rcs.console.utils.itemfield.ItemFieldDropDownItemRenderer"
+        keyDown="onKeyDown(event)" mouseDownOutside="hide()" requireSelection="false">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.search.model.SearchItem;
+      
+      public var itemField:ItemField;
+      
+      private function onClick(event:MouseEvent):void
+      {
+        if (event.target is ItemFieldDropDownItemRenderer || event.target.parent is ItemFieldDropDownItemRenderer)
+          dispatchItemSelectedEvent(selectedItem);
+      }
+      
+      private function onKeyDown(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ESCAPE)
+          hide();
+        
+        else if (event.keyCode == Keyboard.ENTER && selectedItem)
+          dispatchItemSelectedEvent(selectedItem);
+      }
+      
+      private function dispatchItemSelectedEvent(item:*):void
+      {
+        var event:ItemFieldEvent = new ItemFieldEvent(ItemFieldEvent.ITEM_SELECTED, item as SearchItem);
+        dispatchEvent(event);
+      }
+      
+      public function show():void { visible = true; }
+      public function hide():void { visible = false; itemField.setFocus(); }
+      
+      override protected function measure():void
+      {
+        super.measure();
+        var toAdd:Number = super.scroller.horizontalScrollBar.visible ? 14 : 0;
+        if (dataProvider && dataProvider.length > 0)
+          height = measuredHeight = Math.min(maxHeight, 2 + (dataProvider.length * 26) + toAdd);
+
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
+    <s:DropShadowFilter id="dropShadow" alpha=".8" angle="0" blurX="8" blurY="8" color="#666666"
+                        distance="0" strength=".8"/>
+  </fx:Declarations>
+  
+</s:List>

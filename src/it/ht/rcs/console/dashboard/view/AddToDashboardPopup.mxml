@@ -3,14 +3,14 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
-                             xmlns:items="it.ht.rcs.console.utils.items.*"
+                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
                              creationComplete="init()" showCancelButton="false"
                              showSaveButton="false" title="{R.get('ADD_TO_DASHBOARD')}">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
-      import it.ht.rcs.console.utils.items.ItemEvent;
+      import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
       
       import locale.R;
       
@@ -19,7 +19,7 @@
         searchInput.setFocus();
       }
       
-      private function onSelectSearchItem(event:ItemEvent):void
+      private function onSelectSearchItem(event:ItemFieldEvent):void
       {
         DashboardController.instance.newDashboardItem(event.selectedItem._id);  
       }
@@ -28,7 +28,7 @@
   
   <s:VGroup horizontalAlign="center" paddingLeft="20" paddingRight="20" paddingTop="20">
 
-    <items:SearchField id="searchInput" width="220" itemSelected="onSelectSearchItem(event)"
+    <itemfield:ItemField id="searchInput" width="220" itemSelected="onSelectSearchItem(event)"
                        kinds="{['operation', 'target', 'agent']}"/>
     
   </s:VGroup>

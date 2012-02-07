@@ -39,6 +39,8 @@
     </fx:Metadata> 
   
     <fx:Script fb:purpose="styling">
+      <![CDATA[
+        import mx.core.FlexGlobals;
         import it.ht.rcs.console.accounting.controller.SessionManager;
         import it.ht.rcs.console.events.RefreshEvent;
       
@@ -77,6 +79,12 @@
               break;
           }
         }
+      
+//        private function exitButton_clickHandler(event:MouseEvent):void
+//        {
+//          FlexGlobals.topLevelApplication.exit();
+//        }
+      ]]>
     </fx:Script>
     
     <s:states>
@@ -112,10 +120,20 @@
             <s:HorizontalLayout verticalAlign="middle" horizontalAlign="right" gap="5" />
         </s:layout>
         
-        <s:Button id="logoutButton" buttonMode="true" visible="{parentApplication.currentState == 'loggedIn'}"
-                  skinClass="it.ht.rcs.console.main.skins.chrome.RCSLogoutButtonSkin" toolTip="Logout"
+        <s:Button id="logoutButton" buttonMode="true"
+                  visible="{parentApplication.currentState == 'loggedIn'}"
+                  includeInLayout="{parentApplication.currentState == 'loggedIn'}"
+                  icon="@Embed('/img/NEW/logout_16.png')" toolTip="Logout"
+                  skinClass="it.ht.rcs.console.main.skins.chrome.RCSLogoutButtonSkin"
                   mouseDown="event.stopPropagation()"
                   click="SessionManager.instance.logout()"
+                  top="2" bottom="2" verticalCenter="0" />
+      
+        <s:Button id="closeButton" buttonMode="true"
+                  visible="{parentApplication.currentState == 'loggedOut'}"
+                  includeInLayout="{parentApplication.currentState == 'loggedOut'}"
+                  icon="@Embed('/img/NEW/delete_16.png')" toolTip="Exit"
+                  skinClass="it.ht.rcs.console.main.skins.chrome.RCSExitButtonSkin"
                   top="2" bottom="2" verticalCenter="0" />
 
         <s:Spacer width="100%"/>
@@ -162,11 +180,12 @@
         
             @see spark.skins.spark.windowChrome.MaximizeButtonSkin 
         -->
+      <!--
         <s:Button id="maximizeButton" 
                   skinClass="spark.skins.spark.windowChrome.MaximizeButtonSkin"
                   skinClass.maximizedGroup="spark.skins.spark.windowChrome.RestoreButtonSkin"
                   verticalCenter="0" />
-                        
+          -->              
         <!-- close button -->
         <!--- 
             By default, the button uses the spark.skins.spark.windowChrome.MinimizeButtonSkin class
@@ -176,9 +195,11 @@
         
             @see spark.skins.spark.windowChrome.CloseButtonSkin 
         -->
+      <!--
         <s:Button id="closeButton" 
                   skinClass="spark.skins.spark.windowChrome.CloseButtonSkin"
                   verticalCenter="0"  />
+      -->
     
     </s:Group>
 

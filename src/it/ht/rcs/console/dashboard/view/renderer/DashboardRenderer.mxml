@@ -45,7 +45,9 @@
       private function onTick(e:Event):void
       {
         try {
-          lastSyncText.text = TimeUtils.timestampFormatter(item.lastSync * 1000) + '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)';
+          lastSyncText.text = TimeUtils.timestampFormatter(item.lastSync * 1000)
+          if (lastSyncText.text != R.get('NEVER'))
+            lastSyncText.text += '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)';
         } catch (e:Error) {}
       }
       
@@ -56,6 +58,17 @@
         item = value as DashboardItem;
         icon.source = Icons[item._kind];
         iconBig.source = Icons[item._kind + 'Big'];
+        if (item.status == 'closed') {
+          iconBigText.text = item.status.toUpperCase();
+          iconBig.alpha = 0.5;
+        }
+        if (item.demo) {
+          iconBigText.text = 'DEMO';
+          iconBig.filters = [glow];
+        } else {
+          iconBig.filters = null;
+        }
+          
         currentState = item._kind;
       }
       
@@ -81,6 +94,10 @@
       }
     ]]>
   </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="#ff0000" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
   
   <s:states>
     <s:State name="agent"/>
@@ -126,7 +143,10 @@
       </s:HGroup>
       
       <s:HGroup id="details" width="100%" gap="5" paddingLeft="10" verticalAlign="middle">
-        <s:Image id="iconBig" buttonMode="true" click="onItemClick()"/>
+        <s:VGroup horizontalAlign="center">
+          <s:Image id="iconBig" buttonMode="true" click="onItemClick()"/>
+          <s:Label id="iconBigText"/>          
+        </s:VGroup>
         <actionbar:Separator/>
         <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}"/>
         <renderer:TargetList includeIn="operation" dataProvider="{item.targets}"/>

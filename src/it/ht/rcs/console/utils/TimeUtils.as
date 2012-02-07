@@ -1,6 +1,8 @@
 package it.ht.rcs.console.utils
 {
   
+  import locale.R;
+  
   import mx.formatters.DateFormatter;
 
   public class TimeUtils
@@ -36,6 +38,9 @@ package it.ht.rcs.console.utils
     
     public static function timestampFormatter(t:Number):String
     {
+      if (t == 0)
+        return R.get('NEVER');
+        
       var date:Date = new Date();
       /* get the current offset from UTC */
       var currentOffset:Number = date.timezoneOffset * 60 * 1000;

@@ -48,6 +48,16 @@
         bottomLabel.text = data ? data.name : '';
         icon.source = data ? getImage() : null;
         alpha = data && data.hasOwnProperty('status') && data.status && data.status.toLowerCase() == 'closed' ? .5 : 1;
+        
+        if (data && data.hasOwnProperty('demo') && data.demo)
+          icon.filters = [glow_demo]
+        else 
+          icon.filters = null;
+            
+        if (data && data.hasOwnProperty('customType') && (data.customType == 'evidence' || data.customType == 'filesystem'))
+          icon.filters = [glow_special]
+        else
+          icon.filters = null;
       }
       
       private function getImage():Class
@@ -62,7 +72,7 @@
           return factoryIcon;
           
           // see addCustomTypes() in stateManager
-        else if (data is Object && data.customType == 'evidences')
+        else if (data is Object && data.customType == 'evidence')
           return evidenceIcon;
         else if (data is Object && data.customType == 'filesystem')
           return fsIcon;
@@ -94,6 +104,11 @@
       
     ]]>
   </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow_demo" color="#ff0000" blurX="8" blurY="8" strength="2"/>
+    <s:GlowFilter id="glow_special" color="0x3082c4" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
   
   <s:Image id="icon" top="5" horizontalCenter="0"/>
   

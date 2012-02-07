@@ -89,9 +89,9 @@ package it.ht.rcs.console.operations.view
         setState('agentConfigList');
       }
       
-      else if (item is Object && item.customType == 'evidences')
+      else if (item is Object && item.customType == 'evidence')
       {
-        section.currentState = 'evidences';
+        section.currentState = 'evidence';
       }
       
       else if (item is Object && item.customType == 'filesystem')
@@ -205,7 +205,7 @@ package it.ht.rcs.console.operations.view
     {
       if (list == null) return;
       if (currentState == 'singleTarget' || currentState == 'singleAgent') {
-        list.addItemAt({name: R.get('EVIDENCES'),   customType: 'evidences',  order: 0}, 0);
+        list.addItemAt({name: R.get('EVIDENCE'),   customType: 'evidence',  order: 0}, 0);
         list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
       }
       if (currentState == 'singleAgent') {

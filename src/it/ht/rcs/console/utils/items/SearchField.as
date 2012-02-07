@@ -185,7 +185,7 @@ package it.ht.rcs.console.utils.items
       if (!value)
         dropDown.selectedIndex = -1;
       
-      if (dropDown.selectedItem) {
+      if (true/*dropDown.selectedItem*/) {
         _selectedItem = value;
         text = value.name;
       } else {

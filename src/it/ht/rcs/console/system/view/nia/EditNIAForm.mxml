@@ -3,8 +3,8 @@
                             xmlns:s="library://ns.adobe.com/flex/spark"
                             xmlns:utils="it.ht.rcs.console.utils.*"
                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                            width="815" height="480" save="save()" creationComplete="init()"
-                            title="{R.get('EDIT') + ' ' + injector.name}">
+                            save="save()" creationComplete="init()"
+                            title="{R.get('EDIT') + ' ' + injector.name}" xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
 
   <fx:Script>
     <![CDATA[
@@ -60,34 +60,51 @@
     ]]>
   </fx:Script>
   
-  <s:Label left="10" top="16" text="{R.get('NAME')}"/>
-  <s:TextInput id="nameField" left="90" top="10" width="200" text="{injector.name}"/>
-  <s:Label left="330" top="16" text="{R.get('ADDRESS')}"/>
-  <s:TextInput id="address" left="390" top="10" width="180" text="{injector.address}"/>
-  <s:Label left="610" top="16" text="{R.get('VERSION')}"/>
-  <s:TextInput left="670" width="75" top="10" enabled="false" text="{injector.version}"/>
+  <s:VGroup paddingLeft="20" paddingRight="20">
+    
+    <s:HGroup>
   
-  <s:Label left="10" top="56" text="{R.get('DESCRIPTION')}"/>
-  <s:TextArea id="desc" left="90" top="50" width="200" height="45" text="{injector.desc}"/>
-  <!--
-  <s:Label left="330" top="56" text="{R.get('REDIRECT')}"/>
-  <s:TextInput id="redirect" left="390" top="50" width="180" text="{proxy.redirect}"/>
-  -->
-  <s:Label left="610" top="56" text="{R.get('POLL')}"/>
-  <s:CheckBox id="poll" left="670" top="50" selected="{injector.poll}"/>
+      <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('NAME')}">
+          <s:TextInput id="nameField" width="200" text="{injector.name}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('DESCRIPTION')}">
+          <s:TextArea id="desc" width="200" heightInLines="2" text="{injector.desc}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('VERSION')}">
+          <s:TextInput width="80" enabled="false" text="{injector.version}"/>
+        </s:FormItem>
+      </s:Form>
+      
+      <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('POLL')}">
+          <s:CheckBox id="poll" selected="{injector.poll}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('ADDRESS')}">
+          <s:TextInput id="address" width="150" text="{injector.address}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('PORT')}">
+          <s:TextInput id="port" width="40" maxChars="5" restrict="0-9" text="{injector.port}"/>
+        </s:FormItem>
+      </s:Form>
 
-  <s:Button right="50" top="135" skinClass="it.ht.rcs.console.skins.RefreshButton" toolTip="{R.get('REFRESH')}" click="getLogs()"/>
-  <s:Button right="10" top="135" skinClass="it.ht.rcs.console.skins.DeleteButton" toolTip="{R.get('CLEAR_LOGS')}" click="clearLogs()"/>
+    </s:HGroup>
+    
+    <actionbar:ActionBar width="100%">
+      <s:Button icon="@Embed('/img/NEW/delete_all.png')" label="{R.get('REFRESH')}" click="getLogs()"/>
+      <actionbar:Separator width="30"/>
+      <s:Button icon="@Embed('/img/NEW/delete_all.png')" label="{R.get('CLEAR_LOGS')}" click="clearLogs()"/>
+    </actionbar:ActionBar>
   
-  <s:Label left="10" top="140" fontSize="14" fontWeight="bold" text="{R.get('LOGS')}"/>
-  <s:DataGrid id="logTable" left="10" right="10" bottom="10" height="274" requestedRowCount="4">
-    <s:columns>
-      <s:ArrayList>
-        <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>
-        <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
-        <s:GridColumn dataField="desc" headerText="{R.get('INFO')}"></s:GridColumn>
-      </s:ArrayList>
-    </s:columns>
-  </s:DataGrid>
+    <s:DataGrid id="logTable" height="200" width="100%">
+      <s:columns>
+        <s:ArrayList>
+          <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>
+          <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
+          <s:GridColumn dataField="desc" headerText="{R.get('INFO')}"></s:GridColumn>
+        </s:ArrayList>
+      </s:columns>
+    </s:DataGrid>
 
+  </s:VGroup>
 </utils:TitleWindowSaveCancel>

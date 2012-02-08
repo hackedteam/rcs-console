@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    clipAndEnableScrolling="true">
+  
+  <fx:Script>
+    <![CDATA[
+      override public function prepare(hasBeenRecycled:Boolean):void
+      {
+        var amount:int = data ? parseInt(data[column.dataField]) : -1;
+        
+        lblData.text = amount != -1 ? amount + '%' : 'N/A';
+        
+        var color:uint;
+        if (amount <= 10)
+          color = 0xff0000;
+        else if (amount <= 20)
+          color = 0xfc9b02;
+        else
+          color = 0x454545;
+        
+        lblData.setStyle('color', color);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Rect width="100%" height="100%">
+    <s:fill>
+      <s:LinearGradient rotation="90">
+        <s:GradientEntry color="#eeeeee"/>
+        <s:GradientEntry color="#ffffff"/>
+        <s:GradientEntry color="#ffffff"/>
+      </s:LinearGradient>
+    </s:fill>
+  </s:Rect>
+  
+  <s:Label id="lblData" left="4" right="4" top="12" bottom="10" fontWeight="bold" textAlign="center"
+           verticalAlign="middle"/>
+  
+</s:GridItemRenderer>

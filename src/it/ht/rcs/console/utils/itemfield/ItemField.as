@@ -8,6 +8,7 @@ package it.ht.rcs.console.utils.itemfield
   
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.search.model.SearchItem;
+  import it.ht.rcs.console.skins.TextInputSearchSkin;
   
   import mx.collections.ArrayCollection;
   import mx.collections.IList;
@@ -36,7 +37,9 @@ package it.ht.rcs.console.utils.itemfield
     public function ItemField()
     {
       super();
-      //setStyle('skinClass', TextInputSearchSkin);
+      setStyle('skinClass', TextInputSearchSkin);
+      
+      buildDataProvider();
       
       doubleClickEnabled = true;
       
@@ -67,7 +70,6 @@ package it.ht.rcs.console.utils.itemfield
     
     private function init(event:FlexEvent):void
     {
-      buildDataProvider();
       dropDown.dataProvider = _dataProvider;
     }
     

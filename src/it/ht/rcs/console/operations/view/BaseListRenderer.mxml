@@ -23,6 +23,15 @@
       [Embed(source='/img/NEW/factory_50.png')]
       private static const factoryIcon:Class;
       
+      [Embed(source='/img/NEW/device/desktop-pc.png')]
+      private static const desktopPCIcon:Class;
+      
+      [Embed(source='/img/NEW/device/iphone.png')]
+      private static const iphoneIcon:Class;
+      
+      [Embed(source='/img/NEW/device/os_apple.png')]
+      private static const appleIcon:Class;
+      
       [Embed(source='/img/NEW/evidence_50.png')]
       private static const evidenceIcon:Class;
       
@@ -46,6 +55,7 @@
         super.data = value;
         
         bottomLabel.text = data ? data.name : '';
+        iconPlat.visible = false;
         icon.source = data ? getImage() : null;
         alpha = data && data.hasOwnProperty('status') && data.status && data.status.toLowerCase() == 'closed' ? .5 : 1;
         
@@ -64,10 +74,14 @@
           return operationIcon;
         else if (data is Target)
           return targetIcon;
-        else if (data is Agent && data._kind == 'agent')
-          return agentIcon;
-        else if (data is Agent && data._kind == 'factory')
-          return factoryIcon;
+        else if (data is Agent && data._kind == 'agent') {
+          iconPlat.visible = true;
+          iconPlat.source = appleIcon;
+          return iphoneIcon;
+        }
+        else if (data is Agent && data._kind == 'factory') {
+          return data.type == 'desktop' ? desktopPCIcon : iphoneIcon;
+        }
           
           // see addCustomTypes() in stateManager
         else if (data is Object && data.customType == 'evidence')
@@ -109,6 +123,7 @@
   </fx:Declarations>
   
   <s:Image id="icon" top="5" horizontalCenter="0"/>
+  <s:Image id="iconPlat" top="21" horizontalCenter="0" visible="false"/>
   
   <s:Label id="bottomLabel" top="62" width="110" horizontalCenter="0" paddingBottom="5"
            textAlign="center"/>

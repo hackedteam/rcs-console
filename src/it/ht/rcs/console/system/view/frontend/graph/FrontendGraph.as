@@ -110,8 +110,12 @@ package it.ht.rcs.console.system.view.frontend.graph
       
       if (db != null) {
       
-        _width = (db.collectors[0].width * db.collectors.length) + (HORIZONTAL_DISTANCE * (db.collectors.length - 1)) + HORIZONTAL_PAD * 2;
+        _width = db.collectors.length > 0 ?
+          (db.collectors[0].width * db.collectors.length) + (HORIZONTAL_DISTANCE * (db.collectors.length - 1)) + HORIZONTAL_PAD * 2 :
+          db.width + HORIZONTAL_PAD * 2;
   
+        _height = VERTICAL_PAD * 2 + db.height;
+        
   			var branch:Number = 0;
   			for each (var collector:CollectorRenderer in db.collectors)
   			{

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    clipAndEnableScrolling="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.view.renderer.Icons;
+      
+      override public function prepare(hasBeenRecycled:Boolean):void
+      {
+        var status:int = data ? data.status : -1;
+        
+        switch (status) {
+          case 0:
+            icon.source = Icons.ok32;
+            break;
+          case 1:
+            icon.source = Icons.alert32;
+            break;
+          case 2:
+            icon.source = Icons.error32;
+            break;
+          default:
+            icon.source = Icons.unknown32;
+            break;
+        }
+        
+        lblData.text = data ? data.info : '';
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Rect width="100%" height="100%">
+    <s:fill>
+      <s:LinearGradient rotation="90">
+        <s:GradientEntry color="#eeeeee"/>
+        <s:GradientEntry color="#ffffff"/>
+        <s:GradientEntry color="#ffffff"/>
+      </s:LinearGradient>
+    </s:fill>
+  </s:Rect>
+  
+  <s:BitmapImage id="icon" top="10" bottom="10" left="14"/>
+  
+  <s:Label id="lblData" left="60" right="8" top="12" bottom="10" maxDisplayedLines="2"
+           verticalAlign="middle"/>
+  
+</s:GridItemRenderer>

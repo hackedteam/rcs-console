@@ -22,5 +22,28 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/agent.png')]
     public static const agentBig:Class;
+ 
+    
+    [Embed(source='/img/NEW/error_32.png')]
+    public static const error32:Class;
+    
+    [Embed(source='/img/NEW/ok_32.png')]
+    public static const ok32:Class;
+    
+    [Embed(source='/img/NEW/alert_32.png')]
+    public static const alert32:Class;
+    
+    [Embed(source='/img/NEW/unknown_32.png')]
+    public static const unknown32:Class;
+    
+    
+    [Embed(source='/img/NEW/anonymizer.png')]
+    public static const anonymizer32:Class;
+    
+    [Embed(source='/img/NEW/collector.png')]
+    public static const collector32:Class;
+    
+    [Embed(source='/img/NEW/database.png')]
+    public static const db32:Class;
   }
 }

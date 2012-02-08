@@ -4,10 +4,12 @@
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:main="it.ht.rcs.console.main.*"
               xmlns:monitor="it.ht.rcs.console.monitor.view.*"
-              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+              addedToStage="onAddedToStage()" creationComplete="init()"
+              removedFromStage="onRemovedFromStage()">
   
   <main:layout>
-    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+    <s:VerticalLayout horizontalAlign="center" paddingBottom="5" paddingLeft="5" paddingRight="5"
+                      paddingTop="5"/>
   </main:layout>
   
   <fx:Script>
@@ -18,20 +20,21 @@
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
       import mx.collections.SortField;
-      import mx.managers.PopUpManager;
       
       [Bindable]
       private var view:ListCollectionView;
+      
+      private function init():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('status', true, true, true)];
+        view = MonitorManager.instance.getView(sort, searchFilterFunction);
+      }
       
       private function onAddedToStage():void
       {
         LicenseManager.instance.listenRefresh();
         MonitorManager.instance.listenRefresh();
-        
-        /* default sorting: status */
-        var sort:Sort = new Sort();
-        sort.fields = [new SortField('status', true, true, true)];        
-        view = MonitorManager.instance.getView(sort);
       }
       
       private function onRemovedFromStage():void
@@ -40,31 +43,22 @@
         MonitorManager.instance.unlistenRefresh();
       }
       
-      private function showAlertingGroup():void
+      private function searchFilterFunction(item:Object):Boolean
       {
-        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, AlertingGroup, true));
+        try {
+          return item.name.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+        } catch (e:Error) {}
+        return true;
       }
     ]]>
   </fx:Script>
   
-  <!-- sidebar 
-  
-  <mx:Accordion left="5" top="5" bottom="5" width="200">
-    <s:NavigatorContent width="100%" height="100%"
-                        label="{resourceManager.getString('localized_main', 'LICENSE')}">
-      <monitor:LicenseView/>
-    </s:NavigatorContent>
-    <s:NavigatorContent width="100%" height="100%"
-                        label="{resourceManager.getString('localized_main', 'LICENSE_VERSIONS')}">
-      <monitor:VersionsView/>
-    </s:NavigatorContent>
-  </mx:Accordion>
-  -->
-  <monitor:MonitorActionBar view="{view}"/>
+  <monitor:MonitorActionBar id="actionBar" selectedObject="{grid.selectedItem}" view="{view}"/>
 
-  <!-- monitor list -->
-  <s:List id="monitors" left="215" right="5" top="30" bottom="5"
-          click="{monitors.selectedIndex = -1}" dataProvider="{view}"
-          itemRenderer="it.ht.rcs.console.monitor.view.MonitorRenderer"/>
+  <monitor:StatusGrid id="grid" dataProvider="{view}"/>
+
+  <s:Spacer height="40"/>
+  
+  <monitor:License/>
   
 </main:Section>

@@ -18,16 +18,16 @@
       
       public function displayConfig():void
       {
-        call.selected     = hasAction('call');
-        calendar.selected = hasAction('calendar') || hasAction('addressbook');
-        messages.selected = hasAction('messages') || hasAction('chat');
-        url.selected      = hasAction('url');
-        file.selected     = hasAction('file');
-        snapshot.selected = hasAction('snapshot') || hasAction('mouse');
-        position.selected = hasAction('position');
+        call.selected       = hasAction('call');
+        calendar.selected   = hasAction('calendar') || hasAction('addressbook');
+        messages.selected   = hasAction('messages') || hasAction('chat');
+        url.selected        = hasAction('url');
+        file.selected       = hasAction('file');
+        screenshot.selected = hasAction('screenshot') || hasAction('mouse');
+        position.selected   = hasAction('position');
         
-        if (snapshot.selected)
-          snapshot.delay = getScreenshotDelay();
+        if (screenshot.selected)
+          screenshot.delay = getScreenshotDelay();
         
         sync.selected = hasSync();
         if (sync.selected)
@@ -104,14 +104,15 @@
       public function getConfig():Object
       {
         var model:Object = {};
-        model.call = call.selected;
-        model.calendar = calendar.selected;
-        model.messages = messages.selected;
-        model.url = url.selected;
-        model.file = file.selected;
-        model.snapshot = snapshot.selected;
-        model.position = position.selected;
-        model.sync = sync.selected;
+        model.call       = call.selected;
+        model.calendar   = calendar.selected;
+        model.messages   = messages.selected;
+        model.url        = url.selected;
+        model.file       = file.selected;
+        model.screenshot = screenshot.selected;
+        model.position   = position.selected;
+        model.sync       = sync.selected;
+        
         config = BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
         return config;
       }
@@ -132,7 +133,7 @@
     
     <s:HGroup width="100%" gap="30">
       <selectors:SimpleSelector id="file" text="Documents"/>
-      <selectors:ScreenshotSelector id="snapshot" text="Screenshots &amp; Mouse"/>
+      <selectors:ScreenshotSelector id="screenshot" text="Screenshots &amp; Mouse"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">

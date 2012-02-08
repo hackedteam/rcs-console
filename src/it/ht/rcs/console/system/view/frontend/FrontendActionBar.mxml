@@ -15,7 +15,7 @@
   
   <actionbar:Separator width="40"/>
   
-  <s:Button label="{R.get('DOWNLOAD_INSTALLER')}" click="downloadInstaller()" icon="@Embed('/img/NEW/build.png')"/>
+  <s:Button label="{R.get('DOWNLOAD_INSTALLER')}" click="downloadInstaller()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/build.png')"/>
   
   <actionbar:Separator width="40"/>
   
@@ -86,7 +86,7 @@
       
       private function downloadInstaller():void
       {
-        var params:Object = {platform: 'anon', binary: {demo: false}, melt: {admin: false} }
+        var params:Object = {platform: 'anon', binary: {demo: false}, melt: {admin: false, port: (selectedObject as Collector).port} }
         var filename:String = 'anon_installer.zip'
         DownloadManager.instance.createTask("build", filename, params, null, null);
       }

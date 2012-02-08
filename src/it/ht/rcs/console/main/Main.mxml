@@ -20,8 +20,11 @@
       
       private function init():void
       {
-        AlertManager.instance.startCounters();
-        MonitorManager.instance.startCounters();
+        if (Console.currentSession.user.is_view())
+          AlertManager.instance.startCounters();
+
+        if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_sys())
+          MonitorManager.instance.startCounters();
       }
       
       private function onAddedToStage():void

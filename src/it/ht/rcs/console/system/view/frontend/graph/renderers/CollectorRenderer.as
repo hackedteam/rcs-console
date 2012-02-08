@@ -113,17 +113,22 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private function getStatusIcon():Class
     {
+      if (!collector.poll)
+        return unknownIcon;
+      
       var status:Status = MonitorManager.instance.getStatusByAddress(collector.type == 'local' ? collector.internal_address : collector.address);
-      if (status == null ) return unknownIcon;
+      if (status == null)
+        return errorIcon;
+      
       switch (status.status) {
         case 0:
           return okIcon;
         case 1:
           return warnIcon;
         case 2:
-          return errorIcon
+          return errorIcon;
         default:
-          return unknownIcon
+          return errorIcon;
       }
     }
     

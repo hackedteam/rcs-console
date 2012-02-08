@@ -113,7 +113,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private function getStatusIcon():Class
     {
-      if (!collector.poll)
+      if (collector.type == 'remote' && !collector.poll)
         return unknownIcon;
       
       var status:Status = MonitorManager.instance.getStatusByAddress(collector.type == 'local' ? collector.internal_address : collector.address);

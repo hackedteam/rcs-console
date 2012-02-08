@@ -75,15 +75,22 @@
                      borderColor="#dddddd" cornerRadius="10"
                      width.expanded="150" height.expanded="150">
     
-    <s:BitmapImage right="-6" top="-6" depth="10" source="{okIcon}"/>
-    
+    <s:BitmapImage right="-6" top="-6" depth="10" source="{(_stats.ok == 1) ? okIcon : errorIcon}"/>
+        
     <s:Group width="{container.width}" height="{container.height}" clipAndEnableScrolling="true">
 
       <s:BitmapImage source="{shardIcon}"/>
+      <s:Label left="60" top="15" fontSize="12" fontWeight="bold" maxDisplayedLines="1" text="{_shard._id}"/>
       
-      <s:Label left="10" top="60" text="Data Size:"/>
-      <s:Label left="80" top="60" fontSize="12" text="{Size.toHumanBytes(_stats.dataSize)}"/>
+      <s:TextArea visible="{_stats.ok != 1}" left="10" top="50" width="120" height="30"
+                  borderVisible="false" color="#FF0000" contentBackgroundAlpha="0.0" editable="false"
+                  fontSize="12" text="{_stats.errmsg}"/> 
       
+      <s:Label left="10" top="90" text="Data Size:"/>
+      <s:Label left="80" top="90" fontSize="12" text="{Size.toHumanBytes(_stats.dataSize)}"/>
+      
+      <s:Label left="10" top="110" text="On Disk:"/>
+      <s:Label left="80" top="110" fontSize="12" text="{Size.toHumanBytes(_stats.storageSize)}"/> 
     </s:Group>
     
   </s:BorderContainer>
@@ -98,26 +105,5 @@
       <s:Resize duration="150" target="{container}"/>
     </s:Transition>
   </fx:Declarations>
-  
-  <!--
-  <s:SkinnableContainer width="100%" height="100%">
-    <s:Image left="5" top="5" source="@Embed('/img/NEW/database.png')"/>
-    <s:Label left="10" top="70" fontSize="12" fontWeight="bold" maxDisplayedLines="1"
-             text="{_shard._id}"/>
-    <s:Label left="80" top="30" fontSize="12" text="{_shard.host}"/>   
-    <s:TextArea visible="{_shard_stat.ok == 1}" left="80" top="50" width="120" height="30"
-                borderVisible="false" color="#00EE00" contentBackgroundAlpha="0.0" editable="false"
-                fontSize="12" text="OK"/>
-    <s:TextArea visible="{_shard_stat.ok != 1}" left="80" top="50" width="120" height="30"
-                borderVisible="false" color="#FF0000" contentBackgroundAlpha="0.0" editable="false"
-                fontSize="12" text="{_shard_stat.errmsg}"/>   
-    
-    <s:Label left="10" top="100" text="Data Size:"/>
-    <s:Label left="80" top="100" fontSize="12" text="{Size.toHumanBytes(_shard_stat.dataSize)}"/>   
-
-    <s:Label left="10" top="120" text="On Disk:"/>
-    <s:Label left="80" top="120" fontSize="12" text="{Size.toHumanBytes(_shard_stat.storageSize)}"/>   
-  </s:SkinnableContainer>
--->
   
 </renderers:NetworkObject>

@@ -4,7 +4,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
   
-  import it.ht.rcs.console.events.NodeEvent;
+  import it.ht.rcs.console.monitor.controller.MonitorManager;
+  import it.ht.rcs.console.monitor.model.Status;
   import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
   import it.ht.rcs.console.system.view.frontend.Frontend;
@@ -41,6 +42,10 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     private const okIcon:Class;
     [Embed(source='/img/NEW/error.png')]
     private const errorIcon:Class;
+    [Embed(source='/img/NEW/error.png')]
+    private const warnIcon:Class;
+    [Embed(source='/img/NEW/unknown.png')]
+    private const unknownIcon:Class;
     
     private var container:BorderContainer;
     private var icon:BitmapImage;
@@ -89,7 +94,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
         status = new BitmapImage();
         status.top = -6;
         status.right = -6;
-        status.source = collector.type == 'local' ? okIcon : errorIcon;
+        status.source = getStatusIcon();
         container.addElement(status);
         
         addElement(container);
@@ -105,6 +110,22 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   			addElement(textLabel);
       }
 		}
+    
+    private function getStatusIcon():Class
+    {
+      var status:Status = MonitorManager.instance.getStatusByAddress(collector.type == 'local' ? collector.internal_address : collector.address);
+      if (status == null ) return unknownIcon;
+      switch (status.status) {
+        case 0:
+          return okIcon;
+        case 1:
+          return warnIcon;
+        case 2:
+          return errorIcon
+        default:
+          return unknownIcon
+      }
+    }
     
     private function onMouseOver(me:MouseEvent):void
     {

@@ -495,8 +495,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
           line.invalidateDisplayList();
         }
       }
-      
-
 		}
     
     override public function removeElement(element:IVisualElement):IVisualElement

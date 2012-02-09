@@ -42,7 +42,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     private const okIcon:Class;
     [Embed(source='/img/NEW/error.png')]
     private const errorIcon:Class;
-    [Embed(source='/img/NEW/error.png')]
+    [Embed(source='/img/NEW/warn.png')]
     private const warnIcon:Class;
     [Embed(source='/img/NEW/unknown.png')]
     private const unknownIcon:Class;
@@ -115,8 +115,9 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     {
       if (collector.type == 'remote' && !collector.poll)
         return unknownIcon;
+      
       var address:String = (collector.type == 'local') ? collector.internal_address : collector.address;
-        
+      
       var status:Status = MonitorManager.instance.getStatusByAddress(address);
       
       if (status == null)

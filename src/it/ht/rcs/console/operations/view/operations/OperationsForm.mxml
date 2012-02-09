@@ -49,10 +49,9 @@
         operation.group_ids = groups.dataProvider.toArray();
         operation.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
         
-        if (currentState == CREATE) {
-          var hash:Object = ObjectUtils.toHash(operation);
-          OperationManager.instance.addOperation(hash, function(operation:Operation):void { close(); });
-        } else 
+        if (currentState == CREATE)
+          OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(); });
+        else
           close();
       }
       

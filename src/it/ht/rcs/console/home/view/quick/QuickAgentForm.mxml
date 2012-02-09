@@ -34,23 +34,23 @@
       {
         var g:Group = new Group(Group.defaultGroup());
         g.name = agentName.text + ' Group';
-        GroupManager.instance.addGroup(ObjectUtils.toHash(g), function(g1:Group):void
+        GroupManager.instance.addGroup(g, function(g1:Group):void
         {
           GroupManager.instance.addUser(g1, Console.currentSession.user);
           var o:Operation = new Operation(Operation.defaultOperation());
           o.name = agentName.text;
           o.group_ids.addItem(g1._id);
-          OperationManager.instance.addOperation(ObjectUtils.toHash(o), function(o1:Operation):void
+          OperationManager.instance.addOperation(o, function(o1:Operation):void
           {
             var t:Target = new Target(Target.defaultTarget());
             t.name = agentName.text;
-            TargetManager.instance.addTarget(ObjectUtils.toHash(t), o1, function(t1:Target):void
+            TargetManager.instance.addTarget(t, o1, function(t1:Target):void
             {
               UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(t1));
               var a:Agent = new Agent(Agent.defaultAgent());
               a._kind = 'factory';
               a.name = agentName.text;
-              AgentManager.instance.addFactory(ObjectUtils.toHash(a), o1, t1, function(a1:Agent):void
+              AgentManager.instance.addFactory(a, o1, t1, function(a1:Agent):void
               {
                 var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
                 sectionEvent.section = 'Operations';

@@ -2,8 +2,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.ui.Mouse;
-	import flash.ui.MouseCursor;
 	import flash.utils.Dictionary;
 	
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ActionRenderer;
@@ -12,31 +10,21 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Linkable;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleRenderer;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Pin;
-	import it.ht.rcs.console.utils.NativeCursor;
+	import it.ht.rcs.console.system.view.ScrollableGraph;
 	
 	import mx.core.IVisualElement;
 	import mx.core.UIComponent;
-	import mx.events.FlexEvent;
 	
-	import spark.components.Group;
-	import spark.components.supportClasses.ScrollBarBase;
 	import spark.primitives.Rect;
-	import spark.skins.spark.ScrollerSkin;
 
-	public class ConfigurationGraph extends Group
+	public class ConfigurationGraph extends ScrollableGraph
 	{
 
     // The original config object
     public var config:Object;
     
     // Modes of operation
-    public static const NORMAL:String     = 'normal';
     public static const CONNECTING:String = 'connecting';
-    public static const DRAGGING:String   = 'dragging';
-    // Public because we need to bind on it to hide pins while drawing connections.
-    // Should be binded on getter but should also fire an event to notify changes...
-    [Bindable] public var mode:String = NORMAL;
-    //[Bindable] public function get mode():String { return _mode; }
     
     // A reference to the currently selected element
     public var selectedElement:UIComponent;
@@ -53,84 +41,13 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 		public function ConfigurationGraph()
 		{
 			super();
-			layout = null;
-      addEventListener(FlexEvent.CREATION_COMPLETE, init);
-      
-      addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown); // Dragging
-      addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
-      addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		}
     
-    // Creation complete handler. Cache some useful references.
-    private var hScrollBar:ScrollBarBase, vScrollBar:ScrollBarBase;
-    private function init(e:FlexEvent):void
+    override protected function onSimulatedClick():void
     {
-      hScrollBar = (this.parent as ScrollerSkin).hostComponent.horizontalScrollBar;
-      vScrollBar = (this.parent as ScrollerSkin).hostComponent.verticalScrollBar;
-    }
-    
-    // Mouse pointer handling
-    private function onMouseOver(me:MouseEvent):void
-    {
-      if (mode == NORMAL)
-        Mouse.cursor = NativeCursor.HAND_OPEN;
-      else if (mode == DRAGGING)
-        Mouse.cursor = NativeCursor.HAND_CLOSE;
-    }
-    private function onMouseOut(me:MouseEvent):void
-    {
-      Mouse.cursor = MouseCursor.AUTO;
-    }
-    
-    
-    // ----- DRAGGING -----
-
-    // This flag tells if there actually was some dragging.
-    // If we go through MOUSE_DOWN and MOUSE_UP events without dragging,
-    // we can simulate a CLICK
-    private var dragged:Boolean = false;
-    private var dragX:Number, dragY:Number;
-    
-    // Any other MOUSE_DOWN propagation is stopped by target sub-components,
-    // so we only get events fired when the pointer is on the white background,
-    // meaning we want to start dragging
-    private function onMouseDown(me:MouseEvent):void
-    {
-      mode = DRAGGING;
-      dragged = false;
-      
-      dragX = me.stageX;
-      dragY = me.stageY;
-      addEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
-      addEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
-      Mouse.cursor = NativeCursor.HAND_CLOSE;
-    }
-    
-    private function onDraggingMove(me:MouseEvent):void
-    {
-      dragged = true;
-      
-      hScrollBar.value = hScrollBar.value + dragX - me.stageX;
-      dragX = me.stageX;
-      
-      vScrollBar.value = vScrollBar.value + dragY - me.stageY;
-      dragY = me.stageY;
-    }
-    
-    private function onDraggingUp(me:MouseEvent):void
-    {
-      removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
-      removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
-      Mouse.cursor = NativeCursor.HAND_OPEN;
-      
-      mode = NORMAL;
-      
-      // No dragging. We can simulate a click
-      if (!dragged) {
-        removeSelection();
-        removeHighlight();
-        setFocus();
-      }
+      removeSelection();
+      removeHighlight();
+      setFocus();
     }
     
     
@@ -175,6 +92,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         currentConnection.end = currentTarget.getLinkPoint();
         connections.push(currentConnection);
         currentConnection.invalidateDisplayList();
+        
+        manageNewConnection(currentConnection);
       } else { // Dropping the line nowhere... cancel connecting operation
         currentConnection.deleteConnection();
       }
@@ -185,6 +104,44 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       removeEventListener(MouseEvent.MOUSE_MOVE, onDrawingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDrawingUp);
       mode = NORMAL;
+    }
+    
+    public function manageNewConnection(connection:Connection):void
+    {
+      if (connection.to is ModuleRenderer) {
+        var type:String = (connection.from as Pin).type;
+        var module:String = (connection.to as ModuleRenderer).module.module;
+        var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
+        var subaction:Object = {action: 'module', status: type, module: module};
+        subactions.push(subaction);
+      } else if (connection.to is ActionRenderer) {
+        trace('action!');
+      } else if (connection.to is EventRenderer) {
+        trace('event!');
+      }
+    }
+    
+    public function manageDeleteConnection(connection:Connection):void
+    {
+      if (connection.to is ModuleRenderer) {
+        var type:String = (connection.from as Pin).type;
+        var module:String = (connection.to as ModuleRenderer).module.module;
+        var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
+        var subaction:Object = findModuleSubaction(subactions, type, module);
+        subactions.splice(subactions.indexOf(subaction), 1);
+      } else if (connection.to is ActionRenderer) {
+        trace('action!');
+      } else if (connection.to is EventRenderer) {
+        trace('event!');
+      }
+    }
+    
+    private function findModuleSubaction(subactions:Array, status:String, module:String):Object
+    {
+      for each (var subaction:Object in subactions)
+        if (subaction.status == status && subaction.module == module)
+          return subaction;
+      return null;
     }
     
     

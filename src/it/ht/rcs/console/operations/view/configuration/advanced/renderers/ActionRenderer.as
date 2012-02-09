@@ -113,7 +113,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private function onKeyDown(ke:KeyboardEvent):void
     {
-      if (ke.keyCode == Keyboard.DELETE)
+      if (ke.keyCode == Keyboard.DELETE || ke.keyCode == Keyboard.BACKSPACE)
         deleteEvent();
     }
     
@@ -164,7 +164,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         icon = new BitmapImage();
         icon.left = 10;
         icon.verticalCenter = 0;
-        icon.source = ModuleIcons[action.subactions[0].action];
+        icon.source = action.subactions.length > 0 ? ModuleIcons[action.subactions[0].action] : null;
         container.addElement(icon);
         
         textLabel = new Label();
@@ -179,7 +179,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (startEventPin == null) {
-        startEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        startEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'start');
         BindingUtils.bindProperty(startEventPin, 'visible', graph, {name: 'mode', getter: isStartEventVisible });
         startEventPin.x = width - 45;
         startEventPin.y = 0;
@@ -188,7 +188,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (stopEventPin == null) {
-        stopEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        stopEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'stop');
         BindingUtils.bindProperty(stopEventPin, 'visible', graph, {name: 'mode', getter: isStopEventVisible });
         stopEventPin.x = width - 5;
         stopEventPin.y = 0;
@@ -197,7 +197,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (startModulePin == null) {
-        startModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        startModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'start');
         BindingUtils.bindProperty(startModulePin, 'visible', graph, {name: 'mode', getter: isStartModuleVisible });
         startModulePin.x = width / 2 - 20;
         startModulePin.y = height;
@@ -206,7 +206,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (stopModulePin == null) {
-        stopModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY);
+        stopModulePin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'stop');
         BindingUtils.bindProperty(stopModulePin, 'visible', graph, {name: 'mode', getter: isStopModuleVisible });
         stopModulePin.x = width / 2 + 20;
         stopModulePin.y = height;

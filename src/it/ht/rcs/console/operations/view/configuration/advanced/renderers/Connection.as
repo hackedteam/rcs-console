@@ -67,7 +67,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private function onKeyDown(ke:KeyboardEvent):void
     {
-      if (ke.keyCode == Keyboard.DELETE)
+      if (ke.keyCode == Keyboard.DELETE || ke.keyCode == Keyboard.BACKSPACE)
         deleteConnection();
     }
     
@@ -75,6 +75,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       graph.removeSelection();
       graph.removeHighlight();
+      
+      graph.manageDeleteConnection(this);
       
       // Clear references
       if (_from != null) {

@@ -11,14 +11,14 @@ package it.ht.rcs.console.system.view
   import spark.components.Group;
   import spark.components.supportClasses.ScrollBarBase;
   import spark.skins.spark.ScrollerSkin;
-
+  
   public class ScrollableGraph extends Group
   {
     
     // Modes of operation
-    public static const NORMAL:String     = 'normal';
-    public static const DRAGGING:String   = 'dragging';
-    private var mode:String = NORMAL;
+    public static const NORMAL:String   = 'normal';
+    public static const DRAGGING:String = 'dragging';
+    [Bindable] public var mode:String = NORMAL;
     
     public function ScrollableGraph()
     {

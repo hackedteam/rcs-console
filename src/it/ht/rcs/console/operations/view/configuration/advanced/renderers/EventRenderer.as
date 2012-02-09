@@ -119,7 +119,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private function onKeyDown(ke:KeyboardEvent):void
     {
-      if (ke.keyCode == Keyboard.DELETE)
+      if (ke.keyCode == Keyboard.DELETE || ke.keyCode == Keyboard.BACKSPACE)
         deleteEvent();
     }
     
@@ -184,7 +184,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
 
       if (startPin == null) {
-        startPin = new Pin(graph, 0, 1);
+        startPin = new Pin(graph, 0, 1, 'start');
         BindingUtils.bindProperty(startPin, 'visible', graph, {name: 'mode', getter: isStartVisible });
         startPin.x = 5;
         startPin.y = height;
@@ -193,7 +193,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (repeatPin == null) {
-        repeatPin = new Pin(graph, 0, 1);
+        repeatPin = new Pin(graph, 0, 1, 'repeat');
         BindingUtils.bindProperty(repeatPin, 'visible', graph, {name: 'mode', getter: isRepeatVisible });
         repeatPin.x = width / 2;
         repeatPin.y = height;
@@ -202,7 +202,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (endPin == null) {
-        endPin = new Pin(graph, 0, 1);
+        endPin = new Pin(graph, 0, 1, 'stop');
         BindingUtils.bindProperty(endPin, 'visible', graph, {name: 'mode', getter: isEndVisible });
         endPin.x = width - 5;
         endPin.y = height;

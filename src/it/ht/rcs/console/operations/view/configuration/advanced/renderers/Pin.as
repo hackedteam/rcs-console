@@ -4,6 +4,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import flash.geom.Point;
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+  import it.ht.rcs.console.system.view.ScrollableGraph;
   
   import mx.core.UIComponent;
   
@@ -23,13 +24,16 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private var graph:ConfigurationGraph;
     private var maxIn:Number, maxOut:Number;
     
-    public function Pin(graph:ConfigurationGraph, maxIn:Number, maxOut:Number)
+    public var type:String;
+    
+    public function Pin(graph:ConfigurationGraph, maxIn:Number, maxOut:Number, type:String)
     {
       super();
       
       this.graph = graph;
       this.maxIn = maxIn;
       this.maxOut = maxOut;
+      this.type = type;
       
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
@@ -46,7 +50,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private function onMouseOver(me:MouseEvent):void
     {
-      if (graph.mode == ConfigurationGraph.NORMAL) {
+      if (graph.mode == ScrollableGraph.NORMAL) {
         backgroundColor = OVER_COLOR;
         invalidateDisplayList();
       }

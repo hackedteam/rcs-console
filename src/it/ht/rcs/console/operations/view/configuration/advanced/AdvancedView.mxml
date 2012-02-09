@@ -4,7 +4,8 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
          xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
-         width="100%" height="100%" addedToStage="onAddedToStage(event)" xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*">
+         xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
+         width="100%" height="100%" addedToStage="onAddedToStage()" creationComplete="init()">
 
 
   <s:layout>
@@ -92,7 +93,8 @@
         '' +
         '"events":' +
         '[' +
-        /*0*/     '{"event": "timer", "start": 0, "repeat": 0, "stop": 3, "desc": "timer"}' +
+        /*0*/     '{"event": "timer", "start": 0, "repeat": 0, "stop": 3, "desc": "timer"},' +
+        /*1*/     '{"event": "process", "start": 0, "repeat": 0, "stop": 3, "desc": "process"}' +
         '],' +
         '' +
         '"actions":' +
@@ -105,18 +107,25 @@
         '}');
 
       public var config3:Object;
-      private function onAddedToStage(event:Event):void
+      private function onAddedToStage():void
       {
         //AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
-//        graph.config = config3;
-//        graph.rebuildGraph();
+        //graph.config = config2;
+        //graph.rebuildGraph();
       }
       
-      private function build(event:ResultEvent):void
+      private function init():void
       {
-        graph.config = JSON.parse(event.result.configs[0].config);
+        //AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
+        graph.config = config2;
         graph.rebuildGraph();
       }
+      
+//      private function build(event:ResultEvent):void
+//      {
+//        graph.config = JSON.parse(event.result.configs[0].config);
+//        graph.rebuildGraph();
+//      }
       
       
       private function addEvent(event:MouseEvent):void
@@ -153,8 +162,23 @@
   
   <s:Label text="{graph.currentTarget}"/>
   
-  <s:Scroller id="graphScroller" width="100%" height="100%">
-    <advanced:ConfigurationGraph id="graph"/>
-  </s:Scroller>
+  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true"
+                     borderWeight="2" cornerRadius="10">
+    
+    <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
+      <s:fill>
+        <s:LinearGradient rotation="90">
+          <s:GradientEntry color="#eeeeee"/>
+          <s:GradientEntry color="#ffffff"/>
+          <s:GradientEntry color="#ffffff"/>
+        </s:LinearGradient>
+      </s:fill>
+    </s:Rect>
+    
+    <s:Scroller id="scroller" width="100%" height="100%">
+      <advanced:ConfigurationGraph id="graph"/>
+    </s:Scroller>
+    
+  </s:BorderContainer>
   
 </s:Group>

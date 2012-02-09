@@ -173,7 +173,7 @@ package it.ht.rcs.console.operations.view.configuration
       var globals:Object = {
                              quota: { "min": 524288000, "max": 1048576000 },
                              wipe: false,
-                             type: agent?agent.type:'',
+                             type: agent ? agent.type : '',
                              advanced: false
                            };
       

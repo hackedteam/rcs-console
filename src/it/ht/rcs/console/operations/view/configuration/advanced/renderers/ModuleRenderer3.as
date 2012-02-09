@@ -7,20 +7,21 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   
-  import spark.components.BorderContainer;
-  import spark.components.Group;
-  import spark.primitives.BitmapImage;
+  import mx.graphics.BitmapSmoothingQuality;
   
-  public class ModuleRenderer extends Group implements Linkable
+  import spark.components.Group;
+  import spark.components.Image;
+  
+  public class ModuleRenderer3 extends Group implements Linkable
   {
-    private static const WIDTH:Number  = 50;
-    private static const HEIGHT:Number = 50;
+    private static const WIDTH:Number  = 36;
+    private static const HEIGHT:Number = 36;
     
     private static const NORMAL_COLOR:uint = 0xffffff;
     private static const OVER_COLOR:uint   = 0x99bb99;
+    private var backgroundColor:uint = NORMAL_COLOR;
     
-    private var container:BorderContainer;
-    private var icon:BitmapImage;
+    private var icon:Image;
     
     private var inBound:Vector.<Connection> = new Vector.<Connection>();
     public function inBoundConnections():Vector.<Connection>  { return inBound; }
@@ -30,7 +31,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     public var module:Object;
     
-    public function ModuleRenderer(module:Object, graph:ConfigurationGraph)
+    public function ModuleRenderer3(module:Object, graph:ConfigurationGraph)
     {
       super();
       layout = null;
@@ -59,7 +60,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       
       if (graph.mode == ConfigurationGraph.CONNECTING) {
         graph.currentTarget = this;
-        container.setStyle('backgroundColor', OVER_COLOR);
+        backgroundColor = OVER_COLOR;
+        invalidateDisplayList();
       }
     }
     
@@ -67,41 +69,43 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       if (graph.mode == ConfigurationGraph.CONNECTING) {
         graph.currentTarget = null;
-        container.setStyle('backgroundColor', NORMAL_COLOR);
+        backgroundColor = NORMAL_COLOR;
+        invalidateDisplayList();
       }
     }
     
     private function onMouseUp(me:MouseEvent):void
     {
-      if (graph.mode == ConfigurationGraph.CONNECTING)
-        container.setStyle('backgroundColor', NORMAL_COLOR);
+      if (graph.mode == ConfigurationGraph.CONNECTING) {
+        backgroundColor = NORMAL_COLOR;
+        invalidateDisplayList();
+      }
     }
     
     override protected function createChildren():void
     {
       super.createChildren();
       
-      if (container == null)
-      {
-        
-        container = new BorderContainer();
-        container.width = width;
-        container.height = height;
-        container.setStyle('backgroundColor', NORMAL_COLOR);
-        container.setStyle('borderColor', 0xdddddd);
-        container.setStyle('cornerRadius', 10);
-        
-        icon = new BitmapImage();
-        icon.horizontalCenter = icon.verticalCenter = 0;
+      if (icon == null) {
+        icon = new Image();
+        icon.toolTip = module.module;
+        icon.smooth = true;
         icon.source = ModuleIcons[module.module];
-        container.addElement(icon);
-        
-        addElement(container);
-        
+        icon.width = width;
+        icon.height = height;
+        addElement(icon);
       }
-      
     }
-
+    
+    override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+    {
+      super.updateDisplayList(unscaledWidth, unscaledHeight);
+      
+      graphics.beginFill(backgroundColor);
+      graphics.drawRect(0, 0, width, height);
+      graphics.endFill();
+    }
+    
     public function getLinkPoint():Point
     {
       return new Point(x + width/2, y - 5);

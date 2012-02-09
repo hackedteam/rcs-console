@@ -11,20 +11,23 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   import mx.binding.utils.BindingUtils;
   
+  import spark.components.BorderContainer;
   import spark.components.Group;
   import spark.components.Label;
+  import spark.primitives.BitmapImage;
 
   public class EventRenderer extends Group implements Linkable
 	{
     private static const WIDTH:Number  = 120;
     private static const HEIGHT:Number = 50;
     
-    private static const NORMAL_COLOR:uint   = 0xbbbbbb;
-    private static const SELECTED_COLOR:uint = 0x999999;
+    private static const NORMAL_COLOR:uint   = 0xffffff;
+    private static const SELECTED_COLOR:uint = 0xdddddd;
     private static const ACCEPT_COLOR:uint   = 0x99bb99;
     private static const REJECT_COLOR:uint   = 0xbb9999;
-    private var backgroundColor:uint = NORMAL_COLOR;
 		
+    private var container:BorderContainer;
+    private var icon:BitmapImage;
 		private var textLabel:Label;
     
     public var inBound:Vector.<Connection> = new Vector.<Connection>();
@@ -69,14 +72,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       Mouse.cursor = MouseCursor.AUTO;
       
       if (graph.mode == ConfigurationGraph.CONNECTING) {
-        graph.currentTarget = null;
-        backgroundColor = REJECT_COLOR;
         var origin:Object = graph.currentConnection.from['parent'];
         if (origin is ActionRenderer && !isConnected(origin)) { // Accept only inbound connections from actions not already connected
           graph.currentTarget = this;
-          backgroundColor = ACCEPT_COLOR;
+          container.setStyle('backgroundColor', ACCEPT_COLOR);
+        } else {
+          graph.currentTarget = null;
+          container.setStyle('backgroundColor', REJECT_COLOR);
         }
-        invalidateDisplayList();
       }
     }
     
@@ -92,17 +95,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       if (graph.mode == ConfigurationGraph.CONNECTING) {
         graph.currentTarget = null;
-        backgroundColor = NORMAL_COLOR;
-        invalidateDisplayList();
+        container.setStyle('backgroundColor', NORMAL_COLOR);
       }
     }
     
     private function onMouseUp(me:MouseEvent):void
     {
-      if (graph.mode == ConfigurationGraph.CONNECTING) {
-        backgroundColor = NORMAL_COLOR;
-        invalidateDisplayList();
-      }
+      if (graph.mode == ConfigurationGraph.CONNECTING)
+        container.setStyle('backgroundColor', NORMAL_COLOR);
     }
     
     private function onClick(me:MouseEvent):void
@@ -151,21 +151,36 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function set selected(s:Boolean):void
     {
       _selected = s;
-      backgroundColor = _selected ? SELECTED_COLOR : NORMAL_COLOR;
-      invalidateDisplayList();
+      container.setStyle('backgroundColor', _selected ? SELECTED_COLOR : NORMAL_COLOR);
     }
     
     override protected function createChildren():void
     {
 			super.createChildren();
-
-      if (textLabel == null) {
-  			textLabel = new Label();
+      
+      if (container == null) {
+        container = new BorderContainer();
+        container.width = width;
+        container.height = height;
+        container.setStyle('backgroundColor', NORMAL_COLOR);
+        container.setStyle('borderColor', 0xdddddd);
+        container.setStyle('cornerRadius', 10);
+        
+        icon = new BitmapImage();
+        icon.left = 10;
+        icon.verticalCenter = 0;
+        icon.source = ModuleIcons[event.event];
+        container.addElement(icon);
+        
+        textLabel = new Label();
         BindingUtils.bindProperty(textLabel, 'text', event, 'desc');
-        textLabel.width = width;
+        textLabel.left = 50;
+        textLabel.right = 0;
         textLabel.height = height;
         textLabel.maxDisplayedLines = 2;
-  			addElement(textLabel);
+        container.addElement(textLabel);
+        
+        addElement(container);
       }
 
       if (startPin == null) {
@@ -205,17 +220,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       else return true;
     }
 		
-		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
-		{
-			super.updateDisplayList(unscaledWidth, unscaledHeight);
-			
-			graphics.beginFill(backgroundColor);
-      graphics.drawRect(0, 0, width, height);
-      //graphics.drawRoundRect(0, 0, width, height, 10, 10);
-      //graphics.drawRoundRectComplex(0, 0, width, height, 5, 5, 0, 0);
-			graphics.endFill();
-		}
-    
     public function getLinkPoint():Point
     {
       return new Point(x + width/4, y + height);

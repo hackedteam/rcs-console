@@ -115,17 +115,19 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     {
       if (collector.type == 'remote' && !collector.poll)
         return unknownIcon;
+      var address:String = (collector.type == 'local') ? collector.internal_address : collector.address;
+        
+      var status:Status = MonitorManager.instance.getStatusByAddress(address);
       
-      var status:Status = MonitorManager.instance.getStatusByAddress(collector.type == 'local' ? collector.internal_address : collector.address);
       if (status == null)
         return errorIcon;
       
       switch (status.status) {
-        case 0:
+        case '0':
           return okIcon;
-        case 1:
+        case '1':
           return warnIcon;
-        case 2:
+        case '2':
           return errorIcon;
         default:
           return errorIcon;

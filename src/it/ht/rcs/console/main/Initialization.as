@@ -53,7 +53,7 @@ package it.ht.rcs.console.main
       if (user.is_sys() || user.is_tech())                     mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin())                                     mainSections.addItem({label: 'Audit',      manager: null});
       if (user.is_admin() || user.is_sys())                    mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
-    //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
+      if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
       
       var managers:Array = [];

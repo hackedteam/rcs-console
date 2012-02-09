@@ -63,6 +63,26 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/modules/url.png')]
     public static const url:Class;
     
+    
+    
+    
+    
+    [Embed(source='/img/events/timer.png')]
+    public static const timer:Class;
+    
+    [Embed(source='/img/events/process.png')]
+    public static const process:Class;
+    
+    
+    
+    [Embed(source='/img/events/sync.png')]
+    public static const synchronize:Class;
+    
+    [Embed(source='/img/events/eventOn.png')]
+    public static const event:Class;
+    
+    [Embed(source='/img/events/module.png')]
+    public static const module:Class;
   }
   
 }

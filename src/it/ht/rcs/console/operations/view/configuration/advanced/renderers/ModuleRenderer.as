@@ -87,6 +87,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container = new BorderContainer();
         container.width = width;
         container.height = height;
+        container.toolTip = module.module;
         container.setStyle('backgroundColor', NORMAL_COLOR);
         container.setStyle('borderColor', 0xdddddd);
         container.setStyle('cornerRadius', 10);

@@ -57,8 +57,15 @@
         currentEntry = entry;
         currentEntry.status = HealthCheckEntry.CHECKING;
         
+        if (entry.ip == null || entry.ip == '') {
+          manageInvalid();
+          return;
+        }
+        
         var http:HTTPService = new HTTPService();
         http.url = 'http://'+entry.ip+':80';
+        http.method = 'GET';
+        http.resultFormat = 'text';
         http.requestTimeout = 3;
         http.addEventListener(ResultEvent.RESULT, manageResult);
         http.addEventListener(FaultEvent.FAULT, manageFault);
@@ -78,6 +85,15 @@
         grid.invalidateDisplayList();
         checkNext();
       }
+
+      private function manageInvalid():void
+      {
+        currentEntry.status = HealthCheckEntry.INVALID;
+        grid.invalidateDisplayList();
+        checkNext();
+      }
+      
+      
     ]]>
   </fx:Script>
   

@@ -45,6 +45,10 @@
         collector.name = nameField.text;
         collector.address = address.text;
         collector.desc = desc.text;
+        if (collector.type == 'remote') {
+          collector.port = parseInt(port.text);
+          collector.poll = poll.selected;
+        }
         
         close();
       }
@@ -67,14 +71,20 @@
         <s:FormItem label="{R.get('DESCRIPTION')}">
           <s:TextArea id="desc" width="200" heightInLines="2" text="{collector.desc}"/>
         </s:FormItem>
+        <s:FormItem label="{R.get('VERSION')}">
+          <s:TextInput width="80" enabled="false" text="{collector.version}"/>
+        </s:FormItem>
       </s:Form>
       
       <s:Form defaultButton="{saveButton}">
         <s:FormItem label="{R.get('ADDRESS')}">
           <s:TextInput id="address" width="150" text="{collector.address}"/>
         </s:FormItem>
-        <s:FormItem label="{R.get('VERSION')}">
-          <s:TextInput width="80" enabled="false" text="{collector.version}"/>
+        <s:FormItem label="{R.get('PORT')}" visible="{collector.type == 'remote'}">
+          <s:TextInput id="port" width="40" maxChars="5" restrict="0-9" text="{collector.port}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('POLL')}" visible="{collector.type == 'remote'}">
+          <s:CheckBox id="poll" selected="{collector.poll}"/>
         </s:FormItem>
       </s:Form>
       

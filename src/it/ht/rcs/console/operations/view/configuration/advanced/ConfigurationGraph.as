@@ -384,7 +384,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     }
     
     private static const NODE_DISTANCE:int     = 60;
-    private static const MODULE_DISTANCE:int   = 20;
+    private static const MODULE_DISTANCE:int   = 10;
     private static const VERTICAL_DISTANCE:int = 60;
     private static const VERTICAL_GAP:int      = 200;
     private static const HORIZONTAL_PAD:int    = 50;

@@ -13,8 +13,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   public class ModuleRenderer extends Group implements Linkable
   {
-    private static const WIDTH:Number  = 50;
-    private static const HEIGHT:Number = 50;
+    private static const WIDTH:Number  = 45;
+    private static const HEIGHT:Number = 45;
     
     private static const NORMAL_COLOR:uint = 0xffffff;
     private static const OVER_COLOR:uint   = 0x99bb99;

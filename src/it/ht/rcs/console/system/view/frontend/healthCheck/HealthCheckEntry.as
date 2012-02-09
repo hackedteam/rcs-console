@@ -7,6 +7,8 @@ package it.ht.rcs.console.system.view.frontend.healthCheck
     public static const CHECKING:int = 1;
     public static const OK:int       = 2;
     public static const KO:int       = 3;
+    public static const INVALID:int  = 4;
+
     
     [Bindable]
     public var ip:String;

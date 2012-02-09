@@ -35,9 +35,8 @@
         formAction.setFocus();
         if (currentState == 'create')
           alert = new Alert(Alert.defaultAlert());
-        else {
-          formPath.selectedItemId = SearchManager.instance.getItem(alert.path.getItemAt(alert.path.length-1) as String);
-        }
+        else
+          formPath.selectedItemId = (alert.path.length > 0) ? alert.path.getItemAt(alert.path.length - 1) as String : null;
       }
       
       private function save():void
@@ -93,8 +92,7 @@
 
     <s:FormItem label="{R.get('PATH')}">
       <itemfield:ItemField id="formPath" right="5" top="0"
-                           kinds="{(formAction.selectedItem == 'EVIDENCE') ? ['operation', 'target', 'agent'] : ['operation', 'target', 'factory'] }"
-                           selectedItemId="{(alert.path.length &gt; 0) ? alert.path.getItemAt(alert.path.length - 1) : null}"/>
+                           kinds="{(formAction.selectedItem == 'INSTANCE') ? ['operation', 'target', 'factory'] : ['operation', 'target', 'agent'] }"/>
     </s:FormItem>
     
     <s:FormItem label="Evidence" enabled="{formAction.selectedItem == 'EVIDENCE'}">

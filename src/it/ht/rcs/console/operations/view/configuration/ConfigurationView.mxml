@@ -10,12 +10,11 @@
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.agent.model.Config;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
-      import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
       
       [Bindable]
@@ -24,37 +23,29 @@
       private var fired:Boolean = false;
       private function onCreationComplete():void
       {
-        //fired = true;
-        //getConfig();
+        fired = true;
+        displayConfig();
       }
       
       private function onAddedToStage():void
       {
-        //if (fired)
-          //getConfig();
-        //var agent:Agent = section.stateManager.selectedFactory;
-        displayConfig()
+        if (fired)
+          displayConfig();
       }
       
       private function displayConfig():void
       {
-        var agent:Agent = section.stateManager.selectedFactory;
-        var config:Object = DefaultConfigBuilder.getDefaultConfig(agent);
-        //config = JSON.parse(config);
-        currentState = config.globals.advanced ? "advanced" : "basic";
+        var config:Config = section.stateManager.selectedConfig;
         
-        basic.config = config;
-        basic.displayConfig();
+        if (config == null) {
+          var agent:Agent = section.stateManager.selectedFactory;
+          AgentManager.instance.show(agent._id, function(e:ResultEvent):void {
+            config = (e.result as Agent).configs.getItemAt(0).config;
+          });
+        }
+        
+        //currentState = config.config.globals.advanced ? "advanced" : "basic";
       }
-      
-//      private function getConfig():void
-//      {
-//        try {
-//        DB.instance.agent.show(section.stateManager.selectedFactory._id, function(e:ResultEvent):void {
-//                                                                           displayConfig((e.result as Agent).configs.getItemAt(0).config);
-//                                                                         });
-//        } catch(e:Error) {}
-//      }
     ]]>
   </fx:Script>
   
@@ -65,7 +56,7 @@
   </s:states>
   
   <s:layout>
-    <s:VerticalLayout gap="5"/>
+    <s:VerticalLayout/>
   </s:layout>
   
   <configuration:ConfigurationActionBar section="{section}"/>

@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
-         xmlns:s="library://ns.adobe.com/flex/spark"
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
-         xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
-         xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
-         width="100%" height="100%" addedToStage="onAddedToStage()" creationComplete="init()">
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+          xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+          xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
+          width="100%" height="100%">
 
 
-  <s:layout>
-    <s:VerticalLayout gap="5"/>
-  </s:layout>
-  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operations.view.OperationsSection;
       
-      import mx.rpc.events.ResultEvent;
-      
       [Bindable]
       public var section:OperationsSection;
       
-      public var config:Object = JSON.parse(
+      public var config:Object;
+      
+      public var demoConfig1:Object = JSON.parse(
         '{' +
         '"modules":' +
           '[' +
@@ -82,7 +78,7 @@
           '}' +
         '}');
       
-      public var config2:Object = JSON.parse(
+      public var demoConfig2:Object = JSON.parse(
         '{' +
         '"modules":' +
         '[' +
@@ -106,27 +102,11 @@
         ']' +
         '}');
 
-      public var config3:Object;
-      private function onAddedToStage():void
+      public function displayConfig():void
       {
-        //AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
-        //graph.config = config2;
-        //graph.rebuildGraph();
-      }
-      
-      private function init():void
-      {
-        //AgentManager.instance.show(section.stateManager.selectedFactory._id, build);
-        graph.config = config2;
+        graph.config = config;
         graph.rebuildGraph();
       }
-      
-//      private function build(event:ResultEvent):void
-//      {
-//        graph.config = JSON.parse(event.result.configs[0].config);
-//        graph.rebuildGraph();
-//      }
-      
       
       private function addEvent(event:MouseEvent):void
       {
@@ -149,6 +129,11 @@
       private function rebuild(event:MouseEvent):void
       {
         graph.rebuildGraph();
+      }
+      
+      public function getConfig():Object
+      {
+        return config;
       }
     ]]>
   </fx:Script>
@@ -181,4 +166,4 @@
     
   </s:BorderContainer>
   
-</s:Group>
+</s:VGroup>

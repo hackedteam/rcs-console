@@ -1,7 +1,7 @@
-package it.ht.rcs.console.operations.view.configuration.basic
+package it.ht.rcs.console.operations.view.configuration.advanced
 {
   
-  public class BasicConfigBuilder
+  public class AdvancedConfigBuilder
   {
     
     public static function buildConfig(modules:Array, globals:Object, model:Object):Object

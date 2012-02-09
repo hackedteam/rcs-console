@@ -61,7 +61,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       if (model.sync) {
         var syncEvent:Object =  {event: "timer", repeat: index, delay: model.syncDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
-        var syncAction:Object = {desc: "SYNC", subactions: [{action: "synchronize"}]};
+        var syncAction:Object = {desc: "SYNC", subactions: [{action: "synchronize", host: model.syncHost}]};
         events.push(syncEvent);
         actions.push(syncAction);
         index++;

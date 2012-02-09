@@ -10,7 +10,7 @@
       import it.ht.rcs.console.network.controller.CollectorManager;
       
       [Bindable]
-      public var delay:int = 10;
+      public var title:String;
       
       public function get selected():Boolean { return check.selected; }
       public function set selected(s:Boolean):void
@@ -22,7 +22,6 @@
       private function onSwitch(event:MouseEvent):void
       {
         options.visible = options.includeInLayout = check.selected;
-        dispatchEvent(new Event('switch', true, true)); // TODO: creare uno switch event ad hoc
       }
     ]]>
   </fx:Script>
@@ -42,7 +41,7 @@
                      click="onSwitch(event)" text1="ON" text2="OFF"/>
   
   <s:Label left="15" top="15" height="28" fontFamily="Myriad" fontSize="18" fontWeight="bold"
-           text="Online Synchronization" verticalAlign="middle"/>
+           text="{title}" verticalAlign="middle"/>
   
   <s:HGroup id="options" top="50" width="100%" height="40" hideEffect="{fadeOut}" paddingLeft="15"
             showEffect="{fadeIn}" verticalAlign="middle">
@@ -50,13 +49,13 @@
     <s:Spacer width="4"/>
     
     <s:TextInput id="minutes" width="40" height="28" fontFamily="Myriad" fontSize="17" maxChars="3"
-                 restrict="0-9" text="{delay}" textAlign="center"/>
+                 restrict="0-9" textAlign="center"/>
     
     <s:Spacer width="4"/>
     <s:Label fontFamily="Myriad" fontSize="17" text="minutes on"/>
     
     <s:Spacer width="2"/>
-    <s:ComboBox width="150" height="28"
+    <s:ComboBox id="host" width="150" height="28"
                 dataProvider="{CollectorManager.instance.getEntryPointsView()}" fontFamily="Myriad"
                 fontSize="14" labelField="address" requireSelection="true"/>
   </s:HGroup>

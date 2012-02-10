@@ -45,5 +45,42 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/database.png')]
     public static const db32:Class;
+    
+    
+    
+    
+    [Embed(source='/img/NEW/device/mobile_android.png')]
+    public static const mobile_android:Class;
+    
+    [Embed(source='/img/NEW/device/mobile_blackberry.png')]
+    public static const mobile_blackberry:Class;
+    
+    [Embed(source='/img/NEW/device/mobile_ios.png')]
+    public static const mobile_ios:Class;
+    
+    [Embed(source='/img/NEW/device/mobile_symbian.png')]
+    public static const mobile_symbian:Class;
+    
+    [Embed(source='/img/NEW/device/mobile_winmo.png')]
+    public static const mobile_winmo:Class;
+    
+    [Embed(source='/img/NEW/device/desktop_osx.png')]
+    public static const desktop_osx:Class;
+    
+    [Embed(source='/img/NEW/device/desktop_windows.png')]
+    public static const desktop_windows:Class;
+    
+    [Embed(source='/img/NEW/device/factory_desktop.png')]
+    public static const factory_desktop:Class;
+    
+    [Embed(source='/img/NEW/device/factory_mobile.png')]
+    public static const factory_mobile:Class;
+    
+    [Embed(source='/img/NEW/device/agent_desktop.png')]
+    public static const agent_desktop:Class;
+    
+    [Embed(source='/img/NEW/device/agent_mobile.png')]
+    public static const agent_mobile:Class;
+    
   }
 }

@@ -10,7 +10,11 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
+      
+      import mx.collections.ListCollectionView;
       
       public var config:Object;
       
@@ -25,14 +29,18 @@
         position.selected   = hasAction('position');
         
         if (screenshot.selected)
-          screenshot.minutes.text = String(getDelayFor('SCREENSHOT') / 60);
+          screenshot.seconds.text = String(getDelayFor('SCREENSHOT'));
         
         if (position.selected)
           position.minutes.text = String(getDelayFor('POSITION') / 60);
         
+        var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
+        sync.host.dataProvider = entryPoints;
         sync.selected = hasSync();
-        if (sync.selected)
+        if (sync.selected) {
           sync.minutes.text = String(getDelayFor('SYNC') / 60);
+          sync.host.selectedItem = getSyncEntryPoint(entryPoints);
+        }
       }
       
       private function hasAction(name:String):Boolean
@@ -65,10 +73,23 @@
       {
         var syncAction:Object;
         for each (var a:Object in config.actions)
-        if (a.desc == 'SYNC')
-          syncAction = a;
+          if (a.desc == 'SYNC')
+            syncAction = a;
         
         return syncAction != null;
+      }
+      
+      private function getSyncEntryPoint(ep:ListCollectionView):Collector
+      {
+        var host:String = null;
+        for each (var a:Object in config.actions)
+          if (a.desc == 'SYNC')
+            host = a.subactions[0].host;
+
+        for each (var c:Collector in ep)
+          if (c.address == host)
+            return c;
+        return null;
       }
       
       private function goToAdvanced(event:MouseEvent):void
@@ -91,7 +112,7 @@
         model.position   = position.selected;
         model.sync       = sync.selected;
 
-        model.screenshotDelay = Number(screenshot.minutes.text) * 60;
+        model.screenshotDelay = Number(screenshot.seconds.text);
         model.positionDelay = Number(position.minutes.text) * 60;
         model.syncDelay = Number(sync.minutes.text) * 60;
         model.syncHost = sync.host.selectedItem.address;

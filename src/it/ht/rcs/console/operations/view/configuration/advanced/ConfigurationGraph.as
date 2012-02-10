@@ -306,10 +306,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       for each (ar in actions) {
         for each (var subaction:Object in ar.action.subactions) {
           if (subaction.action == 'event') {
-            if (subaction.hasOwnProperty('enabled'))  createConnection(ar.startEventPin, events[subaction.start]);
-            if (subaction.hasOwnProperty('disabled')) createConnection(ar.stopEventPin,  events[subaction.stop]);
-          }
-          if (subaction.action == 'module') {
+            if (subaction.status == 'enabled')  createConnection(ar.startEventPin, events[subaction.event]);
+            if (subaction.status == 'disabled') createConnection(ar.stopEventPin,  events[subaction.event]);
+          } else if (subaction.action == 'module') {
             if (subaction.status == 'start') createConnection(ar.startModulePin, modulesMap[subaction.module]);
             if (subaction.status == 'stop')  createConnection(ar.stopModulePin,  modulesMap[subaction.module]);
           }

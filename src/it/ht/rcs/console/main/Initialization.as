@@ -53,51 +53,12 @@ package it.ht.rcs.console.main
       if (user.is_sys() || user.is_tech())                     mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin())                                     mainSections.addItem({label: 'Audit',      manager: null});
       if (user.is_admin() || user.is_sys())                    mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
-      if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
+      //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
+
+      Update.check();
       
       var managers:Array = [];
-      
-      // Initialize the managers
-      
-//      if (user.is_any())
-//      {
-//        SearchManager.instance.listenRefresh();
-//        SearchManager.instance.refresh();
-//        
-//        CollectorManager.instance.refresh();
-//        
-//        //LicenseManager.instance.start();
-//        
-//        //DownloadManager.instance.listenRefresh();
-//        //DownloadManager.instance.refresh();
-//      }
-//      
-//      
-//      if (user.is_admin())
-//      {
-//        GroupManager.instance.refresh();
-//      }
-//      
-//      if (user.is_admin() || user.is_tech() || user.is_view())
-//      {
-//        OperationManager.instance.refresh();
-//        TargetManager.instance.refresh();
-//      }
-//      
-//      if (user.is_tech() || user.is_view())
-//      {
-//        AgentManager.instance.refresh();
-//      }
-//      
-////      if (user.is_admin() || user.is_sys()) {
-////        MonitorManager.instance.start_counters();        
-////      }
-//      
-////      if (user.is_view()) {
-////        AlertController.instance.start_counters();
-////      }
-      Update.check();
       
       if (user.is_any())
       {

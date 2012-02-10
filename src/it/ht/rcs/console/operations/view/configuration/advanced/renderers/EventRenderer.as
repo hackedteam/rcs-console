@@ -18,7 +18,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class EventRenderer extends Group implements Linkable
 	{
-    private static const WIDTH:Number  = 120;
+    private static const WIDTH:Number  = 150;
     private static const HEIGHT:Number = 50;
     
     private static const NORMAL_COLOR:uint   = 0xffffff;

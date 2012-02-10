@@ -46,6 +46,8 @@
         if (privs.toString() != user.privs.toString())
           user.privs = privs;
 
+        user.group_ids = groups.dataProvider;
+        
         if (currentState == 'create')
           UserManager.instance.addUser(user, function(u:User):void { close(); });
         else
@@ -116,7 +118,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('GROUPS')}">
-      <groups:GroupSelector width="200" dataProvider="{user.group_ids}"/>
+      <groups:GroupSelector id="groups" width="200" dataProvider="{user.group_ids}"/>
     </s:FormItem>
     
   </s:Form>

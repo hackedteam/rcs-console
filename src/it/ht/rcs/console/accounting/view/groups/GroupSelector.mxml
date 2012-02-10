@@ -9,6 +9,7 @@
       import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.model.Group;
       
+      import mx.collections.ArrayCollection;
       import mx.collections.ArrayList;
       import mx.collections.IList;
       import mx.collections.ListCollectionView;
@@ -16,18 +17,18 @@
       import spark.events.IndexChangeEvent;
       import spark.filters.DropShadowFilter;
       
-      [Bindable] private var selectedDP:IList;
+      [Bindable] private var selectedDP:ArrayCollection;
       [Bindable] private var availableDP:ListCollectionView;
       
       private function init():void
       {
         availableDP = GroupManager.instance.getView(null, listFilterFunction);
         if (selectedDP == null)
-          selectedDP = new ArrayList();
+          selectedDP = new ArrayCollection();
       }
       
-      public function set dataProvider(dp:IList):void { selectedDP = new ArrayList(dp.toArray()); } // Work on copy, otherwise changes are commited immediately!
-      public function get dataProvider():IList { return selectedDP; }
+      public function set dataProvider(dp:ArrayCollection):void { selectedDP = new ArrayCollection(dp.toArray()); } // Work on copy, otherwise changes are commited immediately!
+      public function get dataProvider():ArrayCollection { return selectedDP; }
       
       private function addGroup(event:Event):void
       {

@@ -27,7 +27,7 @@
       private var fileReference:FileReference;
       private var fileChanged:Boolean = false;
       
-      [Bindable] 
+      [Bindable]
       private var _selectedTarget:Object;
       
       public function init():void
@@ -196,29 +196,27 @@
     <s:State name="fileSelected"/>
   </utils:states>
   
-  <s:Form id="ruleForm" left="5" right="5" bottom="15"
-          skinClass="it.ht.rcs.console.skins.CompactForm">
+  <s:Form id="ruleForm" defaultButton="{saveButton}">
     
-    <s:FormItem label="{R.get('ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('ENABLED')}">
       <s:CheckBox id="isEnabled" selected="{rule.enabled}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('DISABLE_ON_SYNC')}"
-                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('DISABLE_ON_SYNC')}">
       <s:CheckBox id="sync" selected="{rule.disable_sync}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('PROBABILITY')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('PROBABILITY')}">
       <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1"
                  value="{rule.probability}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('TARGET')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('TARGET')}">
       <itemfield:ItemField id="target" width="200" kinds="{['target']}"
                            selectedItemId="{rule.target_id}"></itemfield:ItemField>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('IDENT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('IDENT')}">
       <s:DropDownList id="ident" width="200" requireSelection="true">
         <s:dataProvider>
           <s:ArrayCollection>
@@ -237,16 +235,15 @@
       </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('USER_PATTERN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('USER_PATTERN')}">
       <s:TextInput id="ident_param" width="200" text="{rule.ident_param}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('RESOURCE_PATTERN')}"
-                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('RESOURCE_PATTERN')}">
       <s:TextInput id="resource" width="200" text="{rule.resource}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('ACTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+    <s:FormItem label="{R.get('ACTION')}">
       <s:DropDownList id="action" width="200" change="{currentState = 'normal'}"
                       requireSelection="true">
          <s:dataProvider>
@@ -261,15 +258,13 @@
     </s:FormItem>
     
     <s:FormItem visible="{action.selectedItem != 'REPLACE'}" label="{R.get('AGENT')}"
-                includeInLayout="{action.selectedItem != 'REPLACE'}"
-                skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <itemfield:ItemField id="agent" width="200" kinds="{['factory']}" 
+                includeInLayout="{action.selectedItem != 'REPLACE'}">
+      <itemfield:ItemField id="agent" width="200" kinds="{['factory']}"
                            selectedItemId="{rule.action_param}"/> <!-- path="{_selectedTarget}" -->
     </s:FormItem>
    
     <s:FormItem visible="{action.selectedItem == 'REPLACE'}" label="{R.get('FILE')}"
-                includeInLayout="{action.selectedItem == 'REPLACE'}"
-                skinClass="it.ht.rcs.console.skins.CompactFormItem">
+                includeInLayout="{action.selectedItem == 'REPLACE'}">
       <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
       <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
                maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"

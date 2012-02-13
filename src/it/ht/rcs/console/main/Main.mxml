@@ -44,11 +44,19 @@
         //if (!(sections[sections.currentState] as Section).isDirty)
         //{
           sections.currentState = event.section;
-        
+          menu.bar.selectedItem = getSectionObject(event.section);
           /* check if the new section has an handler to manage the event */
           if (sections[event.section].hasOwnProperty('changeSection'))
             sections[event.section].changeSection(event);
         //}
+      }
+      
+      private function getSectionObject(name:String):Object
+      {
+        for each (var section:Object in mainSections.source)
+          if (section.label == name)
+            return section;
+        return null;
       }
     ]]>
   </fx:Script>
@@ -57,7 +65,7 @@
     <s:VerticalLayout gap="0" paddingBottom="10" paddingLeft="10" paddingRight="10"/>
   </s:layout>
   
-  <main:MenuSection sections="{mainSections}"/>
+  <main:MenuSection id="menu" sections="{mainSections}"/>
   
   <main:MenuSubSection subSections="{sections.selectedItem.subSections}"/>
   

@@ -96,10 +96,13 @@ package it.ht.rcs.console.main
       }
       
       maxGreenLights = managers.length;
-      for each (var manager:Manager in managers) {
-        manager.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-        manager.refresh();
-      }
+      if (maxGreenLights == 0)
+        dispatchEvent(new Event("initialized"));
+      else
+        for each (var manager:Manager in managers) {
+          manager.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+          manager.refresh();
+        }
       
     }
     

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+                             creationComplete="init()" title="Edit Action">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ArrayList;
+      import mx.managers.PopUpManager;
+      
+      import spark.events.IndexChangeEvent;
+      
+      public var action:Object;
+      
+      private function init():void
+      {
+        subactions.list.dataProvider = new ArrayList(action.subactions);
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="none"/>
+    <s:State name="event"/>
+    <s:State name="execute"/>
+    <s:State name="module"/>
+    <s:State name="synchronize"/>
+    <s:State name="uninstall"/>
+    
+    <s:State name="sms"/>
+    <s:State name="log"/>
+  </utils:states>
+
+  <s:VGroup gap="20" horizontalAlign="center" paddingBottom="20" paddingLeft="20" paddingRight="20"
+            paddingTop="20">
+    
+    <actions:Subactions id="subactions"/>
+    
+    <actions:Syncronize includeIn="synchronize"/>
+    <actions:Execute includeIn="execute"/>
+    
+  </s:VGroup>
+
+</utils:TitleWindowSaveCancel>

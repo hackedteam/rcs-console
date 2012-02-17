@@ -8,8 +8,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import flash.ui.MouseCursor;
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.advanced.forms.events.EventForm;
   
   import mx.binding.utils.BindingUtils;
+  import mx.managers.PopUpManager;
   
   import spark.components.BorderContainer;
   import spark.components.Group;
@@ -58,6 +60,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
       addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
       addEventListener(MouseEvent.CLICK, onClick);
+      addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
       addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		}
     
@@ -115,6 +118,13 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       
       setFocus();
       graph.highlightElement(this);
+    }
+    
+    private function onDoubleClick(me:MouseEvent):void
+    {
+      var popup:EventForm = PopUpManager.createPopUp(root, EventForm, true) as EventForm;
+      popup.event = event;
+      PopUpManager.centerPopUp(popup);
     }
     
     private function onKeyDown(ke:KeyboardEvent):void

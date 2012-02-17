@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import spark.events.IndexChangeEvent;
+      
+      private function onChange(event:IndexChangeEvent):void
+      {
+        currentState = states[type.selectedIndex].name;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:states>
+    <s:State name="loop"/>
+    <s:State name="date"/>
+    <s:State name="daily"/>
+    <s:State name="install"/>
+    <s:State name="startup"/>
+  </s:states>
+
+  <s:FormItem label="Type">
+    <s:DropDownList id="type" change="onChange(event)" requireSelection="true">
+      <s:dataProvider>
+        <s:ArrayList>
+          <fx:String>Loop</fx:String>
+          <fx:String>Date</fx:String>
+          <fx:String>Daily</fx:String>
+          <fx:String>After install</fx:String>
+          <fx:String>After startup</fx:String>
+        </s:ArrayList>
+      </s:dataProvider>
+    </s:DropDownList>
+  </s:FormItem>
+  
+  <s:FormItem includeIn="daily" label="From">
+    <events:TimeField/>
+  </s:FormItem>
+  
+  <s:FormItem includeIn="daily" label="To">
+    <events:TimeField/>
+  </s:FormItem>
+  
+  <s:FormItem includeIn="startup" label="Asd">
+    <events:TimeField/>
+  </s:FormItem>
+  
+</s:Form>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
+        xmlns:s="library://ns.adobe.com/flex/spark"
+        xmlns:mx="library://ns.adobe.com/flex/mx"
+        creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      
+      import mx.collections.ListCollectionView;
+      
+      private function init():void
+      {
+        var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
+        host.dataProvider = entryPoints;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:FormItem label="Host">
+    <s:ComboBox id="host" width="200" labelField="name" requireSelection="true"/>
+  </s:FormItem>
+  
+  <s:FormItem label="Bandwidth">
+    <s:HGroup verticalAlign="middle">
+      <s:TextInput restrict="0-9" textAlign="center" widthInChars="5"/>
+      <s:Label paddingTop="1" text=" kB/s"/>
+    </s:HGroup>
+  </s:FormItem>
+  
+  <s:FormItem label="Min delay">
+    <s:HGroup verticalAlign="middle">
+      <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:Label paddingTop="1" text=" seconds"/>
+    </s:HGroup>
+  </s:FormItem>
+  
+  <s:FormItem label="Max delay">
+    <s:HGroup verticalAlign="middle">
+      <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:Label paddingTop="1" text=" seconds"/>
+    </s:HGroup>
+  </s:FormItem>
+
+</s:Form>

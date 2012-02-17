@@ -39,7 +39,11 @@
         sync.selected = hasSync();
         if (sync.selected) {
           sync.minutes.text = String(getDelayFor('SYNC') / 60);
-          sync.host.selectedItem = getSyncEntryPoint(entryPoints);
+          var point:Collector = getSyncEntryPoint(entryPoints);
+          if (point)
+            sync.host.selectedItem = point;
+          else
+            sync.host.selectedIndex = 0;
         }
       }
       

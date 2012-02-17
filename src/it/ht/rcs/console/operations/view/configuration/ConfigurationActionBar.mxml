@@ -9,14 +9,18 @@
   
   <s:Button label="Save" icon="@Embed('/img/windows/user2.png')" click="onSave()"/>
   
-  <actionbar:Separator width="20"/>
+  <actionbar:Separator/>
   
   <s:Button label="Load Template" icon="@Embed('/img/windows/user2.png')"/>
   <s:Button label="Save Template" icon="@Embed('/img/windows/user2.png')"/>
   
-  <actionbar:Separator width="20"/>
+  <actionbar:Separator/>
   
   <s:Button label="Build" click="build(event)" icon="@Embed('/img/windows/user2.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="Edit Globals" click="save(event)" icon="@Embed('/img/windows/user2.png')"/>
 
   <fx:Script>
     <![CDATA[
@@ -46,6 +50,17 @@
         var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
         AgentManager.instance.addConfig(configView.section.stateManager.selectedFactory, JSON.stringify(config));
       }
+      
+      protected function save(event:MouseEvent):void
+      {
+        var file:File = File.desktopDirectory.resolvePath("pippo.txt");
+        var fileStream:FileStream = new FileStream();
+        fileStream.open(file, FileMode.WRITE);
+        //fileStream.writeUTF("asdasdasd");
+        fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(configView.configAsObject));
+        fileStream.close();
+      }
+      
     ]]>
   </fx:Script>
   

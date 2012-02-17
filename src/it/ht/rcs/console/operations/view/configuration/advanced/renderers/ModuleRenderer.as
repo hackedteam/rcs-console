@@ -4,11 +4,16 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import flash.geom.Point;
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
+  import flash.utils.getDefinitionByName;
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.AllModuleForms;
+  
+  import mx.managers.PopUpManager;
   
   import spark.components.BorderContainer;
   import spark.components.Group;
+  import spark.components.TitleWindow;
   import spark.primitives.BitmapImage;
   
   public class ModuleRenderer extends Group implements Linkable
@@ -30,6 +35,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     public var module:Object;
     
+    private static const packagePrefix:String = 'it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.';
+    private static const forms:AllModuleForms = null; // This reference is just to force the import of the form classes
+    
     public function ModuleRenderer(module:Object, graph:ConfigurationGraph)
     {
       super();
@@ -45,6 +53,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
       addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+      addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
     }
     
     private function onMouseDown(me:MouseEvent):void
@@ -75,6 +84,15 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       if (graph.mode == ConfigurationGraph.CONNECTING)
         container.setStyle('backgroundColor', NORMAL_COLOR);
+    }
+    
+    private function onDoubleClick(me:MouseEvent):void
+    {
+      try {
+        var Form:Class = getDefinitionByName(packagePrefix + module.module) as Class;
+        var popup:TitleWindow = PopUpManager.createPopUp(root, Form, true) as TitleWindow;
+        PopUpManager.centerPopUp(popup);
+      } catch (e:Error) {}
     }
     
     override protected function createChildren():void

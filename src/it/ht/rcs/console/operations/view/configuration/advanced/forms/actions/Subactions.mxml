@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          gap="-1">
+  <fx:Script>
+    <![CDATA[
+      import mx.managers.PopUpManager;
+      
+      import spark.events.IndexChangeEvent;
+      
+      private function onChange(event:IndexChangeEvent):void
+      {
+        (parentDocument as ActionForm).currentState = list.selectedItem.action;
+        PopUpManager.centerPopUp(parentDocument as ActionForm);
+      }
+      
+      private function actionLabelFunction(item:Object):String
+      {
+        try {
+          return item.action + ' (' + item.status + ' ' + item.module + ')';
+        } catch (e:Error) {}
+        return item.action;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:HGroup width="200" gap="-1" horizontalAlign="right">
+    
+    <s:Button width="30" label="-" cornerRadius="0" enabled="{list.selectedItem != null}"/>
+    
+    <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
+      <mx:popUp>
+        <s:List id="availableGroups" filters="{[dropShadow]}" labelField="name" textAlign="left"/>
+      </mx:popUp>
+    </mx:PopUpButton>
+    
+  </s:HGroup>
+  
+  <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
+          change="onChange(event)"
+          labelFunction="actionLabelFunction"/>
+  
+  <fx:Declarations>
+    <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"
+                        distance="8"/>
+  </fx:Declarations>
+  
+</s:VGroup>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  
+  <s:Button label="{R.get('NEW_FORWARDER')}" click="onNewClick()" icon="@Embed('/img/NEW/alert.png')"/>
+  
+  <s:Button label="{R.get('EDIT')}" click="onEditClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/edit.png')"/>
+  
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.forwarder.controller.ForwarderManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      private function onNewClick():void
+      {
+        //var popup:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
+        //popup.currentState = 'create';
+        //PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onEditClick():void
+      {
+        //var ea:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
+        //ea.alert = selectedObject as Alert;
+        //ea.currentState = 'edit';
+        //PopUpManager.centerPopUp(ea);
+      }
+      
+      private function onDeleteClick():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_FORWARDER_DELETION'), R.get('CONFIRM'),
+                        AlertPopUp.YES|AlertPopUp.NO, null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) 
+                            ForwarderManager.instance.removeItem(selectedObject);
+                        }, null, AlertPopUp.NO);
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        if (view != null)
+          view.refresh();
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

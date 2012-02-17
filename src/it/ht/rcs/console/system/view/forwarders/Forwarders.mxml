@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:main="it.ht.rcs.console.main.*"
+         xmlns:forwarders="it.ht.rcs.console.system.view.forwarders.*"
+         width="100%" height="100%"
+         addedToStage="onAddedToStage()" creationComplete="init()"
+         removedFromStage="onRemovedFromStage()" >
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.forwarder.controller.ForwarderManager;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
+      
+      [Bindable]
+      private var view:ListCollectionView;
+      
+      private function init():void
+      {
+        view = ForwarderManager.instance.getView();        
+      }
+      
+      private function onAddedToStage():void
+      {
+        ForwarderManager.instance.listenRefresh();
+        ForwarderManager.instance.refresh();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        ForwarderManager.instance.unlistenRefresh();
+      }
+
+    ]]>
+  </fx:Script>
+  
+  
+  <forwarders:ForwardersActionBar id="actionBar" selectedObject="{forwarders.selectedItem||null}" view="{view}"/>
+  
+  <s:DataGrid id="forwarders" width="100%" height="100%" dataProvider="{view}">
+    <s:columns>
+      <s:ArrayList>
+        <s:GridColumn width="30" dataField="enabled" headerText="En" resizable="false">
+          <s:itemRenderer>
+            <fx:Component>
+              <s:GridItemRenderer>
+                <s:SkinnableContainer>
+                  <s:CheckBox left="8" right="5" top="4" selected="@{data.enabled}"/>                                          
+                </s:SkinnableContainer>
+              </s:GridItemRenderer>
+            </fx:Component>
+          </s:itemRenderer>
+        </s:GridColumn>
+        
+        <s:GridColumn dataField="name" headerText="{R.get('NAME')}"></s:GridColumn>
+        <s:GridColumn dataField="type" headerText="{R.get('TYPE')}" width="50" resizable="false"></s:GridColumn>
+        
+        <s:GridColumn dataField="path" headerText="{R.get('PATH')}"
+                      itemRenderer="it.ht.rcs.console.utils.PathRenderer"/>
+
+        <s:GridColumn dataField="raw" headerText="Raw" width="50" resizable="false"></s:GridColumn>
+        <s:GridColumn dataField="keep" headerText="Keep" width="50" resizable="false"></s:GridColumn>
+        
+        <s:GridColumn dataField="dest" headerText="Dest"></s:GridColumn>
+
+
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+  
+  
+</s:VGroup>

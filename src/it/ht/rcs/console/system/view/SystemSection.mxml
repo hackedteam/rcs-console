@@ -7,7 +7,7 @@
               xmlns:backend="it.ht.rcs.console.system.view.backend.*"
               xmlns:nia="it.ht.rcs.console.system.view.nia.*"
               xmlns:rmi="it.ht.rcs.console.system.view.rmi.*"
-              creationComplete="init()">
+              creationComplete="init()" xmlns:forwarders="it.ht.rcs.console.system.view.forwarders.*">
   
   <main:layout>
     <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
@@ -15,16 +15,24 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      
       import locale.R;
       
       private function init():void
       {
+        
+        if (LicenseManager.instance.forwarders == false)
+          subSections.removeElementAt(4); // third party section
+
         currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
         // Bestiality: using "includeIn" on NavigationContent elements will cause the menu to be out of sync with the view
         if (currentState == 'tech') {
+          subSections.removeElementAt(3);
           subSections.removeElementAt(1);
           subSections.removeElementAt(0);
         }
+        
       }
     ]]>
   </fx:Script>
@@ -46,6 +54,14 @@
     
     <s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}">
       <nia:NIA/>
+    </s:NavigatorContent>
+
+    <s:NavigatorContent label="{R.get('MODEMS')}">
+      <rmi:RMI/>
+    </s:NavigatorContent>
+    
+    <s:NavigatorContent label="{R.get('THIRD_PARTY')}">
+      <forwarders:Forwarders/>
     </s:NavigatorContent>
 
   </mx:ViewStack>

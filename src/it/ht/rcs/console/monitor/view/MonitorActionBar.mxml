@@ -4,7 +4,7 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="{R.get('DELETE')}" enabled="{selectedObject != null}"
+  <s:Button label="{R.get('DELETE')}" enabled="{selectedObject != null}" click="onDelete(event)"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <actionbar:Separator/>
@@ -18,6 +18,8 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.MonitorManager;
+      
       import locale.R;
       
       import mx.managers.PopUpManager;
@@ -31,6 +33,12 @@
       {
         if (view) view.refresh();
       }
+      
+      protected function onDelete(event:MouseEvent):void
+      {
+        MonitorManager.instance.removeItem(selectedObject);
+      }
+      
     ]]>
   </fx:Script>
   

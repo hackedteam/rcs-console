@@ -10,6 +10,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.alert.controller.AlertManager;
   import it.ht.rcs.console.controller.Manager;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.monitor.controller.LicenseManager;
   import it.ht.rcs.console.monitor.controller.MonitorManager;
   import it.ht.rcs.console.network.controller.CollectorManager;
   import it.ht.rcs.console.network.controller.InjectorManager;
@@ -94,6 +95,8 @@ package it.ht.rcs.console.main
       if (user.is_view()) {
         managers.push(AlertManager.instance);
       }
+      
+      managers.push(LicenseManager.instance);
       
       maxGreenLights = managers.length;
       if (maxGreenLights == 0)

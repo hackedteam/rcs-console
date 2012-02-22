@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-        xmlns:mx="library://ns.adobe.com/flex/mx">
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        focus.selected = event.focus;
+        process.text = event.process;
+        type.selectedIndex = event.window ? 1 : 0;
+      }
+      
+      override public function commit():void
+      {
+        event.focus = focus.selected;
+        event.window = type.selectedIndex == 1;
+        event.process = process.text;
+      }
+    ]]>
+  </fx:Script>
   
   <s:Label text="The start action is triggered when a process with the specified name is executed"/>
   
   <s:Label text="The stop action is triggered when the process is closed"/>
   
   <s:FormItem label="Type">
-    <s:DropDownList id="type" requireSelection="true" width="180">
+    <s:DropDownList id="type" width="180" requireSelection="true">
       <s:dataProvider>
         <s:ArrayList>
           <fx:String>Process Name</fx:String>
@@ -19,11 +39,11 @@
   </s:FormItem>
   
   <s:FormItem label="On Focus">
-    <s:CheckBox/>
+    <s:CheckBox id="focus"/>
   </s:FormItem>
   
   <s:FormItem label="String">
-    <s:TextInput width="180"/>
+    <s:TextInput id="process" width="180"/>
   </s:FormItem>
 
-</s:Form>
+</events:EventFields>

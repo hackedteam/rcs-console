@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-        xmlns:mx="library://ns.adobe.com/flex/mx">
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        address.text = event.address;
+        netmask.text = event.netmask;
+        port.text = event.port;
+      }
+      
+      override public function commit():void
+      {
+        event.address = address.text;
+        event.netmask = netmask.text;
+        event.port = port.text;
+      }
+    ]]>
+  </fx:Script>
   
   <s:Label text="The action is triggered when the machine makes a connection to the specified address"/>
   
   <s:FormItem label="IP Address">
-    <s:TextInput maxChars="15" restrict="0-9." text="0.0.0.0" widthInChars="8"/>
+    <s:TextInput id="address" maxChars="15" restrict="0-9." text="0.0.0.0" widthInChars="8"/>
   </s:FormItem>
   
   <s:FormItem label="Netmask">
-    <s:TextInput maxChars="15" restrict="0-9." text="255.255.255.255" widthInChars="8"/>
+    <s:TextInput id="netmask" maxChars="15" restrict="0-9." text="255.255.255.255" widthInChars="8"/>
   </s:FormItem>
   
   <s:FormItem label="Port">
-    <s:TextInput maxChars="5" restrict="0-9" widthInChars="3"/>
+    <s:TextInput id="port" maxChars="5" restrict="0-9" widthInChars="3"/>
   </s:FormItem>
 
-</s:Form>
+</events:EventFields>

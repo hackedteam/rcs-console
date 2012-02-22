@@ -4,20 +4,31 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
-                             creationComplete="init()" title="Edit Action">
+                             creationComplete="init()" save="save()" title="Edit Action">
   
   <fx:Script>
     <![CDATA[
-      import mx.collections.ArrayList;
-      import mx.managers.PopUpManager;
+      import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
       
-      import spark.events.IndexChangeEvent;
+      import locale.R;
+      
+      import mx.collections.ArrayList;
       
       public var action:Object;
+      public var graph:ConfigurationGraph;
       
       private function init():void
       {
+        desc.text = action.desc;
+        
         subactions.list.dataProvider = new ArrayList(action.subactions);
+      }
+      
+      private function save():void
+      {
+        action.desc = desc.text;
+        close();
+        graph.rebuildGraph();
       }
     ]]>
   </fx:Script>
@@ -34,14 +45,19 @@
     <s:State name="log"/>
   </utils:states>
 
-  <s:VGroup gap="20" horizontalAlign="center" paddingBottom="20" paddingLeft="20" paddingRight="20"
-            paddingTop="20">
+  <s:Form defaultButton="{saveButton}">
     
-    <actions:Subactions id="subactions"/>
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="desc" width="200"/>
+    </s:FormItem>
     
+    <s:FormItem label="Subactions">
+      <actions:Subactions id="subactions" form="{this}"/>
+    </s:FormItem>
+  
     <actions:Syncronize includeIn="synchronize"/>
     <actions:Execute includeIn="execute"/>
-    
-  </s:VGroup>
 
+  </s:Form>
+  
 </utils:TitleWindowSaveCancel>

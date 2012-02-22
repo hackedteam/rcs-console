@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-        xmlns:mx="library://ns.adobe.com/flex/mx">
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        eventId.text = event.id;
+        source.text = event.source;
+      }
+      
+      override public function commit():void
+      {
+        event.id = eventId.text;
+        event.source = source.text;
+      }
+    ]]>
+  </fx:Script>
   
   <s:Label text="The action is triggered when a windows event is logged by the operating system"/>
   
   <s:FormItem label="Event ID">
-    <s:TextInput restrict="0-9" widthInChars="4"/>
+    <s:TextInput id="eventId" restrict="0-9" widthInChars="4"/>
   </s:FormItem>
   
   <s:FormItem label="Source">
-    <s:TextInput/>
+    <s:TextInput id="source"/>
   </s:FormItem>
   
-</s:Form>
+</events:EventFields>

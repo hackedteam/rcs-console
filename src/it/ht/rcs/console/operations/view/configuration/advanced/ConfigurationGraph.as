@@ -108,31 +108,39 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     
     public function manageNewConnection(connection:Connection):void
     {
+      var type:String = (connection.from as Pin).type;
       if (connection.to is ModuleRenderer) {
-        var type:String = (connection.from as Pin).type;
         var module:String = (connection.to as ModuleRenderer).module.module;
         var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
         var subaction:Object = {action: 'module', status: type, module: module};
         subactions.push(subaction);
       } else if (connection.to is ActionRenderer) {
-        trace('action!');
+        var action:Object = (connection.to as ActionRenderer).action;
+        var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
+        event[type] = (config.actions as Array).indexOf(action);
       } else if (connection.to is EventRenderer) {
-        trace('event!');
+        action = ((connection.from as Pin).parent as ActionRenderer).action;
+        event = (connection.to as EventRenderer).event;
+        action.subactions.push({action: 'event', status: type, event: (config.events as Array).indexOf(event)});
       }
     }
     
     public function manageDeleteConnection(connection:Connection):void
     {
+      var type:String = (connection.from as Pin).type;
       if (connection.to is ModuleRenderer) {
-        var type:String = (connection.from as Pin).type;
         var module:String = (connection.to as ModuleRenderer).module.module;
         var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
         var subaction:Object = findModuleSubaction(subactions, type, module);
         subactions.splice(subactions.indexOf(subaction), 1);
       } else if (connection.to is ActionRenderer) {
-        trace('action!');
+        var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
+        delete(event[type]);
       } else if (connection.to is EventRenderer) {
-        trace('event!');
+        var index:int = (config.events as Array).indexOf((connection.to as EventRenderer).event);
+        subactions = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
+        subaction = findEventSubaction(subactions, type, index);
+        subactions.splice(subactions.indexOf(subaction), 1);
       }
     }
     
@@ -140,6 +148,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     {
       for each (var subaction:Object in subactions)
         if (subaction.status == status && subaction.module == module)
+          return subaction;
+      return null;
+    }
+    
+    private function findEventSubaction(subactions:Array, status:String, index:int):Object
+    {
+      for each (var subaction:Object in subactions)
+        if (subaction.status == status && subaction.event == index)
           return subaction;
       return null;
     }
@@ -192,8 +208,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       
       if (element is ActionRenderer) {
         var ar:ActionRenderer = element as ActionRenderer;
-        v = v.concat(ar.startEventPin.outBoundConnections());
-        v = v.concat(ar.stopEventPin.outBoundConnections());
+        v = v.concat(ar.enableEventPin.outBoundConnections());
+        v = v.concat(ar.disableEventPin.outBoundConnections());
         v = v.concat(ar.startModulePin.outBoundConnections());
         v = v.concat(ar.stopModulePin.outBoundConnections());
       }
@@ -306,8 +322,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       for each (ar in actions) {
         for each (var subaction:Object in ar.action.subactions) {
           if (subaction.action == 'event') {
-            if (subaction.status == 'enabled')  createConnection(ar.startEventPin, events[subaction.event]);
-            if (subaction.status == 'disabled') createConnection(ar.stopEventPin,  events[subaction.event]);
+            if (subaction.status == 'enable')  createConnection(ar.enableEventPin,  events[subaction.event]);
+            if (subaction.status == 'disable') createConnection(ar.disableEventPin, events[subaction.event]);
           } else if (subaction.action == 'module') {
             if (subaction.status == 'start') createConnection(ar.startModulePin, modulesMap[subaction.module]);
             if (subaction.status == 'stop')  createConnection(ar.stopModulePin,  modulesMap[subaction.module]);

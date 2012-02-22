@@ -124,6 +124,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       var popup:EventForm = PopUpManager.createPopUp(root, EventForm, true) as EventForm;
       popup.event = event;
+      popup.graph = graph;
       PopUpManager.centerPopUp(popup);
     }
     
@@ -212,7 +213,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
       
       if (endPin == null) {
-        endPin = new Pin(graph, 0, 1, 'stop');
+        endPin = new Pin(graph, 0, 1, 'end');
         BindingUtils.bindProperty(endPin, 'visible', graph, {name: 'mode', getter: isEndVisible });
         endPin.x = width - 5;
         endPin.y = height;

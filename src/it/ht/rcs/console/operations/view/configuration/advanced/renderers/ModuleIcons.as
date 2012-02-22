@@ -67,21 +67,50 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     
     
-    [Embed(source='/img/events/timer.png')]
-    public static const timer:Class;
+    [Embed(source='/img/events/ac.png')]
+    public static const ac:Class;
+    
+    [Embed(source='/img/events/battery.png')]
+    public static const battery:Class;
+    
+    [Embed(source='/img/events/connection.png')]
+    public static const connection:Class;
+    
+    [Embed(source='/img/events/location.png')]
+    public static const location:Class;
     
     [Embed(source='/img/events/process.png')]
     public static const process:Class;
     
+    [Embed(source='/img/events/quota.png')]
+    public static const quota:Class;
+    
+    [Embed(source='/img/events/screensaver.png')]
+    public static const screensaver:Class;
+    
+//    [Embed(source='/img/events/standby.png')]
+//    public static const standby:Class;
+    
+    [Embed(source='/img/events/timer.png')]
+    public static const timer:Class;
+    
+    [Embed(source='/img/events/winevent.png')]
+    public static const winevent:Class;
     
     
-    [Embed(source='/img/events/sync.png')]
+    
+    
+    
+    [Embed(source='/img/actions/sync.png')]
     public static const synchronize:Class;
     
-    [Embed(source='/img/events/eventOn.png')]
-    public static const event:Class;
+    [Embed(source='/img/actions/eventOn.png')]
+    public static const event_enable:Class;
     
-    [Embed(source='/img/events/module.png')]
+    [Embed(source='/img/actions/eventOff.png')]
+    public static const event_disable:Class;
+    
+    [Embed(source='/img/actions/module.png')]
     public static const module:Class;
   }
   

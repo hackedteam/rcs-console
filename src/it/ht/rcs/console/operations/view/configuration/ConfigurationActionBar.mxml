@@ -14,6 +14,7 @@
   <!--s:Button label="Load Template" icon="@Embed('/img/windows/user2.png')"/>
   <s:Button label="Save Template" icon="@Embed('/img/windows/user2.png')"/-->  
   <s:Button label="Export" click="save(event)" icon="@Embed('/img/NEW/export.png')"/>
+  <s:Button label="Import" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
   
   <actionbar:Separator/>
   
@@ -60,35 +61,48 @@
         AgentManager.instance.addConfig(configView.section.stateManager.selectedFactory, JSON.stringify(config));
       }
       
+      private function importFile(e:MouseEvent):void
+      {
+        var f:File = new File();
+        f.addEventListener(Event.SELECT, function(e:Event):void {
+          var fileStream:FileStream = new FileStream();
+          fileStream.open(e.target as File, FileMode.READ);
+          var config:String = fileStream.readUTFBytes(fileStream.bytesAvailable);
+          var configAsObject:Object = JSON.parse(config);
+          configView.configAsObject = configAsObject;
+          configView.displayConfig();
+          trace(config);
+        });
+        f.browseForOpen("Open");
+      }
+      
       protected function save(event:MouseEvent):void
       {
         var file:File = File.desktopDirectory.resolvePath("config.txt");
         var fileStream:FileStream = new FileStream();
         fileStream.open(file, FileMode.WRITE);
-        //fileStream.writeUTF("asdasdasd");
         fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(configView.configAsObject));
         fileStream.close();
+        
+        file.openWithDefaultApplication();
       }
       
-      protected function addAction(event:MouseEvent):void
+      private function addAction(event:MouseEvent):void
       {
-        // TODO Auto-generated method stub
         configView.advanced.addAction(null);
       }
       
-      protected function addEvent(event:MouseEvent):void
+      private function addEvent(event:MouseEvent):void
       {
-        // TODO Auto-generated method stub
         configView.advanced.addEvent(null);
       }
       
-      protected function editGlobals(event:MouseEvent):void
+      private function editGlobals(event:MouseEvent):void
       {
         var popup:GlobalsForm = PopUpManager.createPopUp(root, GlobalsForm, true) as GlobalsForm;
         popup.globals = configView.configAsObject.globals;
         PopUpManager.centerPopUp(popup);
       }
-      
     ]]>
   </fx:Script>
   

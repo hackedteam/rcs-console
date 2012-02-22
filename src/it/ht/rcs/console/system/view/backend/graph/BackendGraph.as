@@ -2,7 +2,7 @@ package it.ht.rcs.console.system.view.backend.graph
 {
 	import flash.geom.Point;
 	
-	import it.ht.rcs.console.system.view.ScrollableGraph;
+	import it.ht.rcs.console.utils.ScrollableGraph;
 	import it.ht.rcs.console.system.view.backend.graph.renderers.DBRenderer;
 	import it.ht.rcs.console.system.view.backend.graph.renderers.ShardRenderer;
 	

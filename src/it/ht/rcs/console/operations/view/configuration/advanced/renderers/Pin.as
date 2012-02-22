@@ -4,7 +4,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import flash.geom.Point;
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
-  import it.ht.rcs.console.system.view.ScrollableGraph;
+  import it.ht.rcs.console.utils.ScrollableGraph;
   
   import mx.core.UIComponent;
   

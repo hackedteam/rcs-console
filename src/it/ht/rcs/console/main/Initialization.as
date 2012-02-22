@@ -91,7 +91,8 @@ package it.ht.rcs.console.main
         managers.push(MonitorManager.instance);
       }
       
-      if (user.is_view()) {
+      if (user.is_view())
+      {
         managers.push(AlertManager.instance);
       }
       

@@ -38,6 +38,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     [Embed(source='/img/modules/keylog.png')]
     public static const keylog:Class;
+
+    [Embed(source='/img/modules/livemic.png')]
+    public static const livemic:Class;
     
     [Embed(source='/img/modules/messages.png')]
     public static const messages:Class;

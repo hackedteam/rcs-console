@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="save()">
+  
+  <fx:Script>
+    <![CDATA[
+      public var event:Object;
+      
+      private function init():void
+      {
+        delay.text = event.delay;
+        iter.text = event.iter;
+        delay.setFocus();
+      }
+      
+      private function save():void
+      {
+        event.delay = delay.text;
+        event.iter = iter.text;
+        close();
+      }
+    ]]>
+  </fx:Script>
+
+  <s:Form defaultButton="{saveButton}">
+    <s:FormItem label="Delay">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="delay" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" seconds"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="Iterations">
+      <s:TextInput id="iter" restrict="0-9\-" textAlign="center" widthInChars="3"/>
+    </s:FormItem>
+  </s:Form>
+  
+</utils:TitleWindowSaveCancel>

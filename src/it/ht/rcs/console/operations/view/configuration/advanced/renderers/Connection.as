@@ -8,9 +8,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import flash.ui.MouseCursor;
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+  import it.ht.rcs.console.operations.view.configuration.advanced.forms.events.RepeatForm;
   import it.ht.rcs.console.operations.view.configuration.advanced.renderers.utils.GraphicsUtil;
   
   import mx.core.UIComponent;
+  import mx.managers.PopUpManager;
   
   public class Connection extends UIComponent
   {
@@ -38,6 +40,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function Connection(graph:ConfigurationGraph)
     {
       super();
+      doubleClickEnabled = true;
       depth = -10; // Connections will appear under other elements
       
       this.graph = graph;
@@ -45,6 +48,19 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_DOWN, onClick);
       addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+      
+      addEventListener(MouseEvent.DOUBLE_CLICK, displayRepeatPopup);
+    }
+    
+    private function displayRepeatPopup(me:MouseEvent):void
+    {
+      if ((_from as Pin).type == 'repeat')
+      {
+        var event:Object = ((_from as Pin).parent as EventRenderer).event;
+        var popup:RepeatForm = PopUpManager.createPopUp(root, RepeatForm, true) as RepeatForm;
+        popup.event = event;
+        PopUpManager.centerPopUp(popup);
+      }
     }
     
     private function onMouseOver(me:MouseEvent):void
@@ -110,7 +126,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       GraphicsUtil.drawArrow(graphics, start, end, {shaftThickness: thickness});
       graphics.endFill();
       
-      // A thick line to ease selection
+      // A thick invisible line to ease selection
       graphics.lineStyle(10, 0x000000, 0, true);
       graphics.moveTo(start.x, start.y);
       graphics.lineTo(end.x, end.y);

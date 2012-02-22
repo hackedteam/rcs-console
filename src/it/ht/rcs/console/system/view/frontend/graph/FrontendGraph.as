@@ -5,7 +5,7 @@ package it.ht.rcs.console.system.view.frontend.graph
 	import flash.utils.Dictionary;
 	
 	import it.ht.rcs.console.events.NodeEvent;
-	import it.ht.rcs.console.system.view.ScrollableGraph;
+	import it.ht.rcs.console.utils.ScrollableGraph;
 	import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
 	import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
 	import it.ht.rcs.console.system.view.frontend.graph.renderers.IPRenderer;

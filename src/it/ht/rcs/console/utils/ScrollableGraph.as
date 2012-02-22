@@ -1,10 +1,9 @@
-package it.ht.rcs.console.system.view
+package it.ht.rcs.console.utils
 {
   import flash.events.MouseEvent;
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
   
-  import it.ht.rcs.console.utils.NativeCursor;
   
   import mx.events.FlexEvent;
   

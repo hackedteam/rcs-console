@@ -6,7 +6,7 @@ package it.ht.rcs.console.operations.view.configuration
   {
     public static function prettyPrint(o:Object):String
     {
-      return com.maccherone.json.JSON.encode(o, true);
+      return com.maccherone.json.JSON.encode(o, true, 100);
     }
   }
 }

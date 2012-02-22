@@ -4,16 +4,18 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	
+	import it.ht.rcs.console.operations.view.configuration.advanced.forms.events.RepeatForm;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ActionRenderer;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Connection;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Linkable;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleRenderer;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Pin;
-	import it.ht.rcs.console.system.view.ScrollableGraph;
+	import it.ht.rcs.console.utils.ScrollableGraph;
 	
 	import mx.core.IVisualElement;
 	import mx.core.UIComponent;
+	import mx.managers.PopUpManager;
 	
 	import spark.primitives.Rect;
 
@@ -118,11 +120,20 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         var action:Object = (connection.to as ActionRenderer).action;
         var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
         event[type] = (config.actions as Array).indexOf(action);
+        if (type == 'repeat')
+          displayRepeatPopup(event);
       } else if (connection.to is EventRenderer) {
         action = ((connection.from as Pin).parent as ActionRenderer).action;
         event = (connection.to as EventRenderer).event;
         action.subactions.push({action: 'event', status: type, event: (config.events as Array).indexOf(event)});
       }
+    }
+    
+    private function displayRepeatPopup(event:Object):void
+    {
+      var popup:RepeatForm = PopUpManager.createPopUp(root, RepeatForm, true) as RepeatForm;
+      popup.event = event;
+      PopUpManager.centerPopUp(popup);
     }
     
     public function manageDeleteConnection(connection:Connection):void

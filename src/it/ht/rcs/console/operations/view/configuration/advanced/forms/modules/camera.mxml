@@ -15,20 +15,24 @@
 //        module.compression = quality.value;
         close();
       }
+      
+      private function dataTipFunction(value:Number):String
+      {
+        switch (value) {
+          case 0 : return 'Low';
+          case 1 : return 'Medium';
+          case 2 : return 'High';
+          default: return '';
+        }
+      }
     ]]>
   </fx:Script>
 
   <s:Form>
     
-    <s:FormItem label="Take the image every">
-      <s:HGroup verticalAlign="middle">
-        <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
-        <s:Label paddingTop="1" text=" seconds"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-    <s:FormItem label="Iterations">
-      <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+    <s:FormItem label="Quality">
+      <s:HSlider id="quality" width="150" dataTipFormatFunction="dataTipFunction" maximum="2"
+                 minimum="0" snapInterval="1" stepSize="1"/>
     </s:FormItem>
     
   </s:Form>

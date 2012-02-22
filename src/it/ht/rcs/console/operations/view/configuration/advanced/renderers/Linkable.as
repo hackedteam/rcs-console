@@ -5,7 +5,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   public interface Linkable
   {
     
-    function inBoundConnections():Vector.<Connection>; // Of Connection. Why not a Vector? Because removing from vectors is a PITA
+    function inBoundConnections():Vector.<Connection>;
     function outBoundConnections():Vector.<Connection>;
     
     function getLinkPoint():Point;

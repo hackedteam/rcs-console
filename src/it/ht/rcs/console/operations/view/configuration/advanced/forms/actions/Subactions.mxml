@@ -3,16 +3,19 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           gap="-1">
+  
   <fx:Script>
     <![CDATA[
       import mx.managers.PopUpManager;
       
       import spark.events.IndexChangeEvent;
       
+      public var form:ActionForm;
+      
       private function onChange(event:IndexChangeEvent):void
       {
-        (parentDocument as ActionForm).currentState = list.selectedItem.action;
-        PopUpManager.centerPopUp(parentDocument as ActionForm);
+        form.currentState = list.selectedItem.action;
+        PopUpManager.centerPopUp(form);
       }
       
       private function actionLabelFunction(item:Object):String
@@ -31,7 +34,14 @@
     
     <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
       <mx:popUp>
-        <s:List id="availableGroups" filters="{[dropShadow]}" labelField="name" textAlign="left"/>
+        <s:List id="availableGroups" filters="{[dropShadow]}" labelField="name" textAlign="left">
+          <s:dataProvider>
+            <s:ArrayList>
+              <fx:String>Sync</fx:String>
+              <fx:String>Uninstall</fx:String>
+            </s:ArrayList>
+          </s:dataProvider>
+        </s:List>
       </mx:popUp>
     </mx:PopUpButton>
     

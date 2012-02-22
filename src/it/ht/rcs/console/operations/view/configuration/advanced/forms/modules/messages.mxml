@@ -1,14 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             title="Messages">
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Messages">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ArrayList;
+      import mx.formatters.DateFormatter;
+      
+      private var formatter:DateFormatter;
+      
+      private function init():void
+      {
+        formatter = new DateFormatter();
+        formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        size.text = module.mail.filter.maxsize;
+        from.text = module.mail.filter.datefrom;
+      }
+      
+      private function save():void
+      {
+        module.mail.filter.maxsize = size.text;
+        module.mail.filter.datefrom = formatter.format(from.selectedDate);
+        
+        close();
+      }
+    ]]>
+  </fx:Script>
   
   <s:Form defaultButton="{saveButton}">
     
     <s:FormItem label="From">
-      <mx:DateField width="150"/>
+      <mx:DateField id="from" width="150" formatString="YYYY-MM-DD"/>
     </s:FormItem>
     
     <s:FormItem label="To">
@@ -26,11 +51,11 @@
     
     <s:FormItem label="Size">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:TextInput id="size" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" kB"/>
       </s:HGroup>
     </s:FormItem>
     
   </s:Form>
   
-</utils:TitleWindowSaveCancel>
+</modules:ModuleForm>

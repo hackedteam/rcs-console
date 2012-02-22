@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             title="Print">
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Print">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        compression.value = module.compression;
+      }
+      
+      private function save():void
+      {
+        module.compression = compression.value;
+        close();
+      }
+    ]]>
+  </fx:Script>
 
   <s:Form defaultButton="{saveButton}">
     
     <s:FormItem label="Compression">
-      <s:HSlider width="150" dataTipPrecision="0" maximum="10" minimum="1" snapInterval="1"
+      <s:HSlider id="compression" width="150" dataTipPrecision="0" maximum="10" minimum="1" snapInterval="1"
                  stepSize="1"/>
     </s:FormItem>
     
   </s:Form>
 
-</utils:TitleWindowSaveCancel>
+</modules:ModuleForm>

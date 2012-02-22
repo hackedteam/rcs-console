@@ -1,13 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             title="Crisis">
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Crisis">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ArrayList;
+
+      private function init():void
+      {
+        network.selected = module.network.enabled;
+        hook.selected = module.hook.enabled;
+        networkList.dataProvider = new ArrayList(module.network.processes);
+        hookList.dataProvider = new ArrayList(module.hook.processes);
+      }
+      
+      private function save():void
+      {
+        if (network.selected) {
+          module.network.enabled = true;
+          module.network.processes = ArrayList(networkList.dataProvider).source;
+        } else {
+          module.network.enabled = false;
+          module.network.processes = [];
+        }
+        
+        if (hook.selected) {
+          module.hook.enabled = true;
+          module.hook.processes = ArrayList(hookList.dataProvider).source;
+        } else {
+          module.hook.enabled = false;
+          module.hook.processes = [];
+        }
+        
+        close();
+      }
+      
+      private function addNetwork(event:MouseEvent):void
+      {
+        networkList.dataProvider.addItem(networkProcess.text);
+        networkProcess.text = '';
+        networkProcess.setFocus();
+      }
+      private function addHook(event:MouseEvent):void
+      {
+        hookList.dataProvider.addItem(hookProcess.text);
+        hookProcess.text = '';
+        hookProcess.setFocus();
+      }
+      private function removeNetwork(event:MouseEvent):void
+      {
+        networkList.dataProvider.removeItemAt(networkList.selectedIndex);
+      }
+      private function removeHook(event:MouseEvent):void
+      {
+        hookList.dataProvider.removeItemAt(hookList.selectedIndex);
+      }
+    ]]>
+  </fx:Script>
 
   <s:HGroup gap="30">
     
-    <s:Form defaultButton="{saveButton}">
+    <s:Form>
       
       <s:FormItem label="Enable Network">
         <s:CheckBox id="network"/>
@@ -16,14 +72,16 @@
       <s:FormItem label="Network" enabled="{network.selected}">
         <s:HGroup>
           <s:List id="networkList" width="150"/>
-          <s:Button width="40" label="-" enabled="{networkList.selectedItem}"/>
+          <s:Button width="40" label="-" click="removeNetwork(event)"
+                    enabled="{networkList.selectedItem}"/>
         </s:HGroup>
       </s:FormItem>
       
       <s:FormItem label="Process" enabled="{network.selected}">
         <s:HGroup>
           <s:TextInput id="networkProcess" width="150"/>
-          <s:Button width="40" label="+" enabled="{networkProcess.text != ''}"/>
+          <s:Button width="40" label="+" click="addNetwork(event)"
+                    enabled="{networkProcess.text != ''}"/>
         </s:HGroup>
       </s:FormItem>
       
@@ -32,20 +90,20 @@
     <s:Form defaultButton="{saveButton}">
       
       <s:FormItem label="Enable Hooking">
-        <s:CheckBox id="hooking"/>
+        <s:CheckBox id="hook"/>
       </s:FormItem>
       
-      <s:FormItem label="Hooking" enabled="{hooking.selected}">
+      <s:FormItem label="Hooking" enabled="{hook.selected}">
         <s:HGroup>
-          <s:List id="hookingList" width="150"/>
-          <s:Button width="40" label="-" enabled="{hookingList.selectedItem}"/>
+          <s:List id="hookList" width="150"/>
+          <s:Button width="40" label="-" click="removeHook(event)" enabled="{hookList.selectedItem}"/>
         </s:HGroup>
       </s:FormItem>
       
-      <s:FormItem label="Process" enabled="{hooking.selected}">
+      <s:FormItem label="Process" enabled="{hook.selected}">
         <s:HGroup>
-          <s:TextInput id="hookingProcess" width="150"/>
-          <s:Button width="40" label="+" enabled="{hookingProcess.text != ''}"/>
+          <s:TextInput id="hookProcess" width="150"/>
+          <s:Button width="40" label="+" click="addHook(event)" enabled="{hookProcess.text != ''}"/>
         </s:HGroup>
       </s:FormItem>
       
@@ -53,4 +111,4 @@
     
   </s:HGroup>
 
-</utils:TitleWindowSaveCancel>
+</modules:ModuleForm>

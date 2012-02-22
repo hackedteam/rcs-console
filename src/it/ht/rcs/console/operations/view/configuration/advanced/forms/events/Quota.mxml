@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-        xmlns:mx="library://ns.adobe.com/flex/mx">
-
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        quota.text = event.quota;
+      }
+      
+      override public function commit():void
+      {
+        event.quota = quota.text;
+      }
+    ]]>
+  </fx:Script>
+  
   <s:VGroup>
     <s:HGroup verticalAlign="middle">
       <s:Label text="The start action is triggered when quota reaches "/>
-      <s:TextInput maxChars="5" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:TextInput id="quota" maxChars="5" restrict="0-9" textAlign="center" widthInChars="3"/>
       <s:Label text=" MB"/>
     </s:HGroup>
     <s:Spacer height="10"/>
     <s:Label text="The stop action is triggered when quota goes below that value"/>
   </s:VGroup>
 
-</s:Form>
+</events:EventFields>

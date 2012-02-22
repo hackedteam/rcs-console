@@ -8,12 +8,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   import it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.AllModuleForms;
+  import it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.ModuleForm;
   
   import mx.managers.PopUpManager;
   
   import spark.components.BorderContainer;
   import spark.components.Group;
-  import spark.components.TitleWindow;
   import spark.primitives.BitmapImage;
   
   public class ModuleRenderer extends Group implements Linkable
@@ -90,7 +90,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       try {
         var Form:Class = getDefinitionByName(packagePrefix + module.module) as Class;
-        var popup:TitleWindow = PopUpManager.createPopUp(root, Form, true) as TitleWindow;
+        var popup:ModuleForm = PopUpManager.createPopUp(root, Form, true) as ModuleForm;
+        popup.module = module;
         PopUpManager.centerPopUp(popup);
       } catch (e:Error) {}
     }

@@ -37,8 +37,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function inBoundConnections():Vector.<Connection>  { return inBound; }
     public function outBoundConnections():Vector.<Connection> { return outBound; }
     
-    public var startEventPin:Pin;
-    public var stopEventPin:Pin;
+    public var enableEventPin:Pin;
+    public var disableEventPin:Pin;
     
     public var startModulePin:Pin;
     public var stopModulePin:Pin;
@@ -118,16 +118,17 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       var popup:ActionForm = PopUpManager.createPopUp(root, ActionForm, true) as ActionForm;
       popup.action = action;
+      popup.graph = graph;
       PopUpManager.centerPopUp(popup);
     }
     
     private function onKeyDown(ke:KeyboardEvent):void
     {
       if (ke.keyCode == Keyboard.DELETE || ke.keyCode == Keyboard.BACKSPACE)
-        deleteEvent();
+        deleteAction();
     }
     
-    public function deleteEvent():void
+    public function deleteAction():void
     {
       graph.removeSelection();
       graph.removeHighlight();
@@ -144,8 +145,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       var v:Vector.<Connection> = new Vector.<Connection>();
       v = v.concat(inBoundConnections());
-      v = v.concat(startEventPin.outBoundConnections());
-      v = v.concat(stopEventPin.outBoundConnections());
+      v = v.concat(enableEventPin.outBoundConnections());
+      v = v.concat(disableEventPin.outBoundConnections());
       v = v.concat(startModulePin.outBoundConnections());
       v = v.concat(stopModulePin.outBoundConnections());
       return v;
@@ -188,22 +189,22 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         addElement(container);
       }
       
-      if (startEventPin == null) {
-        startEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'start');
-        BindingUtils.bindProperty(startEventPin, 'visible', graph, {name: 'mode', getter: isStartEventVisible });
-        startEventPin.x = width - 45;
-        startEventPin.y = 0;
-        startEventPin.toolTip = 'Start events';
-        addElement(startEventPin);
+      if (enableEventPin == null) {
+        enableEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'enable');
+        BindingUtils.bindProperty(enableEventPin, 'visible', graph, {name: 'mode', getter: isEnableEventVisible });
+        enableEventPin.x = width - 45;
+        enableEventPin.y = 0;
+        enableEventPin.toolTip = 'Enable events';
+        addElement(enableEventPin);
       }
       
-      if (stopEventPin == null) {
-        stopEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'stop');
-        BindingUtils.bindProperty(stopEventPin, 'visible', graph, {name: 'mode', getter: isStopEventVisible });
-        stopEventPin.x = width - 5;
-        stopEventPin.y = 0;
-        stopEventPin.toolTip = 'Stop events';
-        addElement(stopEventPin);
+      if (disableEventPin == null) {
+        disableEventPin = new Pin(graph, 0, Number.POSITIVE_INFINITY, 'disable');
+        BindingUtils.bindProperty(disableEventPin, 'visible', graph, {name: 'mode', getter: isDisableEventVisible });
+        disableEventPin.x = width - 5;
+        disableEventPin.y = 0;
+        disableEventPin.toolTip = 'Disable events';
+        addElement(disableEventPin);
       }
       
       if (startModulePin == null) {
@@ -225,10 +226,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       }
 		}
     
-    private function isStartEventVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, startEventPin);  }
-    private function isStopEventVisible(graph:ConfigurationGraph):Boolean   { return isVisible(graph, stopEventPin);   }
-    private function isStartModuleVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, startModulePin); }
-    private function isStopModuleVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, stopModulePin);  }
+    private function isEnableEventVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, enableEventPin);  }
+    private function isDisableEventVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, disableEventPin); }
+    private function isStartModuleVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, startModulePin);  }
+    private function isStopModuleVisible(graph:ConfigurationGraph):Boolean   { return isVisible(graph, stopModulePin);   }
     private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
       if (graph.mode == ConfigurationGraph.CONNECTING)
         return graph.currentConnection.from == pin ? true : false;

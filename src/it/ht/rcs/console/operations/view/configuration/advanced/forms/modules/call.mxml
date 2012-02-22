@@ -1,25 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             title="Call">
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Call">
   
-  <s:Form defaultButton="{saveButton}">
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        buffer.value = module.buffer;
+        quality.value = module.compression;
+      }
+      
+      private function save():void
+      {
+        module.buffer = buffer.value;
+        module.compression = quality.value;
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form>
     
     <s:FormItem label="Buffer size">
       <s:HGroup verticalAlign="middle">
-        <s:HSlider width="150" dataTipPrecision="0" maximum="1000" minimum="128" snapInterval="32"
-                   stepSize="32"/>
+        <s:HSlider id="buffer" width="150" dataTipPrecision="0" maximum="1000" minimum="128"
+                   snapInterval="32" stepSize="32"/>
         <s:Label paddingTop="1" text=" kB"/>
       </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Quality">
-      <s:HSlider width="150" dataTipPrecision="2" maximum="10" minimum="1" snapInterval="1"
-                 stepSize="1"/>
+      <s:HSlider id="quality" width="150" dataTipPrecision="0" maximum="10" minimum="1"
+                 snapInterval="1" stepSize="1"/>
     </s:FormItem>
     
   </s:Form>
   
-</utils:TitleWindowSaveCancel>
+</modules:ModuleForm>

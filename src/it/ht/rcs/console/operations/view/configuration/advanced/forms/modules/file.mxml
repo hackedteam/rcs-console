@@ -1,26 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             title="File">
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="file">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ArrayList;
+      import mx.controls.Alert;
+      import mx.events.FlexEvent;
+
+      private function init():void
+      {
+        open.selected = module.open;
+        includeList.dataProvider = new ArrayList(module.accept);
+        excludeList.dataProvider = new ArrayList(module.deny);
+        capture.selected = module.capture;
+        if (capture.selected) {
+          minSize.text = module.minsize;
+          maxSize.text = module.maxsize;
+          date.text = module.date;
+        } else {
+          minSize.text = '0';
+          maxSize.text = '0';
+          date.text = '';
+        }
+      }
+      
+      private function save():void
+      {
+        module.open = open.selected;
+        
+        if (capture.selected) {
+          module.capture = true;
+          module.minsize = minSize.text;
+          module.maxsize = maxSize.text;
+        } else {
+          module.capture = false;
+          module.minsize = 0;
+          module.maxsize = 0;
+          module.date = '';
+        }
+        
+        module.accept = ArrayList(includeList.dataProvider).source;
+        module.deny = ArrayList(excludeList.dataProvider).source;
+        
+        close();
+      }
+      
+      private function addInclude(event:MouseEvent):void
+      {
+        includeList.dataProvider.addItem(includeProcess.text);
+        includeProcess.text = '';
+        includeProcess.setFocus();
+      }
+      private function addExclude(event:MouseEvent):void
+      {
+        excludeList.dataProvider.addItem(excludeProcess.text);
+        excludeProcess.text = '';
+        excludeProcess.setFocus();
+      }
+      private function removeInclude(event:MouseEvent):void
+      {
+        includeList.dataProvider.removeItemAt(includeList.selectedIndex);
+      }
+      private function removeExclude(event:MouseEvent):void
+      {
+        excludeList.dataProvider.removeItemAt(excludeList.selectedIndex);
+      }
+    ]]>
+  </fx:Script>
   
   <s:VGroup>
     <s:HGroup gap="30">
       
-      <s:Form defaultButton="{saveButton}">
+      <s:Form>
       
         <s:FormItem label="Include Filters">
           <s:HGroup>
             <s:List id="includeList" width="150"/>
-            <s:Button width="40" label="-" enabled="{includeList.selectedItem}"/>
+            <s:Button width="40" label="-" click="removeInclude(event)"
+                      enabled="{includeList.selectedItem}"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="Process">
           <s:HGroup>
             <s:TextInput id="includeProcess" width="150"/>
-            <s:Button width="40" label="+" enabled="{includeProcess.text != ''}"/>
+            <s:Button width="40" label="+" click="addInclude(event)"
+                      enabled="{includeProcess.text != ''}"/>
           </s:HGroup>
         </s:FormItem>
       
@@ -32,14 +101,16 @@
         <s:FormItem label="Exclude Filters">
           <s:HGroup>
             <s:List id="excludeList" width="150"/>
-            <s:Button width="40" label="-" enabled="{excludeList.selectedItem}"/>
+            <s:Button width="40" label="-" click="removeExclude(event)"
+                      enabled="{excludeList.selectedItem}"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="Process">
           <s:HGroup>
             <s:TextInput id="excludeProcess" width="150"/>
-            <s:Button width="40" label="+" enabled="{excludeProcess.text != ''}"/>
+            <s:Button width="40" label="+" click="addExclude(event)"
+                      enabled="{excludeProcess.text != ''}"/>
           </s:HGroup>
         </s:FormItem>
         
@@ -53,7 +124,7 @@
       <s:Form defaultButton="{saveButton}">
         
         <s:FormItem label="Log path and access mode">
-          <s:CheckBox/>
+          <s:CheckBox id="open"/>
         </s:FormItem>
         
       </s:Form>
@@ -67,20 +138,20 @@
         
         <s:FormItem label="Min size" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
-            <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+            <s:TextInput id="minSize" restrict="0-9" textAlign="center" widthInChars="3"/>
             <s:Label paddingTop="1" text=" bytes"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="Max size" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
-            <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+            <s:TextInput id="maxSize" restrict="0-9" textAlign="center" widthInChars="3"/>
             <s:Label paddingTop="1" text=" bytes"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="From date" enabled="{capture.selected}">
-          <mx:DateField width="150"/>
+          <mx:DateField id="date" width="150"/>
         </s:FormItem>
         
       </s:Form>
@@ -88,4 +159,4 @@
     </s:HGroup>
   </s:VGroup>
   
-</utils:TitleWindowSaveCancel>
+</modules:ModuleForm>

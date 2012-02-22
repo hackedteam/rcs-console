@@ -4,31 +4,54 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
-                             creationComplete="init()" title="Edit Event">
+                             creationComplete="init()" title="Edit Event" save="save()">
   
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+      
+      import locale.R;
+      
       import mx.managers.PopUpManager;
       
       import spark.events.IndexChangeEvent;
       
       public var event:Object;
+      public var graph:ConfigurationGraph;
+      
+      public var currentData:EventFields;
       
       private function init():void
       {
+        desc.text = event.desc;
+
         for each (var s:String in ArrayList(type.dataProvider).source)
           if (s.toLowerCase() == event.event.toLowerCase())
             type.selectedItem = s;
         
         currentState = event.event;
+        currentData = this[currentState] as EventFields;
+        currentData.event = event;
         PopUpManager.centerPopUp(this);
       }
       
-      private function onChange(event:IndexChangeEvent):void
+      private function onChange(e:IndexChangeEvent):void
       {
         currentState = type.selectedItem.toLowerCase();
+        currentData = this[currentState] as EventFields;
+        currentData.event = event;
         PopUpManager.centerPopUp(this);
+      }
+      
+      private function save():void
+      {
+        event.desc = desc.text;
+        event.event = currentState;
+        Cleaner.clean(event);
+        currentData.commit();
+        close();
+        graph.rebuildGraph();
       }
     ]]>
   </fx:Script>
@@ -50,8 +73,8 @@
   
   <s:Form defaultButton="{saveButton}">
 
-    <s:FormItem label="Name">
-      <s:TextInput width="160"/>
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="desc" width="160"/>
     </s:FormItem>
     
     <s:FormItem label="Type">
@@ -78,18 +101,18 @@
     
     <s:Spacer height="20"/>
     
-    <events:Connection includeIn="connection"/>
-    <events:Process includeIn="process"/>
-    <events:Quota includeIn="quota"/>
-    <events:Screensaver includeIn="screensaver"/>
-    <events:Timer includeIn="timer"/>
-    <events:WinEvent includeIn="winevent"/>
+    <events:Connection id="connection" includeIn="connection"/>
+    <events:Process id="process" includeIn="process"/>
+    <events:Quota id="quota" includeIn="quota"/>
+    <events:Screensaver id="screensaver" includeIn="screensaver"/>
+    <events:Timer id="timer" includeIn="timer"/>
+    <events:WinEvent id="winevent" includeIn="winevent"/>
     
-    <events:Ac includeIn="ac"/>
-    <events:Battery includeIn="battery"/>
-    <events:Call includeIn="call"/>
-    <events:Location includeIn="location"/>
-    <events:Standby includeIn="standby"/>
+    <events:Ac id="ac" includeIn="ac"/>
+    <events:Battery id="battery" includeIn="battery"/>
+    <events:Call id="call" includeIn="call"/>
+    <events:Location id="location" includeIn="location"/>
+    <events:Standby id="standby" includeIn="standby"/>
 
   </s:Form>
 

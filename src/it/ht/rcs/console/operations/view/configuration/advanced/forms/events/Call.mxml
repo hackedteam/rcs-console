@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009"
-        xmlns:s="library://ns.adobe.com/flex/spark"
-        xmlns:mx="library://ns.adobe.com/flex/mx">
-
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        number.text = event.number;
+      }
+      
+      override public function commit():void
+      {
+        event.number = number.text;
+      }
+    ]]>
+  </fx:Script>
+  
   <s:FormItem label="Number">
-    <s:TextInput restrict="0-9+"/>
+    <s:TextInput id="number" restrict="0-9+"/>
   </s:FormItem>
   
-</s:Form>
+</events:EventFields>

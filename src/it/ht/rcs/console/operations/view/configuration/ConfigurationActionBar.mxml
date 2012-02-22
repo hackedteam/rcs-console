@@ -5,23 +5,30 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      addedToStage="onAddedToStage(event)">
 
-  <s:Button label="New" icon="@Embed('/img/windows/user2.png')"/>
+  <!--s:Button label="New" icon="@Embed('/img/windows/user2.png')"/-->
   
-  <s:Button label="Save" icon="@Embed('/img/windows/user2.png')" click="onSave()"/>
+  <s:Button label="Save" click="onSave()" icon="@Embed('/img/windows/user2.png')"/>
   
   <actionbar:Separator/>
   
-  <s:Button label="Load Template" icon="@Embed('/img/windows/user2.png')"/>
-  <s:Button label="Save Template" icon="@Embed('/img/windows/user2.png')"/>
+  <!--s:Button label="Load Template" icon="@Embed('/img/windows/user2.png')"/>
+  <s:Button label="Save Template" icon="@Embed('/img/windows/user2.png')"/-->  
+  <s:Button label="Export" click="save(event)" icon="@Embed('/img/NEW/export.png')"/>
   
   <actionbar:Separator/>
   
   <s:Button label="Build" click="build(event)" icon="@Embed('/img/windows/user2.png')"/>
   
-  <actionbar:Separator/>
-  
-  <s:Button label="Edit Globals" click="save(event)" icon="@Embed('/img/windows/user2.png')"/>
-
+  <s:HGroup visible="{configView.currentState == 'advanced'}">
+    <actionbar:Separator/>
+    
+    <s:Button label="Add Event" click="addEvent(event)" icon="@Embed('/img/windows/user2.png')"/>
+    <s:Button label="Add Action" click="addAction(event)" icon="@Embed('/img/windows/user2.png')"/>
+    
+    <actionbar:Separator/>
+    
+    <s:Button label="Edit Globals" icon="@Embed('/img/windows/user2.png')"/>
+  </s:HGroup>
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
@@ -31,6 +38,7 @@
       import mx.managers.PopUpManager;
       
       public var section:OperationsSection;
+      [Bindable]
       public var configView:ConfigurationView;
       
       private function build(event:MouseEvent):void
@@ -53,12 +61,24 @@
       
       protected function save(event:MouseEvent):void
       {
-        var file:File = File.desktopDirectory.resolvePath("pippo.txt");
+        var file:File = File.desktopDirectory.resolvePath("config.txt");
         var fileStream:FileStream = new FileStream();
         fileStream.open(file, FileMode.WRITE);
         //fileStream.writeUTF("asdasdasd");
         fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(configView.configAsObject));
         fileStream.close();
+      }
+      
+      protected function addAction(event:MouseEvent):void
+      {
+        // TODO Auto-generated method stub
+        configView.advanced.addAction(null);
+      }
+      
+      protected function addEvent(event:MouseEvent):void
+      {
+        // TODO Auto-generated method stub
+        configView.advanced.addEvent(null);
       }
       
     ]]>

@@ -75,8 +75,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       Mouse.cursor = MouseCursor.AUTO;
       
       if (graph.mode == ConfigurationGraph.CONNECTING) {
-        var origin:Object = graph.currentConnection.from['parent'];
-        if (origin is ActionRenderer && !isConnected(origin)) { // Accept only inbound connections from actions not already connected
+        var pin:Pin = graph.currentConnection.from as Pin;
+        var origin:Object = pin.parent;
+        if (origin is ActionRenderer && ( pin.type == 'enable' || pin.type == 'disable' ) && !isConnected(origin)) { // Accept only inbound connections from actions not already connected
           graph.currentTarget = this;
           container.setStyle('backgroundColor', ACCEPT_COLOR);
         } else {

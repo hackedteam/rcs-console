@@ -22,7 +22,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private static const HEIGHT:Number = 45;
     
     private static const NORMAL_COLOR:uint = 0xffffff;
-    private static const OVER_COLOR:uint   = 0x99bb99;
+    private static const ACCEPT_COLOR:uint   = 0x99bb99;
+    private static const REJECT_COLOR:uint   = 0xbb9999;
     
     private var container:BorderContainer;
     private var icon:BitmapImage;
@@ -67,8 +68,15 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       Mouse.cursor = MouseCursor.AUTO;
       
       if (graph.mode == ConfigurationGraph.CONNECTING) {
-        graph.currentTarget = this;
-        container.setStyle('backgroundColor', OVER_COLOR);
+        var pin:Pin = graph.currentConnection.from as Pin;
+        var origin:Object = pin.parent;
+        if (origin is ActionRenderer && ( pin.type == 'start' || pin.type == 'stop' )) { // Accept only inbound connections from actions
+          graph.currentTarget = this;
+          container.setStyle('backgroundColor', ACCEPT_COLOR);
+        } else {
+          graph.currentTarget = null;
+          container.setStyle('backgroundColor', REJECT_COLOR);
+        }
       }
     }
     

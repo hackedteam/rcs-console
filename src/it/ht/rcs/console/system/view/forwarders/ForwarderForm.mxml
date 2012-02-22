@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:view="it.ht.rcs.console.alerting.view.*"
+                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_FORWARDER')}">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.forwarder.controller.ForwarderManager;
+      import it.ht.rcs.console.forwarder.model.Forwarder;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      
+      [Bindable]
+      public var forwarder:Forwarder;
+
+      [Bindable]
+      private var types:ArrayCollection = new ArrayCollection(['JSON']);
+      
+      private function init():void
+      {
+        formName.setFocus();
+        if (currentState == 'create')
+          forwarder = new Forwarder(Forwarder.defaultForwarder());
+        else
+          formPath.selectedItemId = (forwarder.path.length > 0) ? forwarder.path.getItemAt(forwarder.path.length - 1) as String : null;
+      }
+      
+      private function save():void
+      {
+        var path:ArrayCollection;
+        
+        forwarder.enabled = formEnabled.selected;
+        forwarder.type = formType.selectedItem;
+
+        if (formPath.selectedItem) {
+          path = new ArrayCollection(formPath.selectedItem.path.source);
+          path.addItem(formPath.selectedItem._id);
+        } else {
+          path = new ArrayCollection();
+        }
+        forwarder.path = path;
+        forwarder.keep = formKeep.selected;
+        forwarder.raw = formRaw.selected;
+        forwarder.dest = formDest.text;
+        forwarder.name = formName.text;
+        
+        if (currentState == 'create')
+          ForwarderManager.instance.addForwarder(ObjectUtils.toHash(forwarder), function(f:Forwarder):void { close(); });
+        else
+          close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('ENABLED')}">
+      <s:CheckBox id="formEnabled" selected="{forwarder.enabled}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="formName" width="200" text="{forwarder.name}"/>
+    </s:FormItem>
+
+    <s:FormItem label="{R.get('PATH')}">
+      <itemfield:ItemField id="formPath" right="5" top="0"
+                           kinds="{['operation', 'target', 'agent']}"/>
+    </s:FormItem>
+        
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="formType" width="70" dataProvider="{types}"
+                      selectedIndex="{types.toArray().indexOf(forwarder.type)}"/>
+    </s:FormItem>
+
+    <s:FormItem label="{R.get('SAVE_RAW')}">
+      <s:CheckBox id="formRaw" selected="{forwarder.raw}"/>
+    </s:FormItem>
+
+    <s:FormItem label="{R.get('KEEP_EVIDENCE')}">
+      <s:CheckBox id="formKeep" selected="{forwarder.keep}"/>
+    </s:FormItem>
+
+    <s:FormItem label="{R.get('DEST')}">
+      <s:TextInput id="formDest" width="200" text="{forwarder.dest}"/>
+    </s:FormItem>
+
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

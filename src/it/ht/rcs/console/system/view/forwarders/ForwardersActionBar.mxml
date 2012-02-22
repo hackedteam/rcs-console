@@ -12,12 +12,11 @@
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <s:Spacer width="100%"/>
-  
-  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.forwarder.controller.ForwarderManager;
+      import it.ht.rcs.console.forwarder.model.Forwarder;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -27,17 +26,17 @@
       
       private function onNewClick():void
       {
-        //var popup:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
-        //popup.currentState = 'create';
-        //PopUpManager.centerPopUp(popup);
+        var popup:ForwarderForm = PopUpManager.createPopUp(root, ForwarderForm, true) as ForwarderForm;
+        popup.currentState = 'create';
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
-        //var ea:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
-        //ea.alert = selectedObject as Alert;
-        //ea.currentState = 'edit';
-        //PopUpManager.centerPopUp(ea);
+        var ea:ForwarderForm = PopUpManager.createPopUp(root, ForwarderForm, true) as ForwarderForm;
+        ea.forwarder = selectedObject as Forwarder;
+        ea.currentState = 'edit';
+        PopUpManager.centerPopUp(ea);
       }
       
       private function onDeleteClick():void

@@ -27,13 +27,14 @@
     
     <actionbar:Separator/>
     
-    <s:Button label="Edit Globals" icon="@Embed('/img/windows/user2.png')"/>
+    <s:Button label="Edit Globals" click="editGlobals(event)" icon="@Embed('/img/windows/user2.png')"/>
   </s:HGroup>
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
+      import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
       
       import mx.managers.PopUpManager;
       
@@ -79,6 +80,13 @@
       {
         // TODO Auto-generated method stub
         configView.advanced.addEvent(null);
+      }
+      
+      protected function editGlobals(event:MouseEvent):void
+      {
+        var popup:GlobalsForm = PopUpManager.createPopUp(root, GlobalsForm, true) as GlobalsForm;
+        popup.globals = configView.configAsObject.globals;
+        PopUpManager.centerPopUp(popup);
       }
       
     ]]>

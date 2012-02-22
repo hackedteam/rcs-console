@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="save()">
+  
+  <fx:Script>
+    <![CDATA[
+      public var globals:Object;
+
+      private function init():void
+      {
+        min.value = globals.quota.min / 1000;
+        max.value = globals.quota.max / 1000;
+        wipe.selected = globals.wipe;
+      }
+      
+      private function save():void
+      {
+        globals.quota.min = min.value * 1000;
+        globals.quota.max = max.value * 1000;
+        globals.wipe = wipe.selected;
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="Quota Min">
+      <s:HSlider id="min" width="150" dataTipPrecision="0" maximum="10000" minimum="10"
+                 snapInterval="10" stepSize="10"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Quota Max">
+      <s:HSlider id="max" width="150" dataTipPrecision="0" maximum="10000" minimum="10"
+                 snapInterval="10" stepSize="10"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Wipe">
+      <s:CheckBox id="wipe"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</utils:TitleWindowSaveCancel>

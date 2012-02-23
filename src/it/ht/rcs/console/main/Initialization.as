@@ -57,6 +57,7 @@ package it.ht.rcs.console.main
       //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
 
+      /* check for console update */
       Update.check();
       
       var managers:Array = [];

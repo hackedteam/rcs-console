@@ -2,14 +2,19 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="100%" height="100%" xmlns:agents="it.ht.rcs.console.operations.view.agents.*">
+         xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
+         width="100%" height="100%" addedToStage="group1_addedToStageHandler(event)">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
+      
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       public var section:OperationsSection;
@@ -26,6 +31,17 @@
       {
         section.stateManager.manageItemSelection(grid.selectedItem);
       }
+      
+      protected function group1_addedToStageHandler(event:Event):void
+      {
+        // TODO Auto-generated method stub
+        var a:Agent = section.stateManager.selectedAgent;
+        AgentManager.instance.show(a._id, function(e:ResultEvent):void {
+          section.stateManager.selectedAgent = e.result as Agent;
+        });
+        trace('');
+      }
+      
     ]]>
   </fx:Script>
   

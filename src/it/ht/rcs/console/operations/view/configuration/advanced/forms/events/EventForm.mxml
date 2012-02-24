@@ -24,6 +24,7 @@
       
       private function init():void
       {
+        eventEnabled.selected = event.enabled;
         desc.text = event.desc;
 
         for each (var s:String in ArrayList(type.dataProvider).source)
@@ -46,6 +47,7 @@
       
       private function save():void
       {
+        event.enabled = eventEnabled.selected;
         event.desc = desc.text;
         event.event = currentState;
         Cleaner.clean(event);
@@ -74,6 +76,10 @@
   
   <s:Form defaultButton="{saveButton}">
 
+    <s:FormItem label="Enabled">
+      <s:CheckBox id="eventEnabled"/>
+    </s:FormItem>
+    
     <s:FormItem label="{R.get('NAME')}">
       <s:TextInput id="desc" width="160"/>
     </s:FormItem>

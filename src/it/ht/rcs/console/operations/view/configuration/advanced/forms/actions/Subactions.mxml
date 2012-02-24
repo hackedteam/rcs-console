@@ -25,8 +25,16 @@
         } catch (e:Error) {}
         return item.action;
       }
+      
+      private function addSubaction(me:MouseEvent):void
+      {
+        list.dataProvider.addItem({action:availableGroups.selectedItem});
+      }
     ]]>
   </fx:Script>
+  
+  <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
+          change="onChange(event)" labelFunction="actionLabelFunction"/>
   
   <s:HGroup width="200" gap="-1" horizontalAlign="right">
     
@@ -34,7 +42,8 @@
     
     <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
       <mx:popUp>
-        <s:List id="availableGroups" filters="{[dropShadow]}" labelField="name" textAlign="left">
+        <s:List id="availableGroups" click="addSubaction(event)" filters="{[dropShadow]}"
+                labelField="name" textAlign="left">
           <s:dataProvider>
             <s:ArrayList>
               <fx:String>Sync</fx:String>
@@ -49,10 +58,6 @@
     </mx:PopUpButton>
     
   </s:HGroup>
-  
-  <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
-          change="onChange(event)"
-          labelFunction="actionLabelFunction"/>
   
   <fx:Declarations>
     <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"

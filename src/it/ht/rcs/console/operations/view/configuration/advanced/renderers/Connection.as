@@ -122,6 +122,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       graphics.clear();
       
+      var pin:Pin = from as Pin;
+      if (pin.type == 'start')
+        color = 0x00bb00;
+      else if (pin.type == 'stop' || pin.type == 'end')
+        color = 0xbb0000;
+      else if (pin.type == 'repeat')
+        color = 0x0000bb;
+      
       graphics.beginFill(color);
       GraphicsUtil.drawArrow(graphics, start, end, {shaftThickness: thickness});
       graphics.endFill();

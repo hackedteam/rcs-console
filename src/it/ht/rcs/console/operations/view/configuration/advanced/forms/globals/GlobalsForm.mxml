@@ -11,16 +11,18 @@
 
       private function init():void
       {
-        min.value = globals.quota.min / 1000;
-        max.value = globals.quota.max / 1000;
+        min.text = (globals.quota.min / 1000) as String;
+        max.text = (globals.quota.max / 1000) as String;
         wipe.selected = globals.wipe;
+        driver.selected = globals.remove_driver;
       }
       
       private function save():void
       {
-        globals.quota.min = min.value * 1000;
-        globals.quota.max = max.value * 1000;
+        globals.quota.min = parseInt(min.text) * 1000;
+        globals.quota.max = parseInt(max.text) * 1000;
         globals.wipe = wipe.selected;
+        globals.remove_driver = driver.selected;
         close();
       }
     ]]>
@@ -29,17 +31,25 @@
   <s:Form defaultButton="{saveButton}">
     
     <s:FormItem label="Quota Min">
-      <s:HSlider id="min" width="150" dataTipPrecision="0" maximum="10000" minimum="10"
-                 snapInterval="10" stepSize="10"/>
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="max" maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" MB"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Quota Max">
-      <s:HSlider id="max" width="150" dataTipPrecision="0" maximum="10000" minimum="10"
-                 snapInterval="10" stepSize="10"/>
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="min" maxChars="4" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" MB"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Wipe">
       <s:CheckBox id="wipe"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Remove Driver">
+      <s:CheckBox id="driver"/>
     </s:FormItem>
     
   </s:Form>

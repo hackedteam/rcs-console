@@ -180,11 +180,13 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     private function dragEnter(event:DragEvent):void
     {
       var accept:Boolean = false;
-      if (event.dragInitiator is CollectorRenderer) {
-        var cr:CollectorRenderer = event.dragInitiator as CollectorRenderer;
-        accept = cr !== _nextHop && cr !== this;
-      } else if (event.dragInitiator is CollectorListRenderer) {
-        accept = true;
+      if (collector.address && collector.address.length > 0) {
+        if (event.dragInitiator is CollectorRenderer) {
+          var cr:CollectorRenderer = event.dragInitiator as CollectorRenderer;
+          accept = cr !== _nextHop && cr !== this;
+        } else if (event.dragInitiator is CollectorListRenderer) {
+          accept = true;
+        }
       }
       
       if (accept)

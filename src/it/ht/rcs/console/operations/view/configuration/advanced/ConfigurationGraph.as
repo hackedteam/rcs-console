@@ -323,6 +323,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       // Adding modules
       var mr:ModuleRenderer;
       for each (var m:Object in config.modules) {
+        if (m.module == 'social') // Zingaza per Naga, maledetto!
+          continue;
         mr = new ModuleRenderer(m, this);
         modules.push(mr);
         modulesMap[m.module] = mr;

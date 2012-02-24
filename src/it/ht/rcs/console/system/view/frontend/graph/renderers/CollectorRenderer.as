@@ -275,7 +275,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
           _prevHop.collector.next = [null];
         }
         _prevHop = _nextHop = null;
-        this.collector.prev = this.collector.next = [null];
+        this.collector.prev = [null];
+        this.collector.next = [null];
       }
     }
 		

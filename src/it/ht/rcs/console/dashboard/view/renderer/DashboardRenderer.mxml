@@ -47,8 +47,24 @@
         try {
           lastSyncText.text = TimeUtils.timestampFormatter(item.lastSync * 1000)
           if (lastSyncText.text != R.get('NEVER'))
-            lastSyncText.text += '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)';
+            lastSyncText.text += '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)  ' + sync_status(item.lastSyncStatus);
         } catch (e:Error) {}
+      }
+      
+      private function sync_status(status:int):String
+      {
+        switch(status) {
+          case 0:
+            return R.get('IDLE');
+            break;
+          case 1:
+            return R.get('IN_PROGRESS');
+            break;
+          case 2:
+            return R.get('TIMEOUT');
+            break;
+        }
+        return '';
       }
       
       override public function set data(value:Object):void
@@ -127,10 +143,8 @@
                    text="{item.name}"/>
         </s:HGroup>
         
-        <s:Label fontFamily="Myriad" fontSize="13" fontWeight="bold" paddingTop="5"
-                 text="{R.get('LAST_SYNC')}: "/>
-        <s:Label id="lastSyncText" width="260" fontFamily="Myriad" fontSize="13" paddingRight="10"
-                 paddingTop="5"/>
+        <s:Label fontFamily="Myriad" fontSize="13" fontWeight="bold" paddingTop="5" text="{R.get('LAST_SYNC')}: "/>
+        <s:Label id="lastSyncText" width="260" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5"/>
         
         <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red"
                                 value="{item.totSync}"/>

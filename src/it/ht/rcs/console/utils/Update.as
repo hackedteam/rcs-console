@@ -62,8 +62,8 @@ package it.ht.rcs.console.utils
       
       var updater:Updater = new Updater(); 
       
-      /* format the version accordingly to the AIR package (yyyy.xx.zz.kk) */
-      var version_air:String = version.substr(0,4) + '.' + version.substr(4,2) + '.' + version.substr(6,2) + '.' + version.substr(8,2);
+      /* format the version accordingly to the AIR package (yy.xx.zz) */
+      var version_air:String = version.substr(2,2) + '.' + version.substr(4,2) + '.' + version.substr(6,2);
       
       /* make sure a previous file is not there... */
       if (file.exists)

@@ -29,7 +29,7 @@
       
       private function browse():void
       {
-        params = {platform: 'symbian', binary: {demo: demo.selected}, sign: {}, melt: {appname: appname.text} };
+        params = {platform: 'symbian', binary: {demo: demo.selected}, sign: {edition: '5th3rd'}, melt: {appname: appname.text} };
 
         fileReference = new FileReference();
         fileReference.addEventListener(Event.SELECT, uploadCert);
@@ -64,7 +64,10 @@
       
       protected function create(event:MouseEvent):void
       {
-        params = {platform: parentDocument.platform, binary: {demo: demo.selected}, melt: {appname: appname.text}, 'package': {type: 'remote'} };
+        if (params != null)
+          params = {platform: parentDocument.platform, binary: {demo: demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'} };
+        else
+          params = {platform: parentDocument.platform, binary: {demo: demo.selected}, melt: {appname: appname.text}, 'package': {type: 'remote'} };
 
         if (currentState == 'blackberry') {
           params['binary']['name'] = nameForm.text;

@@ -10,6 +10,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
   import it.ht.rcs.console.system.view.frontend.Frontend;
   import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
+  import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
   
   import mx.binding.utils.BindingUtils;
   import mx.core.DragSource;
@@ -150,6 +151,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       graph.selectedElement = this;
       
       setFocus();
+      dispatchEvent(new NodeEvent(NodeEvent.SELECTED, collector));
     }
     
     private function onDoubleClick(me:MouseEvent):void

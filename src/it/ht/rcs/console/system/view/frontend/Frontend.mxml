@@ -12,6 +12,7 @@
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
       import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
       import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
       
@@ -93,21 +94,28 @@
         PopUpManager.centerPopUp(popup);
       }
       
-      
-      private function getCollectorById(id:String):Collector
-      {
-        return null;
-      }
-      
       private function enter(event:KeyboardEvent):void
       {
         if (event.keyCode == Keyboard.ENTER && list.selectedItem != null)
           editCollector(list.selectedItem);
       }
+      
+      private function onListClick(event:MouseEvent):void
+      {
+        graph.removeSelection();
+        if (list.selectedItem)
+          actionBar.selectedObject = list.selectedItem;
+      }
+      
+      private function onNodeSelection(event:NodeEvent):void
+      {
+        list.selectedItem = null;
+        actionBar.selectedObject = event.collector;
+      }
     ]]>
   </fx:Script>
   
-  <frontend:FrontendActionBar/>
+  <frontend:FrontendActionBar id="actionBar"/>
   
   <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true"
                      borderWeight="2" cornerRadius="10">
@@ -124,12 +132,13 @@
     
     <s:VGroup width="100%" height="100%" gap="0" horizontalAlign="center">
       
-      <frontend:CollectorList id="list" dataProvider="{anonymizers}" keyDown="enter(event)"/>
+      <frontend:CollectorList id="list" click="onListClick(event)" dataProvider="{anonymizers}"
+                              keyDown="enter(event)"/>
       
       <frontend:Separator/>
       
       <s:Scroller id="scroller" width="100%" height="100%">
-        <graph:FrontendGraph id="graph"/>
+        <graph:FrontendGraph id="graph" nodeSelected="onNodeSelection(event)"/>
       </s:Scroller>
       
     </s:VGroup>

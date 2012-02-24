@@ -1,18 +1,16 @@
 package it.ht.rcs.console.system.view.frontend.graph
 {
-	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	
-	import it.ht.rcs.console.events.NodeEvent;
-	import it.ht.rcs.console.utils.ScrollableGraph;
 	import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
 	import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
 	import it.ht.rcs.console.system.view.frontend.graph.renderers.IPRenderer;
+	import it.ht.rcs.console.utils.ScrollableGraph;
 	
 	import spark.primitives.Rect;
 
-	[Event(name="nodeChanged", type="it.ht.rcs.console.events.NodeEvent")]
+	[Event(name="nodeSelected", type="it.ht.rcs.console.system.view.frontend.graph.NodeEvent")]
 	public class FrontendGraph extends ScrollableGraph
 	{
 
@@ -22,9 +20,7 @@ package it.ht.rcs.console.system.view.frontend.graph
 		{
 			super();
 
-      addEventListener(NodeEvent.CHANGED, onNodeEvent);
-			addEventListener(NodeEvent.ADDED,   onNodeEvent);
-			addEventListener(NodeEvent.REMOVED, onNodeEvent);
+      addEventListener(NodeEvent.SELECTED, onNodeEvent);
 		}
     
     override protected function onSimulatedClick():void { removeSelection(); }
@@ -38,13 +34,10 @@ package it.ht.rcs.console.system.view.frontend.graph
       }
     }
     
-		private function onNodeEvent(e:Event):void
+		private function onNodeEvent(e:NodeEvent):void
 		{
-			if (!(e is NodeEvent) || e.target == this)
-				return;
-
 			trace('NetworkGraph: NodeEvent');
-			rebuildGraph();
+      //dispatchEvent(e.clone());
 		}
     
     

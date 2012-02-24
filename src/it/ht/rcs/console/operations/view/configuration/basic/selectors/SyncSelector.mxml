@@ -8,6 +8,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
       
       [Bindable]
       public var title:String;
@@ -22,6 +23,10 @@
       private function onSwitch(event:MouseEvent):void
       {
         options.visible = options.includeInLayout = check.selected;
+      }
+      
+      private function myLabelToItem(value:String):Object {
+        return new Collector({name:value, address:value});
       }
     ]]>
   </fx:Script>
@@ -56,7 +61,7 @@
     
     <s:Spacer width="2"/>
     <s:ComboBox id="host" width="150" height="28" fontFamily="Myriad" fontSize="14" labelField="name"
-                requireSelection="true"/>
+                requireSelection="true" labelToItemFunction="myLabelToItem"/>
   </s:HGroup>
   
   <s:Label visible="{!options.visible}" top="50" width="100%" height="40" fontFamily="Myriad"

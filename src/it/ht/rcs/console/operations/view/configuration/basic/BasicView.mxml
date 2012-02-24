@@ -25,8 +25,8 @@
         messages.selected   = hasAction('messages') || hasAction('chat');
         url.selected        = hasAction('url');
         file.selected       = hasAction('file');
-        screenshot.selected = hasAction('screenshot') || hasAction('mouse');
-        position.selected   = hasAction('position');
+        screenshot.selected = hasAction('mouse');
+        position.selected   = hasPosition();
         
         if (screenshot.selected)
           screenshot.seconds.text = String(getDelayFor('SCREENSHOT'));
@@ -39,12 +39,16 @@
         sync.selected = hasSync();
         if (sync.selected) {
           sync.minutes.text = String(getDelayFor('SYNC') / 60);
-          var point:Collector = getSyncEntryPoint(entryPoints);
-          if (point)
-            sync.host.selectedItem = point;
-          else
-            sync.host.selectedIndex = 0;
+          setEntryPoint(entryPoints);
         }
+      }
+      
+      private function hasPosition():Boolean
+      {
+        for each (var a:Object in config.actions)
+          if (a.desc == 'POSITION')
+            return true;
+        return false;
       }
       
       private function hasAction(name:String):Boolean
@@ -83,17 +87,26 @@
         return syncAction != null;
       }
       
-      private function getSyncEntryPoint(ep:ListCollectionView):Collector
+      private function setEntryPoint(ep:ListCollectionView):void
       {
         var host:String = null;
         for each (var a:Object in config.actions)
           if (a.desc == 'SYNC')
             host = a.subactions[0].host;
 
+        if (host == '') {
+          sync.host.selectedIndex = 0;
+          return;
+        }
+        
         for each (var c:Collector in ep)
-          if (c.address == host)
-            return c;
-        return null;
+          if (c.address == host) {
+            sync.host.selectedItem = c;
+            return;
+          }
+        
+        sync.host.selectedItem = host;
+        //sync.host.textInput.text = host;
       }
       
       private function goToAdvanced(event:MouseEvent):void
@@ -145,7 +158,7 @@
     </s:HGroup>
     
     <s:HGroup width="100%" gap="30">
-      <selectors:PositionSelector id="position" title="Location"/>
+      <selectors:PositionSelector id="position" title="Position"/>
       <selectors:SyncSelector id="sync" title="Online Synchronization"/>
     </s:HGroup>
     

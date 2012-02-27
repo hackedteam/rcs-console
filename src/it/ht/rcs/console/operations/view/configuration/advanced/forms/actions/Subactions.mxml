@@ -12,7 +12,7 @@
       
       public var form:ActionForm;
       
-      private function onChange(event:IndexChangeEvent):void
+      private function onChange(event:Event):void
       {
         form.currentState = list.selectedItem.action;
         PopUpManager.centerPopUp(form);
@@ -28,7 +28,16 @@
       
       private function addSubaction(me:MouseEvent):void
       {
-        list.dataProvider.addItem({action:availableGroups.selectedItem});
+        list.dataProvider.addItem({ action: subactions.selectedItem.toLowerCase() });
+      }
+      
+      private function removeSubaction(me:MouseEvent):void
+      {
+        if (list.selectedItem) {
+          var idx:int = list.selectedIndex;
+          list.dataProvider.removeItemAt(idx);
+          list.selectedIndex = list.dataProvider.length > idx ? idx : idx - 1;
+        }
       }
     ]]>
   </fx:Script>
@@ -38,11 +47,12 @@
   
   <s:HGroup width="200" gap="-1" horizontalAlign="right">
     
-    <s:Button width="30" label="-" cornerRadius="0" enabled="{list.selectedItem != null}"/>
+    <s:Button width="30" label="-" click="removeSubaction(event)" cornerRadius="0"
+              enabled="{list.selectedItem != null}"/>
     
     <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
       <mx:popUp>
-        <s:List id="availableGroups" click="addSubaction(event)" filters="{[dropShadow]}"
+        <s:List id="subactions" click="addSubaction(event)" filters="{[dropShadow]}"
                 labelField="name" textAlign="left">
           <s:dataProvider>
             <s:ArrayList>

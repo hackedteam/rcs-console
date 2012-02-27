@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
-                             creationComplete="init()" title="Edit Event" save="save()">
+                             creationComplete="init()" save="save()" title="Edit Event">
   
   
   <fx:Script>
@@ -60,7 +60,9 @@
   
   <utils:states>
     <s:State name="none"/>
+    <s:State name="afterinst"/>
     <s:State name="connection"/>
+    <s:State name="date"/>
     <s:State name="process"/>
     <s:State name="quota"/>
     <s:State name="screensaver"/>
@@ -73,6 +75,10 @@
     <s:State name="standby"/>
     <s:State name="window"/>
   </utils:states>
+  
+  <utils:layout>
+    <s:VerticalLayout paddingBottom="2" paddingLeft="2" paddingRight="10" paddingTop="2"/>
+  </utils:layout>
   
   <s:Form defaultButton="{saveButton}">
 
@@ -89,7 +95,9 @@
       <s:DropDownList id="type" width="160" change="onChange(event)" requireSelection="true">
         <s:dataProvider>
           <s:ArrayList>
+            <fx:String>AfterInst</fx:String>
             <fx:String>Connection</fx:String>
+            <fx:String>Date</fx:String>
             <fx:String>Process</fx:String>
             <fx:String>Quota</fx:String>
             <fx:String>Screensaver</fx:String>
@@ -108,7 +116,9 @@
     
     <s:Spacer height="20"/>
     
+    <events:AfterInst id="afterinst" includeIn="afterinst"/>
     <events:Connection id="connection" includeIn="connection"/>
+    <events:Date id="date" includeIn="date"/>
     <events:Process id="process" includeIn="process"/>
     <events:Quota id="quota" includeIn="quota"/>
     <events:Screensaver id="screensaver" includeIn="screensaver"/>

@@ -4,10 +4,36 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           verticalAlign="middle">
   
-  <s:TextInput maxChars="2" restrict="0-9" textAlign="center" widthInChars="2" text="00"/>
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      public function set time(t:String):void
+      {
+        try {
+          var chunks:Array = t.split(':');
+          hours.text = chunks[0];
+          minutes.text = chunks[1];
+          seconds.text = chunks[2];
+        } catch (e:Error) {
+          hours.text = '00';
+          minutes.text = '00';
+          seconds.text = '00';
+        }
+      }
+      
+      public function get time():String
+      {
+        return TimeUtils.zeroPad(parseInt(hours.text), 2) + ':' + 
+               TimeUtils.zeroPad(parseInt(minutes.text), 2) + ':' + 
+               TimeUtils.zeroPad(parseInt(seconds.text), 2);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:TextInput id="hours" maxChars="2" restrict="0-9" textAlign="center" widthInChars="2" text="00"/>
   <s:Label text=":"/>
-  <s:TextInput maxChars="2" restrict="0-9" textAlign="center" widthInChars="2" text="00"/>
+  <s:TextInput id="minutes" maxChars="2" restrict="0-9" textAlign="center" widthInChars="2" text="00"/>
   <s:Label text=":"/>
-  <s:TextInput maxChars="2" restrict="0-9" textAlign="center" widthInChars="2" text="00"/>
+  <s:TextInput id="seconds" maxChars="2" restrict="0-9" textAlign="center" widthInChars="2" text="00"/>
   
 </s:HGroup>

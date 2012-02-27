@@ -2,14 +2,32 @@
 <events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
-                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*">
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()" creationPolicy="all">
   
   <fx:Script>
     <![CDATA[
+      import mx.events.FlexEvent;
+        
       import spark.events.IndexChangeEvent;
+
+      private function init():void
+      {
+//        from.time = event.ts;
+//        to.time = event.te;
+      }
       
       override public function commit():void
       {
+        event.subtype = currentState;
+        switch (currentState) {
+          case 'daily':
+            event.ts = from.time;
+            event.te = to.time;
+            break;
+          default:
+            break;
+        }
       }
       
       private function onChange(event:IndexChangeEvent):void
@@ -21,36 +39,34 @@
   
   <events:states>
     <s:State name="loop"/>
-    <s:State name="date"/>
     <s:State name="daily"/>
-    <s:State name="install"/>
     <s:State name="startup"/>
   </events:states>
-
-  <s:FormItem label="Type">
-    <s:DropDownList id="type" change="onChange(event)" requireSelection="true">
-      <s:dataProvider>
-        <s:ArrayList>
-          <fx:String>Loop</fx:String>
-          <fx:String>Date</fx:String>
-          <fx:String>Daily</fx:String>
-          <fx:String>After install</fx:String>
-          <fx:String>After startup</fx:String>
-        </s:ArrayList>
-      </s:dataProvider>
-    </s:DropDownList>
-  </s:FormItem>
   
-  <s:FormItem includeIn="daily" label="From">
-    <events:TimeField/>
-  </s:FormItem>
+  <s:Label width="280" text="Timer start action will fire every tot..."/>
   
-  <s:FormItem includeIn="daily" label="To">
-    <events:TimeField/>
-  </s:FormItem>
+  <s:Form>
   
-  <s:FormItem includeIn="startup" label="Asd">
-    <events:TimeField/>
-  </s:FormItem>
+    <s:FormItem label="Type">
+      <s:DropDownList id="type" width="126" change="onChange(event)" requireSelection="true">
+        <s:dataProvider>
+          <s:ArrayList>
+            <fx:String>Loop</fx:String>
+            <fx:String>Daily</fx:String>
+            <fx:String>After startup</fx:String>
+          </s:ArrayList>
+        </s:dataProvider>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="daily" label="From">
+      <events:TimeField id="from"/>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="daily" label="To">
+      <events:TimeField id="to"/>
+    </s:FormItem>
+    
+  </s:Form>
   
 </events:EventFields>

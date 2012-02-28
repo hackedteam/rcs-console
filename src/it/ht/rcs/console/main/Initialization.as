@@ -61,7 +61,14 @@ package it.ht.rcs.console.main
       Update.check();
       
       var managers:Array = [];
-            
+         
+      if (user.is_any())
+      {
+        SearchManager.instance.listenRefresh();
+        managers.push(SearchManager.instance);
+        managers.push(LicenseManager.instance);
+      }
+      
       if (user.is_admin())
       {
         managers.push(UserManager.instance);
@@ -70,8 +77,6 @@ package it.ht.rcs.console.main
 
       if (user.is_sys())
       {
-        managers.push(CollectorManager.instance);
-        managers.push(InjectorManager.instance);
         managers.push(ShardManager.instance);        
       }
 
@@ -91,7 +96,7 @@ package it.ht.rcs.console.main
         managers.push(AgentManager.instance);
       }
       
-      if (user.is_tech())
+      if (user.is_sys() || user.is_tech())
       {
         managers.push(CollectorManager.instance);
         managers.push(InjectorManager.instance);
@@ -101,14 +106,6 @@ package it.ht.rcs.console.main
       {
         managers.push(AlertManager.instance);
       }
-
-      if (user.is_any())
-      {
-        SearchManager.instance.listenRefresh();
-        managers.push(SearchManager.instance);
-        managers.push(LicenseManager.instance);
-      }
-
       
       maxGreenLights = managers.length;
       if (maxGreenLights == 0)

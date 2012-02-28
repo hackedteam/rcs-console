@@ -15,33 +15,46 @@
       {
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         host.dataProvider = entryPoints;
+        bandwidth.text = action.bandwidth;
+      }
+      
+      override public function commit():void
+      {
+        action.bandwidth = bandwidth.text;
       }
     ]]>
   </fx:Script>
   
-  <s:FormItem label="Host">
-    <s:ComboBox id="host" width="200" labelField="name" requireSelection="true"/>
-  </s:FormItem>
+  <s:Label width="330"
+           text="The action is triggered when the machine makes a connection to the specified address"/>
   
-  <s:FormItem label="Bandwidth">
-    <s:HGroup verticalAlign="middle">
-      <s:TextInput restrict="0-9" textAlign="center" widthInChars="5"/>
-      <s:Label paddingTop="1" text=" kB/s"/>
-    </s:HGroup>
-  </s:FormItem>
+  <s:Form>
+    
+    <s:FormItem label="Host">
+      <s:ComboBox id="host" width="200" labelField="name" requireSelection="true"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Bandwidth">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="bandwidth" restrict="0-9" textAlign="center" widthInChars="5"/>
+        <s:Label paddingTop="1" text=" kB/s"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="Min delay">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" seconds"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="Max delay">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" seconds"/>
+      </s:HGroup>
+    </s:FormItem>
   
-  <s:FormItem label="Min delay">
-    <s:HGroup verticalAlign="middle">
-      <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
-      <s:Label paddingTop="1" text=" seconds"/>
-    </s:HGroup>
-  </s:FormItem>
+  </s:Form>
   
-  <s:FormItem label="Max delay">
-    <s:HGroup verticalAlign="middle">
-      <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
-      <s:Label paddingTop="1" text=" seconds"/>
-    </s:HGroup>
-  </s:FormItem>
-
 </actions:ActionFields>

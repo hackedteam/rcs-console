@@ -17,6 +17,9 @@
                         selectedObject.status == 'open'}"
               icon="@Embed('/img/NEW/edit.png')"/>
     
+    <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+              enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+    
     <actionbar:Separator width="40"/>
 
     <s:Button label="{R.get('EVIDENCE_IMPORT')}" click="importEvidence(event)"
@@ -36,13 +39,16 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
       [Bindable]
@@ -66,6 +72,16 @@
         popup.factory = selectedObject as Agent;
         popup.currentState = FactoriesForm.EDIT;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDeleteClick():void
+      {
+        AlertPopUp.show("Confirm operation deletion", R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              AgentManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
       }
       
       private function onRemovedFromStage():void

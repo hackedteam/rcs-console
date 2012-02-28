@@ -34,6 +34,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
@@ -59,7 +60,8 @@
       private function onSave():void
       {
         var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
-        AgentManager.instance.addConfig(configView.section.stateManager.selectedFactory, JSON.stringify(config));
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
       }
       
       private function importFile(e:MouseEvent):void

@@ -16,6 +16,9 @@
       
       import mx.rpc.events.ResultEvent;
       
+      import spark.collections.Sort;
+      import spark.collections.SortField;
+      
       [Bindable]
       public var section:OperationsSection;
       
@@ -23,6 +26,10 @@
       {
         AgentManager.instance.show(section.stateManager.selectedAgent._id, function(e:ResultEvent):void {
           section.stateManager.selectedAgent = e.result as Agent;
+          var def:Sort = new Sort();
+          def.fields = [new SortField('saved', true)];
+          section.stateManager.selectedAgent.configs.sort = def;
+          section.stateManager.selectedAgent.configs.refresh();
         });
       }
       
@@ -53,7 +60,7 @@
         <s:GridColumn dataField="user" headerText="{R.get('USER')}"/>
         <s:GridColumn dataField="sent" headerText="{R.get('SENT_TIME')}" labelFunction="dateLabel"/>
         <s:GridColumn dataField="activated" headerText="{R.get('ACTIVATED')}" labelFunction="dateLabel"/>
-        <s:GridColumn dataField="saved" headerText="{R.get('SAVED')}" labelFunction="dateLabel"/>
+        <s:GridColumn dataField="saved" headerText="{R.get('SAVED')}" labelFunction="dateLabel" sortDescending="true"/>
         
       </s:ArrayList>
     </s:columns>

@@ -11,6 +11,9 @@
   <s:Button label="{R.get('EDIT')}" click="onEditClick()"
             enabled="{selectedObject != null}" icon="@Embed('/img/NEW/edit.png')"/>
   
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+            enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+  
   <actionbar:Separator width="40"/>
   
   <s:HGroup height="100%" verticalAlign="middle">
@@ -24,12 +27,15 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
       [Bindable]
@@ -49,6 +55,16 @@
         popup.operation = selectedObject as Operation;
         popup.currentState = OperationsForm.EDIT;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDeleteClick():void
+      {
+        AlertPopUp.show("Confirm operation deletion", R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              OperationManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
       }
       
       private function onRemovedFromStage():void

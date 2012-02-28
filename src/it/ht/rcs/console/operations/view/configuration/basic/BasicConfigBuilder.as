@@ -11,7 +11,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       newConfig.modules = modules;
       newConfig.globals = globals;
       
-      buildConfigInternal(model, newConfig)
+      buildConfigInternal(model, newConfig);
       
       return newConfig;
     }
@@ -34,7 +34,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.screenshot) subactions.push({action: "module", module: "mouse",       status: "start"}); // I do not add screenshot here because, if enabled, it will have its own event/action
       
       
-      var startupEvent:Object =  {event: "timer", type: "loop", start: 0, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "STARTUP"};
+      var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", enabled: true, desc: "STARTUP"};
       var startupAction:Object = {desc: "STARTUP", subactions: subactions};
       events.push(startupEvent);
       actions.push(startupAction);
@@ -42,7 +42,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       var index:int = 1;
       if (model.screenshot) {
-        var screenshotEvent:Object =  {event: "timer", type: "loop", start: index, repeat: index, delay: model.screenshotDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SCREENSHOT"};
+        var screenshotEvent:Object =  {event: "timer", subtype: "loop", start: index, repeat: index, delay: model.screenshotDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SCREENSHOT"};
         var screenshotAction:Object = {desc: "SCREENSHOT", subactions: [{action: "module", module: "screenshot", status: "start"}]};
         events.push(screenshotEvent);
         actions.push(screenshotAction);
@@ -51,7 +51,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       
       if (model.position) {
-        var positionEvent:Object =  {event: "timer", type: "loop", start: index, repeat: index, delay: model.positionDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "POSITION"};
+        var positionEvent:Object =  {event: "timer", subtype: "loop", start: index, repeat: index, delay: model.positionDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "POSITION"};
         var positionAction:Object = {desc: "POSITION", subactions: [{action: "module", module: "position", status: "start"}]};
         events.push(positionEvent);
         actions.push(positionAction);
@@ -60,8 +60,15 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       
       if (model.sync) {
-        var syncEvent:Object =  {event: "timer", type: "loop", repeat: index, delay: model.syncDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
-        var syncAction:Object = {desc: "SYNC", subactions: [{action: "synchronize", host: model.syncHost}]};
+        var syncEvent:Object =  {event: "timer", subtype: "loop", repeat: index, delay: model.syncDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
+        var syncAction:Object = {desc: "SYNC", subactions: [{action: "synchronize",
+                                                             host: model.syncHost,
+                                                             mindelay: 0,
+                                                             maxdelay: 0,
+                                                             wifi: false,
+                                                             stop: false,
+                                                             cell: false,
+                                                             bandwidth: 500000}]};
         events.push(syncEvent);
         actions.push(syncAction);
         index++;

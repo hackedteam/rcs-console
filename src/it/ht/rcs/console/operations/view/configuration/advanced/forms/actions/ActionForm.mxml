@@ -13,6 +13,7 @@
       import locale.R;
       
       import mx.collections.ArrayList;
+      import mx.managers.PopUpManager;
       
       public var action:Object;
       public var graph:ConfigurationGraph;
@@ -33,6 +34,16 @@
         close();
         graph.rebuildGraph();
       }
+      
+      public function changeState(state:String):void
+      {
+        currentState = state;
+        if (this.hasOwnProperty(currentState)) {
+          currentData = this[currentState] as ActionFields;
+          currentData.action = subactions.list.selectedItem;
+        }
+        PopUpManager.centerPopUp(this);
+      }
     ]]>
   </fx:Script>
   
@@ -49,6 +60,10 @@
     
     <s:State name="sms"/>
   </utils:states>
+  
+  <utils:layout>
+    <s:VerticalLayout paddingBottom="2" paddingLeft="2" paddingRight="10" paddingTop="2"/>
+  </utils:layout>
 
   <s:Form defaultButton="{saveButton}">
     
@@ -60,9 +75,11 @@
       <actions:Subactions id="subactions" form="{this}"/>
     </s:FormItem>
   
-    <actions:Syncronize includeIn="synchronize"/>
-    <actions:Execute includeIn="execute"/>
-    <actions:Destroy includeIn="destroy"/>
+    <s:Spacer height="20"/>
+    
+    <actions:Syncronize id="synchronize" includeIn="synchronize"/>
+    <actions:Execute id="execute" includeIn="execute"/>
+    <actions:Destroy id="destroy" includeIn="destroy"/>
 
   </s:Form>
   

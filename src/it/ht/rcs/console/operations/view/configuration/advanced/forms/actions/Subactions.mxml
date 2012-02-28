@@ -14,8 +14,7 @@
       
       private function onChange(event:Event):void
       {
-        form.currentState = list.selectedItem.action;
-        PopUpManager.centerPopUp(form);
+        form.changeState(list.selectedItem.action);
       }
       
       private function actionLabelFunction(item:Object):String
@@ -37,6 +36,7 @@
           var idx:int = list.selectedIndex;
           list.dataProvider.removeItemAt(idx);
           list.selectedIndex = list.dataProvider.length > idx ? idx : idx - 1;
+          form.changeState(list.selectedItem.action);
         }
       }
     ]]>
@@ -56,7 +56,7 @@
                 labelField="name" textAlign="left">
           <s:dataProvider>
             <s:ArrayList>
-              <fx:String>Sync</fx:String>
+              <fx:String>Synchronize</fx:String>
               <fx:String>Execute</fx:String>
               <fx:String>Uninstall</fx:String>
               <fx:String>Log</fx:String>

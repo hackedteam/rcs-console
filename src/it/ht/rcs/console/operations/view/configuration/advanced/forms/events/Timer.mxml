@@ -3,27 +3,50 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
-                    creationComplete="init()" creationPolicy="all">
+                    creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
-      import mx.events.FlexEvent;
-        
+      import mx.collections.ArrayCollection;
+      
       import spark.events.IndexChangeEvent;
 
       private function init():void
       {
-//        from.time = event.ts;
-//        to.time = event.te;
+        currentState = event.subtype;
+        
+        for each (var key:String in ArrayCollection(type.dataProvider).source)
+          if (key.toLowerCase().indexOf(currentState) != -1)
+            type.selectedItem = key;
+        
+        switch (currentState) {
+          case 'daily':
+            from.time = event.ts;
+            to.time = event.te;
+            break;
+          case 'startup':
+            after.time = event.ts;
+            break;
+          default:
+            break;
+        }
       }
       
       override public function commit():void
       {
         event.subtype = currentState;
         switch (currentState) {
+          case 'loop':
+            event.ts = '00:00:00';
+            event.te = '23:59:59';
+            break;
           case 'daily':
             event.ts = from.time;
             event.te = to.time;
+            break;
+          case 'startup':
+            event.ts = after.time;
+            event.te = '00:00:00';
             break;
           default:
             break;
@@ -50,11 +73,11 @@
     <s:FormItem label="Type">
       <s:DropDownList id="type" width="126" change="onChange(event)" requireSelection="true">
         <s:dataProvider>
-          <s:ArrayList>
+          <s:ArrayCollection>
             <fx:String>Loop</fx:String>
             <fx:String>Daily</fx:String>
             <fx:String>After startup</fx:String>
-          </s:ArrayList>
+          </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
     </s:FormItem>
@@ -65,6 +88,10 @@
     
     <s:FormItem includeIn="daily" label="To">
       <events:TimeField id="to"/>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="startup" label="After">
+      <events:TimeField id="after"/>
     </s:FormItem>
     
   </s:Form>

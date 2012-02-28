@@ -4,6 +4,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
+  import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
@@ -116,7 +117,10 @@ package it.ht.rcs.console.operations.view
     {
       
       currentState = state;
-      
+      if (CurrentManager) {
+        CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CurrentManager.instance.unlistenRefresh();
+      }
       switch (currentState) {
         case 'allOperations':
           clearVars();
@@ -181,7 +185,15 @@ package it.ht.rcs.console.operations.view
         default:
           break;
       }
-      
+      if (CurrentManager) {
+        CurrentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CurrentManager.instance.listenRefresh();
+      }        
+    }
+    
+    private function onDataLoaded(e:DataLoadedEvent):void
+    {
+      setState(section.currentState);
     }
     
     private function update():void

@@ -3,24 +3,54 @@
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
                       xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
-                      creationComplete="init()">
+                      addedToStage="init()" creationComplete="init()" removedFromStage="commit()">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
       
       import mx.collections.ListCollectionView;
       
       private function init():void
       {
+        if (!bandwidth) return;
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         host.dataProvider = entryPoints;
+        setEntryPoint(entryPoints);
         bandwidth.text = action.bandwidth;
+        min.text = action.mindelay;
+        max.text = action.maxdelay;
       }
       
-      override public function commit():void
+      private function commit():void
       {
+        action.host = host.selectedItem.address;
         action.bandwidth = bandwidth.text;
+        action.mindelay = min.text;
+        action.maxdelay = max.text;
+      }
+      
+      private function setEntryPoint(ep:ListCollectionView):void
+      {
+        var hostString:String = action.host;
+        if (hostString == '') {
+          host.selectedIndex = 0;
+          return;
+        }
+        
+        for each (var c:Collector in ep)
+          if (c.address == hostString) {
+            host.selectedItem = c;
+            return;
+          }
+        
+        host.selectedItem = hostString;
+      }
+      
+      private function myLabelToItem(value:String):Object
+      {
+        return new Collector({name:value, address:value});
       }
     ]]>
   </fx:Script>
@@ -31,7 +61,8 @@
   <s:Form>
     
     <s:FormItem label="Host">
-      <s:ComboBox id="host" width="200" labelField="name" requireSelection="true"/>
+      <s:ComboBox id="host" width="200" labelField="name" labelToItemFunction="myLabelToItem"
+                  requireSelection="true"/>
     </s:FormItem>
     
     <s:FormItem label="Bandwidth">
@@ -43,14 +74,14 @@
     
     <s:FormItem label="Min delay">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:TextInput id="min" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" seconds"/>
       </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Max delay">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:TextInput id="max" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" seconds"/>
       </s:HGroup>
     </s:FormItem>

@@ -68,7 +68,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
                                                              wifi: false,
                                                              stop: false,
                                                              cell: false,
-                                                             bandwidth: 500000}]};
+                                                             bandwidth: 500}]};
         events.push(syncEvent);
         actions.push(syncAction);
         index++;

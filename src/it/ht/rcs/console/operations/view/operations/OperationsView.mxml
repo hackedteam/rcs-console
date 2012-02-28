@@ -20,6 +20,14 @@
         var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
         if (item) section.stateManager.manageItemSelection(item);
       }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ENTER) {
+          var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
+          if (item) section.stateManager.manageItemSelection(item);
+        }
+      }
     ]]>
   </fx:Script>
   
@@ -34,7 +42,7 @@
       <s:HGroup width="100%" height="100%" gap="5">
         
         <view:BaseList id="list" dataProvider="{section.stateManager.view}"
-                       doubleClick="onDoubleClick(event)" selectedItem="{grid.selectedItem}"/>
+                       doubleClick="onDoubleClick(event)" selectedItem="{grid.selectedItem}" keyUp="onKeyUp(event)"/>
         
         <operations:OperationsInfoPanel selectedItem="{list.selectedItem}"/>
         
@@ -47,7 +55,7 @@
       
       <operations:OperationsGrid id="grid" dataProvider="{section.stateManager.view}"
                                  doubleClick="onDoubleClick(event)"
-                                 selectedItem="{list.selectedItem}"/>
+                                 selectedItem="{list.selectedItem}" keyUp="onKeyUp(event)"/>
       
       
     </s:NavigatorContent>

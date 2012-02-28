@@ -1,8 +1,10 @@
 package it.ht.rcs.console.utils
 {
   import flash.desktop.Updater;
+  import flash.display.DisplayObject;
   import flash.events.Event;
   import flash.events.IOErrorEvent;
+  import flash.events.ProgressEvent;
   import flash.filesystem.File;
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
@@ -15,7 +17,9 @@ package it.ht.rcs.console.utils
   
   import locale.R;
   
+  import mx.core.FlexGlobals;
   import mx.events.CloseEvent;
+  import mx.managers.PopUpManager;
   import mx.rpc.events.ResultEvent;
 
   public class Update
@@ -68,6 +72,9 @@ package it.ht.rcs.console.utils
       /* make sure a previous file is not there... */
       if (file.exists)
         file.deleteFile();
+     
+      var updatePopup:UpdatePopup = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, UpdatePopup, true) as UpdatePopup;
+      PopUpManager.centerPopUp(updatePopup);
       
       /* prepare the handlers for the download */
       urlStream.addEventListener(IOErrorEvent.IO_ERROR, 
@@ -76,6 +83,11 @@ package it.ht.rcs.console.utils
                                    if (file.exists)
                                      file.deleteFile();
                                  });
+      
+      urlStream.addEventListener(ProgressEvent.PROGRESS, 
+                                function (e:ProgressEvent):void {
+                                  updatePopup.progressBar.setProgress(e.bytesLoaded, e.bytesTotal);
+                                });
       
       urlStream.addEventListener(Event.COMPLETE, 
                                  function (e:Event):void {

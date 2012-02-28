@@ -19,7 +19,7 @@
 
       private function init():void
       {
-        view = InjectorManager.instance.getView();
+        view = InjectorManager.instance.getView(null, searchFilterFunction);
       }
       
       private function onAddedToStage():void
@@ -31,16 +31,24 @@
       {
         InjectorManager.instance.unlistenRefresh();
       }
+      
+      private function searchFilterFunction(item:Object):Boolean
+      {
+        try {
+          return item.name.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+        } catch (e:Error) {}
+        return true;
+      }
     ]]>
   </fx:Script>
   
-  <nia:NIAActionBar selectedObject="{nias.selectedItem}" view="{view}"/>
+  <nia:NIAActionBar id="actionBar" selectedObject="{nias.selectedItem}" view="{view}"/>
   
   <nia:NIAList id="nias" dataProvider="{view}"/>
   
   <nia:RulesActionBar selectedInjector="{nias.selectedItem as Injector}"
                       selectedRule="{rules.selectedItem as InjectorRule}"/>
    
-  <nia:RulesGrid id="rules" dataProvider="{nias.selectedItem.rules}"/>
+  <nia:RulesGrid id="rules" dataProvider="{Console.currentSession.user.is_tech() ? nias.selectedItem.rules : null}"/>
 
 </s:VGroup>

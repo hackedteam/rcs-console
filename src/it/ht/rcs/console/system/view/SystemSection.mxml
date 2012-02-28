@@ -22,12 +22,15 @@
       
       private function init():void
       {
-        
+
         currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
+
+        if (currentState == 'sys' && LicenseManager.instance.forwarders == false)
+          subSections.removeElementAt(4); // integration section
+
         // Bestiality: using "includeIn" on NavigationContent elements will cause the menu to be out of sync with the view
         if (currentState == 'tech') {
-          if (LicenseManager.instance.forwarders == false)
-            subSections.removeElementAt(4); // third party section
+          subSections.removeElementAt(4);
           subSections.removeElementAt(3);
           subSections.removeElementAt(1);
           subSections.removeElementAt(0);

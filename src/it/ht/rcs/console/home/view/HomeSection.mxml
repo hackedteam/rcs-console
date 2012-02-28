@@ -18,9 +18,9 @@
       import mx.core.FlexGlobals;
       
       [Bindable]
-      private var enable_quick_agent:Boolean;
-      [Bindable]
       private var enable_items:Boolean;
+      [Bindable]
+      private var goto_kinds:Array;
       
       private function onAddedToStage():void
       {
@@ -31,8 +31,18 @@
         else
           currentState = 'none';
         
-        enable_quick_agent = (Console.currentSession.user.is_admin() && Console.currentSession.user.is_tech());
+
         enable_items = (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view());
+        
+        if (Console.currentSession.user.is_admin())
+          goto_kinds = ['operation', 'target'];
+
+        if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view())
+          goto_kinds = ['operation', 'target', 'factory', 'agent'];
+        
+        if (Console.currentSession.user.is_sys())
+          goto_kinds = [];
+        
       }
       
       private function onGoTo(e:ItemFieldEvent):void
@@ -61,7 +71,8 @@
   <s:VGroup includeIn="any" width="100%" height="100%" gap="80" horizontalAlign="center"
             verticalAlign="middle">
 
-    <s:BorderContainer borderColor="#dddddd" borderWeight="2" cornerRadius="20">
+    <s:BorderContainer borderColor="#dddddd" borderWeight="2" cornerRadius="20" 
+      visible="{Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_view()}">
       
       <s:Rect width="100%" height="100%" radiusX="20" radiusY="20">
         <s:fill>
@@ -74,12 +85,11 @@
       </s:Rect>
       
       <s:VGroup gap="10" horizontalAlign="center" paddingBottom="20" paddingLeft="20"
-                paddingRight="20" paddingTop="20">
+                paddingRight="20" paddingTop="20" >
         
         <s:HGroup gap="15" verticalAlign="middle">
-          <s:Label fontFamily="Myriad" fontSize="16" fontWeight="bold" paddingTop="2"
-                   text="{R.get('GO_TO')}"/>
-          <itemfield:ItemField id="goTo" width="300" itemSelected="onGoTo(event)"/>
+          <s:Label fontFamily="Myriad" fontSize="16" fontWeight="bold" paddingTop="2" text="{R.get('GO_TO')}"/>
+          <itemfield:ItemField id="goTo" width="300" itemSelected="onGoTo(event)" kinds="{goto_kinds}"/>
         </s:HGroup>
         
         <s:Label fontFamily="Myriad" fontSize="16" fontWeight="bold" paddingTop="20"

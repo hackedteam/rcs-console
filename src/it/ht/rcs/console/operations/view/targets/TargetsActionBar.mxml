@@ -5,14 +5,14 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:Button label="{R.get('NEW_TARGET')}" click="onNewClick()"
+  <s:Button label="{R.get('NEW_TARGET')}" click="onNewClick()" enabled="{Console.currentSession.user.is_admin()}"
             icon="@Embed('/img/NEW/newTarget.png')"/>
   
   <s:Button label="{R.get('EDIT')}" click="onEditClick()"
-            enabled="{selectedObject &amp;&amp; selectedObject.status == 'open'}"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/edit.png')"/>
   
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}"
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <actionbar:Separator width="40"/>

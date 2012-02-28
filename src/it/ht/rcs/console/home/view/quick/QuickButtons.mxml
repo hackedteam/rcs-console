@@ -2,23 +2,32 @@
 <s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
-          gap="60">
+          gap="60" addedToStage="onAdded(event)">
 
   
   <fx:Script>
     <![CDATA[
       import mx.managers.PopUpManager;
       
+      [Bindable]
+      private var enable_quick_agent:Boolean;
+      
       private function onQuickAgent():void
       {
         var popup:QuickAgentForm = PopUpManager.createPopUp(root, QuickAgentForm, true) as QuickAgentForm;
         PopUpManager.centerPopUp(popup);
       }
+      
+      protected function onAdded(event:Event):void
+      {
+        enable_quick_agent = (Console.currentSession.user.is_admin() && Console.currentSession.user.is_tech());
+      }
+      
     ]]>
   </fx:Script>
   
   
-  <s:Button width="150" label="Quick Agent Creation" click="onQuickAgent()"
+  <s:Button width="150" label="Quick Agent Creation" visible="{enable_quick_agent}" includeInLayout="{enable_quick_agent}" click="onQuickAgent()"
             icon="@Embed('/img/NEW/home_agent.png')"/>
   
   <s:Button width="150" enabled="false" icon="@Embed('/img/NEW/home_empty.png')"/>

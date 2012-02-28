@@ -9,20 +9,38 @@
             includeInLayout="{section.currentState == 'singleTarget'}" verticalAlign="middle">
     
     <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
+              enabled="{Console.currentSession.user.is_tech()}"
               icon="@Embed('/img/NEW/newFactory.png')"/>
     
     <s:Button label="{R.get('EDIT')}" click="onEditClick()"
-              enabled="{selectedObject &amp;&amp; selectedObject is Agent}"
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
               icon="@Embed('/img/NEW/edit.png')"/>
     
     <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
-              enabled="{selectedObject &amp;&amp; selectedObject is Agent}" icon="@Embed('/img/NEW/delete_32.png')"/>
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}" 
+              icon="@Embed('/img/NEW/delete_32.png')"/>
     
     <actionbar:Separator width="40"/>
 
     <s:Button label="{R.get('EVIDENCE_IMPORT')}" click="importEvidence(event)"
               icon="@Embed('/img/windows/user2.png')" enabled="{Console.currentSession.user.is_tech()}"/>
 
+    <s:Button label="{R.get('EVIDENCE_EXPORT')}"
+              icon="@Embed('/img/NEW/export.png')" enabled="{Console.currentSession.user.is_view()}"/>
+    
+    <actionbar:Separator width="40"/>
+    
+    <s:Button label="{R.get('UPDATE_AGENT')}"
+              icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; (selectedObject as Agent)._kind == 'agent'}"/>
+        
+    <actionbar:Separator width="40"/>
+  </s:HGroup>
+  <s:HGroup visible="{section.currentState == 'singleAgent'}" gap="0"
+            includeInLayout="{section.currentState == 'singleAgent'}" verticalAlign="middle">
+        
+    <s:Button label="{R.get('EVIDENCE_EXPORT')}"
+              icon="@Embed('/img/NEW/export.png')" enabled="{Console.currentSession.user.is_tech()}"/>
+    
     <actionbar:Separator width="40"/>
   </s:HGroup>
   

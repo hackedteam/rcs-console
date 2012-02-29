@@ -25,7 +25,7 @@
                    xmlns:s="library://ns.adobe.com/flex/spark" 
                    xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
                    minWidth="21" minHeight="30" 
-                   alpha.disabled="0.5">
+                   alpha.disabled="0.5" stateChangeComplete="sparkbuttonskin2_stateChangeCompleteHandler(event)">
 
     <!-- host component -->
     <fx:Metadata>
@@ -38,6 +38,14 @@
     </fx:Metadata>
     
     <fx:Script fb:purpose="styling">
+        
+        import mx.events.FlexEvent;
+        
+        protected function sparkbuttonskin2_stateChangeCompleteHandler(event:FlexEvent):void
+        {
+          invalidateDisplayList();
+        }
+        
         /* Define the skin elements that should not be colorized. 
            For toggle button, the graphics are colorized but the label is not. */
         static private const exclusions:Array = ["labelDisplay"];
@@ -50,13 +58,25 @@
             useChromeColor = true;
             super.initializationComplete();
         }
+      
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number) : void
+        {
+          this.hostComponent.buttonMode = true;
+          if (iconDisplay)
+            iconDisplay.filters = currentState.indexOf('Selected') != -1 ? [glow] : null;
+          super.updateDisplayList(unscaledWidth, unscaledHeight);
+        }
         
        /** 
         * @private
         */     
         override public function get colorizeExclusions():Array {return exclusions;}
     </fx:Script>
-    
+  
+    <fx:Declarations>
+      <s:GlowFilter id="glow" color="0x3082c4" blurX="8" blurY="8" strength="2"/>
+    </fx:Declarations>
+  
     <!-- states -->
     <s:states>
         <s:State name="up" />

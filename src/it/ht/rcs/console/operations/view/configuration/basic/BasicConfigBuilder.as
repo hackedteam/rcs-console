@@ -36,7 +36,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
                             subactions.push({action: "module", module: "password",    status: "start"}); }
       
       
-      var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", enabled: true, desc: "STARTUP"};
+      var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "STARTUP"};
       var startupAction:Object = {desc: "STARTUP", subactions: subactions};
       events.push(startupEvent);
       actions.push(startupAction);
@@ -100,7 +100,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       if (file == null) return;
       
-      file.open = true;
+      file.open = false;
       file.capture = true;
       
       file.accept = [];

@@ -123,9 +123,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       graphics.clear();
       
       var pin:Pin = from as Pin;
-      if (pin.type == 'start')
+      if (pin.type == 'start' || pin.type == 'enable')
         color = 0x00bb00;
-      else if (pin.type == 'stop' || pin.type == 'end')
+      else if (pin.type == 'stop' || pin.type == 'end' || pin.type == 'disable')
         color = 0xbb0000;
       else if (pin.type == 'repeat')
         color = 0x0000bb;

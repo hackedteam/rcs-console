@@ -200,6 +200,7 @@ package it.ht.rcs.console.operations.view
     {
       removeCustomTypes(view);
       view = getView();
+      removeCustomTypes(view);
       addCustomTypes(view);
     }
     

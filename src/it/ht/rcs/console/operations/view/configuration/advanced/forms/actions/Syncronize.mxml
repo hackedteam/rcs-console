@@ -18,7 +18,7 @@
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         host.dataProvider = entryPoints;
         setEntryPoint(entryPoints);
-        bandwidth.text = action.bandwidth;
+        bandwidth.text = String(parseInt(action.bandwidth) / 1000);
         min.text = action.mindelay;
         max.text = action.maxdelay;
       }
@@ -26,7 +26,7 @@
       private function commit():void
       {
         action.host = host.selectedItem is String ? host.selectedItem : host.selectedItem.address;
-        action.bandwidth = bandwidth.text;
+        action.bandwidth = String(parseInt(bandwidth.text) * 1000);
         action.mindelay = min.text;
         action.maxdelay = max.text;
       }

@@ -3,16 +3,28 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
-                    save="save()" title="Camera">
+                    creationComplete="init()" save="save()" title="Camera">
   
   <fx:Script>
     <![CDATA[
-      import mx.controls.Alert;
+      private function init():void
+      {
+        switch (module.quality) {
+          case 'lo' : quality.value = 0; break;
+          case 'med': quality.value = 1; break;
+          case 'hi' : quality.value = 2; break;
+          default: break;
+        }
+      }
       
       private function save():void
       {
-//        module.buffer = buffer.value;
-//        module.compression = quality.value;
+        switch (quality.value) {
+          case 0 : module.quality = 'lo'; break;
+          case 1 : module.quality = 'med'; break;
+          case 2 : module.quality = 'hi'; break;
+          default: break;
+        }
         close();
       }
       

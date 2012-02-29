@@ -82,7 +82,7 @@
           configView.displayConfig();
           trace(config);
         });
-        f.browseForOpen("Open");
+        f.browseForOpen('Open', [new FileFilter('Config (*.json)', '*.json')]);
       }
       
       protected function save(event:MouseEvent):void
@@ -91,7 +91,7 @@
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config));
         
-        var file:File = File.desktopDirectory.resolvePath("config.txt");
+        var file:File = File.desktopDirectory.resolvePath('config.json');
         var fileStream:FileStream = new FileStream();
         fileStream.open(file, FileMode.WRITE);
         fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(config));

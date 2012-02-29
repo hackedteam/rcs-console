@@ -115,6 +115,18 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     [Embed(source='/img/actions/module.png')]
     public static const module:Class;
+    
+    [Embed(source='/img/actions/execute.png')]
+    public static const execute:Class;
+    
+    [Embed(source='/img/actions/log.png')]
+    public static const log:Class;
+    
+    [Embed(source='/img/actions/uninstall.png')]
+    public static const uninstall:Class;
+    
+    [Embed(source='/img/actions/destroy.png')]
+    public static const destroy:Class;
   }
   
 }

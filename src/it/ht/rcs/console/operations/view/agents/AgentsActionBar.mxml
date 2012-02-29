@@ -30,7 +30,7 @@
     
     <actionbar:Separator width="40"/>
     
-    <s:Button label="{R.get('UPDATE_AGENT')}"
+    <s:Button label="{R.get('UPDATE_AGENT')}" click="updateAgent(event)"
               icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_view() &amp;&amp; 
                                                              selectedObject &amp;&amp; 
                                                             (selectedObject as Agent)._kind  == 'agent' &amp;&amp; 
@@ -117,6 +117,13 @@
       private function importEvidence(event:MouseEvent):void
       {
         var popup:EvidenceImport = PopUpManager.createPopUp(root, EvidenceImport, true) as EvidenceImport;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      protected function updateAgent(event:MouseEvent):void
+      {
+        var popup:AgentUpgrade = PopUpManager.createPopUp(root, AgentUpgrade, true) as AgentUpgrade;
+        popup.agent = selectedObject as Agent;
         PopUpManager.centerPopUp(popup);
       }
       

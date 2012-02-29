@@ -18,6 +18,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.search.controller.SearchManager;
   import it.ht.rcs.console.shard.controller.ShardManager;
   import it.ht.rcs.console.target.controller.TargetManager;
+  import it.ht.rcs.console.update.controller.CoreManager;
   import it.ht.rcs.console.utils.Update;
   
   import mx.collections.ArrayList;
@@ -75,14 +76,20 @@ package it.ht.rcs.console.main
         managers.push(GroupManager.instance);
       }
 
+      if (user.is_admin() || user.is_sys())
+      {
+        managers.push(MonitorManager.instance);        
+      }
+      
       if (user.is_sys())
       {
         managers.push(ShardManager.instance);        
       }
 
-      if (user.is_admin() || user.is_sys())
+      if (user.is_sys() || user.is_tech())
       {
-        managers.push(MonitorManager.instance);        
+        managers.push(CollectorManager.instance);
+        managers.push(InjectorManager.instance);
       }
       
       if (user.is_admin() || user.is_tech() || user.is_view())
@@ -95,11 +102,11 @@ package it.ht.rcs.console.main
       {
         managers.push(AgentManager.instance);
       }
-      
-      if (user.is_sys() || user.is_tech())
+
+      if (user.is_tech())
       {
-        managers.push(CollectorManager.instance);
-        managers.push(InjectorManager.instance);
+        CoreManager.instance.listenRefresh();
+        managers.push(CoreManager.instance);
       }
       
       if (user.is_view())

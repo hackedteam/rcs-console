@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" width="330" height="230" close="closeMe(event)" 
+               title="{R.get('UPDATE_AGENT')}" creationComplete="init(event)">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.update.controller.CoreManager;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var agent:Agent;
+
+      [Bindable]
+      private var upgradable:Boolean;
+      
+      protected function closeMe(event:*):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      protected function init(event:FlexEvent):void
+      {
+      
+        switch(agent.platform)
+        {
+          case 'windows':
+          case 'osx':
+          case 'ios':
+          case 'winmo':
+            upgradable = true;
+            break;
+            
+          default:
+            upgradable = false;
+        }
+        
+        if (upgradable) {
+          desc.text = R.get('UPDATE_AGENT_DESC');
+          upBtn.enabled = true;
+        } else {
+          desc.text = R.get('UPDATE_AGENT_DESC_NOUPDATE', [agent.platform]);
+          upBtn.enabled = false;
+        }
+        
+        // there is a pending request
+        if (agent.upgradable) {
+          desc.text = R.get('UPDATE_AGENT_DESC_PENDING');
+          upBtn.enabled = false;
+        }
+        
+      }
+      
+      protected function upgradeAgent(event:MouseEvent):void
+      {
+        AgentManager.instance.upgrade(agent);
+        closeMe(event);
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:VGroup top="10" left="10" right="10" horizontalAlign="center" >
+    <s:TextArea id="desc" editable="false" borderVisible="false" 
+                width="100%" height="65" contentBackgroundAlpha="0" />
+
+    <s:Form>
+      <s:FormItem label="Current Version">
+        <s:Label text="{agent.version}" />
+      </s:FormItem>
+      <s:FormItem label="Upgrade to" visible="{upgradable}">
+        <s:Label text="{CoreManager.instance.getLatestVersion(agent.platform)}" />
+      </s:FormItem>
+    </s:Form>    
+  </s:VGroup>
+  
+  <s:HGroup bottom="10" width="100%" horizontalAlign="center">
+    <s:Button id="upBtn" label="Upgrade" click="upgradeAgent(event)" />
+    <s:Button label="Cancel" click="closeMe(event)" />
+  </s:HGroup>
+
+</s:TitleWindow>

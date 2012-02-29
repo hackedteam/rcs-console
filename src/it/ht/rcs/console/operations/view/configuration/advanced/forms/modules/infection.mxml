@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Infection">
+  
+  <fx:Script>
+    <![CDATA[
+      private function init():void
+      {
+        local.selected  = module.local;
+        usb.selected    = module.usb;
+        mobile.selected = module.mobile;
+        vm.selected     = module.vm != 0;
+        if (vm.selected)
+          delay.text = module.vm;
+      }
+      
+      private function save():void
+      {
+        module.local  = local.selected;
+        module.usb    = usb.selected;
+        module.mobile = mobile.selected;
+        module.vm     = vm.selected ? delay.text : 0;
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form>
+    
+    <s:FormItem label="Infect mobile devices">
+      <s:CheckBox id="mobile"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Infect other local users">
+      <s:CheckBox id="local"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Infect USB drives">
+      <s:CheckBox id="usb"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Infect VMWare virtual machines">
+      <s:HGroup verticalAlign="middle">
+        <s:CheckBox id="vm"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text="every "/>
+        <s:TextInput id="delay" enabled="{vm.selected}" restrict="0-9" text="300" textAlign="center"
+                     widthInChars="3"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text=" seconds"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</modules:ModuleForm>

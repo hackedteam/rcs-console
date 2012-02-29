@@ -5,14 +5,10 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      addedToStage="onAddedToStage(event)">
 
-  <!--s:Button label="New" icon="@Embed('/img/windows/user2.png')"/-->
-  
   <s:Button label="Save" click="onSave()" icon="@Embed('/img/NEW/save.png')"/>
   
   <actionbar:Separator/>
   
-  <!--s:Button label="Load Template" icon="@Embed('/img/windows/user2.png')"/>
-  <s:Button label="Save Template" icon="@Embed('/img/windows/user2.png')"/-->  
   <s:Button label="Export" click="save(event)" icon="@Embed('/img/NEW/export.png')"/>
   <s:Button label="Import" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
   
@@ -20,7 +16,13 @@
   
   <s:Button label="Build" click="build(event)" icon="@Embed('/img/NEW/build.png')"/>
   
-  <s:HGroup visible="{configView.currentState == 'advanced'}">
+  <s:HGroup visible="{configView.currentState == 'basic'}"
+            includeInLayout="{configView.currentState == 'basic'}" gap="0">
+    <actionbar:Separator/>
+    <s:Button label="Go to advanced..." click="goToAdvanced(event)" icon="@Embed('/img/NEW/config_32.png')"/>
+  </s:HGroup>
+  
+  <s:HGroup visible="{configView.currentState == 'advanced'}" gap="0">
     <actionbar:Separator/>
     
     <s:Button label="Add Event" click="addEvent(event)" icon="@Embed('/img/NEW/newEvent.png')"/>
@@ -47,6 +49,10 @@
       
       private function build(event:MouseEvent):void
       {
+        var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        
         var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
         b.factory = section.stateManager.selectedFactory;
         PopUpManager.centerPopUp(b);
@@ -81,10 +87,14 @@
       
       protected function save(event:MouseEvent):void
       {
+        var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        
         var file:File = File.desktopDirectory.resolvePath("config.txt");
         var fileStream:FileStream = new FileStream();
         fileStream.open(file, FileMode.WRITE);
-        fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(configView.configAsObject));
+        fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(config));
         fileStream.close();
         
         file.openWithDefaultApplication();
@@ -105,6 +115,18 @@
         var popup:GlobalsForm = PopUpManager.createPopUp(root, GlobalsForm, true) as GlobalsForm;
         popup.globals = configView.configAsObject.globals;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function goToAdvanced(event:MouseEvent):void
+      {
+        var config:Object = configView.basic.getConfig();
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        
+        configView.currentState = 'advanced';
+        configView.basic.config.globals.advanced = true;
+        configView.advanced.config = configView.basic.config;
+        configView.advanced.displayConfig();
       }
     ]]>
   </fx:Script>

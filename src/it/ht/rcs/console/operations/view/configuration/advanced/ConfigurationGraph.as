@@ -379,12 +379,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       var eventsX:Number = 0, eventsY:Number = 0;
       if (events != null && events.length > 0) {
         eventsX = (events[0].width * events.length) + (NODE_DISTANCE * (events.length - 1)) + HORIZONTAL_PAD * 2;
-        eventsY = 550; // TODO: Compute real height!!!
+        eventsY = 520; // TODO: Compute real height!!!
       }
       var actionsX:Number = 0, actionsY:Number = 0;
       if (actions != null && actions.length > 0) {
         actionsX = (actions[0].width * actions.length) + (NODE_DISTANCE * (actions.length - 1)) + HORIZONTAL_PAD * 2;
-        actionsY = 550; // TODO: Compute real height!!!
+        actionsY = 520; // TODO: Compute real height!!!
       }
       var modulesX:Number = 0;
       if (modules != null && modules.length > 0) {

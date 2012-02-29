@@ -49,6 +49,10 @@
       
       private function build(event:MouseEvent):void
       {
+        var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        
         var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
         b.factory = section.stateManager.selectedFactory;
         PopUpManager.centerPopUp(b);
@@ -115,6 +119,10 @@
       
       private function goToAdvanced(event:MouseEvent):void
       {
+        var config:Object = configView.basic.getConfig();
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        
         configView.currentState = 'advanced';
         configView.basic.config.globals.advanced = true;
         configView.advanced.config = configView.basic.config;

@@ -11,16 +11,18 @@
       {
         local.selected  = module.local;
         usb.selected    = module.usb;
-        vm.text         = module.vm;
         mobile.selected = module.mobile;
+        vm.selected     = module.vm != 0;
+        if (vm.selected)
+          delay.text = module.vm;
       }
       
       private function save():void
       {
         module.local  = local.selected;
         module.usb    = usb.selected;
-        module.vm     = vm.text;
         module.mobile = mobile.selected;
+        module.vm     = vm.selected ? delay.text : 0;
         close();
       }
     ]]>
@@ -42,8 +44,11 @@
     
     <s:FormItem label="Infect VMWare virtual machines">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput id="vm" restrict="0-9" textAlign="center" widthInChars="3"/>
-        <s:Label paddingTop="1" text=" seconds"/>
+        <s:CheckBox id="vm"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text="every "/>
+        <s:TextInput id="delay" enabled="{vm.selected}" restrict="0-9" text="300" textAlign="center"
+                     widthInChars="3"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text=" seconds"/>
       </s:HGroup>
     </s:FormItem>
     

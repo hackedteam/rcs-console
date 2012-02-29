@@ -31,6 +31,11 @@
     <actionbar:Separator/>
     
     <s:Button label="Edit Globals" click="editGlobals(event)" icon="@Embed('/img/windows/user2.png')"/>
+    
+    <actionbar:Separator/>
+    
+    <s:Button id="collapse" label="{R.get('COLLAPSE')}" click="onCollapseAll()"
+              icon="{collapseIcon}"/>
   </s:HGroup>
   
   <fx:Script>
@@ -43,7 +48,13 @@
       
       import locale.R;
       
+      import mx.controls.Alert;
       import mx.managers.PopUpManager;
+      
+      [Embed('/img/NEW/expand_all.png')]
+      private static const expandIcon:Class;
+      [Embed('/img/NEW/collapse_all.png')]
+      private static const collapseIcon:Class;
       
       public var section:OperationsSection;
       [Bindable]
@@ -84,7 +95,7 @@
           configView.displayConfig();
           trace(config);
         });
-        f.browseForOpen('Open', [new FileFilter('Config (*.json)', '*.json')]);
+        f.browseForOpen('Open config', [new FileFilter('Config (*.json)', '*.json')]);
       }
       
       protected function save(event:MouseEvent):void
@@ -93,13 +104,18 @@
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config));
         
-        var file:File = File.desktopDirectory.resolvePath('config.json');
-        var fileStream:FileStream = new FileStream();
-        fileStream.open(file, FileMode.WRITE);
-        fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(config));
-        fileStream.close();
-        
-        file.openWithDefaultApplication();
+        var f:File = new File();
+        f.addEventListener(Event.SELECT, function(e:Event):void {
+          var file:File = e.target as File;
+          if (file.nativePath.indexOf('.json') == -1)
+            file.nativePath = file.nativePath + '.json';
+          var fileStream:FileStream = new FileStream();
+          fileStream.open(file, FileMode.WRITE);
+          fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(config));
+          fileStream.close();
+          file.openWithDefaultApplication();
+        });
+        f.browseForSave('Save config');
       }
       
       private function addAction(event:MouseEvent):void
@@ -129,6 +145,15 @@
         configView.basic.config.globals.advanced = true;
         configView.advanced.config = configView.basic.config;
         configView.advanced.displayConfig();
+      }
+      
+      private function onCollapseAll():void
+      {
+        configView.advanced.graph.collapsed = !configView.advanced.graph.collapsed;
+        configView.advanced.config.globals.collapsed = configView.advanced.graph.collapsed;
+        configView.advanced.graph.rebuildGraph();
+        collapse.label = configView.advanced.graph.collapsed ? R.get('EXPAND') : R.get('COLLAPSE');
+        collapse.iconDisplay.source = configView.advanced.graph.collapsed ? expandIcon : collapseIcon;
       }
     ]]>
   </fx:Script>

@@ -20,7 +20,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class EventRenderer extends Group implements Linkable
 	{
-    private static const WIDTH:Number  = 150;
+    private static const WIDTH_EXPANDED:Number  = 150;
+    private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
     
     private static const NORMAL_COLOR:uint   = 0xffffff;
@@ -49,7 +50,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 			super();
       layout = null;
       doubleClickEnabled = true;
-      width = WIDTH;
+      width = graph.collapsed ? WIDTH_COLLAPSED : WIDTH_EXPANDED;
       height = HEIGHT;
       
 			this.event = event;
@@ -170,6 +171,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
 			super.createChildren();
       
+      toolTip = event.desc;
+      
       if (container == null) {
         container = new BorderContainer();
         container.width = width;
@@ -179,8 +182,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container.setStyle('cornerRadius', 10);
         
         icon = new BitmapImage();
-        icon.left = 10;
-        icon.verticalCenter = 0;
+        icon.left = 6;
+        icon.verticalCenter = -1;
         icon.source = ModuleIcons[event.event];
         container.addElement(icon);
         

@@ -20,7 +20,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class ActionRenderer extends Group implements Linkable
 	{
-    private static const WIDTH:Number  = 200;
+    private static const WIDTH_EXPANDED:Number  = 200;
+    private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
     
     private static const NORMAL_COLOR:uint   = 0xffffff;
@@ -52,7 +53,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 			super();
       layout = null;
       doubleClickEnabled = true;
-      width = WIDTH;
+      width = graph.collapsed ? WIDTH_COLLAPSED : WIDTH_EXPANDED;
       height = HEIGHT;
       
 			this.action = action;
@@ -163,6 +164,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     override protected function createChildren():void
     {
 			super.createChildren();
+      
+      toolTip = action.desc;
 
       if (container == null) {
         container = new BorderContainer();
@@ -173,8 +176,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container.setStyle('cornerRadius', 10);
         
         icon = new BitmapImage();
-        icon.left = 10;
-        icon.verticalCenter = 0;
+        icon.left = 6;
+        icon.verticalCenter = -1;
         icon.source = action.subactions.length > 0 ? ModuleIcons[action.subactions[0].action] : null;
         container.addElement(icon);
         

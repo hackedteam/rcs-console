@@ -28,6 +28,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     // Modes of operation
     public static const CONNECTING:String = 'connecting';
     
+    public var collapsed:Boolean = false;
+    
     // A reference to the currently selected element
     public var selectedElement:UIComponent;
     public function removeSelection():void
@@ -297,6 +299,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       
       if (config == null) return;
       
+      collapsed = config.globals.collapsed;
+      NODE_DISTANCE = collapsed ? NODE_DISTANCE_COLLAPSED : NODE_DISTANCE_EXPANDED;
+      
       // Adding events
       var er:EventRenderer;
       for each (var e:Object in config.events) {
@@ -368,7 +373,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       addElement(line);
     }
     
-    private static const NODE_DISTANCE:int     = 60;
+    private static const NODE_DISTANCE_EXPANDED:int  = 60;
+    private static const NODE_DISTANCE_COLLAPSED:int = 30;
+    private static var   NODE_DISTANCE:int;
     private static const MODULE_DISTANCE:int   = 10;
     private static const VERTICAL_DISTANCE:int = 60;
     private static const VERTICAL_GAP:int      = 200;

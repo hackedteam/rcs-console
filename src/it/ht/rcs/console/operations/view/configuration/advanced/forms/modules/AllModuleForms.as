@@ -8,6 +8,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.forms.modules
     private static const _crisis:crisis         = null;
     private static const _device:device         = null;
     private static const _file:file             = null;
+    private static const _infection:infection   = null;
     private static const _messages:messages     = null;
     private static const _mic:mic               = null;
     private static const _mouse:mouse           = null;

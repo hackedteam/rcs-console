@@ -18,7 +18,9 @@
       
       protected function create(event:MouseEvent):void
       {
-        var params:Object = {platform: parentDocument.platform, binary: {demo: demo.selected, admin: admin.selected}, melt: {admin: admin.selected} };
+        var params:Object = {platform: parentDocument.platform, 
+                             binary: {demo: demo.selected, admin: admin.selected}, 
+                             melt: {admin: admin.selected, demo: demo.selected, codec: codec.selected, bit64: bit64.selected} };
           
         params['factory'] = {_id: parentDocument.factory._id};
         
@@ -44,6 +46,10 @@
   <s:TextArea left="25" top="25" width="280" height="55" borderVisible="false"
               contentBackgroundAlpha="0.0" editable="false"
               text="When the agent is installed the system will request the higher possible privileges"/>
+
+  <s:CheckBox left="10" top="70" id="bit64" label="Include 64bit support (50 Kb)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
+  <s:CheckBox left="10" top="90" id="codec" label="Include audio codec (200 Kb)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
+
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
     <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 

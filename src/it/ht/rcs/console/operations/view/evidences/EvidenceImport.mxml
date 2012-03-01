@@ -58,10 +58,6 @@
         results = buffer.toString().match(pattern);
         platform.text = results[1];
 
-        pattern = /VERSION=(\w*)/;
-        results = buffer.toString().match(pattern);
-        version.text = results[1];
-
         pattern = /USERID=(\w*)/;
         results = buffer.toString().match(pattern);
         user.text = results[1];
@@ -81,7 +77,8 @@
         
         progTotal.source = dataTotal;
         
-        EvidenceManager.instance.sync(factory.text, instance.text, platform.text, version.text, user.text, device.text,
+        // we don't know the version, so we put 0
+        EvidenceManager.instance.sync(factory.text, instance.text, platform.text, '0', user.text, device.text,
           function (event:ResultEvent):void 
           {
         

@@ -6,7 +6,16 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
       import locale.R;
+      
+      private function dateLabelFunction(item:Object, column:GridColumn):String {
+        try {
+          return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
     ]]>
   </fx:Script>
 
@@ -24,7 +33,10 @@
       <s:GridColumn width="150" dataField="address" headerText="{R.get('ADDRESS')}"
                     itemRenderer="it.ht.rcs.console.monitor.view.renderers.LabelRenderer"/>
       
-      <s:GridColumn dataField="status" headerText="Status"
+      <s:GridColumn width="150" dataField="time" headerText="{R.get('LAST_CONTACT')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.LabelRenderer" labelFunction="dateLabelFunction"/>
+      
+      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}"
                     itemRenderer="it.ht.rcs.console.monitor.view.renderers.StatusRenderer"/>
       
       <s:GridColumn width="80" dataField="cpu" headerText="CPU"

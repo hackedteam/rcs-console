@@ -58,7 +58,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Target)
+      else if (item is Target && (Console.currentSession.user.is_view() || Console.currentSession.user.is_tech()))
       {
         selectedTarget = item;
         setState('singleTarget');
@@ -85,22 +85,22 @@ package it.ht.rcs.console.operations.view
         setState('config');
       }
       
-      else if (item is Object && item.customType == 'configlist')
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'configlist')
       {
         setState('agentConfigList');
       }
       
-      else if (item is Object && item.customType == 'evidence')
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'evidence')
       {
         section.currentState = 'evidence';
       }
       
-      else if (item is Object && item.customType == 'filesystem')
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filesystem')
       {
         Alert.show('Show Filesystem Component');
       }
       
-      else if (item is Object && item.customType == 'info')
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'info')
       {
         Alert.show('Show Info Component');
       }
@@ -217,15 +217,17 @@ package it.ht.rcs.console.operations.view
     private function addCustomTypes(list:ListCollectionView):void
     {
       if (list == null) return;
-      if (currentState == 'singleTarget' || currentState == 'singleAgent') {
-        list.addItemAt({name: R.get('EVIDENCE'),   customType: 'evidence',  order: 0}, 0);
+      if ((currentState == 'singleTarget' || currentState == 'singleAgent') && (Console.currentSession.user.is_view())) {
+        list.addItemAt({name: R.get('EVIDENCE'),    customType: 'evidence',   order: 0}, 0);
         list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
       }
       if (currentState == 'singleAgent') {
         list.addItemAt({name: R.get('INFO'),     customType: 'info',       order: 2}, 0);
-        list.addItemAt({name: R.get('CONFIG'),   customType: 'configlist', order: 3}, 0);
-        list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',     order: 4}, 0);
-        list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download',   order: 5}, 0);
+        if (Console.currentSession.user.is_tech()) {
+          list.addItemAt({name: R.get('CONFIG'),   customType: 'configlist', order: 3}, 0);
+          list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',     order: 4}, 0);
+          list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download',   order: 5}, 0);
+        }
       }
     }
     
@@ -306,7 +308,10 @@ package it.ht.rcs.console.operations.view
       if (item.hasOwnProperty('customType'))
         return searchFilterFunction(item);
       if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
-        return searchFilterFunction(item);
+        if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+          return false;
+        else
+          return searchFilterFunction(item);
       else return false;
     }
     

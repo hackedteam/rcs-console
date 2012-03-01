@@ -11,16 +11,16 @@
 
       private function init():void
       {
-        min.text = (globals.quota.min / 1000) as String;
-        max.text = (globals.quota.max / 1000) as String;
+        min.text = String(globals.quota.min / 1000000);
+        max.text = String(globals.quota.max / 1000000);
         wipe.selected = globals.wipe;
         driver.selected = globals.remove_driver;
       }
       
       private function save():void
       {
-        globals.quota.min = parseInt(min.text) * 1000;
-        globals.quota.max = parseInt(max.text) * 1000;
+        globals.quota.min = parseInt(min.text) * 1000000;
+        globals.quota.max = parseInt(max.text) * 1000000;
         globals.wipe = wipe.selected;
         globals.remove_driver = driver.selected;
         globals.nohide = [];
@@ -31,16 +31,16 @@
   
   <s:Form defaultButton="{saveButton}">
     
-    <s:FormItem label="Quota Min">
+    <s:FormItem label="Minimum disk free">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput id="max" maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:TextInput id="max" restrict="0-9" textAlign="center" widthInChars="6"/>
         <s:Label paddingTop="1" text=" MB"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Quota Max">
+    <s:FormItem label="Maximum evidence size">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput id="min" maxChars="4" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:TextInput id="min" restrict="0-9" textAlign="center" widthInChars="6"/>
         <s:Label paddingTop="1" text=" MB"/>
       </s:HGroup>
     </s:FormItem>

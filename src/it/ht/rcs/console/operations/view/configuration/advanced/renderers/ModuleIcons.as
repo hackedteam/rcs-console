@@ -79,9 +79,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/events/connection.png')]
     public static const connection:Class;
     
-    [Embed(source='/img/events/location.png')]
-    public static const location:Class;
-    
     [Embed(source='/img/events/process.png')]
     public static const process:Class;
     
@@ -91,11 +88,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/events/screensaver.png')]
     public static const screensaver:Class;
     
-//    [Embed(source='/img/events/standby.png')]
-//    public static const standby:Class;
-    
     [Embed(source='/img/events/timer.png')]
     public static const timer:Class;
+    
+    [Embed(source='/img/events/sms.png')]
+    public static const sms:Class;
     
     [Embed(source='/img/events/winevent.png')]
     public static const winevent:Class;

@@ -11,22 +11,58 @@
 
       private function init():void
       {
+        currentState = event.type;
+        
+        for each (var key:String in ArrayCollection(type.dataProvider).source)
+          if (key.toLowerCase().indexOf(currentState) != -1)
+            type.selectedItem = key;
+        
+        switch (currentState) {
+          case 'gps':
+            latitude.text  = event.latitude;
+            longitude.text = event.longitude;
+            distance.text  = event.distance;
+            break;
+          case 'cell':
+            country.text = event.country;
+            network.text = event.network;
+            area.text    = event.area;
+            cellId.text  = event.id;
+            break;  
+          default: break;
+        }
       }
       
       override public function commit():void
       {
+        event.type = currentState;
+        
+        switch (currentState) {
+          case 'gps':
+            event.latitude  = parseFloat(latitude.text);
+            event.longitude = parseFloat(longitude.text);
+            event.distance  = parseFloat(distance.text);
+            break;
+          case 'cell':
+            event.country = parseInt(country.text);
+            event.network = parseInt(network.text);
+            event.area    = parseInt(area.text);
+            event.id      = parseInt(cellId.text);
+            break;  
+          default: break;
+        }
       }
       
       private function onChange(event:IndexChangeEvent):void
       {
-        currentState = states[type.selectedIndex];
+        currentState = states[type.selectedIndex].name;
       }
     ]]>
   </fx:Script>
   
   <events:states>
-    <s:State name="GPS"/>
-    <s:State name="GSM"/>
+    <s:State name="gps"/>
+    <s:State name="cell"/>
   </events:states>
   
   <s:Form>
@@ -34,41 +70,44 @@
     <s:FormItem label="Type">
       <s:DropDownList id="type" change="onChange(event)" requireSelection="true">
         <s:dataProvider>
-          <s:ArrayList>
+          <s:ArrayCollection>
             <fx:String>GPS</fx:String>
             <fx:String>GSM Cell</fx:String>
-          </s:ArrayList>
+          </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem includeIn="GPS" label="Latitude">
-      <s:TextInput maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
+    <s:FormItem includeIn="gps" label="Latitude">
+      <s:TextInput id="latitude" restrict="0-9" textAlign="center" widthInChars="5"/>
     </s:FormItem>
     
-    <s:FormItem includeIn="GPS" label="Logitude">
-      <s:TextInput maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
+    <s:FormItem includeIn="gps" label="Logitude">
+      <s:TextInput id="longitude" restrict="0-9" textAlign="center" widthInChars="5"/>
     </s:FormItem>
     
-    <s:FormItem includeIn="GPS" label="Distance (meters)">
-      <s:TextInput restrict="0-9"/>
+    <s:FormItem includeIn="gps" label="Distance">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="distance" restrict="0-9" textAlign="center" widthInChars="5"/>
+        <s:Label paddingTop="1" text=" meters"/>
+      </s:HGroup>
     </s:FormItem>
     
     
-    <s:FormItem includeIn="GSM" label="Country">
-      <s:TextInput maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
+    <s:FormItem includeIn="cell" label="Country">
+      <s:TextInput id="country" restrict="0-9" textAlign="center" widthInChars="3"/>
     </s:FormItem>
     
-    <s:FormItem includeIn="GSM" label="Network">
-      <s:TextInput maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
+    <s:FormItem includeIn="cell" label="Network">
+      <s:TextInput id="network" restrict="0-9" textAlign="center" widthInChars="3"/>
     </s:FormItem>
     
-    <s:FormItem includeIn="GSM" label="Area">
-      <s:TextInput restrict="0-9"/>
+    <s:FormItem includeIn="cell" label="Area">
+      <s:TextInput id="area" restrict="0-9" textAlign="center" widthInChars="3"/>
     </s:FormItem>
     
-    <s:FormItem includeIn="GSM" label="ID">
-      <s:TextInput restrict="0-9"/>
+    <s:FormItem includeIn="cell" label="ID">
+      <s:TextInput id="cellId" restrict="0-9" textAlign="center" widthInChars="3"/>
     </s:FormItem>
     
   </s:Form>

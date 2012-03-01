@@ -16,7 +16,7 @@
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
               icon="@Embed('/img/NEW/edit.png')"/>
     
-    <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+    <s:Button label="{R.get('DELETE')}" click="onDeleteClick(event)"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}" 
               icon="@Embed('/img/NEW/delete_32.png')"/>
     
@@ -94,13 +94,13 @@
         PopUpManager.centerPopUp(popup);
       }
       
-      private function onDeleteClick():void
+      private function onDeleteClick(event:MouseEvent):void
       {
         AlertPopUp.show("Confirm operation deletion", R.get('CONFIRM'),
           AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES)
-              AgentManager.instance.removeItem(selectedObject);
+              AgentManager.instance.delAgent(selectedObject, event.shiftKey);
           }, null, AlertPopUp.NO);
       }
       
@@ -127,6 +127,7 @@
         popup.agent = selectedObject as Agent;
         PopUpManager.centerPopUp(popup);
       }
+      
       
     ]]>
   </fx:Script>

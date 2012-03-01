@@ -3,7 +3,7 @@
             xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
-            width="100%" height="100%">
+            width="100%" height="100%" sortableColumns="false">
 
   <fx:Script>
     <![CDATA[
@@ -13,7 +13,7 @@
       [Bindable]
       public var filter:Object = {};
       
-      private function dateLabelFunction(item:Object, column:GridColumn):String 
+      private function dateLabelFunction(item:Object, column:GridColumn):String
       {
         return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
       }
@@ -39,7 +39,14 @@
       <s:GridColumn width="130" dataField="received" headerText="Date"
                     labelFunction="dateLabelFunction" resizable="false"/>
       
-      <s:GridColumn width="100" dataField="type" headerText="Type" resizable="false"/>
+      <s:GridColumn width="100" dataField="type" headerText="Type" resizable="false">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.ComboFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
+      </s:GridColumn>
       
       <s:GridColumn dataField="data" headerText="Info"
                     itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceDataRenderer">

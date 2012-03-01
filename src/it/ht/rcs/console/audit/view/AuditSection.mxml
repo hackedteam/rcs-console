@@ -9,11 +9,17 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.audit.controller.AuditManager;
+      import it.ht.rcs.console.events.DataLoadedEvent;
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
       
       private var created:Boolean = false;
       private function init():void
       {
         created = true;
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        AuditManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         AuditManager.instance.listenRefresh();
         AuditManager.instance.refresh();
       }
@@ -28,6 +34,8 @@
       private function onAddedToStage():void
       {
         if (created) {
+          FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+          AuditManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           AuditManager.instance.listenRefresh();
           AuditManager.instance.refresh();
         }
@@ -35,7 +43,19 @@
       
       private function onRemovedFromStage():void
       {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        AuditManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         AuditManager.instance.unlistenRefresh();
+      }
+      
+      private function onFilterChanged(event:FilterEvent):void
+      {
+        AuditManager.instance.refresh();
+      }
+      
+      private function onDataLoaded(event:DataLoadedEvent):void
+      {
+        grid.scroller.verticalScrollBar.value = grid.scroller.verticalScrollBar.maximum;
       }
     ]]>
   </fx:Script>
@@ -46,6 +66,6 @@
   
   <audit:AuditActionBar/>
   
-  <audit:AuditTable dataProvider="{AuditManager.instance._view}"/>
+  <audit:AuditTable id="grid" dataProvider="{AuditManager.instance._view}"/>
   
 </main:Section>

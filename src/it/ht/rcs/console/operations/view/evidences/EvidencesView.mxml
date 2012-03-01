@@ -2,7 +2,9 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
-         width="100%" height="100%" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+         xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
+         width="100%" height="100%" addedToStage="onAddedToStage()"
+         removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
@@ -10,6 +12,8 @@
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
+      
+      import spark.components.gridClasses.GridColumn;
       
       [Bindable]
       public var section:OperationsSection;
@@ -29,32 +33,9 @@
       {
         EvidenceManager.instance.unlistenRefresh();
       }
-      
-      private function dateLabelFunction(item:Object, column:GridColumn):String 
-      {
-        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
-      }
-      
-      private function displaySize(item:Object, column:GridColumn):String
-      {
-        return Size.toHumanBytes(item[column.dataField]);
-      }
-      
     ]]>
   </fx:Script>
-  <s:DataGrid left="0" right="0" top="0" bottom="0" requestedRowCount="4" dataProvider="{EvidenceManager.instance._view}">
-    <s:columns>
-      <s:ArrayList>
-        <s:GridColumn dataField="_id" headerText="Id" width="30" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="relevance" headerText="Tag" width="40" resizable="false" itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"></s:GridColumn>
-        <s:GridColumn dataField="acquired" headerText="Date" width="130" labelFunction="dateLabelFunction" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="received" headerText="Date" width="130" labelFunction="dateLabelFunction" resizable="false"></s:GridColumn>
-        <!-- <s:GridColumn dataField="agent_id" headerText="Agent" width="100" resizable="false"></s:GridColumn> -->
-        <s:GridColumn dataField="type" headerText="Type" width="100" resizable="false"></s:GridColumn>
-        <s:GridColumn dataField="data" headerText="Info" itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceDataRenderer"></s:GridColumn>
-        <!-- <s:GridColumn dataField="_grid_size" headerText="Size" width="100" labelFunction="displaySize" resizable="false"></s:GridColumn> -->
-      </s:ArrayList>
-    </s:columns>
-  </s:DataGrid>
+
+  <evidences:EvidenceGrid dataProvider="{EvidenceManager.instance._view}"/>
   
 </s:Group>

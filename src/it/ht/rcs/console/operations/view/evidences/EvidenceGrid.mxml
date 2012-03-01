@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
+            xmlns:mx="library://ns.adobe.com/flex/mx"
+            xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+            width="100%" height="100%">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      [Bindable]
+      public var filter:Object = {};
+      
+      private function dateLabelFunction(item:Object, column:GridColumn):String 
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+      
+      private function displaySize(item:Object, column:GridColumn):String
+      {
+        return Size.toHumanBytes(item[column.dataField]);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:columns>
+    <s:ArrayList>
+      
+      <s:GridColumn width="30" dataField="_id" headerText="Id" resizable="false"/>
+      
+      <s:GridColumn width="40" dataField="relevance" headerText="Tag"
+                    itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer" resizable="false"/>
+      
+      <s:GridColumn width="130" dataField="acquired" headerText="Date"
+                    labelFunction="dateLabelFunction" resizable="false"/>
+      
+      <s:GridColumn width="130" dataField="received" headerText="Date"
+                    labelFunction="dateLabelFunction" resizable="false"/>
+      
+      <s:GridColumn width="100" dataField="type" headerText="Type" resizable="false"/>
+      
+      <s:GridColumn dataField="data" headerText="Info"
+                    itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceDataRenderer">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TextFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
+      </s:GridColumn>
+    
+    </s:ArrayList>
+  </s:columns>
+
+</s:DataGrid>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
@@ -8,10 +8,13 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
+      
+      import mx.core.FlexGlobals;
       
       import spark.components.gridClasses.GridColumn;
       
@@ -21,21 +24,28 @@
       private function onAddedToStage():void
       {
         
-        EvidenceManager.instance.filter = {target: section.stateManager.selectedTarget._id}
+        EvidenceManager.instance.filter.target = section.stateManager.selectedTarget._id;
         if (section.stateManager.selectedAgent != null)
-          EvidenceManager.instance.filter['agent'] = section.stateManager.selectedAgent._id;
-          
+          EvidenceManager.instance.filter.agent = section.stateManager.selectedAgent._id;
+        
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
         EvidenceManager.instance.listenRefresh();
         EvidenceManager.instance.refresh();
       }
       
       private function onRemovedFromStage():void
       {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
         EvidenceManager.instance.unlistenRefresh();
+      }
+      
+      private function onFilterChanged(event:FilterEvent):void
+      {
+        EvidenceManager.instance.refresh();
       }
     ]]>
   </fx:Script>
 
   <evidences:EvidenceGrid dataProvider="{EvidenceManager.instance._view}"/>
-  
-</s:Group>
+
+</s:VGroup>

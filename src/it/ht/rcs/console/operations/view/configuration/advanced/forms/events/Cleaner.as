@@ -3,7 +3,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.forms.events
   public class Cleaner
   {
     
-    private static const toKeep:Array = ['event', 'desc', 'start', 'stop', 'repeat', 'enabled'];
+    private static const toKeep:Array = ['event', 'desc', 'start', 'stop', 'repeat', 'enabled', 'iter', 'delay'];
     
     public static function clean(event:Object):void
     {

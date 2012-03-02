@@ -15,72 +15,52 @@
       
       import mx.core.FlexGlobals;
       
-      private var today:Date;
-
-      private static const DEFAULT_RANGE:int = 24; // in hours
-      public var range:int = DEFAULT_RANGE;
-      
       private function init():void
       {
         hasFilter = true;
-        today = new Date();
-        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
+        var today:int = new Date().time/1000;
+        setFromTimestamp(today);
+        setToTimestamp(today);
       }
       
       override public function commit(fireEvent:Boolean=true):void
       {
-        filter.from = getFromTimestamp();
-        filter.to = getToTimestamp();
+        if (fromTo.selected) {
+          filter.from = getFromTimestamp();
+          filter.to = getToTimestamp();
+        } else {
+          delete(filter.from);
+          delete(filter.to);
+        }
         visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
-      override public function reset(fireEvent:Boolean=true):void
-      {
-        today.hours = 0; today.minutes = 0;
-        filter.from = DateUtils.addDays(today, -range).time / 1000;
-        setFromTimestamp(filter.from);
-        
-        today.hours = 23; today.minutes = 59;
-        filter.to = today.time / 1000;
-        setToTimestamp(filter.to);
-        
-        adjust();
-        commit(fireEvent);
-      }
-      
-      private function adjust():void
-      {
-        var fromTS:int = getFromTimestamp();
-        var toTS:int = getToTimestamp();
-        
-        if (fromTS > toTS)
-          setToTimestamp(fromTS);
-      }
-      
       private function show():void
       {
         fromH.setFocus();
-        setFromTimestamp(filter.from);
-        setToTimestamp(filter.to);
+        if (filter.from)
+          setFromTimestamp(filter.from);
+        if (filter.to)
+          setToTimestamp(filter.to);
       }
     ]]>
   </fx:Script>
   
   <fx:Declarations>
-    <s:RadioButtonGroup id="dateFilter"/>
+    <s:RadioButtonGroup id="group"/>
   </fx:Declarations>
   
   <s:VGroup gap="10" styleName="auditFilter">
     
-    <s:RadioButton label="Last 24 Hours" group="{dateFilter}" selected="true"/>
-    <s:RadioButton id="fromto" label="From/To" group="{dateFilter}"/>
+    <s:RadioButton label="Last 24 Hours" group="{group}" selected="true"/>
+    <s:RadioButton id="fromTo" label="From/To" group="{group}"/>
     
-    <s:VGroup visible="{fromto.selected}" includeInLayout="{fromto.selected}">
+    <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
       
       <s:HGroup verticalAlign="middle">
-        <s:Label width="40" color="#ffffff" fontWeight="bold" text="From"/>
+        <s:Label width="40" text="From"/>
         <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD"
                       showToday="false" yearNavigationEnabled="true"/>
         <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0"
@@ -91,7 +71,7 @@
       </s:HGroup>
       
       <s:HGroup verticalAlign="middle">
-        <s:Label width="40" color="#ffffff" fontWeight="bold" text="To"/>
+        <s:Label width="40" text="To"/>
         <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD"
                       showToday="false" yearNavigationEnabled="true"/>
         <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23"
@@ -107,6 +87,14 @@
   
   <fx:Script>
     <![CDATA[
+      private function adjust():void
+      {
+        var fromTS:int = getFromTimestamp();
+        var toTS:int = getToTimestamp();
+        
+        if (fromTS > toTS)
+          setToTimestamp(fromTS);
+      }
       
       private function getFromTimestamp():int
       {
@@ -140,7 +128,6 @@
       {
         return TimeUtils.zeroPad(n, 2);
       }
-      
     ]]>
   </fx:Script>
 

@@ -14,14 +14,12 @@
       
       import spark.components.CheckBox;
       import spark.components.HGroup;
+      
+      private static var currentPopup:AbstractFilterPopup;
 
       [Bindable]
       private var popup:AbstractFilterPopup;
-      private static var currentPopup:AbstractFilterPopup;
       public var popupFactory:IFactory;
-
-      [Bindable]
-      public var mandatory:Boolean = false;
 
       public var filter:Object;
 
@@ -32,28 +30,21 @@
         popup.filter = filter;
         PopUpManager.addPopUp(popup, this.owner, false);
         
-        showFilter.selected = filter.hasOwnProperty(column.dataField) || mandatory;
+        showFilter.selected = filter.hasOwnProperty(column.dataField);
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-        //FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_VALUES_CHANGED, filterValuesChanged);
-        
+
       }
       
       private function onRemovedFromStage():void {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
-        //FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_VALUES_CHANGED, filterValuesChanged);
         PopUpManager.removePopUp(popup);
       }
       
       private function resetFilter(event:FilterEvent):void {
-        showFilter.selected = mandatory || false;
+        showFilter.selected = false;
         changeHandler(false);
       }
-      
-//      private function filterValuesChanged(event:FilterEvent):void {
-//        if (event.filterValues.hasOwnProperty(popup.property))
-//          popup.filterValues = event.filterValues[popup.property];
-//      }
       
       override public function prepare(hasBeenRecycled:Boolean):void {
         super.prepare(hasBeenRecycled);
@@ -77,16 +68,19 @@
           popup.x = center.x - x - popup.width + width + 1;
       }
       
+      // Al click su un header...
       private function clickHandler(event:MouseEvent):void {
         
+        // ...se gia' c'e' un popup visualizzato...
         if (currentPopup && currentPopup.visible) {
-          currentPopup.commit();
-          if (currentPopup === popup) {
+          currentPopup.commit();  // ...committalo...
+          if (currentPopup === popup) { // ...e se il popup era quello dell'header cliccato nascondilo e basta
             currentPopup = null;
             return;
           }
         }
 
+        // ...altrimenti posizionalo correttamente e visualizzalo
         centerPopup();
         popup.visible = true;
         currentPopup = popup;
@@ -104,9 +98,8 @@
   </fx:Script>
 
   <fx:Declarations>
-    <s:CheckBox id="showFilter" change="changeHandler()"
-                enabled="{!mandatory &amp;&amp; showFilter.selected}"
-                selected="{mandatory || popup.hasFilter}"/>
+    <s:CheckBox id="showFilter" change="changeHandler()" enabled="{showFilter.selected}"
+                selected="{popup.hasFilter}"/>
   </fx:Declarations>
 
 </s:DefaultGridHeaderRenderer>

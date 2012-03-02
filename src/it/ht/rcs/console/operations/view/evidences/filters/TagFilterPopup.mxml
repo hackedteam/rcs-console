@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+                             show="show()">
+  
+  <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+    <filters:TagFilterItemRenderer id="all" label="All" relevance="all" click="checkboxClick(all)"/>
+    <s:Spacer height="2"/>
+    <filters:TagFilterItemRenderer id="none" label="Untagged" relevance="none" click="checkboxClick(none)"/>
+    <s:Spacer height="2"/>
+    <filters:TagFilterItemRenderer id="low" label="Low" relevance="1" click="checkboxClick(low)"/>
+    <filters:TagFilterItemRenderer id="medium" label="Medium" relevance="2" click="checkboxClick(medium)"/>
+    <filters:TagFilterItemRenderer id="high" label="High" relevance="3" click="checkboxClick(high)"/>
+    <filters:TagFilterItemRenderer id="critical" label="Critical" relevance="4" click="checkboxClick(critical)"/>
+  </s:VGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
+      
+      override public function commit(fireEvent:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function getValues():Array
+      {
+        var checks:Array = [all, none, low, medium, high, critical];
+        var toReturn:Array = [];
+        
+        checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
+          if (item.checkbox.selected)
+            toReturn.push(item.id);
+        });
+        
+        return toReturn;
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        deselectAll();
+        select(all);
+        commit(fireEvent);
+      }
+      
+      private function checkboxClick(item:TagFilterItemRenderer):void
+      {
+        if (item === all || item === none) {
+          deselectAll();
+          select(item);
+        } else {
+          select(all, false);
+          select(none, false);
+        }
+      }
+      
+      private function select(item:TagFilterItemRenderer, state:Boolean=true):void
+      {
+        item.checkbox.selected = state;
+      }
+      
+      private function deselectAll():void
+      {
+        var checks:Array = [all, none, low, medium, high, critical];
+        checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = false;
+        });
+      }
+      
+      private function show():void
+      {
+        //all.checkbox.selected = filter[property].indexOf('all');
+      }
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

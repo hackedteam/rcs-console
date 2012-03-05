@@ -4,40 +4,43 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
-                             show="show()">
+                             creationComplete="init()" show="show()">
+  
+  <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+    
+    <filters:TypeFilterItemRenderer id="all" label="All" click="checkboxClick(all)"/>
+    
+    <s:Spacer height="2"/>
+    
+    <filters:TypeFilterItemRenderer id="addressbook" label="addressbook" click="checkboxClick(addressbook)"/>
+    <filters:TypeFilterItemRenderer id="application" label="application" click="checkboxClick(application)"/>
+    <filters:TypeFilterItemRenderer id="calendar" label="calendar" click="checkboxClick(calendar)"/>
+    <filters:TypeFilterItemRenderer id="call" label="call" click="checkboxClick(call)"/>
+    
+    <filters:TypeFilterItemRenderer id="camera" label="camera" click="checkboxClick(camera)"/>
+    <filters:TypeFilterItemRenderer id="chat" label="chat" click="checkboxClick(chat)"/>
+    <filters:TypeFilterItemRenderer id="clipboard" label="clipboard" click="checkboxClick(clipboard)"/>
+    <filters:TypeFilterItemRenderer id="conference" label="conference" click="checkboxClick(conference)"/>
+    
+    <filters:TypeFilterItemRenderer id="crisis" label="crisis" click="checkboxClick(crisis)"/>
+    <filters:TypeFilterItemRenderer id="device" label="device" click="checkboxClick(device)"/>
+    <filters:TypeFilterItemRenderer id="file" label="file" click="checkboxClick(file)"/>
+    <filters:TypeFilterItemRenderer id="infection" label="infection" click="checkboxClick(infection)"/>
 
-  <s:List id="combo" width="150"
-          itemRenderer="it.ht.rcs.console.operations.view.evidences.filters.TypeFilterItemRenderer"
-          styleName="auditFilter">
-    <s:dataProvider>
-      <s:ArrayCollection>
-        
-        <fx:String>addressbook</fx:String>
-        <fx:String>application</fx:String>
-        <fx:String>calendar</fx:String>
-        <fx:String>call</fx:String>
-        <fx:String>camera</fx:String>
-        <fx:String>chat</fx:String>
-        <fx:String>clipboard</fx:String>
-        <fx:String>conference</fx:String>
-        <fx:String>crisis</fx:String>
-        <fx:String>device</fx:String>
-        <fx:String>file</fx:String>
-        <fx:String>infection</fx:String>
-        <fx:String>keylog</fx:String>
-        <fx:String>livemic</fx:String>
-        <fx:String>messages</fx:String>
-        <fx:String>mic</fx:String>
-        <fx:String>mouse</fx:String>
-        <fx:String>password</fx:String>
-        <fx:String>position</fx:String>
-        <fx:String>print</fx:String>
-        <fx:String>screenshot</fx:String>
-        <fx:String>url</fx:String>
-        
-      </s:ArrayCollection>
-    </s:dataProvider>
-  </s:List>
+    <filters:TypeFilterItemRenderer id="keylog" label="keylog" click="checkboxClick(keylog)"/>
+    <filters:TypeFilterItemRenderer id="livemic" label="livemic" click="checkboxClick(livemic)"/>
+    <filters:TypeFilterItemRenderer id="messages" label="messages" click="checkboxClick(messages)"/>
+    <filters:TypeFilterItemRenderer id="mic" label="mic" click="checkboxClick(mic)"/>
+    
+    <filters:TypeFilterItemRenderer id="mouse" label="mouse" click="checkboxClick(mouse)"/>
+    <filters:TypeFilterItemRenderer id="password" label="password" click="checkboxClick(password)"/>
+    <filters:TypeFilterItemRenderer id="position" label="position" click="checkboxClick(position)"/>
+    <filters:TypeFilterItemRenderer id="print" label="print" click="checkboxClick(print)"/>
+
+    <filters:TypeFilterItemRenderer id="screenshot" label="screenshot" click="checkboxClick(screenshot)"/>
+    <filters:TypeFilterItemRenderer id="url" label="url" click="checkboxClick(url)"/>
+    
+  </s:VGroup>
   
   <fx:Script>
     <![CDATA[
@@ -46,6 +49,14 @@
       import mx.core.FlexGlobals;
       import mx.events.FlexEvent;
       import mx.utils.StringUtil;
+      
+      private var checks:Array;
+      
+      private function init():void
+      {
+        checks = [all, addressbook, application, calendar, call, camera, chat, clipboard, conference, crisis,
+                  device, file, infection, keylog, livemic, messages, mic, mouse, password, position, print, screenshot, url];
+      }
       
       override public function commit(fireEvent:Boolean=true):void
       {
@@ -57,37 +68,55 @@
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
+      private function getValues():Array
+      {
+        var toReturn:Array = [];
+        
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          if (item.checkbox.selected)
+            toReturn.push(item.id);
+        });
+        
+        return toReturn;
+      }
+      
       override public function reset(fireEvent:Boolean=true):void
       {
-        combo.selectedItem = '';
+        deselectAll();
+        select(all);
         commit(fireEvent);
       }
       
-//      override public function set filterValues(filterValues:IList):void
-//      {
-//        combo.dataProvider = filterValues;
-//        combo.selectedItem = filter[property];
-//      }
-      
-      private function getValues():Array
+      private function checkboxClick(item:TypeFilterItemRenderer):void
       {
-        
-        if (!combo.selectedItem || combo.selectedItem == '')
-          return [];
-        
-        combo.selectedItem = StringUtil.trim(combo.selectedItem);
-        
-        if (combo.selectedItem.indexOf(',') != -1)
-          return combo.selectedItem.split(',');
-        
-        return [combo.selectedItem];
-        
+        if (item === all) {
+          deselectAll();
+          select(item);
+        } else {
+          select(all, false);
+        }
+      }
+      
+      private function select(item:TypeFilterItemRenderer, state:Boolean=true):void
+      {
+        item.checkbox.selected = state;
+      }
+      
+      private function deselectAll():void
+      {
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = false;
+        });
       }
       
       private function show():void
       {
-        combo.setFocus();
-        combo.selectedItem = filter[property];
+        if (!filter.hasOwnProperty(property))
+          select(all);
+        else
+          checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+            item.checkbox.selected =  filter[property].indexOf(item.id) != -1;
+          });
       }
     ]]>
   </fx:Script>

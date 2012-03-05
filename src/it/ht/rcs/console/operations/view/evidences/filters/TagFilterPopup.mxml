@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
-                             show="show()">
+                             show="show()" creationPolicy="all">
   
   <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
     <filters:TagFilterItemRenderer id="all" label="All" relevance="all" click="checkboxClick(all)"/>
@@ -81,7 +81,10 @@
       
       private function show():void
       {
-        //all.checkbox.selected = filter[property].indexOf('all');
+        var checks:Array = [all, none, low, medium, high, critical];
+        checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = filter[property].indexOf(item.id) != -1;
+        });
       }
     ]]>
   </fx:Script>

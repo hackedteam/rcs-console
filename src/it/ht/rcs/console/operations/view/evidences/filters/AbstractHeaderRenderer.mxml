@@ -19,10 +19,14 @@
 
       [Bindable]
       private var popup:AbstractFilterPopup;
+      
       public var popupFactory:IFactory;
+      
+      [Bindable]
+      public var mandatory:Boolean = false;
 
       public var filter:Object;
-
+      
       private function onAddedToStage():void {
         
         popup = popupFactory.newInstance();
@@ -30,7 +34,7 @@
         popup.filter = filter;
         PopUpManager.addPopUp(popup, this.owner, false);
         
-        showFilter.selected = filter.hasOwnProperty(column.dataField);
+        showFilter.selected = filter.hasOwnProperty(column.dataField) || mandatory;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
 
@@ -42,7 +46,7 @@
       }
       
       private function resetFilter(event:FilterEvent):void {
-        showFilter.selected = false;
+        showFilter.selected = mandatory || false;
         changeHandler(false);
       }
       
@@ -98,8 +102,9 @@
   </fx:Script>
 
   <fx:Declarations>
-    <s:CheckBox id="showFilter" change="changeHandler()" enabled="{showFilter.selected}"
-                selected="{popup.hasFilter}"/>
+    <s:CheckBox id="showFilter" change="changeHandler()"
+                enabled="{!mandatory &amp;&amp; showFilter.selected}"
+                selected="{mandatory || popup.hasFilter}"/>
   </fx:Declarations>
 
 </s:DefaultGridHeaderRenderer>

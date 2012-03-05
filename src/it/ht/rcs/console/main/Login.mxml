@@ -34,7 +34,7 @@
         FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, onLogout, false, Number.NEGATIVE_INFINITY);
       }
       
-      private function onLogin():void
+      private function onLogin(e:Event=null):void
       {
         CursorManager.setBusyCursor();
         login.enabled = false;
@@ -127,16 +127,16 @@
       
       <s:Label id="errorMessage" width="100%" color="#ff0000" textAlign="center" includeInLayout="false"/>
       
-      <s:Form addedToStage="username.setFocus(); loginForm.defaultButton = login;" defaultButton="{login}" id="loginForm">
+      <s:Form addedToStage="username.setFocus();" id="loginForm">
         
         <s:FormItem label="Username">
-          <s:TextInput id="username" width="200" text="{SessionManager.instance.lastUsername}"/>
+          <s:TextInput id="username" width="200" text="{SessionManager.instance.lastUsername}" enter="onLogin()"/>
         </s:FormItem>
         <s:FormItem label="Password">
-          <s:TextInput id="password" width="200" displayAsPassword="true"/>
+          <s:TextInput id="password" width="200" displayAsPassword="true" enter="onLogin()"/>
         </s:FormItem>
         <s:FormItem label="Server">
-          <s:TextInput id="server" width="200" text="{SessionManager.instance.lastServer}"/>
+          <s:TextInput id="server" width="200" text="{SessionManager.instance.lastServer}" enter="onLogin()"/>
         </s:FormItem>
         <s:FormItem>
           <s:layout>

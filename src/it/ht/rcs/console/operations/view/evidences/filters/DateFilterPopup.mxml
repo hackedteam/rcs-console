@@ -15,41 +15,78 @@
       
       import mx.core.FlexGlobals;
       
-      private var today:Date;
-
-      private static const DEFAULT_RANGE:int = 5;
-      public var range:int = DEFAULT_RANGE;
-      
       private function init():void
       {
         hasFilter = true;
-        today = new Date();
-        today.hours = today.minutes = today.seconds = today.milliseconds = 0;
+        var today:int = new Date().time/1000;
+        setFromTimestamp(today);
+        setToTimestamp(today);
       }
       
       override public function commit(fireEvent:Boolean=true):void
       {
-        filter.from = getFromTimestamp();
-        filter.to = getToTimestamp();
+        if (fromTo.selected) {
+          filter.from = getFromTimestamp();
+          filter.to = getToTimestamp();
+        } else {
+          delete(filter.from);
+          delete(filter.to);
+        }
         visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
-      override public function reset(fireEvent:Boolean=true):void
+      private function show():void
       {
-        today.hours = 0; today.minutes = 0;
-        filter.from = DateUtils.addDays(today, -range).time / 1000;
-        setFromTimestamp(filter.from);
-        
-        today.hours = 23; today.minutes = 59;
-        filter.to = today.time / 1000;
-        setToTimestamp(filter.to);
-        
-        adjust();
-        commit(fireEvent);
+        fromH.setFocus();
+        if (filter.from)
+          setFromTimestamp(filter.from);
+        if (filter.to)
+          setToTimestamp(filter.to);
       }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="group"/>
+  </fx:Declarations>
+  
+  <s:VGroup gap="10" styleName="auditFilter">
+    
+    <s:RadioButton label="Last 24 Hours" group="{group}" selected="true"/>
+    <s:RadioButton id="fromTo" label="From/To" group="{group}"/>
+    
+    <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
       
+      <s:HGroup verticalAlign="middle">
+        <s:Label width="40" text="From"/>
+        <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0"
+                          valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="fromM" change="adjust()" maximum="59" minimum="0" value="0"
+                          valueFormatFunction="pad"/>
+      </s:HGroup>
+      
+      <s:HGroup verticalAlign="middle">
+        <s:Label width="40" text="To"/>
+        <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23"
+                          valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="toM" change="adjust()" maximum="59" minimum="0" value="59"
+                          valueFormatFunction="pad"/>
+      </s:HGroup>
+      
+    </s:VGroup>
+    
+  </s:VGroup>
+  
+  <fx:Script>
+    <![CDATA[
       private function adjust():void
       {
         var fromTS:int = getFromTimestamp();
@@ -58,46 +95,6 @@
         if (fromTS > toTS)
           setToTimestamp(fromTS);
       }
-      
-      private function show():void
-      {
-        fromH.setFocus();
-        setFromTimestamp(filter.from);
-        setToTimestamp(filter.to);
-      }
-      
-    ]]>
-  </fx:Script>
-  
-  <s:VGroup gap="10" styleName="auditFilter">
-    
-    <s:HGroup verticalAlign="middle">
-      <s:Label width="40" text="From"/>
-      <mx:DateField id="from" width="120" change="adjust()"
-                    showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
-      <s:NumericStepper id="fromH" minimum="0" maximum="23" valueFormatFunction="pad" value="0" change="adjust()"/>
-      <s:Label text=":"/>
-      <s:NumericStepper id="fromM" minimum="0" maximum="59" valueFormatFunction="pad" value="0" change="adjust()"/>
-    </s:HGroup>
-    
-    <s:HGroup verticalAlign="middle">
-      <s:Label width="40" text="To"/>
-      <mx:DateField id="to" width="120" change="adjust()"
-                    showToday="false" yearNavigationEnabled="true" formatString="YYYY-MM-DD"/>
-      <s:NumericStepper id="toH" minimum="0" maximum="23" valueFormatFunction="pad" value="23" change="adjust()"/>
-      <s:Label text=":"/>
-      <s:NumericStepper id="toM" minimum="0" maximum="59" valueFormatFunction="pad" value="59" change="adjust()"/>
-    </s:HGroup>
-    
-    <s:HGroup width="100%" verticalAlign="middle">
-      <s:Spacer width="100%"/>
-      <s:Button label="Last year" click="reset()"/>
-    </s:HGroup>
-    
-  </s:VGroup>
-  
-  <fx:Script>
-    <![CDATA[
       
       private function getFromTimestamp():int
       {
@@ -131,7 +128,6 @@
       {
         return TimeUtils.zeroPad(n, 2);
       }
-      
     ]]>
   </fx:Script>
 

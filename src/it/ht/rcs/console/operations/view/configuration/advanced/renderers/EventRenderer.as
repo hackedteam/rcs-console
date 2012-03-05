@@ -122,7 +122,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       graph.highlightElement(this);
     }
     
-    private function onDoubleClick(me:MouseEvent):void
+    public function onDoubleClick(me:MouseEvent):void
     {
       var popup:EventForm = PopUpManager.createPopUp(root, EventForm, true) as EventForm;
       popup.event = event;

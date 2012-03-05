@@ -7,14 +7,26 @@
 
   <s:Button label="Save" click="onSave()" icon="@Embed('/img/NEW/save.png')"/>
   
+  <s:HGroup visible="{configView.currentState == 'advanced'}" gap="0"
+            includeInLayout="{configView.currentState == 'advanced'}">
+    <s:Button label="Edit" click="onEdit()"
+              enabled="{configView.advanced.graph.selectedElement != null}"
+              icon="@Embed('/img/NEW/edit.png')"/>
+    <s:Button label="Delete" click="onDelete()"
+              enabled="{configView.advanced.graph.selectedElement != null}"
+              icon="@Embed('/img/NEW/delete_32.png')"/>
+  </s:HGroup>
+    
   <actionbar:Separator/>
   
   <s:Button label="Export" click="save(event)" icon="@Embed('/img/NEW/export.png')"/>
   <s:Button label="Import" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
   
-  <actionbar:Separator/>
-  
-  <s:Button label="Build" click="build(event)" icon="@Embed('/img/NEW/build.png')"/>
+  <s:HGroup visible="{section.stateManager.selectedFactory != null}" gap="0"
+            includeInLayout="{section.stateManager.selectedFactory != null}">
+    <actionbar:Separator/>
+    <s:Button label="Build" click="build(event)" icon="@Embed('/img/NEW/build.png')"/>
+  </s:HGroup>
   
   <s:HGroup visible="{configView.currentState == 'basic'}" gap="0"
             includeInLayout="{configView.currentState == 'basic'}">
@@ -49,6 +61,7 @@
       import locale.R;
       
       import mx.controls.Alert;
+      import mx.core.UIComponent;
       import mx.managers.PopUpManager;
       
       [Embed('/img/NEW/expand_all.png')]
@@ -56,6 +69,7 @@
       [Embed('/img/NEW/collapse_all.png')]
       private static const collapseIcon:Class;
       
+      [Bindable]
       public var section:OperationsSection;
       [Bindable]
       public var configView:ConfigurationView;
@@ -82,6 +96,26 @@
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config));
         Alert.show("Config saved");
+        if (configView.section.stateManager.selectedAgent != null)
+          section.stateManager.setState('agentConfigList');
+      }
+      
+      private function onEdit():void
+      {
+        var element:* = configView.advanced.graph.selectedElement;
+        if (element != null && element.hasOwnProperty('onDoubleClick'))
+          element.onDoubleClick(null);
+      }
+      
+      private function onDelete():void
+      {
+        var element:* = configView.advanced.graph.selectedElement;
+        if (element != null && element.hasOwnProperty('deleteEvent'))
+          element.deleteEvent();
+        else if (element != null && element.hasOwnProperty('deleteAction'))
+          element.deleteAction();
+        else if (element != null && element.hasOwnProperty('deleteConnection'))
+          element.deleteConnection();
       }
       
       private function importFile(e:MouseEvent):void

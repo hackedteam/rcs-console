@@ -115,7 +115,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       graph.highlightElement(this);
     }
     
-    private function onDoubleClick(me:MouseEvent):void
+    public function onDoubleClick(me:MouseEvent):void
     {
       var popup:ActionForm = PopUpManager.createPopUp(root, ActionForm, true) as ActionForm;
       popup.action = action;

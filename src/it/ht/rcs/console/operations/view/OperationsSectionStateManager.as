@@ -183,13 +183,13 @@ package it.ht.rcs.console.operations.view
           currentFilter = searchFilterFunction;
           update();
           break;
-		
+        
 		    case 'info':
           section.currentState = 'info';
           //CurrentManager = EvidenceManager; 
           //update();
           break;
-			
+	
         default:
           break;
       }

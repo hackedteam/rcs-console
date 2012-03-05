@@ -31,6 +31,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     public var collapsed:Boolean = false;
     
     // A reference to the currently selected element
+    [Bindable]
     public var selectedElement:UIComponent;
     public function removeSelection():void
     {

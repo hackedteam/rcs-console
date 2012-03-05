@@ -102,7 +102,7 @@ package it.ht.rcs.console.operations.view
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'info')
       {
-        Alert.show('Show Info Component');
+        setState('info');
       }
       
     }
@@ -182,6 +182,11 @@ package it.ht.rcs.console.operations.view
           currentFilter = searchFilterFunction;
           update();
           break;
+        
+        case 'info':
+          section.currentState = 'info';
+          break;
+        
         default:
           break;
       }

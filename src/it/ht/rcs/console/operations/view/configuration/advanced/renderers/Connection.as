@@ -49,10 +49,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       addEventListener(MouseEvent.MOUSE_DOWN, onClick);
       addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
       
-      addEventListener(MouseEvent.DOUBLE_CLICK, displayRepeatPopup);
+      addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
     }
     
-    private function displayRepeatPopup(me:MouseEvent):void
+    public function onDoubleClick(me:MouseEvent):void
     {
       if ((_from as Pin).type == 'repeat')
       {

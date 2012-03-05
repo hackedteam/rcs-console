@@ -1,96 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-                    xmlns:s="library://ns.adobe.com/flex/spark" 
-                    xmlns:mx="library://ns.adobe.com/flex/mx" clipAndEnableScrolling="true">
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.evidence.model.EvidenceData;
-      override public function prepare(hasBeenRecycled:Boolean):void {
-        if (!data)
-          return;
-
-        lblData.text = data[column.dataField]
-        
-          currentState = data.type;
-          
-        switch (data.type) {
-          case 'device':
-            lblData.text = data.data.content
-            break;
-          
-          case 'chat':
-            lblData.text = '[' + data.data.program + '] [' + data.data.users + '] ' + data.data.content; 
-            break;
-            
-          case 'clipboard':
-            lblData.text = '[' + data.data.program + '] ' + data.data.content;
-            break;
-                      
-          case 'camera':
-            lblData.text = '';
-            break;
-            
-          case 'file':
-            lblData.text = data.data.path;
-            break;
-            
-          case 'keylog':
-            lblData.text = '[' + data.data.program + '] ' + data.data.content;
-            break;
-            
-          case 'mic':
-            lblData.text = '';
-            break;
-            
-          case 'password':
-            lblData.text = '[' + data.data.service + '] [' + data.data.user + '] [' + data.data.pass + ']';
-            break;
-            
-          case 'print':
-            lblData.text = data.data.spool;
-            break;
-            
-          case 'screenshot':
-            lblData.text = '[' + data.data.program + '] [' + data.data.window + ']';
-            break;
-            
-          case 'url':
-            lblData.text = '[' + data.data.browser + '] ' + data.data.url;
-            break;
-            
-          case 'call':
-            lblData.text = '[' + data.data.program + '] ' + data.data.peer;
-            break;
-            
-          case 'message':
-            lblData.text = data.data.from + '  -->  ' + data.data.rcpt + '  Subject: ' + data.data.subject;	
-            break;
-            
-          case 'position':
-            lblData.text = '[' + data.data.type + '] ' ;
-            break;
-            
-          case 'calendar':
-            lblData.text = '[' + data.data.event + '] ' + data.data.info;
-            break;
-            
-          case 'addressbook':
-            lblData.text = '[' + data.data.name + '] ' + data.data.contact; 
-            break;
-                        
-          case 'mouse':
-            lblData.text = '[' + data.data.resolution + '] ' + data.data.x + ' ' + data.data.y ;
-            break;
-            
-          case 'application':
-            lblData.text = data.data.program + ' ' + data.data.action + ' ' + data.data.desc;
-            break;
-        }
-      }
-    ]]>
-  </fx:Script>
-  
-  <s:Label id="lblData" top="9" left="7"/>
-  
-</s:GridItemRenderer>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			private var _data:*;
+			
+			public function set data(value:*):void
+			{
+				_data=value;
+			}
+		]]>
+	</fx:Script>
+	
+</s:Group>

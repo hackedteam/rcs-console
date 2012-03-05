@@ -6,15 +6,37 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      
+      import locale.R;
     ]]>
   </fx:Script>
   
-  <s:VGroup width="300" height="100%">
-    <s:Label text="120"/>
+  <s:VGroup width="300" height="100%" paddingTop="10">
+    <s:Form>
+      <s:FormItem label="{R.get('VERSION')}">
+        <s:Label text="{Console.rcsVersion}" width="100%" styleName="monitor"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LICENSE_TYPE')}">
+        <s:Label text="{LicenseManager.instance.type}" width="100%" styleName="monitor"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LICENSE_SERIAL')}">
+        <s:Label text="{LicenseManager.instance.serial}" width="100%" styleName="monitor"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('SHARDS')}">
+        <s:Label text="{LicenseManager.instance.shards.curr} / {LicenseManager.instance.shards.max}" width="100%" styleName="monitor"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('USERS')}">
+        <s:Label text="{LicenseManager.instance.users.curr} / {LicenseManager.instance.users.max}" width="100%" styleName="monitor"/>
+      </s:FormItem>
+    </s:Form>
   </s:VGroup>
   
   <s:VGroup width="300" height="100%">
-    <s:Label text="120"/>
+    <s:Form>
+      <s:FormItem label="{R.get('ANDROID')}">
+        <s:BitmapImage source="@Embed('/img/platforms/android.png')"/>
+      </s:FormItem>
+    </s:Form>
   </s:VGroup>
   
   <s:VGroup width="300" height="100%">
@@ -23,30 +45,6 @@
   
   <!--
   <s:VGroup width="100%" height="100%" left="5" right="5" top="10" bottom="5">
-    <s:HGroup width="100%">
-      <s:Label text="{resourceManager.getString('localized_main', 'LICENSE_TYPE')}" />
-      <s:Label text="{LicenseManager.instance.type}" width="100%" styleName="MonitorAccordion"/>
-    </s:HGroup>
-    <s:HGroup width="100%">
-      <s:Label text="{resourceManager.getString('localized_main', 'LICENSE_SERIAL')}" />
-      <s:Label text="{LicenseManager.instance.serial}" width="100%" styleName="MonitorAccordion"/>
-    </s:HGroup>
-    
-    <s:Spacer height="10"/>
-    
-    <s:HGroup width="100%">
-      <s:Label text="{resourceManager.getString('localized_main', 'SHARDS')}" />
-      <s:Label text="{LicenseManager.instance.shards.curr} / {LicenseManager.instance.shards.max}" width="100%" styleName="MonitorAccordion"/>
-    </s:HGroup>    
-    
-    <s:Spacer height="10"/>
-    
-    <s:HGroup width="100%">
-      <s:Label text="{resourceManager.getString('localized_main', 'USERS')}" />
-      <s:Label text="{LicenseManager.instance.users.curr} / {LicenseManager.instance.users.max}" width="100%" styleName="MonitorAccordion"/>
-    </s:HGroup>    
-    
-    <s:Spacer height="10"/>
     
     <s:HGroup width="100%">
       <s:Label text="Agents" />

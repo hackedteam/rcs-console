@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+		 >
+	
+	<fx:Script>
+		<![CDATA[
+			
+			private var _loader:URLLoader;
+			private var _imageURL:String;
+			
+			override public function set data(value:*):void{
+				
+				//var req:URLRequest=new URLRequest(value);
+				var req:URLRequest=new URLRequest("img/evidence/placeholder.jpg");
+				_loader.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
+				_loader.addEventListener(Event.COMPLETE, onImageLoaded)
+				_loader.load(req);
+				
+			}
+			
+			private function onImageLoading(e:ProgressEvent):void
+			{
+			
+			}
+			
+			private function onImageLoaded(e:Event):void
+			{
+				img.source=e.currentTarget.data;
+			}
+		]]>
+	</fx:Script>
+	    <s:HGroup>
+			<s:Image id="img"/>
+		</s:HGroup>
+		
+			
+</renderers:EvidenceDataRenderer>

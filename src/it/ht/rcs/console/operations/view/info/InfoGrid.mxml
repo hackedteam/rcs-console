@@ -2,18 +2,44 @@
 <s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
             xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
-         
+            xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
             width="100%" height="100%" sortableColumns="false" variableRowHeight="true">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.TimeUtils;
+      import locale.R;
       
+      [Bindable]
+      public var filter:Object=EvidenceManager.instance.infoFilter;
       
+      private function dateLabelFunction(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
       
      
     ]]>
   </fx:Script>
-  
-  
+  <s:columns>
+    <s:ArrayList>
+      
+      <s:GridColumn width="130" dataField="acquired" headerText="{R.get('DATE_ACQUIRED')}"
+                    labelFunction="dateLabelFunction" resizable="false">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}" mandatory="true"
+                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.DateFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn dataField="data.content" headerText="{R.get('CONTENT')}"
+                    resizable="false">
+      </s:GridColumn>
+
+    </s:ArrayList>
+  </s:columns>
 
 </s:DataGrid>

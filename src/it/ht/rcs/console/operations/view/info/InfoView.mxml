@@ -8,30 +8,46 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
       import mx.rpc.events.ResultEvent;
       
       [Bindable]
       public var section:OperationsSection;
 		
-		
+      [Bindable]
+      public var dataProvider:ArrayCollection;
+      
+      
       
       private function onAddedToStage():void
       {
-  		  var filter:Object={target:section.stateManager.selectedTarget._id, agent:section.stateManager.selectedAgent._id}
-  		  EvidenceManager.instance.info(filter,onInfoResult)
+        EvidenceManager.instance.infoFilter.target=section.stateManager.selectedTarget._id;
+        EvidenceManager.instance.infoFilter.agent=section.stateManager.selectedAgent._id;
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onRefresh);
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        onRefresh()
        
       }
+      
+      private function onRefresh(e:Event=null):void
+      {
+        EvidenceManager.instance.info(onInfoResult)
+      }
+      
       private function onInfoResult(e:ResultEvent):void
       {
-        trace(e.result)
+        dataProvider=e.result as ArrayCollection;
       }
       
       private function onRemovedFromStage():void
       {
-        
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       }
       
       
@@ -39,5 +55,5 @@
   </fx:Script>
 
 
-	<info:InfoGrid dataProvider="{EvidenceManager.instance._view}"/>
+	<info:InfoGrid dataProvider="{dataProvider}" />
 </s:VGroup>

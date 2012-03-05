@@ -178,7 +178,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         icon = new BitmapImage();
         icon.left = 6;
         icon.verticalCenter = -1;
-        icon.source = action.subactions.length > 0 ? ModuleIcons[action.subactions[0].action] : null;
+        changeIcon();
         container.addElement(icon);
         
         textLabel = new Label();
@@ -228,6 +228,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         addElement(stopModulePin);
       }
 		}
+    
+    public function changeIcon():void
+    {
+      icon.source = action.subactions.length > 0 ? ModuleIcons[action.subactions[0].action] : null;
+      invalidateDisplayList();
+    }
     
     private function isEnableEventVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, enableEventPin);  }
     private function isDisableEventVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, disableEventPin); }

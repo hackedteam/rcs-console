@@ -119,6 +119,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
         var subaction:Object = {action: 'module', status: type, module: module};
         subactions.push(subaction);
+        var ar:ActionRenderer = (connection.from as Pin).parent as ActionRenderer;
+        ar.changeIcon();
       } else if (connection.to is ActionRenderer) {
         var action:Object = (connection.to as ActionRenderer).action;
         var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
@@ -129,6 +131,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         action = ((connection.from as Pin).parent as ActionRenderer).action;
         event = (connection.to as EventRenderer).event;
         action.subactions.push({action: 'event', status: type, event: (config.events as Array).indexOf(event)});
+        ar = (connection.from as Pin).parent as ActionRenderer;
+        ar.changeIcon();
       }
     }
     
@@ -147,6 +151,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
         var subaction:Object = findModuleSubaction(subactions, type, module);
         subactions.splice(subactions.indexOf(subaction), 1);
+        var ar:ActionRenderer = (connection.from as Pin).parent as ActionRenderer;
+        ar.changeIcon();
       } else if (connection.to is ActionRenderer) {
         var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
         delete(event[type]);
@@ -155,6 +161,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         subactions = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
         subaction = findEventSubaction(subactions, type, index);
         subactions.splice(subactions.indexOf(subaction), 1);
+        ar = (connection.from as Pin).parent as ActionRenderer;
+        ar.changeIcon();
       }
     }
     
@@ -365,6 +373,15 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 			invalidateDisplayList();
 		}
     
+    public function getEventRendererForEvent(event:Object):EventRenderer
+    {
+      for each (var er:EventRenderer in events) {
+        if (er.event === event)
+          return er;
+      }
+      return null;
+    }
+    
     private function createConnection(from:Linkable, to:Linkable):void
     {
       var line:Connection = new Connection(this);
@@ -384,21 +401,19 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     // TODO: Comment this method...
     private function computeSize():Point
     {
-      var eventsX:Number = 0, eventsY:Number = 0;
-      if (events != null && events.length > 0) {
+      var eventsX:Number = 0;
+      if (events != null && events.length > 0)
         eventsX = (events[0].width * events.length) + (NODE_DISTANCE * (events.length - 1)) + HORIZONTAL_PAD * 2;
-        eventsY = 520; // TODO: Compute real height!!!
-      }
-      var actionsX:Number = 0, actionsY:Number = 0;
-      if (actions != null && actions.length > 0) {
+      
+      var actionsX:Number = 0;
+      if (actions != null && actions.length > 0)
         actionsX = (actions[0].width * actions.length) + (NODE_DISTANCE * (actions.length - 1)) + HORIZONTAL_PAD * 2;
-        actionsY = 520; // TODO: Compute real height!!!
-      }
+      
       var modulesX:Number = 0;
-      if (modules != null && modules.length > 0) {
+      if (modules != null && modules.length > 0)
         modulesX = (modules[0].width * modules.length) + (MODULE_DISTANCE * (modules.length - 1)) + HORIZONTAL_PAD * 2;
-      }
-      return new Point(Math.max(eventsX, actionsX, modulesX), Math.max(eventsY, actionsY));
+
+      return new Point(Math.max(eventsX, actionsX, modulesX), 520);
     }
     
 		override protected function measure():void

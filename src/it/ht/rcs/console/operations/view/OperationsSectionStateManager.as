@@ -5,6 +5,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.evidence.controller.EvidenceManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
@@ -183,10 +184,12 @@ package it.ht.rcs.console.operations.view
           update();
           break;
         
-        case 'info':
+		    case 'info':
           section.currentState = 'info';
+          //CurrentManager = EvidenceManager; 
+          //update();
           break;
-        
+	
         default:
           break;
       }

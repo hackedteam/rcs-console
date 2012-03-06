@@ -8,10 +8,6 @@
   
   <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
     
-    <filters:TypeFilterItemRenderer id="all" label="All" click="checkboxClick(all)"/>
-    
-    <s:Spacer height="2"/>
-    
     <filters:TypeFilterItemRenderer id="addressbook" label="addressbook" click="checkboxClick(addressbook)"/>
     <filters:TypeFilterItemRenderer id="application" label="application" click="checkboxClick(application)"/>
     <filters:TypeFilterItemRenderer id="calendar" label="calendar" click="checkboxClick(calendar)"/>
@@ -20,23 +16,19 @@
     <filters:TypeFilterItemRenderer id="camera" label="camera" click="checkboxClick(camera)"/>
     <filters:TypeFilterItemRenderer id="chat" label="chat" click="checkboxClick(chat)"/>
     <filters:TypeFilterItemRenderer id="clipboard" label="clipboard" click="checkboxClick(clipboard)"/>
-    <filters:TypeFilterItemRenderer id="conference" label="conference" click="checkboxClick(conference)"/>
     
-    <filters:TypeFilterItemRenderer id="crisis" label="crisis" click="checkboxClick(crisis)"/>
     <filters:TypeFilterItemRenderer id="device" label="device" click="checkboxClick(device)"/>
     <filters:TypeFilterItemRenderer id="file" label="file" click="checkboxClick(file)"/>
-    <filters:TypeFilterItemRenderer id="infection" label="infection" click="checkboxClick(infection)"/>
-
     <filters:TypeFilterItemRenderer id="keylog" label="keylog" click="checkboxClick(keylog)"/>
     <filters:TypeFilterItemRenderer id="livemic" label="livemic" click="checkboxClick(livemic)"/>
+    
     <filters:TypeFilterItemRenderer id="messages" label="messages" click="checkboxClick(messages)"/>
     <filters:TypeFilterItemRenderer id="mic" label="mic" click="checkboxClick(mic)"/>
-    
     <filters:TypeFilterItemRenderer id="mouse" label="mouse" click="checkboxClick(mouse)"/>
     <filters:TypeFilterItemRenderer id="password" label="password" click="checkboxClick(password)"/>
+    
     <filters:TypeFilterItemRenderer id="position" label="position" click="checkboxClick(position)"/>
     <filters:TypeFilterItemRenderer id="print" label="print" click="checkboxClick(print)"/>
-
     <filters:TypeFilterItemRenderer id="screenshot" label="screenshot" click="checkboxClick(screenshot)"/>
     <filters:TypeFilterItemRenderer id="url" label="url" click="checkboxClick(url)"/>
     
@@ -54,8 +46,8 @@
       
       private function init():void
       {
-        checks = [all, addressbook, application, calendar, call, camera, chat, clipboard, conference, crisis,
-                  device, file, infection, keylog, livemic, messages, mic, mouse, password, position, print, screenshot, url];
+        checks = [addressbook, application, calendar, call, camera, chat, clipboard, device, file,
+                  keylog, livemic, messages, mic, mouse, password, position, print, screenshot, url];
       }
       
       override public function commit(fireEvent:Boolean=true):void
@@ -83,23 +75,17 @@
       override public function reset(fireEvent:Boolean=true):void
       {
         deselectAll();
-        select(all);
         commit(fireEvent);
       }
       
       private function checkboxClick(item:TypeFilterItemRenderer):void
       {
-        if (item === all) {
-          deselectAll();
-          select(item);
-        } else {
-          select(all, false);
-        }
-      }
-      
-      private function select(item:TypeFilterItemRenderer, state:Boolean=true):void
-      {
-        item.checkbox.selected = state;
+//        if (item === all) {
+//          deselectAll();
+//          select(item);
+//        } else {
+//          select(all, false);
+//        }
       }
       
       private function deselectAll():void
@@ -111,12 +97,10 @@
       
       private function show():void
       {
-        if (!filter.hasOwnProperty(property))
-          select(all);
-        else
-          checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
-            item.checkbox.selected =  filter[property].indexOf(item.id) != -1;
-          });
+        if (!filter.hasOwnProperty(property)) return;
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected =  filter[property].indexOf(item.id) != -1;
+        });
       }
     ]]>
   </fx:Script>

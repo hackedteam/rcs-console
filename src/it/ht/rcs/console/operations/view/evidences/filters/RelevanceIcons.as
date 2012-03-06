@@ -3,10 +3,7 @@ package it.ht.rcs.console.operations.view.evidences.filters
   public class RelevanceIcons
   {
     
-    [Embed(source='/img/relevance/rel_all.png')]
-    public static const rel_all:Class;
-    
-    [Embed(source='/img/relevance/rel_none.png')]
+    [Embed(source='/img/relevance/rel_0.png')]
     public static const rel_none:Class;
     
     [Embed(source='/img/relevance/rel_1.png')]

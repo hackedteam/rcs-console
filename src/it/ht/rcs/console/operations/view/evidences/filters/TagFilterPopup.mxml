@@ -7,9 +7,7 @@
                              show="show()" creationPolicy="all">
   
   <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
-    <filters:TagFilterItemRenderer id="all" label="All" relevance="all" click="checkboxClick(all)"/>
-    <s:Spacer height="2"/>
-    <filters:TagFilterItemRenderer id="none" label="Untagged" relevance="none" click="checkboxClick(none)"/>
+    <filters:TagFilterItemRenderer id="none" label="Untagged" relevance="0" click="checkboxClick(none)"/>
     <s:Spacer height="2"/>
     <filters:TagFilterItemRenderer id="low" label="Low" relevance="1" click="checkboxClick(low)"/>
     <filters:TagFilterItemRenderer id="medium" label="Medium" relevance="2" click="checkboxClick(medium)"/>
@@ -37,12 +35,12 @@
       
       private function getValues():Array
       {
-        var checks:Array = [all, none, low, medium, high, critical];
+        var checks:Array = [none, low, medium, high, critical];
         var toReturn:Array = [];
         
         checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
           if (item.checkbox.selected)
-            toReturn.push(item.id);
+            toReturn.push(item.relevance);
         });
         
         return toReturn;
@@ -51,17 +49,15 @@
       override public function reset(fireEvent:Boolean=true):void
       {
         deselectAll();
-        select(all);
         commit(fireEvent);
       }
       
       private function checkboxClick(item:TagFilterItemRenderer):void
       {
-        if (item === all || item === none) {
+        if (item === none) {
           deselectAll();
           select(item);
         } else {
-          select(all, false);
           select(none, false);
         }
       }
@@ -73,7 +69,7 @@
       
       private function deselectAll():void
       {
-        var checks:Array = [all, none, low, medium, high, critical];
+        var checks:Array = [none, low, medium, high, critical];
         checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
           item.checkbox.selected = false;
         });
@@ -81,9 +77,10 @@
       
       private function show():void
       {
-        var checks:Array = [all, none, low, medium, high, critical];
+        if (!filter.hasOwnProperty(property)) return;
+        var checks:Array = [none, low, medium, high, critical];
         checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
-          item.checkbox.selected = filter[property].indexOf(item.id) != -1;
+          item.checkbox.selected = filter[property].indexOf(item.relevance) != -1;
         });
       }
     ]]>

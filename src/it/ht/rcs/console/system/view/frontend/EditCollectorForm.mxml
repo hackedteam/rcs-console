@@ -10,11 +10,13 @@
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.utils.StringUtil;
       
       [Bindable]
       public var collector:Collector;
@@ -41,6 +43,12 @@
 
       private function save():void
       {
+        if (StringUtil.trim(address.text) == '') {
+          AlertPopUp.show('COLLECTOR_INVALID_ADDRESS');
+          address.setFocus();
+          return;
+        }
+        
         /* keep the name the first to be modified */
         collector.name = nameField.text;
         collector.address = address.text;

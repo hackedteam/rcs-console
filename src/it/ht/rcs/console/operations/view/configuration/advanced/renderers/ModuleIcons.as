@@ -105,6 +105,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public static const synchronize:Class;
     
     [Embed(source='/img/actions/eventOn.png')]
+    public static const event:Class;
+    
+    [Embed(source='/img/actions/eventOn.png')]
     public static const event_enable:Class;
     
     [Embed(source='/img/actions/eventOff.png')]

@@ -11,6 +11,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
       
       [Bindable]
       public var section:OperationsSection;
@@ -110,8 +111,12 @@
       
       public function addEvent(event:MouseEvent):void
       {
-        graph.config.events.push({event: "timer", subtype: "loop", desc: "New loop", enabled: true});
+        var ev:Object = {event: "timer", subtype: "loop", desc: "New event", enabled: true};
+        graph.config.events.push(ev);
         graph.rebuildGraph();
+        var er:EventRenderer = graph.getEventRendererForEvent(ev);
+        if (er)
+          er.onDoubleClick(null);
       }
       
       public function addAction(event:MouseEvent):void
@@ -140,6 +145,12 @@
       {
         graph.removeAllElements();
       }
+      
+      protected function graph_removedFromStageHandler(event:Event):void
+      {
+        graph.removeSelection();
+      }
+      
     ]]>
   </fx:Script>
   
@@ -166,7 +177,7 @@
     </s:Rect>
     
     <s:Scroller id="scroller" width="100%" height="100%">
-      <advanced:ConfigurationGraph id="graph"/>
+      <advanced:ConfigurationGraph id="graph" removedFromStage="graph_removedFromStageHandler(event)"/>
     </s:Scroller>
     
   </s:BorderContainer>

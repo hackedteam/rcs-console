@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:info="it.ht.rcs.console.operations.view.info.*"
+         width="100%" height="100%" addedToStage="onAddedToStage()"
+         removedFromStage="onRemovedFromStage()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      public var section:OperationsSection;
+		
+      [Bindable]
+      public var dataProvider:ArrayCollection;
+      
+      
+      
+      private function onAddedToStage():void
+      {
+        EvidenceManager.instance.infoFilter.target=section.stateManager.selectedTarget._id;
+        EvidenceManager.instance.infoFilter.agent=section.stateManager.selectedAgent._id;
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onRefresh);
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        onRefresh()
+       
+      }
+      
+      private function onRefresh(e:Event=null):void
+      {
+        EvidenceManager.instance.info(onInfoResult)
+      }
+      
+      private function onInfoResult(e:ResultEvent):void
+      {
+        dataProvider=e.result as ArrayCollection;
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      
+    ]]>
+  </fx:Script>
+
+
+	<info:InfoGrid dataProvider="{dataProvider}" />
+</s:VGroup>

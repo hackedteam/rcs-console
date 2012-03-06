@@ -21,6 +21,7 @@
         bandwidth.text = String(parseInt(action.bandwidth) / 1000);
         min.text = action.mindelay;
         max.text = action.maxdelay;
+        stop.selected = action.stop;
       }
       
       private function commit():void
@@ -29,6 +30,7 @@
         action.bandwidth = parseInt(bandwidth.text) * 1000;
         action.mindelay = parseInt(min.text);
         action.maxdelay = parseInt(max.text);
+        action.stop = stop.selected;
       }
       
       private function setEntryPoint(ep:ListCollectionView):void
@@ -61,7 +63,7 @@
   <s:Form>
     
     <s:FormItem label="Host">
-      <s:ComboBox id="host" width="200" labelField="name" labelToItemFunction="myLabelToItem"
+      <s:ComboBox id="host" width="180" labelField="name" labelToItemFunction="myLabelToItem"
                   requireSelection="true"/>
     </s:FormItem>
     
@@ -84,6 +86,10 @@
         <s:TextInput id="max" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" seconds"/>
       </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="Stop on success">
+      <s:CheckBox id="stop"/>
     </s:FormItem>
   
   </s:Form>

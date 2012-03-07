@@ -7,7 +7,10 @@
          xmlns:view="it.ht.rcs.console.utils.*">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.Clock;
       import it.ht.rcs.console.utils.TimeUtils;
@@ -19,8 +22,9 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ArrayUtil;
-      
-      private var dirReference:File;
+
+      public var target:Target
+      public var agent:Agent;
       
       protected function closeMe(event:*):void
       {
@@ -115,7 +119,12 @@
 
         filter.blotter = blotter.selected;
         
-        trace(filter);
+        filter.target = target != null ? target._id : null;
+        filter.agent = agent != null ? agent._id : null;
+        
+        DownloadManager.instance.createTask("evidence", "evidence_export", filter); 
+        
+        PopUpManager.removePopUp(this);
       }
       
     ]]>

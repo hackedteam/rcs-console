@@ -73,7 +73,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       
       if (model.sync) {
-        var syncSub = DefaultConfigBuilder.getDefaultAction('synchronize');
+        var syncSub:Object = DefaultConfigBuilder.getDefaultAction('synchronize');
         syncSub.host = model.syncHost;
         var syncEvent:Object =  {event: "timer", subtype: "loop", repeat: index, delay: model.syncDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
         var syncAction:Object = {desc: "SYNC", subactions: [syncSub]};

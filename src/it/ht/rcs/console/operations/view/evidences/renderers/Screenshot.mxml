@@ -1,40 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
-		 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-		 >
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="400" height="300">
 	
 	<fx:Script>
 		<![CDATA[
-			
-			private var _loader:URLLoader;
-			private var _imageURL:String;
-			
-			override public function set data(value:*):void{
-				
-				//var req:URLRequest=new URLRequest(value);
-				var req:URLRequest=new URLRequest("img/evidence/placeholder.jpg");
-				_loader.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
-				_loader.addEventListener(Event.COMPLETE, onImageLoaded)
-				_loader.load(req);
-				
-			}
-			
-			private function onImageLoading(e:ProgressEvent):void
-			{
-			
-			}
-			
-			private function onImageLoaded(e:Event):void
-			{
-				img.source=e.currentTarget.data;
-			}
+      import it.ht.rcs.console.DB;
+      
+  		private var _loader:Loader=new Loader();
+  		private var _imageURL:String;
+      
+      [Bindable]
+      public var host:EvidenceRenderer
+      
+      [Bindable]
+      override public function set data(value:*):void{
+        trace("set data")
+        super.data=value;
+        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "/grid/show/idEvidence"
+        var params:Object={_id:data._id, target_id:host.target_id};
+  			var req:URLRequest=new URLRequest();
+        req.method=URLRequestMethod.GET;
+        req.data=params;
+        req.url=url;
+  			_loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+  			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onImageLoaded);
+        _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+  			_loader.load(req);
+        trace(url)
+        
+  			
+  		}
+      
+      
+  		
+  		private function onImageLoading(e:ProgressEvent):void
+  		{
+        trace("image loading")
+  		}
+      
+      private function onImageError(e:IOErrorEvent):void
+      {
+        trace("image error")
+      }
+  		
+  		private function onImageLoaded(e:Event):void
+  		{
+        trace("image loaded")
+  			img.source=_loader.content as Bitmap
+  		}
 		]]>
 	</fx:Script>
+  
 	    <s:HGroup>
 			<s:Image id="img"/>
-		</s:HGroup>
+		  </s:HGroup>
 		
 			
 </renderers:EvidenceDataRenderer>

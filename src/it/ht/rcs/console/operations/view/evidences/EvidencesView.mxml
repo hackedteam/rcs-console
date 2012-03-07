@@ -8,6 +8,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
@@ -23,7 +24,7 @@
       
       private function onAddedToStage():void
       {
-        
+        EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
         EvidenceManager.instance.evidenceFilter.target = section.stateManager.selectedTarget._id;
         if (section.stateManager.selectedAgent != null)
           EvidenceManager.instance.evidenceFilter.agent = section.stateManager.selectedAgent._id;
@@ -35,6 +36,7 @@
       
       private function onRemovedFromStage():void
       {
+        EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
         EvidenceManager.instance.unlistenRefresh();
       }
@@ -44,11 +46,21 @@
         EvidenceManager.instance.refresh();
       }
       
+      private function onGridChange():void
+      {
+        actionBar.selectedObjects=evidenceDg.selectedItems
+      }
+      
+      private function onDataLoaded(e:DataLoadedEvent):void
+      {
+        evidenceDg.dataProvider=EvidenceManager.instance.getView();
+      }
+      
+      
      
     ]]>
   </fx:Script>
-  <evidences:EvidenceActionBar selectedObject="{evidenceDg.selectedItem}"/>
-  <evidences:EvidenceGrid dataProvider="{EvidenceManager.instance._view}" id="evidenceDg"
-                          target_id="{section.stateManager.selectedTarget._id}"/>
+  <evidences:EvidenceActionBar selectedObject="{evidenceDg.selectedItem}"  id="actionBar"/>
+  <evidences:EvidenceGrid  id="evidenceDg" selectionMode="multipleRows" selectionChange="onGridChange()" updateComplete="onGridChange()"/>
 
 </s:VGroup>

@@ -6,13 +6,26 @@
          horizontalAlign="center"
          gap="1">
   
+  <fx:Metadata> 
+    [Event(name="change", type="flash.events.Event")] 
+  </fx:Metadata> 
+  
   <fx:Script>
     <![CDATA[
-      
+
       private var _label:String;
+      private var _tag:int;
       
-      [Bindable]
-      public var tag:int;
+      public function set tag(value:int):void
+      {
+        _tag=value;
+        sliderTag.value=tag;
+      }
+      
+      public function get tag():int
+      {
+        return _tag;
+      }
       
       [Bindable]
       public function set label(value:String):void
@@ -27,17 +40,18 @@
       }
 
     
-      protected function onSliderChange(event:Event):void
+      protected function onSliderChange():void
       {
-        dispatchEvent(new Event("tagChange"))
-        
+        tag=sliderTag.value;
+        dispatchEvent(new Event("change"))
       }
       
+     
     ]]>
   </fx:Script>
     <utils:TagImage value="{sliderTag.value}"/>   
-    <s:HSlider id="sliderTag" width="30" maximum="4" minimum="0" value="{tag}"
-               showDataTip="false" change="onSliderChange(event)"/>
+    <s:HSlider id="sliderTag" width="30" maximum="4" minimum="0"
+               showDataTip="false" changeEnd="onSliderChange()"/>
   
     <s:Label id="labelDisplay"   textAlign="center"
              maxDisplayedLines="1" fontFamily="Myriad" fontSize="14"

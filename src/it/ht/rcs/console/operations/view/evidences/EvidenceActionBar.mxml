@@ -8,11 +8,11 @@
   
   <s:Button label="{R.get('EVIDENCE_EXPORT')}" click="onExportClick()" icon="@Embed('/img/NEW/export.png')" enabled="{selectedObject != null}"/>
   
-  <editors:TagEditor label="{R.get('RELEVANCE')}" click="onRelevanceClick()" enabled="{selectedObject != null}"
-                     tag="{selectedObject.relevance}" id="tagEditor"/>
+  <editors:TagEditor label="{R.get('RELEVANCE')}" enabled="false"
+                     id="tagEditor" change="onRelevanceChange()"/>
   
-  <s:Button label="{R.get('REPORT_ADD')}" click="onReportClick()" enabled="{selectedObject != null}"
-            icon="@Embed('/img/NEW/delete_32.png')"/>
+  <s:Button label="{R.get('REPORT_ADD')}" click="onReportClick()" enabled="false"
+            icon="@Embed('/img/NEW/export.png')" id="reportBtn"/>
   
   <!-- <actionbar:Separator width="40"/> -->
   
@@ -29,6 +29,7 @@
       import it.ht.rcs.console.accounting.controller.SessionManager;
       import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -36,23 +37,100 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
-      /*
-      private function init():void{
-        tagEditor.addEventListener("tagChange",onChange)
+      private var _selectedObjects:Vector.<Object>;
+      
+      [Embed (source="/img/NEW/export.png" )]
+      public var ReportAddIcon:Class;
+      
+      [Embed (source="/img/NEW/import.png" )]
+      public var ReportRemoveIcon:Class;
+      
+      
+      
+      [Bindable]
+      public function set selectedObjects(value:Vector.<Object>):void
+      {
+        _selectedObjects=value;
+        tagEditor.tag=0;
+        tagEditor.enabled=false;
+        
+        if(!value) return;
+        
+        if(selectedObjects.length<1)
+        {
+          tagEditor.tag=0;
+          tagEditor.enabled=false;
+          reportBtn.enabled=false;
+        }
+        else if(selectedObjects.length==1)
+        {
+          tagEditor.tag=selectedObjects[0].relevance;
+          tagEditor.enabled=true;
+          reportBtn.enabled=true;
+          toggleReportButton(selectedObjects[0].blotter);
+        }
+        else
+        {
+          tagEditor.tag=0;
+          tagEditor.enabled=true;
+          var blotterValue:Boolean;
+          if(sameValue(selectedObjects, "blotter"))
+          {
+               blotterValue=selectedObjects[0].value  
+          }
+          reportBtn.enabled=true;
+          toggleReportButton(blotterValue);
+         }
       }
       
-      private function onChange(e:Event):void{
+      private function sameValue(selectedObjects:Vector.<Object>, property:String):Boolean{
+        
+        var result:Boolean=true;
+        var value:*=selectedObjects[0][property]
+          trace(value)
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          if(selectedObjects[i][property]==value)
+          {
+            result=false;
+            break;
+          }
+        }
+        return result;
+      }
+      
+      private function toggleReportButton(value:Boolean):void{
+        
+        if(value){
+          reportBtn.setStyle("icon", ReportRemoveIcon);
+          reportBtn.label=R.get('REPORT_REMOVE');
+        }
+        else
+        {
+          reportBtn.setStyle("icon", ReportAddIcon);
+          reportBtn.label=R.get('REPORT_ADD')
+        }
         
       }
-      */
+      
+      public function get selectedObjects():Vector.<Object>
+      {
+        return _selectedObjects;
+      }
+      
       private function onExportClick():void
       {
         
       }
       
-      private function onRelevanceClick():void
+      private function onRelevanceChange():void
       {
-        
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          var evidence:Evidence=selectedObjects[i] as Evidence;
+          evidence.relevance=tagEditor.tag;
+          
+        }
       }
       
       private function onDeleteClick():void
@@ -67,6 +145,14 @@
       
       private function onReportClick():void
       {
+        var value:Boolean=(reportBtn.getStyle("icon")==ReportAddIcon);
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          var evidence:Evidence=selectedObjects[i] as Evidence;
+          evidence.blotter=value;
+          
+        }
+        toggleReportButton(value)
         
       }
       

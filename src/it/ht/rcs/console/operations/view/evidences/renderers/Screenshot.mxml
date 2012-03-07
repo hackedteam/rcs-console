@@ -3,24 +3,23 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="400" height="300">
+                                width="50" height="50">
 	
 	<fx:Script>
 		<![CDATA[
       import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       
   		private var _loader:Loader=new Loader();
   		private var _imageURL:String;
       
       [Bindable]
-      public var host:EvidenceRenderer
-      
-      [Bindable]
       override public function set data(value:*):void{
-        trace("set data")
+        
         super.data=value;
-        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "/grid/show/idEvidence"
-        var params:Object={_id:data._id, target_id:host.target_id};
+        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/show/idEvidence"
+        var target_id:String=EvidenceManager.instance.evidenceFilter.target 
+        var params:Object={_id:data._id, target_id:target_id};
   			var req:URLRequest=new URLRequest();
         req.method=URLRequestMethod.GET;
         req.data=params;
@@ -29,13 +28,9 @@
   			_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onImageLoaded);
         _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
   			_loader.load(req);
-        trace(url)
-        
-  			
+     
   		}
-      
-      
-  		
+
   		private function onImageLoading(e:ProgressEvent):void
   		{
         trace("image loading")

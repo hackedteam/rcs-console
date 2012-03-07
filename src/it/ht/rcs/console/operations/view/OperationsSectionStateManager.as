@@ -186,8 +186,6 @@ package it.ht.rcs.console.operations.view
         
 		    case 'info':
           section.currentState = 'info';
-          //CurrentManager = EvidenceManager; 
-          //update();
           break;
 	
         default:

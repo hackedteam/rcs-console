@@ -166,6 +166,27 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       }
     }
     
+    public function fixEventIndices(index:int):void
+    {
+      for each (var event:Object in config.events) {
+        if (event.hasOwnProperty('start')  && event.start  > index) event.start  = event.start  - 1;
+        if (event.hasOwnProperty('repeat') && event.repeat > index) event.repeat = event.repeat - 1;
+        if (event.hasOwnProperty('end')    && event.end    > index) event.end    = event.end    - 1;
+      }
+    }
+    
+    public function fixActionIndices(index:int):void
+    {
+      for each (var action:Object in config.actions) {
+        for each (var subaction:Object in action.subactions) {
+          if (subaction.action == 'event') {
+            if (subaction.status == 'enable'  && subaction.enable  > index) subaction.enable  = subaction.enable  - 1;
+            if (subaction.status == 'disable' && subaction.disable > index) subaction.disable = subaction.disable - 1;
+          }
+        }
+      }
+    }
+    
     private function findModuleSubaction(subactions:Array, status:String, module:String):Object
     {
       for each (var subaction:Object in subactions)

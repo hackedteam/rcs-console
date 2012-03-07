@@ -11,16 +11,24 @@
       import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
       
       [Bindable]
       public var collector:Collector;
       
       private function save():void
       {
+        if (StringUtil.trim(address.text) == '') {
+          AlertPopUp.show('COLLECTOR_INVALID_ADDRESS');
+          address.setFocus();
+          return;
+        }
+        
         collector.name = collName.text;
         collector.desc = description.text;
         collector.address = address.text;
@@ -30,11 +38,10 @@
         CollectorManager.instance.addCollector(ObjectUtils.toHash(collector), function(i:Collector):void { close(); });
       }
       
-      protected function init(event:FlexEvent):void
+      private function init(event:FlexEvent):void
       {
         collector = new Collector(Collector.defaultCollector());        
       }
-      
     ]]>
   </fx:Script>
   

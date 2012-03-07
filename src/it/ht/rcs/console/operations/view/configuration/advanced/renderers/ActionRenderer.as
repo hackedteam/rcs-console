@@ -139,7 +139,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         c.deleteConnection();
       
       graph.removeElement(this);
-      graph.config.actions.splice(graph.config.actions.indexOf(action), 1);
+      var index:int = graph.config.actions.indexOf(action);
+      graph.config.actions.splice(index, 1);
+      graph.fixEventIndices(index);
     }
     
     private function getAllConnections():Vector.<Connection>

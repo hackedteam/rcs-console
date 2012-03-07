@@ -26,12 +26,12 @@
               icon="@Embed('/img/NEW/import.png')" enabled="{Console.currentSession.user.is_tech()}"/>
 
     <s:Button label="{R.get('EVIDENCE_EXPORT')}"
-              icon="@Embed('/img/NEW/export.png')" enabled="{Console.currentSession.user.is_view()}"/>
+              icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
     
     <actionbar:Separator width="40"/>
     
     <s:Button label="{R.get('UPDATE_AGENT')}" click="updateAgent(event)"
-              icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_view() &amp;&amp; 
+              icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_tech() &amp;&amp; 
                                                              selectedObject &amp;&amp; 
                                                             (selectedObject as Agent)._kind  == 'agent' &amp;&amp; 
                                                             (selectedObject as Agent).status == 'open'}"/>
@@ -44,7 +44,7 @@
             includeInLayout="{section.currentState == 'singleAgent'}" verticalAlign="middle">
         
     <s:Button label="{R.get('EVIDENCE_EXPORT')}"
-              icon="@Embed('/img/NEW/export.png')" enabled="{Console.currentSession.user.is_tech()}"/>
+              icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
     
     <actionbar:Separator width="40"/>
     
@@ -62,6 +62,7 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceExport;
       import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
       import it.ht.rcs.console.utils.AlertPopUp;
       
@@ -128,6 +129,12 @@
         PopUpManager.centerPopUp(popup);
       }
       
+      
+      protected function exportEvidence(event:MouseEvent):void
+      {
+        var popup:EvidenceExport = PopUpManager.createPopUp(root, EvidenceExport, true) as EvidenceExport;
+        PopUpManager.centerPopUp(popup);
+      }
       
     ]]>
   </fx:Script>

@@ -15,10 +15,16 @@
       
       import mx.collections.ListCollectionView;
       
+      [Bindable]
       public var config:Object;
+      
+      [Bindable]
+      private var isMobile:Boolean = false;
       
       public function displayConfig():void
       {
+        isMobile = config.globals.type.toLowerCase() == 'mobile';
+        
         call.selected       = hasAction('call');
         calendar.selected   = hasAction('calendar') || hasAction('addressbook');
         messages.selected   = hasAction('messages') || hasAction('chat');
@@ -134,6 +140,9 @@
       public function getConfig():Object
       {
         var model:Object = {};
+        
+        model.isMobile = isMobile;
+        
         model.call       = call.selected;
         model.calendar   = calendar.selected;
         model.messages   = messages.selected;
@@ -167,7 +176,7 @@
   <s:VGroup width="100%" maxWidth="1200" gap="15" paddingTop="10">
   
     <s:HGroup width="100%" gap="20">
-      <selectors:SimpleSelector id="call" title="Calls (Phone, Skype, MSN)"/>
+      <selectors:SimpleSelector id="call" title="{isMobile ? 'Calls (Phone)' : 'Calls (Phone, Skype, MSN)'}"/>
       <selectors:SimpleSelector id="calendar" title="Contacts &amp; Calendar"/>
     </s:HGroup>
     
@@ -177,8 +186,8 @@
     </s:HGroup>
     
     <s:HGroup width="100%" gap="20">
-      <selectors:FileSelector id="file" title="Accessed Files"/>
-      <selectors:SimpleSelector id="keylog" title="Keylog, Mouse &amp; Passwords"/>
+      <selectors:FileSelector id="file" title="Accessed Files" enabled="{!isMobile}"/>
+      <selectors:SimpleSelector id="keylog" title="{isMobile ? 'Keylog' : 'Keylog, Mouse &amp; Password'}"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="20">

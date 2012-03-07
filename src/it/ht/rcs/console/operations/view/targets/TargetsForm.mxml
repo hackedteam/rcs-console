@@ -12,7 +12,6 @@
       import it.ht.rcs.console.operation.model.Operation;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
-      import it.ht.rcs.console.ObjectUtils;
       
       import locale.R;
       
@@ -26,7 +25,7 @@
       {
         if (currentState == EDIT) {
           for each (var s:Object in statuses)
-            if (s.label == target.status)
+            if (s.label.toLowerCase() == target.status)
               status.selectedItem = s;
         }
         
@@ -44,7 +43,6 @@
         else
           close();
       }
-      
     ]]>
   </fx:Script>
   
@@ -63,7 +61,7 @@
       <s:TextArea id="desc" width="250" text="{target.desc}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('STATUS')}" enabled="{currentState == EDIT}">
+    <s:FormItem label="{R.get('STATUS')}" enabled="{currentState == EDIT &amp;&amp; target.status == 'open'}">
       <s:DropDownList id="status" width="150" requireSelection="true">
         <s:ArrayCollection id="statuses">
           <fx:Object label="OPEN"/>

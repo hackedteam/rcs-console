@@ -68,7 +68,6 @@
       
       import locale.R;
       
-      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
@@ -87,12 +86,24 @@
       
       private function onEditClick():void
       {
-        var popup:FactoriesForm = PopUpManager.createPopUp(root, FactoriesForm, true) as FactoriesForm;
-        popup.operation = section.stateManager.selectedOperation;
-        popup.target = section.stateManager.selectedTarget;
-        popup.factory = selectedObject as Agent;
-        popup.currentState = FactoriesForm.EDIT;
-        PopUpManager.centerPopUp(popup);
+        if (selectedObject._kind == 'factory')
+        {
+          var popup:FactoriesForm = PopUpManager.createPopUp(root, FactoriesForm, true) as FactoriesForm;
+          popup.operation = section.stateManager.selectedOperation;
+          popup.target = section.stateManager.selectedTarget;
+          popup.factory = selectedObject as Agent;
+          popup.currentState = FactoriesForm.EDIT;
+          PopUpManager.centerPopUp(popup);
+        }
+        else if (selectedObject._kind == 'agent')
+        {
+          var popup2:AgentsForm = PopUpManager.createPopUp(root, AgentsForm, true) as AgentsForm;
+          popup2.operation = section.stateManager.selectedOperation;
+          popup2.target = section.stateManager.selectedTarget;
+          popup2.agent = selectedObject as Agent;
+          popup2.currentState = AgentsForm.EDIT;
+          PopUpManager.centerPopUp(popup2);
+        }
       }
       
       private function onDeleteClick(event:MouseEvent):void

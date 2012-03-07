@@ -54,6 +54,7 @@
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.agent.model.Config;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
@@ -63,6 +64,7 @@
       import mx.controls.Alert;
       import mx.core.UIComponent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
       
       [Embed('/img/NEW/expand_all.png')]
       private static const expandIcon:Class;
@@ -94,8 +96,12 @@
       {
         var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        AgentManager.instance.addConfig(a, JSON.stringify(config), goBackToList);
         Alert.show("Config saved");
+      }
+      
+      private function goBackToList(c:Config):void
+      {
         if (configView.section.stateManager.selectedAgent != null)
           section.stateManager.setState('agentConfigList');
       }

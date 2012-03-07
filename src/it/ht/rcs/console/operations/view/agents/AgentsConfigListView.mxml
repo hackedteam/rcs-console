@@ -3,17 +3,21 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
-          width="100%" height="100%" addedToStage="onAddedToStage()">
+          width="100%" height="100%" addedToStage="onAddedToStage()"
+          removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
       import mx.rpc.events.ResultEvent;
       
       import spark.collections.Sort;
@@ -22,7 +26,22 @@
       [Bindable]
       public var section:OperationsSection;
       
+      [Bindable]
+      private var configs:ArrayCollection;
+      
       private function onAddedToStage():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
+        refresh();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
+        configs = null; // to avoid flickering when switching view
+      }
+      
+      private function refresh(e:Event=null):void
       {
         AgentManager.instance.show(section.stateManager.selectedAgent._id, function(e:ResultEvent):void {
           section.stateManager.selectedAgent = e.result as Agent;
@@ -30,6 +49,7 @@
           def.fields = [new SortField('saved', true)];
           section.stateManager.selectedAgent.configs.sort = def;
           section.stateManager.selectedAgent.configs.refresh();
+          configs = section.stateManager.selectedAgent.configs;
         });
       }
       
@@ -48,19 +68,22 @@
     ]]>
   </fx:Script>
   
+  <!--
   <agents:AgentsConfigListActionBar section="{section}"/>
+  -->
   
-  <s:DataGrid id="grid" width="100%" height="100%"
-              dataProvider="{section.stateManager.selectedAgent.configs}"
+  <s:DataGrid id="grid" width="100%" height="100%" dataProvider="{configs}"
               doubleClick="onDoubleClick(event)" doubleClickEnabled="true">
     <s:columns>
       <s:ArrayList>
         
         <s:GridColumn dataField="desc" headerText="{R.get('DESCRIPTION')}"/>
         <s:GridColumn dataField="user" headerText="{R.get('USER')}"/>
-        <s:GridColumn dataField="saved" headerText="{R.get('SAVED')}" labelFunction="dateLabel" sortDescending="true"/>
+        <s:GridColumn dataField="saved" headerText="{R.get('SAVED')}" labelFunction="dateLabel"
+                      sortDescending="true"/>
         <s:GridColumn dataField="sent" headerText="{R.get('SENT_TIME')}" labelFunction="dateLabel"/>
-        <s:GridColumn dataField="activated" headerText="{R.get('ACTIVATED')}" labelFunction="dateLabel"/>
+        <s:GridColumn dataField="activated" headerText="{R.get('ACTIVATED')}"
+                      labelFunction="dateLabel"/>
 
       </s:ArrayList>
     </s:columns>

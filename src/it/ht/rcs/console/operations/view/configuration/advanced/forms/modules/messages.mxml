@@ -7,6 +7,8 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
       import mx.collections.ArrayList;
       import mx.formatters.DateFormatter;
       
@@ -16,16 +18,21 @@
       {
         formatter = new DateFormatter();
         formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
-        size.text = module.mail.filter.maxsize;
+        size.text = String(module.mail.filter.maxsize / 1000);
         from.text = module.mail.filter.datefrom;
       }
       
       private function save():void
       {
-        module.mail.filter.maxsize = size.text;
+        module.mail.filter.maxsize = parseInt(size.text) * 1000;
         module.mail.filter.datefrom = formatter.format(from.selectedDate);
         
         close();
+      }
+      
+      private function pad(n:Number):String
+      {
+        return TimeUtils.zeroPad(n, 2);
       }
     ]]>
   </fx:Script>
@@ -33,7 +40,13 @@
   <s:Form defaultButton="{saveButton}">
     
     <s:FormItem label="From">
-      <mx:DateField id="from" width="150" formatString="YYYY-MM-DD"/>
+      <s:HGroup verticalAlign="middle">
+        <mx:DateField id="from" width="150" formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="fromH" maximum="23" minimum="0" value="0" valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="fromM" maximum="59" minimum="0" value="0" valueFormatFunction="pad"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="To">

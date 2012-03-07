@@ -3,16 +3,32 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:users="it.ht.rcs.console.accounting.view.users.*"
-         width="325" height="100%">
+         width="325" height="100%" addedToStage="onAddedToStage()">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
       [Bindable]
-      public var selectedItem:*;
+      private var _selectedItem:*;
+      
+      public var section:OperationsSection;
+      
+      public function set selectedItem(item:*):void
+      {
+        if ( (!item && section.currentState != 'singleAgent') || (item is Agent))
+          _selectedItem = item;
+      }
+      
+      private function onAddedToStage():void
+      {
+        if (!_selectedItem && section.currentState == 'singleAgent')
+          _selectedItem = section.stateManager.selectedAgent;
+      }
     ]]>
   </fx:Script>
 
@@ -39,31 +55,31 @@
   <s:Group left="6" top="35" width="100%" height="100%">
     <s:Form>
       <s:FormItem label="{R.get('NAME')}">
-        <s:Label text="{selectedItem.name}"/>
+        <s:Label text="{_selectedItem.name}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('DESCRIPTION')}">
-        <s:Label width="200" text="{selectedItem.desc}"/>
+        <s:Label width="200" text="{_selectedItem.desc}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('STATUS')}">
-        <s:Label text="{selectedItem.status}"/>
+        <s:Label text="{_selectedItem.status}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('TYPE')}">
-        <s:Label text="{selectedItem.type}"/>
+        <s:Label text="{_selectedItem.type}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('PLATFORM')}">
-        <s:Label text="{selectedItem.platform}"/>
+        <s:Label text="{_selectedItem.platform}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('VERSION')}">
-        <s:Label text="{selectedItem.version}"/>
+        <s:Label text="{_selectedItem.version}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('LAST_SYNC')}">
-        <s:Label width="200" text="{TimeUtils.timestampFormatter(selectedItem.stat.last_sync * 1000)}"/>
+        <s:Label width="200" text="{TimeUtils.timestampFormatter(_selectedItem.stat.last_sync * 1000)}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('IDENT')}">
-        <s:Label text="{selectedItem.ident}"/>
+        <s:Label text="{_selectedItem.ident}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('INSTANCE')}">
-        <s:Label width="200" text="{selectedItem.instance}"/>
+        <s:Label width="200" text="{_selectedItem.instance}"/>
       </s:FormItem>
     </s:Form>
   </s:Group>

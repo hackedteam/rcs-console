@@ -116,6 +116,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/actions/module.png')]
     public static const module:Class;
     
+    [Embed(source='/img/actions/start.png')]
+    public static const module_start:Class;
+    
+    [Embed(source='/img/actions/stop.png')]
+    public static const module_stop:Class;
+    
     [Embed(source='/img/actions/execute.png')]
     public static const execute:Class;
     

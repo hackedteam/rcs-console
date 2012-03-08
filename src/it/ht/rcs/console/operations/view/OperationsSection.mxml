@@ -9,7 +9,9 @@
               xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
               xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
               xmlns:view="it.ht.rcs.console.operations.view.*"
-              creationComplete="init()" xmlns:info="it.ht.rcs.console.operations.view.info.*">
+              xmlns:info="it.ht.rcs.console.operations.view.info.*"
+              xmlns:transfer="it.ht.rcs.console.operations.view.filetransfer.*"
+              creationComplete="init()" stateChangeComplete="onStateChange(event)">
   
   
   <main:states>    
@@ -28,6 +30,8 @@
     <s:State name="evidence"/>
     <s:State name="fileSystem"/>
     <s:State name="info"/>
+    
+    <s:State name="filetransfer"/>
   </main:states>
   
   
@@ -43,7 +47,7 @@
   
   <targets:TargetsView includeIn="singleOperation,allTargets" section="{this}"/>
   
-  <agents:AgentsView includeIn="singleTarget,allAgents,singleAgent" section="{this}"/>
+  <agents:AgentsView id="singleAgent" includeIn="singleTarget,allAgents,singleAgent" section="{this}"/>
   
   <agents:AgentsConfigListView includeIn="agentConfigList" section="{this}"/>
   
@@ -53,6 +57,8 @@
   
   <info:InfoView includeIn="info" section="{this}"/>
   
+  <transfer:FileTransferView includeIn="filetransfer" section="{this}"/>
+  
   
   <fx:Script>
     <![CDATA[
@@ -60,6 +66,8 @@
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.target.controller.TargetManager;
+      
+      import mx.events.FlexEvent;
       
       [Bindable]
       public var stateManager:OperationsSectionStateManager;
@@ -101,6 +109,13 @@
           stateManager.manageItemSelection(item);
         else
           itemToSelect = item;
+      }
+      
+      private function onStateChange(event:FlexEvent):void
+      {
+        // Single agent does not have a table view. Always switch to icon view (first element of the viewstack)
+        if (currentState == 'singleAgent')
+          singleAgent.views.selectedIndex = 0;
       }
     ]]>
   </fx:Script>

@@ -11,6 +11,9 @@
       
       [Bindable]
       public var section:OperationsSection;
+      
+      [Embed('/img/NEW/breadcrumb.png')]
+      private static const arrow:Class;
     ]]>
   </fx:Script>
   
@@ -20,9 +23,10 @@
     <s:fill><s:SolidColor color="#dddddd"/></s:fill>
   </s:Rect>
   
-  <s:HGroup width="100%" gap="5" paddingBottom="3" paddingLeft="3" paddingTop="3"
+  <s:HGroup width="100%" gap="7" paddingBottom="4" paddingLeft="6" paddingTop="4"
             verticalAlign="middle">
     
+    <s:Image source="@Embed('/img/NEW/up.png')" buttonMode="true"/>
     
     <mx:LinkButton visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
                    label="{R.get('ALL_OPERATIONS')}"
@@ -42,7 +46,8 @@
     <s:HGroup visible="{section.stateManager.selectedOperation != null}" gap="3"
               includeInLayout="{section.stateManager.selectedOperation != null}"
               verticalAlign="middle">
-      <s:Label paddingTop="4" text="&gt;"/>
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="6"/>
       <s:BitmapImage source="@Embed('/img/NEW/operation_16.png')"/>
       <mx:LinkButton label="{section.stateManager.selectedOperation.name}"
                      click="section.stateManager.setState('singleOperation')" paddingLeft="-1"
@@ -52,7 +57,9 @@
     
     <s:HGroup visible="{section.stateManager.selectedTarget != null}" gap="3"
               includeInLayout="{section.stateManager.selectedTarget != null}" verticalAlign="middle">
-      <s:Label paddingTop="4" text="&gt;"/>
+      <!-- <s:Label paddingTop="4" text="&gt;"/> -->
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
       <s:BitmapImage source="@Embed('/img/NEW/target_16.png')"/>
       <mx:LinkButton label="{section.stateManager.selectedTarget.name}"
                      click="section.stateManager.setState('singleTarget')" paddingLeft="-2"
@@ -62,7 +69,8 @@
     
     <s:HGroup visible="{section.stateManager.selectedAgent != null}" gap="3"
               includeInLayout="{section.stateManager.selectedAgent != null}" verticalAlign="middle">
-      <s:Label paddingTop="4" text="&gt;"/>
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
       <s:BitmapImage source="@Embed('/img/NEW/agent_16.png')"/>
       <mx:LinkButton label="{section.stateManager.selectedAgent.name}"
                      click="section.stateManager.setState('singleAgent')" paddingLeft="-2"
@@ -73,7 +81,8 @@
     <s:HGroup visible="{section.stateManager.selectedFactory != null}" gap="3"
               includeInLayout="{section.stateManager.selectedFactory != null}"
               verticalAlign="middle">
-      <s:Label paddingTop="4" text="&gt;"/>
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
       <s:BitmapImage source="@Embed('/img/NEW/factory_16.png')"/>
       <mx:LinkButton label="{section.stateManager.selectedFactory.name}" paddingLeft="-2"
                      paddingRight="0"/>
@@ -81,27 +90,35 @@
     
     <s:HGroup visible="{section.currentState == 'evidence'}" gap="3"
               includeInLayout="{section.currentState == 'evidence'}" verticalAlign="middle">
-      <s:Label paddingTop="4" text="&gt;"/>
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
       <s:BitmapImage source="@Embed('/img/NEW/evidence_16.png')"/>
-      <mx:LinkButton label="{R.get('EVIDENCE')}" paddingLeft="-2"
-                     paddingRight="0"/>
+      <mx:LinkButton label="{R.get('EVIDENCE')}" paddingLeft="-2" paddingRight="0"/>
     </s:HGroup>
     
     <s:HGroup visible="{section.currentState == 'info'}" gap="3"
               includeInLayout="{section.currentState == 'info'}" verticalAlign="middle">
-      <s:Label paddingTop="4" text="&gt;"/>
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
       <s:BitmapImage source="@Embed('/img/NEW/info_16.png')"/>
-      <mx:LinkButton label="{R.get('INFO')}" paddingLeft="-2"
-                     paddingRight="0"/>
+      <mx:LinkButton label="{R.get('INFO')}" paddingLeft="-2" paddingRight="0"/>
     </s:HGroup>
     
-    <s:Label visible="{section.currentState == 'singleAgentConfig'}"
-             includeInLayout="{section.currentState == 'singleAgentConfig'}" paddingTop="4"
-             text="&gt;"/>
-    <mx:LinkButton visible="{section.currentState == 'singleAgentConfig'}"
-                   label="{R.get('CONFIGURATIONS')}"
-                   includeInLayout="{section.currentState == 'singleAgentConfig'}"/>
+    <s:HGroup visible="{section.currentState == 'agentConfigList'}" gap="3"
+              includeInLayout="{section.currentState == 'agentConfigList'}" verticalAlign="middle">
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
+      <s:BitmapImage source="@Embed('/img/NEW/config_16.png')"/>
+      <mx:LinkButton label="{R.get('CONFIGURATIONS')}" paddingLeft="-2" paddingRight="0"/>
+    </s:HGroup>
     
+    <s:HGroup visible="{section.currentState == 'filetransfer'}" gap="3"
+              includeInLayout="{section.currentState == 'filetransfer'}" verticalAlign="middle">
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
+      <s:BitmapImage source="@Embed('/img/NEW/filetransfer_16.png')"/>
+      <mx:LinkButton label="{R.get('FILE_TRANSFER')}" paddingLeft="-2" paddingRight="0"/>
+    </s:HGroup>
     
     <s:Spacer width="100%"/>
     

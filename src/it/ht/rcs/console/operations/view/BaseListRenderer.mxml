@@ -29,11 +29,8 @@
       [Embed(source='/img/NEW/config_50.png')]
       private static const configIcon:Class;
       
-      [Embed(source='/img/NEW/upload_50.png')]
-      private static const uploadIcon:Class;
-      
-      [Embed(source='/img/NEW/download_50.png')]
-      private static const downloadIcon:Class;
+      [Embed(source='/img/NEW/filetransfer_50.png')]
+      private static const fileTransferIcon:Class;
       
       override public function set data(value:Object):void
       {
@@ -46,8 +43,6 @@
         
         if (data && data.hasOwnProperty('demo') && data.demo)
           iconType.filters = [glow_demo];
-        else if (data && data.hasOwnProperty('customType') && (data.customType == 'evidence' || data.customType == 'filesystem'))
-          iconType.filters = [glow_special];
         else
           iconType.filters = null;
       }
@@ -61,7 +56,7 @@
         else if (data is Agent && data._kind == 'agent')
           return data.platform ? Icons[data.type + '_' + data.platform] : Icons['agent_' + data.type];
         else if (data is Agent && data._kind == 'factory')
-          return Icons['factory_' + data.type];
+          return Icons['agent_' + data.type];
         
         // see addCustomTypes() in stateManager
         else if (data is Object && data.customType == 'evidence')
@@ -72,10 +67,8 @@
           return infoIcon;
         else if (data is Object && data.customType == 'configlist')
           return configIcon;
-        else if (data is Object && data.customType == 'upload')
-          return uploadIcon;
-        else if (data is Object && data.customType == 'download')
-          return downloadIcon;
+        else if (data is Object && data.customType == 'filetransfer')
+          return fileTransferIcon;
         
         return null;
       }

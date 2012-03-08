@@ -4,15 +4,16 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+                     creationComplete="init()" removedFromStage="onRemovedFromStage()" addedToStage="onAddedToStage()"
                      >
   
   <s:Button label="{R.get('EVIDENCE_EXPORT')}" click="onExportClick()" icon="@Embed('/img/NEW/export.png')" enabled="{selectedObject != null}"/>
   
   <editors:TagEditor label="{R.get('RELEVANCE')}" enabled="false"
-                     id="tagEditor" change="onRelevanceChange()"/>
+                     id="tagEditor" change="onRelevanceChange(event)"/>
   
   <s:Button label="{R.get('REPORT_ADD')}" click="onReportClick()" enabled="false"
-            icon="@Embed('/img/NEW/export.png')" id="reportBtn"/>
+            icon="@Embed('/img/NEW/export.png')" id="reportBtn" width="150"/>
   
   <!-- <actionbar:Separator width="40"/> -->
   
@@ -23,6 +24,9 @@
   
   <s:Spacer width="100%"/>
  
+  <fx:Metadata> 
+    [Event(name="editNote", type="flash.events.Event")] 
+  </fx:Metadata> 
   
   <fx:Script>
     <![CDATA[
@@ -45,22 +49,26 @@
       [Embed (source="/img/NEW/import.png" )]
       public var ReportRemoveIcon:Class;
       
-      
-      
       [Bindable]
       public function set selectedObjects(value:Vector.<Object>):void
       {
-        _selectedObjects=value;
-        tagEditor.tag=0;
-        tagEditor.enabled=false;
         
-        if(!value) return;
+        _selectedObjects=value;
+        
+        if(!selectedObjects) {
+          tagEditor.tag=0
+          tagEditor.enabled=false;
+          reportBtn.enabled=false;
+          toggleReportButton(true)
+          return;
+        }
         
         if(selectedObjects.length<1)
         {
           tagEditor.tag=0;
           tagEditor.enabled=false;
           reportBtn.enabled=false;
+          stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyPress)
         }
         else if(selectedObjects.length==1)
         {
@@ -68,6 +76,7 @@
           tagEditor.enabled=true;
           reportBtn.enabled=true;
           toggleReportButton(selectedObjects[0].blotter);
+          stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
         }
         else
         {
@@ -76,24 +85,85 @@
           var blotterValue:Boolean;
           if(sameValue(selectedObjects, "blotter"))
           {
-               blotterValue=selectedObjects[0].value  
+               blotterValue=selectedObjects[0].blotter  
+          }
+          if(sameValue(selectedObjects, "relevance"))
+          {
+            tagEditor.tag=selectedObjects[0].relevance;
+            
           }
           reportBtn.enabled=true;
           toggleReportButton(blotterValue);
+          stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
          }
+      }
+      
+      private function init():void
+      {
+        
+      }
+      
+      private function onKeyPress(e:KeyboardEvent):void
+      {
+        
+        switch(e.keyCode)
+        {
+          //0 key
+          case 48:
+            updateRelevance(0);
+            break;
+          //1 key
+          case 49:
+            updateRelevance(1);
+            break;
+          //2 key
+          case 50:
+            updateRelevance(2);
+            break;
+          //3 key
+          case 51:
+            updateRelevance(3);
+            break;
+          //4 key
+          case 52:
+            updateRelevance(4);
+            break;
+          //n key
+          case 78:
+            e.stopPropagation()
+            e.preventDefault()
+            onEditNoteClick()
+            break;
+          //r key
+          case 82:
+            updateReport(reportBtn.getStyle("icon")==ReportAddIcon);
+            toggleReportButton(reportBtn.getStyle("icon")==ReportAddIcon)
+            break; 
+        }
+
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+      }
+      
+      private function onAddedToStage():void
+      {
+        
       }
       
       private function sameValue(selectedObjects:Vector.<Object>, property:String):Boolean{
         
         var result:Boolean=true;
         var value:*=selectedObjects[0][property]
-          trace(value)
         for(var i:int=0;i<selectedObjects.length;i++)
         {
-          if(selectedObjects[i][property]==value)
+     
+          if(selectedObjects[i][property]!=value)
           {
             result=false;
-            break;
+           
           }
         }
         return result;
@@ -123,14 +193,33 @@
         
       }
       
-      private function onRelevanceChange():void
+      private function updateRelevance(value:int):void
       {
         for(var i:int=0;i<selectedObjects.length;i++)
         {
           var evidence:Evidence=selectedObjects[i] as Evidence;
-          evidence.relevance=tagEditor.tag;
+          evidence.relevance=value
           
         }
+        tagEditor.tag=value;
+        
+      }
+      
+      private function updateReport(value:Boolean):void
+      {
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          var evidence:Evidence=selectedObjects[i] as Evidence;
+          evidence.blotter=value;
+          
+        }
+        
+      }
+      
+      private function onRelevanceChange(e:Event):void
+      {
+        var tagEditor:TagEditor= e.currentTarget as TagEditor
+        updateRelevance(tagEditor.tag)
       }
       
       private function onDeleteClick():void
@@ -140,18 +229,13 @@
       
       private function onEditNoteClick():void
       {
-       
+       dispatchEvent(new Event("editNote"))
       }
       
       private function onReportClick():void
       {
         var value:Boolean=(reportBtn.getStyle("icon")==ReportAddIcon);
-        for(var i:int=0;i<selectedObjects.length;i++)
-        {
-          var evidence:Evidence=selectedObjects[i] as Evidence;
-          evidence.blotter=value;
-          
-        }
+        updateReport(value)
         toggleReportButton(value)
         // EvidenceManager.instance.updateReport([_id], true)
       }

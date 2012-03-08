@@ -22,28 +22,29 @@
       [Bindable]
       private var treeData_desktop:XMLList =
         <>
-          <node folder='true' label="Silent Installer" desc=''>
+          <node folder='true' label="Silent Installer" state="none">
+            <node label="Linux" state='dsk_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
             <node label="OSX" state='dsk_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
             <node label="Windows" state='dsk_silent' desc='Silent Installer let you create an executable which does nothing but installing the agent'/>
           </node>
-          <node folder='true' label="Melted Application" desc=''>
+          <node folder='true' label="Melted Application" state="none">
             <node label="OSX" state='dsk_melted' desc='You can provide an already existing application and it will be melted with the agent. When the resulting application is executed the agent is installed as well'/>
             <node label="Windows" state='dsk_melted' desc='You can provide an already existing application and it will be melted with the agent. When the resulting application is executed the agent is installed as well'/>
           </node>
-          <node folder='true' label="U3 Installation" desc=''>
+          <node folder='true' label="U3 Installation" state="none">
             <node label="Windows" state='dsk_U3' desc='When the U3 key is inserted into the target system, it will execute the U3Launcher as usual but the agent will be installed'/>
           </node>
-          <node folder='true' label="Applet Web" desc=''>
+          <node folder='true' label="Applet Web" state="none">
             <node label="Multi-Platform" state='dsk_applet' desc='The applet can be used on a website to install the agent once the page is opened. Simply add the html code provided to the page you want to modify. The applet work on bot OSX and Windows'/>
           </node>
-          <node folder='true' label="Offline Installation" desc=''>
+          <node folder='true' label="Offline Installation" state="none">
             <node label="Multi-Platform" state='dsk_offline' desc="You can use this bootable device to install the agent on systems that are switched off. The same media can be used on both OSX or Windows"/>
           </node>            
-          <node folder='true' label="Exploit" desc=''>
+          <node folder='true' label="Exploit" state="none">
             <node label="OSX" state='exploit' desc='Exploits are powerful installation vectors since they allow you to embed the agent inside common documents. Once the document is opened the agent will be installed'/>
             <node label="Windows" state='exploit' desc='Exploits are powerful installation vectors since they allow you to embed the agent inside common documents. Once the document is opened the agent will be installed'/>
           </node>
-          <node folder='true' label="Network Injection" desc=''>
+          <node folder='true' label="Network Injection" state="none">
             <node label="OSX" state='dsk_nia' desc='The network injector enables you to replace or inject file while the target is downloading files from the internet.'/>
             <node label="Windows" state='dsk_nia' desc='The network injector enables you to replace or inject file while the target is downloading files from the internet.'/>
           </node>
@@ -115,14 +116,13 @@
       
       protected function vectorTree_changeHandler(event:ListEvent):void
       {
-        leftPanel.desc = vectorTree.selectedItem.@desc;
-        leftPanel.currentState = vectorTree.selectedItem.@state;
-
         leftPanel.platform = null;
 
         if (vectorTree.selectedItem.@state != 'none')
           leftPanel.platform = vectorTree.selectedItem.@label.toLowerCase();
 
+        leftPanel.desc = vectorTree.selectedItem.@desc;
+        leftPanel.currentState = vectorTree.selectedItem.@state;
       }
       
     ]]>

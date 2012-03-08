@@ -82,7 +82,33 @@
         AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
 
-      
+      public function set platform(platform:*):void
+      {
+        if (platform == null)
+          return;
+        
+        // reset the status to fully operational
+        createBtn.enabled = true;
+        demo.enabled = true;
+        demo.selected = false;
+        
+        // we need at lease build or demo to create an agent
+        if (!LicenseManager.instance.canBuild(platform) && !LicenseManager.instance.haveDemo(platform))
+          createBtn.enabled = false;
+        
+        // no demo, disable it
+        if (!LicenseManager.instance.haveDemo(platform)) {
+          demo.selected = false;
+          demo.enabled = false;
+        }
+        
+        // no build, but demo. force demo
+        if (!LicenseManager.instance.canBuild(platform) && LicenseManager.instance.haveDemo(platform)) {
+          demo.selected = true;
+          demo.enabled = false;
+        }
+        
+      }
       
     ]]>
   </fx:Script>
@@ -111,10 +137,8 @@
 
   
   <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
-                enabled="{LicenseManager.instance.canBuild(parentDocument.platform)}"
-                selected="{!demo.enabled}"/>
-    <s:Button right="10" label="Create..." click="create(event)" />    
+    <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" />
+    <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="create(event)" />    
   </s:HGroup>
   
 </s:Group>

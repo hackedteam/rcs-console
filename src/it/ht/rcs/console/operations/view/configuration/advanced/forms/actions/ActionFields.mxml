@@ -2,7 +2,8 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
-                   width="350" backgroundAlpha="0" borderColor="#bbbbbb" cornerRadius="10">
+                   width="350" backgroundAlpha="0" borderColor="#bbbbbb" cornerRadius="10"
+                   creationComplete="fillFields()">
   
   <s:layout>
     <s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
@@ -10,7 +11,24 @@
   
   <fx:Script>
     <![CDATA[
-      public var action:Object;
+      private var _action:Object;
+      
+      public function set action(a:Object):void
+      {
+        if (_action)
+          commit();
+        _action = a;
+        fillFields();
+      }
+      
+      public function get action():Object
+      {
+        return _action;
+      }
+      
+      public function fillFields():void {}
+      
+      public function commit():void {}
     ]]>
   </fx:Script>
   

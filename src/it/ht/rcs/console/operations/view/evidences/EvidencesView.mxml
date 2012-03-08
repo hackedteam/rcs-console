@@ -1,34 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-         xmlns:s="library://ns.adobe.com/flex/spark"
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
-         width="100%" height="100%" addedToStage="onAddedToStage()"
-         removedFromStage="onRemovedFromStage()">
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
+          width="100%" height="100%" addedToStage="onAddedToStage()"
+          removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.utils.Size;
-      import it.ht.rcs.console.utils.TimeUtils;
       
       import mx.core.FlexGlobals;
-      
-      import spark.components.gridClasses.GridColumn;
       
       [Bindable]
       public var section:OperationsSection;
       
       private function onAddedToStage():void
       {
-        
         EvidenceManager.instance.evidenceFilter.target = section.stateManager.selectedTarget._id;
         if (section.stateManager.selectedAgent != null)
           EvidenceManager.instance.evidenceFilter.agent = section.stateManager.selectedAgent._id;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        //EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.listenRefresh();
         EvidenceManager.instance.refresh();
       }
@@ -36,6 +32,7 @@
       private function onRemovedFromStage():void
       {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        //EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.unlistenRefresh();
       }
       
@@ -44,11 +41,23 @@
         EvidenceManager.instance.refresh();
       }
       
-     
+      private function onGridChange():void
+      {
+        actionBar.selectedObjects = evidenceDg.selectedItems;
+      }
+      
+//      private function onDataLoaded(e:DataLoadedEvent):void
+//      {
+//        var dp:ListCollectionView = EvidenceManager.instance.getView();
+//        evidenceDg.dataProvider = dp;
+//      }
     ]]>
   </fx:Script>
-  <evidences:EvidenceActionBar selectedObject="{evidenceDg.selectedItem}"/>
-  <evidences:EvidenceGrid dataProvider="{EvidenceManager.instance._view}" id="evidenceDg"
-                          target_id="{section.stateManager.selectedTarget._id}"/>
+  
+  <evidences:EvidenceActionBar id="actionBar" selectedObject="{evidenceDg.selectedItem}"/>
+  
+  <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
+                          selectionChange="onGridChange()" selectionMode="multipleRows"
+                          updateComplete="onGridChange()"/>
 
 </s:VGroup>

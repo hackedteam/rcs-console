@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          gap="-1">
+          xmlns:mx="library://ns.adobe.com/flex/mx">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      
       import mx.managers.PopUpManager;
       
       import spark.events.IndexChangeEvent;
       
       public var form:ActionForm;
       
-      private function onChange(event:Event):void
+      private function onChange(event:Event=null):void
       {
         form.changeState(list.selectedItem.action);
       }
@@ -27,7 +28,10 @@
       
       private function addSubaction(me:MouseEvent):void
       {
-        list.dataProvider.addItem({ action: subactions.selectedItem.toLowerCase() });
+        var sub:Object = DefaultConfigBuilder.getDefaultAction(subactions.selectedItem.toLowerCase());
+        list.dataProvider.addItem(sub);
+        list.selectedItem = sub;
+        onChange();
       }
       
       private function removeSubaction(me:MouseEvent):void
@@ -42,36 +46,45 @@
     ]]>
   </fx:Script>
   
-  <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
-          change="onChange(event)" labelFunction="actionLabelFunction"/>
+  <s:VGroup gap="-1">
+      
+    <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
+            change="onChange(event)" labelFunction="actionLabelFunction"/>
+    
+    <s:HGroup width="200" gap="-1" horizontalAlign="right">
+      
+      <s:Button width="30" label="-" click="removeSubaction(event)" cornerRadius="0"
+                enabled="{list.selectedItem != null}"/>
+      
+      <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
+        <mx:popUp>
+          <s:List id="subactions" click="addSubaction(event)" filters="{[dropShadow]}"
+                  labelField="name" textAlign="left">
+            <s:dataProvider>
+              <s:ArrayList>
+                <fx:String>Synchronize</fx:String>
+                <fx:String>Execute</fx:String>
+                <fx:String>Uninstall</fx:String>
+                <fx:String>Log</fx:String>
+                <fx:String>Destroy</fx:String> <!-- parziale o totale -->
+              </s:ArrayList>
+            </s:dataProvider>
+          </s:List>
+        </mx:popUp>
+      </mx:PopUpButton>
+      
+    </s:HGroup>
   
-  <s:HGroup width="200" gap="-1" horizontalAlign="right">
-    
-    <s:Button width="30" label="-" click="removeSubaction(event)" cornerRadius="0"
-              enabled="{list.selectedItem != null}"/>
-    
-    <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
-      <mx:popUp>
-        <s:List id="subactions" click="addSubaction(event)" filters="{[dropShadow]}"
-                labelField="name" textAlign="left">
-          <s:dataProvider>
-            <s:ArrayList>
-              <fx:String>Synchronize</fx:String>
-              <fx:String>Execute</fx:String>
-              <fx:String>Uninstall</fx:String>
-              <fx:String>Log</fx:String>
-              <fx:String>Destroy</fx:String> <!-- parziale o totale -->
-            </s:ArrayList>
-          </s:dataProvider>
-        </s:List>
-      </mx:popUp>
-    </mx:PopUpButton>
-    
-  </s:HGroup>
+  </s:VGroup>
+  
+  <s:VGroup>
+    <s:Button label="↑" width="30" fontSize="17"/>
+    <s:Button label="↓" width="30" fontSize="17"/>
+  </s:VGroup>
   
   <fx:Declarations>
     <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"
                         distance="8"/>
   </fx:Declarations>
   
-</s:VGroup>
+</s:HGroup>

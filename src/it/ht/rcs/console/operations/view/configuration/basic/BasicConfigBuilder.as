@@ -1,5 +1,6 @@
 package it.ht.rcs.console.operations.view.configuration.basic
 {
+  import it.ht.rcs.console.DefaultConfigBuilder;
   
   public class BasicConfigBuilder
   {
@@ -72,15 +73,10 @@ package it.ht.rcs.console.operations.view.configuration.basic
       
       
       if (model.sync) {
+        var syncSub:Object = DefaultConfigBuilder.getDefaultAction('synchronize');
+        syncSub.host = model.syncHost;
         var syncEvent:Object =  {event: "timer", subtype: "loop", repeat: index, delay: model.syncDelay, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "SYNC"};
-        var syncAction:Object = {desc: "SYNC", subactions: [{action: "synchronize",
-                                                             host: model.syncHost,
-                                                             mindelay: 0,
-                                                             maxdelay: 0,
-                                                             wifi: false,
-                                                             stop: false,
-                                                             cell: false,
-                                                             bandwidth: 500000}]};
+        var syncAction:Object = {desc: "SYNC", subactions: [syncSub]};
         events.push(syncEvent);
         actions.push(syncAction);
         index++;

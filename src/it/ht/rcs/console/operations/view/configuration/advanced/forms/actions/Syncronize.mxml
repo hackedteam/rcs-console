@@ -2,8 +2,7 @@
 <actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
-                      addedToStage="init()" creationComplete="init()" removedFromStage="commit()">
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*">
   
   <fx:Script>
     <![CDATA[
@@ -12,8 +11,9 @@
       
       import mx.collections.ListCollectionView;
       
-      private function init():void
+      override public function fillFields():void
       {
+        // The very first call of init is from addedToStage. Nothing is created and we wait creation complete. Subsequent addedToStage will be ok
         if (!bandwidth) return;
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         host.dataProvider = entryPoints;
@@ -24,7 +24,7 @@
         stop.selected = action.stop;
       }
       
-      private function commit():void
+      override public function commit():void
       {
         action.host = host.selectedItem is String ? host.selectedItem : host.selectedItem.address;
         action.bandwidth = parseInt(bandwidth.text) * 1000;
@@ -36,7 +36,7 @@
       private function setEntryPoint(ep:ListCollectionView):void
       {
         var hostString:String = action.host;
-        if (hostString == '') {
+        if (hostString == null || hostString == '') {
           host.selectedIndex = 0;
           return;
         }

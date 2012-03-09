@@ -9,22 +9,42 @@
     <![CDATA[
       private function init():void
       {
-        compression.value = module.compression;
+        switch (module.quality) {
+          case 'lo' : quality.value = 0; break;
+          case 'med': quality.value = 1; break;
+          case 'hi' : quality.value = 2; break;
+          default: break;
+        }
       }
       
       private function save():void
       {
-        module.compression = compression.value;
+        switch (quality.value) {
+          case 0 : module.quality = 'lo'; break;
+          case 1 : module.quality = 'med'; break;
+          case 2 : module.quality = 'hi'; break;
+          default: break;
+        }
         close();
+      }
+      
+      private function dataTipFunction(value:Number):String
+      {
+        switch (value) {
+          case 0 : return 'Low';
+          case 1 : return 'Medium';
+          case 2 : return 'High';
+          default: return '';
+        }
       }
     ]]>
   </fx:Script>
 
   <s:Form defaultButton="{saveButton}">
     
-    <s:FormItem label="Compression">
-      <s:HSlider id="compression" width="150" dataTipPrecision="0" maximum="10" minimum="1" snapInterval="1"
-                 stepSize="1"/>
+    <s:FormItem label="Quality">
+      <s:HSlider id="quality" width="150" dataTipFormatFunction="dataTipFunction" maximum="2"
+                 minimum="0" snapInterval="1" stepSize="1"/>
     </s:FormItem>
     
   </s:Form>

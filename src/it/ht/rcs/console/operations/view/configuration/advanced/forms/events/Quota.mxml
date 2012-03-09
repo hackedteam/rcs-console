@@ -9,12 +9,13 @@
     <![CDATA[
       private function init():void
       {
-        quota.text = event.quota;
+        quota.text = String(event.quota / 1000000);
       }
       
       override public function commit():void
       {
-        event.quota = parseInt(quota.text);
+        if (quota.text.length == 0) quota.text = '0';
+        event.quota = parseInt(quota.text) * 1000000;
       }
     ]]>
   </fx:Script>
@@ -26,7 +27,10 @@
   <s:Form>
     
     <s:FormItem label="Quota">
-      <s:TextInput id="quota" maxChars="5" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="quota" maxChars="5" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" MB"/>
+      </s:HGroup>
     </s:FormItem>
     
   </s:Form>

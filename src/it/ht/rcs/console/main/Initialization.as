@@ -9,6 +9,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.alert.controller.AlertManager;
   import it.ht.rcs.console.controller.Manager;
+  import it.ht.rcs.console.dashboard.controller.DashboardController;
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.monitor.controller.LicenseManager;
   import it.ht.rcs.console.monitor.controller.MonitorManager;
@@ -111,6 +112,7 @@ package it.ht.rcs.console.main
       
       if (user.is_view())
       {
+        DashboardController.instance;
         managers.push(AlertManager.instance);
       }
       

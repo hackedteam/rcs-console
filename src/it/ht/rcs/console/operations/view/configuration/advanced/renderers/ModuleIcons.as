@@ -73,11 +73,17 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/events/ac.png')]
     public static const ac:Class;
     
+    [Embed(source='/img/events/timer.png')]
+    public static const afterinst:Class;
+    
     [Embed(source='/img/events/battery.png')]
     public static const battery:Class;
     
     [Embed(source='/img/events/connection.png')]
     public static const connection:Class;
+    
+    [Embed(source='/img/events/timer.png')]
+    public static const date:Class;
     
     [Embed(source='/img/events/process.png')]
     public static const process:Class;
@@ -93,6 +99,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     [Embed(source='/img/events/sms.png')]
     public static const sms:Class;
+    
+    [Embed(source='/img/events/window.png')]
+    public static const window:Class;
     
     [Embed(source='/img/events/winevent.png')]
     public static const winevent:Class;

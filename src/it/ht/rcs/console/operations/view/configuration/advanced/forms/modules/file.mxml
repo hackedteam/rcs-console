@@ -7,24 +7,32 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.DateUtils;
+      
       import mx.collections.ArrayList;
-      import mx.controls.Alert;
-      import mx.events.FlexEvent;
+      import mx.formatters.DateFormatter;
+      
+      private var formatter:DateFormatter;
 
       private function init():void
       {
-        open.selected = module.open;
+        formatter = new DateFormatter();
+        formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        
         includeList.dataProvider = new ArrayList(module.accept);
         excludeList.dataProvider = new ArrayList(module.deny);
+        
+        open.selected = module.open;
+        
         capture.selected = module.capture;
         if (capture.selected) {
           minSize.text = module.minsize;
           maxSize.text = module.maxsize;
-          date.text = module.date;
+          date.selectedDate = DateUtils.parseDateTimeString(module.date);
         } else {
           minSize.text = '0';
           maxSize.text = '0';
-          date.text = '';
+          date.selectedDate = new Date();
         }
       }
       
@@ -34,8 +42,9 @@
         
         if (capture.selected) {
           module.capture = true;
-          module.minsize = minSize.text;
-          module.maxsize = maxSize.text;
+          module.minsize = parseInt(minSize.text);
+          module.maxsize = parseInt(maxSize.text);
+          module.date = formatter.format(date.selectedDate);
         } else {
           module.capture = false;
           module.minsize = 0;
@@ -85,7 +94,7 @@
           </s:HGroup>
         </s:FormItem>
         
-        <s:FormItem label="Process">
+        <s:FormItem label="Mask">
           <s:HGroup>
             <s:TextInput id="includeProcess" width="150"/>
             <s:Button width="40" label="+" click="addInclude(event)"
@@ -106,7 +115,7 @@
           </s:HGroup>
         </s:FormItem>
         
-        <s:FormItem label="Process">
+        <s:FormItem label="Mask">
           <s:HGroup>
             <s:TextInput id="excludeProcess" width="150"/>
             <s:Button width="40" label="+" click="addExclude(event)"
@@ -138,20 +147,20 @@
         
         <s:FormItem label="Min size" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
-            <s:TextInput id="minSize" restrict="0-9" textAlign="center" widthInChars="3"/>
+            <s:TextInput id="minSize" restrict="0-9" textAlign="center" widthInChars="5"/>
             <s:Label paddingTop="1" text=" bytes"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="Max size" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
-            <s:TextInput id="maxSize" restrict="0-9" textAlign="center" widthInChars="6"/>
+            <s:TextInput id="maxSize" restrict="0-9" textAlign="center" widthInChars="5"/>
             <s:Label paddingTop="1" text=" bytes"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="From date" enabled="{capture.selected}">
-          <mx:DateField id="date" width="150"/>
+          <mx:DateField id="date" width="150" formatString="YYYY-MM-DD" showToday="false"/>
         </s:FormItem>
         
       </s:Form>

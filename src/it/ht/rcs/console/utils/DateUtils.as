@@ -24,6 +24,12 @@ package it.ht.rcs.console.utils {
 			return new Date(sum);
 		}
 		
+    public static function parseDateTimeString(x:String):Date
+    {
+      var s:String = x.split("-").join("/");
+      return new Date(Date.parse(s));
+    }
+    
 	}
   
 }

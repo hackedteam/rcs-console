@@ -100,6 +100,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         var Form:Class = getDefinitionByName(packagePrefix + module.module) as Class;
         var popup:ModuleForm = PopUpManager.createPopUp(root, Form, true) as ModuleForm;
         popup.module = module;
+        popup.graph = graph;
         PopUpManager.centerPopUp(popup);
       } catch (e:Error) {}
     }

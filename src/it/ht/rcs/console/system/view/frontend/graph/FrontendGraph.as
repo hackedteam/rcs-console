@@ -31,6 +31,7 @@ package it.ht.rcs.console.system.view.frontend.graph
       if (selectedElement != null) {
         selectedElement.selected = false;
         selectedElement = null;
+        dispatchEvent(new NodeEvent(NodeEvent.SELECTED, null));
       }
     }
     

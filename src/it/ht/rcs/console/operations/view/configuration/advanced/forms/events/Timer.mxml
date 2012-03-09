@@ -8,12 +8,19 @@
   <fx:Script>
     <![CDATA[
       import mx.collections.ArrayCollection;
+      import mx.formatters.DateFormatter;
+      import mx.managers.PopUpManager;
       
       import spark.events.IndexChangeEvent;
-
+      
+      private var formatter:DateFormatter;
+      
       private function init():void
       {
-        currentState = event.subtype;
+        formatter = new DateFormatter();
+        formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        
+        currentState = event.hasOwnProperty('subtype') ? event.subtype : event.event;
         
         for each (var key:String in ArrayCollection(type.dataProvider).source)
           if (key.toLowerCase().indexOf(currentState) != -1)
@@ -21,11 +28,17 @@
         
         switch (currentState) {
           case 'daily':
-            from.time = event.ts;
-            to.time = event.te;
+            dailyFrom.time = event.ts;
+            dailyTo.time = event.te;
             break;
-          case 'startup':
-            after.time = event.ts;
+          case 'date':
+            //dateFrom.time = event.ts;
+            dateToTime.time = event.te;
+            forever.selected
+            //datefrom = event.datefrom;//2011-09-14 00:00:00"
+            break;
+          case 'afterinst':
+            days.text = event.days;
             break;
           default:
             break;
@@ -41,12 +54,22 @@
             event.te = '23:59:59';
             break;
           case 'daily':
-            event.ts = from.time;
-            event.te = to.time;
+            event.ts = dailyFrom.time;
+            event.te = dailyTo.time;
             break;
-          case 'startup':
-            event.ts = after.time;
-            event.te = '00:00:00';
+          case 'date':
+            event.datefrom = formatter.format(dateFromDate.selectedDate);
+            if (forever.selected)
+              delete(event.dateto);
+            else {
+              //event.dateto = formatter.
+            }
+            //event.ts = from.time;
+            //event.dateto
+            //event.te = to.time;
+            break;
+          case 'afterinst':
+            event.days = days.text;
             break;
           default:
             break;
@@ -56,6 +79,7 @@
       private function onChange(event:IndexChangeEvent):void
       {
         currentState = states[type.selectedIndex].name;
+        PopUpManager.centerPopUp(parentDocument.hostComponent.parent.parentDocument.hostComponent as EventForm); // I know...
       }
     ]]>
   </fx:Script>
@@ -63,7 +87,8 @@
   <events:states>
     <s:State name="loop"/>
     <s:State name="daily"/>
-    <s:State name="startup"/>
+    <s:State name="date"/>
+    <s:State name="afterinst"/>
   </events:states>
   
   <s:Label width="280" text="Timer start action will fire every tot..."/>
@@ -76,24 +101,51 @@
           <s:ArrayCollection>
             <fx:String>Loop</fx:String>
             <fx:String>Daily</fx:String>
-            <fx:String>After startup</fx:String>
+            <fx:String>Date</fx:String>
+            <fx:String>AfterInst</fx:String>
           </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
     </s:FormItem>
     
+    
     <s:FormItem includeIn="daily" label="From">
-      <events:TimeField id="from"/>
+      <events:TimeField id="dailyFrom"/>
     </s:FormItem>
     
     <s:FormItem includeIn="daily" label="To">
-      <events:TimeField id="to"/>
+      <events:TimeField id="dailyTo"/>
     </s:FormItem>
     
-    <s:FormItem includeIn="startup" label="After">
-      <events:TimeField id="after"/>
+    
+    <s:FormItem includeIn="date" label="From">
+      <s:VGroup>
+        <mx:DateField id="dateFromDate" width="150" formatString="YYYY-MM-DD" showToday="true"
+                      yearNavigationEnabled="true"/>
+        <events:TimeField id="dateFromTime"/>
+      </s:VGroup>
     </s:FormItem>
+    
+    <s:FormItem includeIn="date" label="To">
+      <s:VGroup>
+        <s:RadioButton id="forever" label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton label="Date" group="{dateGroup}"/>
+        <mx:DateField id="dateToDate" width="150" enabled="{!forever.selected}"
+                      formatString="YYYY-MM-DD" showToday="true" yearNavigationEnabled="true"/>
+        <events:TimeField id="dateToTime" enabled="{!forever.selected}"/>
+      </s:VGroup>
+    </s:FormItem>
+    
+    
+    <s:FormItem includeIn="afterinst" label="Days">
+      <s:TextInput id="days" restrict="0-9" textAlign="center" widthInChars="3"/>
+    </s:FormItem>
+    
     
   </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="dateGroup"/>
+  </fx:Declarations>
   
 </events:EventFields>

@@ -15,7 +15,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.forms.modules
     private static const _position:position     = null;
     private static const _print:print           = null;
     private static const _screenshot:screenshot = null;
-    private static const _url:url               = null;
     
   }
 }

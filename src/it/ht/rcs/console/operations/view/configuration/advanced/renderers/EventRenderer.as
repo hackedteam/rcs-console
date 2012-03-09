@@ -124,6 +124,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     public function onDoubleClick(me:MouseEvent):void
     {
+      if (event.subtype && event.subtype == 'startup') return; // Do not edit startup event
+      
       var popup:EventForm = PopUpManager.createPopUp(root, EventForm, true) as EventForm;
       popup.event = event;
       popup.graph = graph;

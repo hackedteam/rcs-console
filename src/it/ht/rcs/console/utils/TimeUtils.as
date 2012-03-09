@@ -1,16 +1,11 @@
 package it.ht.rcs.console.utils
 {
-  
   import locale.R;
   
   import mx.formatters.DateFormatter;
 
   public class TimeUtils
   {
-    
-    public function TimeUtils()
-    {
-    }
     
     public static function timestampDiffFromNow(t:Number):String
     {
@@ -63,4 +58,5 @@ package it.ht.rcs.console.utils
     }
     
   }
+  
 }

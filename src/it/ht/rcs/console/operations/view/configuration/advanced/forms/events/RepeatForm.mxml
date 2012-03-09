@@ -11,22 +11,20 @@
       
       private function init():void
       {
-        delay.text = event.delay;
+        delay.text = event.delay || '1';
         iter.text = event.iter;
         delay.setFocus();
       }
       
       private function save():void
       {
-        if (delay.text == '')
-          delete(event.delay);
-        else
-          event.delay = parseInt(delay.text);
+        if (delay.text.length == 0) delay.text = '1';
+        event.delay = parseInt(delay.text);
         
-        if (iter.text == '')
-          delete(event.iter);
-        else
+        if (iter.text.length > 0)
           event.iter = parseInt(iter.text);
+        else
+          delete(event.iter);
         
         close();
       }

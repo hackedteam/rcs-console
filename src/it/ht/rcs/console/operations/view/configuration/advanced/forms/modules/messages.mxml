@@ -3,13 +3,13 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
                     creationComplete="init()" save="save()" title="Messages">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.utils.TimeUtils;
       
-      import mx.collections.ArrayList;
       import mx.formatters.DateFormatter;
       
       private var formatter:DateFormatter;
@@ -18,14 +18,15 @@
       {
         formatter = new DateFormatter();
         formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        
         size.text = String(module.mail.filter.maxsize / 1000);
-        from.text = module.mail.filter.datefrom;
+        fromDate.text = module.mail.filter.datefrom;
       }
       
       private function save():void
       {
         module.mail.filter.maxsize = parseInt(size.text) * 1000;
-        module.mail.filter.datefrom = formatter.format(from.selectedDate);
+        module.mail.filter.datefrom = formatter.format(fromDate.selectedDate);
         
         close();
       }
@@ -40,21 +41,19 @@
   <s:Form defaultButton="{saveButton}">
     
     <s:FormItem label="From">
-      <mx:DateField id="from" width="150" formatString="YYYY-MM-DD" showToday="false"
+      <mx:DateField id="fromDate" width="151" formatString="YYYY-MM-DD" showToday="false"
                     yearNavigationEnabled="true"/>
+      <events:TimeField id="fromTime" enabled="{!forever.selected}"/>
     </s:FormItem>
     
     <s:FormItem label="To">
-      <s:DropDownList id="to" width="150" requireSelection="true">
-        <s:dataProvider>
-          <s:ArrayList>
-            <fx:String>Forever</fx:String>
-            <fx:String>Date</fx:String>
-          </s:ArrayList>
-        </s:dataProvider>
-      </s:DropDownList>
-      <mx:DateField visible="{to.selectedIndex == 1}" width="150"
-                    includeInLayout="{to.selectedIndex == 1}"/>
+      <s:VGroup>
+        <s:RadioButton id="forever" label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton label="Date" group="{dateGroup}"/>
+        <mx:DateField id="toDate" width="151" enabled="{!forever.selected}" formatString="YYYY-MM-DD"
+                      showToday="true" yearNavigationEnabled="true"/>
+        <events:TimeField id="toTime" enabled="{!forever.selected}"/>
+      </s:VGroup>
     </s:FormItem>
     
     <s:FormItem label="Max size">
@@ -65,5 +64,9 @@
     </s:FormItem>
     
   </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="dateGroup"/>
+  </fx:Declarations>
   
 </modules:ModuleForm>

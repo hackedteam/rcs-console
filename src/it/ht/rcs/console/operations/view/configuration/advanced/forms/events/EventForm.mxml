@@ -27,9 +27,9 @@
         eventEnabled.selected = event.enabled;
         desc.text = event.desc;
 
-        for each (var s:String in ArrayList(type.dataProvider).source)
-          if (s.toLowerCase() == event.event.toLowerCase())
-            type.selectedItem = s;
+        for each (var o:Object in ArrayCollection(type.dataProvider).source)
+          if (o.label.toLowerCase() == event.event.toLowerCase())
+            type.selectedItem = o;
         
         currentState = event.event;
         currentData = this[currentState] as EventFields;
@@ -42,7 +42,7 @@
       
       private function onChange(e:IndexChangeEvent):void
       {
-        currentState = type.selectedItem.toLowerCase();
+        currentState = type.selectedItem.label.toLowerCase();
         currentData = this[currentState] as EventFields;
         currentData.event = event;
         PopUpManager.centerPopUp(this);
@@ -57,6 +57,11 @@
         currentData.commit();
         close();
         graph.rebuildGraph();
+      }
+      
+      private function eventFilterFunction(o:Object):Boolean
+      {
+        return o.type.indexOf(graph.config.globals.type.toLowerCase()) != -1;
       }
     ]]>
   </fx:Script>
@@ -96,25 +101,24 @@
     
     <s:FormItem label="Type">
     
-      <s:DropDownList id="type" width="160" change="onChange(event)" requireSelection="true">
+      <s:DropDownList id="type" width="160" change="onChange(event)" requireSelection="true" labelField="label">
         <s:dataProvider>
-          <s:ArrayList>
-            <fx:String>AfterInst</fx:String>
-            <fx:String>Connection</fx:String>
-            <fx:String>Date</fx:String>
-            <fx:String>Process</fx:String>
-            <fx:String>Quota</fx:String>
-            <fx:String>Screensaver</fx:String>
-            <fx:String>Timer</fx:String>
-            <fx:String>WinEvent</fx:String>
-            <fx:String>Window</fx:String>
-            <fx:String>AC</fx:String>
-            <fx:String>Battery</fx:String>
-            <fx:String>Call</fx:String>
-            <fx:String>Position</fx:String>
-            <fx:String>Standby</fx:String>
-            <fx:String>Sms</fx:String>
-          </s:ArrayList>
+          <s:ArrayCollection>
+            <fx:Object label="Connection"  type="mobile,desktop"/>
+            <fx:Object label="Process"     type="mobile,desktop"/>
+            <fx:Object label="Quota"       type="mobile,desktop"/>
+            <fx:Object label="Screensaver" type="desktop"/>
+            <fx:Object label="Timer"       type="mobile,desktop"/>
+            <fx:Object label="WinEvent"    type="mobile,desktop"/>
+            <fx:Object label="Window"      type="mobile,desktop"/>
+            <fx:Object label="AC"          type="mobile"/>
+            <fx:Object label="Battery"     type="mobile"/>
+            <fx:Object label="Call"        type="mobile"/>
+            <fx:Object label="Position"    type="mobile"/>
+            <fx:Object label="SimChange"   type="mobile"/>
+            <fx:Object label="Standby"     type="mobile"/>
+            <fx:Object label="Sms"         type="mobile"/>
+          </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
     
@@ -122,13 +126,11 @@
     
     <s:Spacer height="20"/>
     
-    <events:AfterInst id="afterinst" includeIn="afterinst"/>
     <events:Connection id="connection" includeIn="connection"/>
-    <events:Date id="date" includeIn="date"/>
     <events:Process id="process" includeIn="process"/>
     <events:Quota id="quota" includeIn="quota"/>
     <events:Screensaver id="screensaver" includeIn="screensaver"/>
-    <events:Timer id="timer" includeIn="timer"/>
+    <events:Timer id="timer" includeIn="timer,date,afterinst"/>
     <events:WinEvent id="winevent" includeIn="winevent"/>
     <events:Window id="window" includeIn="window"/>
     

@@ -156,6 +156,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       } else if (connection.to is ActionRenderer) {
         var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
         delete(event[type]);
+        if (type == 'repeat') {
+          delete(event.iter);
+          delete(event.delay);
+        }
       } else if (connection.to is EventRenderer) {
         var index:int = (config.events as Array).indexOf((connection.to as EventRenderer).event);
         subactions = ((connection.from as Pin).parent as ActionRenderer).action.subactions;

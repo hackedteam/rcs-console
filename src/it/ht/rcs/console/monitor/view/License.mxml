@@ -7,6 +7,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
     ]]>
@@ -28,14 +29,20 @@
         <s:FormItem label="{R.get('LICENSE_SERIAL')}">
           <s:Label text="{LicenseManager.instance.serial}" width="100%" styleName="monitor"/>
         </s:FormItem>
-        <s:FormItem label="{R.get('USERS')}">
-          <s:Label text="{LicenseManager.instance.users.curr} / {LicenseManager.instance.users.max}" width="100%" styleName="monitor"/>
+        <s:FormItem label="{R.get('LICENSE_EXPIRY')}">
+          <s:Label text="{TimeUtils.timestampDateFormatter(LicenseManager.instance.expiry * 1000)}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('LICENSE_MAINTENANCE')}">
+          <s:Label text="{TimeUtils.timestampDateFormatter(LicenseManager.instance.maintenance * 1000)}" width="100%" styleName="monitor"/>
         </s:FormItem>
       </s:Form>
     </s:VGroup>
     
     <s:VGroup width="300" height="100%">
       <s:Form>
+        <s:FormItem label="{R.get('USERS')}">
+          <s:Label text="{LicenseManager.instance.users.curr} / {LicenseManager.instance.users.max}" width="100%"/>
+        </s:FormItem>
         <s:FormItem label="Agents">
           <s:Label text="{LicenseManager.instance.agent_total.curr} / {LicenseManager.instance.agent_total.max}" width="100%"/>
         </s:FormItem>
@@ -80,6 +87,12 @@
         </s:FormItem>
         <s:FormItem label="Anonymizers">
           <s:Label text="{LicenseManager.instance.anonymizers.curr} / {LicenseManager.instance.anonymizers.max}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Network Injector">
+          <s:Label text="{LicenseManager.instance.nia_demo ? 'DEMO' : LicenseManager.instance.nia.curr + '/' + LicenseManager.instance.nia.max}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Remote Mobile Installer">
+          <s:Label text="{LicenseManager.instance.rmi_demo ? 'DEMO' : (LicenseManager.instance.rmi) ? R.get('YES') : R.get('NO')}" width="100%" styleName="monitor"/>
         </s:FormItem>
         <s:FormItem label="Alerting">
           <s:Label text="{(LicenseManager.instance.alerting) ? R.get('YES') : R.get('NO')}" width="100%" styleName="monitor"/>

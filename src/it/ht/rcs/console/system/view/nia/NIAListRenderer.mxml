@@ -6,6 +6,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.network.model.Injector;
       
       import mx.managers.PopUpManager;
@@ -20,11 +21,22 @@
         PopUpManager.centerPopUp(popup);
       }
       
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        
+        if (data && LicenseManager.instance.nia_demo)
+          nia.filters = [glow_demo];  
+      }
+      
     ]]>
   </fx:Script>
   
+  <fx:Declarations>
+    <s:GlowFilter id="glow_demo" color="#ff0000" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
 
-  <mx:Image top="8" source="@Embed('/img/NEW/injector.png')" horizontalCenter="0"/>
+  <mx:Image id="nia" top="8" source="@Embed('/img/NEW/injector.png')" horizontalCenter="0"/>
   <s:Label left="8" right="8" top="70" bottom="8" minWidth="90" maxWidth="90" fontFamily="Myriad"
            fontSize="14" lineHeight="15" maxDisplayedLines="2" text="{data.name}" textAlign="center"
            verticalAlign="middle"/>

@@ -24,7 +24,7 @@
 
         var id:String=encodeURIComponent(data.data._grid);
         var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+id+"?target_id="+target;
+        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+id+"?target_id="+target
 
         img.source=url;
 
@@ -36,8 +36,8 @@
       
       private function init():void
       {
-        trace("screenshot renderer init")
-        img.smooth=false;
+        trace("Camera renderer init")
+        img.smooth=true;
         img.contentLoader=ImageCache.getInstance().cache;
         img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
         img.addEventListener(Event.COMPLETE, onImageLoaded)
@@ -58,13 +58,15 @@
   		private function onImageLoaded(e:Event):void
   		{
         trace("image loaded");
+        img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
+        img.removeEventListener(Event.COMPLETE, onImageLoaded)
 
   		}
 		]]>
 	</fx:Script>
   
 	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-  			<s:BitmapImage id="img" width="80" height="80" scaleMode="zoom">
+  			<s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" smooth="false">
           <s:mask>
             <s:BorderContainer id="bmpMask"
                                cornerRadius="{5}"

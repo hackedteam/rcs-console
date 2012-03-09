@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+          xmlns:s="library://ns.adobe.com/flex/spark" 
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          horizontalAlign="right">
+    <fx:Script>
+      <![CDATA[
+        import it.ht.rcs.console.monitor.controller.LicenseManager;
+        
+        import locale.R;
+
+        public var create:Function;
+        
+        public function set platforms(platforms:Array):void 
+        {
+          // reset the status
+          createBtn.enabled = false;
+          demo.enabled = false;
+          demo.selected = false;
+          
+          // we need at least build or demo to create an agent
+          platforms.forEach(function (element:*, index:int, arr:Array):void {
+            if (LicenseManager.instance.canBuild(element as String) || LicenseManager.instance.haveDemo(element as String))
+              createBtn.enabled = true;
+          });
+
+          // none can build
+          var build:Boolean = false;
+          platforms.forEach(function (element:*, index:int, arr:Array):void {
+            if (LicenseManager.instance.canBuild(element as String))
+              build = true;
+          });
+          
+          if (!build) {
+            demo.selected = true;
+          }
+
+          // both demo and build
+          var one_build:Boolean = false;
+          var one_demo:Boolean = false
+          platforms.forEach(function (element:*, index:int, arr:Array):void {
+            if (LicenseManager.instance.canBuild(element as String))
+              one_build = true;
+            if (LicenseManager.instance.haveDemo(element as String))
+              one_demo = true;
+          });
+            
+          if (one_build && one_demo) {
+            demo.enabled = true;
+          }
+          
+        }
+        
+      ]]>
+    </fx:Script>
+  
+    <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" />
+    <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="create()" />    
+  
+</s:HGroup>

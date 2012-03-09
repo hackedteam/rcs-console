@@ -48,6 +48,25 @@ package it.ht.rcs.console.utils
       clockFormatter.formatString = "YYYY-MM-DD JJ:NN:SS";
       return clockFormatter.format(date);
     }
+
+    public static function timestampDateFormatter(t:Number):String
+    {
+      if (t == 0)
+        return R.get('NEVER');
+      
+      var date:Date = new Date();
+      /* get the current offset from UTC */
+      var currentOffset:Number = date.timezoneOffset * 60 * 1000;
+      
+      /* going back to UTC, then add the console offset */ 
+      date.setTime(t + currentOffset + Clock.instance.consoleTimeZoneOffset);
+      
+      /* format the date */
+      var clockFormatter:DateFormatter = new DateFormatter();
+      clockFormatter.formatString = "DD MMM YYYY";
+      return clockFormatter.format(date);
+    }
+
     
     public static function zeroPad(number:Number, width:int):String
     {

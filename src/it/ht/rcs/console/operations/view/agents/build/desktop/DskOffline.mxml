@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
   
   <fx:Script>
     <![CDATA[
@@ -22,10 +22,10 @@
         var filename:String;
         
         if (iso.selected) {
-          params = {platform: 'iso', generate: {platforms: ['windows', 'osx'], demo: demo.selected, binary: {demo: demo.selected} } };
+          params = {platform: 'iso', generate: {platforms: ['windows', 'osx'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected} } };
           filename = parentDocument.factory.name + '_offline.iso'
         } else {
-          params = {platform: 'usb', generate: {platforms: ['windows'], demo: demo.selected, binary: {demo: demo.selected, admin: false}, melt: {admin: false} } };
+          params = {platform: 'usb', generate: {platforms: ['windows'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected, admin: false}, melt: {admin: false, demo: createBtn.demo.selected} } };
           filename = parentDocument.factory.name + '_usb.zip'
         }
         
@@ -49,27 +49,7 @@
         if (platform == null)
           return;
         
-        // reset the status to fully operational
-        createBtn.enabled = true;
-        demo.enabled = true;
-        demo.selected = false;
-        
-        // we need at lease build or demo to create an agent
-        if (!LicenseManager.instance.canBuild(platform) && !LicenseManager.instance.haveDemo(platform))
-          createBtn.enabled = false;
-        
-        // no demo, disable it
-        if (!LicenseManager.instance.haveDemo(platform)) {
-          demo.selected = false;
-          demo.enabled = false;
-        }
-        
-        // no build, but demo. force demo
-        if (!LicenseManager.instance.canBuild(platform) && LicenseManager.instance.haveDemo(platform)) {
-          demo.selected = true;
-          demo.enabled = false;
-        }
-        
+        createBtn.platforms = ['windows', 'osx'];
       }
       
     ]]>
@@ -86,9 +66,6 @@
   <s:Label left="150" top="15" text="Windows and OSX"/>
   <s:Label left="150" top="40" text="Windows only"/>
   
-  <s:HGroup left="10" bottom="0" right="10" horizontalAlign="right">
-    <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" />
-    <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="create(event)" />    
-  </s:HGroup>
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
   
 </s:Group>

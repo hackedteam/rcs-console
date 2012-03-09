@@ -43,6 +43,30 @@
           form.changeState(list.selectedItem ? list.selectedItem.action : 'none');
         }
       }
+      
+      private function moveUp():void
+      {
+        var s:Array = (list.dataProvider as ArrayList).source;
+        var i:int = list.selectedIndex;
+        if (i == 0) return;
+        
+        var a:Object = s.splice(i, 1, s[i-1]);
+        s.splice(i-1, 1, a[0]);
+        (list.dataProvider as ArrayList).source = (list.dataProvider as ArrayList).source;
+        list.selectedItem = a[0];
+      }
+      
+      private function moveDown():void
+      {
+        var s:Array = (list.dataProvider as ArrayList).source;
+        var i:int = list.selectedIndex;
+        if (i == list.dataProvider.length - 1) return;
+        
+        var a:Object = s.splice(i, 1, s[i+1]);
+        s.splice(i+1, 1, a[0]);
+        (list.dataProvider as ArrayList).source = (list.dataProvider as ArrayList).source;
+        list.selectedItem = a[0];
+      }
     ]]>
   </fx:Script>
   
@@ -78,8 +102,8 @@
   </s:VGroup>
   
   <s:VGroup>
-    <s:Button label="↑" width="30" fontSize="17"/>
-    <s:Button label="↓" width="30" fontSize="17"/>
+    <s:Button label="↑" width="30" fontSize="17" click="moveUp()"/>
+    <s:Button label="↓" width="30" fontSize="17" click="moveDown()"/>
   </s:VGroup>
   
   <fx:Declarations>

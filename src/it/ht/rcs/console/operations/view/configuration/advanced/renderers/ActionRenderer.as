@@ -233,8 +233,21 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     public function changeIcon():void
     {
-      icon.source = action.subactions.length > 0 ? ModuleIcons[action.subactions[0].action] : null;
+      icon.source = action.subactions.length > 0 ? getIcon() : null;
       invalidateDisplayList();
+    }
+    
+    private function getIcon():Class
+    {
+      var action:Object = action.subactions[0];
+      switch (action.action) {
+        case 'event':
+          return (action.status == 'enable') ? ModuleIcons.event_enable : ModuleIcons.event_disable;
+        case 'module':
+          return (action.status == 'start') ? ModuleIcons.module_start : ModuleIcons.module_stop;
+        default:
+          return ModuleIcons[action.action];
+      }
     }
     
     private function isEnableEventVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, enableEventPin);  }

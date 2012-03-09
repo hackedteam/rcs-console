@@ -106,6 +106,11 @@ package it.ht.rcs.console.operations.view
         setState('info');
       }
       
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filetransfer')
+      {
+        setState('filetransfer');
+      }
+      
     }
     
     private function clearVars():void
@@ -187,6 +192,10 @@ package it.ht.rcs.console.operations.view
 		    case 'info':
           section.currentState = 'info';
           break;
+        
+        case 'filetransfer':
+          section.currentState = 'filetransfer';
+          break;
 	
         default:
           break;
@@ -224,15 +233,14 @@ package it.ht.rcs.console.operations.view
     {
       if (list == null) return;
       if ((currentState == 'singleTarget' || currentState == 'singleAgent') && (Console.currentSession.user.is_view())) {
-        list.addItemAt({name: R.get('EVIDENCE'),    customType: 'evidence',   order: 0}, 0);
-        list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem', order: 1}, 0);
+        list.addItemAt({name: R.get('EVIDENCE'),    customType: 'evidence',     order: 0}, 0);
+        list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem',   order: 1}, 0);
       }
       if (currentState == 'singleAgent') {
-        list.addItemAt({name: R.get('INFO'),     customType: 'info',       order: 2}, 0);
+        list.addItemAt({name: R.get('INFO'),        customType: 'info',         order: 2}, 0);
         if (Console.currentSession.user.is_tech()) {
-          list.addItemAt({name: R.get('CONFIG'),   customType: 'configlist', order: 3}, 0);
-          list.addItemAt({name: R.get('UPLOAD'),   customType: 'upload',     order: 4}, 0);
-          list.addItemAt({name: R.get('DOWNLOAD'), customType: 'download',   order: 5}, 0);
+          list.addItemAt({name: R.get('CONFIG'),        customType: 'configlist',   order: 3}, 0);
+          list.addItemAt({name: R.get('FILE_TRANSFER'), customType: 'filetransfer', order: 4}, 0);
         }
       }
     }

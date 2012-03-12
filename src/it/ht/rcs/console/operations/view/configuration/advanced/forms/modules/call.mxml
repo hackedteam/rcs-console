@@ -5,21 +5,29 @@
                     xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
                     creationComplete="init()" save="save()" title="Call">
   
-  <!-- controllare buffer quando si switcha -->
-  
   <fx:Script>
     <![CDATA[
+      [Bindable]
+      private var mobile:Boolean;
+      
       private function init():void
       {
-        record.selected = module.record;
-        buffer.value = module.buffer;
+        mobile = graph.config.globals.type == 'mobile';
+        
+        if (mobile)
+          record.selected = module.record;
+        else
+          recordFormItem.visible = recordFormItem.includeInLayout = false;
+        
+        buffer.value = module.buffer / 1000;
         quality.value = module.compression;
       }
       
       private function save():void
       {
-        module.record = record.selected;
-        module.buffer = buffer.value;
+        if (graph.config.globals.type == 'mobile')
+          module.record = record.selected;
+        module.buffer = buffer.value * 1000;
         module.compression = quality.value;
         close();
       }
@@ -28,11 +36,11 @@
   
   <s:Form>
 
-    <s:FormItem label="Enable call recording">
+    <s:FormItem id="recordFormItem" label="Enable call recording">
       <s:CheckBox id="record"/>
     </s:FormItem>
     
-    <s:FormItem label="Buffer size" enabled="{record.selected}">
+    <s:FormItem label="Buffer size" enabled="{!mobile || record.selected}">
       <s:HGroup verticalAlign="middle">
         <s:HSlider id="buffer" width="150" dataTipPrecision="0" maximum="1000" minimum="128"
                    snapInterval="32" stepSize="32"/>
@@ -40,7 +48,7 @@
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Quality" enabled="{record.selected}">
+    <s:FormItem label="Quality" enabled="{!mobile || record.selected}">
       <s:HSlider id="quality" width="150" dataTipPrecision="0" maximum="10" minimum="1"
                  snapInterval="1" stepSize="1"/>
     </s:FormItem>

@@ -11,10 +11,12 @@
               xmlns:view="it.ht.rcs.console.operations.view.*"
               xmlns:info="it.ht.rcs.console.operations.view.info.*"
               xmlns:transfer="it.ht.rcs.console.operations.view.filetransfer.*"
-              creationComplete="init()" stateChangeComplete="onStateChange(event)">
+              creationComplete="init()" stateChangeComplete="onStateChange(event)" removedFromStage="onRemovedFromStage()">
   
   
-  <main:states>    
+  <main:states>
+    <s:State name="none"/>
+    
     <s:State name="allOperations"/>
     <s:State name="singleOperation"/>
     
@@ -116,6 +118,12 @@
         // Single agent does not have a table view. Always switch to icon view (first element of the viewstack)
         if (currentState == 'singleAgent')
           singleAgent.views.selectedIndex = 0;
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        currentState = 'none';
+        stateManager.setState('none');
       }
     ]]>
   </fx:Script>

@@ -18,7 +18,7 @@
       private function init():void
       {
         formatter = new DateFormatter();
-        formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        formatter.formatString = 'YYYY-MM-DD';
         
         fromDate.selectedDate = DateUtils.parseDateTimeString(module.mail.filter.datefrom);
         fromTime.time = module.mail.filter.datefrom.split(' ')[1];
@@ -66,11 +66,11 @@
     
     <s:FormItem label="To">
       <s:VGroup>
-        <s:RadioButton id="forever" label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
         <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
-        <mx:DateField id="toDate" width="151" enabled="{!forever.selected}" formatString="YYYY-MM-DD"
-                      showToday="true" yearNavigationEnabled="true"/>
-        <events:TimeField id="toTime" enabled="{!forever.selected}"/>
+        <mx:DateField id="toDate" width="151" enabled="{notForever.selected}"
+                      formatString="YYYY-MM-DD" showToday="true" yearNavigationEnabled="true"/>
+        <events:TimeField id="toTime" enabled="{notForever.selected}"/>
       </s:VGroup>
     </s:FormItem>
     

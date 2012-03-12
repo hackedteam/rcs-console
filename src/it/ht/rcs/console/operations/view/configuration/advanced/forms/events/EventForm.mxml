@@ -32,9 +32,7 @@
             type.selectedItem = o;
         
         currentState = event.event;
-        currentData = this[currentState] as EventFields;
-        currentData.event = event;
-        PopUpManager.centerPopUp(this);
+        switchView();
         
         desc.setFocus();
         desc.selectAll();
@@ -43,7 +41,16 @@
       private function onChange(e:IndexChangeEvent):void
       {
         currentState = type.selectedItem.label.toLowerCase();
-        currentData = this[currentState] as EventFields;
+        switchView();
+      }
+      
+      private function switchView():void
+      {
+        if (['timer', 'date', 'afterinst'].indexOf(currentState) != -1)
+          currentData = timer;
+        else
+          currentData = this[currentState] as EventFields;
+        
         currentData.event = event;
         PopUpManager.centerPopUp(this);
       }

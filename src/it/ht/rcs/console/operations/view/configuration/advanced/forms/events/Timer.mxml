@@ -7,6 +7,8 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.DateUtils;
+      
       import mx.collections.ArrayCollection;
       import mx.formatters.DateFormatter;
       import mx.managers.PopUpManager;
@@ -18,7 +20,7 @@
       private function init():void
       {
         formatter = new DateFormatter();
-        formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        formatter.formatString = 'YYYY-MM-DD';
         
         currentState = event.hasOwnProperty('subtype') ? event.subtype : event.event;
         
@@ -27,13 +29,20 @@
             type.selectedItem = key;
         
         switch (currentState) {
+          case 'loop':
+            break;
           case 'daily':
             dailyFrom.time = event.ts;
             dailyTo.time = event.te;
             break;
           case 'date':
-            dateToTime.time = event.te;
-            forever.selected = !event.dateto;
+            dateFromDate.selectedDate = DateUtils.parseDateTimeString(event.datefrom);
+            dateFromTime.time = event.datefrom.split(' ')[1];
+            notForever.selected = event.hasOwnProperty('dateto');
+            if (notForever.selected) {
+              dateToDate.selectedDate = DateUtils.parseDateTimeString(event.dateto);
+              dateToTime.time = event.dateto.split(' ')[1];
+            }
             break;
           case 'afterinst':
             days.text = event.days;
@@ -45,28 +54,29 @@
       
       override public function commit():void
       {
-        event.subtype = currentState;
         switch (currentState) {
           case 'loop':
+            event.event = 'timer';
+            event.subtype = 'loop';
             event.ts = '00:00:00';
             event.te = '23:59:59';
             break;
           case 'daily':
+            event.event = 'timer';
+            event.subtype = 'daily';
             event.ts = dailyFrom.time;
             event.te = dailyTo.time;
             break;
           case 'date':
-            event.datefrom = formatter.format(dateFromDate.selectedDate);
-            if (forever.selected)
+            event.event = 'date';
+            event.datefrom = formatter.format(dateFromDate.selectedDate) + ' ' + dateFromTime.time;
+            if (notForever.selected)
+              event.dateto = formatter.format(dateToDate.selectedDate) + ' ' + dateToTime.time;
+            else
               delete(event.dateto);
-            else {
-              //event.dateto = formatter.
-            }
-            //event.ts = from.time;
-            //event.dateto
-            //event.te = to.time;
             break;
           case 'afterinst':
+            event.event = 'afterinst';
             event.days = days.text;
             break;
           default:
@@ -126,11 +136,11 @@
     
     <s:FormItem includeIn="date" label="To">
       <s:VGroup>
-        <s:RadioButton id="forever" label="Forever" group="{dateGroup}" selected="true"/>
-        <s:RadioButton label="Date" group="{dateGroup}"/>
-        <mx:DateField id="dateToDate" width="150" enabled="{!forever.selected}"
+        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
+        <mx:DateField id="dateToDate" width="150" enabled="{notForever.selected}"
                       formatString="YYYY-MM-DD" showToday="true" yearNavigationEnabled="true"/>
-        <events:TimeField id="dateToTime" enabled="{!forever.selected}"/>
+        <events:TimeField id="dateToTime" enabled="{notForever.selected}"/>
       </s:VGroup>
     </s:FormItem>
     

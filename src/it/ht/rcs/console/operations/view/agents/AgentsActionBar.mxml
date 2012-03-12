@@ -42,9 +42,17 @@
   
   <s:HGroup visible="{section.currentState == 'singleAgent'}" gap="0"
             includeInLayout="{section.currentState == 'singleAgent'}" verticalAlign="middle">
-        
+
     <s:Button label="{R.get('EVIDENCE_EXPORT')}"
               icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
+        
+    <actionbar:Separator/>
+
+    <s:Button label="{R.get('UPDATE_AGENT')}" click="updateAgent(event)"
+              icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_tech() &amp;&amp; 
+              selectedObject &amp;&amp; 
+              (selectedObject as Agent)._kind  == 'agent' &amp;&amp; 
+              (selectedObject as Agent).status == 'open'}"/>
     
   </s:HGroup>
   

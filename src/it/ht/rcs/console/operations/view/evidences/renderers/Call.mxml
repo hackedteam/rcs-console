@@ -1,34 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                                xmlns:s="library://ns.adobe.com/flex/spark"
-                                xmlns:mx="library://ns.adobe.com/flex/mx"
-                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                >
-	
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																focusOut="onFocusOut()"
+																focusIn="onFocusIn()"
+																width="100%">
+
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.DB;
-      
-      
-  		
-      [Bindable]
-      override public function set data(value:*):void
-      {
-        
-        super.data=value;
-        callTxt.text="[" + data.data.program + "] " + data.data.peer;
-  		}
-      
-      private function init():void
-      {
-       
-      }
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 
+			private var _sound:Sound;
+			private var _channel:SoundChannel;
+			private var _playingTime:int;
+			private var _pausePoint:Number=0;
+			private var _isPlaying:Boolean=false;
+			private var _isLoaded:Boolean=false;
+			private var _url:String;
+			private var _hasFocus:Boolean;
+			private var _duration:Number;
+			private var _position:Number;
+
+			[Bindable]
+			[Embed(source="/img/mediaplayers/recording.swf")]
+			public var RecordingIcon:Class;
+
+			[Bindable]
+			override public function set data(value:*):void
+			{
+				super.data=value;
+
+				var id:String=encodeURIComponent(data.data._grid);
+				var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+				miniPlayer.url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target
+			/*
+				peer
+				recording 0/1
+				program
+
+				*/
+			}
+
+			private function onFocusOut():void
+			{
+				miniPlayer.hasFocus=false;
+			}
+
+			private function onFocusIn():void
+			{
+				miniPlayer.hasFocus=true;
+			}
 		]]>
 	</fx:Script>
-  
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="callTxt"/>
-		  </s:HGroup>
-
+	<s:VGroup verticalAlign="middle"
+						height="100%"
+						width="100%">
+		<s:HGroup>
+			<s:Label text="Program: {data.data.program} | Peer: {data.data.peer}"/>
+			<!-- <s:SWFLoader source="{RecordingIcon}"/>
+			<s:Label text="Recording..."/> -->
+		</s:HGroup>
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<renderers:SoundMiniPlayer id="miniPlayer"/>
+	</s:VGroup>
 </renderers:EvidenceDataRenderer>

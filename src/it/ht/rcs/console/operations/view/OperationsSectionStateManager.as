@@ -198,6 +198,9 @@ package it.ht.rcs.console.operations.view
           break;
 	
         default:
+          clearVars();
+          CurrentManager = null;
+          currentFilter = null;
           break;
       }
       if (CurrentManager) {

@@ -45,19 +45,7 @@
           platforms = [value];
         
         createBtn.platforms = platforms;
-          
-        // if rmi is in demo, override every platform
-        if (LicenseManager.instance.rmi_demo) {
-          createBtn.demo.enabled = false;
-          createBtn.demo.selected = true;
-        }
-        
-        // no RMI
-        if (!LicenseManager.instance.rmi_demo && !LicenseManager.instance.rmi) {
-          createBtn.enabled = false;
-          createBtn.demo.enabled = false;          
-        }
-        
+                
       }
       
       private var fileReference:FileReference;
@@ -106,7 +94,7 @@
       
       protected function send():void
       {        
-        params = {platform: 'wap', deliver: {}, generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, melt: { appname: appname.text }, sign: {} } };
+        params = {platform: 'qrcode', deliver: {}, generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, melt: { appname: appname.text }, sign: {} } };
         
         if (currentState == 'blackberry') {
           params['generate']['binary']['name'] = nameForm.text;
@@ -123,12 +111,10 @@
           params['generate']['platforms'] = ['blackberry', 'android', 'winmo'];
         }
         
-        params['deliver']['number'] = number.text;
-        params['deliver']['url'] = url.selectedItem + appname.text;
-        params['deliver']['service'] = servindication.selected ? 'indication' : 'loading';
         params['factory'] = {_id: parentDocument.factory._id};
+        params['generate']['link'] = url.selectedItem + appname.text;
         
-        DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
+        DownloadManager.instance.createTask("build", parentDocument.factory.name + '_qrcode.zip', params, onSuccess, onFailure);
       }
       
       private function onSuccess(e:ResultEvent):void
@@ -158,24 +144,12 @@
     <s:FormItem label="Application Name">    
       <s:TextInput id="appname" text="installer"/>
     </s:FormItem>
-    <s:FormItem label="Phone Number">    
-      <s:TextInput id="number" text=""/>
-    </s:FormItem>
     <s:FormItem label="URL">    
-      <s:ComboBox id="url" dataProvider="{urls}" labelFunction="collName" selectedIndex="0"/>
-    </s:FormItem>
-    <s:FormItem label="Service Type">    
-      <s:HGroup>
-        <s:RadioButton id="servloading" label="Loading" groupName="Service" selected="true"/>
-        <s:RadioButton id="servindication" label="Indication" groupName="Service"/>
-      </s:HGroup>
-    </s:FormItem>
-    <s:FormItem label="Description" visible="{servindication.selected}">    
-      <s:TextInput text=""/>
+      <s:ComboBox id="url" dataProvider="{urls}" labelFunction="collName"/>
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="blackberry" left="10" top="135">
+  <s:Form includeIn="blackberry" left="10" top="105">
     <s:FormItem label="Name">    
       <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
@@ -190,7 +164,7 @@
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="symbian" left="10" top="135">
+  <s:Form includeIn="symbian" left="10" top="105">
     <s:FormItem label="Certificate bound to phone IMEI">    
       <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
     </s:FormItem>

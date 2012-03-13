@@ -8,25 +8,31 @@
     <![CDATA[
       override public function fillFields():void
       {
-        if (!text) return;
+        if (!number) return;
+        number.text = action.number;
         text.text = action.text;
       }
       
       override public function commit():void
       {
+        action.number = number.text;
         action.text = text.text;
       }
     ]]>
   </fx:Script>
   
-  <s:Label width="330" text="This action will write a log etc..."/>
+  <s:Label width="330" text="The action is triggered when a sms is received"/>
   
   <s:Form>
-  
-    <s:FormItem label="Log">
+    
+    <s:FormItem label="Number">
+      <s:TextInput id="number" width="160" restrict="0-9+"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Text">
       <s:TextArea id="text" width="240" heightInLines="4"/>
     </s:FormItem>
   
   </s:Form>
-  
+    
 </actions:ActionFields>

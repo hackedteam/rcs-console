@@ -7,10 +7,14 @@
   
   <fx:Script>
     <![CDATA[
+      import mx.collections.ArrayList;
+      
       public var globals:Object;
 
       private function init():void
       {
+        nohide.dataProvider = new ArrayList(globals.nohide);
+        
         min.text = String(globals.quota.min / 1000000);
         max.text = String(globals.quota.max / 1000000);
         wipe.selected = globals.wipe;
@@ -25,8 +29,19 @@
         globals.quota.max = parseInt(max.text) * 1000000;
         globals.wipe = wipe.selected;
         globals.remove_driver = driver.selected;
-        globals.nohide = [];
+        globals.nohide = ArrayList(nohide.dataProvider).source;;
         close();
+      }
+      
+      private function addNoHide(event:MouseEvent):void
+      {
+        nohide.dataProvider.addItem(nohideMask.text);
+        nohideMask.text = '';
+        nohideMask.setFocus();
+      }
+      private function removeNoHide(event:MouseEvent):void
+      {
+        nohide.dataProvider.removeItemAt(nohide.selectedIndex);
       }
     ]]>
   </fx:Script>
@@ -53,6 +68,20 @@
     
     <s:FormItem label="Remove Driver">
       <s:CheckBox id="driver"/>
+    </s:FormItem>
+    
+    <s:FormItem label="No Hide">
+      <s:HGroup>
+        <s:List id="nohide" width="150" height="156"/>
+        <s:Button width="40" label="-" click="removeNoHide(event)" enabled="{nohide.selectedItem}"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="Mask">
+      <s:HGroup>
+        <s:TextInput id="nohideMask" width="150"/>
+        <s:Button width="40" label="+" click="addNoHide(event)" enabled="{nohideMask.text != ''}"/>
+      </s:HGroup>
     </s:FormItem>
     
   </s:Form>

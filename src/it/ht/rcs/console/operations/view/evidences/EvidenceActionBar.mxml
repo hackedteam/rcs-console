@@ -22,32 +22,65 @@
             icon="@Embed('/img/NEW/logout_32.png')"/>
   
   
-  <s:Spacer width="100%"/>
- 
+  <s:Button label="{R.get('SUMMARY_SHOW')}" click="onSummaryClick()"
+            icon="@Embed('/img/NEW/export.png')" id="summaryBtn" width="150" enabled="{_total>0}"/>
+  
+  
   <fx:Metadata> 
-    [Event(name="editNote", type="flash.events.Event")] 
+    [Event(name="editNote", type="flash.events.Event")]
+    [Event(name="summary", type="flash.events.Event")] 
   </fx:Metadata> 
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.accounting.controller.SessionManager;
-      import it.ht.rcs.console.accounting.controller.UserManager;
-      import it.ht.rcs.console.accounting.model.User;
+      
+      import mx.collections.ArrayCollection;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
-      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.evidence.model.TypeCount;
       
       import locale.R;
-      
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      
+
       private var _selectedObjects:Vector.<Object>;
+      
+      [Bindable]
+      private var _total:int;
+      
+      private var _counts:ArrayCollection;
       
       [Embed (source="/img/NEW/export.png" )]
       public var ReportAddIcon:Class;
       
       [Embed (source="/img/NEW/import.png" )]
       public var ReportRemoveIcon:Class;
+      
+      [Embed (source="/img/NEW/export.png" )]
+      public var SummaryShowIcon:Class;
+      
+      [Embed (source="/img/NEW/import.png" )]
+      public var SummaryHideIcon:Class;
+      
+      [Bindable]
+      public function set counts(value:ArrayCollection):void
+      {
+        _counts=value;
+        
+        var s:String="";
+        for (var i:int=0; i < value.length; i++)
+        {
+          var typeCount:TypeCount=value.getItemAt(i) as TypeCount;
+          if(typeCount.type=="total")
+          {
+            _total=typeCount.count
+          }
+        }
+        
+      }
+      
+      public function get counts():ArrayCollection
+      {
+        return _counts;
+      }
       
       [Bindable]
       public function set selectedObjects(value:Vector.<Object>):void
@@ -96,6 +129,13 @@
           toggleReportButton(blotterValue);
           stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
          }
+      }
+      
+      
+      public function onSummaryClick():void
+      {
+        dispatchEvent(new Event("summary"))
+      
       }
       
       private function init():void
@@ -167,6 +207,20 @@
           }
         }
         return result;
+      }
+      
+      public function toggleSummaryButton(state:String):void{
+        
+        if(state=="count"){
+          summaryBtn.setStyle("icon", SummaryHideIcon);
+          summaryBtn.label=R.get('SUMMARY_HIDE');
+        }
+        else
+        {
+          summaryBtn.setStyle("icon", SummaryShowIcon);
+          summaryBtn.label=R.get('SUMMARY_SHOW');
+        }
+        
       }
       
       private function toggleReportButton(value:Boolean):void{

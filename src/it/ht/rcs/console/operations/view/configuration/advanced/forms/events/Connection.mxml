@@ -9,19 +9,16 @@
     <![CDATA[
       private function init():void
       {
-        address.text = event.address || '0.0.0.0';
-        netmask.text = event.netmask || '0.0.0.0';
+        ip.text = event.ip;
+        netmask.text = event.netmask;
         port.text = event.port;
       }
       
       override public function commit():void
       {
-        event.address = address.text;
+        event.ip = ip.text;
         event.netmask = netmask.text;
-        if (port.text.length > 0)
-          event.port = parseInt(port.text);
-        else
-          delete(event.port);
+        event.port = parseInt(port.text);
       }
     ]]>
   </fx:Script>
@@ -32,7 +29,7 @@
   <s:Form>
     
     <s:FormItem label="IP Address">
-      <s:TextInput id="address" maxChars="15" restrict="0-9." widthInChars="8" textAlign="center"/>
+      <s:TextInput id="ip" maxChars="15" restrict="0-9." widthInChars="8" textAlign="center"/>
     </s:FormItem>
     
     <s:FormItem label="Netmask">

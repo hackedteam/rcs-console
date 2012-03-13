@@ -24,11 +24,18 @@
       
       private function init():void
       {
+        eventTypes.filterFunction = eventFilterFunction;
+        eventTypes.refresh();
+        
         eventEnabled.selected = event.enabled;
         desc.text = event.desc;
 
+        var toSelect:String = event.event.toLowerCase();
+        if (['date', 'afterinst'].indexOf(toSelect) != -1)
+          toSelect = 'timer';
+        
         for each (var o:Object in ArrayCollection(type.dataProvider).source)
-          if (o.label.toLowerCase() == event.event.toLowerCase())
+          if (o.label.toLowerCase() == toSelect)
             type.selectedItem = o;
         
         currentState = event.event;
@@ -46,7 +53,7 @@
       
       private function switchView():void
       {
-        if (['timer', 'date', 'afterinst'].indexOf(currentState) != -1)
+        if (['date', 'afterinst'].indexOf(currentState) != -1)
           currentData = timer;
         else
           currentData = this[currentState] as EventFields;
@@ -75,21 +82,23 @@
   
   <utils:states>
     <s:State name="none"/>
+
+    <s:State name="ac"/>
     <s:State name="afterinst"/>
+    <s:State name="battery"/>
+    <s:State name="call"/>
     <s:State name="connection"/>
     <s:State name="date"/>
+    <s:State name="position"/>
     <s:State name="process"/>
     <s:State name="quota"/>
     <s:State name="screensaver"/>
-    <s:State name="timer"/>
-    <s:State name="winevent"/>
-    <s:State name="ac"/>
-    <s:State name="battery"/>
-    <s:State name="call"/>
-    <s:State name="position"/>
-    <s:State name="standby"/>
+    <s:State name="simchange"/>
     <s:State name="sms"/>
+    <s:State name="standby"/>
+    <s:State name="timer"/>
     <s:State name="window"/>
+    <s:State name="winevent"/>
   </utils:states>
   
   <utils:layout>
@@ -107,47 +116,46 @@
     </s:FormItem>
     
     <s:FormItem label="Type">
-    
-      <s:DropDownList id="type" width="160" change="onChange(event)" requireSelection="true" labelField="label">
-        <s:dataProvider>
-          <s:ArrayCollection>
-            <fx:Object label="Connection"  type="mobile,desktop"/>
-            <fx:Object label="Process"     type="mobile,desktop"/>
-            <fx:Object label="Quota"       type="mobile,desktop"/>
-            <fx:Object label="Screensaver" type="desktop"/>
-            <fx:Object label="Timer"       type="mobile,desktop"/>
-            <fx:Object label="WinEvent"    type="mobile,desktop"/>
-            <fx:Object label="Window"      type="mobile,desktop"/>
-            <fx:Object label="AC"          type="mobile"/>
-            <fx:Object label="Battery"     type="mobile"/>
-            <fx:Object label="Call"        type="mobile"/>
-            <fx:Object label="Position"    type="mobile"/>
-            <fx:Object label="SimChange"   type="mobile"/>
-            <fx:Object label="Standby"     type="mobile"/>
-            <fx:Object label="Sms"         type="mobile"/>
-          </s:ArrayCollection>
-        </s:dataProvider>
-      </s:DropDownList>
-    
+      <s:DropDownList id="type" width="160" change="onChange(event)" dataProvider="{eventTypes}"
+                      labelField="label" requireSelection="true"/>
     </s:FormItem>
     
     <s:Spacer height="20"/>
     
-    <events:Connection id="connection" includeIn="connection"/>
-    <events:Process id="process" includeIn="process"/>
-    <events:Quota id="quota" includeIn="quota"/>
+    <events:Ac          id="ac"          includeIn="ac"/>
+    <events:Battery     id="battery"     includeIn="battery"/>
+    <events:Call        id="call"        includeIn="call"/>
+    <events:Connection  id="connection"  includeIn="connection"/>
+    <events:Position    id="position"    includeIn="position"/>
+    <events:Process     id="process"     includeIn="process"/>
+    <events:Quota       id="quota"       includeIn="quota"/>
     <events:Screensaver id="screensaver" includeIn="screensaver"/>
-    <events:Timer id="timer" includeIn="timer,date,afterinst"/>
-    <events:WinEvent id="winevent" includeIn="winevent"/>
-    <events:Window id="window" includeIn="window"/>
-    
-    <events:Ac id="ac" includeIn="ac"/>
-    <events:Battery id="battery" includeIn="battery"/>
-    <events:Call id="call" includeIn="call"/>
-    <events:Position id="position" includeIn="position"/>
-    <events:Standby id="standby" includeIn="standby"/>
-    <events:Sms id="sms" includeIn="sms"/>
+    <events:SimChange   id="simchange"   includeIn="simchange"/>
+    <events:Sms         id="sms"         includeIn="sms"/>
+    <events:Standby     id="standby"     includeIn="standby"/>
+    <events:Timer       id="timer"       includeIn="timer,date,afterinst"/>
+    <events:Window      id="window"      includeIn="window"/>
+    <events:WinEvent    id="winevent"    includeIn="winevent"/>
 
   </s:Form>
 
+  <fx:Declarations>
+    <s:ArrayCollection id="eventTypes">
+      <fx:Object label="AC"          type="mobile"/>
+      <fx:Object label="Battery"     type="mobile"/>
+      <fx:Object label="Call"        type="mobile"/>
+      <fx:Object label="Connection"  type="mobile,desktop"/>
+      <fx:Object label="Position"    type="mobile"/>
+      <fx:Object label="Process"     type="mobile,desktop"/>
+      <fx:Object label="Quota"       type="mobile,desktop"/>
+      <fx:Object label="Screensaver" type="desktop"/>
+      <fx:Object label="SimChange"   type="mobile"/>
+      <fx:Object label="Sms"         type="mobile"/>
+      <fx:Object label="Standby"     type="mobile"/>
+      <fx:Object label="Timer"       type="mobile,desktop"/>
+      <fx:Object label="Window"      type="desktop"/>
+      <fx:Object label="WinEvent"    type="desktop"/>
+    </s:ArrayCollection>
+  </fx:Declarations>
+  
 </utils:TitleWindowSaveCancel>

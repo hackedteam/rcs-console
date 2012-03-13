@@ -10,10 +10,11 @@
   <fx:Script>
      
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.utils.TimeUtils;
-      
       import spark.events.GridItemEditorEvent;
       
       [Bindable]
@@ -33,7 +34,7 @@
         else
         {
           var rowIndex:int=this.selectedIndices[0];
-          var columnIndex:int=6 //note column index
+          var columnIndex:int=7 //note column index
           this.startItemEditorSession(rowIndex,columnIndex);
         }
       }
@@ -52,6 +53,12 @@
           var evidence:Evidence=selectedItems[i] as Evidence;
           evidence.note=selectedItem.note;
         }
+      }
+      
+      private function showName(item:Object, column:GridColumn):String
+      {
+        var agent:Agent=AgentManager.instance.getItem(item.agent_id);
+        return agent.name;
       }
       
     ]]>
@@ -117,6 +124,21 @@
         </s:itemRenderer>    
         </s:GridColumn>
       
+      <s:GridColumn width="130" dataField="agent_id" headerText="Agent"
+                    labelFunction="showName" resizable="false" editable="false">
+        <s:itemRenderer>
+          
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:layout>
+                <s:HorizontalLayout verticalAlign="middle" horizontalAlign="left"  paddingLeft="6" paddingRight="6" paddingTop="4"/>
+              </s:layout>
+              <s:Label id="labelDisplay"/>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>    
+      </s:GridColumn>
+      
       <s:GridColumn width="100" dataField="type" headerText="Type" resizable="false" editable="false">
         <s:headerRenderer>
           <fx:Component>
@@ -150,7 +172,7 @@
       <s:GridColumn width="220" dataField="note" headerText="Note" resizable="false" editable="true" >
         
       </s:GridColumn>
-    
+
     </s:ArrayList>
   </s:columns>
 

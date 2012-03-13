@@ -3,7 +3,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
-          width="100%" height="100%" addedToStage="onAddedToStage()"
+          width="100%" height="100%" addedToStage="onAddedToStage()" horizontalAlign="center"
           removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
@@ -27,6 +27,7 @@
         //EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.listenRefresh();
         EvidenceManager.instance.refresh();
+       
       }
       
       private function onRemovedFromStage():void
@@ -47,19 +48,38 @@
        
       }
       
+      private function toggleState():void
+      {
+        if(currentState=="default")
+        {
+          currentState="count";
+        }
+        else
+        {
+          currentState="default";
+        }
+        actionBar.toggleSummaryButton(currentState);
+      }
 
       private function onEditNote(e:Event):void
       {
-        evidenceDg.editNote()
+        evidenceDg.editNote();
       }
       
     ]]>
   </fx:Script>
   
-  <evidences:EvidenceActionBar id="actionBar" selectedObject="{evidenceDg.selectedItem}" editNote="onEditNote(event)"/>
+  <s:states>
+    <s:State name="default"/>
+    <s:State name="count"/>
+  </s:states>
+  
+  <evidences:EvidenceActionBar id="actionBar" selectedObject="{evidenceDg.selectedItem}" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}"/>
   
   <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
                           selectionChange="onGridChange()" selectionMode="multipleRows"
                           updateComplete="onGridChange()"/>
+  <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
+  <evidences:EvidenceCounter id="counter" counts="{EvidenceManager.instance.counts}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>
 
 </s:VGroup>

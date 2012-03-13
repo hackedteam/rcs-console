@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   minWidth="0" minHeight="0" backgroundColor="{_backgroundColor}"
+                   borderColor="0xdddddd" borderStyle="solid" borderWeight="1" cornerRadius="12">
+  
+  
+  <fx:Script>
+    <![CDATA[
+      [Bindable]
+      private var _width:int;
+      [Bindable]
+      private var _backgroundColor:int;
+      [Bindable]
+      private var _textColor:int;
+      
+      [Bindable]
+      private var _value:String;
+      
+      public function set value(v:Number):void
+      {
+        _value = v.toString();
+        _width = (_value.length * 7) + 8;      
+      }
+      
+      public function get value():Number
+      {
+        return parseInt(_value);
+      }
+      
+      public function set style(style:String):void
+      {
+        if (style.toLowerCase() == 'red') {
+          _backgroundColor = 0xff0000;
+          _textColor = 0xffffff;
+        }
+        
+        if (style.toLowerCase() == 'white') {
+          _backgroundColor = 0xffffff;
+          _textColor = 0x454545;
+        }
+      }
+    ]]>
+  </fx:Script>
+  
+  
+  <s:Label top="2" width="{_width}" height="14" color="{_textColor}" fontSize="11" paddingBottom="-1"
+           text="{_value}" textAlign="center" verticalAlign="middle"/>
+  
+  
+</s:BorderContainer>

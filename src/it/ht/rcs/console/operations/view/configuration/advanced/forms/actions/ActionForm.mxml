@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
-                             width="780" height="450" creationComplete="init()" save="save()"
+                             creationComplete="init()" save="save()"
                              title="Edit Action">
   
   <fx:Script>
@@ -42,23 +42,23 @@
           currentData = this[currentState] as ActionFields;
           currentData.action = subactions.list.selectedItem;
         }
-        //PopUpManager.centerPopUp(this);
+        PopUpManager.centerPopUp(this);
       }
     ]]>
   </fx:Script>
   
   <utils:states>
     <s:State name="none"/>
+
     <s:State name="event"/>
     <s:State name="module"/>
     
+    <s:State name="destroy"/>
     <s:State name="execute"/>
+    <s:State name="log"/>
+    <s:State name="sms"/>
     <s:State name="synchronize"/>
     <s:State name="uninstall"/>
-    <s:State name="destroy"/>
-    <s:State name="log"/>
-    
-    <s:State name="sms"/>
   </utils:states>
   
   <utils:layout>
@@ -77,12 +77,16 @@
   
     <s:Spacer height="20"/>
     
+    <actions:Destroy id="destroy" includeIn="destroy"/>
+    <actions:Execute id="execute" includeIn="execute"/>
+    <actions:Log id="log" includeIn="log"/>
+    <actions:Sms id="sms" includeIn="sms"/>
+    <actions:Syncronize id="synchronize" includeIn="synchronize"/>
+    
   </s:Form>
   
-  <actions:Syncronize id="synchronize" includeIn="synchronize"/>
-  <actions:Execute id="execute" includeIn="execute"/>
-  <actions:Destroy id="destroy" includeIn="destroy"/>
-  <actions:Log id="log" includeIn="log"/>
-  <actions:Sms id="sms" includeIn="sms"/>
+  <fx:Declarations>
+    <s:Resize id="res" duration="200" widthFrom="{width}" heightFrom="{height}"/>
+  </fx:Declarations>
   
 </utils:TitleWindowSaveCancel>

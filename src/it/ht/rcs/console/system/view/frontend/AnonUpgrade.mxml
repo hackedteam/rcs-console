@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx" width="330" height="230" close="closeMe(event)" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" width="330" height="190" close="closeMe(event)" 
                title="{R.get('UPGRADE')}" >
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.update.controller.CoreManager;
       
@@ -23,7 +24,7 @@
       
       protected function upgradeAgent(event:MouseEvent):void
       {
-        anon.upgradable = true;
+        DB.instance.collector.upgrade(anon._id);
         closeMe(event);
       }
       
@@ -31,7 +32,7 @@
   </fx:Script>
   <s:VGroup top="10" left="10" right="10" horizontalAlign="center" >
     <s:TextArea id="desc" editable="false" borderVisible="false" 
-                width="100%" height="65" contentBackgroundAlpha="0" />
+                width="100%" height="40" contentBackgroundAlpha="0" text="{R.get('UPGRADE_ANON_DESC')}" />
 
     <s:Form>
       <s:FormItem label="Current Version">

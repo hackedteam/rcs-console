@@ -124,8 +124,16 @@
         }
         
         params['deliver']['number'] = number.text;
-        params['deliver']['url'] = url.selectedItem + appname.text;
-        params['deliver']['service'] = servindication.selected ? 'indication' : 'loading';
+        params['deliver']['link'] = url.textInput.text + appname.text;
+        
+        if (servindication.selected)
+          params['deliver']['type'] = 'si';
+        if (servloading.selected)
+          params['deliver']['type'] = 'sl';
+        if (sms.selected)
+          params['deliver']['type'] = 'sms';
+          
+        params['deliver']['text'] = text.text;
         params['factory'] = {_id: parentDocument.factory._id};
         
         DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
@@ -159,7 +167,7 @@
       <s:TextInput id="appname" text="installer"/>
     </s:FormItem>
     <s:FormItem label="Phone Number">    
-      <s:TextInput id="number" text=""/>
+      <s:TextInput id="number" text="" restrict="0-9"/>
     </s:FormItem>
     <s:FormItem label="URL">    
       <s:ComboBox id="url" dataProvider="{urls}" labelFunction="collName" selectedIndex="0"/>
@@ -168,14 +176,15 @@
       <s:HGroup>
         <s:RadioButton id="servloading" label="Loading" groupName="Service" selected="true"/>
         <s:RadioButton id="servindication" label="Indication" groupName="Service"/>
+        <s:RadioButton id="sms" label="SMS" groupName="Service"/>
       </s:HGroup>
     </s:FormItem>
-    <s:FormItem label="Description" visible="{servindication.selected}">    
-      <s:TextInput text=""/>
+    <s:FormItem label="Text" enabled="{!servloading.selected}">    
+      <s:TextInput id="text" text=""/>
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="blackberry" left="10" top="135">
+  <s:Form includeIn="blackberry" left="10" top="165">
     <s:FormItem label="Name">    
       <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
@@ -190,9 +199,9 @@
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="symbian" left="10" top="135">
+  <s:Form includeIn="symbian" left="10" top="165">
     <s:FormItem label="Certificate bound to phone IMEI">    
-      <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
+      <s:Button width="80" label="{R.get('BROWSE')}..." click="browse()"/>
     </s:FormItem>
     <s:FormItem label="S60 Edition">
       <s:DropDownList id="edition" selectedIndex="0" width="80">

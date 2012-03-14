@@ -16,7 +16,9 @@
   <actionbar:Separator width="40"/>
   
   <s:Button label="{R.get('DOWNLOAD_INSTALLER')}" click="downloadInstaller()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/build.png')"/>
-  
+
+  <s:Button label="{R.get('UPGRADE')}" click="upgradeAnon(event)" enabled="{selectedObject != null &amp;&amp; (selectedObject as Collector).poll}" icon="@Embed('/img/NEW/update.png')"/>
+
   <actionbar:Separator width="40"/>
   
   <s:Button label="{R.get('HEALTH_CHECK')}" click="healthCheck()" icon="@Embed('/img/NEW/check.png')"/>
@@ -92,6 +94,14 @@
         var filename:String = 'rcsanon_install.zip'
         DownloadManager.instance.createTask("build", filename, params, null, null);
       }
+      
+      protected function upgradeAnon(event:MouseEvent):void
+      {
+        var popup:AnonUpgrade = PopUpManager.createPopUp(root, AnonUpgrade, true) as AnonUpgrade;
+        popup.anon = selectedObject as Collector;
+        PopUpManager.centerPopUp(popup);
+      }
+      
     ]]>
   </fx:Script>
 

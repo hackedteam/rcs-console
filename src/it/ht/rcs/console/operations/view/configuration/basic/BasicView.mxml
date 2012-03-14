@@ -40,20 +40,27 @@
           file.documents.selected = (fileModule.accept as Array).indexOf('*.doc') != -1;
           file.images.selected = (fileModule.accept as Array).indexOf('*.jpg') != -1;
         } else {
-          file.documents.selected = true;
+          file.documents.selected = true; // Default value
           file.images.selected = false;
         }
           
         if (screenshot.selected)
           screenshot.seconds.text = String(getDelayFor('SCREENSHOT'));
+        else
+          screenshot.seconds.text = "120"; // Default value
         
         if (camera.selected) {
           camera.seconds.text = String(getDelayFor('CAMERA'));
           camera.times.text = String(getIterFor('CAMERA'));
+        } else {
+          camera.seconds.text = "120"; // Default value
+          camera.times.text = "1"; // Default value
         }
         
         if (position.selected)
           position.minutes.text = String(getDelayFor('POSITION') / 60);
+        else
+          position.minutes.text = "1"; // Default value
         
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         sync.host.dataProvider = entryPoints;
@@ -124,7 +131,7 @@
             host = a.subactions[0].host;
 
         if (host == '') {
-          sync.host.selectedIndex = 0;
+          sync.host.selectedItem = ep.length > 0 ? ep.getItemAt(0) : null;
           return;
         }
         

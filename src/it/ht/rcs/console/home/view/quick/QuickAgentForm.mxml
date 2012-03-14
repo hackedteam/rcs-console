@@ -24,7 +24,9 @@
       import locale.R;
       
       import mx.core.FlexGlobals;
+      import mx.events.ValidationResultEvent;
       import mx.utils.StringUtil;
+      import mx.validators.ValidationResult;
       
       private function init():void
       {
@@ -34,11 +36,10 @@
       
       private function save():void
       {
-        if (StringUtil.trim(agentName.text).length == 0) {
-          AlertPopUp.show('Please enter a name');
+        var rs:ValidationResultEvent = val.validate();
+        if (rs.type == ValidationResultEvent.INVALID)
           return;
-        }
-          
+        
         var g:Group = new Group(Group.defaultGroup());
         g.name = agentName.text + ' Group';
         GroupManager.instance.addGroup(g, function(g1:Group):void
@@ -82,14 +83,14 @@
     <s:Form defaultButton="{saveButton}">
       
       <s:FormItem label="{R.get('NAME')}">
-        <s:TextInput id="agentName" width="200"/>
+        <s:TextInput id="agentName" width="200" restrict="A-Za-z0-9\-_"/>
       </s:FormItem>
       
       <s:FormItem label="{R.get('TYPE')}">
         <s:DropDownList id="agentType" width="200" selectedIndex="0">
           <s:ArrayCollection id="types">
-            <fx:Object label="DESKTOP"/>
-            <fx:Object label="MOBILE"/>
+            <fx:Object label="Desktop"/>
+            <fx:Object label="Mobile"/>
           </s:ArrayCollection>
         </s:DropDownList>
       </s:FormItem>
@@ -97,5 +98,9 @@
     </s:Form>
     
   </s:VGroup>
+  
+  <fx:Declarations>
+    <mx:StringValidator id="val" minLength="1" source="{agentName}" property="text"/>
+  </fx:Declarations>
   
 </utils:TitleWindowSaveCancel>

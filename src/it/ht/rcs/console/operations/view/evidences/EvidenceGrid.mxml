@@ -15,6 +15,9 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
       import spark.events.GridItemEditorEvent;
       
       [Bindable]
@@ -57,7 +60,7 @@
       
       private function showName(item:Object, column:GridColumn):String
       {
-        var agent:Agent=AgentManager.instance.getItem(item.agent_id);
+        var agent:Agent=AgentManager.instance.getItem(item.aid);
         return agent.name;
       }
       
@@ -67,7 +70,7 @@
   <s:columns>
     <s:ArrayList>
       
-      <s:GridColumn width="37" dataField="relevance" headerText=""
+      <s:GridColumn width="37" dataField="rel" headerText=""
                     itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer" resizable="false" editable="false">
         <s:headerRenderer>
           <fx:Component>
@@ -77,7 +80,7 @@
         </s:headerRenderer>
       </s:GridColumn>
       
-      <s:GridColumn width="30" dataField="blotter" headerText=""
+      <s:GridColumn width="30" dataField="blo" headerText=""
                     itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.BlotterRenderer"
                     resizable="false" editable="false">
         <s:headerRenderer>
@@ -88,7 +91,7 @@
         </s:headerRenderer>
       </s:GridColumn>
       
-      <s:GridColumn width="130" dataField="acquired" headerText="Date acquired"
+      <s:GridColumn width="130" dataField="da" headerText="{R.get('DATE_ACQUIRED')}"
                     labelFunction="dateLabelFunction" resizable="false" editable="false">
         <s:headerRenderer>
           <fx:Component>
@@ -109,7 +112,7 @@
         </s:itemRenderer>    
       </s:GridColumn>
       
-      <s:GridColumn width="130" dataField="received" headerText="Date received"
+      <s:GridColumn width="130" dataField="dr" headerText="{R.get('DATE_RECEIVED')}"
                     labelFunction="dateLabelFunction" resizable="false" editable="false">
         <s:itemRenderer>
           
@@ -124,7 +127,7 @@
         </s:itemRenderer>    
         </s:GridColumn>
       
-      <s:GridColumn width="130" dataField="agent_id" headerText="Agent"
+      <s:GridColumn width="130" dataField="aid" headerText="Agent"
                     labelFunction="showName" resizable="false" editable="false">
         <s:itemRenderer>
           
@@ -139,7 +142,7 @@
         </s:itemRenderer>    
       </s:GridColumn>
       
-      <s:GridColumn width="100" dataField="type" headerText="Type" resizable="false" editable="false">
+      <s:GridColumn width="100" dataField="type" headerText="{R.get('TYPE')}" resizable="false" editable="false">
         <s:headerRenderer>
           <fx:Component>
             <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"

@@ -8,13 +8,27 @@
   <fx:Script>
     <![CDATA[
       import mx.collections.ArrayList;
+      import mx.managers.PopUpManager;
 
+      [Bindable]
+      private var mobile:Boolean = false;
+      
       private function init():void
       {
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
+        
         network.selected = module.network.enabled;
         hook.selected = module.hook.enabled;
         networkList.dataProvider = new ArrayList(module.network.processes);
         hookList.dataProvider = new ArrayList(module.hook.processes);
+        
+        mic.selected = module.mic;
+        call.selected = module.call;
+        camera.selected = module.camera;
+        position.selected = module.position;
+        synchronize.selected = module.synchronize;
+        
+        PopUpManager.centerPopUp(this);
       }
       
       private function save():void
@@ -34,6 +48,12 @@
           module.hook.enabled = false;
           module.hook.processes = [];
         }
+        
+        module.mic = mic.selected;
+        module.call = call.selected;
+        module.camera = camera.selected;
+        module.position = position.selected;
+        module.synchronize = synchronize.selected;
         
         close();
       }
@@ -61,7 +81,31 @@
     ]]>
   </fx:Script>
 
-  <s:HGroup gap="30">
+  <s:Form visible="{mobile}" includeInLayout="{mobile}">
+    
+    <s:FormItem label="Mic">
+      <s:CheckBox id="mic"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Call">
+      <s:CheckBox id="call"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Camera">
+      <s:CheckBox id="camera"/>
+    </s:FormItem>
+
+    <s:FormItem label="Position">
+      <s:CheckBox id="position"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Synchronize">
+      <s:CheckBox id="synchronize"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <s:HGroup visible="{!mobile}" gap="30" includeInLayout="{!mobile}">
     
     <s:Form>
       

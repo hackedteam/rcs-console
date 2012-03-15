@@ -3,20 +3,26 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
       private function init():void
       {
-        min.text = event.min;
-        max.text = event.max;
+        min.text = event.min || '0';
+        max.text = event.max || '30';
       }
       
       override public function commit():void
       {
         event.min = parseInt(min.text);
         event.max = parseInt(max.text);
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
       }
     ]]>
   </fx:Script>
@@ -40,5 +46,17 @@
     </s:FormItem>
   
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator exceedsMaxError="Value must not be more than 100" maxValue="100"
+                          property="text" required="true" source="{min}" triggerEvent=""/>
+      <mx:NumberValidator exceedsMaxError="Value must not be more than 100"
+                          lowerThanMinError="Value must be more than 'Min'" maxValue="100"
+                          minValue="{parseInt(min.text) + 1}" property="text" source="{max}"
+                          triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </events:EventFields>

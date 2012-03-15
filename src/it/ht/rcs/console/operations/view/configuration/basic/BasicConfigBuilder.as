@@ -38,7 +38,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.file &&
          !model.isMobile) { subactions.push({action: "module", module: "file",        status: "start"}); configureFileModule(model, newConfig); }      
       
-      var startupEvent:Object =  {event: "timer", subtype: "startup", start: 0, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "STARTUP"};
+      var startupEvent:Object =  {event: "timer", subtype: "loop", start: 0, ts: "00:00:00", te: "23:59:59", enabled: true, desc: "STARTUP"};
       var startupAction:Object = {desc: "STARTUP", subactions: subactions};
       events.push(startupEvent);
       actions.push(startupAction);

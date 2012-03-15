@@ -3,7 +3,8 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
-                    creationComplete="init()" save="save()" title="Mouse">
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()" save="save()" title="Livemic">
   
   <fx:Script>
     <![CDATA[
@@ -14,7 +15,10 @@
       
       private function save():void
       {
-        module.width = number.text;
+        if (!val.isValid())
+          return;
+        
+        module.number = number.text;
         close();
       }
     ]]>
@@ -23,9 +27,18 @@
   <s:Form defaultButton="{saveButton}">
     
     <s:FormItem label="Number">
-      <s:TextInput id="number" restrict="0-9+" widthInChars="8"/>
+      <s:HGroup>
+        <s:TextInput id="number" width="140" restrict="0-9+" showErrorTip="true"/>
+      </s:HGroup>
     </s:FormItem>
     
   </s:Form>
-
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator minLength="1" property="text" source="{number}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
 </modules:ModuleForm>

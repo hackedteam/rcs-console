@@ -11,6 +11,7 @@
       import it.ht.rcs.console.utils.DateUtils;
       import it.ht.rcs.console.utils.TimeUtils;
       
+      import mx.events.ValidationResultEvent;
       import mx.formatters.DateFormatter;
       
       private var formatter:DateFormatter;
@@ -30,6 +31,8 @@
         formatter = new DateFormatter();
         formatter.formatString = 'YYYY-MM-DD';
         
+        isEnabled.selected = module[property].enabled;
+        
         fromDate.selectedDate = DateUtils.parseDateTimeString(module[property].filter.datefrom);
         fromTime.time = module[property].filter.datefrom.split(' ')[1];
         
@@ -48,6 +51,8 @@
       
       public function save():void
       {
+        module[property].enabled = isEnabled.selected;
+        
         module[property].filter.datefrom = formatter.format(fromDate.selectedDate) + ' ' + fromTime.time;
         
         if (notForever.selected)
@@ -55,7 +60,10 @@
         else
           delete(module[property].filter.dateto);
         
-        module[property].filter.maxsize = parseInt(maxSize.text) * 1000;
+        if (showMaxSize)
+          module[property].filter.maxsize = parseInt(maxSize.text) * 1000;
+        else
+          delete(module[property].filter.maxsize);
       }
       
       private function pad(n:Number):String
@@ -65,13 +73,24 @@
       
       public function isValid():Boolean
       {
-        return val.isValid();
+        computeFromToTimeDifference();
+        var valid:Boolean = (!showMaxSize || maxSizeVal.isValid()) && dateVal.validate(difference).type == ValidationResultEvent.VALID;
+        return valid;
+      }
+      
+      [Bindable]
+      private var difference:int;
+      private function computeFromToTimeDifference():void
+      {
+        var f:int = DateUtils.parseDateTimeString(formatter.format(fromDate.selectedDate) + ' ' + fromTime.time).time;
+        var t:int = DateUtils.parseDateTimeString(formatter.format(toDate.selectedDate) + ' ' + toTime.time).time;
+        difference = t - f;
       }
     ]]>
   </fx:Script>
   
-  <s:Label left="25" top="-8" width="55" fontFamily="Myriad" fontSize="18" text="{label}" backgroundColor="#EAEAEA"
-           textAlign="center"/>
+  <s:Label left="25" top="-8" width="55" backgroundColor="#EAEAEA" fontFamily="Myriad" fontSize="18"
+           text="{label}" textAlign="center"/>
   
   <s:Form>
     
@@ -112,7 +131,10 @@
       <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
                           source="{maxSize}" triggerEvent=""/>
     </fx:Array>
-    <utils:MetaValidator id="val" validators="{vals}"/>
+    <utils:MetaValidator id="maxSizeVal" validators="{vals}"/>
+    <mx:NumberValidator id="dateVal" listener="{toDate}"
+                        lowerThanMinError="Date to must me greater than date from" minValue="0"
+                        triggerEvent=""/>
   </fx:Declarations>
   
 </s:BorderContainer>

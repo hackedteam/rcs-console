@@ -9,6 +9,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
       
@@ -25,7 +26,8 @@
       
       public function addEvent(event:MouseEvent):void
       {
-        var ev:Object = {event: "timer", subtype: "loop", desc: "New event", enabled: true};
+        var ev:Object = DefaultConfigBuilder.getDefaultEvent("timer");
+        ev.desc = "New Event";
         graph.config.events.push(ev);
         graph.rebuildGraph();
         var er:EventRenderer = graph.getEventRendererForEvent(ev);
@@ -35,7 +37,7 @@
       
       public function addAction(event:MouseEvent):void
       {
-        graph.config.actions.push({"desc": "New action", "subactions": []});
+        graph.config.actions.push({"desc": "New Action", "subactions": []});
         graph.rebuildGraph();
       }
       

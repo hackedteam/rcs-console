@@ -5,6 +5,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.forms.modules
     
     private static const _call:call             = null;
     private static const _camera:camera         = null;
+    private static const _conference:conference = null;
     private static const _crisis:crisis         = null;
     private static const _device:device         = null;
     private static const _file:file             = null;

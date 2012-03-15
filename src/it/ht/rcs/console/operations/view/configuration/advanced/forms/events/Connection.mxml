@@ -3,15 +3,20 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.MetaValidator;
+      
+      private var mobile:Boolean;
+      
       private function init():void
       {
-        ip.text = event.ip;
-        netmask.text = event.netmask;
-        port.text = event.port;
+        ip.text = event.ip || "0.0.0.0";
+        netmask.text = event.netmask || "0.0.0.0";
+        port.text = event.port || "0";
       }
       
       override public function commit():void
@@ -20,26 +25,53 @@
         event.netmask = netmask.text;
         event.port = parseInt(port.text);
       }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
   <s:Label width="280"
-           text="The action is triggered when the machine makes a connection to the specified address"/>
+           text="This event triggers an action when the device establishes a TCP connection to the specified address"
+           textAlign="justify"/>
   
   <s:Form>
     
     <s:FormItem label="IP Address">
-      <s:TextInput id="ip" maxChars="15" restrict="0-9." widthInChars="8" textAlign="center"/>
+      <s:HGroup>
+        <s:TextInput id="ip" maxChars="15" restrict="0-9." showErrorTip="true" textAlign="center"
+                     widthInChars="8"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Netmask">
-      <s:TextInput id="netmask" maxChars="15" restrict="0-9." widthInChars="8" textAlign="center"/>
+      <s:HGroup>
+        <s:TextInput id="netmask" maxChars="15" restrict="0-9." showErrorTip="true"
+                     textAlign="center" widthInChars="8"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Port">
-      <s:TextInput id="port" maxChars="5" restrict="0-9" widthInChars="3" textAlign="center"/>
+      <s:HGroup>
+        <s:TextInput id="port" maxChars="5" restrict="0-9" showErrorTip="true" textAlign="center"
+                     widthInChars="3"/>
+      </s:HGroup>
     </s:FormItem>
 
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:RegExpValidator expression="{MetaValidator.ipExpr}" flags="g" property="text" source="{ip}"
+                          triggerEvent=""/>
+      <mx:RegExpValidator expression="{MetaValidator.ipExpr}" flags="g" property="text"
+                          source="{netmask}" triggerEvent=""/>
+      <mx:NumberValidator exceedsMaxError="Out of range" maxValue="65535" property="text"
+                          required="true" source="{port}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </events:EventFields>

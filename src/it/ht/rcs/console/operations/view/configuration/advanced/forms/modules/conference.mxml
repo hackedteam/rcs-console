@@ -1,40 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
-                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
                     xmlns:utils="it.ht.rcs.console.utils.*"
-                    creationComplete="init()">
+                    creationComplete="init()" save="save()" title="Conference">
   
   <fx:Script>
     <![CDATA[
       private function init():void
       {
-        number.text = event.number;
+        number.text = module.number;
       }
       
-      override public function commit():void
+      private function save():void
       {
-        event.number = number.text;
-      }
-      
-      override public function isValid():Boolean
-      {
-        return val.isValid();
+        if (!val.isValid())
+          return;
+        
+        module.number = number.text;
+        close();
       }
     ]]>
   </fx:Script>
   
-  <s:Label width="280" text="The start action is triggered when..."/>
-  
-  <s:Form>
-  
+  <s:Form defaultButton="{saveButton}">
+    
     <s:FormItem label="Number">
       <s:HGroup>
         <s:TextInput id="number" width="140" restrict="0-9+" showErrorTip="true"/>
       </s:HGroup>
     </s:FormItem>
-  
+    
   </s:Form>
   
   <fx:Declarations>
@@ -43,5 +40,5 @@
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>
   </fx:Declarations>
-  
-</events:EventFields>
+
+</modules:ModuleForm>

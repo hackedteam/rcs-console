@@ -24,12 +24,14 @@
       
       private function init():void
       {
+        // filtro gli eventi x desktop o mobile
         eventTypes.filterFunction = eventFilterFunction;
         eventTypes.refresh();
         
         eventEnabled.selected = event.enabled;
         desc.text = event.desc;
 
+        // se l'evento e' un date o un afterinst, in realta devo far vedere timer
         var toSelect:String = event.event.toLowerCase();
         if (['date', 'afterinst'].indexOf(toSelect) != -1)
           toSelect = 'timer';
@@ -64,6 +66,9 @@
       
       private function save():void
       {
+        if (!currentData.isValid())
+          return;
+        
         event.enabled = eventEnabled.selected;
         event.desc = desc.text;
         event.event = currentState;

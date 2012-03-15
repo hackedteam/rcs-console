@@ -3,6 +3,7 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()" save="save()" title="File">
   
   <fx:Script>
@@ -32,6 +33,9 @@
       
       private function save():void
       {
+        if (!val.isValid())
+          return;
+        
         module.open = open.selected;
         
         if (capture.selected) {
@@ -138,25 +142,42 @@
         
         <s:FormItem label="Min size" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
-            <s:TextInput id="minSize" restrict="0-9" textAlign="center" widthInChars="5"/>
+            <s:TextInput id="minSize" restrict="0-9" showErrorTip="true" textAlign="center"
+                         widthInChars="5"/>
             <s:Label paddingTop="1" text=" bytes"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="Max size" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
-            <s:TextInput id="maxSize" restrict="0-9" textAlign="center" widthInChars="5"/>
+            <s:TextInput id="maxSize" restrict="0-9" showErrorTip="true" textAlign="center"
+                         widthInChars="5"/>
             <s:Label paddingTop="1" text=" bytes"/>
           </s:HGroup>
         </s:FormItem>
         
         <s:FormItem label="From date" enabled="{capture.selected}">
-          <mx:DateField id="date" width="150" formatString="YYYY-MM-DD" showToday="false" editable="false"/>
+          <mx:DateField id="date" width="150" editable="false" formatString="YYYY-MM-DD"
+                        showToday="false"/>
         </s:FormItem>
         
       </s:Form>
       
     </s:HGroup>
   </s:VGroup>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator minLength="1" property="text" source="{minSize}" triggerEvent=""/>
+      <mx:StringValidator minLength="1" property="text" source="{maxSize}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+                          source="{minSize}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+                          source="{maxSize}" triggerEvent=""/>
+      <mx:NumberValidator minValue="{minSize.text}" property="text" source="{maxSize}"
+                          triggerEvent="" lowerThanMinError="Must be greater than min size"/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </modules:ModuleForm>

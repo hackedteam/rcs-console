@@ -96,7 +96,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private function onDoubleClick(me:MouseEvent):void
     {
-      if (graph.config.globals.type == 'desktop' && (module.module == 'position' || module.module == 'device')) return; // Do not edit position in desktop
+      if (graph.config.globals.type.toLowerCase() == 'desktop' && 
+        (module.module == 'position' || module.module == 'device')) return; // Do not edit position in desktop
       
       try {
         var Form:Class = getDefinitionByName(packagePrefix + module.module) as Class;

@@ -7,6 +7,8 @@
   
   <fx:Script>
     <![CDATA[
+      import mx.events.ValidationResultEvent;
+      
       private function init():void
       {
         local.selected  = module.local;
@@ -19,6 +21,10 @@
       
       private function save():void
       {
+        if (vmTxtVal.validate().type == ValidationResultEvent.INVALID ||
+            vmNumVal.validate().type == ValidationResultEvent.INVALID)
+          return;
+        
         module.local  = local.selected;
         module.usb    = usb.selected;
         module.mobile = mobile.selected;
@@ -46,7 +52,7 @@
     </s:FormItem>
     
     <s:FormItem label="Infect VMWare virtual machines">
-      <s:HGroup verticalAlign="middle">
+      <s:HGroup id="hgr" verticalAlign="middle">
         <s:CheckBox id="vm"/>
         <s:Label enabled="{vm.selected}" paddingTop="1" text="every "/>
         <s:TextInput id="delay" enabled="{vm.selected}" restrict="0-9" text="300" textAlign="center"
@@ -56,5 +62,11 @@
     </s:FormItem>
     
   </s:Form>
+  
+  <fx:Declarations>
+    <mx:StringValidator id="vmTxtVal" minLength="1" property="text" source="{delay}"/>
+    <mx:NumberValidator id="vmNumVal" listener="{hgr}" lowerThanMinError="Value must be more than 0"
+                        minValue="1" property="text" source="{delay}"/>
+  </fx:Declarations>
   
 </modules:ModuleForm>

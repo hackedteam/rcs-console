@@ -26,7 +26,7 @@
       
       override public function commit():void
       {
-        action.host = host.selectedItem is String ? host.selectedItem : host.selectedItem.address;
+        action.host = host.selectedItem ? host.selectedItem.address : '';
         action.bandwidth = parseInt(bandwidth.text) * 1000;
         action.mindelay = parseInt(min.text);
         action.maxdelay = parseInt(max.text);
@@ -37,7 +37,7 @@
       {
         var hostString:String = action.host;
         if (hostString == null || hostString == '') {
-          host.selectedIndex = 0;
+          host.selectedItem = ep.length > 0 ? ep.getItemAt(0) : null;
           return;
         }
         
@@ -47,7 +47,7 @@
             return;
           }
         
-        host.selectedItem = hostString;
+        host.selectedItem = new Collector({name: hostString, address: hostString});
       }
       
       private function myLabelToItem(value:String):Object

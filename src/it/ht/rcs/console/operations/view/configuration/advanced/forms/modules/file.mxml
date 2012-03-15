@@ -25,15 +25,9 @@
         open.selected = module.open;
         
         capture.selected = module.capture;
-        if (capture.selected) {
-          minSize.text = module.minsize;
-          maxSize.text = module.maxsize;
-          date.selectedDate = DateUtils.parseDateTimeString(module.date);
-        } else {
-          minSize.text = '0';
-          maxSize.text = '0';
-          date.selectedDate = new Date();
-        }
+        minSize.text = module.minsize;
+        maxSize.text = module.maxsize;
+        date.selectedDate = DateUtils.parseDateTimeString(module.date);
       }
       
       private function save():void
@@ -47,9 +41,6 @@
           module.date = formatter.format(date.selectedDate);
         } else {
           module.capture = false;
-          module.minsize = 0;
-          module.maxsize = 0;
-          module.date = '';
         }
         
         module.accept = ArrayList(includeList.dataProvider).source;
@@ -160,7 +151,7 @@
         </s:FormItem>
         
         <s:FormItem label="From date" enabled="{capture.selected}">
-          <mx:DateField id="date" width="150" formatString="YYYY-MM-DD" showToday="false"/>
+          <mx:DateField id="date" width="150" formatString="YYYY-MM-DD" showToday="false" editable="false"/>
         </s:FormItem>
         
       </s:Form>

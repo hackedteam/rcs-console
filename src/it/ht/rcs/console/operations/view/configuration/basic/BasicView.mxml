@@ -68,6 +68,9 @@
         if (sync.selected) {
           sync.minutes.text = String(getDelayFor('SYNC') / 60);
           setEntryPoint(entryPoints);
+        } else {
+          sync.minutes.text = "1";
+          sync.host.selectedItem = entryPoints.length > 0 ? entryPoints.getItemAt(0) : null;
         }
       }
       
@@ -130,7 +133,7 @@
           if (a.desc == 'SYNC')
             host = a.subactions[0].host;
 
-        if (host == '') {
+        if (host == null || host == '') {
           sync.host.selectedItem = ep.length > 0 ? ep.getItemAt(0) : null;
           return;
         }

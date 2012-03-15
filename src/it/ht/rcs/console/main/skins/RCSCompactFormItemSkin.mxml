@@ -64,10 +64,10 @@ Move the indicator tooltip string to a resource bundle
                 else if (currentState == "required" || "requiredAndDisabled")
                     indicatorSource = getStyle("requiredIndicatorSource");
                 
-                if (indicatorSource && indicatorDisplay)
-                {
-                    indicatorDisplay.source = indicatorSource;
-                }
+//                if (indicatorSource && indicatorDisplay)
+//                {
+//                    indicatorDisplay.source = indicatorSource;
+//                }
                 
                 super.updateDisplayList(unscaledWidth, unscaledHeight);
             }
@@ -131,7 +131,7 @@ Move the indicator tooltip string to a resource bundle
              bottom="row1:0" baseline="row1:0"/>  
     <!--- @copy spark.components.SkinnableContainer#contentGroup -->
     <!-- Don't show the error tip on the content elements -->
-    <s:Group id="contentGroup" showErrorTip="false" showErrorSkin="true"
+    <s:Group id="contentGroup" showErrorTip="true" showErrorSkin="true"
              left="contentCol:0" right="contentCol:1" 
              baseline="row1:0" bottom="row1:0">
         <s:layout>
@@ -139,23 +139,24 @@ Move the indicator tooltip string to a resource bundle
         </s:layout>
     </s:Group>
     <!-- Don't include the indicator in layout since we position it ourselves -->
-    <s:Group x="{contentGroup.x + contentGroup.contentWidth + 4}" y="{contentGroup.y}"
-             height="{Math.max(indicatorDisplay.height, contentGroup.contentHeight)}" includeInLayout="false">
+    <!--s:Group x="{contentGroup.x + contentGroup.contentWidth + 4}" y="{contentGroup.y}"
+             height="{Math.max(indicatorDisplay.height, contentGroup.contentHeight)}" includeInLayout="false"-->
         <!--- @private -->
+  <!--
         <s:Image id="indicatorDisplay" verticalCenter="0"
                        toolTip="Required" toolTip.errorStates=""
                        includeIn="requiredStates,errorStates"/>
-    </s:Group>
+    </s:Group-->
         
     <!--- @copy spark.components.FormItem#helpContentGroup -->
     <s:Group id="helpContentGroup" excludeFrom="errorStates"
              fontStyle="italic" fontWeight="normal" color="0x666666"
              left="helpCol:27" right="helpCol:10"
-             bottom="row1:10" baseline="row1:0"/>
+             bottom="row1:0" baseline="row1:0"/>
     <!--- @copy spark.components.FormItem#errorTextDisplay -->
     <s:RichText id="errorTextDisplay" includeIn="errorStates"
                 fontStyle="italic" fontWeight="normal" color="0xFE0000"
                 left="helpCol:27" right="helpCol:10"
-                bottom="row1:10" baseline="row1:0" 
+                bottom="row1:0" baseline="row1:0" 
                 maxDisplayedLines="-1"/>    
  </s:Skin>

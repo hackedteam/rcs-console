@@ -92,8 +92,18 @@
         return 'invalid address';
       }
       
-      protected function send():void
+      protected function create():void
       {        
+        if (url.textInput.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_URL'), R.get('ERROR'));
+          return;
+        }
+        
+        if (appname.text.length == 0) {
+          AlertPopUp.show(R.get('MISSING_APPLICATION'), R.get('ERROR'));
+          return;
+        }
+        
         params = {platform: 'qrcode', deliver: {}, generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, melt: { appname: appname.text }, sign: {} } };
         
         if (currentState == 'blackberry') {
@@ -154,7 +164,7 @@
       <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
     </s:FormItem>
     <s:FormItem label="Description">        
-      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="200"/>
+      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="210"/>
     </s:FormItem>
     <s:FormItem label="Vendor">       
       <s:TextInput id="vendorForm" text="Research In Motion" width="150"/>
@@ -166,7 +176,7 @@
   
   <s:Form includeIn="symbian" left="10" top="105">
     <s:FormItem label="Certificate bound to phone IMEI">    
-      <s:Button width="80" label="{R.get('BROWSE')}" click="browse()"/>
+      <s:Button width="80" label="{R.get('BROWSE')}..." click="browse()"/>
     </s:FormItem>
     <s:FormItem label="S60 Edition">
       <s:DropDownList id="edition" selectedIndex="0" width="80">
@@ -179,6 +189,6 @@
     </s:FormItem>
   </s:Form>
   
-  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{send}"/>
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
   
 </s:Group>

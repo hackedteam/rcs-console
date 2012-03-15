@@ -20,6 +20,9 @@
       public var property:String;
       
       [Bindable]
+      public var label:String;
+      
+      [Bindable]
       public var showMaxSize:Boolean = true;
       
       private function init():void
@@ -67,15 +70,22 @@
     ]]>
   </fx:Script>
   
+  <s:Label left="25" top="-8" width="55" fontFamily="Myriad" fontSize="18" text="{label}" backgroundColor="#EAEAEA"
+           textAlign="center"/>
+  
   <s:Form>
     
-    <s:FormItem label="From">
+    <s:FormItem label="Enabled">
+      <s:CheckBox id="isEnabled"/>
+    </s:FormItem>
+    
+    <s:FormItem label="From" enabled="{isEnabled.selected}">
       <mx:DateField id="fromDate" width="151" editable="false" formatString="YYYY-MM-DD"
                     showToday="false" yearNavigationEnabled="true"/>
       <utils:TimeField id="fromTime"/>
     </s:FormItem>
     
-    <s:FormItem label="To">
+    <s:FormItem label="To" enabled="{isEnabled.selected}">
       <s:VGroup>
         <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
         <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
@@ -85,7 +95,7 @@
       </s:VGroup>
     </s:FormItem>
     
-    <s:FormItem visible="{showMaxSize}" label="Max size">
+    <s:FormItem visible="{showMaxSize}" label="Max size" enabled="{isEnabled.selected}">
       <s:HGroup id="hgr" verticalAlign="middle">
         <s:TextInput id="maxSize" restrict="0-9" showErrorTip="true" textAlign="center"
                      widthInChars="3"/>

@@ -7,8 +7,13 @@
   
   <fx:Script>
     <![CDATA[
+      [Bindable]
+      private var mobile:Boolean;
+      
       private function init():void
       {
+        mobile = graph.config.globals.type == 'mobile';
+        
         switch (module.quality) {
           case 'lo' : quality.value = 0; break;
           case 'med': quality.value = 1; break;
@@ -49,7 +54,7 @@
                  minimum="0" snapInterval="1" stepSize="1"/>
     </s:FormItem>
     
-    <s:FormItem label="Take only foreground window">
+    <s:FormItem visible="{!mobile}" label="Only foreground window" includeInLayout="{!mobile}">
       <s:CheckBox id="onlywindow"/>
     </s:FormItem>
     

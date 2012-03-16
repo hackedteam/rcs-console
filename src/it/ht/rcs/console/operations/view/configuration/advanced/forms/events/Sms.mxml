@@ -3,6 +3,7 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
@@ -18,15 +19,23 @@
         event.number = number.text;
         event.text = text.text;
       }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
-  <s:Label width="280" text="The action is triggered when a sms is received"/>
+  <s:Label width="280" lineHeight="16"
+           text="This event triggers an action when a SMS is received from the specified phone number. This is an instantaneous event."/>
   
   <s:Form>
     
     <s:FormItem label="Number">
-      <s:TextInput id="number" width="160" restrict="0-9+"/>
+      <s:HGroup>
+        <s:TextInput id="number" width="160" restrict="0-9+"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Text">
@@ -34,5 +43,12 @@
     </s:FormItem>
   
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{number}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
     
 </events:EventFields>

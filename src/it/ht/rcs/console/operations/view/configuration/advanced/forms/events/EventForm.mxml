@@ -22,8 +22,13 @@
       
       public var currentData:EventFields;
       
+      [Bindable]
+      private var mobile:Boolean;
+      
       private function init():void
       {
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
+        
         // filtro gli eventi x desktop o mobile
         eventTypes.filterFunction = eventFilterFunction;
         eventTypes.refresh();
@@ -130,7 +135,7 @@
     <events:Ac          id="ac"          includeIn="ac"/>
     <events:Battery     id="battery"     includeIn="battery"/>
     <events:Call        id="call"        includeIn="call"/>
-    <events:Connection  id="connection"  includeIn="connection"/>
+    <events:Connection  id="connection"  includeIn="connection" mobile="{mobile}"/>
     <events:Position    id="position"    includeIn="position"/>
     <events:Process     id="process"     includeIn="process"/>
     <events:Quota       id="quota"       includeIn="quota"/>

@@ -7,8 +7,6 @@
     <![CDATA[
       import it.ht.rcs.console.DefaultConfigBuilder;
       
-      import mx.managers.PopUpManager;
-      
       import spark.events.IndexChangeEvent;
       
       public var form:ActionForm;
@@ -67,13 +65,20 @@
         (list.dataProvider as ArrayList).source = (list.dataProvider as ArrayList).source;
         list.selectedItem = a[0];
       }
+      
+      private function onChanging(event:IndexChangeEvent):void
+      {
+        if (form.currentData && !form.currentData.isValid())
+          event.preventDefault();
+      }
     ]]>
   </fx:Script>
   
   <s:VGroup gap="-1">
       
     <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
-            change="onChange(event)" labelFunction="actionLabelFunction"/>
+            change="onChange(event)" changing="onChanging(event)"
+            labelFunction="actionLabelFunction"/>
     
     <s:HGroup width="200" gap="-1" horizontalAlign="right">
       
@@ -103,8 +108,8 @@
   </s:VGroup>
   
   <s:VGroup>
-    <s:Button label="↑" width="30" fontSize="17" click="moveUp()"/>
-    <s:Button label="↓" width="30" fontSize="17" click="moveDown()"/>
+    <s:Button width="30" label="↑" click="moveUp()" fontSize="17"/>
+    <s:Button width="30" label="↓" click="moveDown()" fontSize="17"/>
   </s:VGroup>
   
   <fx:Declarations>

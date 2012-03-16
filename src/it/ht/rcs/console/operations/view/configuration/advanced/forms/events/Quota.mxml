@@ -3,6 +3,7 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
@@ -17,22 +18,33 @@
       {
         event.quota = parseInt(quota.text) * 1000000;
       }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
-  <s:Label width="280" text="The start action is triggered when quota reaches the value"/>
-  
-  <s:Label width="280" text="The stop action is triggered when quota goes below that value"/>
+  <s:Label width="280" lineHeight="16"
+           text="This event triggers an action when the size of the evidence stored on the device exceeds the specified threshold"/>
   
   <s:Form>
     
     <s:FormItem label="Quota">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput id="quota" maxChars="5" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:TextInput id="quota" restrict="0-9" textAlign="center" widthInChars="4"/>
         <s:Label paddingTop="1" text=" MB"/>
       </s:HGroup>
     </s:FormItem>
     
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator property="text" required="true" source="{quota}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
 
 </events:EventFields>

@@ -3,6 +3,7 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
@@ -20,13 +21,16 @@
         event.process = process.text;
         event.window = type.selectedIndex == 1;
       }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
-  <s:Label width="280"
-           text="The start action is triggered when a process with the specified name is executed"/>
-  
-  <s:Label width="280" text="The stop action is triggered when the process is closed"/>
+  <s:Label width="280" lineHeight="16"
+           text="This event triggers an action when the specified process is running/on-focus"/>
   
   <s:Form>
       
@@ -46,9 +50,18 @@
     </s:FormItem>
     
     <s:FormItem label="String">
-      <s:TextInput id="process" width="160"/>
+      <s:HGroup>
+        <s:TextInput id="process" width="160"/>
+      </s:HGroup>
     </s:FormItem>
     
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{process}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </events:EventFields>

@@ -6,6 +6,7 @@
           xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
           xmlns:basic="it.ht.rcs.console.operations.view.configuration.basic.*"
           xmlns:selectors="it.ht.rcs.console.operations.view.configuration.basic.selectors.*"
+          xmlns:utils="it.ht.rcs.console.utils.*"
           width="100%" height="100%" horizontalAlign="center">
 
   <fx:Script>
@@ -180,13 +181,19 @@
         config = BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
         return config;
       }
+      
+      public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
   <s:VGroup width="100%" maxWidth="1200" gap="15" paddingTop="10">
   
     <s:HGroup width="100%" gap="20">
-      <selectors:SimpleSelector id="call" title="{isMobile ? 'Calls (Phone)' : 'Calls (Phone, Skype, MSN)'}"/>
+      <selectors:SimpleSelector id="call"
+                                title="{isMobile ? 'Calls (Phone)' : 'Calls (Phone, Skype, MSN)'}"/>
       <selectors:SimpleSelector id="calendar" title="Contacts &amp; Calendar"/>
     </s:HGroup>
     
@@ -196,8 +203,9 @@
     </s:HGroup>
     
     <s:HGroup width="100%" gap="20">
-      <selectors:FileSelector id="file" title="Accessed Files" enabled="{!isMobile}"/>
-      <selectors:SimpleSelector id="keylog" title="{isMobile ? 'Keylog' : 'Keylog, Mouse &amp; Password'}"/>
+      <selectors:FileSelector id="file" enabled="{!isMobile}" title="Accessed Files"/>
+      <selectors:SimpleSelector id="keylog"
+                                title="{isMobile ? 'Keylog' : 'Keylog, Mouse &amp; Password'}"/>
     </s:HGroup>
     
     <s:HGroup width="100%" gap="20">
@@ -211,5 +219,23 @@
     </s:HGroup>
     
   </s:VGroup>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{screenshot.seconds}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{camera.seconds}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{camera.times}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{position.minutes}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{sync.minutes}"
+                          triggerEvent=""/>
+      <mx:NumberValidator property="selectedIndex" required="true" source="{sync.host}"
+                          triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
     
 </s:VGroup>

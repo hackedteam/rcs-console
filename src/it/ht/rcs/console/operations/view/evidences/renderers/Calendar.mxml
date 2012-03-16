@@ -3,32 +3,45 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%"
                                 >
-	
-	<fx:Script>
-		<![CDATA[
+  
+  <fx:Script>
+    <![CDATA[
       import it.ht.rcs.console.DB;
+      import flashx.textLayout.conversion.TextConverter;
       
-      
-  		
       [Bindable]
       override public function set data(value:*):void
       {
         
         super.data=value;
-        calendarTxt.text="[" + data.data.event + "] " + data.data.info;
-  		}
-      
-      private function init():void
-      {
-       
+        // begin, end, event, info
+        beginTxt.textFlow= TextConverter.importToFlow("<b>Begin: </b>"+data.data.begin, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        endTxt.textFlow= TextConverter.importToFlow("<b>End: </b>"+data.data.end, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        eventTxt.textFlow= TextConverter.importToFlow("<b>Event: </b>"+data.data.event, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        infoTxt.textFlow= TextConverter.importToFlow("<b>Info: </b>"+data.data.info, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        
       }
-
-		]]>
-	</fx:Script>
+      
+    ]]>
+  </fx:Script>
+  <s:VGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:HGroup verticalAlign="middle" width="100%">
+      <s:RichText id="beginTxt" />
+      <s:RichText id="endTxt" />
+      <s:RichText id="eventTxt" />
+    </s:HGroup>
+    <s:Line width="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:HGroup verticalAlign="top" width="50%">
+      <s:RichText id="infoTxt" width="100%"/>
+    </s:HGroup>
+  </s:VGroup>
   
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="calendarTxt"/>
-		  </s:HGroup>
-
 </renderers:EvidenceDataRenderer>

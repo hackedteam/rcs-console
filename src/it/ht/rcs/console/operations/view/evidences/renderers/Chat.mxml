@@ -3,32 +3,46 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%"
                                 >
 	
 	<fx:Script>
 		<![CDATA[
       import it.ht.rcs.console.DB;
-      
-      
-  		
+      import flashx.textLayout.conversion.TextConverter;
+
       [Bindable]
       override public function set data(value:*):void
       {
         
         super.data=value;
-        chatTxt.text="[Program: "+data.data.program+"] - [Users: "+data.data.users+"] - [Content: "+data.data.content+"]";
+       // topic, peer, content, program
+        topicTxt.textFlow= TextConverter.importToFlow("<b>Topic: </b>"+data.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        peerTxt.textFlow= TextConverter.importToFlow("<b>Peer: </b>"+data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
   		}
       
-      private function init():void
-      {
-       trace("chat")
-      }
+      
 
 		]]>
 	</fx:Script>
-  
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="chatTxt"/>
-		  </s:HGroup>
+  <s:VGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:HGroup verticalAlign="middle" width="100%">
+      <s:RichText id="topicTxt" width="50%"/>
+      <s:RichText id="peerTxt" width="50%"/>
+    </s:HGroup>
+    <s:Line width="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:HGroup verticalAlign="middle" width="100%">
+      <s:RichText id="contentTxt" width="50%"/>
+      <s:RichText id="programTxt" width="50%"/>
+    </s:HGroup>
+  </s:VGroup>
 
 </renderers:EvidenceDataRenderer>

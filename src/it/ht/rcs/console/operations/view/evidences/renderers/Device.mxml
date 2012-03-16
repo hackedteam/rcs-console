@@ -3,32 +3,33 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%"
                                 >
-	
-	<fx:Script>
-		<![CDATA[
+  
+  <fx:Script>
+    <![CDATA[
       import it.ht.rcs.console.DB;
+      import flashx.textLayout.conversion.TextConverter;
       
-      
-  		
       [Bindable]
       override public function set data(value:*):void
       {
         
         super.data=value;
-        deviceTxt.text=data.data.content
-  		}
-      
-      private function init():void
-      {
-       
+        // topic, peer, content, program
+        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        contentTxt.verticalScrollPosition=0
       }
-
-		]]>
-	</fx:Script>
+      
+      
+      
+    ]]>
+  </fx:Script>
+  <s:HGroup verticalAlign="middle"
+            width="100%" >
+    <s:Scroller width="100%" id="scroller" maxHeight="58" minHeight="0" >
+      <s:RichEditableText id="contentTxt" minWidth="0" multiline="true" editable="false" selectable="true"/>
+    </s:Scroller>
+  </s:HGroup>
   
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="deviceTxt"/>
-		  </s:HGroup>
-
 </renderers:EvidenceDataRenderer>

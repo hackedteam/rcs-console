@@ -4,8 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
-                             creationComplete="init()" save="save()"
-                             title="Edit Action">
+                             creationComplete="init()" save="save()" title="Edit Action">
   
   <fx:Script>
     <![CDATA[
@@ -15,24 +14,45 @@
       
       import mx.collections.ArrayList;
       import mx.managers.PopUpManager;
+      import mx.utils.ObjectUtil;
       
       public var action:Object;
+      public var originalSubactions:Array;
+      public var subactions:Array;
+      
       public var graph:ConfigurationGraph;
       
       public var currentData:ActionFields;
       
+      [Bindable]
+      private var mobile:Boolean;
+      
       private function init():void
       {
-        desc.text = action.desc;
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
         
-        subactions.list.dataProvider = new ArrayList(action.subactions);
+        originalSubactions = action.subactions;
+        subactions = ObjectUtil.copy(action).subactions;
+        
+        desc.text = action.desc;
+        subactionsList.list.dataProvider = new ArrayList(subactions);
       }
       
       private function save():void
       {
+        if (currentData && !currentData.isValid())
+          return;
+        
         action.desc = desc.text;
-        close();
+        action.subactions = subactions;
+        PopUpManager.removePopUp(this);
         graph.rebuildGraph();
+      }
+      
+      override protected function close(event:Event=null):void
+      {
+        action.subactions = originalSubactions;
+        PopUpManager.removePopUp(this);
       }
       
       public function changeState(state:String):void
@@ -40,7 +60,7 @@
         currentState = state;
         if (this.hasOwnProperty(currentState)) {
           currentData = this[currentState] as ActionFields;
-          currentData.action = subactions.list.selectedItem;
+          currentData.action = subactionsList.list.selectedItem;
         }
         PopUpManager.centerPopUp(this);
       }
@@ -72,7 +92,7 @@
     </s:FormItem>
     
     <s:FormItem label="Subactions">
-      <actions:Subactions id="subactions" form="{this}"/>
+      <actions:Subactions id="subactionsList" form="{this}"/>
     </s:FormItem>
   
     <s:Spacer height="20"/>
@@ -81,12 +101,12 @@
     <actions:Execute id="execute" includeIn="execute"/>
     <actions:Log id="log" includeIn="log"/>
     <actions:Sms id="sms" includeIn="sms"/>
-    <actions:Syncronize id="synchronize" includeIn="synchronize"/>
+    <actions:Syncronize id="synchronize" includeIn="synchronize" mobile="{mobile}"/>
     
   </s:Form>
   
   <fx:Declarations>
-    <s:Resize id="res" duration="200" widthFrom="{width}" heightFrom="{height}"/>
+    <s:Resize id="res" duration="200" heightFrom="{height}" widthFrom="{width}"/>
   </fx:Declarations>
   
 </utils:TitleWindowSaveCancel>

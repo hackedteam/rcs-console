@@ -25,7 +25,7 @@
     
   <actionbar:Separator/>
   
-  <s:Button label="Export" click="save(event)" icon="@Embed('/img/NEW/export.png')"/>
+  <s:Button label="Export" click="export(event)" icon="@Embed('/img/NEW/export.png')"/>
   <s:Button label="Import" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
   
   <s:HGroup visible="{configView.currentState == 'basic'}" gap="0"
@@ -78,7 +78,8 @@
       
       private function build(event:MouseEvent):void
       {
-        var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
+        var config:Object = getConfig();
+        if (config == null) return;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config));
         
@@ -94,7 +95,8 @@
       
       private function onSave():void
       {
-        var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
+        var config:Object = getConfig();
+        if (config == null) return;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config), goBackToList);
         Alert.show("Config saved");
@@ -139,9 +141,10 @@
         f.browseForOpen('Open config', [new FileFilter('Config (*.json)', '*.json')]);
       }
       
-      protected function save(event:MouseEvent):void
+      protected function export(event:MouseEvent):void
       {
-        var config:Object = configView.currentState == 'advanced' ? configView.advanced.getConfig() : configView.basic.getConfig();
+        var config:Object = getConfig();
+        if (config == null) return;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config));
         
@@ -157,6 +160,17 @@
           file.openWithDefaultApplication();
         });
         f.browseForSave('Save config');
+      }
+      
+      private function getConfig():Object
+      {
+        var config:Object = null;
+        if (configView.currentState == 'advanced')
+          config = configView.advanced.getConfig();
+        else if (configView.basic.isValid())
+          config = configView.basic.getConfig();
+        
+        return config;
       }
       
       private function addAction(event:MouseEvent):void
@@ -178,7 +192,8 @@
       
       private function goToAdvanced(event:MouseEvent):void
       {
-        var config:Object = configView.basic.getConfig();
+        var config:Object = getConfig();
+        if (config == null) return;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         AgentManager.instance.addConfig(a, JSON.stringify(config));
         

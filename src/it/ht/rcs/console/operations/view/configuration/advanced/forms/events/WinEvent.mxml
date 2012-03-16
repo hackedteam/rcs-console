@@ -3,41 +3,55 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
       private function init():void
       {
-        eventId.text = event.id;
+        eventId.text = event.id || '0';
         source.text = event.source;
       }
       
       override public function commit():void
       {
-        if (eventId.text.length > 0)
-          event.id = parseInt(eventId.text);
-        else
-          event.id = 0;
-        
+        event.id = parseInt(eventId.text);
         event.source = source.text;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
       }
     ]]>
   </fx:Script>
   
-  <s:Label width="280"
-           text="The action is triggered when a windows event is logged by the operating system"/>
+  <s:Label width="280" lineHeight="16"
+           text="This event triggers an action when the specified WindowsEvent is logged by the operating system (Windows only)"/>
   
   <s:Form>
     
     <s:FormItem label="Event ID">
-      <s:TextInput id="eventId" restrict="0-9" widthInChars="4"/>
+      <s:HGroup>
+        <s:TextInput id="eventId" restrict="0-9" widthInChars="4"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Source">
-      <s:TextInput id="source"/>
+      <s:HGroup>
+        <s:TextInput id="source"/>
+      </s:HGroup>
     </s:FormItem>
   
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator property="text" required="true" source="{eventId}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{source}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
     
 </events:EventFields>

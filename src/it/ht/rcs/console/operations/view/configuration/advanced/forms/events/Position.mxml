@@ -3,6 +3,7 @@
                     xmlns:s="library://ns.adobe.com/flex/spark"
                     xmlns:mx="library://ns.adobe.com/flex/mx"
                     xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
   <fx:Script>
@@ -19,15 +20,15 @@
         
         switch (currentState) {
           case 'gps':
-            latitude.text  = event.latitude;
-            longitude.text = event.longitude;
-            distance.text  = event.distance;
+            latitude.text  = event.latitude  || '0';
+            longitude.text = event.longitude || '0';
+            distance.text  = event.distance  || '0';
             break;
           case 'cell':
-            country.text = event.country;
-            network.text = event.network;
-            area.text    = event.area;
-            cellId.text  = event.id;
+            country.text = event.country || '0';
+            network.text = event.network || '0';
+            area.text    = event.area    || '0';
+            cellId.text  = event.id      || '0';
             break;  
           default: break;
         }
@@ -57,6 +58,11 @@
       {
         currentState = states[type.selectedIndex].name;
       }
+      
+      override public function isValid():Boolean
+      {
+        return currentState == 'gps' ? gpsVal.isValid() : cellVal.isValid();
+      }
     ]]>
   </fx:Script>
   
@@ -64,6 +70,9 @@
     <s:State name="gps"/>
     <s:State name="cell"/>
   </events:states>
+
+  <s:Label width="280" lineHeight="16"
+           text="This event triggers an action when the device is in the specified geographic range"/>
   
   <s:Form>
     
@@ -79,11 +88,15 @@
     </s:FormItem>
     
     <s:FormItem includeIn="gps" label="Latitude">
-      <s:TextInput id="latitude" restrict="0-9" textAlign="center" widthInChars="5"/>
+      <s:HGroup>
+        <s:TextInput id="latitude" restrict="0-9." textAlign="center" widthInChars="5"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="gps" label="Logitude">
-      <s:TextInput id="longitude" restrict="0-9" textAlign="center" widthInChars="5"/>
+      <s:HGroup>
+        <s:TextInput id="longitude" restrict="0-9." textAlign="center" widthInChars="5"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="gps" label="Distance">
@@ -95,21 +108,45 @@
     
     
     <s:FormItem includeIn="cell" label="Country">
-      <s:TextInput id="country" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:HGroup>
+        <s:TextInput id="country" restrict="0-9" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="cell" label="Network">
-      <s:TextInput id="network" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:HGroup>
+        <s:TextInput id="network" restrict="0-9" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="cell" label="Area">
-      <s:TextInput id="area" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:HGroup>
+        <s:TextInput id="area" restrict="0-9" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="cell" label="ID">
-      <s:TextInput id="cellId" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:HGroup>
+        <s:TextInput id="cellId" restrict="0-9" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
     </s:FormItem>
     
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="gpsVals">
+      <mx:NumberValidator property="text" required="true" source="{latitude}" triggerEvent="" domain="real"/>
+      <mx:NumberValidator property="text" required="true" source="{longitude}" triggerEvent="" domain="real"/>
+      <mx:NumberValidator property="text" required="true" source="{distance}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="gpsVal" validators="{gpsVals}"/>
+    <fx:Array id="cellVals">
+      <mx:NumberValidator property="text" required="true" source="{country}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{network}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{area}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{cellId}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="cellVal" validators="{cellVals}"/>
+  </fx:Declarations>
 
 </events:EventFields>

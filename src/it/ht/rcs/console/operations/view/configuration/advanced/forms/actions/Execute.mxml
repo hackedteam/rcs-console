@@ -2,7 +2,8 @@
 <actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*">
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+                      xmlns:utils="it.ht.rcs.console.utils.*">
   
   <fx:Script>
     <![CDATA[
@@ -16,18 +17,31 @@
       {
         action.command = command.text;
       }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
-  <s:Label width="330"
-           text="The action is triggered when the machine makes a connection to the specified address"/>
+  <s:Label width="330" text="Executes the specified command line" lineHeight="16"/>
   
   <s:Form>
   
     <s:FormItem label="Command">
-      <s:TextInput id="command" width="200"/>
+      <s:HGroup>
+        <s:TextInput id="command" width="200"/>
+      </s:HGroup>
     </s:FormItem>
   
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{command}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </actions:ActionFields>

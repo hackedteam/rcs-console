@@ -2,7 +2,8 @@
 <actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
                       xmlns:s="library://ns.adobe.com/flex/spark"
                       xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*">
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+                      xmlns:utils="it.ht.rcs.console.utils.*">
   
   <fx:Script>
     <![CDATA[
@@ -16,17 +17,31 @@
       {
         action.text = text.text;
       }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
     ]]>
   </fx:Script>
   
-  <s:Label width="330" text="This action will write a log etc..."/>
+  <s:Label width="330" text="Creates an info log containing the specified text" lineHeight="16"/>
   
   <s:Form>
   
-    <s:FormItem label="Log">
-      <s:TextArea id="text" width="240" heightInLines="4"/>
+    <s:FormItem label="Text">
+      <s:HGroup>
+        <s:TextArea id="text" width="240" heightInLines="4"/>
+      </s:HGroup>
     </s:FormItem>
   
   </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{text}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </actions:ActionFields>

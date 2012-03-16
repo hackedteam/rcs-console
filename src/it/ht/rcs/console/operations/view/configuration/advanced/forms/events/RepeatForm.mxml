@@ -12,21 +12,30 @@
       private function init():void
       {
         delay.text = event.delay || '1';
-        iter.text = event.iter;
+        notForever.selected = event.hasOwnProperty('iter');
+        iter.text = event.iter || '1';
         delay.setFocus();
       }
       
       private function save():void
       {
-        if (delay.text.length == 0) delay.text = '1';
+        if (!val.isValid())
+          return; 
+        
         event.delay = parseInt(delay.text);
         
-        if (iter.text.length > 0)
+        if (notForever.selected)
           event.iter = parseInt(iter.text);
         else
           delete(event.iter);
         
         close();
+      }
+      
+      private function onChange(event:Event):void
+      {
+        if (!notForever.selected)
+          iter.text = '1';
       }
     ]]>
   </fx:Script>
@@ -41,9 +50,24 @@
     </s:FormItem>
     
     <s:FormItem label="Iterations">
-      <s:TextInput id="iter" restrict="0-9" textAlign="center" widthInChars="3"/>
+      <s:VGroup>
+        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="notForever" label="Times" group="{dateGroup}"/>
+        <s:TextInput id="iter" enabled="{notForever.selected}" restrict="0-9" textAlign="center"
+                     widthInChars="3"/>
+      </s:VGroup>
     </s:FormItem>
     
   </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="dateGroup" change="onChange(event)"/>
+    <fx:Array id="vals">
+      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+                          required="true" source="{delay}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{iter}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
   
 </utils:TitleWindowSaveCancel>

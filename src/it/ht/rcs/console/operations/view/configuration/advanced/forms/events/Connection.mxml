@@ -10,34 +10,48 @@
     <![CDATA[
       import it.ht.rcs.console.utils.MetaValidator;
       
-      private var mobile:Boolean;
+      [Bindable]
+      public var mobile:Boolean;
       
       private function init():void
       {
-        ip.text = event.ip || "0.0.0.0";
-        netmask.text = event.netmask || "0.0.0.0";
-        port.text = event.port || "0";
+        if (mobile)
+          currentState = 'mobile';
+        else {
+          ip.text = event.ip || "0.0.0.0";
+          netmask.text = event.netmask || "0.0.0.0";
+          port.text = event.port || "0";
+        }
       }
       
       override public function commit():void
       {
-        event.ip = ip.text;
-        event.netmask = netmask.text;
-        event.port = parseInt(port.text);
+        if (!mobile) {
+          event.ip = ip.text;
+          event.netmask = netmask.text;
+          event.port = parseInt(port.text);
+        }
       }
       
       override public function isValid():Boolean
       {
-        return val.isValid();
+        return mobile ? true : val.isValid();
       }
     ]]>
   </fx:Script>
   
-  <s:Label width="280"
-           text="This event triggers an action when the device establishes a TCP connection to the specified address"
-           textAlign="justify"/>
+  <events:states>
+    <s:State name="desktop"/>
+    <s:State name="mobile"/>
+  </events:states>
   
-  <s:Form>
+  <s:Label includeIn="desktop" width="280" lineHeight="16"
+           text="This event triggers an action when the device establishes a TCP connection to the specified address"/>
+  
+  <s:Label includeIn="mobile" width="280" lineHeight="16"
+           text="This event triggers an action when a data channel is active"/>
+  
+  <s:Form includeIn="desktop">
     
     <s:FormItem label="IP Address">
       <s:HGroup>

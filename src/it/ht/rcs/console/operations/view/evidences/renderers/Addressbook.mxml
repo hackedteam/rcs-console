@@ -3,32 +3,39 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%"
                                 >
-	
-	<fx:Script>
-		<![CDATA[
+  
+  <fx:Script>
+    <![CDATA[
       import it.ht.rcs.console.DB;
+      import flashx.textLayout.conversion.TextConverter;
       
-      
-  		
       [Bindable]
       override public function set data(value:*):void
       {
         
         super.data=value;
-        addressbookTxt.text="[" + data.data.name + "] " + data.data.contact; 
-  		}
-      
-      private function init():void
-      {
+        // name, contact, info
+        nameTxt.textFlow= TextConverter.importToFlow("<b>Name: </b>"+data.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        contactTxt.textFlow= TextConverter.importToFlow("<b>Contact: </b>"+data.data.contact, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        infoTxt.textFlow= TextConverter.importToFlow("<b>Info: </b>"+data.data.info, TextConverter.TEXT_FIELD_HTML_FORMAT)
        
       }
 
-		]]>
-	</fx:Script>
+    ]]>
+  </fx:Script>
+  <s:HGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:VGroup verticalAlign="middle" width="50%">
+      <s:RichText id="nameTxt" width="100%"/>
+      <s:RichText id="contactTxt" width="100%"/>
+    </s:VGroup>
+    
+    <s:HGroup verticalAlign="top" width="50%">
+      <s:RichText id="infoTxt" width="100%"/>
+    </s:HGroup>
+  </s:HGroup>
   
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="addressbookTxt"/>
-		  </s:HGroup>
-
 </renderers:EvidenceDataRenderer>

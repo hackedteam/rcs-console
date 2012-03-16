@@ -18,7 +18,7 @@
   <!-- <actionbar:Separator width="40"/> -->
   
   <s:Button label="{R.get('EDIT_NOTE')}" click="onEditNoteClick()"
-            enabled="{selectedObject != null}"
+            enabled="{selectedObjects.length>0}"
             icon="@Embed('/img/NEW/logout_32.png')"/>
   
   
@@ -41,7 +41,7 @@
       
       import locale.R;
 
-      private var _selectedObjects:Vector.<Object>;
+      private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
       
       [Bindable]
       private var _total:int;
@@ -105,7 +105,7 @@
         }
         else if(selectedObjects.length==1)
         {
-          tagEditor.tag=selectedObjects[0].relevance;
+          tagEditor.tag=selectedObjects[0].rel;
           tagEditor.enabled=true;
           reportBtn.enabled=true;
           toggleReportButton(selectedObjects[0].blo);
@@ -122,13 +122,18 @@
           }
           if(sameValue(selectedObjects, "rel"))
           {
-            tagEditor.tag=selectedObjects[0].relevance;
+            tagEditor.tag=selectedObjects[0].rel;
             
           }
           reportBtn.enabled=true;
           toggleReportButton(blotterValue);
           stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
          }
+      }
+      
+      public function get selectedObjects():Vector.<Object>
+      {
+        return _selectedObjects;
       }
       
       
@@ -237,10 +242,7 @@
         
       }
       
-      public function get selectedObjects():Vector.<Object>
-      {
-        return _selectedObjects;
-      }
+     
       
       private function onExportClick():void
       {

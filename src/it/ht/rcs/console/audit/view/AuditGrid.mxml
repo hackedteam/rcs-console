@@ -10,6 +10,8 @@
     <![CDATA[
       import it.ht.rcs.console.audit.controller.AuditManager;
       import it.ht.rcs.console.utils.TimeUtils;
+      import mx.collections.IList;
+      import spark.core.NavigationUnit;
       
       [Bindable]
       public var filter:Object = AuditManager.instance.filter;
@@ -22,6 +24,36 @@
       public var typicalObject:Object = {
         desc: "Profile of user 'testuser' was changed by admin"
       };
+      
+      [Bindable]
+      override public function set dataProvider(value:IList):void
+      {
+        
+        super.dataProvider=value;
+        this.grid.addEventListener(Event.RESIZE, onGridResize)
+      }
+      private function onGridResize(e:Event):void
+      {
+        scrollDown();
+      }
+      
+      private function scrollDown():void
+      {
+        // update the verticalScrollPosition to the end of the List
+        // virtual layout may require us to validate a few times (it's a trick)
+        var delta:Number = 0;
+        var count:int = 0;
+        while (count++ < 10)
+        {
+          this.validateNow();
+          delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
+          this.grid.verticalScrollPosition += delta;
+          
+          if (delta == 0)
+            break;
+        }
+      }
+      
     ]]>
   </fx:Script>
   

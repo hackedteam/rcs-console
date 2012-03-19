@@ -28,10 +28,12 @@
       public var filter:Object;
       
       public var propertyName:String = null;
+
       
       private function onAddedToStage():void {
         
         popup = popupFactory.newInstance();
+        popup.addEventListener("clickOutside", onClickOutside)
         popup.property = propertyName || column.dataField;
         popup.filter = filter;
         PopUpManager.addPopUp(popup, this.owner, false);
@@ -44,6 +46,7 @@
       
       private function onRemovedFromStage():void {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        popup.removeEventListener("clickOutside", onClickOutside)
         PopUpManager.removePopUp(popup);
       }
       
@@ -90,6 +93,12 @@
         centerPopup();
         popup.visible = true;
         currentPopup = popup;
+        
+      }
+      
+      private function onClickOutside(e:Event):void
+      {
+        trace("click outside")
         
       }
       

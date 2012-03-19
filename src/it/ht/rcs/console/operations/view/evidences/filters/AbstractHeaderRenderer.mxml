@@ -28,12 +28,10 @@
       public var filter:Object;
       
       public var propertyName:String = null;
-
       
       private function onAddedToStage():void {
         
         popup = popupFactory.newInstance();
-        popup.addEventListener("clickOutside", onClickOutside)
         popup.property = propertyName || column.dataField;
         popup.filter = filter;
         PopUpManager.addPopUp(popup, this.owner, false);
@@ -46,7 +44,6 @@
       
       private function onRemovedFromStage():void {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
-        popup.removeEventListener("clickOutside", onClickOutside)
         PopUpManager.removePopUp(popup);
       }
       
@@ -92,15 +89,11 @@
         // ...altrimenti posizionalo correttamente e visualizzalo
         centerPopup();
         popup.visible = true;
+        popup.addEventListener("mouseDownOutside", clickHandler)
         currentPopup = popup;
         
       }
       
-      private function onClickOutside(e:Event):void
-      {
-        trace("click outside")
-        
-      }
       
       // Triggered only when a filter is set (ie. when switching from selected to deselected state)
       // because the checkbox is disabled when there's no filter

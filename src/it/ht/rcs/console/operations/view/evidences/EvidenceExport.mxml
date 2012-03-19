@@ -34,8 +34,8 @@
       private function init():void
       {
         var today:int = new Date().time/1000;
-        setFromTimestamp(today);
-        setToTimestamp(today - 86400);
+        setFromTimestamp(today - 86400);
+        setToTimestamp(today);
       }
       
       private function adjust():void
@@ -109,20 +109,24 @@
         filter.from = getFromTimestamp();
         filter.to = getToTimestamp();
         
-        filter.relevance = getTags();
+        filter.rel = getTags();
         
-        filter.types = new Array();
+        if (types.selectedItems.length > 0) {
+          filter.type = new Array();
         
-        for (var i:int = 0; i < types.selectedItems.length; i++) {
-          filter.types.push(types.selectedItems[i]);
+          for (var i:int = 0; i < types.selectedItems.length; i++) {
+            filter.type.push(types.selectedItems[i]);
+         }
         }
 
-        filter.blotter = blotter.selected;
+        filter.blo = [blotter.selected];
         
-        filter.target = target != null ? target._id : null;
-        filter.agent = agent != null ? agent._id : null;
+        filter.target = target._id;
         
-        DownloadManager.instance.createTask("evidence", "evidence_export", filter); 
+        if (agent != null)
+          filter.agent = agent._id;
+        
+        DownloadManager.instance.createTask("evidence", "evidence_export", {filter: filter}); 
         
         PopUpManager.removePopUp(this);
       }

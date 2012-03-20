@@ -28,6 +28,16 @@
         min.text = action.mindelay;
         max.text = action.maxdelay;
         stop.selected = action.stop;
+        if (mobile) {
+          wifi.selected = action.wifi;
+          cell.selected = action.cell;
+          if (action.hasOwnProperty('apn')) {
+            type.selectedIndex = 1;
+            apnName.text = action.apn.name;
+            user.text = action.apn.user;
+            pass.text = action.apn.pass;
+          }
+        }
       }
       
       override public function commit():void
@@ -37,6 +47,17 @@
         action.mindelay = parseInt(min.text);
         action.maxdelay = parseInt(max.text);
         action.stop = stop.selected;
+        
+        action.wifi = wifi.selected;
+        action.cell = cell.selected;
+        
+        if (type.selectedIndex == 1) {
+          action.apn.name = apnName.text;
+          action.apn.user = user.text;
+          action.apn.pass = pass.text;
+        } else {
+          delete(action.apn);
+        }
       }
       
       private function setEntryPoint(ep:ListCollectionView):void
@@ -63,7 +84,9 @@
       
       override public function isValid():Boolean
       {
-        return currentState == 'mobile' ? mobileVal.isValid() : desktopVal.isValid();
+        if (currentState == 'mobile')
+          return type.selectedIndex == 1 ? apnVal.isValid() : true;
+        else return desktopVal.isValid();
       }
     ]]>
   </fx:Script>
@@ -75,10 +98,12 @@
       <mx:NumberValidator property="text" required="true" source="{max}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="desktopVal" validators="{desktopVals}"/>
-    <fx:Array id="mobileVals">
+    <fx:Array id="apnVals">
       <mx:StringValidator property="text" required="true" source="{apnName}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{user}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{pass}" triggerEvent=""/>
     </fx:Array>
-    <utils:MetaValidator id="mobileVal" validators="{mobileVals}"/>
+    <utils:MetaValidator id="apnVal" validators="{apnVals}"/>
   </fx:Declarations>
   
   <actions:states>
@@ -142,17 +167,23 @@
     
     <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="Name"
                 includeInLayout="{type.selectedIndex == 1}">
-      <s:TextInput id="apnName"/>
+      <s:HGroup>
+        <s:TextInput id="apnName"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="User"
                 includeInLayout="{type.selectedIndex == 1}">
-      <s:TextInput id="user"/>
+      <s:HGroup>
+        <s:TextInput id="user"/>
+      </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="Pass"
                 includeInLayout="{type.selectedIndex == 1}">
-      <s:TextInput id="pass"/>
+      <s:HGroup>
+        <s:TextInput id="pass"/>
+      </s:HGroup>
     </s:FormItem>
     
   </s:Form>

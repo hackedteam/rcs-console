@@ -72,7 +72,7 @@
         super.data = value;
         if (!data) return;
         item = value as DashboardItem;
-        icon.source = Icons[item._kind];
+        icon.source = Icons[item._kind + '16'];
         iconBig.source = Icons[item._kind + 'Big'];
         if (item.status == 'closed') {
           iconBigText.text = item.status.toUpperCase();
@@ -138,7 +138,7 @@
       
       <s:HGroup width="100%" gap="8" verticalAlign="middle">
         <s:HGroup width="320" gap="8" verticalAlign="middle">
-          <s:BitmapImage id="icon" visible="{!details.visible}" includeInLayout="{!details.visible}"/>
+          <s:Image id="icon" visible="{!details.visible}" includeInLayout="{!details.visible}"/>
           <s:Label width="100%" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2"
                    text="{item.name}"/>
         </s:HGroup>
@@ -162,7 +162,7 @@
           <s:Label id="iconBigText"/>          
         </s:VGroup>
         <actionbar:Separator/>
-        <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}"/>
+        <renderer:ModuleList includeIn="target,agent" dataProvider="{item.modules}" itemId="{item._id}"/>
         <renderer:TargetList includeIn="operation" dataProvider="{item.targets}"/>
       </s:HGroup>
       

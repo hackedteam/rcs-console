@@ -49,6 +49,11 @@ package it.ht.rcs.console.operations.view
       customTypeSort.compareFunction = customTypeCompareFunction;
     }
     
+    public function goToEvidenceView(item:*):void
+    {
+      //EvidenceManager.instance.evidenceFilter;
+    }
+    
     public function manageItemSelection(item:*):void
     {
       

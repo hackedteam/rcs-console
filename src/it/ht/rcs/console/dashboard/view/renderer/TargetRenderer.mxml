@@ -3,7 +3,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
-                autoDrawBackground="false" buttonMode="true" click="onClick(event)">
+                autoDrawBackground="false" buttonMode="true" doubleClick="onClick(event)" doubleClickEnabled="true">
   
   <s:layout>
     <s:VerticalLayout gap="12" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -12,20 +12,17 @@
   
   <fx:Script>
     <![CDATA[
-      import mx.controls.Alert;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
       
-      [Bindable]
-      private var info:Object;
+      import mx.core.FlexGlobals;
       
-//      override public function set data(value:Object):void
-//      {
-//        super.data = value;
-//        info = value;
-//      }
-      
-      private function onClick(event:MouseEvent):void
+      private function onClick(e:MouseEvent):void
       {
-        trace();
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = SectionEvent.OPERATIONS;
+        event.item = SearchManager.instance.getItem(data._id);
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
     ]]>
   </fx:Script>

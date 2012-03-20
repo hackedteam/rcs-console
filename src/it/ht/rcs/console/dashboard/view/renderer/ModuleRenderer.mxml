@@ -4,7 +4,7 @@
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
                 autoDrawBackground="false" buttonMode="true"
-                toolTip="{data.type}">
+                toolTip="{data.type}" doubleClickEnabled="true" doubleClick="onDoubleClick(event)">
   
   <s:layout>
     <s:VerticalLayout gap="8" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -13,13 +13,26 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleIcons;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import mx.core.FlexGlobals;
       
       override public function set data(value:Object):void
       {
         super.data = value;
         icon.source = data ? ModuleIcons[data.type] : null;
         toolTip = data ? data.type : null;
+      }
+      
+      private function onDoubleClick(e:MouseEvent):void
+      {
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = SectionEvent.OPERATIONS;
+        event.item = SearchManager.instance.getItem(this.parentDocument.hostComponent.itemId);
+        event.evidenceType = data.type;
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
     ]]>
   </fx:Script>

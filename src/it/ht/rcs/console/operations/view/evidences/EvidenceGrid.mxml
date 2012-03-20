@@ -18,10 +18,16 @@
       
       import locale.R;
       
+      import mx.collections.IList;
+      import mx.events.CollectionEvent;
+      import mx.events.FlexEvent;
+      import spark.core.NavigationUnit;
+      
       import spark.events.GridItemEditorEvent;
       
       [Bindable]
       public var filter:Object = EvidenceManager.instance.evidenceFilter;
+      
       
       private function dateLabelFunction(item:Object, column:GridColumn):String
       {
@@ -63,6 +69,35 @@
         var agent:Agent=AgentManager.instance.getItem(item.aid);
         if (agent == null) return "<unknown>";
         return agent.name;
+      }
+      [Bindable]
+      override public function set dataProvider(value:IList):void
+      {
+        
+        super.dataProvider=value;
+        this.grid.addEventListener(Event.RESIZE, onGridResize)
+      }
+      
+      private function onGridResize(e:Event):void
+      {
+        scrollDown();
+      }
+      
+      private function scrollDown():void
+      {
+        // update the verticalScrollPosition to the end of the List
+        // virtual layout may require us to validate a few times (it's a trick)
+        var delta:Number = 0;
+        var count:int = 0;
+        while (count++ < 10)
+        {
+          this.validateNow();
+          delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
+          this.grid.verticalScrollPosition += delta;
+          
+          if (delta == 0)
+            break;
+        }
       }
       
     ]]>

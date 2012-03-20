@@ -31,16 +31,13 @@
           delete EvidenceManager.instance.evidenceFilter.agent;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
-        //EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.listenRefresh();
         EvidenceManager.instance.refresh();
-       
       }
       
       private function onRemovedFromStage():void
       {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
-        //EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.unlistenRefresh();
       }
       
@@ -51,9 +48,7 @@
       
       private function onGridChange():void
       {
-        
         actionBar.selectedObjects = evidenceDg.selectedItems;
-       
       }
       
       private function toggleState():void
@@ -111,7 +106,6 @@
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
       }
-      
     ]]>
   </fx:Script>
   
@@ -121,6 +115,8 @@
   </s:states>
   
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}"/>
+  
+  <evidences:FilterNotice/>
   
   <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
                           selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)"

@@ -74,13 +74,13 @@
       [Bindable]
       public var stateManager:OperationsSectionStateManager;
       
-      private var itemToSelect:Object = null;
+      private var eventToManage:SectionEvent = null;
       private function init():void
       {
         stateManager = new OperationsSectionStateManager(this);
         
-        if (itemToSelect)
-          stateManager.manageItemSelection(itemToSelect);
+        if (eventToManage)
+          stateManager.manageItemSelection(null, eventToManage);
         else
           stateManager.setState('allOperations');
       }
@@ -94,28 +94,12 @@
           stateManager.setState('none');
         }
         
-        var item:* = null;
-        switch (event.item._kind) {
-          case 'operation':
-            item = OperationManager.instance.getItem(event.item._id);
-            break;
-          case 'target':
-            item = TargetManager.instance.getItem(event.item._id);
-            break;
-          case 'agent':
-          case 'factory':
-            item = AgentManager.instance.getItem(event.item._id);
-            break;
-          default:
-            break;
-        }
-        
         // This method is called before init if we never entered the operation section,
         // so we check if stateManager is present, otherwise we delay the item selection
         if (stateManager)
-          stateManager.manageItemSelection(item);
+          stateManager.manageItemSelection(null, event);
         else
-          itemToSelect = item;
+          eventToManage = event;
       }
       
       private function onStateChange(event:FlexEvent):void

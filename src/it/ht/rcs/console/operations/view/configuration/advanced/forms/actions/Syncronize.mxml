@@ -52,6 +52,8 @@
         action.cell = cell.selected;
         
         if (type.selectedIndex == 1) {
+          if (!action.hasOwnProperty('apn'))
+            action.apn = {};
           action.apn.name = apnName.text;
           action.apn.user = user.text;
           action.apn.pass = pass.text;
@@ -99,6 +101,9 @@
     </fx:Array>
     <utils:MetaValidator id="desktopVal" validators="{desktopVals}"/>
     <fx:Array id="apnVals">
+      <mx:NumberValidator property="text" required="true" source="{bandwidth}" triggerEvent="" minValue="1"/>
+      <mx:NumberValidator property="text" required="true" source="{min}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{max}" triggerEvent=""/>
       <mx:StringValidator property="text" required="true" source="{apnName}" triggerEvent=""/>
       <mx:StringValidator property="text" required="true" source="{user}" triggerEvent=""/>
       <mx:StringValidator property="text" required="true" source="{pass}" triggerEvent=""/>

@@ -73,7 +73,11 @@
         if (!data) return;
         item = value as DashboardItem;
         icon.source = Icons[item._kind + '16'];
-        iconBig.source = Icons[item._kind + 'Big'];
+        if (item._kind == 'agent')
+          iconBig.source = Icons[item.type + '_' + item.platform];
+        else
+          iconBig.source = Icons[item._kind + 'Big'];
+        
         if (item.status == 'closed') {
           iconBigText.text = item.status.toUpperCase();
           iconBig.alpha = 0.5;
@@ -137,10 +141,12 @@
               paddingTop="10">
       
       <s:HGroup width="100%" gap="8" verticalAlign="middle">
-        <s:HGroup width="320" gap="8" verticalAlign="middle">
+        <s:HGroup width="400" gap="8" verticalAlign="middle">
           <s:Image id="icon" visible="{!details.visible}" includeInLayout="{!details.visible}"/>
-          <s:Label width="100%" fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2"
+          <s:Label fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2"
                    text="{item.name}"/>
+          <s:Label width="100%" fontFamily="Myriad" fontSize="15" paddingTop="3" paddingLeft="5"
+                   text="{item.desc}" maxDisplayedLines="1"/>
         </s:HGroup>
         
         <s:Label fontFamily="Myriad" fontSize="13" fontWeight="bold" paddingTop="5" text="{R.get('LAST_SYNC')}: "/>

@@ -76,6 +76,24 @@ package it.ht.rcs.console.utils
       return ret;
     }
     
+    public static function formatTime(time:Number):String
+    {
+      var formatted:String="";
+      var d:Date=new Date(time)
+      formatted+=doubleDigits(d.hoursUTC)+":"+doubleDigits(d.minutesUTC)+":"+doubleDigits(d.secondsUTC);
+      return formatted;
+    }
+    
+    public static function doubleDigits(value:Number):String
+    {
+      var formatted:String;
+      if(value<=9){
+        return String("0"+value);
+      }else{
+        return String(value);
+      }
+    }
+    
   }
   
 }

@@ -10,12 +10,17 @@
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      import spark.events.GridEvent;
       
       [Bindable]
       public var section:OperationsSection;
+      
       
       private function onAddedToStage():void
       {
@@ -47,26 +52,64 @@
       private function onGridChange():void
       {
         
-        //actionBar.selectedObjects = evidenceDg.selectedItems;
+        actionBar.selectedObjects = evidenceDg.selectedItems;
        
       }
       
       private function toggleState():void
       {
+        
         if(currentState=="default")
         {
+         
           currentState="count";
         }
         else
         {
-          currentState="default";
+          currentState="default"
         }
         actionBar.toggleSummaryButton(currentState);
       }
 
       private function onEditNote(e:Event):void
       {
-        evidenceDg.editNote();
+        if(evidenceDg.visible)
+        {
+         evidenceDg.editNote();
+        }
+        //TODO - NOTE in advanced mode
+      }
+      
+      private function onGridDoubleClick(e:GridEvent):void
+      {
+        var evidence:Evidence=e.currentTarget.dataProvider.getItemAt(e.rowIndex) as Evidence;
+        viewer.currentItem=evidence;
+        viewer.currentIndex=e.rowIndex;
+        viewer.visible=true;
+        viewer.includeInLayout=true;
+        evidenceDg.visible=false;
+        evidenceDg.includeInLayout=false;
+        counter.visible=false;
+        var singleSelection: Vector.<Object>=new Vector.<Object>
+        singleSelection.push(evidence)
+        actionBar.selectedObjects=singleSelection;
+      }
+      
+      private function onViewerSelection():void
+      {
+        var singleSelection: Vector.<Object>=new Vector.<Object>
+        singleSelection.push(viewer.currentItem)
+        actionBar.selectedObjects=singleSelection;
+      }
+      
+      private function onViewerClose():void
+      {
+        viewer.visible=false;
+        viewer.includeInLayout=false;
+        evidenceDg.visible=true;
+        evidenceDg.includeInLayout=true;
+        counter.visible=true;
+        actionBar.selectedObjects = evidenceDg.selectedItems;
       }
       
     ]]>
@@ -77,11 +120,12 @@
     <s:State name="count"/>
   </s:states>
   
-  <evidences:EvidenceActionBar id="actionBar" selectedObjects="{evidenceDg.selectedItems}" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}"/>
+  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}"/>
   
   <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
-                          selectionChange="onGridChange()" selectionMode="multipleRows"
+                          selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)"
                           />
+  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
   <evidences:EvidenceCounter id="counter" counts="{EvidenceManager.instance.counts}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>
 

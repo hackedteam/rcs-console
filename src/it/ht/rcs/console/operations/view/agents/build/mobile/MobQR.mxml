@@ -52,6 +52,8 @@
       
       private function browse():void
       {
+        params = {platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: '5th3rd'}, melt: {appname: appname.text} };
+
         fileReference = new FileReference();
         fileReference.addEventListener(Event.SELECT, uploadCert);
         fileReference.browse();
@@ -104,7 +106,10 @@
           return;
         }
         
-        params = {platform: 'qrcode', deliver: {}, generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, melt: { appname: appname.text }, sign: {} } };
+        if (params != null)
+          params = {platform: 'qrcode', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {} };
+        else
+          params = {platform: 'qrcode', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {} };
         
         if (currentState == 'blackberry') {
           params['generate']['binary']['name'] = nameForm.text;

@@ -6,6 +6,7 @@
           creationComplete="init()">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils
       
       private var _sound:Sound;
       private var _channel:SoundChannel;
@@ -49,26 +50,10 @@
       private function update(e:Event):void
       {
         
-        statusTxt.text="playing "+formatTime(_channel.position)+" | "+formatTime(_duration);
+        statusTxt.text="playing "+TimeUtils.formatTime(_channel.position)+" | "+TimeUtils.formatTime(_duration);
       }
       
-      private function doubleDigits(value:Number):String
-      {
-        var formatted:String;
-        if(value<=9){
-          return String("0"+value);
-        }else{
-          return String(value);
-        }
-      }
-      
-      private function formatTime(time:Number):String
-      {
-        var formatted:String="";
-        var d:Date=new Date(time)
-        formatted+=doubleDigits(d.hoursUTC)+":"+doubleDigits(d.minutesUTC)+":"+doubleDigits(d.secondsUTC);
-        return formatted;
-      }
+     
      
       private function onSoundLoading(e:ProgressEvent):void
       {
@@ -98,7 +83,7 @@
           _isPlaying = true;
           playBtn.setStyle("icon", PauseIcon);
           playBtn.toolTip="pause"
-          statusTxt.text="playing "+formatTime(_channel.position)+" | "+formatTime(_duration); 
+          statusTxt.text="playing "+TimeUtils.formatTime(_channel.position)+" | "+TimeUtils.formatTime(_duration); 
           addEventListener(Event.ENTER_FRAME,update);
         }
         else
@@ -124,7 +109,7 @@
             _isPlaying = true;
             playBtn.setStyle("icon", PauseIcon);
             playBtn.toolTip="pause"
-            statusTxt.text="playing "+formatTime(_channel.position)+" | "+formatTime(_duration);
+            statusTxt.text="playing "+TimeUtils.formatTime(_channel.position)+" | "+TimeUtils.formatTime(_duration);
             addEventListener(Event.ENTER_FRAME,update)
           }
         }

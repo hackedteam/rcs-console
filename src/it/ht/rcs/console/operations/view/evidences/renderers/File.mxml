@@ -1,34 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                                xmlns:s="library://ns.adobe.com/flex/spark"
-                                xmlns:mx="library://ns.adobe.com/flex/mx"
-                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                >
-	
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																width="100%"
+																height="100%">
+
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.DB;
-      
-      
-  		
-      [Bindable]
-      override public function set data(value:*):void
-      {
-        
-        super.data=value;
-        fileTxt.text=data.data.path;
-  		}
-      
-      private function init():void
-      {
-       
-      }
+			import it.ht.rcs.console.DB;
+			import flashx.textLayout.conversion.TextConverter;
+      import it.ht.rcs.console.utils.Size;
+
+			[Bindable]
+			override public function set data(value:*):void
+			{
+				// program, path, size
+				super.data=value;
+				programTxt.textFlow=TextConverter.importToFlow("<i>Program: </i>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				pathTxt.textFlow=TextConverter.importToFlow("<i>Path: </i>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				sizeTxt.textFlow=TextConverter.importToFlow("<i>Size: </i>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+			}
 
 		]]>
 	</fx:Script>
-  
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="fileTxt"/>
-		  </s:HGroup>
+
+	<s:VGroup verticalAlign="top"
+						height="100%"
+						width="100%">
+		<s:HGroup verticalAlign="top"
+							width="100%">
+			<s:RichText id="programTxt"
+									width="100%"/>
+
+		</s:HGroup>
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:HGroup verticalAlign="top"
+							width="100%">
+			<s:RichText id="pathTxt"
+									width="75%"/>
+			<s:RichText id="sizeTxt"
+									width="25%"/>
+		</s:HGroup>
+	</s:VGroup>
+
 
 </renderers:EvidenceDataRenderer>

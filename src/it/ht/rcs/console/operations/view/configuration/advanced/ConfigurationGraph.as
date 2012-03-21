@@ -539,14 +539,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       return super.removeElement(element);
     }
     
-    public function log():void
-    {
-      trace('Events: ' + events.length as String);
-      trace('Actions: ' + actions.length as String);
-      trace('Connections: ' + connections.length as String);
-      trace('=====');
-    }
-
 	}
 
 }

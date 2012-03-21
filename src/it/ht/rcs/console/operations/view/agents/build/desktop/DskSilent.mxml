@@ -16,6 +16,9 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
+      [Bindable]
+      private var _platform:String;
+      
       protected function create():void
       {
         var params:Object = {platform: parentDocument.platform, 
@@ -43,7 +46,9 @@
       {
         if (platform == null)
           return;
-          
+        
+        _platform = platform;
+        
         createBtn.platforms = [platform];
       }
       
@@ -56,8 +61,8 @@
               contentBackgroundAlpha="0.0" editable="false"
               text="{R.get('REQUIRE_ADMIN_DESC')}"/>
 
-  <s:CheckBox left="10" top="70" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
-  <s:CheckBox left="10" top="90" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
+  <s:CheckBox left="10" top="70" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
+  <s:CheckBox left="10" top="90" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
   
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
   

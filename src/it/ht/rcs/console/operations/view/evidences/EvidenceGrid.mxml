@@ -70,35 +70,43 @@
         if (agent == null) return "<unknown>";
         return agent.name;
       }
+      
+      private function showData(item:Object, column:GridColumn):String
+      {
+        
+        return item.data._grid
+      }
+      
+      
       [Bindable]
       override public function set dataProvider(value:IList):void
       {
         
         super.dataProvider=value;
-        this.grid.addEventListener(Event.RESIZE, onGridResize)
+        //this.grid.addEventListener(Event.RESIZE, onGridResize)
       }
       
       private function onGridResize(e:Event):void
       {
-        scrollDown();
+        //scrollDown();
       }
       
-      private function scrollDown():void
-      {
-        // update the verticalScrollPosition to the end of the List
-        // virtual layout may require us to validate a few times (it's a trick)
-        var delta:Number = 0;
-        var count:int = 0;
-        while (count++ < 10)
-        {
-          this.validateNow();
-          delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
-          this.grid.verticalScrollPosition += delta;
-          
-          if (delta == 0)
-            break;
-        }
-      }
+//      private function scrollDown():void
+//      {
+//        // update the verticalScrollPosition to the end of the List
+//        // virtual layout may require us to validate a few times (it's a trick)
+//        var delta:Number = 0;
+//        var count:int = 0;
+//        while (count++ < 10)
+//        {
+//          this.validateNow();
+//          delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
+//          this.grid.verticalScrollPosition += delta;
+//          
+//          if (delta == 0)
+//            break;
+//        }
+//      }
 
       
     ]]>
@@ -210,6 +218,9 @@
       </s:GridColumn>
       
       <s:GridColumn  dataField="note" headerText="Note" resizable="false" editable="true" >
+        
+      </s:GridColumn>
+      <s:GridColumn  dataField="data" headerText="Data" resizable="false" editable="true" labelFunction="showData">
         
       </s:GridColumn>
 

@@ -3,30 +3,34 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="100%"
+                                width="100%" mouseDown="onMouseDown(event)"
                                 >
-  
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.DB;
       import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
       
       [Bindable]
       override public function set data(value:*):void
       {
         
         super.data=value;
-        // topic, peer, content, program
-        contentTxt.textFlow= TextConverter.importToFlow("<i>Content: </i>"+data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        contentTxt.verticalScrollPosition=0
+        // content
+        var content:String=data.data.content.replace(new RegExp("\n", "g"), "<br>");
+        contentTxt.textFlow= TextConverter.importToFlow("<i>Content: </i>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        contentTxt.verticalScrollPosition=0;
       }
       
-      
-      
+      private function onMouseDown(e:MouseEvent):void
+      {
+        e.stopImmediatePropagation();
+      }
+
     ]]>
   </fx:Script>
   <s:HGroup verticalAlign="middle"
-            width="100%" >
+            width="100%">
     <s:Scroller width="100%" id="scroller" maxHeight="58" minHeight="0" >
       <s:RichEditableText id="contentTxt" minWidth="0" multiline="true" editable="false" selectable="true"/>
     </s:Scroller>

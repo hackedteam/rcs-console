@@ -36,12 +36,21 @@
           case 'osx':
           case 'ios':
           case 'winmo':
+          case 'blackberry':
             upgradable = true;
             break;
             
           default:
             upgradable = false;
         }
+        
+        // don't upgrade from 7 to 8
+        if (agent.platform == 'winmo' && agent.version < 2012030101)
+          upgradable = false;
+
+        // don't upgrade from 7 to 8
+        if (agent.platform == 'blackberry' && agent.version < 2012030101)
+          upgradable = false;
         
         if (upgradable) {
           desc.text = R.get('UPDATE_AGENT_DESC');

@@ -5,6 +5,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
@@ -54,8 +55,28 @@ package it.ht.rcs.console.operations.view
       //EvidenceManager.instance.evidenceFilter;
     }
     
-    public function manageItemSelection(item:*):void
+    private function getRealItem(event:SectionEvent):*
     {
+      var item:SearchItem = event ? event.item : null;
+      if (!item) return null;
+      
+      switch (item._kind) {
+        case 'operation':
+          return OperationManager.instance.getItem(item._id);
+        case 'target':
+          return TargetManager.instance.getItem(item._id);
+        case 'agent':
+        case 'factory':
+          return AgentManager.instance.getItem(item._id);
+        default:
+          return null;;
+      }
+    }
+    
+    public function manageItemSelection(i:*, event:SectionEvent=null):void
+    {
+      var item:* = i || getRealItem(event);
+      if (!item) return;
       
       if (item is Operation)
       {
@@ -116,6 +137,11 @@ package it.ht.rcs.console.operations.view
         setState('filetransfer');
       }
       
+      if (event && event.evidenceType) {
+        //Alert.show("and go to evidence");
+        EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
+        section.currentState = 'evidence';
+      }
     }
     
     private function clearVars():void

@@ -8,18 +8,24 @@
   
   <fx:Script>
     <![CDATA[
+      [Bindable]
+      public var mobile:Boolean;
+      
       private function init():void
       {
-        focus.selected = event.focus;
-        process.text = event.process;
+        if (mobile)
+          currentState = 'mobile';
+
         type.selectedIndex = event.window ? 1 : 0;
+        process.text = event.process;
+        focus.selected = event.focus;
       }
       
       override public function commit():void
       {
-        event.focus = focus.selected;
-        event.process = process.text;
         event.window = type.selectedIndex == 1;
+        event.process = process.text;
+        event.focus = focus.selected;
       }
       
       override public function isValid():Boolean
@@ -28,6 +34,11 @@
       }
     ]]>
   </fx:Script>
+  
+  <events:states>
+    <s:State name="desktop"/>
+    <s:State name="mobile"/>
+  </events:states>
   
   <s:Label width="280" lineHeight="16"
            text="This event triggers an action when the specified process is running/on-focus"/>
@@ -45,14 +56,14 @@
       </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem label="On Focus">
-      <s:CheckBox id="focus"/>
-    </s:FormItem>
-    
     <s:FormItem label="String">
       <s:HGroup>
         <s:TextInput id="process" width="160"/>
       </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="On Focus" includeIn="desktop">
+      <s:CheckBox id="focus"/>
     </s:FormItem>
     
   </s:Form>

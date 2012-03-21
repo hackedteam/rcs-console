@@ -3,7 +3,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
-                autoDrawBackground="false" buttonMode="true" click="onClick(event)">
+                autoDrawBackground="false" buttonMode="true" doubleClick="onClick(event)" doubleClickEnabled="true">
   
   <s:layout>
     <s:VerticalLayout gap="12" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -12,11 +12,17 @@
   
   <fx:Script>
     <![CDATA[
-      import mx.controls.Alert;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
       
-      private function onClick(event:MouseEvent):void
+      import mx.core.FlexGlobals;
+      
+      private function onClick(e:MouseEvent):void
       {
-        Alert.show(''+this.height);
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = SectionEvent.OPERATIONS;
+        event.item = SearchManager.instance.getItem(data._id);
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
     ]]>
   </fx:Script>
@@ -26,8 +32,10 @@
     <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
                    source="@Embed('/img/NEW/target_36.png')" verticalCenter="0"/>
     
-    <renderer:CounterBaloon visible="{data.sync}" right="-6" top="-8" style="red" value="{data.sync}"/>
-    <renderer:CounterBaloon right="-6" bottom="-8" style="white" value="{data.tot}"/>
+    <renderer:CounterBaloon visible="{data.sync != 0}" right="-6" top="-8" style="red"
+                            value="{data.sync}"/>
+    <renderer:CounterBaloon visible="{data.tot != 0}" right="-6" bottom="-8" style="white"
+                            value="{data.tot}"/>
     
   </s:BorderContainer>
   

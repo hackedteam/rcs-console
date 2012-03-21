@@ -1,61 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" height="100%" width="100%">
-  <fx:Script>
-    <![CDATA[
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					height="100%"
+					width="100%" >
+	<fx:Script>
+		<![CDATA[
       import flashx.textLayout.conversion.TextConverter;
+      
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.utils.ImageCache;
-           
-      private var _data:Object;
-      private var _url:String;
+      import it.ht.rcs.console.evidence.model.Evidence;
+			//import it.ht.rcs.console.utils.ImageCache;
+
+			private var _evidence:Evidence;
+      [Bindable]
+			private var _url:String;
       
       [Bindable]
-      public function set data(value:Object):void
-      {
-        _data=value;
-        var id:String=encodeURIComponent(data._grid);
-        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data._grid +"?target_id="+target;
+      public var target:String;
+
+			[Bindable]
+			public function set evidence(value:Evidence):void
+			{
         
-        img.source=_url;
-        img.smooth=false;
-       // img.contentLoader=ImageCache.getInstance().cache;
-        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
-        img.addEventListener(Event.COMPLETE, onImageLoaded)
-        img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-        //img.contentLoader.load(_url)
-       
-      
-      }
-      
-      public function get data():Object
-      {
-        return _data;
-      }
-      
-      private function onImageLoading(e:ProgressEvent):void
-      {
+        _evidence=value;
+        trace("screenshot set data"+evidence.data._grid)
+				_url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+
+				img.source=_url;
+        urlTxt.text=_url;
+				img.smooth=false;
+				//img.contentLoader=ImageCache.getInstance().cache;
+				img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
+				img.addEventListener(Event.COMPLETE, onImageLoaded)
+				img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				//img.contentLoader.load(_url)
+
+
+			}
+
+			public function get evidence():Evidence
+			{
+				return _evidence;
+			}
+
+			private function onImageLoading(e:ProgressEvent):void
+			{
+
+
+			}
+
+			private function onImageError(e:IOErrorEvent):void
+			{
+				trace("image error");
+			}
+
+			private function onImageLoaded(e:Event):void
+			{
+
+
+			}
+
+			private function fit():void
+			{
+				img.scaleMode="letterbox";
+				img.percentWidth=100;
+				img.percentHeight=100;
+			}
+
+			private function originalSize():void
+			{
+				img.scaleMode="letterbox";
+				img.width=img.bitmapData.width;
+				img.height=img.bitmapData.height;
+			}
+
+			private function zoom():void
+			{
         
-        
-      }
+			}
       
-      private function onImageError(e:IOErrorEvent):void
-      {
-        trace("image error");
-      }
-      
-      private function onImageLoaded(e:Event):void
-      {
-        
-        
-      }
-      
-      
-    ]]>
-  </fx:Script>
-  
-    <s:BitmapImage id="img" width="100%" height="100%"/>
+		]]>
+	</fx:Script>
+	<s:Scroller width="100%"
+							height="100%">
+		<s:HGroup width="100%"
+							height="100%"
+							id="imgBox">
+			<s:BitmapImage id="img"
+										 width="100%"
+										 height="100%"
+										 scaleMode="letterbox"/>
+		</s:HGroup>
+	</s:Scroller>
+	<s:HGroup width="100%">
+		<s:Button label="Fit"
+							click="fit()"/>
+		<s:Button label="1:1"
+							click="originalSize()"/>
+		<s:Button label="+"
+							click="zoom()"/>
+		<s:Button label="-"
+							click="zoom()"/>
+    <s:TextInput id="urlTxt" selectable="true" width="100%"/>
+	</s:HGroup>
 </s:VGroup>

@@ -13,9 +13,9 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       
       import mx.collections.IList;
-      import mx.managers.PopUpManager;
       
       [Bindable]
       [Embed (source="/img/windows/cross.png" )]
@@ -25,20 +25,30 @@
       public var dataProvider:IList;
       
       public var currentIndex:int;
-     
+
       private var _currentItem:Evidence;
 
       private function close():void
       {
        dispatchEvent(new Event("close"))
       }
+      
+    
       [Bindable]
       public function set currentItem(value:Evidence):void
       {
         _currentItem=value;
-        if(hasState(_currentItem.type))
+        if(!currentItem) return;
+        if(hasState(currentItem.type))
         {
-          currentState=_currentItem.type;
+          currentState=currentItem.type;
+          if(currentState=="screenshot")
+          {
+            screenshotViewer.target=EvidenceManager.instance.evidenceFilter.target;
+            screenshotViewer.evidence=currentItem;
+            
+          }
+          
         }
         else
         {
@@ -117,6 +127,6 @@
  
   <s:Image source="{CloseIcon}" x="{10}" y="{10}" useHandCursor="true" buttonMode="true" click="close()"/>
   <viewers:Device data="{currentItem.data}" includeIn="device" />
-  <viewers:Screenshot data="{currentItem.data}" includeIn="screenshot" />
+  <viewers:Screenshot evidence="{currentItem}" target="{EvidenceManager.instance.evidenceFilter.target}" includeIn="screenshot" id="screenshotViewer"/>
   <evidences:EvidenceInfoPanel evidence="{currentItem}" id="infoPanel"/>
 </s:HGroup>

@@ -86,6 +86,7 @@
        if(e.columnIndex==7)//note column index
        {
          evidenceDg.editNote();
+         return;
        }
        else 
        {
@@ -100,6 +101,7 @@
          var singleSelection: Vector.<Object>=new Vector.<Object>
          singleSelection.push(evidence)
          actionBar.selectedObjects=singleSelection;
+         notice.visible=notice.includeInLayout=false;
        }
       }
       
@@ -120,6 +122,7 @@
         evidenceDg.includeInLayout=true;
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
+        notice.visible=notice.includeInLayout=true;
       }
     ]]>
   </fx:Script>
@@ -131,7 +134,7 @@
   
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}"/>
   
-  <evidences:FilterNotice/>
+  <evidences:FilterNotice id="notice"/>
   
   <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
                           selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)"

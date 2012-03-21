@@ -5,11 +5,25 @@
             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
             width="100%" height="100%">
 
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      private function dateLabelFunction(item:Object, column:GridColumn):String
+      {
+        try {
+          return TimeUtils.timestampFormatter(item.sent * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
+    ]]>
+  </fx:Script>
   
   <s:columns>
     <s:ArrayList>
     
-      
+      <s:GridColumn width="132" dataField="sent" headerText="Sent" labelFunction="dateLabelFunction"/>
+      <s:GridColumn dataField="filename" headerText="File name"/>
     
     </s:ArrayList>
   </s:columns>

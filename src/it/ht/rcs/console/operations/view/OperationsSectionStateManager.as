@@ -214,6 +214,8 @@ package it.ht.rcs.console.operations.view
           var agent:Agent = selectedAgent ? selectedAgent : selectedFactory;
           selectedOperation = OperationManager.instance.getItem(agent.path[0]);
           selectedTarget = TargetManager.instance.getItem(agent.path[1]);
+          if(section.configView)
+            section.configView.currentState = 'clean';
           section.currentState = 'config';
           CurrentManager = null;
           currentFilter = searchFilterFunction;

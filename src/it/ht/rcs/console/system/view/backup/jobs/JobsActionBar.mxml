@@ -17,14 +17,15 @@
   
   <fx:Script>
     <![CDATA[
-		import it.ht.rcs.console.backup.controller.BackupJobManager;
-		import it.ht.rcs.console.backup.model.BackupJob;
-		import it.ht.rcs.console.network.model.Collector;
-		import it.ht.rcs.console.utils.AlertPopUp;
-		
-		import locale.R;
-		
-		import mx.managers.PopUpManager;
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
+      import it.ht.rcs.console.backup.model.BackupJob;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
       
       
       private function onNewClick():void
@@ -52,6 +53,7 @@
       {
         BackupJobManager.instance.runJob(selectedObject as BackupJob, function (j:BackupJob):void {
           BackupJobManager.instance.refresh();
+          BackupArchiveManager.instance.refresh();
         });
       }
     ]]>

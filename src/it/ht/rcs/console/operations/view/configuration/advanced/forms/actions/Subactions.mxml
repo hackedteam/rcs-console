@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx">
+          xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.DefaultConfigBuilder;
       
+      import mx.collections.ArrayList;
+      
       import spark.events.IndexChangeEvent;
       
       public var form:ActionForm;
+      
+      private function init():void
+      {
+        // filtro gli eventi x desktop o mobile
+        actionTypes.filterFunction = actionFilterFunction;
+        actionTypes.refresh();
+      }
       
       private function onChange(event:Event=null):void
       {
@@ -26,7 +35,7 @@
       
       private function addSubaction(me:MouseEvent):void
       {
-        var sub:Object = DefaultConfigBuilder.getDefaultAction(subactions.selectedItem.toLowerCase());
+        var sub:Object = DefaultConfigBuilder.getDefaultAction(subactions.selectedItem.label.toLowerCase());
         list.dataProvider.addItem(sub);
         list.selectedItem = sub;
         onChange();
@@ -71,6 +80,11 @@
         if (form.currentData && !form.currentData.isValid())
           event.preventDefault();
       }
+      
+      private function actionFilterFunction(o:Object):Boolean
+      {
+        return o.type.indexOf(form.graph.config.globals.type.toLowerCase()) != -1;
+      }
     ]]>
   </fx:Script>
   
@@ -88,18 +102,7 @@
       <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
         <mx:popUp>
           <s:List id="subactions" click="addSubaction(event)" filters="{[dropShadow]}"
-                  labelField="name" textAlign="left">
-            <s:dataProvider>
-              <s:ArrayList>
-                <fx:String>Synchronize</fx:String>
-                <fx:String>Execute</fx:String>
-                <fx:String>Uninstall</fx:String>
-                <fx:String>Log</fx:String>
-                <fx:String>Sms</fx:String>
-                <fx:String>Destroy</fx:String>
-              </s:ArrayList>
-            </s:dataProvider>
-          </s:List>
+                  labelField="label" textAlign="left" dataProvider="{actionTypes}"/>
         </mx:popUp>
       </mx:PopUpButton>
       
@@ -115,6 +118,14 @@
   <fx:Declarations>
     <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"
                         distance="8"/>
+    <s:ArrayCollection id="actionTypes">
+      <fx:Object label="Synchronize" type="mobile,desktop"/>
+      <fx:Object label="Execute"     type="mobile,desktop"/>
+      <fx:Object label="Uninstall"   type="mobile,desktop"/>
+      <fx:Object label="Log"         type="mobile,desktop"/>
+      <fx:Object label="Sms"         type="mobile"/>
+      <fx:Object label="Destroy"     type="mobile,desktop"/>
+    </s:ArrayCollection>
   </fx:Declarations>
   
 </s:HGroup>

@@ -8,15 +8,24 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       public var section:OperationsSection;
       
       private function onAddedToStage():void
       {
+        AgentManager.instance.getDownloads(section.stateManager.selectedAgent._id, onDownloadsResult);
       }
       
+      private function onDownloadsResult(e:ResultEvent):void
+      {
+        trace('ok');
+      }
+
       private function onRemovedFromStage():void
       {
       }

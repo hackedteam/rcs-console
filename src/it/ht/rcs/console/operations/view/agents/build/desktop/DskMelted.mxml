@@ -18,6 +18,9 @@
       
       private var fileReference:FileReference;
       
+      [Bindable]
+      private var _platform:String;
+      
       private function browse():void
       {
         fileReference = new FileReference();
@@ -87,9 +90,10 @@
         if (platform == null)
           return;
         
+        _platform = platform;
+        
         createBtn.platforms = [platform];
       }
-      
     ]]>
   </fx:Script>
   
@@ -112,8 +116,8 @@
              maxDisplayedLines="1" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
   </s:HGroup>
   
-  <s:CheckBox left="10" top="110" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
-  <s:CheckBox left="10" top="130" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{parentDocument.platform == 'windows'}"/>
+  <s:CheckBox left="10" top="110" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
+  <s:CheckBox left="10" top="130" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
 
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
   

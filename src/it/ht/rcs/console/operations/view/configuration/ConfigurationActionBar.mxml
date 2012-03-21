@@ -48,10 +48,16 @@
     <actionbar:Separator/>
     
     <s:Button id="collapse" label="{R.get('COLLAPSE')}" click="onCollapseAll()" icon="{collapseIcon}"/>
+    
+    <actionbar:Separator/>
+
+    <s:Button label="Back to Basic" click="backToBasic(event)" icon="@Embed('/img/NEW/globals.png')"/>
+    
   </s:HGroup>
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.agent.model.Config;
@@ -210,6 +216,19 @@
         configView.advanced.graph.rebuildGraph();
         collapse.label = configView.advanced.graph.collapsed ? R.get('EXPAND') : R.get('COLLAPSE');
         collapse.iconDisplay.source = configView.advanced.graph.collapsed ? expandIcon : collapseIcon;
+      }
+      
+      private function backToBasic(event:MouseEvent):void
+      {
+        var config:Object = getConfig();
+        if (config == null) return;
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        
+        configView.currentState = 'basic';
+        configView.basic.config = DefaultConfigBuilder.getDefaultConfig(a);
+        //configView.basic.config.globals.advanced = false;
+        configView.basic.displayConfig();
       }
     ]]>
   </fx:Script>

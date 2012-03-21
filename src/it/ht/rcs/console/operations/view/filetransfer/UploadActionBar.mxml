@@ -4,31 +4,78 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="New Upload" click="onUpload(event)" icon="@Embed('/img/NEW/newUser.png')"/>
+  <s:Button label="New Upload" click="onUpload(event)" icon="@Embed('/img/NEW/upload.png')"/>
   <s:Button label="Download File" click="onDownload(event)" enabled="{selectedObject != null}"
-            icon="@Embed('/img/NEW/newUser.png')"/>
+            icon="@Embed('/img/NEW/download.png')"/>
   
   <s:Spacer width="100%"/>
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Upload;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.FileDownloader;
       
+      import mx.core.FlexGlobals;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
       
       public var section:OperationsSection;
       
       private function onUpload(e:MouseEvent):void
       {
-        var popup:NewUploadPopup = PopUpManager.createPopUp(root, NewUploadPopup, true) as NewUploadPopup;
-        popup.section = section;
-        PopUpManager.centerPopUp(popup);
+        browse();
       }
+      
+      private var fileReference:FileReference;
+      
+      private function browse():void
+      {
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.browse();
+      }
+      
+      private function fileSelection(event:Event):void
+      {
+        manageUpload();
+      }
+      
+      private var uploadPopup:UploadPopup;
+      private function manageUpload():void
+      {
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(root, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AgentManager.instance.createUpload(section.stateManager.selectedAgent, fileReference.name, event.data, onCreate);
+      }
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
+      }
+      
+      private function onCreate(e:ResultEvent):void
+      {
+        FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
+      }
+      
+      
       
       private function onDownload(e:MouseEvent):void
       {

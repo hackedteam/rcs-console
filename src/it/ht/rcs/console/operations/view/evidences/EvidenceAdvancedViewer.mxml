@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" show="onShow()" hide="onHide()">
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
+         xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
+         width="100%" height="100%" show="onShow()" hide="onHide()">
   <fx:Metadata> 
     [Event(name="close", type="flash.events.Event")]
     [Event(name="selectionChange", type="flash.events.Event")]
@@ -20,11 +23,11 @@
       
       [Bindable]
       public var dataProvider:IList;
-     
-      private var _currentItem:Evidence;
       
       public var currentIndex:int;
-      
+     
+      private var _currentItem:Evidence;
+
       private function close():void
       {
        dispatchEvent(new Event("close"))
@@ -67,18 +70,26 @@
            {
              trace("avanti")
              currentIndex++
-               currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
+             currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
              dispatchEvent(new Event("selectionChange"));
-             
            }
             break;
           case 37:
-            trace("indietro")
-            currentIndex--
-            currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
-            dispatchEvent(new Event("selectionChange"));
+            if(currentIndex>0)
+            {
+              trace("indietro")
+              currentIndex--
+              currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
+              dispatchEvent(new Event("selectionChange"));
+            }
             break;
+           
         }
+      }
+      
+      public function editNote():void
+      {
+        infoPanel.editNote()
       }
     ]]>
   </fx:Script>
@@ -103,8 +114,9 @@
     <s:State name="screenshot"/>
     <s:State name="url"/>
   </s:states>
-  <s:BorderContainer width="100%" height="100%" borderColor="0xCCCCCC">
-    <s:Image source="{CloseIcon}" x="{width-20}" y="{10}" useHandCursor="true" buttonMode="true" click="close()"/>
-    <s:Label id="stateTxt" text="{currentState}"/>
-  </s:BorderContainer>
-</s:Group>
+ 
+  <s:Image source="{CloseIcon}" x="{10}" y="{10}" useHandCursor="true" buttonMode="true" click="close()"/>
+  <viewers:Device data="{currentItem.data}" includeIn="device" />
+  <viewers:Screenshot data="{currentItem.data}" includeIn="screenshot" />
+  <evidences:EvidenceInfoPanel evidence="{currentItem}" id="infoPanel"/>
+</s:HGroup>

@@ -52,7 +52,7 @@
       private function onGridChange():void
       {
         
-        actionBar.selectedObjects = evidenceDg.selectedItems;
+        //actionBar.selectedObjects = evidenceDg.selectedItems;
        
       }
       
@@ -77,35 +77,48 @@
         {
          evidenceDg.editNote();
         }
+        else if(viewer.visible)
+        {
+          viewer.editNote()
+        }
         //TODO - NOTE in advanced mode
       }
       
       private function onGridDoubleClick(e:GridEvent):void
       {
-        var evidence:Evidence=e.currentTarget.dataProvider.getItemAt(e.rowIndex) as Evidence;
-        viewer.currentItem=evidence;
-        viewer.currentIndex=e.rowIndex;
-        viewer.visible=true;
-        viewer.includeInLayout=true;
-        evidenceDg.visible=false;
-        evidenceDg.includeInLayout=false;
-        counter.visible=false;
-        var singleSelection: Vector.<Object>=new Vector.<Object>
-        singleSelection.push(evidence)
-        actionBar.selectedObjects=singleSelection;
+       if(e.columnIndex==7)//note column index
+       {
+         evidenceDg.editNote();
+       }
+       else 
+       {
+         var evidence:Evidence=e.currentTarget.dataProvider.getItemAt(e.rowIndex) as Evidence;
+         viewer.currentItem=evidence;
+         viewer.currentIndex=e.rowIndex;
+         viewer.visible=true;
+         viewer.includeInLayout=true;
+         evidenceDg.visible=false;
+         evidenceDg.includeInLayout=false;
+         counter.visible=false;
+         var singleSelection: Vector.<Object>=new Vector.<Object>
+         singleSelection.push(evidence)
+         actionBar.selectedObjects=singleSelection;
+       }
       }
       
       private function onViewerSelection():void
       {
         var singleSelection: Vector.<Object>=new Vector.<Object>
         singleSelection.push(viewer.currentItem)
-        actionBar.selectedObjects=singleSelection;
+        //actionBar.selectedObjects=singleSelection;
+        evidenceDg.selectedItems=singleSelection;
       }
       
       private function onViewerClose():void
       {
         viewer.visible=false;
         viewer.includeInLayout=false;
+        evidenceDg.selectedIndex=viewer.currentIndex;
         evidenceDg.visible=true;
         evidenceDg.includeInLayout=true;
         counter.visible=true;
@@ -120,7 +133,7 @@
     <s:State name="count"/>
   </s:states>
   
-  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}"/>
+  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}"/>
   
   <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
                           selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)"

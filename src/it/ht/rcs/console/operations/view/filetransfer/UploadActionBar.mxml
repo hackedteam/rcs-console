@@ -4,13 +4,50 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="New Upload" icon="@Embed('/img/NEW/newUser.png')"/>
+  <s:Button label="New Upload" click="onUpload(event)" icon="@Embed('/img/NEW/newUser.png')"/>
+  <s:Button label="Download File" click="onDownload(event)" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/newUser.png')"/>
   
   <s:Spacer width="100%"/>
   
   <fx:Script>
     <![CDATA[
-
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.agent.model.Upload;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.FileDownloader;
+      
+      import mx.managers.PopUpManager;
+      
+      public var section:OperationsSection;
+      
+      private function onUpload(e:MouseEvent):void
+      {
+        var popup:NewUploadPopup = PopUpManager.createPopUp(root, NewUploadPopup, true) as NewUploadPopup;
+        popup.section = section;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDownload(e:MouseEvent):void
+      {
+        var upload:Upload = selectedObject as Upload;
+        var remotePath:String = "grid/" + upload._grid.getItemAt(0); // _grid is an array of ids
+        var localPath:String = File.desktopDirectory.nativePath + '/RCS Downloads';
+        new File(localPath).createDirectory();
+        
+        localPath = localPath + '/' + upload.filename;
+        
+        var fd:FileDownloader = new FileDownloader(remotePath, localPath);
+        fd.onComplete = onComplete;
+        fd.download();
+      }
+      
+      private function onComplete():void
+      {
+        AlertPopUp.show("Download completed");
+      }
     ]]>
   </fx:Script>
   

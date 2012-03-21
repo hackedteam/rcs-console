@@ -4,13 +4,24 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="Download" icon="@Embed('/img/NEW/newUser.png')"/>
+  <s:Button label="Download" click="onDownload(event)" icon="@Embed('/img/NEW/newUser.png')"/>
   
   <s:Spacer width="100%"/>
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.managers.PopUpManager;
 
+      public var section:OperationsSection;
+      
+      private function onDownload(e:MouseEvent):void
+      {
+        var popup:NewDownloadPopup = PopUpManager.createPopUp(root, NewDownloadPopup, true) as NewDownloadPopup;
+        popup.section = section;
+        PopUpManager.centerPopUp(popup);
+      }
     ]]>
   </fx:Script>
   

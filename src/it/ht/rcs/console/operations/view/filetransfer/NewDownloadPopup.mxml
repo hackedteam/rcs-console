@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             save="save()" creationComplete="init()"> 
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+
+      public var section:OperationsSection;
+
+      private function init():void
+      {
+        path.setFocus();
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return;
+        
+        AgentManager.instance.createDownload(section.stateManager.selectedAgent, path.text, onCreate);
+      }
+      
+      private function onCreate(e:ResultEvent):void
+      {
+        close();
+        FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    <s:FormItem label="Path">
+      <s:Group>
+        <s:TextInput id="path"/>
+      </s:Group>
+    </s:FormItem>
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{path}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</utils:TitleWindowSaveCancel>

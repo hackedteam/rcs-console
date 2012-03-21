@@ -9,8 +9,11 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
       import mx.rpc.events.ResultEvent;
       
       [Bindable]
@@ -18,25 +21,38 @@
       
       private function onAddedToStage():void
       {
-        AgentManager.instance.getDownloads(section.stateManager.selectedAgent._id, onDownloadsResult);
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        onRefresh();
+      }
+      
+      private function onRefresh(e:RefreshEvent=null):void
+      {
+        AgentManager.instance.getDownloads(section.stateManager.selectedAgent, onDownloadsResult);
+        AgentManager.instance.getUploads(section.stateManager.selectedAgent, onUploadsResult);
       }
       
       private function onDownloadsResult(e:ResultEvent):void
       {
-        trace('ok');
+        downloads.dataProvider = e.result as ArrayCollection;
+      }
+      
+      private function onUploadsResult(e:ResultEvent):void
+      {
+        uploads.dataProvider = e.result as ArrayCollection;
       }
 
       private function onRemovedFromStage():void
       {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       }
     ]]>
   </fx:Script>
   
-  <transfer:UploadActionBar selectedObject="{uploads.selectedItem}"/>
+  <transfer:UploadActionBar section="{section}" selectedObject="{uploads.selectedItem}"/>
   
   <transfer:UploadGrid id="uploads"/>
   
-  <transfer:DownloadActionBar selectedObject="{downloads.selectedItem}"/>
+  <transfer:DownloadActionBar section="{section}" selectedObject="{downloads.selectedItem}"/>
   
   <transfer:DownloadGrid id="downloads"/>
 

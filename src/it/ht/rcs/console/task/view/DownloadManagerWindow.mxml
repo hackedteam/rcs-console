@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-               xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx" 
-               width="500" height="300" 
-               creationComplete="init()"
-               show="init()"
-               close="closeMe()"
-               title="{resourceManager.getString('localized_main', 'DOWNLOAD_MANAGER')}">
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               width="500" height="300" close="closeMe()" creationComplete="init()" show="init()"
+               title="{R.get('DRWNLOAD_MANAGER')}">
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       
-      import mx.collections.IViewCursor;
+      import locale.R;
+      
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
       import mx.collections.SortField;
@@ -21,9 +19,12 @@
       
       [Bindable]
       private var _list_view:ListCollectionView;
+  
+      public static var instance:DownloadManagerWindow = null;
       
       private function init():void
       {
+        instance = this;
         var sort:Sort = new Sort();
         sort.fields = [new SortField('desc', true, true, false)];
         _list_view = DownloadManager.instance.getView(sort);
@@ -37,9 +38,12 @@
     ]]>
   </fx:Script>
   
-  <s:VGroup left="10" top="10" right="10" bottom="10" width="100%" height="100%" gap="5" horizontalAlign="right">
-    <s:List dataProvider="{_list_view}" itemRenderer="it.ht.rcs.console.task.view.TaskRenderer" width="100%" height="100%"/>
-    <s:Button label="Clear completed tasks" click="DownloadManager.instance.clearFinished()" enabled="{_list_view.length > 0}" height="30"/>
+  <s:VGroup left="10" right="10" top="10" bottom="10" width="100%" height="100%" gap="5"
+            horizontalAlign="right">
+    <s:List width="100%" height="100%" dataProvider="{_list_view}"
+            itemRenderer="it.ht.rcs.console.task.view.TaskRenderer"/>
+    <s:Button height="30" label="Clear completed tasks"
+              click="DownloadManager.instance.clearFinished()" enabled="{_list_view.length &gt; 0}"/>
   </s:VGroup>
   
 </s:TitleWindow>

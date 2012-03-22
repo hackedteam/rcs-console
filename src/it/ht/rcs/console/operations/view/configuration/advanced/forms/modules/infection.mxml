@@ -8,16 +8,28 @@
   
   <fx:Script>
     <![CDATA[
-      import mx.events.ValidationResultEvent;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      
+      import mx.collections.ListCollectionView;
       
       private function init():void
       {
+        var dp:ListCollectionView = AgentManager.instance.getMobileFactoriesForTarget(graph.section.stateManager.selectedTarget._id);
+        factory.dataProvider = dp;
+        
         local.selected  = module.local;
         usb.selected    = module.usb;
         mobile.selected = module.mobile;
         vm.selected     = module.vm != 0;
         if (vm.selected)
           delay.text = module.vm;
+        
+        if (dp.length == 0) {
+          mobile.selected = false;
+          mobile.enabled = false;
+          mobileFI.toolTip = "No mobile factories to use";
+        }
       }
       
       private function save():void
@@ -29,6 +41,12 @@
         module.usb    = usb.selected;
         module.mobile = mobile.selected;
         module.vm     = vm.selected ? parseInt(delay.text) : 0;
+        
+        if (mobile.selected)
+          module.factory = (factory.selectedItem as Agent).ident;
+        else
+          module.factory = "";
+        
         close();
       }
     ]]>
@@ -36,10 +54,11 @@
   
   <s:Form>
     
-    <s:FormItem label="Infect mobile devices">
+    <s:FormItem label="Infect mobile devices" id="mobileFI">
       <s:HGroup verticalAlign="middle">
         <s:CheckBox id="mobile"/>
-        <s:DropDownList id="agent" width="150" enabled="{mobile.selected}" requireSelection="true"/>
+        <s:DropDownList id="factory" width="150" enabled="{mobile.selected}" labelField="name"
+                        requireSelection="true"/>
       </s:HGroup>
     </s:FormItem>
     

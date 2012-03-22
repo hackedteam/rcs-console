@@ -3,16 +3,19 @@
                xmlns:s="library://ns.adobe.com/flex/spark"
                xmlns:mx="library://ns.adobe.com/flex/mx"
                xmlns:build="it.ht.rcs.console.operations.view.agents.build.*"
-               width="600" height="480" close="close(event)" title="{R.get('RUILD_FROM_FACTORY')}">
+               width="600" height="480" close="close(event)" creationComplete="init(event)" title="{R.get('BUILD_FROM_FACTORY')}">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SessionEvent;
       
       import locale.R;
       
       import mx.collections.ICollectionView;
       import mx.collections.XMLListCollection;
+      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
       import mx.events.ListEvent;
       import mx.managers.PopUpManager;
       
@@ -131,6 +134,11 @@
 
         leftPanel.desc = vectorTree.selectedItem.@desc;
         leftPanel.currentState = vectorTree.selectedItem.@state;
+      }
+      
+      protected function init(event:FlexEvent):void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, close);
       }
       
     ]]>

@@ -7,11 +7,13 @@
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.update.controller.CoreManager;
       
       import locale.R;
       
       import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.events.FlexEvent;
       import mx.managers.PopUpManager;
@@ -30,6 +32,8 @@
       protected function init(event:FlexEvent):void
       {
       
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, closeMe);
+        
         switch(agent.platform)
         {
           case 'windows':

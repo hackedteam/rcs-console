@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="330" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="350" 
          close="closeMe(event)" title="{R.get('EVIDENCE_EXPORT')}"
          creationComplete="init()"
          xmlns:view="it.ht.rcs.console.utils.*">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.task.controller.DownloadManager;
@@ -17,6 +18,7 @@
       
       import locale.R;
       
+      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
@@ -33,9 +35,13 @@
       
       private function init():void
       {
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, closeMe);
+        
         var today:int = new Date().time/1000;
         setFromTimestamp(today - 86400);
         setToTimestamp(today);
+        
+        exportname.text = defaultName();
       }
       
       private function adjust():void
@@ -122,19 +128,36 @@
         filter.blo = [blotter.selected];
         
         filter.target = target._id;
-        
-        if (agent != null)
+                
+        if (agent != null) {
           filter.agent = agent._id;
+        }
         
-        DownloadManager.instance.createTask("evidence", "evidence_export", {filter: filter}); 
+        DownloadManager.instance.createTask("evidence", exportname.text, {filter: filter}); 
         
         PopUpManager.removePopUp(this);
+      }
+      
+      private function defaultName():String
+      {
+        var export_file:String = '';
+        
+        if (target != null)
+          export_file += target.name
+        
+        if (agent != null)
+          export_file += " - " + agent.name
+
+        export_file += " - " + "Evidence Export";
+        
+        return export_file;
       }
       
     ]]>
   </fx:Script>
 
   <s:VGroup left="15" top="15" horizontalAlign="center">
+
     <s:HGroup verticalAlign="middle">
       <s:Label width="40" text="{R.get('FROM')}" fontWeight="bold"/>
       <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
@@ -219,7 +242,13 @@
       </s:VGroup>
     </s:HGroup>
         
+    <s:Spacer height="20" />
+    
     <s:HGroup horizontalAlign="right" width="100%">
+      <s:HGroup verticalAlign="middle" width="100%" horizontalAlign="left">
+        <s:Label text="Report Name:" fontWeight="bold"/>
+        <s:TextInput id="exportname" width="250"/>
+      </s:HGroup>
       <s:Button label="Export" click="export(event)"/>
     </s:HGroup>
   </s:VGroup>

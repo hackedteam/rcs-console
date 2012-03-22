@@ -4,6 +4,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	
+	import it.ht.rcs.console.operations.view.OperationsSection;
 	import it.ht.rcs.console.operations.view.configuration.advanced.forms.events.RepeatForm;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ActionRenderer;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Connection;
@@ -24,6 +25,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 
     // The original config object
     public var config:Object;
+    
+    public var section:OperationsSection;
     
     // Modes of operation
     public static const CONNECTING:String = 'connecting';

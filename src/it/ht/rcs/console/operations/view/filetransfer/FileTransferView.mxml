@@ -27,6 +27,7 @@
       
       private function onRefresh(e:RefreshEvent=null):void
       {
+        uploadActionBar.selectedObject = downloadActionBar.selectedObject = null;
         AgentManager.instance.getDownloads(section.stateManager.selectedAgent, onDownloadsResult);
         AgentManager.instance.getUploads(section.stateManager.selectedAgent, onUploadsResult);
       }
@@ -48,11 +49,11 @@
     ]]>
   </fx:Script>
   
-  <transfer:UploadActionBar section="{section}" selectedObject="{uploads.selectedItem}"/>
+  <transfer:UploadActionBar id="uploadActionBar" section="{section}" selectedObject="{uploads.selectedItem}"/>
   
   <transfer:UploadGrid id="uploads"/>
   
-  <transfer:DownloadActionBar section="{section}" selectedObject="{downloads.selectedItem}"/>
+  <transfer:DownloadActionBar id="downloadActionBar" section="{section}" selectedObject="{downloads.selectedItem}"/>
   
   <transfer:DownloadGrid id="downloads"/>
 

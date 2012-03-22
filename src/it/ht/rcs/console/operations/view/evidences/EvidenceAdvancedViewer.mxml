@@ -4,7 +4,7 @@
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
          xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
-         width="100%" height="100%" show="onShow()" hide="onHide()">
+         width="100%" height="100%" show="onShow()" hide="onHide()" >
   <fx:Metadata> 
     [Event(name="close", type="flash.events.Event")]
     [Event(name="selectionChange", type="flash.events.Event")]
@@ -12,8 +12,8 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       
       import mx.collections.IList;
       
@@ -23,7 +23,7 @@
       
       [Bindable]
       public var dataProvider:IList;
-      
+     
       public var currentIndex:int;
 
       private var _currentItem:Evidence;
@@ -42,11 +42,26 @@
         if(hasState(currentItem.type))
         {
           currentState=currentItem.type;
+          //TODO
           if(currentState=="screenshot")
           {
-            screenshotViewer.target=EvidenceManager.instance.evidenceFilter.target;
             screenshotViewer.evidence=currentItem;
-            
+          }
+          if(currentState=="camera")
+          {
+            cameraViewer.evidence=currentItem;
+          }
+          if(currentState=="mouse")
+          {
+            mouseViewer.evidence=currentItem;
+          }
+          if(currentState=="device")
+          {
+            deviceViewer.evidence=currentItem;
+          }
+          if(currentState=="position")
+          {
+            positionViewer.evidence=currentItem;
           }
           
         }
@@ -126,7 +141,10 @@
   </s:states>
  
   <s:Image source="{CloseIcon}" x="{10}" y="{10}" useHandCursor="true" buttonMode="true" click="close()"/>
-  <viewers:Device data="{currentItem.data}" includeIn="device" />
-  <viewers:Screenshot evidence="{currentItem}" target="{EvidenceManager.instance.evidenceFilter.target}" includeIn="screenshot" id="screenshotViewer"/>
+  <viewers:Device evidence="{currentItem}" includeIn="device" id="deviceViewer"/>
+  <viewers:Screenshot evidence="{currentItem}" includeIn="screenshot" id="screenshotViewer"/>
+  <viewers:Camera evidence="{currentItem}" includeIn="camera" id="cameraViewer"/>
+  <viewers:Mouse evidence="{currentItem}" includeIn="mouse" id="mouseViewer"/>
+  <viewers:Position evidence="{currentItem}" includeIn="position" id="positionViewer"/>
   <evidences:EvidenceInfoPanel evidence="{currentItem}" id="infoPanel"/>
 </s:HGroup>

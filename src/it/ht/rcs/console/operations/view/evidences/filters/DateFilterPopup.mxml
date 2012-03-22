@@ -16,7 +16,7 @@
       
       private function init():void
       {
-        hasFilter = true;
+        rebuild();
         var today:int = new Date().time/1000;
         setFromTimestamp(today - (60*60*24));
         setToTimestamp(today);
@@ -47,6 +47,14 @@
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        filter.date = 'da';
+        delete(filter.from);
+        delete(filter.to);
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+      }
+      
       private function show():void
       {
         rebuild();
@@ -57,7 +65,9 @@
       {
         hasFilter = filter.date == property;
         
-        if (filter.from && filter.to) {
+        if (filter.from == 0 && filter.to == 0)
+          all.selected = true;
+        else if (filter.from && filter.to) {
           fromTo.selected = true;
           setFromTimestamp(filter.from);
           setToTimestamp(filter.to);
@@ -65,8 +75,6 @@
           lastWeek.selected = true;
         else if (!filter.from && !filter.to)
           last24.selected = true;
-        else if (filter.from == 0 && filter.to == 0)
-          all.selected = true;
       }
     ]]>
   </fx:Script>

@@ -25,16 +25,13 @@
       [Bindable]
       override public function set data(value:*):void
       {
-       trace("screenshot set data")
-        super.data=value;
-        draw();
+       super.data=value;
+       draw();
   		}
       
       private function init():void
       {
-
-        draw()
-        //img.contentLoader.load(url) 
+        draw();       
       }
       
       private function draw():void
@@ -42,16 +39,15 @@
         img.smooth=true;
         
         //img.contentLoader=ImageCache.getInstance().cache;
-        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
-        img.addEventListener(Event.COMPLETE, onImageLoaded)
+        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        img.addEventListener(Event.COMPLETE, onImageLoaded);
         img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
         
         url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
         img.source=url;
         programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
         windowTxt.textFlow= TextConverter.importToFlow("<i>Window: </i>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        urlTxt.text= url;
-        
+
       }
 
   		private function onImageLoading(e:ProgressEvent):void
@@ -92,12 +88,6 @@
             </s:stroke>
           </s:Line>
           <s:RichText id="windowTxt"/>
-          <s:Line width="100%">
-            <s:stroke>
-              <s:SolidColorStroke color="0xCCCCCC"/>
-            </s:stroke>
-          </s:Line>
-          <s:TextInput id="urlTxt" selectable="true" width="100%" text="{data.data._grid}"/>
         </s:VGroup>
 		  </s:HGroup>
 

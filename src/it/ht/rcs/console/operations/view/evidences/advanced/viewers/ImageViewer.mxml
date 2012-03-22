@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					height="100%"
+					width="100%"
+					creationComplete="init()" xmlns:utils="it.ht.rcs.console.utils.*">
+	<fx:Script>
+		<![CDATA[
+			private var _url:String;
+			[Bindable]
+			private var _rotation:Number=0;
+      [Bindable]
+			private var fitToScreen:Boolean=true;
+
+
+			private function init():void
+			{
+				img.smooth=false;
+				antialiasCh.selected=false;
+				_rotation=0;
+
+			}
+
+			public function set url(value:String):void
+			{
+				_url=value;
+				_rotation=0;
+				img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
+				img.addEventListener(Event.COMPLETE, onImageLoaded)
+				img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				img.source=_url;
+
+				//img.contentLoader=ImageCache.getInstance().cache;
+				//img.contentLoader.load(_url)
+			}
+
+			public function get url():String
+			{
+				return _url;
+			}
+
+
+			private function onImageLoading(e:ProgressEvent):void
+			{
+
+
+			}
+
+			private function onImageError(e:IOErrorEvent):void
+			{
+				trace("image error");
+			}
+
+			private function onImageLoaded(e:Event):void
+			{
+				img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
+				img.removeEventListener(Event.COMPLETE, onImageLoaded)
+				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+
+			}
+
+			private function fit():void
+			{
+				img.scaleMode="letterbox";
+				img.percentWidth=imgBox.percentWidth=100;
+				img.percentHeight=imgBox.percentHeight=100;
+        fitToScreen=true;
+			}
+
+			private function originalSize():void
+			{
+				img.scaleMode="letterbox";
+				img.width=imgBox.width=img.bitmapData.width;
+				img.height=imgBox.height=img.bitmapData.height;
+        fitToScreen=false;
+			}
+
+			private function zoom(factor:Number):void
+			{
+        if(!fitToScreen)
+        {
+          img.scaleX+=factor;
+          img.scaleY+=factor;
+        }
+			}
+
+			private function rotate(direction:int):void
+			{
+
+				_rotation+=90 * direction;
+			}
+
+			private function onAntiAlias(e:Event):void
+			{
+				img.smooth=e.currentTarget.selected;
+			}
+		]]>
+	</fx:Script>
+	<s:BorderContainer width="100%"
+										 height="100%"
+										 borderColor="0xCCCCCC"
+										 backgroundColor="0xCCCCCC"
+										 backgroundAlpha="0.5">
+		<s:HGroup paddingBottom="10"
+							paddingLeft="10"
+							paddingRight="10"
+							paddingTop="10"
+							width="100%"
+							height="100%">
+
+
+			<s:Scroller width="100%"
+									height="100%"
+									id="scroller">
+				<utils:ScrollableGraph width="100%"
+									height="100%"
+									>
+          <utils:layout>
+            <s:HorizontalLayout verticalAlign="middle"
+                                horizontalAlign="center"/>
+          </utils:layout>
+					<s:Group id="imgBox"
+									 width="100%"
+									 height="100%" rotation="{_rotation}">
+						<s:BitmapImage id="img"
+													 width="100%"
+													 height="100%"
+													 scaleMode="letterbox"/>
+					</s:Group>
+				</utils:ScrollableGraph>
+			</s:Scroller>
+		</s:HGroup>
+	</s:BorderContainer>
+	<s:HGroup width="100%">
+		<s:Button label="Fit"
+							click="fit()" enabled="{!fitToScreen}"/>
+		<s:Button label="1:1"
+							click="originalSize()" enabled="{fitToScreen}"/>
+		<s:Button label="+"
+							click="zoom(+.2)" enabled="{!fitToScreen}"/>
+		<s:Button label="-"
+							click="zoom(-.2)" enabled="{!fitToScreen}"/>
+		<s:Button label="Rotate CW"
+							click="rotate(+1)"/>
+		<s:Button label="Rotate CCW"
+							click="rotate(-1)"/>
+		<s:CheckBox label="Anti-alias"
+								change="onAntiAlias(event)"
+								id="antialiasCh"/>
+	</s:HGroup>
+</s:VGroup>

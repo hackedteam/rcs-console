@@ -78,7 +78,7 @@
         {
           viewer.editNote()
         }
-        //TODO - NOTE in advanced mode
+       
       }
       
       private function onGridDoubleClick(e:GridEvent):void
@@ -90,18 +90,19 @@
        }
        else 
        {
-         var evidence:Evidence=e.currentTarget.dataProvider.getItemAt(e.rowIndex) as Evidence;
-         viewer.currentItem=evidence;
-         viewer.currentIndex=e.rowIndex;
-         viewer.visible=true;
-         viewer.includeInLayout=true;
-         evidenceDg.visible=false;
-         evidenceDg.includeInLayout=false;
-         counter.visible=false;
-         var singleSelection: Vector.<Object>=new Vector.<Object>
-         singleSelection.push(evidence)
-         actionBar.selectedObjects=singleSelection;
-         notice.visible=notice.includeInLayout=false;
+         if(e.rowIndex!=-1)
+         {
+           var evidence:Evidence=e.currentTarget.dataProvider.getItemAt(e.rowIndex) as Evidence;
+           viewer.currentItem=evidence;
+           viewer.currentIndex=e.rowIndex;
+           viewer.visible=viewer.includeInLayout=true;
+           evidenceDg.visible=evidenceDg.includeInLayout=false;
+           counter.visible=false;
+           var singleSelection: Vector.<Object>=new Vector.<Object>
+           singleSelection.push(evidence)
+           actionBar.selectedObjects=singleSelection;
+           notice.visible=notice.includeInLayout=false;
+         }
        }
       }
       
@@ -115,11 +116,9 @@
       
       private function onViewerClose():void
       {
-        viewer.visible=false;
-        viewer.includeInLayout=false;
+        viewer.visible=viewer.includeInLayout=false;
         evidenceDg.selectedIndex=viewer.currentIndex;
-        evidenceDg.visible=true;
-        evidenceDg.includeInLayout=true;
+        evidenceDg.visible=evidenceDg.includeInLayout=true;
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
         notice.visible=notice.includeInLayout=true;

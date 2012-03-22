@@ -37,22 +37,24 @@
       
       private function init():void
       {
-        var id:String=encodeURIComponent(data.data._grid);
-        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+target;
+        draw();
+      }
+      
+      private function draw():void
+      {
+        img.smooth=true;
         
-        img.source=url;
-        img.smooth=false;
         //img.contentLoader=ImageCache.getInstance().cache;
-        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
-        img.addEventListener(Event.COMPLETE, onImageLoaded)
+        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        img.addEventListener(Event.COMPLETE, onImageLoaded);
         img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        
+        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        img.source=url;
         //img.contentLoader.load(url)
         programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
         windowTxt.textFlow= TextConverter.importToFlow("<i>Window: </i>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
         detailsTxt.textFlow= TextConverter.importToFlow("<i>x: </i>"+data.data.x+", <i>y: </i>"+data.data.y+", <i>Resolution: </i>"+data.data.resolution, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        
-        
       }
       
       private function onImageLoading(e:ProgressEvent):void

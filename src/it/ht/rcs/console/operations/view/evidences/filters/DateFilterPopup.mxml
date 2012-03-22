@@ -24,25 +24,49 @@
       
       override public function commit(fireEvent:Boolean=true):void
       {
+        filter.date = property;
+        
         if (fromTo.selected) {
           filter.from = getFromTimestamp();
           filter.to = getToTimestamp();
-        } else {
+        } else if (last24.selected) {
           delete(filter.from);
           delete(filter.to);
+        } else if (lastWeek.selected) {
+          filter.from = getOneWeekAgo();
+          delete(filter.to);
+        } else if (all.selected) {
+          filter.from = 0;
+          filter.to = 0;
         }
         visible = false;
+        
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+        
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
       
       private function show():void
       {
+        rebuild();
         fromH.setFocus();
-        if (filter.from)
+      }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        hasFilter = filter.date == property;
+        
+        if (filter.from && filter.to) {
+          fromTo.selected = true;
           setFromTimestamp(filter.from);
-        if (filter.to)
           setToTimestamp(filter.to);
+        } else if (filter.from && !filter.to)
+          lastWeek.selected = true;
+        else if (!filter.from && !filter.to)
+          last24.selected = true;
+        else if (filter.from == 0 && filter.to == 0)
+          all.selected = true;
       }
     ]]>
   </fx:Script>
@@ -53,8 +77,10 @@
   
   <s:VGroup gap="10" styleName="evidenceFilter">
     
-    <s:RadioButton label="Last 24 Hours" group="{group}" selected="true"/>
-    <s:RadioButton id="fromTo" label="From/To" group="{group}"/>
+    <s:RadioButton id="last24"   label="Last 24 Hours" group="{group}" selected="true"/>
+    <s:RadioButton id="lastWeek" label="Last Week"     group="{group}"/>
+    <s:RadioButton id="all"      label="All"           group="{group}"/>
+    <s:RadioButton id="fromTo"   label="From / To"     group="{group}"/>
     
     <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
       
@@ -121,6 +147,11 @@
         to.selectedDate = toDate;
         toH.value = toDate.hours;
         toM.value = toDate.minutes;
+      }
+      
+      private function getOneWeekAgo():int
+      {
+        return (Clock.instance.toUTCTime(new Date()) / 1000) - 604800; // seconds in 7 days
       }
       
       private function pad(n:Number):String

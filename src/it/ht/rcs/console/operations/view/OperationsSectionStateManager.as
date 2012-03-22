@@ -217,6 +217,7 @@ package it.ht.rcs.console.operations.view
           if(section.configView)
             section.configView.currentState = 'clean';
           section.currentState = 'config';
+          section.configView.getConfig();
           CurrentManager = null;
           currentFilter = searchFilterFunction;
           update();

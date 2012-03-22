@@ -28,7 +28,7 @@
         for each (var key:String in ArrayCollection(type.dataProvider).source)
           if (key.toLowerCase().indexOf(currentState) != -1)
             type.selectedItem = key;
-        
+
         switch (currentState) {
           case 'loop':
             break;
@@ -43,7 +43,8 @@
               notForever.selected = true;
               dateToDate.selectedDate = DateUtils.parseDateTimeString(event.dateto);
               dateToTime.time = event.dateto.split(' ')[1];
-            }
+            } else
+              forever.selected = true;
             break;
           case 'afterinst':
             days.text = event.days || '1';
@@ -88,6 +89,8 @@
       private function onChange(event:IndexChangeEvent):void
       {
         currentState = states[type.selectedIndex].name;
+        if (currentState == 'date' && dateGroup.selection == null)
+          forever.selected = true;
         PopUpManager.centerPopUp(parentDocument.hostComponent.parent.parentDocument.hostComponent as EventForm); // I know...
       }
       
@@ -163,9 +166,9 @@
     
     <s:FormItem includeIn="date" label="To">
       <s:VGroup>
-        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="forever" label="Forever" group="{dateGroup}"/>
         <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
-        <mx:DateField id="dateToDate" width="150" enabled="{notForever.selected}"
+        <mx:DateField id="dateToDate" width="150" enabled="{notForever.selected}" 
                       formatString="YYYY-MM-DD" selectedDate="{new Date()}" showToday="true"
                       yearNavigationEnabled="true"/>
         <utils:TimeField id="dateToTime" enabled="{notForever.selected}"/>

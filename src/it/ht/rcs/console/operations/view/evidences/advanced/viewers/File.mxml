@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="100%"
+									 width="100%"
+                   borderColor="0xCCCCCC"
+                   backgroundColor="0xCCCCCC"
+                   backgroundAlpha="0.5">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+      import it.ht.rcs.console.utils.Size;
+
+			private var _evidence:Object;
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+        _evidence=value;
+
+
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence; //program, path, size
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+		]]>
+	</fx:Script>
+<s:layout>
+  <s:VerticalLayout paddingBottom="10"
+                    paddingLeft="10"
+                    paddingRight="10"
+                    paddingTop="10"
+                    />
+</s:layout>
+  <s:RichText id="programTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:RichText id="pathTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Path: &lt;/b&gt;'+evidence.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:RichText id="sizeTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Size: &lt;/b&gt;'+Size.toHumanBytes(evidence.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+</s:BorderContainer>

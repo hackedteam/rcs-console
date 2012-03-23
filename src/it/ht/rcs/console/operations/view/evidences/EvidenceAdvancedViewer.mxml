@@ -8,7 +8,11 @@
   <fx:Metadata> 
     [Event(name="close", type="flash.events.Event")]
     [Event(name="selectionChange", type="flash.events.Event")]
-  </fx:Metadata> 
+  </fx:Metadata>
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="350"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="350"/>
+  </fx:Declarations>
   
   <fx:Script>
     <![CDATA[
@@ -71,12 +75,33 @@
           {
             passwordViewer.evidence=currentItem;
           }
+          if(currentState=="addressbook")
+          {
+            addressbookViewer.evidence=currentItem;
+          }
+          if(currentState=="file")
+          {
+            fileViewer.evidence=currentItem;
+          }
+          if(currentState=="chat")
+          {
+            chatViewer.evidence=currentItem;
+          }
+          if(currentState=="call")
+          {
+            callViewer.evidence=currentItem;
+          }
+          if(currentState=="application")
+          {
+            applicationViewer.evidence=currentItem;
+          }
           
         }
         else
         {
           currentState="none"
         }
+        fadeIn.play([this])
       }
       
       public function get currentItem():Evidence
@@ -126,6 +151,7 @@
       }
     ]]>
   </fx:Script>
+
   <s:states>
     <s:State name="none"/>
     <s:State name="addressbook"/>
@@ -147,8 +173,13 @@
     <s:State name="screenshot"/>
     <s:State name="url"/>
   </s:states>
- 
+  
+  <viewers:Addressbook evidence="{currentItem}" includeIn="addressbook" id="addressbookViewer"/>
+  <viewers:Application evidence="{currentItem}" includeIn="application" id="applicationViewer"/>
+  <viewers:Chat evidence="{currentItem}" includeIn="chat" id="chatViewer"/>
+  <viewers:Call evidence="{currentItem}" includeIn="call" id="callViewer"/>
   <viewers:Device evidence="{currentItem}" includeIn="device" id="deviceViewer"/>
+  <viewers:File evidence="{currentItem}" includeIn="file" id="fileViewer"/>
   <viewers:Screenshot evidence="{currentItem}" includeIn="screenshot" id="screenshotViewer"/>
   <viewers:Camera evidence="{currentItem}" includeIn="camera" id="cameraViewer"/>
   <viewers:Keylog evidence="{currentItem}" includeIn="keylog" id="keylogViewer"/>

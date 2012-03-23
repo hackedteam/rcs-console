@@ -56,8 +56,11 @@
         currentState="default";
         actionBar.toggleSummaryButton(currentState);
         evidenceDg.dataProvider=null;
-        closeViewer()
-        
+        if(viewer.visible)
+        {
+        closeViewer();
+        actionBar.toggleDetailButton();
+        }
       }
       
       private function onFilterChanged(event:FilterEvent):void
@@ -133,12 +136,13 @@
           singleSelection.push(evidence)
           actionBar.selectedObjects=singleSelection;
           notice.visible=notice.includeInLayout=false;
-          actionBar.toggleDetailButton();
+         
         }
         else
         {
           closeViewer()
         }
+        actionBar.toggleDetailButton();
        
       }
       private function onViewerSelection():void
@@ -157,7 +161,7 @@
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
         notice.visible=notice.includeInLayout=true;
-        actionBar.toggleDetailButton();
+        
       }
       
       private function onGridDataChange():void

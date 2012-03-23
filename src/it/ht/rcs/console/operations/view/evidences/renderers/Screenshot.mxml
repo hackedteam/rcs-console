@@ -3,7 +3,7 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="100%" height="100%" creationComplete="init()"
+                                width="100%" height="100%" creationComplete="init()" show="init()"
                                 >
 	
 	<fx:Script>
@@ -20,13 +20,14 @@
       
       [Bindable]
       private var frameWidth:Number=4;
+      [Bindable]
       private var url:String;
       
       [Bindable]
       override public function set data(value:*):void
       {
        super.data=value;
-       draw();
+       init();
   		}
       
       private function init():void
@@ -42,12 +43,13 @@
         img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
         img.addEventListener(Event.COMPLETE, onImageLoaded);
         img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-        
-        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        img.source=url;
-        programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        windowTxt.textFlow= TextConverter.importToFlow("<i>Window: </i>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
-
+        if(data)
+        {
+          url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          img.source=url;
+          programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          windowTxt.textFlow= TextConverter.importToFlow("<i>Window: </i>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
       }
 
   		private function onImageLoading(e:ProgressEvent):void

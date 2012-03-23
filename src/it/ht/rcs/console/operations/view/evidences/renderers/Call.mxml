@@ -4,7 +4,7 @@
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																focusOut="onFocusOut()"
-																focusIn="onFocusIn()"
+																focusIn="onFocusIn()" creationComplete="init()" show="init()"
 																width="100%">
 
 	<fx:Script>
@@ -31,12 +31,7 @@
 			override public function set data(value:*):void
 			{
 				super.data=value;
-        if(data.id!=null)
-        {
-				var id:String=encodeURIComponent(data.data._grid);
-				var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-				miniPlayer.url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
-        }
+       
 			/*
 				peer
 				recording 0/1
@@ -44,6 +39,16 @@
 
 				*/
 			}
+      
+      private function init():void
+      {
+        if(data)
+        {
+          var id:String=encodeURIComponent(data.data._grid);
+          var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          miniPlayer.url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        }
+      }
 
 			private function onFocusOut():void
 			{

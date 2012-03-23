@@ -3,7 +3,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:filesystem="it.ht.rcs.console.operations.view.filesystem.*"
-          width="100%" height="100%">
+          width="100%" height="100%" removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
@@ -11,10 +11,10 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
       
-      import mx.collections.ArrayCollection;
       import mx.collections.HierarchicalData;
-      import mx.events.FlexEvent;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ObjectUtil;
       
@@ -29,32 +29,29 @@
       
       private function onResult(event:ResultEvent):void
       {
-        var root:Object = { name: 'root', children: [] };
+        var root:Object = { name: 'root', children: [], size: -1, attr: -1, date: -1, parent: null };
         
         for each (var e:Evidence in event.result) {
           var path:String = e.data.path;
-          trace(path);
-          trace(e.data.attr);
           path = path.replace('\\\\', '\\');
           var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
-          trace(separator);
           var tokens:Array = path.split(separator);
           var node:Object = root;
           for each (var t:String in tokens) {
-            trace(t);
+            if (t == '') continue;
             var next:Object = getChild(node.children, t);
             if (!next) {
-              next = { name: t, children: [], size: e.data.size, attr: e.data.attr };
+              next = { name: t, children: [], size: e.data.size, attr: e.data.attr, date: e.da, parent: node, evidence: e };
+              if (e.data.attr == 0)
+                delete(next.children);
               node.children.push(next);
               node = next;
             }
             else
               node = next;
           }
-          trace('---');
         }
         trace(ObjectUtil.toString(root));
-        //tree.dataProvider = root;
         grid.dataProvider = new HierarchicalData(root);
       }
       
@@ -65,6 +62,29 @@
             return el;
         return null;
       }
+      
+      private function dateFunction(item:Object, column:AdvancedDataGridColumn):String
+      {
+        try {
+          var value:int = item[column.dataField];
+          return value == -1 ? '' : TimeUtils.timestampFormatter(value * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function sizeFunction(item:Object, column:AdvancedDataGridColumn):String
+      {
+        try {
+          var value:int = item[column.dataField];
+          return value == -1 ? '' : Size.toHumanBytes(item[column.dataField]);
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        grid.dataProvider = null;
+      }
     ]]>
   </fx:Script>
   
@@ -73,30 +93,13 @@
   <!--mx:Tree id="tree" width="100%" height="100%" allowMultipleSelection="false" borderVisible="false"
            labelField="name" showRoot="true"/-->
   
-  <mx:AdvancedDataGrid id="grid" width="100%" height="100%">
+  <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false">
     <mx:columns>
-      <mx:AdvancedDataGridColumn dataField="name"/>
-      <mx:AdvancedDataGridColumn dataField="size"/>
-      <mx:AdvancedDataGridColumn dataField="attr"/>
+      <mx:AdvancedDataGridColumn dataField="name" width="400"/>
+      <mx:AdvancedDataGridColumn dataField="date" labelFunction="dateFunction" width="160"/>
+      <mx:AdvancedDataGridColumn dataField="size" labelFunction="sizeFunction" width="100"/>
+      <!--mx:AdvancedDataGridColumn dataField="attr" width="100"/-->
     </mx:columns>
   </mx:AdvancedDataGrid>
-  
-  <fx:Declarations>
-    <fx:XMLList id="treeData">
-      <node label="Mail Box">
-        <node label="Inbox">
-          <node label="Marketing"/>
-          <node label="Product Management"/>
-          <node label="Personal"/>
-        </node>
-        <node label="Outbox">
-          <node label="Professional"/>
-          <node label="Personal"/>
-        </node>
-        <node label="Spam"/>
-        <node label="Sent"/>
-      </node>
-    </fx:XMLList>
-  </fx:Declarations>
   
 </s:VGroup>

@@ -7,16 +7,36 @@
   <s:Button label="Download" click="onDownload(event)" enabled="{selectedObject != null}"
             icon="@Embed('/img/NEW/download.png')"/>
   
+  <s:Button label="Retrieve" click="onRetrieve(event)" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/download.png')"/>
+  
   <s:Spacer width="100%"/>
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.controls.Alert;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
 
       public var section:OperationsSection;
       
       private function onDownload(e:MouseEvent):void
       {
+        AgentManager.instance.createDownload(selectedObject.evidence.aid, selectedObject.evidence.data.path, onCreate);
+      }
+      
+      private function onCreate(e:ResultEvent):void
+      {
+        Alert.show('Item scheduled for download');
+      }
+      
+      private function onRetrieve(e:MouseEvent):void
+      {
+        var popup:DepthPopup = PopUpManager.createPopUp(root, DepthPopup, true) as DepthPopup;
+        PopUpManager.centerPopUp(popup);
       }
     ]]>
   </fx:Script>

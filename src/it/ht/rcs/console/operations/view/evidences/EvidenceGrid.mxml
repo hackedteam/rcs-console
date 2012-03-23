@@ -6,7 +6,10 @@
             width="100%" height="100%" sortableColumns="false" variableRowHeight="true" editable="true" alternatingRowColors="[#FFFFFF, #EEEEEE]" 
             gridItemEditorSessionStarting="onItemEditingStart()" gridItemEditorSessionSave="onItemEditingSave()"
             doubleClickEnabled="true">
-
+  <fx:Metadata> 
+    [Event(name="dataChange", type="flash.events.Event")]
+  </fx:Metadata>
+  
   <fx:Script>
      
     <![CDATA[
@@ -50,8 +53,7 @@
       
       private function onItemEditingStart():void
       {
-       
-     
+
       }
       
       private function onItemEditingSave():void
@@ -72,7 +74,6 @@
       
       private function showData(item:Object, column:GridColumn):String
       {
-        
         return item.data._grid
       }
       
@@ -80,8 +81,8 @@
       [Bindable]
       override public function set dataProvider(value:IList):void
       {
-        
         super.dataProvider=value;
+       dispatchEvent(new Event("dataChange"))
         //this.grid.addEventListener(Event.RESIZE, onGridResize)
       }
       

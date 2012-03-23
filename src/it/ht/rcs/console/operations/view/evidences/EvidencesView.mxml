@@ -8,6 +8,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
@@ -31,14 +32,32 @@
           delete EvidenceManager.instance.evidenceFilter.agent;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.listenRefresh();
         EvidenceManager.instance.refresh();
+       
+       
+        trace("evidence view added to stage")
+      }
+      
+      private function onDataLoaded(e:DataLoadedEvent):void
+      {
+        evidenceDg.dataProvider=EvidenceManager.instance._view;
+        evidenceDg.visible=true;
       }
       
       private function onRemovedFromStage():void
       {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
         EvidenceManager.instance.unlistenRefresh();
+        trace("evidence view removed from stage")
+        evidenceDg.selectedItems=new Vector.<Object>
+        actionBar.selectedObjects=evidenceDg.selectedItems;
+        currentState="default";
+        actionBar.toggleSummaryButton(currentState);
+        evidenceDg.dataProvider=null;
+        closeViewer()
+        
       }
       
       private function onFilterChanged(event:FilterEvent):void
@@ -70,15 +89,8 @@
 
       private function onEditNote(e:Event):void
       {
-        if(evidenceDg.visible)
-        {
-         evidenceDg.editNote();
-        }
-        else if(viewer.visible)
-        {
-          viewer.editNote()
-        }
-       
+        if(evidenceDg.visible) evidenceDg.editNote();
+        else if(viewer.visible) viewer.editNote();
       }
       
       private function onGridDoubleClick(e:GridEvent):void
@@ -102,10 +114,33 @@
            singleSelection.push(evidence)
            actionBar.selectedObjects=singleSelection;
            notice.visible=notice.includeInLayout=false;
+           actionBar.toggleDetailButton();
          }
        }
       }
-      
+      //TODO -OPTIMIZE CODE
+      private function showDetail():void
+      {
+        if(!viewer.visible)
+        {
+          var evidence:Evidence=evidenceDg.selectedItems[0] as Evidence;
+          viewer.currentItem=evidence;
+          viewer.currentIndex=evidenceDg.selectedIndices[0]
+          viewer.visible=viewer.includeInLayout=true;
+          evidenceDg.visible=evidenceDg.includeInLayout=false;
+          counter.visible=false;
+          var singleSelection: Vector.<Object>=new Vector.<Object>
+          singleSelection.push(evidence)
+          actionBar.selectedObjects=singleSelection;
+          notice.visible=notice.includeInLayout=false;
+          actionBar.toggleDetailButton();
+        }
+        else
+        {
+          closeViewer()
+        }
+       
+      }
       private function onViewerSelection():void
       {
         var singleSelection: Vector.<Object>=new Vector.<Object>
@@ -114,7 +149,7 @@
         evidenceDg.selectedItems=singleSelection;
       }
       
-      private function onViewerClose():void
+      private function closeViewer():void
       {
         viewer.visible=viewer.includeInLayout=false;
         evidenceDg.selectedIndex=viewer.currentIndex;
@@ -122,6 +157,13 @@
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
         notice.visible=notice.includeInLayout=true;
+        actionBar.toggleDetailButton();
+      }
+      
+      private function onGridDataChange():void
+      {
+        evidenceDg.selectedItems=new Vector.<Object>
+        actionBar.selectedObjects=evidenceDg.selectedItems;
       }
     ]]>
   </fx:Script>
@@ -131,14 +173,12 @@
     <s:State name="count"/>
   </s:states>
   
-  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}"/>
+  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="showDetail()"/>
   
   <evidences:FilterNotice id="notice"/>
   
-  <evidences:EvidenceGrid id="evidenceDg" dataProvider="{EvidenceManager.instance._view}"
-                          selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)"
-                          />
-  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
+  <evidences:EvidenceGrid id="evidenceDg" selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
+  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="closeViewer()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
   <evidences:EvidenceCounter id="counter" counts="{EvidenceManager.instance.counts}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>
 

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:filesystem="it.ht.rcs.console.operations.view.filesystem.*"
+          width="100%" height="100%">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.HierarchicalData;
+      import mx.events.FlexEvent;
+      import mx.rpc.events.ResultEvent;
+      import mx.utils.ObjectUtil;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      public function showTree():void
+      {
+        var agent:Agent = section.stateManager.selectedAgent;
+        EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agent ? agent._id : null, onResult);
+      }
+      
+      private function onResult(event:ResultEvent):void
+      {
+        var root:Object = { name: 'root', children: [] };
+        
+        for each (var e:Evidence in event.result) {
+          var path:String = e.data.path;
+          trace(path);
+          trace(e.data.attr);
+          path = path.replace('\\\\', '\\');
+          var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
+          trace(separator);
+          var tokens:Array = path.split(separator);
+          var node:Object = root;
+          for each (var t:String in tokens) {
+            trace(t);
+            var next:Object = getChild(node.children, t);
+            if (!next) {
+              next = { name: t, children: [], size: e.data.size, attr: e.data.attr };
+              node.children.push(next);
+              node = next;
+            }
+            else
+              node = next;
+          }
+          trace('---');
+        }
+        trace(ObjectUtil.toString(root));
+        //tree.dataProvider = root;
+        grid.dataProvider = new HierarchicalData(root);
+      }
+      
+      private function getChild(a:Array, name:String):Object
+      {
+        for each (var el:Object in a)
+          if (el.name == name)
+            return el;
+        return null;
+      }
+    ]]>
+  </fx:Script>
+  
+  <filesystem:FileSystemActionBar id="actionBar" selectedObject="{grid.selectedItem}"/>
+  
+  <!--mx:Tree id="tree" width="100%" height="100%" allowMultipleSelection="false" borderVisible="false"
+           labelField="name" showRoot="true"/-->
+  
+  <mx:AdvancedDataGrid id="grid" width="100%" height="100%">
+    <mx:columns>
+      <mx:AdvancedDataGridColumn dataField="name"/>
+      <mx:AdvancedDataGridColumn dataField="size"/>
+      <mx:AdvancedDataGridColumn dataField="attr"/>
+    </mx:columns>
+  </mx:AdvancedDataGrid>
+  
+  <fx:Declarations>
+    <fx:XMLList id="treeData">
+      <node label="Mail Box">
+        <node label="Inbox">
+          <node label="Marketing"/>
+          <node label="Product Management"/>
+          <node label="Personal"/>
+        </node>
+        <node label="Outbox">
+          <node label="Professional"/>
+          <node label="Personal"/>
+        </node>
+        <node label="Spam"/>
+        <node label="Sent"/>
+      </node>
+    </fx:XMLList>
+  </fx:Declarations>
+  
+</s:VGroup>

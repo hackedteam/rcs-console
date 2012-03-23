@@ -124,21 +124,22 @@ package it.ht.rcs.console.operations.view
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filesystem')
       {
-        Alert.show('Show Filesystem Component');
+        section.currentState = 'filesystem';
+        section.filesystem.showTree();
       }
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'info')
       {
-        setState('info');
+        section.currentState = 'info';
       }
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filetransfer')
       {
-        setState('filetransfer');
+        section.currentState = 'filetransfer';
       }
       
-      if (event && event.evidenceType) {
-        //Alert.show("and go to evidence");
+      if (event && event.evidenceType)
+      {
         EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
         section.currentState = 'evidence';
       }
@@ -215,20 +216,12 @@ package it.ht.rcs.console.operations.view
           selectedOperation = OperationManager.instance.getItem(agent.path[0]);
           selectedTarget = TargetManager.instance.getItem(agent.path[1]);
           if(section.configView)
-            section.configView.currentState = 'clean';
+            section.configView.currentState = 'blank';
           section.currentState = 'config';
           section.configView.getConfig();
           CurrentManager = null;
           currentFilter = searchFilterFunction;
           update();
-          break;
-        
-		    case 'info':
-          section.currentState = 'info';
-          break;
-        
-        case 'filetransfer':
-          section.currentState = 'filetransfer';
           break;
 	
         default:

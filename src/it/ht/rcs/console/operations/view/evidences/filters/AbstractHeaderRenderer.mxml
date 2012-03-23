@@ -10,6 +10,7 @@
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
+      import mx.events.FlexMouseEvent;
       import mx.managers.PopUpManager;
       
       import spark.components.CheckBox;
@@ -24,6 +25,9 @@
       
       [Bindable]
       public var mandatory:Boolean = false;
+      
+      [Bindable]
+      public var editable:Boolean = true;
 
       public var filter:Object;
       
@@ -34,15 +38,18 @@
         popup = popupFactory.newInstance();
         popup.property = propertyName || column.dataField;
         popup.filter = filter;
+        
         PopUpManager.addPopUp(popup, this.owner, false);
         
         showFilter.selected = filter.hasOwnProperty(column.dataField) || mandatory;
         
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, popup.rebuild);
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
 
       }
       
       private function onRemovedFromStage():void {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.REBUILD, popup.rebuild);
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
         PopUpManager.removePopUp(popup);
       }
@@ -79,6 +86,7 @@
         
         // ...se gia' c'e' un popup visualizzato...
         if (currentPopup && currentPopup.visible) {
+          currentPopup.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
           currentPopup.commit();  // ...committalo...
           if (currentPopup === popup) { // ...e se il popup era quello dell'header cliccato nascondilo e basta
             currentPopup = null;
@@ -89,11 +97,10 @@
         // ...altrimenti posizionalo correttamente e visualizzalo
         centerPopup();
         popup.visible = true;
-        popup.addEventListener("mouseDownOutside", clickHandler)
+        popup.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
         currentPopup = popup;
         
       }
-      
       
       // Triggered only when a filter is set (ie. when switching from selected to deselected state)
       // because the checkbox is disabled when there's no filter
@@ -107,7 +114,7 @@
 
   <fx:Declarations>
     <s:CheckBox id="showFilter" change="changeHandler()"
-                enabled="{!mandatory &amp;&amp; showFilter.selected}"
+                enabled="{editable &amp;&amp; showFilter.selected}"
                 selected="{mandatory || popup.hasFilter}"/>
   </fx:Declarations>
 

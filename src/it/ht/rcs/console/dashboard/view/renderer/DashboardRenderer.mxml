@@ -46,8 +46,11 @@
       {
         try {
           lastSyncText.text = TimeUtils.timestampFormatter(item.lastSync * 1000)
-          if (lastSyncText.text != R.get('NEVER'))
-            lastSyncText.text += '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)  ' + sync_status(item.lastSyncStatus);
+          if (lastSyncText.text != R.get('NEVER')) {
+            lastSyncText.text += '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)  ';
+            if (item._kind == 'agent')
+              lastSyncText.text += sync_status(item.lastSyncStatus);
+          }
         } catch (e:Error) {}
       }
       

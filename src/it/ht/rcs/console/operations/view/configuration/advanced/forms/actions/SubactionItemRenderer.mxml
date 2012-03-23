@@ -10,10 +10,35 @@
       {
         super.data = value;
         textLabel.text = data ? data.action : '';
+        if (data) {
+          switch (data.action) {
+            case 'execute':
+              textLabel.text = data.command.length > 0 ? textLabel.text + ' (' + data.command + ')' : textLabel.text;
+              break;
+            case 'module':
+              textLabel.text += ' (' + data.status + ' ' + data.module + ')';
+              break;
+            case 'event':
+              textLabel.text += ' (' + data.status + ' ' + getEventName(data.event) + ')';
+              break;
+            default: break;
+          }
+        }
+          
+      }
+      
+      // There is no clean way to do this. Subactions has no visibility of other config elements, so we need
+      // to traverse up the hierarchy and get what we need...
+      private function getEventName(index:int):String
+      {
+        try {
+          return (parentDocument.hostComponent.parentDocument as Subactions).form.graph.config.events[index].desc;
+        } catch (e:Error) {}
+        return '';
       }
     ]]>
   </fx:Script>
   
-  <s:Label id="textLabel"/>
+  <s:Label id="textLabel" paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5"/>
   
 </s:ItemRenderer>

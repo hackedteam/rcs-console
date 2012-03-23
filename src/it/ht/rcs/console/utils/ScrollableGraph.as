@@ -4,7 +4,6 @@ package it.ht.rcs.console.utils
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
   
-  
   import mx.events.FlexEvent;
   
   import spark.components.Group;

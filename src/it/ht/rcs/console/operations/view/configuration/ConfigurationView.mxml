@@ -5,8 +5,7 @@
           xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
           xmlns:basic="it.ht.rcs.console.operations.view.configuration.basic.*"
           xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
-          width="100%" height="100%" addedToStage="onAddedToStage()"
-          creationComplete="onCreationComplete()" removedFromStage="onRemovedFromStage()">
+          width="100%" height="100%">
 
   <fx:Script>
     <![CDATA[
@@ -24,20 +23,7 @@
       [Bindable]
       public var configAsObject:Object;
       
-      private var fired:Boolean = false;
-      private function onCreationComplete():void
-      {
-        fired = true;
-        getConfig();
-      }
-      
-      private function onAddedToStage():void
-      {
-        if (fired && currentState == 'clean')
-          getConfig();
-      }
-      
-      private function getConfig():void
+      public function getConfig():void
       {
         configAsConfig = section.stateManager.selectedConfig;
         
@@ -71,19 +57,13 @@
             break;
         }
       }
-      
-      private function onRemovedFromStage():void
-      {
-        currentState = 'blank';
-      }
     ]]>
   </fx:Script>
   
   <s:states>
-    <s:State name="clean"/>
+    <s:State name="blank"/>
     <s:State name="basic"/>
     <s:State name="advanced"/>
-    <s:State name="blank"/>
   </s:states>
   
   <configuration:ConfigurationActionBar section="{section}"/>

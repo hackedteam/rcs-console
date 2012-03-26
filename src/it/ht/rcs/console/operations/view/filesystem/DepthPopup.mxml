@@ -3,23 +3,44 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
-                             save="save()">
+                             save="save()" title="Retrieve">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      
+      [Bindable]
+      public var item:Object;
+      
       private function save():void
       {
-        close();
+        var path:String;
+        if (item.parent == null)
+          path = '/';
+        else {
+          path = item.evidence.data.path;
+          var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
+          var lastChar:String = path.charAt(path.length-1);
+          if (lastChar != separator)
+            path = path + separator + '*';
+        }
+        trace(path);
+        AgentManager.instance.filesystem(item.evidence.aid, path, depthStepper.value, close);
       }
     ]]>
   </fx:Script>
   
   <s:Form defaultButton="{saveButton}">
     <s:FormItem label="Depth">
-      <s:Group>
+      <s:HGroup verticalAlign="middle">
         <s:NumericStepper id="depthStepper" maximum="5" minimum="1" value="1"/>
-      </s:Group>
+        <s:Label paddingTop="1" text=" levels"/>
+      </s:HGroup>
     </s:FormItem>
   </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="group"/>
+  </fx:Declarations>
 
 </utils:TitleWindowSaveCancel>

@@ -4,6 +4,9 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
+  <s:Button label="{R.get('EXPORT')}"
+            icon="@Embed('/img/NEW/export.png')" click="exportFS(event)"/>
+  
   <s:Button label="Download" click="onDownload(event)" enabled="{selectedObject != null}"
             icon="@Embed('/img/NEW/download.png')"/>
   
@@ -16,6 +19,8 @@
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import locale.R;
       
       import mx.controls.Alert;
       import mx.managers.PopUpManager;
@@ -39,6 +44,15 @@
         popup.item = selectedObject;
         PopUpManager.centerPopUp(popup);
       }
+      
+      protected function exportFS(event:MouseEvent):void
+      {
+        var popup:Export = PopUpManager.createPopUp(root, Export, true) as Export;
+        popup.target = section.stateManager.selectedTarget;
+        popup.agent = section.stateManager.selectedAgent;
+        PopUpManager.centerPopUp(popup);
+      }
+      
     ]]>
   </fx:Script>
   

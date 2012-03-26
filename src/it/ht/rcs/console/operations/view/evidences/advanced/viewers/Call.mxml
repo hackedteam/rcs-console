@@ -7,7 +7,7 @@
                    width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xCCCCCC"
-                   backgroundAlpha="0.5">
+                   backgroundAlpha="0.5" removed="onHide()">
   <s:layout>
     <s:VerticalLayout paddingBottom="10"
                       paddingLeft="10"
@@ -35,7 +35,7 @@
         _evidence=value;
         target=EvidenceManager.instance.evidenceFilter.target;
         _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
-       // imageViewer.url=_url;
+        player.sound=_url;
       }
       
       public function get evidence():Evidence
@@ -46,6 +46,11 @@
       private function init():void
       {
         target=EvidenceManager.instance.evidenceFilter.target;
+      }
+      
+      private function onHide():void
+      {
+       player.onHide()
       }
       
     ]]>
@@ -63,5 +68,5 @@
     </s:stroke>
   </s:Line>
  
- <!-- <viewers:ImageViewer id="imageViewer" url="{_url}"/> -->
+<viewers:AudioPlayer id="player" sound="{_url}"/>
 </s:BorderContainer>

@@ -76,6 +76,7 @@
         if(_hasFocus)
         {
           _channel = _sound.play(_pausePoint);
+          _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
           _isPlaying = true;
           playBtn.setStyle("icon", PauseIcon);
           playBtn.toolTip="pause"
@@ -87,7 +88,19 @@
           statusTxt.text="Sound data loaded";
         }
       }
-      
+      private function onSoundComplete(e:Event):void
+      {
+        _channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
+        _pausePoint = 0;
+        _channel=_sound.play(0)
+        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+        _channel.stop();
+        _isPlaying = false;
+        playBtn.setStyle("icon", PlayIcon);
+        playBtn.toolTip="play"
+        statusTxt.text="stopped"
+        removeEventListener(Event.ENTER_FRAME,update);
+      }
       private function onPlayClick(e:MouseEvent):void
       {
         if(_isLoaded)
@@ -102,6 +115,7 @@
             removeEventListener(Event.ENTER_FRAME,update)
           } else {
             _channel = _sound.play(_pausePoint);
+            _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
             _isPlaying = true;
             playBtn.setStyle("icon", PauseIcon);
             playBtn.toolTip="pause"
@@ -120,11 +134,12 @@
       {
         _pausePoint = 0;
         _channel=_sound.play(0)
+        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
         _channel.stop();
         _isPlaying = false;
         playBtn.setStyle("icon", PlayIcon);
-        playBtn.toolTip="play"
-        statusTxt.text="stopped"
+        playBtn.toolTip="play";
+        statusTxt.text="stopped";
         removeEventListener(Event.ENTER_FRAME,update)
       }
       
@@ -138,9 +153,9 @@
             _channel.stop();
             _isPlaying = false;
             playBtn.setStyle("icon", PlayIcon);
-            playBtn.toolTip="play"
-            statusTxt.text="paused"
-            removeEventListener(Event.ENTER_FRAME,update)
+            playBtn.toolTip="play";
+            statusTxt.text="paused";
+            removeEventListener(Event.ENTER_FRAME,update);
           } 
         }
         _hasFocus=value;

@@ -41,7 +41,8 @@
       }
       
       private function onDataLoaded(e:DataLoadedEvent):void
-      {
+      { 
+        evidenceDg.invalidateDisplayList();
         evidenceDg.dataProvider=EvidenceManager.instance._view;
         evidenceDg.visible=true;
       }
@@ -178,9 +179,7 @@
   </s:states>
   
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="showDetail()"/>
-  
   <evidences:FilterNotice id="notice"/>
-  
   <evidences:EvidenceGrid id="evidenceDg" selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
   <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="closeViewer()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>

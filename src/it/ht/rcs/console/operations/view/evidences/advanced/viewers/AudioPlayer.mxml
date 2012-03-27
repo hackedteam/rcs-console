@@ -65,11 +65,7 @@
 			[BINDABLE]
 			public function set sound(value:String):void
 			{
-				if (_channel)
-				{
-					_channel.stop();
-					_channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete)
-				}
+				
 				stopBtn.enabled=false;
 				playBtn.enabled=false;
 				removeEventListener(Event.ENTER_FRAME, update);
@@ -86,7 +82,13 @@
 				_pan=0;
 				_soundTransform.volume=_volume;
 				_soundTransform.pan=_pan;
-				_channel.soundTransform=_soundTransform;
+        if (_channel)
+        {
+          _channel.stop();
+          _channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+          _channel.soundTransform=_soundTransform;
+        }
+				
 				volumeControl.value=100;
 				panControl.value=0;
         durationTxt.text="00:00:00";
@@ -229,7 +231,7 @@
 
 			public function reset():void
 			{
-				trace("player reset")
+				
 				if (_channel)
 				{
 					_channel.stop();
@@ -240,6 +242,12 @@
 				removeEventListener(Event.ENTER_FRAME, update);
 				spectrumMonitor.clear();
 				_looper.stop();
+        if(_sound)
+        {
+          _sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading);
+          _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError)
+          _sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
+        }
 			}
 
 			private function volumeDataTipFunction(value:String):String

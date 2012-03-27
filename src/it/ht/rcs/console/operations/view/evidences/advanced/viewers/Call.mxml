@@ -32,12 +32,16 @@
       [Bindable]
       public function set evidence(value:Evidence):void
       {
+        player.reset()
         _evidence=value;
         target=EvidenceManager.instance.evidenceFilter.target;
         _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
         //_url="audiotest/test.mp3";
         //_url="audiotest/Sunglasses.mp3";
-        player.sound=_url;
+        if(evidence.type=="call")
+        {
+          player.sound=_url;
+        }
       }
       
       public function get evidence():Evidence
@@ -72,5 +76,5 @@
     </s:stroke>
   </s:Line>
  
-<viewers:AudioPlayer id="player" sound="{_url}"/>
+<viewers:AudioPlayer id="player"/>
 </s:BorderContainer>

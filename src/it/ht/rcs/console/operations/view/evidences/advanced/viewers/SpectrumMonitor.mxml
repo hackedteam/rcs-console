@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" resize="onResize()">
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="1024" height="100%"
+         resize="onResize()"
+         creationComplete="init()"
+         >
   <fx:Script>
     <![CDATA[
       import flash.display.Bitmap;
@@ -31,17 +34,17 @@
       private var _backgroundColor:uint=0xCCCCCC;//RGBA
       private var _waveColor:uint=0x333333;
       private var _selectionColor:uint=0x110000FF;
-      private var _playheadColor:uint=0xFF00FF00;
-      private var _playheadWidth:Number=3;
+      private var _playheadColor:uint=0xFFFF0000;
+      private var _playheadWidth:Number=2;
       
-      private var _scaleFactor:Number;
-      
+      private var _scaleFactor:Number=1;
       
       private var _samples:ByteArray = new ByteArray();
       
       private var _buffer:BitmapData = new BitmapData(_monitorWidth,_monitorHeight,false,_backgroundColor);
       private var _cursorBuffer:BitmapData = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
       private var _selectBuffer:BitmapData = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+      
       [Bindable]
       private var _selectScreen:Bitmap = new Bitmap(_selectBuffer);
       [Bindable]
@@ -60,9 +63,33 @@
       private var _clickedPosition:int;
       
       public static const SELECTION:String="selection"
+        
+        
+      private function init():void
+      {
+        
+      }
       
       public function clear():void
       {
+        
+        _samples.clear();
+        
+        _buffer = new BitmapData(_monitorWidth,_monitorHeight,false,_backgroundColor);
+        _cursorBuffer = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+        _selectBuffer = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+        
+        _selectScreen = new Bitmap(_selectBuffer);
+        _cursorScreen = new Bitmap(_cursorBuffer);		
+        _screen = new Bitmap(_buffer);
+        
+        _rect = new Rectangle(0,0,1,0);
+        
+        _playingTime=0;
+        
+        
+        _zone = new Rectangle(0,0,_playheadWidth,_monitorHeight);
+
         
         _selectionRect = new Rectangle(0,0,0,_monitorHeight);
         _selectBuffer.fillRect( _selectBuffer.rect, _backgroundColor);
@@ -75,19 +102,16 @@
       private function onResize():void
       {
         trace("component resize")
-        _ratio = _playingTime / _buffer.width;//
+        
         _scaleFactor=this.width/1024;
-      }
-      
-      
-      private function init():void
-      {
-        
+        _ratio = (_playingTime / _buffer.width)
         
       }
+      
       
       public function update(position:Number):void
       {
+        
         _cursorBuffer.fillRect( _cursorBuffer.rect,_backgroundColor );
         _zone.x = (_buffer.width / _playingTime) * position;
         _cursorBuffer.fillRect( _zone , _playheadColor );
@@ -146,7 +170,12 @@
         
         
       }
-      
+      public function clearSelection():void
+      {
+        _selectBuffer.fillRect( _selectBuffer.rect, _backgroundColor);
+        _selectionRect.x = 0;
+        _selectionRect.width = 0;
+      }
       
       private function onMouseIsDown( e:MouseEvent ):void
       {
@@ -176,7 +205,6 @@
       {
         dispatchEvent(new Event(SELECTION));
         removeEventListener( MouseEvent.MOUSE_MOVE, onMove );
-        
       }
       
       public function get selectionRect():Rectangle

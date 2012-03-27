@@ -30,8 +30,8 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers
 		private var _backgroundColor:uint=0xFF0000;//RGBA
 		private var _waveColor:uint=0xCCCCCC;
 		private var _selectionColor:uint=0x110000FF;
-		private var _playheadColor:uint=0xFF00FF00;
-		private var _playheadWidth:Number=3;
+		private var _playheadColor:uint=0xFF000000;
+		private var _playheadWidth:Number=2;
 		
 		
 		private var _samples:ByteArray = new ByteArray();
@@ -149,8 +149,6 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers
 			}
 			addEventListener( MouseEvent.CLICK, onClick );
 			addEventListener( MouseEvent.MOUSE_DOWN, onMouseIsDown );
-			
-			
 		}
 		
 		

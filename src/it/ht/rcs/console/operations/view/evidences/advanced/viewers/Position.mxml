@@ -2,11 +2,12 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
 									 height="100%"
 									 width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xCCCCCC"
-                   backgroundAlpha="0.5">
+                   backgroundAlpha="0.5" creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
@@ -18,6 +19,7 @@
 			public function set evidence(value:Object):void
 			{
         _evidence=value;
+        
 				
 			}
 
@@ -31,6 +33,19 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+      private function init():void
+      {
+        var pos1:Object={lat:45.4772345,lng:9.1868598, range:796} //Milano - Via Moscova
+        var pos2:Object={lat:45.47855,lng:9.21355, range:300} //Milano - Via Plinio
+        var pos3:Object={lat:45.46416,lng:9.19034, range:535} // Milano - Piazza Duomo
+        
+       var pos4:Object={lat:48.89364,lng:2.33739, range:100} // 3 cité Nollez Paris France
+        
+        var positions:Array=[pos1,pos2,pos3]
+        
+        mapViewer.positions=positions;
+      }
 		]]>
 	</fx:Script>
 <s:layout>
@@ -41,5 +56,5 @@
                       />
 </s:layout>
 		
-
+  <viewers:MapViewer id="mapViewer"/>
 </s:BorderContainer>

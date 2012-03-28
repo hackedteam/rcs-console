@@ -22,6 +22,13 @@ package it.ht.rcs.console.utils
         return;
       }
       
+      /* errors from the websocket interface */
+      if (e.type == 'ws') {
+        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'WS_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
+        SessionManager.instance.forceLogout();
+        return; 
+      }
+      
       /* http code 403 means our session is not valid */
       if (e.statusCode == 403) {
         AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'INVALID_SESSION'), ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));

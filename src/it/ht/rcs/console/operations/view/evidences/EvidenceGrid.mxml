@@ -18,6 +18,7 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.utils.TimeUtils;
+      import it.ht.rcs.console.ObjectUtils;
       
       import locale.R;
       
@@ -71,6 +72,10 @@
         if (agent == null) return "<unknown>";
         return agent.name;
       }
+      private function capitalize(item:Object, column:GridColumn):String
+      {
+        return ObjectUtils.capitalize(item.type);
+      }
       
       private function showData(item:Object, column:GridColumn):String
       {
@@ -81,9 +86,9 @@
       [Bindable]
       override public function set dataProvider(value:IList):void
       {
-        super.dataProvider=value;
+       super.dataProvider=value;
        dispatchEvent(new Event("dataChange"))
-        //this.grid.addEventListener(Event.RESIZE, onGridResize)
+       this.grid.addEventListener(Event.RESIZE, onGridResize)
       }
       
       private function onGridResize(e:Event):void
@@ -91,22 +96,22 @@
         //scrollDown();
       }
       
-//      private function scrollDown():void
-//      {
-//        // update the verticalScrollPosition to the end of the List
-//        // virtual layout may require us to validate a few times (it's a trick)
-//        var delta:Number = 0;
-//        var count:int = 0;
-//        while (count++ < 10)
-//        {
-//          this.validateNow();
-//          delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
-//          this.grid.verticalScrollPosition += delta;
-//          
-//          if (delta == 0)
-//            break;
-//        }
-//      }
+      private function scrollDown():void
+      {
+        // update the verticalScrollPosition to the end of the List
+        // virtual layout may require us to validate a few times (it's a trick)
+        var delta:Number = 0;
+        var count:int = 0;
+        while (count++ < 10)
+        {
+          this.validateNow();
+          delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
+          this.grid.verticalScrollPosition += delta;
+          
+          if (delta == 0)
+            break;
+        }
+      }
 
       
     ]]>
@@ -190,7 +195,7 @@
         </s:itemRenderer>    
       </s:GridColumn>
       
-      <s:GridColumn width="80" dataField="type" headerText="{R.get('TYPE')}" resizable="false" editable="false">
+      <s:GridColumn width="80" dataField="type" headerText="{R.get('TYPE')}" resizable="false" editable="false" labelFunction="capitalize">
         <s:headerRenderer>
           <fx:Component>
             <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
@@ -210,7 +215,7 @@
       </s:GridColumn>
       
       <s:GridColumn dataField="data" headerText="Info" width="500"
-                    itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceRenderer" resizable="false" editable="false" >
+                    itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceRenderer" resizable="true" editable="false" >
         <s:headerRenderer>
           <fx:Component>
             <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
@@ -220,7 +225,7 @@
         </s:headerRenderer>
       </s:GridColumn>
       
-      <s:GridColumn  dataField="note" headerText="Note" resizable="false" editable="true" >
+      <s:GridColumn  dataField="note" headerText="Note" resizable="false" editable="true">
         
       </s:GridColumn>
 

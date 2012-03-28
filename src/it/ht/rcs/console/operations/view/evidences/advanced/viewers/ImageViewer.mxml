@@ -31,9 +31,11 @@
       [Bindable]
       [Embed (source="/img/evidence/originalsize32.png" )]
       public var OriginalSizeIcon:Class;
-
-
-//TODO - MAX ZOOM - MIN ZOOM
+      
+      private var minZoom:Number=0.2;
+      private var maxZoom:Number=4;
+      private var zoomLevel:Number=1;
+      
 			private function init():void
 			{
 				img.smooth=false;
@@ -46,10 +48,14 @@
 			{
 				_url=value;
 				_rotation=0;
-				img.addEventListener(ProgressEvent.PROGRESS, onImageLoading)
-				img.addEventListener(Event.COMPLETE, onImageLoaded)
+				img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				img.addEventListener(Event.COMPLETE, onImageLoaded);
 				img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
 				img.source=_url;
+        zoomLevel=1;
+        img.scaleX=img.scaleY=zoomLevel
+      
+        fit();
 
 				//img.contentLoader=ImageCache.getInstance().cache;
 				//img.contentLoader.load(_url)
@@ -82,26 +88,39 @@
 
 			private function fit():void
 			{
+        zoomLevel=1;
 				img.scaleMode="letterbox";
-				img.percentWidth=imgBox.percentWidth=100;
-				img.percentHeight=imgBox.percentHeight=100;
+				img.percentWidth=100;
+				img.percentHeight=100;
         fitToScreen=true;
 			}
 
 			private function originalSize():void
 			{
 				img.scaleMode="letterbox";
-				img.width=imgBox.width=img.bitmapData.width;
-				img.height=imgBox.height=img.bitmapData.height;
+				img.width=img.bitmapData.width;
+				img.height=img.bitmapData.height;
         fitToScreen=false;
+        
+        zoomLevel=1;
+        img.scaleX=img.scaleY=zoomLevel
+      
 			}
 
 			private function zoom(factor:Number):void
 			{
         if(!fitToScreen)
         {
-          img.scaleX+=factor;
-          img.scaleY+=factor;
+            zoomLevel+=factor;
+            zoomLevel=uint((zoomLevel)*10)/10;
+            if(zoomLevel>maxZoom) zoomLevel=maxZoom;
+            else if(zoomLevel<minZoom) zoomLevel=minZoom;
+         
+            img.scaleX=img.scaleY=zoomLevel
+            
+           
+            
+
         }
 			}
 
@@ -127,7 +146,7 @@
 									height="100%"
 									id="scroller">
 				<utils:ScrollableGraph width="100%"
-									height="100%"
+									height="100%" id="scrollBox" verticalCenter="0" horizontalCenter="0"
 									>
           <utils:layout>
             <s:HorizontalLayout verticalAlign="middle"
@@ -135,7 +154,7 @@
           </utils:layout>
 					<s:Group id="imgBox"
 									 width="100%"
-									 height="100%" rotation="{_rotation}">
+									 height="100%" rotation="{_rotation}" verticalCenter="0" horizontalCenter="0">
             <s:layout>
               <s:HorizontalLayout verticalAlign="middle"
                                   horizontalAlign="center"/>
@@ -143,7 +162,7 @@
 						<s:BitmapImage id="img"
 													 width="100%"
 													 height="100%"
-													 scaleMode="letterbox" source="{_url}"/>
+													 scaleMode="letterbox" source="{_url}" verticalCenter="0" horizontalCenter="0"/>
 					</s:Group>
 				</utils:ScrollableGraph>
 			</s:Scroller>

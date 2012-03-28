@@ -6,8 +6,12 @@
                                 creationComplete="init()"
                                 width="100%" height="100%" show="init()">
                               
-  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="350"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="350"/>
+  </fx:Declarations>
   <fx:Script>
+    
     <![CDATA[
       import flashx.textLayout.conversion.TextConverter;
       
@@ -22,6 +26,10 @@
       private var frameWidth:Number=4;
       [Bindable]
       private var url:String;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/spinner30.swf")]
+      public var SpinnerAnimation:Class;
       
       
       [Bindable]
@@ -51,15 +59,16 @@
         url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
         img.source=url;
        // img.contentLoader.load(url)
-        programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        windowTxt.textFlow= TextConverter.importToFlow("<i>Window: </i>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        detailsTxt.textFlow= TextConverter.importToFlow("<i>x: </i>"+data.data.x+", <i>y: </i>"+data.data.y+", <i>Resolution: </i>"+data.data.resolution, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        detailsTxt.textFlow= TextConverter.importToFlow("<b>x: </b>"+data.data.x+", <b>y: </b>"+data.data.y+", <b>Resolution: </b>"+data.data.resolution, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
       }
       
       private function onImageLoading(e:ProgressEvent):void
       {
-        trace("image loading");
+        img.visible=false;
+        spinner.visible=true;
         
       }
       
@@ -70,7 +79,9 @@
       
       private function onImageLoaded(e:Event):void
       {
-        trace("image loaded");
+        spinner.visible=false;
+        img.visible=true;
+        fadeIn.play([img]);
         
       }
     ]]>
@@ -83,7 +94,8 @@
                          height="{img.height+(frameWidth*2)}"
                          backgroundColor="0xFFFFFF"
                          borderColor="0xCCCCCC">
-        <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}">
+        <s:SWFLoader id="spinner" width="30" height="30"  x="27" y="27" source="{SpinnerAnimation}"/>
+        <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}" visible="false">
           <!--<s:mask>
           <s:BorderContainer id="bmpMask" 
           cornerRadius="{0}"

@@ -5,8 +5,12 @@
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
                                 width="100%" height="100%" creationComplete="init()" show="init()"
                                 >
-	
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="350"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="350"/>
+  </fx:Declarations>
 	<fx:Script>
+    
 		<![CDATA[
       import flashx.textLayout.conversion.TextConverter;
       
@@ -19,10 +23,13 @@
       private var _maxHeight:Number=80;
       
       [Bindable]
+      [Embed(source="/img/evidence/spinner30.swf")]
+      public var SpinnerAnimation:Class;
+      
+      [Bindable]
       private var frameWidth:Number=4;
       [Bindable]
       private var url:String;
-      
       [Bindable]
       override public function set data(value:*):void
       {
@@ -47,15 +54,15 @@
         {
           url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
           img.source=url;
-          programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-          windowTxt.textFlow= TextConverter.importToFlow("<i>Window: </i>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
       }
 
   		private function onImageLoading(e:ProgressEvent):void
   		{
-        
-
+        img.visible=false;
+        spinner.visible=true;
   		}
       
       private function onImageError(e:IOErrorEvent):void
@@ -65,7 +72,9 @@
   		
   		private function onImageLoaded(e:Event):void
   		{
-        
+        spinner.visible=false;
+        img.visible=true;
+        fadeIn.play([img]);
 
   		}
 		]]>
@@ -78,7 +87,8 @@
                              height="{img.height+(frameWidth*2)}"
                              backgroundColor="0xFFFFFF"
                              borderColor="0xCCCCCC">
-              <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}">
+              <s:SWFLoader id="spinner" width="30" height="30"  x="27" y="27" source="{SpinnerAnimation}"/>
+              <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}" visible="false">
               </s:BitmapImage>
            </s:BorderContainer>
         </s:VGroup>
@@ -92,5 +102,4 @@
           <s:RichText id="windowTxt"/>
         </s:VGroup>
 		  </s:HGroup>
-
 </renderers:EvidenceDataRenderer>

@@ -10,12 +10,15 @@
     <![CDATA[
       private function init():void
       {
-        number.text = event.number;
+        number.text = event.number || '*';
       }
       
       override public function commit():void
       {
-        event.number = number.text;
+        if (number.text == '*')
+          delete(event.number);
+        else
+          event.number = number.text;
       }
       
       override public function isValid():Boolean

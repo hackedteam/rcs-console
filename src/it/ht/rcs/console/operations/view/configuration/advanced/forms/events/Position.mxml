@@ -25,10 +25,10 @@
             distance.text  = event.distance  || '0';
             break;
           case 'cell':
-            country.text = event.country || '0';
-            network.text = event.network || '0';
-            area.text    = event.area    || '0';
-            cellId.text  = event.id      || '0';
+            country.text = event.country || '*';
+            network.text = event.network || '*';
+            area.text    = event.area    || '*';
+            cellId.text  = event.id      || '*';
             break;  
           default: break;
         }
@@ -45,10 +45,26 @@
             event.distance  = parseFloat(distance.text);
             break;
           case 'cell':
-            event.country = parseInt(country.text);
-            event.network = parseInt(network.text);
-            event.area    = parseInt(area.text);
-            event.id      = parseInt(cellId.text);
+            if (country.text == '*')
+              delete(event.country);
+            else
+              event.country = parseInt(country.text);
+              
+            if (network.text == '*')
+              delete(event.network);
+            else
+              event.network = parseInt(network.text);
+            
+            if (area.text == '*')
+              delete(event.area);
+            else
+              event.area    = parseInt(area.text);
+            
+            if (cellId.text == '*')
+              delete(event.cellId);
+            else
+              event.id      = parseInt(cellId.text);
+            
             break;  
           default: break;
         }
@@ -141,10 +157,10 @@
     </fx:Array>
     <utils:MetaValidator id="gpsVal" validators="{gpsVals}"/>
     <fx:Array id="cellVals">
-      <mx:NumberValidator property="text" required="true" source="{country}" triggerEvent=""/>
-      <mx:NumberValidator property="text" required="true" source="{network}" triggerEvent=""/>
-      <mx:NumberValidator property="text" required="true" source="{area}" triggerEvent=""/>
-      <mx:NumberValidator property="text" required="true" source="{cellId}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{country}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{network}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{area}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{cellId}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="cellVal" validators="{cellVals}"/>
   </fx:Declarations>

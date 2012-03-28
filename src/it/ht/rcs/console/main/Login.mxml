@@ -7,9 +7,11 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.accounting.controller.SessionManager;
       import it.ht.rcs.console.accounting.model.Session;
       import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.push.PushController;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.Clock;
       import it.ht.rcs.console.utils.DBFaultNotifier;
@@ -56,6 +58,11 @@
         /* update the clock timezone */
         Clock.instance.setConsoleTimezone(Console.currentSession.user.timezone);
         
+        /* start the push manager */
+        if (!DB.instance.demo)
+          PushController.instance.connect(DB.instance.connected_host, DB.instance.connected_port + 1);
+        
+        /* initialize the managers */
         loading.visible = true;
         Initialization.instance.addEventListener("initialized", onInitComplete);
         Initialization.instance.initialize(loading);

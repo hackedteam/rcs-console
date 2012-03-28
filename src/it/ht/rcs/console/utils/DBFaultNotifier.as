@@ -4,6 +4,7 @@ package it.ht.rcs.console.utils
   import it.ht.rcs.console.IFaultNotifier;
   import it.ht.rcs.console.accounting.controller.SessionManager;
   
+  import mx.managers.CursorManager;
   import mx.resources.ResourceManager;
   import mx.rpc.events.FaultEvent;
   
@@ -17,9 +18,19 @@ package it.ht.rcs.console.utils
     {
       var message:String = "ERROR";
       
+      /* remove the busy cursor */
+      CursorManager.removeBusyCursor();
+      
       /* avoid multiple messages, by checking if the currentSession is valid */
       if (Console.currentSession == null) {
         return;
+      }
+      
+      /* errors from the websocket interface */
+      if (e.type == 'ws') {
+        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'WS_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
+        SessionManager.instance.forceLogout();
+        return; 
       }
       
       /* http code 403 means our session is not valid */

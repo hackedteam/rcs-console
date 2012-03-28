@@ -4,6 +4,7 @@ package it.ht.rcs.console.utils
   import it.ht.rcs.console.IFaultNotifier;
   import it.ht.rcs.console.accounting.controller.SessionManager;
   
+  import mx.managers.CursorManager;
   import mx.resources.ResourceManager;
   import mx.rpc.events.FaultEvent;
   
@@ -16,6 +17,9 @@ package it.ht.rcs.console.utils
     public function fault(e:FaultEvent):void
     {
       var message:String = "ERROR";
+      
+      /* remove the busy cursor */
+      CursorManager.removeBusyCursor();
       
       /* avoid multiple messages, by checking if the currentSession is valid */
       if (Console.currentSession == null) {

@@ -52,14 +52,16 @@
 
 	<fx:Script>
 		<![CDATA[
-			import mx.collections.ArrayCollection;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.evidence.model.TypeCount;
-
+			
 			import locale.R;
+			
+			import mx.collections.ArrayCollection;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
+
 
 			[Bindable]
 			private var _total:int;
@@ -125,7 +127,8 @@
 					tagEditor.tag=0;
 					tagEditor.enabled=false;
 					reportBtn.enabled=false;
-					stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyPress)
+					stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+          stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
 				else if (selectedObjects.length == 1)
 				{
@@ -134,6 +137,7 @@
 					reportBtn.enabled=true;
 					toggleReportButton(selectedObjects[0].blo);
 					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
 				else
 				{
@@ -152,6 +156,7 @@
 					reportBtn.enabled=true;
 					toggleReportButton(blotterValue);
 					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
 			}
 
@@ -177,42 +182,52 @@
 			{
 
 			}
-
+      private function onKeyUp(e:KeyboardEvent):void
+      {
+        
+      }
+      
 			private function onKeyPress(e:KeyboardEvent):void
 			{
+       
 
 				switch (e.keyCode)
 				{
+         
 					//0 key
 					case 48:
-						updateRelevance(0);
+						if(e.altKey) updateRelevance(0);
 						break;
 					//1 key
 					case 49:
-						updateRelevance(1);
+            if(e.altKey) updateRelevance(1);
 						break;
 					//2 key
 					case 50:
-						updateRelevance(2);
+            if(e.altKey) updateRelevance(2);
 						break;
 					//3 key
 					case 51:
-						updateRelevance(3);
+            if(e.altKey) updateRelevance(3);
 						break;
 					//4 key
 					case 52:
-						updateRelevance(4);
+            if(e.altKey) updateRelevance(4);
 						break;
 					//n key
 					case 78:
-						e.stopPropagation()
-						e.preventDefault()
-						onEditNoteClick()
+            if(e.altKey){
+  						e.stopPropagation()
+  						e.preventDefault()
+  						onEditNoteClick()
+            }
 						break;
 					//r key
 					case 82:
-						updateReport(reportBtn.getStyle("icon") == ReportAddIcon);
-						toggleReportButton(reportBtn.getStyle("icon") == ReportAddIcon)
+            if(e.altKey){
+  						updateReport(reportBtn.getStyle("icon") == ReportAddIcon);
+  						toggleReportButton(reportBtn.getStyle("icon") == ReportAddIcon)
+            }
 						break;
 				}
 

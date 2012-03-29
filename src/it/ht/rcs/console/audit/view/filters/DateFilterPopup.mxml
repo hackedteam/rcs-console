@@ -27,6 +27,9 @@
         if (fromTo.selected) {
           filter.from = getFromTimestamp();
           filter.to = getToTimestamp();
+        } else if (lastWeek.selected) {
+          filter.from = getOneWeekAgo();
+          delete(filter.to);
         } else {
           delete(filter.from);
           delete(filter.to);
@@ -38,11 +41,11 @@
       
       private function show():void
       {
-        fromH.setFocus();
-        if (filter.from)
-          setFromTimestamp(filter.from);
-        if (filter.to)
-          setToTimestamp(filter.to);
+//        fromH.setFocus();
+//        if (filter.from)
+//          setFromTimestamp(filter.from);
+//        if (filter.to)
+//          setToTimestamp(filter.to);
       }
     ]]>
   </fx:Script>
@@ -54,6 +57,7 @@
   <s:VGroup gap="10" styleName="evidenceFilter">
     
     <s:RadioButton label="Last 24 Hours" group="{group}" selected="true"/>
+    <s:RadioButton id="lastWeek" label="Last Week" group="{group}"/>
     <s:RadioButton id="fromTo" label="From/To" group="{group}"/>
     
     <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
@@ -121,6 +125,11 @@
         to.selectedDate = toDate;
         toH.value = toDate.hours;
         toM.value = toDate.minutes;
+      }
+      
+      private function getOneWeekAgo():int
+      {
+        return (Clock.instance.toUTCTime(new Date()) / 1000) - 604800; // seconds in 7 days
       }
       
       private function pad(n:Number):String

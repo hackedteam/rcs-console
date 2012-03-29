@@ -120,32 +120,25 @@
   <s:columns>
     <s:ArrayList>
       
-      <s:GridColumn width="37" dataField="rel" headerText=""
-                    itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer" resizable="false" editable="false">
-        <s:headerRenderer>
+      <s:GridColumn width="150" dataField="aid" headerText="Agent"
+                    labelFunction="showName" resizable="true" editable="false" visible="{parentDocument.section.stateManager.selectedAgent == null}">
+        <s:itemRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
-                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TagFilterPopup"/>
+            <s:GridItemRenderer>
+              <s:layout>
+                <s:HorizontalLayout verticalAlign="middle" horizontalAlign="left"  paddingLeft="6" paddingRight="6" paddingTop="4"/>
+              </s:layout>
+              <s:Label id="labelDisplay"/>
+            </s:GridItemRenderer>
           </fx:Component>
-        </s:headerRenderer>
-      </s:GridColumn>
-      
-      <s:GridColumn width="30" dataField="blo" headerText=""
-                    itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.BlotterRenderer"
-                    resizable="false" editable="false">
-        <s:headerRenderer>
-          <fx:Component>
-            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
-                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.BlotterFilterPopup"/>
-          </fx:Component>
-        </s:headerRenderer>
+        </s:itemRenderer>    
       </s:GridColumn>
       
       <s:GridColumn width="130" dataField="da" headerText="{R.get('DATE_ACQUIRED')}"
                     labelFunction="dateLabelFunction" resizable="false" editable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}" editable="false"
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
                                             popupFactory="it.ht.rcs.console.operations.view.evidences.filters.DateFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
@@ -165,7 +158,7 @@
                     labelFunction="dateLabelFunction" resizable="false" editable="false">
         <s:headerRenderer>
           <fx:Component>
-            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}" editable="false"
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
                                             popupFactory="it.ht.rcs.console.operations.view.evidences.filters.DateFilterPopup"/>
           </fx:Component>
         </s:headerRenderer>
@@ -180,19 +173,26 @@
           </fx:Component>
         </s:itemRenderer>
       </s:GridColumn>
-      
-      <s:GridColumn width="150" dataField="aid" headerText="Agent"
-                    labelFunction="showName" resizable="false" editable="false">
-        <s:itemRenderer>
+
+      <s:GridColumn width="37" dataField="rel" headerText=""
+                    itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer" resizable="false" editable="false">
+        <s:headerRenderer>
           <fx:Component>
-            <s:GridItemRenderer>
-              <s:layout>
-                <s:HorizontalLayout verticalAlign="middle" horizontalAlign="left"  paddingLeft="6" paddingRight="6" paddingTop="4"/>
-              </s:layout>
-              <s:Label id="labelDisplay"/>
-            </s:GridItemRenderer>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TagFilterPopup"/>
           </fx:Component>
-        </s:itemRenderer>    
+        </s:headerRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="30" dataField="blo" headerText=""
+                    itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.BlotterRenderer"
+                    resizable="false" editable="false">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.BlotterFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
       </s:GridColumn>
       
       <s:GridColumn width="80" dataField="type" headerText="{R.get('TYPE')}" resizable="false" editable="false" labelFunction="capitalize">
@@ -225,7 +225,7 @@
         </s:headerRenderer>
       </s:GridColumn>
       
-      <s:GridColumn  dataField="note" headerText="Note" resizable="false" editable="true">
+      <s:GridColumn dataField="note" headerText="Note" resizable="true" editable="true">
         
       </s:GridColumn>
 

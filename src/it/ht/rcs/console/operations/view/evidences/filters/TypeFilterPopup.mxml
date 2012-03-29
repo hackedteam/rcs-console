@@ -31,6 +31,11 @@
     <filters:TypeFilterItemRenderer id="screenshot" label="screenshot"/>
     <filters:TypeFilterItemRenderer id="url"        label="url"/>
     
+    <s:HGroup>
+      <s:Button label="Select All" width="90" click="applyAll(true)"/>
+      <s:Button label="Deselect All" width="90" click="applyAll(false)"/>
+    </s:HGroup>
+    
   </s:VGroup>
   
   <fx:Script>
@@ -47,7 +52,7 @@
                   keylog, message, mic, mouse, password, position, print, screenshot, url];
       }
       
-      override public function commit(fireEvent:Boolean=true):void
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
       {
         var values:Array = getValues();
         hasFilter = values.length > 0;
@@ -86,7 +91,14 @@
       {
         if (!filter.hasOwnProperty(property)) return;
         checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
-          item.checkbox.selected =  filter[property].indexOf(item.id) != -1;
+          item.checkbox.selected = filter[property].indexOf(item.id) != -1;
+        });
+      }
+      
+      private function applyAll(val:Boolean):void
+      {
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = val;
         });
       }
     ]]>

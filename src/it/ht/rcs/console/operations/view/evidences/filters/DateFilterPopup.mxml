@@ -16,15 +16,19 @@
       
       private function init():void
       {
+        group.selection = null;
         rebuild();
         var today:int = new Date().time/1000;
         setFromTimestamp(today - (60*60*24));
         setToTimestamp(today);
       }
       
-      override public function commit(fireEvent:Boolean=true):void
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
       {
-        filter.date = property;
+        if (setProperty)
+          filter.date = property;
+        
+        hasFilter = filter.date == property;
         
         if (fromTo.selected) {
           filter.from = getFromTimestamp();
@@ -35,7 +39,7 @@
         } else if (lastWeek.selected) {
           filter.from = getOneWeekAgo();
           delete(filter.to);
-        } else if (all.selected) {
+        } else {
           filter.from = 0;
           filter.to = 0;
         }
@@ -49,10 +53,13 @@
       
       override public function reset(fireEvent:Boolean=true):void
       {
+        group.selection = null;
+        
         filter.date = 'da';
-        delete(filter.from);
-        delete(filter.to);
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+        filter.from = 0;
+        filter.to = 0;
+        
+        commit(fireEvent, false);
       }
       
       private function show():void
@@ -64,9 +71,13 @@
       override public function rebuild(e:Event=null):void
       {
         hasFilter = filter.date == property;
+        if (!hasFilter) {
+          group.selection = null;
+          return;
+        }          
         
         if (filter.from == 0 && filter.to == 0)
-          all.selected = true;
+          hasFilter = false;
         else if (filter.from && filter.to) {
           fromTo.selected = true;
           setFromTimestamp(filter.from);
@@ -85,9 +96,9 @@
   
   <s:VGroup gap="10" styleName="evidenceFilter">
     
-    <s:RadioButton id="last24"   label="Last 24 Hours" group="{group}" selected="true"/>
+    <s:RadioButton id="last24"   label="Last 24 Hours" group="{group}"/>
     <s:RadioButton id="lastWeek" label="Last Week"     group="{group}"/>
-    <s:RadioButton id="all"      label="All"           group="{group}"/>
+ <!--s:RadioButton id="all"      label="All"           group="{group}"/-->
     <s:RadioButton id="fromTo"   label="From / To"     group="{group}"/>
     
     <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">

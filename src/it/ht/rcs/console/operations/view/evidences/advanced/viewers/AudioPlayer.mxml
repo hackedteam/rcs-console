@@ -10,7 +10,7 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
+			
 			import it.ht.rcs.console.utils.TimeUtils;
 
 			[Bindable]
@@ -114,19 +114,24 @@
         _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
 				_sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
 				_playingTime=_sound.length;
-				addEventListener(Event.ENTER_FRAME, update);
-				playBtn.toolTip="pause";
-				playBtn.source=PauseIcon;
-				playBtn.enabled=true;
-				stopBtn.enabled=true;
-				_channel=_sound.play();
-				_channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
-				_channel.soundTransform=_soundTransform;
-				_isPlaying=true;
+				
+        spectrumMonitor.addEventListener(SpectrumMonitor.READY, onSpectrumReady)
 				spectrumMonitor.draw(_sound);
         timeTxt.text="00:00:00"
 
 			}
+      private function onSpectrumReady(e:Event):void
+      {
+        addEventListener(Event.ENTER_FRAME, update);
+        playBtn.toolTip="pause";
+        playBtn.source=PauseIcon;
+        playBtn.enabled=true;
+        stopBtn.enabled=true;
+        _channel=_sound.play();
+        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+        _channel.soundTransform=_soundTransform;
+        _isPlaying=true;
+      }
 
 			private function onSoundComplete(e:Event):void
 			{

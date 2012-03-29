@@ -77,6 +77,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     override protected function createChildren():void
     {
 			super.createChildren();
+      
+      toolTip = collector.address;
 
       if (container == null)
       {
@@ -156,7 +158,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private function onDoubleClick(me:MouseEvent):void
     {
-      (this.parentDocument as Frontend).list.edit(collector);
+      if (Console.currentSession.user.is_sys())
+        (this.parentDocument as Frontend).list.edit(collector);
     }
     
     private var _selected:Boolean = false;
@@ -170,7 +173,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     private function onMouseDown(me:MouseEvent):void
     {
       me.stopPropagation();
-      if (collector.type == 'remote')
+      if (collector.type == 'remote' && Console.currentSession.user.is_sys())
       {
         var dragSource:DragSource = new DragSource();
         DragManager.doDrag(this, dragSource, me, getProxy(this));

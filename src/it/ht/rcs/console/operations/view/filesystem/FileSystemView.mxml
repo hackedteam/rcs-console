@@ -42,7 +42,7 @@
             var next:Object = getChild(node.children, t);
             if (!next) {
               next = { name: t, children: [], size: e.data.size, attr: e.data.attr, date: e.da, parent: node, evidence: e };
-              if (e.data.attr == 0)
+              if (t == tokens[tokens.length-1] && e.data.attr == 0)
                 delete(next.children);
               node.children.push(next);
               node = next;
@@ -76,7 +76,7 @@
       {
         try {
           var value:int = item[column.dataField];
-          return value == -1 ? '' : Size.toHumanBytes(item[column.dataField]);
+          return value == -1 || item.attr == 1 ? '' : Size.toHumanBytes(item[column.dataField]);
         } catch (e:Error) {}
         return '';
       }
@@ -84,6 +84,27 @@
       private function onRemovedFromStage():void
       {
         grid.dataProvider = null;
+      }
+      
+      [Embed('/img/NEW/emptyFolder.png')]
+      private static const emptyFolder:Class;
+      [Embed('/img/NEW/fullFolder.png')]
+      private static const fullFolder:Class;
+      [Embed('/img/NEW/file.png')]
+      private static const file:Class;
+      [Embed('/img/NEW/device.png')]
+      private static const device:Class;
+      
+      private function fsIconFunction(item:Object):Class
+      {
+        if (!item) return null;
+        switch (item.attr) {
+          case -1: return device;
+          case 0: return file;
+          case 1: return emptyFolder;
+          case 3: return fullFolder;
+          default: return null;
+        }
       }
     ]]>
   </fx:Script>
@@ -93,7 +114,7 @@
   <!--mx:Tree id="tree" width="100%" height="100%" allowMultipleSelection="false" borderVisible="false"
            labelField="name" showRoot="true"/-->
   
-  <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false">
+  <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false" iconFunction="fsIconFunction">
     <mx:columns>
       <mx:AdvancedDataGridColumn dataField="name" width="400"/>
       <mx:AdvancedDataGridColumn dataField="date" labelFunction="dateFunction" width="160"/>

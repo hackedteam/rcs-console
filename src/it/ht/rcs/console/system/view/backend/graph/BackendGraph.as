@@ -54,7 +54,7 @@ package it.ht.rcs.console.system.view.backend.graph
     private static const HORIZONTAL_DISTANCE:int = 100;
     private static const VERTICAL_DISTANCE:int   = 30;
     private static const HORIZONTAL_PAD:int      = 40;
-    private static const VERTICAL_PAD:int        = 10;
+    private static const VERTICAL_PAD:int        = 200;
     
     private function computeSize():Point
     {

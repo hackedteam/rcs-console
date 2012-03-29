@@ -10,6 +10,7 @@
       import it.ht.rcs.console.events.FilterEvent;
       
       import mx.core.FlexGlobals;
+      import mx.events.FlexMouseEvent;
       import mx.managers.PopUpManager;
       
       import spark.components.CheckBox;
@@ -82,6 +83,7 @@
       private function clickHandler(event:MouseEvent):void {
         
         if (currentPopup && currentPopup.visible) {
+          currentPopup.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
           currentPopup.commit();
           if (currentPopup === popup) {
             currentPopup = null;
@@ -91,6 +93,7 @@
 
         centerPopup();
         popup.visible = true;
+        popup.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
         currentPopup = popup;
         
       }

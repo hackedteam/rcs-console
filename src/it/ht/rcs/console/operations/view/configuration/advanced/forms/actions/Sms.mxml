@@ -11,17 +11,18 @@
       {
         if (!number) return;
         number.text = action.number;
-        text.text = action.text;
         position.selected = action.position;
         sim.selected = action.sim;
+        text.selected = action.text != '';
+        textArea.text = action.text;
       }
       
       override public function commit():void
       {
         action.number = number.text;
-        action.text = text.text;
         action.position = position.selected;
         action.sim = sim.selected;
+        action.text = text.selected ? textArea.text : '';
       }
       
       override public function isValid():Boolean
@@ -32,7 +33,7 @@
   </fx:Script>
   
   <s:Label width="330" lineHeight="16"
-           text="Send a SMS to the specified phone number containing position or SIM information"/>
+           text="Send a SMS to the specified phone number containing position, SIM information or custom text"/>
   
   <s:Form>
     
@@ -42,20 +43,23 @@
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Text">
-      <s:HGroup>
-        <s:TextArea id="text" width="220" heightInLines="4"/>
-      </s:HGroup>
+    <s:FormItem label="Send">
+      <s:VGroup>
+        <s:RadioButton id="position" label="Position" selected="true"/>
+        <s:RadioButton id="sim" label="Sim"/>
+        <s:RadioButton id="text" label="Text"/>
+        <s:TextArea id="textArea" width="220" heightInLines="4" enabled="{text.selected}"/>
+      </s:VGroup>
     </s:FormItem>
-    
+    <!--
     <s:FormItem label="Position">
-      <s:CheckBox id="position"/>
+      <s:CheckBox id="position" change="onChange(event)"/>
     </s:FormItem>
     
     <s:FormItem label="Sim">
-      <s:CheckBox id="sim"/>
+      <s:CheckBox id="sim" change="onChange(event)"/>
     </s:FormItem>
-  
+  -->
   </s:Form>
   
   <fx:Declarations>

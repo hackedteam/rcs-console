@@ -39,9 +39,13 @@ package it.ht.rcs.console.operations.view
     
     private var customTypeSort:Sort;
     private var collator:SortingCollator;
+    
+    public static var currInstance:OperationsSectionStateManager;
+    
     public function OperationsSectionStateManager(section:OperationsSection)
     {
       this.section = section;
+      currInstance = this;
       
       collator = new SortingCollator();
       collator.ignoreCase = true;

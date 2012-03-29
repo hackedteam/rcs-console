@@ -43,7 +43,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public static const livemic:Class;
     
     [Embed(source='/img/modules/messages.png')]
-    public static const messages:Class;
+    public static const message:Class;
     
     [Embed(source='/img/modules/mic.png')]
     public static const mic:Class;

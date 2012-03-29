@@ -44,6 +44,7 @@
         _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError)
         _sound.addEventListener(Event.COMPLETE, onSoundLoaded);
         _sound.load(new URLRequest(url));
+        trace("url"+url)
       }
 
       private function update(e:Event):void
@@ -55,12 +56,22 @@
       {
         trace("sound loading")
         var perc:int=(e.bytesLoaded/e.bytesTotal)*100;
+        trace(e.bytesLoaded+" - "+e.bytesTotal)
+        if(e.bytesLoaded>10)
+        {
         statusTxt.text="Loading sound data: "+String(perc)+"%"
+        }
       }
       
       private function onSoundError(e:IOErrorEvent):void
       {
         trace("sound error")
+        statusTxt.text="Unable to load sound"
+        playBtn.enabled=true;
+        stopBtn.enabled=false;
+        _sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading);
+        _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
+        _sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
       }
       
       private function onSoundLoaded(e:Event):void

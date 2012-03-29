@@ -17,35 +17,42 @@
 
 				super.data=value;
 				// topic, peer, content, program
-				topicTxt.textFlow=TextConverter.importToFlow("<i>Topic: </i>" + data.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				peerTxt.textFlow=TextConverter.importToFlow("<i>Peer: </i>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				contentTxt.textFlow=TextConverter.importToFlow("<i>Content: </i>" + data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				programTxt.textFlow=TextConverter.importToFlow("<i>Program: </i>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				if(data.data.topic!="")
+        {
+          topicTxt.visible=topicTxt.includeInLayout=true;
+          topicTxt.textFlow=TextConverter.importToFlow("<b>Topic: </b>" + data.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }else
+        {
+          topicTxt.visible=topicTxt.includeInLayout=false;
+        }
+				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 		]]>
 	</fx:Script>
-	<s:VGroup verticalAlign="top"
+	<s:HGroup verticalAlign="top"
 						height="100%"
 						width="100%">
-		<s:HGroup verticalAlign="middle"
-							width="100%">
+		<s:VGroup verticalAlign="middle"
+							width="50%">
 			<s:RichText id="topicTxt"
-									width="50%"/>
+									width="100%"/>
 			<s:RichText id="peerTxt"
-									width="50%"/>
-		</s:HGroup>
-		<s:Line width="100%">
+									width="100%"/>
+		</s:VGroup>
+		<s:Line height="100%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<s:HGroup verticalAlign="middle"
-							width="100%">
+		<s:VGroup verticalAlign="middle"
+							width="50%">
 			<s:RichText id="contentTxt"
-									width="50%"/>
+									width="100%"/>
 			<s:RichText id="programTxt"
-									width="50%"/>
-		</s:HGroup>
-	</s:VGroup>
+									width="100%"/>
+		</s:VGroup>
+	</s:HGroup>
 
 </renderers:EvidenceDataRenderer>

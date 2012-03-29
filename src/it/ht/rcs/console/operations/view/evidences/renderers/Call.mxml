@@ -4,7 +4,7 @@
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																focusOut="onFocusOut()"
-																focusIn="onFocusIn()" creationComplete="init()" show="init()"
+																focusIn="onFocusIn()" creationComplete="init()"
 																width="100%">
 
 	<fx:Script>
@@ -26,12 +26,14 @@
 			[Bindable]
 			[Embed(source="/img/mediaplayers/recording.swf")]
 			public var RecordingIcon:Class;
+      [Bindable]
+      private var url:String;
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
 				super.data=value;
-       
+       init()
 			/*
 				peer
 				recording 0/1
@@ -42,11 +44,19 @@
       
       private function init():void
       {
+        draw()
+      }
+      
+      private function draw():void
+      {
+       
         if(data)
         {
           var id:String=encodeURIComponent(data.data._grid);
           var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-          miniPlayer.url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+          url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+          miniPlayer.url=url
+            trace(url)
         }
       }
 
@@ -65,7 +75,7 @@
 						height="100%"
 						width="100%">
 		<s:HGroup>
-			<s:Label text="Program: {data.data.program} | Peer: {data.data.peer}"/>
+			<s:Label text="Program: {data.data.program} | Peer: {data.data.peer} - grid: {data.data._grid}"/>
 			<!-- <s:SWFLoader source="{RecordingIcon}"/>
 			<s:Label text="Recording..."/> -->
 		</s:HGroup>

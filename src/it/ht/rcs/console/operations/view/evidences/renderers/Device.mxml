@@ -8,7 +8,7 @@
   <fx:Script>
     <![CDATA[
       import flashx.textLayout.conversion.TextConverter;
-      
+      import it.ht.rcs.console.utils.StringUtils;
       import it.ht.rcs.console.DB;
       
       [Bindable]
@@ -17,14 +17,15 @@
         
         super.data=value;
         // content
-        var content:String=data.data.content.replace(new RegExp("\n", "g"), "<br>");
-        contentTxt.textFlow= TextConverter.importToFlow(content, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        contentTxt.verticalScrollPosition=0;
+        var content:String=data.data.content.replace(new RegExp("\n\n", "g"), "\n");
+        content=content.replace(new RegExp("\n", "g"), "<br>");
+        contentTxt.textFlow= TextConverter.importToFlow(StringUtils.truncate(content, 100,"..."), TextConverter.TEXT_FIELD_HTML_FORMAT);
+       // contentTxt.verticalScrollPosition=0;
       }
       
       private function onMouseDown(e:MouseEvent):void
       {
-        e.stopImmediatePropagation();
+        //e.stopImmediatePropagation();
       }
       
 
@@ -32,10 +33,10 @@
   </fx:Script>
   <s:HGroup verticalAlign="top"
             width="100%">
-    <s:RichText textFlow="{TextConverter.importToFlow('&lt;i&gt;Content: &lt;/i&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
-    <s:Scroller width="100%" id="scroller" maxHeight="58" minHeight="0" >
-      <s:RichEditableText id="contentTxt" minWidth="0" multiline="true" editable="false" selectable="false"/>
-    </s:Scroller>
+    <s:RichText textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+    
+      <s:RichText id="contentTxt" minWidth="0" height="70"/>
+
   </s:HGroup>
   
 </renderers:EvidenceDataRenderer>

@@ -17,9 +17,18 @@
       {
         
         super.data=value;
-        programTxt.textFlow= TextConverter.importToFlow("<i>Program: </i>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        actionTxt.textFlow= TextConverter.importToFlow("<i>Action: </i>"+data.data.action, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        descTxt.textFlow= TextConverter.importToFlow("<i>Description: </i>"+data.data.desc, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        actionTxt.textFlow= TextConverter.importToFlow("<b>Action: </b>"+data.data.action, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          if(data.data.desc!="")
+          {
+            descTxt.visible=descTxt.includeInLayout=true;
+            descTxt.textFlow= TextConverter.importToFlow("<b>Description: </b>"+data.data.desc, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            descTxt.visible=descTxt.includeInLayout=false;
+          }
+        
        
   		}
       
@@ -30,20 +39,20 @@
 
 		]]>
 	</fx:Script>
-  <s:VGroup verticalAlign="top"
+  <s:HGroup verticalAlign="top"
             height="100%"
             width="100%">
-    <s:HGroup verticalAlign="middle" width="100%">
-      <s:RichText id="programTxt" width="50%"/>
-      <s:RichText id="actionTxt" width="50%"/>
-    </s:HGroup>
-    <s:Line width="100%">
+    <s:VGroup verticalAlign="middle" width="50%">
+      <s:RichText id="programTxt" width="100%"/>
+      <s:RichText id="actionTxt" width="100%"/>
+    </s:VGroup>
+    <s:Line height="100%">
       <s:stroke>
         <s:SolidColorStroke color="0xCCCCCC"/>
       </s:stroke>
     </s:Line>
-    <s:HGroup verticalAlign="middle" width="100%">
+    <s:VGroup verticalAlign="middle" width="50%">
       <s:RichText id="descTxt" width="100%"/>
-    </s:HGroup>
-  </s:VGroup>
+    </s:VGroup>
+  </s:HGroup>
 </renderers:EvidenceDataRenderer>

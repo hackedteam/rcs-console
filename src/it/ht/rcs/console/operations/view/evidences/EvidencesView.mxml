@@ -25,11 +25,15 @@
       
       private function onAddedToStage():void
       {
+        resetFilter();
+        
         EvidenceManager.instance.evidenceFilter.target = section.stateManager.selectedTarget._id;
         if (section.stateManager.selectedAgent != null)
           EvidenceManager.instance.evidenceFilter.agent = section.stateManager.selectedAgent._id;
         else
           delete EvidenceManager.instance.evidenceFilter.agent;
+        
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
         EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -38,6 +42,17 @@
        
        
         trace("evidence view added to stage")
+      }
+      
+      private function resetFilter():void
+      {
+        var filter:Object = EvidenceManager.instance.evidenceFilter;
+        filter.date = 'da';
+        delete(filter.from);
+        delete(filter.to);
+        delete(filter.rel);
+        delete(filter.type);
+        delete(filter.info);
       }
       
       private function onDataLoaded(e:DataLoadedEvent):void

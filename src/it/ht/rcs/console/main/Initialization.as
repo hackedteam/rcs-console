@@ -55,7 +55,7 @@ package it.ht.rcs.console.main
       if (user.is_view())                                      mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
       if (user.is_sys()   || user.is_tech())                   mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin())                                     mainSections.addItem({label: 'Audit',      manager: null});
-      if (user.is_admin() || user.is_sys())                    mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
+      if (user.is_any())                                       mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
       //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
 
@@ -68,6 +68,7 @@ package it.ht.rcs.console.main
       {
         SearchManager.instance.listenRefresh();
         managers.push(SearchManager.instance);
+        managers.push(MonitorManager.instance);
         managers.push(LicenseManager.instance);
       }
       
@@ -76,12 +77,7 @@ package it.ht.rcs.console.main
         managers.push(UserManager.instance);
         managers.push(GroupManager.instance);
       }
-
-      if (user.is_admin() || user.is_sys())
-      {
-        managers.push(MonitorManager.instance);        
-      }
-      
+     
       if (user.is_sys())
       {
         managers.push(ShardManager.instance);        

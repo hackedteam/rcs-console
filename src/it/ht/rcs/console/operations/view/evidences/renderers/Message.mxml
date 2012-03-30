@@ -3,32 +3,52 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                >
-	
-	<fx:Script>
-		<![CDATA[
+                                width="100%"
+                                height="100%">
+  
+  <fx:Script>
+    <![CDATA[
       import it.ht.rcs.console.DB;
+      import flashx.textLayout.conversion.TextConverter;
+      import it.ht.rcs.console.utils.Size;
       
-      
-  		
       [Bindable]
       override public function set data(value:*):void
       {
+        // program, path, size
         
+        //type could be open or capture
         super.data=value;
-        messageTxt.text=data.data.from + "  -->  " + data.data.rcpt + "  Subject: " + data.data.subject;   
-  		}
-      
-      private function init():void
-      {
-       
+        fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        recipientsTxt.textFlow=TextConverter.importToFlow("<b>Recipients: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + data.data.subject, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
       }
-
-		]]>
-	</fx:Script>
+      
+    ]]>
+  </fx:Script>
   
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="messageTxt"/>
-		  </s:HGroup>
-
+  <s:HGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:VGroup verticalAlign="top"
+              width="50%">
+      <s:RichText id="fromTxt"
+                  width="100%"/>
+      <s:RichText id="recipientsTxt"
+                  width="100%"/>
+    </s:VGroup>
+    <s:Line height="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:VGroup verticalAlign="top"
+              width="50%">
+      <s:RichText id="subjectTxt"
+                  width="100%"/>
+      <s:RichText id="sizeTxt"
+                  width="100%"/>
+    </s:VGroup>
+  </s:HGroup>
 </renderers:EvidenceDataRenderer>

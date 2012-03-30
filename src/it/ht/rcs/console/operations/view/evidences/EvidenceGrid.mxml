@@ -88,33 +88,38 @@
       {
        super.dataProvider=value;
        dispatchEvent(new Event("dataChange"))
+       var delay:Timer = new Timer(200,1);
+       delay.addEventListener(TimerEvent.TIMER, scrollDown);
+       delay.start();
        this.grid.addEventListener(Event.RESIZE, onGridResize)
       }
       
       private function onGridResize(e:Event):void
       {
-        //scrollDown();
+       scrollDown(e);
       }
       
-      private function scrollDown():void
+      private function scrollDown(e:*):void
       {
         // update the verticalScrollPosition to the end of the List
         // virtual layout may require us to validate a few times (it's a trick)
         var delta:Number = 0;
         var count:int = 0;
-        while (count++ < 10)
+        while (count++ < 30)
         {
           this.validateNow();
           delta = this.grid.getVerticalScrollPositionDelta(NavigationUnit.END);
           this.grid.verticalScrollPosition += delta;
           
           if (delta == 0)
+          {
+            this.grid.removeEventListener(Event.RESIZE, onGridResize)
             break;
+          }
         }
       }
     ]]>
   </fx:Script>
-  
   <s:columns>
     <s:ArrayList>
       
@@ -138,7 +143,7 @@
         </s:itemRenderer>    
       </s:GridColumn>
       
-      <s:GridColumn width="80" dataField="type" headerText="{R.get('TYPE')}" resizable="false" editable="false" labelFunction="capitalize">
+      <s:GridColumn width="90" dataField="type" headerText="{R.get('TYPE')}" resizable="false" editable="false" labelFunction="capitalize">
         <s:headerRenderer>
           <fx:Component>
             <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
@@ -229,8 +234,17 @@
         </s:headerRenderer>
       </s:GridColumn>
       
-      <s:GridColumn dataField="note" headerText="Note" resizable="true" editable="true">
-        
+      <s:GridColumn dataField="note" headerText="Note" resizable="true" editable="true" >
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer height="100">
+              <s:layout>
+                <s:HorizontalLayout verticalAlign="middle" horizontalAlign="left" paddingLeft="6" paddingRight="6" paddingTop="4"/>
+              </s:layout>
+              <s:Label id="labelDisplay"/>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>    
       </s:GridColumn>
 
     </s:ArrayList>

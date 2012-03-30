@@ -3,31 +3,52 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%"
                                 >
-	
-	<fx:Script>
-		<![CDATA[
+  
+  <fx:Script>
+    <![CDATA[
+      import com.adobe.net.URI;
+      
+      import flashx.textLayout.conversion.TextConverter;
+      
       import it.ht.rcs.console.DB;
       
-      
-  		
       [Bindable]
       override public function set data(value:*):void
       {
+    
         super.data=value;
-        urlTxt.text="[" + data.data.browser + "] " + data.data.url;
-  		}
-      
-      private function init():void
-      {
-       
+        
+        var uri:URI = new URI(data.data.url);
+        var domain:String=uri.authority;
+        var page:String=uri.path;
+        
+        domainTxt.textFlow= TextConverter.importToFlow("<b>Domain: </b>"+domain, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        titleTxt.textFlow= TextConverter.importToFlow("<b>Title: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        pageTxt.textFlow= TextConverter.importToFlow("<b>Page: </b>"+page, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        keywordsTxt.textFlow= TextConverter.importToFlow("<b>Keywords: </b>"+data.data.keywords, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        
       }
-
-		]]>
-	</fx:Script>
+      
+    ]]>
+  </fx:Script>
+  <s:HGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:VGroup verticalAlign="top" width="100%">
+      <s:RichText id="domainTxt" width="100%"/>
+      <s:RichText id="titleTxt" width="100%"/>
+    </s:VGroup>
+    <s:Line height="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:VGroup verticalAlign="top" width="100%">
+      <s:RichText id="pageTxt" width="100%"/>
+      <s:RichText id="keywordsTxt" width="100%"/>
+    </s:VGroup>
+  </s:HGroup>
   
-	    <s:HGroup verticalAlign="middle" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-        <s:Label id="urlTxt"/>
-		  </s:HGroup>
-
 </renderers:EvidenceDataRenderer>

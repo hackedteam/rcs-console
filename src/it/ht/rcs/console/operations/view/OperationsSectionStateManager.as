@@ -68,7 +68,7 @@ package it.ht.rcs.console.operations.view
         case 'factory':
           return AgentManager.instance.getItem(item._id);
         default:
-          return null;;
+          return null;
       }
     }
     
@@ -151,7 +151,7 @@ package it.ht.rcs.console.operations.view
     private var currentState:String;
     public function setState(state:String):void
     {
-      
+      if (!state) return;
       currentState = state;
       if (CurrentManager) {
         CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -206,6 +206,7 @@ package it.ht.rcs.console.operations.view
           break;
         
         case 'agentConfigList':
+          selectedConfig = null;
           section.currentState = 'agentConfigList';
           break;
         

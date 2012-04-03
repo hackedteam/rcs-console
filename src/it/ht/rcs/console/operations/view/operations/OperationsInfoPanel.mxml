@@ -8,11 +8,19 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
       
       import locale.R;
       
       [Bindable]
       public var selectedItem:*;
+      
+      private function groupLabelFunction(_id:Object):String
+      {
+        var group:it.ht.rcs.console.accounting.model.Group = GroupManager.instance.getItem(_id as String);
+        return group ? group.name : '';
+      }
     ]]>
   </fx:Script>
 
@@ -46,6 +54,11 @@
       <s:FormItem label="{R.get('DESCRIPTION')} :">
         <s:RichEditableText width="200" height="30" editable="false" lineHeight="15"
                             text="{selectedItem.desc}" textAlign="left"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('GROUPS')}">
+        <s:List id="selectedGroups" width="200" minWidth="0" height="100%" borderVisible="false"
+                dataProvider="{selectedItem.group_ids}" labelFunction="groupLabelFunction"
+                textAlign="left"/>
       </s:FormItem>
     </s:Form>
   </s:Group>

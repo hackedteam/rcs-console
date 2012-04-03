@@ -144,8 +144,8 @@ package it.ht.rcs.console.operations.view
       
       if (event && event.evidenceType)
       {
-        EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
         section.currentState = 'evidence';
+        EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
       }
     }
     

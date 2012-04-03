@@ -7,6 +7,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
@@ -14,6 +15,8 @@
       import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
       
+      import mx.collections.ArrayCollection;
+      import mx.collections.HierarchicalCollectionView;
       import mx.collections.HierarchicalData;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ObjectUtil;
@@ -29,14 +32,50 @@
       
       private function onResult(event:ResultEvent):void
       {
-        var root:Object = { name: 'root', children: [], size: -1, attr: -1, date: -1, parent: null };
+        var root:Object = { name: 'Root', children: [], size: -1, attr: -1, date: -1, parent: null };
         
-        for each (var e:Evidence in event.result) {
+        var grouped:Object = groupByAgentId(event.result as ArrayCollection);
+        for (var aid:String in grouped) {
+          var subroot:Object = buildSubTree(grouped[aid]);
+          subroot.parent = root;
+          root.children.push(subroot);
+        }
+
+        var hcv:HierarchicalCollectionView = new HierarchicalCollectionView(new HierarchicalData(root));
+        hcv.showRoot = false;
+        grid.dataProvider = hcv;
+        
+      }
+      
+      private function getChild(a:Array, name:String):Object
+      {
+        for each (var el:Object in a)
+          if (el.name == name)
+            return el;
+        return null;
+      }
+      
+      private function groupByAgentId(collection:ArrayCollection):Object
+      {
+        var grouped:Object = {};
+        for each (var e:Evidence in collection) {
+          if (!grouped.hasOwnProperty(e.aid))
+            grouped[e.aid] = [];
+          grouped[e.aid].push(e);
+        }
+        return grouped;
+      }
+      
+      private function buildSubTree(evidences:Array):Object
+      {
+        var subroot:Object = { name: 'Device', children: [], size: -1, attr: -1, date: -1, parent: null };
+        
+        for each (var e:Evidence in evidences) {
           var path:String = e.data.path;
           path = path.replace('\\\\', '\\');
           var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
           var tokens:Array = path.split(separator);
-          var node:Object = root;
+          var node:Object = subroot;
           for each (var t:String in tokens) {
             if (t == '') continue;
             var next:Object = getChild(node.children, t);
@@ -51,16 +90,12 @@
               node = next;
           }
         }
-        trace(ObjectUtil.toString(root));
-        grid.dataProvider = new HierarchicalData(root);
-      }
-      
-      private function getChild(a:Array, name:String):Object
-      {
-        for each (var el:Object in a)
-          if (el.name == name)
-            return el;
-        return null;
+        if (e) {
+          var agent:Agent = AgentManager.instance.getItem(e.aid);
+          subroot.name = agent.name;
+          subroot.agent = agent;
+        }
+        return subroot;
       }
       
       private function dateFunction(item:Object, column:AdvancedDataGridColumn):String
@@ -92,14 +127,16 @@
       private static const fullFolder:Class;
       [Embed('/img/NEW/file.png')]
       private static const file:Class;
-      [Embed('/img/NEW/device.png')]
-      private static const device:Class;
+      [Embed('/img/NEW/device/agent_mobile_16.png')]
+      private static const mobile:Class;
+      [Embed('/img/NEW/device/agent_desktop_16.png')]
+      private static const desktop:Class;
       
       private function fsIconFunction(item:Object):Class
       {
         if (!item) return null;
         switch (item.attr) {
-          case -1: return device;
+          case -1: return item.agent.type == 'mobile' ? mobile : desktop;
           case 0: return file;
           case 1: return emptyFolder;
           case 3: return fullFolder;

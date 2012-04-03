@@ -131,12 +131,14 @@
       private static const mobile:Class;
       [Embed('/img/NEW/device/agent_desktop_16.png')]
       private static const desktop:Class;
+      [Embed('/img/NEW/device.png')]
+      private static const device:Class;
       
       private function fsIconFunction(item:Object):Class
       {
         if (!item) return null;
         switch (item.attr) {
-          case -1: return item.agent.type == 'mobile' ? mobile : desktop;
+          case -1: return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
           case 0: return file;
           case 1: return emptyFolder;
           case 3: return fullFolder;

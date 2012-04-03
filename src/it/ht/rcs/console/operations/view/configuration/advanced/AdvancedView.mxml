@@ -5,13 +5,15 @@
           xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
           xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
           xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
-          width="100%" height="100%">
+          width="100%" height="100%" creationComplete="init()">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
+      
+      import mx.events.FlexEvent;
       
       [Bindable]
       public var section:OperationsSection;
@@ -54,10 +56,46 @@
       {
         graph.removeSelection();
       }
+      
+      private function init():void
+      {
+        bg.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+        //bg.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        timer.addEventListener(TimerEvent.TIMER, onTick);
+      }
+      
+      private var timer:Timer = new Timer(50);
+      private var currentX:Number = 0;
+      private function onMouseMove(event:MouseEvent):void
+      {
+        var c:Point = bg.globalToLocal(new Point(event.stageX, event.stageY));
+        if (graph.mode == ConfigurationGraph.CONNECTING) {
+          currentX = c.x;
+          if (c.x < 30 || event.currentTarget.width - c.x < 30) {
+            if (!timer.running)
+              timer.start();
+          } else if (timer.running)
+            timer.stop();
+        } else timer.stop();
+      }
+      
+      private function onTick(e:TimerEvent):void
+      {
+        if (currentX < 30)
+            scroller.horizontalScrollBar.value -= 20;
+        else if (currentX > 30)
+            scroller.horizontalScrollBar.value += 20;
+      }
+      
+      private function onMouseOut(event:MouseEvent):void
+      {
+        if (event.target === bg && timer.running)
+          timer.stop();
+      }
     ]]>
   </fx:Script>
   
-  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true"
+  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true" id="bg"
                      borderWeight="2" cornerRadius="10">
     
     <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">

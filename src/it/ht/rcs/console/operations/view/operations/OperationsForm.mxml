@@ -10,6 +10,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
@@ -56,6 +57,19 @@
         groups.errorString = '';
         if (groups.dataProvider.length == 0) {
           groups.errorString = 'Please select at least a group';
+          hasError = true;
+        }
+        
+        var hasGroup:Boolean = false;
+        for each (var groupId:String in groups.dataProvider) {
+          if (Console.currentSession.user.group_ids.contains(groupId)) {
+            hasGroup = true;
+            break;
+          }
+        }
+        
+        if (!hasGroup) {
+          groups.errorString = 'Please select at least one of your groups';
           hasError = true;
         }
         

@@ -54,11 +54,6 @@ package it.ht.rcs.console.operations.view
       customTypeSort.compareFunction = customTypeCompareFunction;
     }
     
-    public function goToEvidenceView(item:*):void
-    {
-      //EvidenceManager.instance.evidenceFilter;
-    }
-    
     private function getRealItem(event:SectionEvent):*
     {
       var item:SearchItem = event ? event.item : null;
@@ -73,7 +68,7 @@ package it.ht.rcs.console.operations.view
         case 'factory':
           return AgentManager.instance.getItem(item._id);
         default:
-          return null;;
+          return null;
       }
     }
     
@@ -129,7 +124,6 @@ package it.ht.rcs.console.operations.view
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filesystem')
       {
         section.currentState = 'filesystem';
-        section.filesystem.showTree();
       }
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'info')
@@ -144,8 +138,8 @@ package it.ht.rcs.console.operations.view
       
       if (event && event.evidenceType)
       {
-        EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
         section.currentState = 'evidence';
+        EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
       }
     }
     
@@ -157,7 +151,7 @@ package it.ht.rcs.console.operations.view
     private var currentState:String;
     public function setState(state:String):void
     {
-      
+      if (!state) return;
       currentState = state;
       if (CurrentManager) {
         CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -212,6 +206,7 @@ package it.ht.rcs.console.operations.view
           break;
         
         case 'agentConfigList':
+          selectedConfig = null;
           section.currentState = 'agentConfigList';
           break;
         

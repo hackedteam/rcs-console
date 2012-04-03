@@ -131,34 +131,24 @@
        {
          if(e.rowIndex!=-1)
          {
-           var evidence:Evidence=e.currentTarget.dataProvider.getItemAt(e.rowIndex) as Evidence;
-           viewer.currentItem=evidence;
-           viewer.currentIndex=e.rowIndex;
-           viewer.visible=viewer.includeInLayout=true;
-           evidenceDg.visible=evidenceDg.includeInLayout=false;
-           counter.visible=false;
-           var singleSelection: Vector.<Object>=new Vector.<Object>
-           singleSelection.push(evidence)
-           actionBar.selectedObjects=singleSelection;
-           notice.visible=notice.includeInLayout=false;
-           actionBar.toggleDetailButton();
+           showDetail();
          }
        }
       }
-      //TODO -OPTIMIZE CODE
+
       private function showDetail():void
       {
         if(!viewer.visible)
         {
-          var evidence:Evidence=evidenceDg.selectedItems[0] as Evidence;
-          viewer.currentItem=evidence;
+          
+          viewer.currentItems=evidenceDg.selectedItems;
           viewer.currentIndex=evidenceDg.selectedIndices[0]
           viewer.visible=viewer.includeInLayout=true;
           evidenceDg.visible=evidenceDg.includeInLayout=false;
           counter.visible=false;
-          var singleSelection: Vector.<Object>=new Vector.<Object>
-          singleSelection.push(evidence)
-          actionBar.selectedObjects=singleSelection;
+          var selectedObject:Vector.<Object>=new Vector.<Object>
+          selectedObject.push(evidenceDg.selectedItems[0]);
+          actionBar.selectedObjects=selectedObject;
           notice.visible=notice.includeInLayout=false;
          
         }
@@ -169,12 +159,14 @@
         actionBar.toggleDetailButton();
        
       }
+      
+      
       private function onViewerSelection():void
       {
-        var singleSelection: Vector.<Object>=new Vector.<Object>
-        singleSelection.push(viewer.currentItem)
-        //actionBar.selectedObjects=singleSelection;
-        evidenceDg.selectedItems=singleSelection;
+        var selectedObject:Vector.<Object>=new Vector.<Object>
+        selectedObject.push(viewer.currentItem)
+        actionBar.selectedObjects=selectedObject
+        evidenceDg.selectedItems=selectedObject
         trace("selected index: "+evidenceDg.selectedIndex)
         var myVertPos:int = new int(evidenceDg.grid.verticalScrollPosition);
         evidenceDg.grid.verticalScrollPosition=myVertPos;

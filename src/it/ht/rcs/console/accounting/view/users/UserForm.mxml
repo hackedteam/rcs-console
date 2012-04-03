@@ -11,6 +11,7 @@
       import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.accounting.controller.UserManager;
       import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
@@ -29,6 +30,11 @@
       
       private function save():void
       {
+        if (user.pass == '') {
+          AlertPopUp.show(R.get('USER_NO_PASS'), R.get('ERROR'));
+          return;
+        }
+        
         /* keep the name the first to be modified */
         user.name = formName.text;
         user.enabled = formEnabled.selected;

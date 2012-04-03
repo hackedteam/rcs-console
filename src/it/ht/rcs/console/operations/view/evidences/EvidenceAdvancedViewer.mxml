@@ -29,14 +29,26 @@
       public var dataProvider:IList;
      
       public var currentIndex:int;
-
       private var _currentItem:Evidence;
+      private var _currentItems:Vector.<Object>;
 
       private function close():void
       {
        dispatchEvent(new Event("close"));
       }
+      [Bindable]
+      public function set currentItems(value:Vector.<Object>):void
+      {
+        _currentItems=value;
+        currentItem=currentItems[0] as Evidence;
 
+      }
+      
+      public function get currentItems():Vector.<Object>
+      {
+       return _currentItems
+      }
+      
       [Bindable]
       public function set currentItem(value:Evidence):void
       {
@@ -64,7 +76,14 @@
           }
           if(currentState=="position")
           {
-            positionViewer.evidence=currentItem;
+            if(currentItems.length>1 && sameType("position", currentItems))
+              {
+                positionViewer.evidences=currentItems;
+              }
+              else
+              {
+                positionViewer.evidence=currentItem;
+              }
           }
           if(currentState=="keylog")
           {
@@ -175,6 +194,23 @@
           callViewer.evidence=currentItem;
         }
       }
+      
+      private function sameType(type:String, selectedItems:Vector.<Object>):Boolean
+      {
+        var result:Boolean=true;
+        var value:String=selectedItems[0].type
+        for (var i:int=0; i < selectedItems.length; i++)
+        {
+          
+          if (selectedItems[i].type != value)
+          {
+            result=false;
+            break;
+          }
+        }
+        return result;
+      }
+      
     ]]>
   </fx:Script>
 
@@ -212,7 +248,7 @@
   <viewers:Keylog evidence="{currentItem}" includeIn="keylog" id="keylogViewer"/>
   <viewers:Mouse evidence="{currentItem}" includeIn="mouse" id="mouseViewer"/>
   <viewers:Password evidence="{currentItem}" includeIn="password" id="passwordViewer"/>
-  <viewers:Position evidence="{currentItem}" includeIn="position" id="positionViewer"/>
+  <viewers:Position evidences="{currentItems}" includeIn="position" id="positionViewer"/>
   <viewers:Url evidence="{currentItem}" includeIn="url" id="urlViewer"/>
   <evidences:EvidenceInfoPanel evidence="{currentItem}" id="infoPanel" height="100%"/>
 </s:HGroup>

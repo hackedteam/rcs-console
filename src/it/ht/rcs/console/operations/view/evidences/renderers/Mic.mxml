@@ -12,6 +12,7 @@
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import flashx.textLayout.conversion.TextConverter;
+      import it.ht.rcs.console.utils.TimeUtils;
 
 			private var _sound:Sound;
 			private var _channel:SoundChannel;
@@ -56,7 +57,7 @@
           var id:String=encodeURIComponent(data.data._grid);
           var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
           url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
-          dataTxt.textFlow=TextConverter.importToFlow("<b>Duration: </b>"+data.data.duration, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          dataTxt.textFlow=TextConverter.importToFlow("<b>Duration: </b>"+TimeUtils.formatTime(data.data.duration), TextConverter.TEXT_FIELD_HTML_FORMAT);
           miniPlayer.url=url;
         }
       }

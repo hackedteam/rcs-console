@@ -14,6 +14,29 @@
       
       [Embed('/img/NEW/breadcrumb.png')]
       private static const arrow:Class;
+      
+      private function onUpOneLevel(event:MouseEvent):void
+      {
+        section.stateManager.setState(getState());
+      }
+      
+      private function getState():String
+      {
+        switch (section.currentState) {
+          case 'config': return section.stateManager.selectedFactory ? 'singleTarget' : 'agentConfigList';
+          case 'singleAgent': return 'singleTarget';
+          case 'singleTarget': return 'singleOperation';
+          case 'singleOperation': return 'allOperations';
+          case 'evidence':
+          case 'filesystem':
+            return section.stateManager.selectedAgent ? 'singleAgent' : 'singleTarget';
+          case 'info':
+          case 'agentConfigList':
+          case 'filetransfer':
+            return 'singleAgent';
+        }
+        return null;
+      }
     ]]>
   </fx:Script>
   
@@ -26,7 +49,7 @@
   <s:HGroup width="100%" gap="7" paddingBottom="4" paddingLeft="6" paddingTop="4"
             verticalAlign="middle">
     
-    <s:Image source="@Embed('/img/NEW/up.png')" buttonMode="true"/>
+    <s:Image source="@Embed('/img/NEW/up.png')" buttonMode="true" click="onUpOneLevel(event)"/>
     
     <mx:LinkButton visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
                    label="{R.get('ALL_OPERATIONS')}"
@@ -104,12 +127,22 @@
       <mx:LinkButton label="{R.get('INFO')}" paddingLeft="-2" paddingRight="0"/>
     </s:HGroup>
     
-    <s:HGroup visible="{section.currentState == 'agentConfigList'}" gap="3"
-              includeInLayout="{section.currentState == 'agentConfigList'}" verticalAlign="middle">
+    <s:HGroup visible="{section.currentState == 'agentConfigList' || section.stateManager.selectedConfig != null}" gap="3"
+              includeInLayout="{section.currentState == 'agentConfigList' || section.stateManager.selectedConfig != null}" verticalAlign="middle">
       <s:BitmapImage source="{arrow}"/>
       <s:Spacer width="5"/>
       <s:BitmapImage source="@Embed('/img/NEW/config_16.png')"/>
-      <mx:LinkButton label="{R.get('CONFIGURATIONS')}" paddingLeft="-2" paddingRight="0"/>
+      <mx:LinkButton label="{R.get('CONFIGURATIONS')}"
+                     click="section.stateManager.setState('agentConfigList')"
+                     paddingLeft="-2" paddingRight="0"/>
+    </s:HGroup>
+    
+    <s:HGroup visible="{section.stateManager.selectedConfig != null}" gap="3"
+              includeInLayout="{section.stateManager.selectedConfig != null}" verticalAlign="middle">
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
+      <s:BitmapImage source="@Embed('/img/NEW/config_16.png')"/>
+      <mx:LinkButton label="{R.get('CONFIG')}" paddingLeft="-2" paddingRight="0"/>
     </s:HGroup>
     
     <s:HGroup visible="{section.currentState == 'filetransfer'}" gap="3"

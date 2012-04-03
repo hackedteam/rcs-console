@@ -9,6 +9,7 @@
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.dashboard.view.renderer.Icons;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
@@ -32,7 +33,7 @@
       
       private function onResult(event:ResultEvent):void
       {
-        var root:Object = { name: 'Root', children: [], size: -1, attr: -1, date: -1, parent: null };
+        var root:Object = { name: section.stateManager.selectedTarget.name, children: [], size: -1, attr: -2, date: -1, parent: null };
         
         var grouped:Object = groupByAgentId(event.result as ArrayCollection);
         for (var aid:String in grouped) {
@@ -42,7 +43,7 @@
         }
 
         var hcv:HierarchicalCollectionView = new HierarchicalCollectionView(new HierarchicalData(root));
-        hcv.showRoot = false;
+        hcv.showRoot = true;
         grid.dataProvider = hcv;
         
       }
@@ -68,7 +69,7 @@
       
       private function buildSubTree(evidences:Array):Object
       {
-        var subroot:Object = { name: 'Device', children: [], size: -1, attr: -1, date: -1, parent: null };
+        var subroot:Object = { name: 'Agent', children: [], size: -1, attr: -1, date: -1, parent: null };
         
         for each (var e:Evidence in evidences) {
           var path:String = e.data.path;
@@ -133,6 +134,7 @@
       {
         if (!item) return null;
         switch (item.attr) {
+          case -2: return Icons.target16;
           case -1: return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
           case 0: return file;
           case 1: return emptyFolder;

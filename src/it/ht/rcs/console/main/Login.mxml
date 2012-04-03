@@ -28,8 +28,6 @@
       
       private function init():void
       {
-        /* User clicked on Close button */
-        FlexGlobals.topLevelApplication.addEventListener(Event.CLOSING, onClosing);
         /* User wants to logout but there is something he needs to know */
         FlexGlobals.topLevelApplication.addEventListener(SessionEvent.ABORT_LOGOUT, onAbortLogout);
         /* User finally logged out (priority used to be sure this handler gets called last) */
@@ -88,12 +86,6 @@
         
         errorMessage.text = message;
         errorMessage.includeInLayout = true;
-      }
-      
-      private function onClosing(e:Event):void
-      {
-        e.preventDefault();
-        SessionManager.instance.logout(true);
       }
       
       private function onAbortLogout(e:SessionEvent):void

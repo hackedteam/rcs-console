@@ -46,7 +46,11 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/database.png')]
     public static const db32:Class;
     
+    [Embed(source='/img/NEW/injector_32.png')]
+    public static const injector32:Class;
     
+    [Embed(source='/img/NEW/nc.png')]
+    public static const nc32:Class;
     
     
     [Embed(source='/img/NEW/device/mobile_android.png')]

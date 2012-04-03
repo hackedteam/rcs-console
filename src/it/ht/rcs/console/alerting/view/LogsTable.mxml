@@ -10,9 +10,18 @@
       
       import locale.R;
       
-      private function formatdate(item:Object, column:GridColumn):String
+      import mx.collections.ArrayCollection;
+      
+      private function formatDate(item:Object, column:GridColumn):String
       {
         return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+
+      private function formatEvidence(item:Object, column:GridColumn):String
+      {
+        var evidence:ArrayCollection = item[column.dataField];
+        
+        return evidence.length.toString() + " evidence" 
       }
     ]]>
   </fx:Script>
@@ -21,12 +30,12 @@
     <s:ArrayList>
       
       <s:GridColumn width="130" dataField="time" headerText="{R.get('TIME')}"
-                    labelFunction="formatdate" resizable="false"/>
+                    labelFunction="formatDate" resizable="false"/>
       
       <s:GridColumn width="300" dataField="path" headerText="{R.get('PATH')}"
                     itemRenderer="it.ht.rcs.console.utils.PathRenderer"/>
       
-      <s:GridColumn dataField="evidence" headerText="Evidence"/>
+      <s:GridColumn dataField="evidence" headerText="Evidence" labelFunction="formatEvidence"/>
       
     </s:ArrayList>
   </s:columns>

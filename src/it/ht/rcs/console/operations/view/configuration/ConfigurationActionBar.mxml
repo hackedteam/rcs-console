@@ -60,11 +60,13 @@
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.controls.Alert;
       import mx.core.UIComponent;
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.ResultEvent;
       
@@ -80,10 +82,7 @@
       
       private function build(event:MouseEvent):void
       {
-        var config:Object = getConfig();
-        if (config == null) return;
-        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        saveConfig();
         
         var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
         b.factory = section.stateManager.selectedFactory;
@@ -97,11 +96,17 @@
       
       private function onSave():void
       {
-        var config:Object = getConfig();
-        if (config == null) return;
-        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config), goBackToList);
+        saveConfig(goBackToList);
         Alert.show("Config saved");
+      }
+      
+      private function saveConfig(callback:Function = null):Object
+      {
+        var config:Object = getConfig();
+        if (config == null) return null;
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config), callback);
+        return config;
       }
       
       private function goBackToList(c:Config):void
@@ -138,17 +143,13 @@
           var configAsObject:Object = JSON.parse(config);
           configView.configAsObject = configAsObject;
           configView.displayConfig();
-          trace(config);
         });
         f.browseForOpen('Open config', [new FileFilter('Config (*.json)', '*.json')]);
       }
       
-      protected function export(event:MouseEvent):void
+      private function export(event:MouseEvent):void
       {
-        var config:Object = getConfig();
-        if (config == null) return;
-        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        var config:Object = saveConfig();
         
         var f:File = new File();
         f.addEventListener(Event.SELECT, function(e:Event):void {
@@ -194,13 +195,10 @@
       
       private function goToAdvanced(event:MouseEvent):void
       {
-        var config:Object = getConfig();
-        if (config == null) return;
-        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config));
+        configView.basic.config.globals.advanced = true;
+        saveConfig();
         
         configView.currentState = 'advanced';
-        configView.basic.config.globals.advanced = true;
         configView.advanced.config = configView.basic.config;
         configView.advanced.displayConfig();
       }
@@ -216,11 +214,17 @@
       
       private function backToBasic(event:MouseEvent):void
       {
-        var config:Object = getConfig();
-        if (config == null) return;
+        AlertPopUp.show("Do you really want to go back to basic config? Your configuration will be automatically saved as basic.", R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              doBackToBasic();
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function doBackToBasic():void
+      {
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config));
-        
         configView.currentState = 'basic';
         configView.basic.config = DefaultConfigBuilder.getDefaultConfig(a);
         configView.basic.displayConfig();

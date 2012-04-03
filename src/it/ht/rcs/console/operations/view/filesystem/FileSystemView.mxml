@@ -3,7 +3,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:filesystem="it.ht.rcs.console.operations.view.filesystem.*"
-          width="100%" height="100%" removedFromStage="onRemovedFromStage()">
+          width="100%" height="100%" removedFromStage="onRemovedFromStage()" addedToStage="onAddedToStage()">
 
   <fx:Script>
     <![CDATA[
@@ -116,11 +116,6 @@
         return '';
       }
       
-      private function onRemovedFromStage():void
-      {
-        grid.dataProvider = null;
-      }
-      
       [Embed('/img/NEW/emptyFolder.png')]
       private static const emptyFolder:Class;
       [Embed('/img/NEW/fullFolder.png')]
@@ -144,6 +139,17 @@
           case 3: return fullFolder;
           default: return null;
         }
+      }
+      
+      private function onAddedToStage():void
+      {
+        if (grid)
+          showTree();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        grid.dataProvider = null;
       }
     ]]>
   </fx:Script>

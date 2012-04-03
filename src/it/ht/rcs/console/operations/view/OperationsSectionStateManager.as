@@ -54,11 +54,6 @@ package it.ht.rcs.console.operations.view
       customTypeSort.compareFunction = customTypeCompareFunction;
     }
     
-    public function goToEvidenceView(item:*):void
-    {
-      //EvidenceManager.instance.evidenceFilter;
-    }
-    
     private function getRealItem(event:SectionEvent):*
     {
       var item:SearchItem = event ? event.item : null;
@@ -129,7 +124,6 @@ package it.ht.rcs.console.operations.view
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filesystem')
       {
         section.currentState = 'filesystem';
-        section.filesystem.showTree();
       }
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'info')

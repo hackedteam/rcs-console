@@ -210,6 +210,13 @@
         }
         return result;
       }
+      private function onMapChange():void
+      {
+        _currentItem=positionViewer.evidence as Evidence;
+        infoPanel.evidence=currentItem;
+        currentIndex=dataProvider.getItemIndex(currentItem);
+        dispatchEvent(new Event("selectionChange"));
+      }
       
     ]]>
   </fx:Script>
@@ -248,7 +255,7 @@
   <viewers:Keylog evidence="{currentItem}" includeIn="keylog" id="keylogViewer"/>
   <viewers:Mouse evidence="{currentItem}" includeIn="mouse" id="mouseViewer"/>
   <viewers:Password evidence="{currentItem}" includeIn="password" id="passwordViewer"/>
-  <viewers:Position evidences="{currentItems}" includeIn="position" id="positionViewer"/>
+  <viewers:Position evidences="{currentItems}" includeIn="position" id="positionViewer" change="onMapChange()"/>
   <viewers:Url evidence="{currentItem}" includeIn="url" id="urlViewer"/>
   <evidences:EvidenceInfoPanel evidence="{currentItem}" id="infoPanel" height="100%"/>
 </s:HGroup>

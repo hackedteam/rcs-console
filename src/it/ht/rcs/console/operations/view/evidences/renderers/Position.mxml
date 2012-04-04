@@ -8,18 +8,21 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.DB;
       import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
       
       
       [Bindable]
       override public function set data(value:*):void
       {
-        
         super.data=value;
         typeTxt.textFlow= TextConverter.importToFlow("<b>Type: </b>"+data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT);
         coordsTxt.textFlow= TextConverter.importToFlow("<b>Lat: </b>"+data.data.latitude+" | <b>Long: </b>"+data.data.longitude, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        addressTxt.textFlow= TextConverter.importToFlow("<b>Address: </b>"+data.data.address, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
+        var formatted:String=address.city+" ("+address.country+") - "+address.street_number+", "+address.street+", "+address.postal_code;
+        addressTxt.textFlow= TextConverter.importToFlow("<b>Address: </b>"+formatted, TextConverter.TEXT_FIELD_HTML_FORMAT);
       }
       
       private function init():void

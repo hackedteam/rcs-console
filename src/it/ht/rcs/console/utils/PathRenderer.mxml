@@ -13,17 +13,33 @@
       override public function prepare(hasBeenRecycled:Boolean):void {
         if (data) {
           var path:ArrayCollection = data.path as ArrayCollection;
+          var item:*;
           
-            lblData.text = "*";
-            
-            if (path.length > 0)
-              lblData.text = SearchManager.instance.getItem(path.getItemAt(0).toString()).name;
-            
-            if (path.length > 1)
-              lblData.text +=  " > " + SearchManager.instance.getItem(path.getItemAt(1).toString()).name;
-                           
-            if (path.length > 2)
-              lblData.text +=  " > " + SearchManager.instance.getItem(path.getItemAt(2).toString()).name;
+          lblData.text = "*";
+          
+          if (path.length > 0) {
+            item = SearchManager.instance.getItem(path.getItemAt(0).toString());
+            if (item != null)
+              lblData.text = item.name;
+            else
+              lblData.text = '***';
+          }
+          
+          if (path.length > 1) {
+            item = SearchManager.instance.getItem(path.getItemAt(1).toString());
+            if (item != null)
+              lblData.text +=  " > " + item.name;
+            else
+              lblData.text +=  " > " + '***';
+          }
+                         
+          if (path.length > 2) {
+            item = SearchManager.instance.getItem(path.getItemAt(2).toString());
+            if (item != null)
+              lblData.text +=  " > " + item.name;
+            else
+              lblData.text +=  " > " + '***';
+          }
         }
       }
     ]]>

@@ -7,6 +7,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
+  import it.ht.rcs.console.evidence.model.Evidence;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
@@ -17,7 +18,6 @@ package it.ht.rcs.console.operations.view
   
   import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
-  import mx.controls.Alert;
   
   import spark.collections.Sort;
   import spark.components.TextInput;
@@ -119,6 +119,7 @@ package it.ht.rcs.console.operations.view
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'evidence')
       {
         section.currentState = 'evidence';
+        EvidenceManager.instance.refresh();
       }
       
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filesystem')
@@ -140,6 +141,7 @@ package it.ht.rcs.console.operations.view
       {
         section.currentState = 'evidence';
         EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
+        EvidenceManager.instance.refresh();
       }
     }
     

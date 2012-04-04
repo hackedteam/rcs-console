@@ -3,8 +3,8 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
-                autoDrawBackground="false" buttonMode="true" doubleClick="onDoubleClick(event)"
-                doubleClickEnabled="true" toolTip="{data.type}">
+                autoDrawBackground="false" buttonMode="true" click="onClick(event)"
+                toolTip="{data.type}">
   
   <s:layout>
     <s:VerticalLayout gap="8" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -26,7 +26,7 @@
         toolTip = data ? data.type : null;
       }
       
-      private function onDoubleClick(e:MouseEvent):void
+      private function onClick(e:MouseEvent):void
       {
         var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
         event.section = SectionEvent.OPERATIONS;
@@ -34,10 +34,15 @@
         event.evidenceType = data.type;
         FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        container.setStyle('backgroundColor', event.type == MouseEvent.ROLL_OVER ? 0xa8c6ee : 0xffffff);
+      }
     ]]>
   </fx:Script>
   
-  <s:BorderContainer width="50" height="50" borderColor="#dddddd" cornerRadius="10">
+  <s:BorderContainer id="container" width="50" height="50" borderColor="#dddddd" cornerRadius="10" rollOver="onRoll(event)" rollOut="onRoll(event)">
     
     <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
                    verticalCenter="0"/>

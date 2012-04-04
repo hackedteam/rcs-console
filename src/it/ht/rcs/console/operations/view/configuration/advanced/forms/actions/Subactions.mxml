@@ -8,7 +8,9 @@
       import it.ht.rcs.console.DefaultConfigBuilder;
       
       import mx.collections.ArrayList;
+      import mx.core.mx_internal;
       
+      import spark.components.ScrollSnappingMode;
       import spark.events.IndexChangeEvent;
       
       public var form:ActionForm;
@@ -38,6 +40,7 @@
         var sub:Object = DefaultConfigBuilder.getDefaultAction(subactions.selectedItem.label.toLowerCase());
         list.dataProvider.addItem(sub);
         list.selectedItem = sub;
+        addButton.close();
         onChange();
       }
       
@@ -80,7 +83,7 @@
         if (form.currentData && !form.currentData.isValid())
           event.preventDefault();
       }
-      
+
       private function actionFilterFunction(o:Object):Boolean
       {
         return o.type.indexOf(form.graph.config.globals.type.toLowerCase()) != -1;
@@ -99,7 +102,7 @@
       <s:Button width="30" label="-" click="removeSubaction(event)" cornerRadius="0"
                 enabled="{list.selectedItem != null}"/>
       
-      <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
+      <mx:PopUpButton id="addButton" width="48" label="+" cornerRadius="0" openAlways="true" closeOnActivity="true">
         <mx:popUp>
           <s:List id="subactions" click="addSubaction(event)" filters="{[dropShadow]}"
                   labelField="label" textAlign="left" dataProvider="{actionTypes}"/>

@@ -20,7 +20,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class EventRenderer extends Group implements Linkable
 	{
-    private static const WIDTH_EXPANDED:Number  = 150;
+    private static const WIDTH_EXPANDED:Number  = 180;
     private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
     
@@ -192,7 +192,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container.addElement(icon);
         
         textLabel = new Label();
-        BindingUtils.bindProperty(textLabel, 'text', event, 'desc');
+        BindingUtils.bindSetter(changeLabel, event, 'desc');
         textLabel.left = 50;
         textLabel.right = 0;
         textLabel.height = height;
@@ -229,6 +229,25 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         addElement(endPin);
       }
 		}
+    
+    public function changeLabel(object:Object):void
+    {
+      textLabel.text = object == null || object == '' ? getLabel() : object as String;
+    }
+    
+    private function getLabel():String
+    {
+      switch (event.event) {
+        //case 'timer': return 'Sync on ' + sub.host;
+//        case 'module': return ObjectUtils.capitalize(sub.status) + ' ' + sub.module;
+//        case 'execute': return sub.command;
+//        case 'uninstall': return 'Uninstall';
+//        case 'log': return 'Log ' + sub.text;
+//        case 'destroy': return 'Destroy' + (sub.permanent ? ' permanently' : '');
+//        case 'sms': return sub.command;
+        default: return '-';
+      }
+    }
     
     private function isStartVisible(graph:ConfigurationGraph):Boolean  { return isVisible(graph, startPin);  }
     private function isRepeatVisible(graph:ConfigurationGraph):Boolean { return isVisible(graph, repeatPin); }

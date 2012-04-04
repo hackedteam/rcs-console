@@ -7,6 +7,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import flash.ui.Mouse;
   import flash.ui.MouseCursor;
   
+  import it.ht.rcs.console.ObjectUtils;
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   import it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.ActionForm;
   
@@ -16,11 +17,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import spark.components.BorderContainer;
   import spark.components.Group;
   import spark.components.Label;
+  import spark.components.VGroup;
   import spark.primitives.BitmapImage;
 
   public class ActionRenderer extends Group implements Linkable
 	{
-    private static const WIDTH_EXPANDED:Number  = 200;
+    private static const WIDTH_EXPANDED:Number  = 180;
     private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
     
@@ -184,10 +186,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container.addElement(icon);
         
         textLabel = new Label();
-        BindingUtils.bindProperty(textLabel, 'text', action, 'desc');
         textLabel.left = 50;
         textLabel.right = 0;
         textLabel.height = height;
+        //BindingUtils.bindProperty(textLabel, 'text', action, 'desc');
+        BindingUtils.bindSetter(changeLabel, action, 'desc');
         textLabel.maxDisplayedLines = 2;
         container.addElement(textLabel);
         
@@ -230,6 +233,27 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         addElement(stopModulePin);
       }
 		}
+    
+    public function changeLabel(object:Object):void
+    {
+      textLabel.text = object == null || object == '' ? getLabel() : object as String;
+    }
+    
+    private function getLabel():String
+    {
+      if (action.subactions.length == 0) return '(empty action)';
+      var sub:Object = action.subactions[0];
+      switch (sub.action) {
+        case 'synchronize': return 'Sync on ' + sub.host;
+        case 'module': return ObjectUtils.capitalize(sub.status) + ' ' + sub.module;
+        case 'execute': return sub.command;
+        case 'uninstall': return 'Uninstall';
+        case 'log': return 'Log ' + sub.text;
+        case 'destroy': return 'Destroy' + (sub.permanent ? ' permanently' : '');
+        case 'sms': return 'Sms with ' + (sub.position ? 'position' : (sub.sim ? 'sim info' : 'text'));
+        default: return '-';
+      }
+    }
     
     public function changeIcon():void
     {

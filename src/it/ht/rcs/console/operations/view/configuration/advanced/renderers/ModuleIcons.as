@@ -45,6 +45,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/modules/messages.png')]
     public static const messages:Class;
     
+    [Embed(source='/img/modules/messages.png')]
+    public static const message:Class;
+    
     [Embed(source='/img/modules/mic.png')]
     public static const mic:Class;
     

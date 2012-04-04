@@ -13,12 +13,22 @@
       import it.ht.rcs.console.utils.Size;
 
 			private var _evidence:Object;
-
+      
+      [Bindable]
+      private var renderMode:String
+      
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
         _evidence=value;
-
+        if(evidence.data.program=="Facebook")
+        {
+          renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
+        }
+        else
+        {
+          renderMode=TextConverter.PLAIN_TEXT_FORMAT
+        }
 
 			}
 
@@ -41,7 +51,7 @@
                     paddingTop="10"
                     />
 </s:layout>
-  <s:RichText id="topicTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Topic: &lt;/b&gt;'+evidence.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+  <s:RichText id="topicTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Topic: &lt;/b&gt;'+evidence.data.topic, renderMode)}" fontSize="15"/>
   <s:Line width="100%">
     <s:stroke>
       <s:SolidColorStroke color="0xCCCCCC"/>
@@ -61,7 +71,7 @@
   </s:Line>
   <s:Scroller height="100%"
               width="100%">
-    <s:RichEditableText editable="false"
+   <s:RichEditableText editable="false"
                         id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
   </s:Scroller>
 </s:BorderContainer>

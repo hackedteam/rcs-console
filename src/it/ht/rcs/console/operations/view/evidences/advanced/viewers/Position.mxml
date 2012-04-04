@@ -28,7 +28,7 @@
         _evidence=value;
        if(value.type=="position")
        {
-         var pos:Object={lat:value.data.latitude,lng:value.data.longitude, range:100, evidence:value} 
+         var pos:Object={lat:value.data.latitude,lng:value.data.longitude, range:value.data.accuracy, evidence:value} 
          _positions=[pos]   
          mapViewer.positions=_positions
          
@@ -49,7 +49,7 @@
         {
           if(value[i].type=="position")
           {
-            var pos:Object={lat:value[i].data.latitude,lng:value[i].data.longitude, range:100, evidence:value[i]};
+            var pos:Object={lat:value[i].data.latitude,lng:value[i].data.longitude, range:value[i].data.accuracy, evidence:value[i]};
             _positions.push(pos);
           }
         }
@@ -97,6 +97,7 @@
   <s:HGroup>
     <s:RichText id="latTxt"  textFlow="{TextConverter.importToFlow('&lt;b&gt;Latitude: &lt;/b&gt;'+_evidence.data.latitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
     <s:RichText id="longTxt"  textFlow="{TextConverter.importToFlow('&lt;b&gt;Longitude: &lt;/b&gt;'+_evidence.data.longitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+    <s:RichText id="accTxt"  textFlow="{TextConverter.importToFlow('&lt;b&gt;Accuracy: &lt;/b&gt;'+_evidence.data.accuracy, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
   </s:HGroup>
   <viewers:MapViewer id="mapViewer" positions="{_positions}" change="onMapChange()"/>
 </s:BorderContainer>

@@ -38,6 +38,7 @@
 						id="summaryBtn"
 						enabled="{_total>0}"/>
 	<actionbar:Separator width="40"/>
+  <s:Spacer width="100%"/>
 	<s:Button label="{R.get('DETAIL_SHOW')}"
 						click="onDetailClick()"
 						icon="@Embed('/img/evidence/article32.png')"
@@ -83,7 +84,7 @@
 			[Embed(source="/img/evidence/article32.png")]
 			public var DetailShowIcon:Class;
 
-			[Embed(source="/img/evidence/linedpaper32.png")]
+			[Embed(source="/img/evidence/paperclose.png")]
 			public var DetailHideIcon:Class;
 
 			[Bindable]
@@ -130,7 +131,7 @@
 					stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
           stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
-				else if (selectedObjects.length == 1)
+				else if (selectedObjects.length == 1 && selectedObjects[0]!=null)
 				{
 					tagEditor.tag=selectedObjects[0].rel;
 					tagEditor.enabled=true;
@@ -146,7 +147,7 @@
 					var blotterValue:Boolean;
 					if (sameValue(selectedObjects, "blo"))
 					{
-						blotterValue=selectedObjects[0].blo
+						blotterValue=selectedObjects[0].blo;
 					}
 					if (sameValue(selectedObjects, "rel"))
 					{
@@ -155,8 +156,8 @@
 					}
 					reportBtn.enabled=true;
 					toggleReportButton(blotterValue);
-					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
-          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp)
+					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
+          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 				}
 			}
 
@@ -338,8 +339,8 @@
 
 			private function onRelevanceChange(e:Event):void
 			{
-				var tagEditor:TagEditor=e.currentTarget as TagEditor
-				updateRelevance(tagEditor.tag)
+				var tagEditor:TagEditor=e.currentTarget as TagEditor;
+				updateRelevance(tagEditor.tag);
 			}
 
 			private function onDeleteClick():void

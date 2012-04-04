@@ -5,12 +5,11 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:HGroup visible="{section.currentState == 'singleTarget'}" gap="0"
-            includeInLayout="{section.currentState == 'singleTarget'}" verticalAlign="middle">
-    
     <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
               enabled="{Console.currentSession.user.is_tech()}"
-              icon="@Embed('/img/NEW/newFactory.png')"/>
+              icon="@Embed('/img/NEW/newFactory.png')"
+              visible="{section.currentState == 'singleTarget'}"
+              includeInLayout="{section.currentState == 'singleTarget'}"/>
     
     <s:Button label="{R.get('EDIT')}" click="onEditClick()"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
@@ -19,6 +18,9 @@
     <s:Button label="{R.get('DELETE')}" click="onDeleteClick(event)"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}" 
               icon="@Embed('/img/NEW/delete_32.png')"/>
+    
+  <s:HGroup visible="{section.currentState == 'singleTarget'}" gap="0"
+            includeInLayout="{section.currentState == 'singleTarget'}" verticalAlign="middle">
     
     <actionbar:Separator/>
 

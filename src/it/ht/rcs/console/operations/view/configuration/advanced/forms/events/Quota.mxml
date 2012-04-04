@@ -8,15 +8,16 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.Size;
       private function init():void
       {
-        var q:int = event.quota || 100000000; // 100 mega
-        quota.text = String(q / 1000000);
+        var q:int = event.quota || 100 * Size.MIB;
+        quota.text = String(q / Size.MIB);
       }
       
       override public function commit():void
       {
-        event.quota = parseInt(quota.text) * 1000000;
+        event.quota = parseInt(quota.text) * Size.MIB;
       }
       
       override public function isValid():Boolean
@@ -34,7 +35,7 @@
     <s:FormItem label="Quota">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="quota" restrict="0-9" textAlign="center" widthInChars="4"/>
-        <s:Label paddingTop="1" text=" MB"/>
+        <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
     

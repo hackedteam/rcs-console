@@ -5,14 +5,11 @@ package it.ht.rcs.console.utils
   
   public class Size
   {
-    public function Size()
-    {
-    }
     
-    private static const TIB:Number = 1099511627776
-    private static const GIB:Number = 1073741824;
-    private static const MIB:Number = 1048576;
-    private static const KIB:Number = 1024;
+    public static const TIB:Number = 1099511627776;
+    public static const GIB:Number = 1073741824;
+    public static const MIB:Number = 1048576;
+    public static const KIB:Number = 1024;
     
     public static function toHumanBytes(n:Number):String
     {

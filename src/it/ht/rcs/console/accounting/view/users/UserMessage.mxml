@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
+                             creationComplete="init()" save="save()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var user:User;
+      
+      private function init():void
+      {
+        formText.setFocus();
+      }
+      
+      private function save():void
+      {
+        DB.instance.user.message(user, formText.text);
+        PopUpManager.removePopUp(this);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+
+    <s:FormItem label="{R.get('MESSAGE')}">
+      <s:TextInput id="formText" width="200" maxChars="20"/>
+    </s:FormItem>
+        
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

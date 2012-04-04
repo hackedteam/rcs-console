@@ -100,6 +100,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/events/simchange.png')]
     public static const simchange:Class;
     
+    [Embed(source='/img/events/screensaver.png')]
+    public static const standby:Class;
+    
     [Embed(source='/img/events/timer.png')]
     public static const timer:Class;
     

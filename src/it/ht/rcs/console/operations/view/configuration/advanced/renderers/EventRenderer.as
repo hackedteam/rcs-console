@@ -9,6 +9,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
   import it.ht.rcs.console.operations.view.configuration.advanced.forms.events.EventForm;
+  import it.ht.rcs.console.utils.Size;
   
   import mx.binding.utils.BindingUtils;
   import mx.managers.PopUpManager;
@@ -20,7 +21,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class EventRenderer extends Group implements Linkable
 	{
-    private static const WIDTH_EXPANDED:Number  = 180;
+    private static const WIDTH_EXPANDED:Number  = 170;
     private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
     
@@ -175,8 +176,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
 			super.createChildren();
       
-      toolTip = event.desc;
-      
       if (container == null) {
         container = new BorderContainer();
         container.width = width;
@@ -233,19 +232,24 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function changeLabel(object:Object):void
     {
       textLabel.text = object == null || object == '' ? getLabel() : object as String;
+      toolTip = textLabel.text + '\n' + (event.enabled ? 'Enabled' : 'Disabled');
     }
     
     private function getLabel():String
     {
       switch (event.event) {
-        //case 'timer': return 'Sync on ' + sub.host;
-//        case 'module': return ObjectUtils.capitalize(sub.status) + ' ' + sub.module;
-//        case 'execute': return sub.command;
-//        case 'uninstall': return 'Uninstall';
-//        case 'log': return 'Log ' + sub.text;
-//        case 'destroy': return 'Destroy' + (sub.permanent ? ' permanently' : '');
-//        case 'sms': return sub.command;
-        default: return '-';
+        case 'timer': return 'Timer ' + event.subtype + (event.subtype == 'daily' ? '\n(' + event.ts + ' - ' + event.te + ')' : '');
+        case 'date': return 'Timer date\n(' + event.datefrom.split(' ')[0] + ')';
+        case 'afterinst': return 'After install\n(' + event.days + ' day' + (event.days == 1 ? '' : 's') + ')';
+        case 'connection': return 'On connection' + (graph.config.globals.type == 'mobile' ? '' : '\n(' + event.ip + ')');
+        case 'process': return 'On process\n(' + event.process + ')';
+        case 'quota': return 'On quota\n(' + Size.toHumanBytes(event.quota) + ')';
+        case 'winevent': return 'On WinEvent\n(' + event.source + ')';
+        case 'battery': return 'On battery\n(' + event.min + '%  -  ' + event.max + '%)';
+        case 'call': return 'On call from ' + (event.number ? event.number : 'any number');
+        case 'position': return 'On position\n' + event.type.toUpperCase();
+        case 'sms': return 'On sms from ' + event.number;
+        default: return 'On ' + event.event;
       }
     }
     

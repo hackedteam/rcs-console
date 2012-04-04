@@ -27,20 +27,16 @@
         form.changeState(list.selectedItem.action);
       }
       
-      private function actionLabelFunction(item:Object):String
-      {
-        try {
-          return item.action + ' (' + item.status + ' ' + item.module + ')';
-        } catch (e:Error) {}
-        return item.action;
-      }
-      
       private function addSubaction(me:MouseEvent):void
       {
+        addButton.close();
+        
+        if (form.currentData && !form.currentData.isValid())
+          return;
+        
         var sub:Object = DefaultConfigBuilder.getDefaultAction(subactions.selectedItem.label.toLowerCase());
         list.dataProvider.addItem(sub);
         list.selectedItem = sub;
-        addButton.close();
         onChange();
       }
       

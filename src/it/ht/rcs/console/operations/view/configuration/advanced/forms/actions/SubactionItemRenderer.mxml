@@ -6,10 +6,11 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
       override public function set data(value:Object):void
       {
         super.data = value;
-        textLabel.text = data ? data.action : '';
+        textLabel.text = data ? ObjectUtils.capitalize(data.action) : '';
         if (data) {
           switch (data.action) {
             case 'execute':
@@ -19,7 +20,7 @@
               textLabel.text += ' (' + data.status + ' ' + data.module + ')';
               break;
             case 'event':
-              textLabel.text += ' (' + data.status + ' ' + getEventName(data.event) + ')';
+              textLabel.text += ' (' + data.status + ')'; // getEventName, if needed
               break;
             default: break;
           }

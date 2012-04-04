@@ -124,6 +124,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         subactions.push(subaction);
         var ar:ActionRenderer = (connection.from as Pin).parent as ActionRenderer;
         ar.changeIcon();
+        ar.changeLabel(ar.action.desc);
       } else if (connection.to is ActionRenderer) {
         var action:Object = (connection.to as ActionRenderer).action;
         var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
@@ -136,6 +137,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         action.subactions.push({action: 'event', status: type, event: (config.events as Array).indexOf(event)});
         ar = (connection.from as Pin).parent as ActionRenderer;
         ar.changeIcon();
+        ar.changeLabel(ar.action.desc);
       }
     }
     

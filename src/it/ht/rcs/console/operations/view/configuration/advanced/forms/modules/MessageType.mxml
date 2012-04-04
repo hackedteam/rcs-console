@@ -28,6 +28,8 @@
       
       private function init():void
       {
+        if (!module.hasOwnProperty(property)) return;
+        
         formatter = new DateFormatter();
         formatter.formatString = 'YYYY-MM-DD';
         
@@ -73,6 +75,8 @@
       
       public function isValid():Boolean
       {
+        if (forever.selected) return true;
+        
         computeFromToTimeDifference();
         var valid:Boolean = (!showMaxSize || maxSizeVal.isValid()) && dateVal.validate(difference).type == ValidationResultEvent.VALID;
         return valid;
@@ -106,7 +110,7 @@
     
     <s:FormItem label="To" enabled="{isEnabled.selected}">
       <s:VGroup>
-        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="forever" label="Forever" group="{dateGroup}" selected="true"/>
         <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
         <mx:DateField id="toDate" width="151" editable="false" enabled="{notForever.selected}"
                       formatString="YYYY-MM-DD" showToday="true" yearNavigationEnabled="true"/>

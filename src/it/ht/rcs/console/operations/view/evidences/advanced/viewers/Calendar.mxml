@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="100%"
+									 width="100%"
+                   borderColor="0xCCCCCC"
+                   backgroundColor="0xCCCCCC"
+                   backgroundAlpha="0.5">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+
+			private var _evidence:Object;
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+        _evidence=value;
+        // begin, end, event, info
+
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence;
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+		]]>
+	</fx:Script>
+<s:layout>
+  <s:VerticalLayout paddingBottom="10"
+                      paddingLeft="10"
+                      paddingRight="10"
+                      paddingTop="10"
+                      />
+</s:layout>
+  <s:RichText id="beginTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Begin: &lt;/b&gt;'+evidence.data.begin, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:RichText id="endTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;End: &lt;/b&gt;'+evidence.data.end, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:RichText id="eventTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.event, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:RichText id="infoTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Info: &lt;/b&gt;'+evidence.data.info, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+
+</s:BorderContainer>

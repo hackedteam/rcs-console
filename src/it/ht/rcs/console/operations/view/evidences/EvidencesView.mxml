@@ -40,7 +40,7 @@
         EvidenceManager.instance.listenRefresh();
         EvidenceManager.instance.refresh();
         
-        evidenceDg.setFocus();
+        evidenceDg.setFocus(); // keep! fix various focusmanager bestiality when switching view (eg from dashboard)
        
         trace("evidence view added to stage")
       }
@@ -73,6 +73,7 @@
       private function onRemovedFromStage():void
       {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.unlistenRefresh();
         trace("evidence view removed from stage");
         evidenceDg.selectedItems=new Vector.<Object>

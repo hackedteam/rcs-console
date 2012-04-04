@@ -245,6 +245,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       switch (sub.action) {
         case 'synchronize': return 'Sync on ' + sub.host;
         case 'module': return ObjectUtils.capitalize(sub.status) + ' ' + sub.module;
+        case 'event': return ObjectUtils.capitalize(sub.status) + ' event';
         case 'execute': return 'Execute\n(' + sub.command + ')';
         case 'uninstall': return 'Uninstall';
         case 'log': return 'Log ' + sub.text;

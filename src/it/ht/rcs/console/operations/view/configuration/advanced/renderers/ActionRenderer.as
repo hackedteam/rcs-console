@@ -22,7 +22,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class ActionRenderer extends Group implements Linkable
 	{
-    private static const WIDTH_EXPANDED:Number  = 180;
+    private static const WIDTH_EXPANDED:Number  = 170;
     private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
     
@@ -168,8 +168,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     override protected function createChildren():void
     {
 			super.createChildren();
-      
-      toolTip = action.desc;
 
       if (container == null) {
         container = new BorderContainer();
@@ -237,6 +235,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function changeLabel(object:Object):void
     {
       textLabel.text = object == null || object == '' ? getLabel() : object as String;
+      toolTip = textLabel.text;
     }
     
     private function getLabel():String
@@ -246,7 +245,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       switch (sub.action) {
         case 'synchronize': return 'Sync on ' + sub.host;
         case 'module': return ObjectUtils.capitalize(sub.status) + ' ' + sub.module;
-        case 'execute': return sub.command;
+        case 'execute': return 'Execute\n(' + sub.command + ')';
         case 'uninstall': return 'Uninstall';
         case 'log': return 'Log ' + sub.text;
         case 'destroy': return 'Destroy' + (sub.permanent ? ' permanently' : '');

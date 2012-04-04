@@ -23,7 +23,11 @@
         formatter = new DateFormatter();
         formatter.formatString = 'YYYY-MM-DD';
         
-        currentState = event.hasOwnProperty('subtype') ? event.subtype : event.event;
+        try { // l'errore si verifica switchando a timer un evento gia' creato
+          currentState = event.hasOwnProperty('subtype') ? event.subtype : event.event;
+        } catch (e:Error) {
+          currentState = 'loop';
+        }
         
         for each (var key:String in ArrayCollection(type.dataProvider).source)
           if (key.toLowerCase().indexOf(currentState) != -1)

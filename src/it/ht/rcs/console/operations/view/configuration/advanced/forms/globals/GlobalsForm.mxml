@@ -7,6 +7,8 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.Size;
+      
       import mx.collections.ArrayList;
       
       public var globals:Object;
@@ -15,8 +17,8 @@
       {
         nohide.dataProvider = new ArrayList(globals.nohide);
         
-        min.text = String(globals.quota.min / 1000000);
-        max.text = String(globals.quota.max / 1000000);
+        min.text = String(globals.quota.min / Size.MIB);
+        max.text = String(globals.quota.max / Size.MIB);
         wipe.selected = globals.wipe;
         driver.selected = globals.remove_driver;
       }
@@ -26,8 +28,8 @@
         if (!val.isValid())
           return;
         
-        globals.quota.min = parseInt(min.text) * 1000000;
-        globals.quota.max = parseInt(max.text) * 1000000;
+        globals.quota.min = parseInt(min.text) * Size.MIB;
+        globals.quota.max = parseInt(max.text) * Size.MIB;
         globals.wipe = wipe.selected;
         globals.remove_driver = driver.selected;
         globals.nohide = ArrayList(nohide.dataProvider).source;;
@@ -52,14 +54,14 @@
     <s:FormItem label="Minimum disk free">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="min" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
-        <s:Label paddingTop="1" text=" MB"/>
+        <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="Maximum evidence size">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="max" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
-        <s:Label paddingTop="1" text=" MB"/>
+        <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
     

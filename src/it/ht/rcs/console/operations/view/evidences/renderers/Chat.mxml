@@ -10,6 +10,9 @@
 		<![CDATA[
 			import it.ht.rcs.console.DB;
 			import flashx.textLayout.conversion.TextConverter;
+      
+      [Bindable]
+      private var renderMode:String
 
 			[Bindable]
 			override public function set data(value:*):void
@@ -25,8 +28,17 @@
         {
           topicTxt.visible=topicTxt.includeInLayout=false;
         }
+        if(data.data.program=="Facebook")
+        {
+          renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
+        }
+        else
+        {
+          renderMode=TextConverter.PLAIN_TEXT_FORMAT
+        }
+
 				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>"+data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 		]]>

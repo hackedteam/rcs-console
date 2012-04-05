@@ -19,9 +19,28 @@
         
         //type could be open or capture
 				super.data=value;
-				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        trace("file type: "+data.data.type)
+        if(data.data.type=="open")
+        {
+          programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          programTxt.visible=programTxt.includeInLayout=true;
+        }
+        else
+        {
+          programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
+          programTxt.visible=programTxt.includeInLayout=false;
+        }
+			
 				pathTxt.textFlow=TextConverter.importToFlow("<b>Path: </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        if(isNaN(data.data.size))
+        {
+          sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+        else
+        {
+          sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+				
 			}
 
 		]]>
@@ -36,7 +55,7 @@
 									width="100%"/>
 
 		</s:HGroup>
-		<s:Line width="100%">
+		<s:Line width="100%" visible="{data.data.type=='open'}">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>

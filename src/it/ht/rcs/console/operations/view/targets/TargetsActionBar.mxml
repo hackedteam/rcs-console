@@ -16,6 +16,14 @@
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
+            icon="@Embed('/img/NEW/newDashboard.png')" click="addToDashboard(event)"
+            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null}"
+            visible="{section.currentState == 'singleOperation'}"
+            includeInLayout="{section.currentState == 'singleOperation'}"/>
+  
   <s:Spacer width="100%"/>
   
   <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
@@ -25,6 +33,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
@@ -76,6 +85,12 @@
       {
         section.stateManager.searchField = searchInput;
         section.stateManager.view.refresh();
+      }
+      
+      private function addToDashboard(event:MouseEvent):void
+      {
+        DashboardController.instance.newDashboardItem(selectedObject._id);
+        AlertPopUp.show(R.get('ADDED'));
       }
     ]]>
   </fx:Script>

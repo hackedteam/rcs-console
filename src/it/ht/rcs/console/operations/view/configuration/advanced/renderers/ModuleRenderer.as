@@ -21,7 +21,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private static const WIDTH:Number  = 45;
     private static const HEIGHT:Number = 45;
     
-    private static const NORMAL_COLOR:uint = 0xffffff;
+    private static const NORMAL_COLOR:uint   = 0xffffff;
+    private static const SELECTED_COLOR:uint = 0xdddddd;
     private static const ACCEPT_COLOR:uint   = 0x99bb99;
     private static const REJECT_COLOR:uint   = 0xbb9999;
     
@@ -54,6 +55,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
       addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
       addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+      addEventListener(MouseEvent.CLICK, onClick);
       addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
     }
     
@@ -94,7 +96,19 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container.setStyle('backgroundColor', NORMAL_COLOR);
     }
     
-    private function onDoubleClick(me:MouseEvent):void
+    private function onClick(me:MouseEvent):void
+    {
+      me.stopPropagation();
+      graph.removeSelection();
+      
+      selected = true;
+      graph.selectedElement = this;
+      
+      setFocus();
+      graph.highlightElement(this);
+    }
+    
+    public function onDoubleClick(me:MouseEvent):void
     {
       if (graph.config.globals.type.toLowerCase() == 'desktop' && 
         (module.module == 'position' || module.module == 'device')) return; // Do not edit position and device in desktop
@@ -106,6 +120,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         popup.graph = graph;
         PopUpManager.centerPopUp(popup);
       } catch (e:Error) {}
+    }
+    
+    private var _selected:Boolean = false;
+    public function get selected():Boolean { return _selected; }
+    public function set selected(s:Boolean):void
+    {
+      _selected = s;
+      container.setStyle('backgroundColor', _selected ? SELECTED_COLOR : NORMAL_COLOR);
     }
     
     override protected function createChildren():void

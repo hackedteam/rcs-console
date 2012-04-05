@@ -232,9 +232,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       
       if (element is Connection) {
         toExclude = toExclude.concat(getConnectionBounds(element as Connection));
-      } else {
+      } else if (element is ActionRenderer || element is EventRenderer) {
         toExclude = toExclude.concat(getOutBoundElements(element));
         toExclude = toExclude.concat(getDestinations(toExclude));
+      } else if (element is ModuleRenderer) {
+        toExclude = toExclude.concat(getInBoundElements(element));
+        toExclude = toExclude.concat(getSources(toExclude));
       }
       
       var component:UIComponent;
@@ -269,6 +272,18 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       return v;
     }
     
+    private function getInBoundElements(element:UIComponent):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      if (element is ModuleRenderer) {
+        var mr:ModuleRenderer = element as ModuleRenderer;
+        v = v.concat(mr.inBoundConnections());
+      }
+      
+      return v;
+    }
+    
     private function getDestinations(elements:Vector.<UIComponent>):Vector.<UIComponent>
     {
       var v:Vector.<UIComponent> = new Vector.<UIComponent>();
@@ -278,6 +293,20 @@ package it.ht.rcs.console.operations.view.configuration.advanced
           var destination:Linkable = (element as Connection).to;
           if (v.indexOf(destination) == -1)
             v.push(destination);
+        }
+      
+      return v;
+    }
+    
+    private function getSources(elements:Vector.<UIComponent>):Vector.<UIComponent>
+    {
+      var v:Vector.<UIComponent> = new Vector.<UIComponent>();
+      
+      for each (var element:UIComponent in elements)
+        if (element is Connection) {
+          var source:Linkable = ((element as Connection).from as Pin).parent as Linkable;
+          if (v.indexOf(source) == -1)
+            v.push(source);
         }
       
       return v;

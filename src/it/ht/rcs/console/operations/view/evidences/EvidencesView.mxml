@@ -11,21 +11,18 @@
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;
       
       import spark.events.GridEvent;
       
       [Bindable]
       public var section:OperationsSection;
       
-      
       private function onAddedToStage():void
       {
-        //resetFilter();
+        resetFilter();
         
         EvidenceManager.instance.evidenceFilter.target = section.stateManager.selectedTarget._id;
         if (section.stateManager.selectedAgent != null)
@@ -38,9 +35,9 @@
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
         EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.listenRefresh();
-        EvidenceManager.instance.refresh();
+        //EvidenceManager.instance.refresh();
         
-        evidenceDg.setFocus(); // keep! fix various focusmanager bestiality when switching view (eg from dashboard)
+        evidenceDg.setFocus(); // keep! fixes various focusmanager bestiality when switching view (eg from dashboard)
        
         trace("evidence view added to stage")
       }
@@ -83,8 +80,8 @@
         evidenceDg.dataProvider=null;
         if(viewer.visible)
         {
-        closeViewer();
-        actionBar.toggleDetailButton();
+          closeViewer();
+          actionBar.toggleDetailButton();
         }
       }
       
@@ -93,19 +90,10 @@
         EvidenceManager.instance.refresh();
       }
       
-      private function onGridChange():void
-      {
-
-        
-        //actionBar.selectedObjects = evidenceDg.selectedItems;
-      }
-      
       private function toggleState():void
       {
-        
         if(currentState=="default")
         {
-         
           currentState="count";
         }
         else
@@ -158,9 +146,7 @@
           closeViewer()
         }
         actionBar.toggleDetailButton();
-       
       }
-      
       
       private function onViewerSelection():void
       {
@@ -183,7 +169,6 @@
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
         notice.visible=notice.includeInLayout=true;
-        
       }
       
       private function onGridDataChange():void
@@ -201,7 +186,7 @@
   
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="showDetail()"/>
   <evidences:FilterNotice id="notice"/>
-  <evidences:EvidenceGrid id="evidenceDg" selectionChange="onGridChange()" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
+  <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
   <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="closeViewer()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
   <evidences:EvidenceCounter id="counter" counts="{EvidenceManager.instance.counts}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>

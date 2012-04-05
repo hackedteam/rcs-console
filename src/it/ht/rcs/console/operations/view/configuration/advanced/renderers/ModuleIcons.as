@@ -24,6 +24,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/modules/clipboard.png')]
     public static const clipboard:Class;
     
+    [Embed(source='/img/modules/conference.png')]
+    public static const conference:Class;
+    
     [Embed(source='/img/modules/crisis.png')]
     public static const crisis:Class;
     

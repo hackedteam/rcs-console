@@ -5,7 +5,7 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   
-  <s:Button label="{R.get('NEW_FORWARDER')}" click="onNewClick()" icon="@Embed('/img/NEW/alert.png')"/>
+  <s:Button label="{R.get('NEW_CONNECTOR')}" click="onNewClick()" icon="@Embed('/img/NEW/alert.png')"/>
   
   <s:Button label="{R.get('EDIT')}" click="onEditClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/edit.png')"/>
   
@@ -15,8 +15,8 @@
 
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.forwarder.controller.ForwarderManager;
-      import it.ht.rcs.console.forwarder.model.Forwarder;
+      import it.ht.rcs.console.connector.controller.ConnectorManager;
+      import it.ht.rcs.console.connector.model.Connector;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -26,26 +26,26 @@
       
       private function onNewClick():void
       {
-        var popup:ForwarderForm = PopUpManager.createPopUp(root, ForwarderForm, true) as ForwarderForm;
+        var popup:ConnectorForm = PopUpManager.createPopUp(root, ConnectorForm, true) as ConnectorForm;
         popup.currentState = 'create';
         PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
-        var ea:ForwarderForm = PopUpManager.createPopUp(root, ForwarderForm, true) as ForwarderForm;
-        ea.forwarder = selectedObject as Forwarder;
+        var ea:ConnectorForm = PopUpManager.createPopUp(root, ConnectorForm, true) as ConnectorForm;
+        ea.connector = selectedObject as Connector;
         ea.currentState = 'edit';
         PopUpManager.centerPopUp(ea);
       }
       
       private function onDeleteClick():void
       {
-        AlertPopUp.show(R.get('CONFIRM_FORWARDER_DELETION'), R.get('CONFIRM'),
+        AlertPopUp.show(R.get('CONFIRM_CONNECTOR_DELETION'), R.get('CONFIRM'),
                         AlertPopUp.YES|AlertPopUp.NO, null,
                         function(e:CloseEvent):void {
                           if (e.detail == AlertPopUp.YES) 
-                            ForwarderManager.instance.removeItem(selectedObject);
+                            ConnectorManager.instance.removeItem(selectedObject);
                         }, null, AlertPopUp.NO);
       }
       

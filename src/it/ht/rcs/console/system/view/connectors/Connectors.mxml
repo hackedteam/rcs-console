@@ -3,7 +3,7 @@
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:main="it.ht.rcs.console.main.*"
-         xmlns:forwarders="it.ht.rcs.console.system.view.forwarders.*"
+         xmlns:connectors="it.ht.rcs.console.system.view.connectors.*"
          width="100%" height="100%"
          addedToStage="onAddedToStage()" creationComplete="init()"
          removedFromStage="onRemovedFromStage()" >
@@ -42,7 +42,7 @@
 
       protected function edit(event:MouseEvent):void
       {
-        var ea:ForwarderForm = PopUpManager.createPopUp(root, ForwarderForm, true) as ForwarderForm;
+        var ea:ConnectorForm = PopUpManager.createPopUp(root, ConnectorForm, true) as ConnectorForm;
         ea.forwarder = forwarders.selectedItem as Forwarder;
         ea.currentState = 'edit';
         PopUpManager.centerPopUp(ea);
@@ -52,7 +52,7 @@
   </fx:Script>
   
   
-  <forwarders:ForwardersActionBar id="actionBar" selectedObject="{forwarders.selectedItem||null}" view="{view}"/>
+  <connectors:ConnectorsActionBar id="actionBar" selectedObject="{forwarders.selectedItem||null}" view="{view}"/>
   
   <s:DataGrid id="forwarders" width="100%" height="100%" dataProvider="{view}" doubleClickEnabled="true" doubleClick="edit(event)">
     <s:columns>
@@ -75,7 +75,7 @@
         <s:GridColumn dataField="path" headerText="{R.get('PATH')}"
                       itemRenderer="it.ht.rcs.console.utils.PathRenderer"/>
 
-        <s:GridColumn dataField="raw" headerText="Raw" width="50" resizable="false"></s:GridColumn>
+        <!-- <s:GridColumn dataField="raw" headerText="Raw" width="50" resizable="false"></s:GridColumn> -->
         <s:GridColumn dataField="keep" headerText="Keep" width="50" resizable="false"></s:GridColumn>
         
         <s:GridColumn dataField="dest" headerText="Dest"></s:GridColumn>

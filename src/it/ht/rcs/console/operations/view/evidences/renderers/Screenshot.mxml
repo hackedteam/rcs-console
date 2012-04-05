@@ -27,6 +27,10 @@
       public var SpinnerAnimation:Class;
       
       [Bindable]
+      [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+      public var BrokenImage:Class;
+      
+      [Bindable]
       private var frameWidth:Number=4;
       [Bindable]
       private var url:String;
@@ -67,7 +71,10 @@
       
       private function onImageError(e:IOErrorEvent):void
       {
-        trace("image error");
+        spinner.visible=false;
+        img.source=new BrokenImage() 
+        img.visible=true;
+        fadeIn.play([img]);
       }
   		
   		private function onImageLoaded(e:Event):void

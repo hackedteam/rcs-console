@@ -117,7 +117,7 @@
       
       private function onGridDoubleClick(e:GridEvent):void
       {
-       if(e.column === evidenceDg.noteColumn)//note column index
+       if(e.column === evidenceDg.noteColumn)
        {
          evidenceDg.editNote();
          return;
@@ -126,12 +126,12 @@
        {
          if(e.rowIndex!=-1)
          {
-           showDetail();
+           toggleDetail();
          }
        }
       }
 
-      private function showDetail():void
+      private function toggleDetail():void
       {
         if(!viewer.visible)
         {
@@ -165,7 +165,12 @@
         evidenceDg.ensureCellIsVisible(evidenceDg.selectedIndex)
         
       }
-      
+      private function onViewerClose():void
+      {
+        closeViewer();
+        actionBar.toggleDetailButton();
+        
+      }
       private function closeViewer():void
       {
         viewer.visible=viewer.includeInLayout=false;
@@ -179,8 +184,10 @@
       
       private function onGridDataChange():void
       {
-        evidenceDg.selectedItems=new Vector.<Object>
-        actionBar.selectedObjects=evidenceDg.selectedItems;
+        /* evidenceDg.selectedItems=new Vector.<Object>
+        if(evidenceDg.selectedItems!=null)
+        actionBar.selectedObjects=evidenceDg.selectedItems; */
+        actionBar.selectedObjects=new Vector.<Object>
       }
     ]]>
   </fx:Script>
@@ -190,10 +197,10 @@
     <s:State name="count"/>
   </s:states>
   
-  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="showDetail()"/>
+  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="toggleDetail()"/>
   <evidences:FilterNotice id="notice" visible="{filteredById}" includeInLayout="{filteredById}" evidenceView="{this}"/>
   <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
-  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="closeViewer()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
+  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose();" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
   <evidences:EvidenceCounter id="counter" counts="{EvidenceManager.instance.counts}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>
 

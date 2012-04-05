@@ -108,7 +108,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       graph.highlightElement(this);
     }
     
-    private function onDoubleClick(me:MouseEvent):void
+    public function onDoubleClick(me:MouseEvent):void
     {
       if (graph.config.globals.type.toLowerCase() == 'desktop' && 
         (module.module == 'position' || module.module == 'device')) return; // Do not edit position and device in desktop

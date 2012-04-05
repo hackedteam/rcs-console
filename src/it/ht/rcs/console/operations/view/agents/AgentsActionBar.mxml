@@ -23,6 +23,16 @@
             includeInLayout="{section.currentState == 'singleTarget'}" verticalAlign="middle">
     
     <actionbar:Separator/>
+    
+    <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
+              icon="@Embed('/img/NEW/newDashboard.png')" click="addToDashboard(event)"
+              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; (selectedObject as Agent)._kind == 'agent'}"/>
+    
+    <s:Button label="{R.get('ADD_TO_ALERT')}"
+              icon="@Embed('/img/NEW/alert.png')" click="addToAlert(event)"
+              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"/>
+    
+    <actionbar:Separator/>
 
     <s:Button label="{R.get('EVIDENCE_IMPORT')}" click="importEvidence(event)"
               icon="@Embed('/img/NEW/import.png')" enabled="{Console.currentSession.user.is_tech()}"/>
@@ -47,7 +57,7 @@
 
     <s:Button label="{R.get('EVIDENCE_EXPORT')}"
               icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
-        
+    
     <actionbar:Separator/>
 
     <s:Button label="{R.get('UPDATE_AGENT')}" click="updateAgent(event)"
@@ -69,8 +79,12 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.evidences.EvidenceExport;
       import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
@@ -78,6 +92,7 @@
       
       import locale.R;
       
+      import mx.collections.ArrayCollection;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
@@ -156,6 +171,23 @@
         popup.target = section.stateManager.selectedTarget;
         popup.agent = section.stateManager.selectedAgent;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function addToAlert(event:MouseEvent):void
+      {
+        var a:Alert = new Alert(Alert.defaultAlert());
+        a.type = 'LOG';
+        a.action = selectedObject._kind == 'factory' ? 'INSTANCE' : 'SYNC';
+        a.path = new ArrayCollection();
+        a.path.addAll(selectedObject.path);
+        a.path.addItem(selectedObject._id);
+        AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void { AlertPopUp.show(R.get('ADDED')); });
+      }
+      
+      private function addToDashboard(event:MouseEvent):void
+      {
+        DashboardController.instance.newDashboardItem(selectedObject._id);
+        AlertPopUp.show(R.get('ADDED'));
       }
     ]]>
   </fx:Script>

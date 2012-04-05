@@ -20,6 +20,9 @@
       [Bindable]
       public var section:OperationsSection;
       
+      [Bindable]
+      public var filteredById:Boolean = false;
+      
       private function onAddedToStage():void
       {
         resetFilter();
@@ -32,7 +35,7 @@
         
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, refreshData);
         EvidenceManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.listenRefresh();
         //EvidenceManager.instance.refresh();
@@ -46,6 +49,7 @@
       {
         var filter:Object = EvidenceManager.instance.evidenceFilter;
         filter.date = 'dr';
+        delete(filter._id);
         delete(filter.from);
         delete(filter.to);
         delete(filter.rel);
@@ -69,7 +73,7 @@
       
       private function onRemovedFromStage():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, refreshData);
         EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         EvidenceManager.instance.unlistenRefresh();
         trace("evidence view removed from stage");
@@ -77,7 +81,7 @@
         actionBar.selectedObjects=evidenceDg.selectedItems;
         currentState="default";
         actionBar.toggleSummaryButton(currentState);
-        evidenceDg.dataProvider=null;
+        //evidenceDg.dataProvider=null;
         if(viewer.visible)
         {
           closeViewer();
@@ -85,8 +89,10 @@
         }
       }
       
-      private function onFilterChanged(event:FilterEvent):void
+      public function refreshData(event:FilterEvent=null):void
       {
+        evidenceDg.dataProvider=null;
+        filteredById = EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id');
         EvidenceManager.instance.refresh();
       }
       
@@ -111,7 +117,7 @@
       
       private function onGridDoubleClick(e:GridEvent):void
       {
-       if(e.columnIndex==5)//note column index
+       if(e.column === evidenceDg.noteColumn)//note column index
        {
          evidenceDg.editNote();
          return;
@@ -185,7 +191,7 @@
   </s:states>
   
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="showDetail()"/>
-  <evidences:FilterNotice id="notice"/>
+  <evidences:FilterNotice id="notice" visible="{filteredById}" includeInLayout="{filteredById}" evidenceView="{this}"/>
   <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
   <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="closeViewer()" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>

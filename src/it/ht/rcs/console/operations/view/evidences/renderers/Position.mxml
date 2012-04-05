@@ -1,51 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                                xmlns:s="library://ns.adobe.com/flex/spark"
-                                xmlns:mx="library://ns.adobe.com/flex/mx"
-                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="100%" height="100%"
-                                >
-  
-  <fx:Script>
-    <![CDATA[
-      import flashx.textLayout.conversion.TextConverter;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
-      
-      
-      [Bindable]
-      override public function set data(value:*):void
-      {
-        super.data=value;
-        typeTxt.textFlow= TextConverter.importToFlow("<b>Type: </b>"+data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        coordsTxt.textFlow= TextConverter.importToFlow("<b>Lat: </b>"+data.data.latitude+" | <b>Long: </b>"+data.data.longitude, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
-        var formatted:String=address.city+" ("+address.country+") - "+address.street_number+", "+address.street+", "+address.postal_code;
-        addressTxt.textFlow= TextConverter.importToFlow("<b>Address: </b>"+formatted, TextConverter.TEXT_FIELD_HTML_FORMAT);
-      }
-      
-      private function init():void
-      {
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																width="100%"
+																height="100%">
+
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
+
+
+			[Bindable]
+			override public function set data(value:*):void
+			{
+				super.data=value;
+				if (data.data.type == null)
+				{
+					typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
+				}
+				else
+				{
+					typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" + data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				}
+				var latitude:String;
+				var longitude:String;
+				if (data.data.latitude == null || isNaN(data.data.latitude))
+				{
+					latitude="(unknown)";
+				}
+				else
+				{
+					latitude=String(data.data.latitude);
+				}
+        if (data.data.longitude == null || isNaN(data.data.longitude))
+        {
+          longitude="(unknown)"
+        }
+        else
+        {
+          longitude=String(data.data.longitude);
+        }
         
-      }
-      
-    ]]>
-  </fx:Script>
-  <s:HGroup verticalAlign="top"
-            height="100%"
-            width="100%">
-    <s:VGroup verticalAlign="middle" width="50%">
-      <s:RichText id="typeTxt" width="100%"/>
-      <s:RichText id="coordsTxt" width="100%"/>
-    </s:VGroup>
-    <s:Line height="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:VGroup verticalAlign="top" width="50%">
-      <s:RichText id="addressTxt" width="100%"/>
-    </s:VGroup>
-  </s:HGroup>
+				coordsTxt.textFlow=TextConverter.importToFlow("<b>Lat: </b>" + latitude + " | <b>Long: </b>" + longitude, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
+        
+        var city:String;
+        var country:String;
+        var street_number:String;
+        var street:String;
+        var postal_code:String;
+        
+        var formatted:String;
+        if(address==null)
+        {
+          formatted="(unknown)"
+        }
+        else
+        {
+          formatted=address.city + " (" + address.country + ") - " + address.street_number + ", " + address.street + ", " + address.postal_code;
+        }
+        
+				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formatted, TextConverter.TEXT_FIELD_HTML_FORMAT);
+			}
+
+			private function init():void
+			{
+
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup verticalAlign="top"
+						height="100%"
+						width="100%">
+		<s:VGroup verticalAlign="middle"
+							width="50%">
+			<s:RichText id="typeTxt"
+									width="100%"/>
+			<s:RichText id="coordsTxt"
+									width="100%"/>
+		</s:VGroup>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:VGroup verticalAlign="top"
+							width="50%">
+			<s:RichText id="addressTxt"
+									width="100%"/>
+		</s:VGroup>
+	</s:HGroup>
 </renderers:EvidenceDataRenderer>

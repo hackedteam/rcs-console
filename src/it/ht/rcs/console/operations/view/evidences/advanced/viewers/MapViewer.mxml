@@ -120,6 +120,12 @@
 				{
 					map.removeOverlay(_overlays[i] as IOverlay);
 				}
+        if(isNaN(_positions[0].lat) || isNaN(_positions[0].lng))
+        {
+          //set zoom level 
+          map.setZoom(1)
+          return;
+        }
 
 				var bounds:LatLngBounds=new LatLngBounds();
 				_centre=new LatLng(_positions[0].lat, _positions[0].lng);
@@ -220,6 +226,7 @@
 			private function onMapZoomed(event:MapEvent):void
 			{
 				_scale=calculateMapScale();
+       
 			}
 
 			public function set selectedPosition(value:Object):void

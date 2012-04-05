@@ -2,37 +2,44 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
-                   xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
+									 xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
 									 height="100%"
 									 width="100%"
-                   borderColor="0xCCCCCC"
-                   backgroundColor="0xCCCCCC"
-                   backgroundAlpha="0.5" creationComplete="init()" creationPolicy="all">
-  <fx:Metadata> 
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xCCCCCC"
+									 backgroundAlpha="0.5"
+									 creationComplete="init()"
+									 creationPolicy="all">
+	<fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-			
+
 			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
-      [Bindable]
+			[Bindable]
 			private var _evidence:Object;
+			[Bindable]
+			private var _positions:Array;
+
+			[Bindable]
+			private var type:String;
+			[Bindable]
+			private var latitude:String;
+			[Bindable]
+			private var longitude:String;
       [Bindable]
-      private var _positions:Array;
-      
+      private var accuracy:String;
+			[Bindable]
+			private var address:String;
+
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
-        _evidence=value;
-       if(value.type=="position")
-       {
-         var pos:Object={lat:value.data.latitude,lng:value.data.longitude, range:value.data.accuracy, evidence:value} 
-         _positions=[pos]   
-         mapViewer.positions=_positions
-         
-       }
+				_evidence=value;
+      
 			}
 
 			public function get evidence():Object
@@ -40,64 +47,181 @@
 				return _evidence;
 			}
 
-      
-      public function set evidences(value:Vector.<Object>):void
-      {
-        _evidence=value[0];
-        _positions=new Array();
-        for(var i:int=0;i<value.length;i++)
+
+			public function set evidences(value:Vector.<Object>):void
+			{
+				_evidence=value[0];
+        
+        if (evidence.data.type == null)
         {
-          if(value[i].type=="position")
-          {
-            var pos:Object={lat:value[i].data.latitude,lng:value[i].data.longitude, range:value[i].data.accuracy, evidence:value[i]};
-            _positions.push(pos);
-          }
+          type="(unknown)"
         }
-        mapViewer.positions=_positions;
-      }
-      
+        else
+        {
+          type=evidence.data.type
+        }
+        
+        if (evidence.data.latitude == null || isNaN(evidence.data.latitude))
+        {
+          latitude="(unknown)"
+        }
+        else
+        {
+          latitude=evidence.data.latitude
+        }
+        
+        if (evidence.data.longitude == null || isNaN(evidence.data.longitude))
+        {
+          longitude="(unknown)"
+        }
+        else
+        {
+          longitude=evidence.data.longitude
+        }
+        
+        if (evidence.data.accuracy == null || isNaN(evidence.data.accuracy))
+        {
+          accuracy="(unknown)"
+        }
+        else
+        {
+          accuracy=evidence.data.accuracy
+        }
+        
+        if (evidence.data.accuracy == null || isNaN(evidence.data.accuracy))
+        {
+          accuracy="(unknown)"
+        }
+        else
+        {
+          accuracy=evidence.data.accuracy
+        }
+        if(evidence.data.address==null)
+        {
+          address='(unknown)';
+        }
+        else
+        {
+         address= _evidence.data.address.city+' ('+evidence.data.address.country+') - '+_evidence.data.address.street_number+', '+_evidence.data.address.street+', '+_evidence.data.address.postal_code
+        }
+        
+				_positions=new Array();
+				for (var i:int=0; i < value.length; i++)
+				{
+						var pos:Object={lat: value[i].data.latitude, lng: value[i].data.longitude, range: value[i].data.accuracy, evidence: value[i]};
+						_positions.push(pos);
+				}
+				mapViewer.positions=_positions;
+			}
+
 			private function lineBreak(s:String):String
 			{
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
-      
-      private function init():void
-      {
-       
-      }
-      
-      private function onMapChange():void
-      {
-        _evidence=mapViewer.selectedPosition.evidence;
-        dispatchEvent(new Event("change"))
-      }
-      
+
+			private function init():void
+			{
+
+			}
+
+			private function onMapChange():void
+			{
+				_evidence=mapViewer.selectedPosition.evidence;
+        //TODO - code is redundant
+        if (evidence.data.type == null)
+        {
+          type="(unknown)"
+        }
+        else
+        {
+          type=evidence.data.type
+        }
+        
+        if (evidence.data.latitude == null || isNaN(evidence.data.latitude))
+        {
+          latitude="(unknown)"
+        }
+        else
+        {
+          latitude=evidence.data.latitude
+        }
+        
+        if (evidence.data.longitude == null || isNaN(evidence.data.longitude))
+        {
+          longitude="(unknown)"
+        }
+        else
+        {
+          longitude=evidence.data.longitude
+        }
+        
+        if (evidence.data.accuracy == null || isNaN(evidence.data.accuracy))
+        {
+          accuracy="(unknown)"
+        }
+        else
+        {
+          accuracy=evidence.data.accuracy
+        }
+        
+        if (evidence.data.accuracy == null || isNaN(evidence.data.accuracy))
+        {
+          accuracy="(unknown)"
+        }
+        else
+        {
+          accuracy=evidence.data.accuracy
+        }
+        if(evidence.data.address.city==null)
+        {
+          address='(unknown)';
+        }
+        else
+        {
+          address= _evidence.data.address.city+' ('+evidence.data.address.country+') - '+_evidence.data.address.street_number+', '+_evidence.data.address.street+', '+_evidence.data.address.postal_code
+        }
+        
+				dispatchEvent(new Event("change"))
+			}
 		]]>
 	</fx:Script>
-<s:layout>
-  <s:VerticalLayout paddingBottom="10"
-                      paddingLeft="10"
-                      paddingRight="10"
-                      paddingTop="10"
-                      />
-</s:layout>
-  <s:RichText id="typeTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Type: &lt;/b&gt;'+_evidence.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="addressTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Address: &lt;/b&gt;'+_evidence.data.address.city+' ('+evidence.data.address.country+') - '+_evidence.data.address.street_number+', '+_evidence.data.address.street+', '+_evidence.data.address.postal_code, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:HGroup>
-    <s:RichText id="latTxt"  textFlow="{TextConverter.importToFlow('&lt;b&gt;Latitude: &lt;/b&gt;'+_evidence.data.latitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-    <s:RichText id="longTxt"  textFlow="{TextConverter.importToFlow('&lt;b&gt;Longitude: &lt;/b&gt;'+_evidence.data.longitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-    <s:RichText id="accTxt"  textFlow="{TextConverter.importToFlow('&lt;b&gt;Accuracy: &lt;/b&gt;'+_evidence.data.accuracy, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  </s:HGroup>
-  <viewers:MapViewer id="mapViewer" positions="{_positions}" change="onMapChange()"/>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<s:RichText id="typeTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Type: &lt;/b&gt;'+type, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="addressTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Address: &lt;/b&gt;'+address, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:HGroup>
+		<s:RichText id="latTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Latitude: &lt;/b&gt;'+latitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="15"/>
+		<s:RichText id="longTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Longitude: &lt;/b&gt;'+longitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="15"/>
+		<s:RichText id="accTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Accuracy: &lt;/b&gt;'+accuracy, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="15"/>
+	</s:HGroup>
+	<viewers:MapViewer id="mapViewer"
+										 positions="{_positions}"
+										 change="onMapChange()"/>
 </s:BorderContainer>

@@ -10,6 +10,9 @@
       import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
@@ -21,6 +24,15 @@
         var group:it.ht.rcs.console.accounting.model.Group = GroupManager.instance.getItem(_id as String);
         return group ? group.name : '';
       }
+      
+      private function targetName(target:String):String
+      {
+        if (target == null)
+          return '';
+        
+        return SearchManager.instance.getItem(target).name;
+      }
+      
     ]]>
   </fx:Script>
 
@@ -48,12 +60,21 @@
       <s:FormItem label="{R.get('NAME')} :">
         <s:RichEditableText editable="false" text="{selectedItem.name}"/>
       </s:FormItem>
-      <s:FormItem label="{R.get('STATUS')} :">
-        <s:RichEditableText editable="false" text="{ObjectUtils.capitalize(selectedItem.status)}"/>
-      </s:FormItem>
       <s:FormItem label="{R.get('DESCRIPTION')} :">
         <s:RichEditableText width="200" height="30" editable="false" lineHeight="15"
                             text="{selectedItem.desc}" textAlign="left"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('STATUS')} :">
+        <s:RichEditableText editable="false" text="{ObjectUtils.capitalize(selectedItem.status)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LAST_SYNC')} :">
+        <s:RichEditableText editable="false" text="{TimeUtils.timestampFormatter(selectedItem.stat.last_sync * 1000)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LAST_TARGET')} :">
+        <s:RichEditableText editable="false" text="{targetName(selectedItem.stat.last_child)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('SIZE')} :">
+        <s:RichEditableText editable="false" text="{Size.toHumanBytes(selectedItem.stat.size + selectedItem.stat.grid_size)}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('GROUPS')}">
         <s:List id="selectedGroups" width="200" minWidth="0" height="100%" borderVisible="false"

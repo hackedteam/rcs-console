@@ -6,6 +6,8 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
@@ -17,6 +19,19 @@
         } catch (e:Error) {}
         return '';
       }
+      
+      private function targetLabel(item:Object, column:GridColumn):String
+      {
+        if (item.stat.last_child == null)
+          return '';
+        
+        return SearchManager.instance.getItem(item.stat.last_child).name;
+      }
+      
+      private function sizeLabel(item:Object, column:GridColumn):String
+      {
+        return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
+      }
     ]]>
   </fx:Script>
   
@@ -27,11 +42,14 @@
       
       <s:GridColumn dataField="desc" headerText="{R.get('DESCRIPTION')}"/>
       
-      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}"/>
+      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}" width="80"/>
       
-      <s:GridColumn dataField="stat.last_sync" headerText="{R.get('LAST_SYNC')}"
-                    labelFunction="dateLabel"/>
-    
+      <s:GridColumn dataField="stat.last_sync" headerText="{R.get('LAST_SYNC')}" labelFunction="dateLabel" width="130"/>
+      
+      <s:GridColumn dataField="stat.last_child" headerText="{R.get('LAST_TARGET')}" labelFunction="targetLabel"/>
+
+      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80"/>
+
     </s:ArrayList>
   </s:columns>
   

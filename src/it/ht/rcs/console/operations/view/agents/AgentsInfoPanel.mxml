@@ -10,6 +10,7 @@
       import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
@@ -73,7 +74,7 @@
       <s:FormItem label="{R.get('IDENT')}">
         <s:RichEditableText editable="false" text="{_selectedItem.ident}"/>
       </s:FormItem>
-      <s:FormItem label="{R.get('DEMO')}">
+      <s:FormItem label="{R.get('DEMO')}" visible="{_selectedItem._kind == 'agent'}">
         <s:RichEditableText editable="false" text="{ObjectUtils.capitalize(_selectedItem.demo)}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('PLATFORM')}" visible="{_selectedItem._kind == 'agent'}">
@@ -97,6 +98,9 @@
       </s:FormItem>
       <s:FormItem label="{R.get('SOURCE')}" visible="{_selectedItem._kind == 'agent'}">
         <s:RichEditableText width="200" editable="false" text="{_selectedItem.stat.source}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('SIZE')} :" visible="{_selectedItem._kind == 'agent'}">
+        <s:RichEditableText editable="false" text="{Size.toHumanBytes(_selectedItem.stat.size + _selectedItem.stat.grid_size)}"/>
       </s:FormItem>
     </s:Form>
   </s:Group>

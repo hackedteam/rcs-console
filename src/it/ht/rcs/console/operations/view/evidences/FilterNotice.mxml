@@ -11,12 +11,21 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      
+      import mx.core.FlexGlobals;
+      
+      public var evidenceView:EvidencesView;
+      
       private function onClick(e:MouseEvent):void
       {
+        evidenceView.resetFilter();
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+        evidenceView.refreshData();
         //EvidenceManager.instance.evidenceFilter.ids = [];
-        EvidenceManager.instance.refresh();
-        visible = includeInLayout = false;
+        //EvidenceManager.instance.refresh();
+        //visible = includeInLayout = false;
       }
     ]]>
   </fx:Script>

@@ -137,10 +137,16 @@ package it.ht.rcs.console.operations.view
         section.currentState = 'filetransfer';
       }
       
-      if (event && event.evidenceType)
+      if (event && event.evidenceTypes)
       {
         section.currentState = 'evidence';
-        EvidenceManager.instance.evidenceFilter.type = [event.evidenceType];
+        EvidenceManager.instance.evidenceFilter.type = event.evidenceTypes;
+        
+        if (event.evidenceIds)
+          EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
+        else
+          delete (EvidenceManager.instance.evidenceFilter._id);
+        
         EvidenceManager.instance.refresh();
       }
     }

@@ -7,7 +7,8 @@
 									 width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1" creationComplete="init()">
+                   backgroundAlpha="1" 
+                   creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
@@ -22,12 +23,23 @@
 			public function set evidence(value:Object):void
 			{
         _evidence=value;
-        //html.loadString(value.data.subject);
+       
         //html.addEventListener(Event.COMPLETE, onLoadingComplete)
-       // html.load(new URLRequest("http://www.repubblica.it"));
+          
+        //html.loadString(value.data.content);
+        
+        var loader:URLLoader=new URLLoader()
+        var req:URLRequest=new URLRequest("http://www.repubblica.it")
+        loader.addEventListener(Event.COMPLETE, onLoadingComplete)
+        //loader.load(req)
+        
 			}
+      
+      
       private function onLoadingComplete(e:Event):void
       {
+        var cleanHTML:String=e.currentTarget.data.replace(new RegExp("<img.*?(</img>|/>)", "g"), "<img/>");    
+        html.loadString(cleanHTML)
         
       }
 
@@ -43,12 +55,12 @@
 			}
       private function init():void
       {
+        
         html.width=htmlBox.width;
         html.height=htmlBox.height;
-        stage.addEventListener(Event.RESIZE, onStageResize)
         htmlBox.addChild(html)
       }
-      private function onStageResize(e:Event):void
+      private function scaleHTML(e:Event):void
       {
         html.width=htmlBox.width;
         html.height=htmlBox.height;
@@ -74,13 +86,13 @@
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
- <!-- <s:RichText id="subjectTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+evidence.data.subject, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>-->
+ <s:RichText id="subjectTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+evidence.data.subject, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
   <s:Line width="100%">
     <s:stroke>
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
-  <mx:UIComponent id="htmlBox" width="100%" height="100%"/>
+  <mx:UIComponent id="htmlBox" width="100%" height="100%" resize="scaleHTML(event)"/>
   
  <!--<s:Scroller height="100%"
               width="100%">

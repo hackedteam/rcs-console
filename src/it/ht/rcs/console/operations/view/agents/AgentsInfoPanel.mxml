@@ -31,6 +31,23 @@
         if (!_selectedItem && section.currentState == 'singleAgent')
           _selectedItem = section.stateManager.selectedAgent;
       }
+      
+      private function sync_status(status:int):String
+      {
+        switch(status) {
+          case 0:
+            return R.get('IDLE');
+            break;
+          case 1:
+            return R.get('IN_PROGRESS');
+            break;
+          case 2:
+            return R.get('TIMEOUT');
+            break;
+        }
+        return '';
+      }
+      
     ]]>
   </fx:Script>
 
@@ -86,6 +103,9 @@
       <s:FormItem label="{R.get('LAST_SYNC')}" visible="{_selectedItem._kind == 'agent'}">
         <s:RichEditableText width="200" editable="false"
                             text="{TimeUtils.timestampFormatter(_selectedItem.stat.last_sync * 1000)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LAST_SYNC_STATUS')}" visible="{_selectedItem._kind == 'agent'}">
+        <s:RichEditableText width="200" editable="false" text="{sync_status(_selectedItem.stat.last_sync_status)}"/>
       </s:FormItem>
       <s:FormItem label="{R.get('INSTANCE')}" visible="{_selectedItem._kind == 'agent'}">
         <s:Label width="200" maxDisplayedLines="1" text="{_selectedItem.instance}" toolTip="{_selectedItem.instance}"/>

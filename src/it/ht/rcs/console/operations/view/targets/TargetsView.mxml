@@ -4,11 +4,14 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:targets="it.ht.rcs.console.operations.view.targets.*"
           xmlns:view="it.ht.rcs.console.operations.view.*"
-          width="100%" height="100%">
+          width="100%" height="100%" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.push.PushEvent;
+      import it.ht.rcs.console.target.controller.TargetManager;
       
       import locale.R;
       
@@ -27,6 +30,21 @@
           var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
           if (item) section.stateManager.manageItemSelection(item);
         }
+      }
+      
+      private function onAddedToStage():void
+      {
+        PushController.instance.addEventListener(PushEvent.TARGET, onTargetPush);
+      }
+      
+      private function onTargetPush(e:PushEvent):void
+      {
+        TargetManager.instance.show(e.data.id as String);
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        PushController.instance.removeEventListener(PushEvent.TARGET, onTargetPush);
       }
     ]]>
   </fx:Script>

@@ -33,7 +33,7 @@
       
       private function onResult(event:ResultEvent):void
       {
-        var root:Object = { name: section.stateManager.selectedTarget.name, children: [], size: -1, attr: -2, date: -1, parent: null };
+        var root:Object = { name: section.stateManager.selectedTarget.name, children: [], attr: ROOT, parent: null };
         
         var grouped:Object = groupByAgentId(event.result as ArrayCollection);
         for (var aid:String in grouped) {
@@ -48,14 +48,6 @@
         
       }
       
-      private function getChild(a:Array, name:String):Object
-      {
-        for each (var el:Object in a)
-          if (el.name == name)
-            return el;
-        return null;
-      }
-      
       private function groupByAgentId(collection:ArrayCollection):Object
       {
         var grouped:Object = {};
@@ -67,9 +59,15 @@
         return grouped;
       }
       
+      private static const ROOT:int = -2;
+      private static const SUBROOT:int = -1;
+      private static const FILE:int = 0;
+      private static const EMPTY_FOLDER:int = 1;
+      private static const FULL_FOLDER:int = 3;
+      
       private function buildSubTree(evidences:Array):Object
       {
-        var subroot:Object = { name: 'Agent', children: [], size: -1, attr: -1, date: -1, parent: null };
+        var subroot:Object = { name: 'Agent', children: [], attr: SUBROOT, parent: null };
         
         for each (var e:Evidence in evidences) {
           var path:String = e.data.path;
@@ -77,33 +75,52 @@
           var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
           var tokens:Array = path.split(separator);
           var node:Object = subroot;
-          for each (var t:String in tokens) {
+          for (var idx:int = 0; idx < tokens.length; idx++) {
+            var t:String = tokens[idx];
             if (t == '') continue;
-            var next:Object = getChild(node.children, t);
-            if (!next) {
-              next = { name: t, children: [], size: e.data.size, attr: e.data.attr, date: e.da, parent: node, evidence: e };
-              if (t == tokens[tokens.length-1] && e.data.attr == 0)
-                delete(next.children);
+            
+            var next:Object = getAppendToNode(node.children, t);
+            
+            if (next == null) {
+              next = { name: t, children: [], attr: FULL_FOLDER, parent: node };
               node.children.push(next);
-              node = next;
             }
-            else
-              node = next;
+            
+            node = next;
+            
+            if (idx == tokens.length-1) { // ultimo elemento del path
+              node.size = e.data.size;
+              node.attr = e.data.attr;
+              node.date = e.da;
+              node.evidence = e;
+              if (e.data.attr == FILE)
+                delete(node.children);
+            }
           }
         }
+        
         if (e) {
           var agent:Agent = AgentManager.instance.getItem(e.aid);
           subroot.name = agent.name;
           subroot.agent = agent;
         }
+        
         return subroot;
+      }
+      
+      private function getAppendToNode(a:Array, name:String):Object
+      {
+        for each (var el:Object in a)
+          if (el.name == name)
+            return el;
+        return null;
       }
       
       private function dateFunction(item:Object, column:AdvancedDataGridColumn):String
       {
         try {
           var value:int = item[column.dataField];
-          return value == -1 ? '' : TimeUtils.timestampFormatter(value * 1000);
+          return value ? TimeUtils.timestampFormatter(value * 1000) : '';
         } catch (e:Error) {}
         return '';
       }
@@ -112,7 +129,7 @@
       {
         try {
           var value:int = item[column.dataField];
-          return value == -1 || item.attr == 1 ? '' : Size.toHumanBytes(item[column.dataField]);
+          return value && item.attr == FILE ? Size.toHumanBytes(value) : '';
         } catch (e:Error) {}
         return '';
       }
@@ -133,14 +150,18 @@
       private function fsIconFunction(item:Object):Class
       {
         if (!item) return null;
-        switch (item.attr) {
-          case -2: return Icons.target16;
-          case -1: return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
-          case 0: return file;
-          case 1: return emptyFolder;
-          case 3: return fullFolder;
-          default: return null;
+        
+        if (item.hasOwnProperty('children')) {
+          switch (item.attr) {
+            case ROOT: return Icons.target16;
+            case SUBROOT: return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
+            case EMPTY_FOLDER: return emptyFolder;
+            case FULL_FOLDER: return fullFolder;
+            default: return null;
+          }
         }
+        
+        return file;
       }
       
       private function onAddedToStage():void

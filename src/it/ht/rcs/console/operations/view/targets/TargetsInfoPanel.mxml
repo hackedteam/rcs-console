@@ -8,11 +8,22 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
       [Bindable]
       public var selectedItem:*;
+      
+      private function agentName(target:String):String
+      {
+        if (target == null)
+          return '';
+        
+        return SearchManager.instance.getItem(target).name;
+      }
     ]]>
   </fx:Script>
 
@@ -40,12 +51,21 @@
       <s:FormItem label="{R.get('NAME')}">
         <s:RichEditableText editable="false" text="{selectedItem.name}"/>
       </s:FormItem>
-      <s:FormItem label="{R.get('STATUS')}">
-        <s:RichEditableText editable="false" text="{ObjectUtils.capitalize(selectedItem.status)}"/>
-      </s:FormItem>
       <s:FormItem label="{R.get('DESCRIPTION')}">
         <s:RichEditableText width="200" height="30" editable="false" lineHeight="15"
                             text="{selectedItem.desc}" textAlign="left"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('STATUS')}">
+        <s:RichEditableText editable="false" text="{ObjectUtils.capitalize(selectedItem.status)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LAST_SYNC')} :">
+        <s:RichEditableText editable="false" text="{TimeUtils.timestampFormatter(selectedItem.stat.last_sync * 1000)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LAST_AGENT')} :">
+        <s:RichEditableText editable="false" text="{agentName(selectedItem.stat.last_child)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('SIZE')} :">
+        <s:RichEditableText editable="false" text="{Size.toHumanBytes(selectedItem.stat.size + selectedItem.stat.grid_size)}"/>
       </s:FormItem>
     </s:Form>
   </s:Group>

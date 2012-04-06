@@ -31,6 +31,10 @@
       [Embed(source="/img/evidence/spinner30.swf")]
       public var SpinnerAnimation:Class;
       
+      [Bindable]
+      [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+      public var BrokenImage:Class;
+      
       
       [Bindable]
       override public function set data(value:*):void
@@ -75,6 +79,10 @@
       private function onImageError(e:IOErrorEvent):void
       {
         trace("image error");
+        spinner.visible=false;
+        img.source=new BrokenImage() 
+        img.visible=true;
+        fadeIn.play([img]);
       }
       
       private function onImageLoaded(e:Event):void

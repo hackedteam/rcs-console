@@ -6,6 +6,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
@@ -17,6 +18,14 @@
         } catch (e:Error) {}
         return '';
       }
+      
+      private function sizeLabel(item:Object, column:GridColumn):String
+      {
+        if (item.hasOwnProperty('customType'))
+          return '';
+        
+        return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
+      }
     ]]>
   </fx:Script>
   
@@ -27,13 +36,14 @@
       
       <s:GridColumn dataField="desc" headerText="{R.get('DESCRIPTION')}"/>
       
-      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}" width="50" resizable="false"/>
+      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}" width="70" resizable="false"/>
       <s:GridColumn dataField="type" headerText="{R.get('TYPE')}" width="60" resizable="false"/>
       <s:GridColumn dataField="platform" headerText="{R.get('PLATFORM')}" width="90" resizable="false"/>
       <s:GridColumn dataField="version" headerText="{R.get('VERSION')}" width="85" resizable="false"/>
       <s:GridColumn dataField="stat.last_sync" headerText="{R.get('LAST_SYNC')}" labelFunction="dateLabel" width="130" resizable="false"/>
       <s:GridColumn dataField="ident" headerText="{R.get('IDENT')}" width="120" resizable="false"/>
       <s:GridColumn dataField="instance" headerText="{R.get('INSTANCE')}" width="280" resizable="false"/>
+      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80"/>
       
     </s:ArrayList>
   </s:columns>

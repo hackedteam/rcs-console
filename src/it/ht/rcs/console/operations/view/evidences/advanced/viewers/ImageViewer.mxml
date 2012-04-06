@@ -7,6 +7,7 @@
 					creationComplete="init()" xmlns:utils="it.ht.rcs.console.utils.*">
 	<fx:Script>
 		<![CDATA[
+      import mx.skins.halo.BrokenImageBorderSkin;
       [Bindable]
 			private var _url:String;
 			[Bindable]
@@ -31,6 +32,10 @@
       [Bindable]
       [Embed (source="/img/evidence/originalsize32.png" )]
       public var OriginalSizeIcon:Class;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+      public var BrokenImage:Class;
       
       private var minZoom:Number=0.2;
       private var maxZoom:Number=4;
@@ -76,6 +81,11 @@
 			private function onImageError(e:IOErrorEvent):void
 			{
 				trace("image error");
+        img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
+        img.removeEventListener(Event.COMPLETE, onImageLoaded)
+        img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        img.source=new BrokenImage();
+        toolBox.enabled=false;
 			}
 
 			private function onImageLoaded(e:Event):void
@@ -83,6 +93,7 @@
 				img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
 				img.removeEventListener(Event.COMPLETE, onImageLoaded)
 				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        toolBox.enabled=true;
 
 			}
 
@@ -172,7 +183,7 @@
         <s:SolidColorStroke color="0xCCCCCC"/>
       </s:stroke>
     </s:Line>
-	<s:HGroup width="100%" verticalAlign="middle">
+	<s:HGroup width="100%" verticalAlign="middle" id="toolBox">
     <s:Image source="{FitIcon}" buttonMode="true" useHandCursor="true" toolTip="Fit to Screen" click="fit()" enabled="{!fitToScreen}"/>
     <s:Line height="100%">
       <s:stroke>

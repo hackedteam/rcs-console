@@ -61,10 +61,7 @@
     <actionbar:Separator/>
 
     <s:Button label="{R.get('UPDATE_AGENT')}" click="updateAgent(event)"
-              icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_tech() &amp;&amp; 
-              selectedObject &amp;&amp; 
-              (selectedObject as Agent)._kind  == 'agent' &amp;&amp; 
-              (selectedObject as Agent).status == 'open'}"/>
+              icon="@Embed('/img/NEW/update.png')"/>
     
   </s:HGroup>
   
@@ -161,7 +158,7 @@
       private function updateAgent(event:MouseEvent):void
       {
         var popup:AgentUpgrade = PopUpManager.createPopUp(root, AgentUpgrade, true) as AgentUpgrade;
-        popup.agent = selectedObject as Agent;
+        popup.agent = section.stateManager.selectedAgent ? section.stateManager.selectedAgent : selectedObject as Agent;
         PopUpManager.centerPopUp(popup);
       }
       

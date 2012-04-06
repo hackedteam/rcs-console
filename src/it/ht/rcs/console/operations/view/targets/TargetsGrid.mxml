@@ -22,15 +22,18 @@
       
       private function agentLabel(item:Object, column:GridColumn):String
       {
-        if (item.stat.last_child == null)
-          return '';
-        
-        return SearchManager.instance.getItem(item.stat.last_child).name;
+        try {
+          return SearchManager.instance.getItem(item.stat.last_child).name;
+        } catch (e:Error) {}
+        return '';
       }
       
       private function sizeLabel(item:Object, column:GridColumn):String
       {
-        return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
+        try {
+          return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
+        } catch (e:Error) {}
+        return '';
       }
       
     ]]>

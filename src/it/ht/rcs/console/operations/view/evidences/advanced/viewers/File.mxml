@@ -10,8 +10,10 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
+      import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.Size;
+      import flash.filesystem.File;
 
 			private var _evidence:Object;
 
@@ -42,6 +44,39 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+      private function getFile():void
+      {
+        var target:String=EvidenceManager.instance.evidenceFilter.target;
+        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+        
+        var fileName:String = evidence.data._grid+encodeURIComponent(target)
+        
+        /* var request:URLRequest = new URLRequest(url);
+        var stream:URLStream = new URLStream();
+        var file:flash.filesystem.File = File.documentsDirectory.resolvePath(fileName);
+        
+        file.browseForSave("Download " + fileName);
+        file.addEventListener(Event.SELECT, function(...args):void {
+          if (file.extension != extension) {
+            // fix for see FP-2014 in Adobe's JIRA: if the user has changed the
+            // filename then the extension is null, so we create a new File
+            // instance and append the original extension again so that
+            // this is preserved
+            file = new File(file.nativePath + "." + extension);
+          }
+          stream.addEventListener(Event.COMPLETE, function(evt:Event):void {
+            var fileData:ByteArray = new ByteArray();
+            stream.readBytes(fileData, 0, stream.bytesAvailable);
+            var fileStream:FileStream = new FileStream();
+            fileStream.open(file, FileMode.WRITE);
+            fileStream.writeBytes(fileData, 0, fileData.length);
+            fileStream.close();
+          });
+          // add other event listeners for PROGRESS, ERROR, and so on...
+          stream.load(request);
+        }); */
+      }
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -76,4 +111,11 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Size: &lt;/b&gt;'+size, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="15"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:Button id="downloadBtn" visible="{evidence.data.type=='capture'}"
+            includeInLayout="{evidence.data.type=='capture'}" label="Download" click="getFile()"/>
 </s:BorderContainer>

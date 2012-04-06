@@ -4,30 +4,34 @@
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
 									 height="100%"
 									 width="100%"
-                   borderColor="0xCCCCCC"
-                   backgroundColor="0xCCCCCC"
-                   backgroundAlpha="0.5">
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1">
 	<fx:Script>
 		<![CDATA[
 			import com.adobe.net.URI;
+
 			import flashx.textLayout.conversion.TextConverter;
 
 			private var _evidence:Object;
-      [Bindable]
-      private var uri:URI;
-      [Bindable]
-      private var domain:String;
-      [Bindable]
-      private var page:String;
+			[Bindable]
+			private var uri:URI;
+			[Bindable]
+			private var domain:String;
+			[Bindable]
+			private var page:String;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
-        _evidence=value;
-	
-        uri = new URI(value.data.url);
-        domain=uri.authority;
-        page=uri.path;
+				_evidence=value;
+
+				uri=new URI(value.data.url);
+				domain=uri.authority;
+				page=uri.path;
+				trace("<b>URL: </b>" + "<a href=\"" + evidence.data.url + "\">" + evidence.data.url + " </a>")
+				fullTxt.textFlow=TextConverter.importToFlow("<b>URL: </b>" + "<a href=\"" + evidence.data.url + "\">" + evidence.data.url + " </a>", TextConverter.TEXT_FIELD_HTML_FORMAT)
+
 
 			}
 
@@ -41,38 +45,70 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+
+			private function goToURL():void
+			{
+				var req:URLRequest=new URLRequest(evidence.data.url)
+				navigateToURL(req)
+			}
 		]]>
 	</fx:Script>
-<s:layout>
-  <s:VerticalLayout paddingBottom="10"
-                      paddingLeft="10"
-                      paddingRight="10"
-                      paddingTop="10"
-                      />
-</s:layout>
-  <s:RichText id="domainTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Domain: &lt;/b&gt;'+domain, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="pageTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Page: &lt;/b&gt;'+page, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="titleTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Title: &lt;/b&gt;'+evidence.data.title, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="keywordsTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Keywords: &lt;/b&gt;'+evidence.data.keywords, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="programTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<s:RichText id="domainTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Domain: &lt;/b&gt;'+domain, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="pageTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Page: &lt;/b&gt;'+page, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="titleTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Title: &lt;/b&gt;'+evidence.data.title, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="keywordsTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Keywords: &lt;/b&gt;'+evidence.data.keywords, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="programTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="fullTxt"
+							width="100%"
+							fontSize="15"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;URL: &lt;/b&gt;&lt;u&gt;'+evidence.data.url+'&lt;/u&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							useHandCursor="true"
+							buttonMode="true"
+							click="goToURL()"/>
 </s:BorderContainer>

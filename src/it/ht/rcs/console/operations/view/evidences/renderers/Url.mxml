@@ -25,9 +25,19 @@
         var page:String=uri.path;
         
         domainTxt.textFlow= TextConverter.importToFlow("<b>Domain: </b>"+domain, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        titleTxt.textFlow= TextConverter.importToFlow("<b>Title: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        titleTxt.textFlow= TextConverter.importToFlow("<b>Title: </b>"+data.data.title, TextConverter.TEXT_FIELD_HTML_FORMAT)
         pageTxt.textFlow= TextConverter.importToFlow("<b>Page: </b>"+page, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        keywordsTxt.textFlow= TextConverter.importToFlow("<b>Keywords: </b>"+data.data.keywords, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          
+          if(data.data.keywords!=null && data.data.keywords!="")
+          {
+            keywordsTxt.visible=keywordsTxt.includeInLayout=true;
+            keywordsTxt.textFlow= TextConverter.importToFlow("<b>Keywords: </b>"+data.data.keywords, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          }else
+          {
+            keywordsTxt.visible=keywordsTxt.includeInLayout=false;
+            keywordsTxt.textFlow= TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT)
+          }
+        
         
       }
       

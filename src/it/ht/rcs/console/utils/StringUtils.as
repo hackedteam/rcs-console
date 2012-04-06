@@ -12,6 +12,12 @@ package it.ht.rcs.console.utils
       return extension;
     }
     
+    private function getFilename(path:String):String
+    {
+      var extRemoved : String = path.slice(path.lastIndexOf("/")+1,path.lastIndexOf("."));
+      return extRemoved;
+    }
+    
     
     public static function truncate(s:String,len:int, replacement:String):String
     {

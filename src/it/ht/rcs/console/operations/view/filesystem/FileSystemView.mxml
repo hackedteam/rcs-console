@@ -10,6 +10,7 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.dashboard.view.renderer.Icons;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
@@ -19,13 +20,14 @@
       import mx.collections.ArrayCollection;
       import mx.collections.HierarchicalCollectionView;
       import mx.collections.HierarchicalData;
+      import mx.core.FlexGlobals;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ObjectUtil;
       
       [Bindable]
       public var section:OperationsSection;
       
-      public function showTree():void
+      public function showTree(e:Event=null):void
       {
         var agent:Agent = section.stateManager.selectedAgent;
         EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agent ? agent._id : null, onResult);
@@ -166,12 +168,14 @@
       
       private function onAddedToStage():void
       {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, showTree);
         if (grid)
           showTree();
       }
       
       private function onRemovedFromStage():void
       {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, showTree);
         grid.dataProvider = null;
       }
     ]]>

@@ -8,6 +8,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       [Bindable]
       public var item:Object;
@@ -15,17 +16,44 @@
       private function save():void
       {
         var path:String;
-        if (item.parent == null)
+        if (item.attr == FileSystemView.SUBROOT)
           path = '/';
         else {
-          path = item.evidence.data.path;
+          path = item.evidence ? item.evidence.data.path : buildPath();
           var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
           var lastChar:String = path.charAt(path.length-1);
           if (lastChar != separator)
             path = path + separator + '*';
         }
-        trace(path);
-        AgentManager.instance.filesystem(item.evidence.aid, path, depthStepper.value, close);
+
+        var aid:String = getAgentId();
+        AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
+          AlertPopUp.show('Item scheduled for retrieval');
+          close();
+        });
+      }
+      
+      private function buildPath():String
+      {
+        var pathElements:Array = [];
+        var el:Object = item;
+        do {
+          pathElements.push(el.name);
+          el = el.parent;
+        } while (el.attr != FileSystemView.SUBROOT);
+        
+        return pathElements.reverse().join('/');
+      }
+      
+      private function getAgentId():String
+      {
+        var el:Object = item;
+        if (item.attr != FileSystemView.SUBROOT) {
+          do {
+            el = el.parent;
+          } while (el.attr != FileSystemView.SUBROOT);
+        }
+        return el.agent._id;
       }
     ]]>
   </fx:Script>

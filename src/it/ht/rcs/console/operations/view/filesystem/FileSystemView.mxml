@@ -61,11 +61,11 @@
         return grouped;
       }
       
-      private static const ROOT:int = -2;
-      private static const SUBROOT:int = -1;
-      private static const FILE:int = 0;
-      private static const EMPTY_FOLDER:int = 1;
-      private static const FULL_FOLDER:int = 3;
+      public static const ROOT:int = -2;
+      public static const SUBROOT:int = -1;
+      public static const FILE:int = 0;
+      public static const EMPTY_FOLDER:int = 1;
+      public static const FULL_FOLDER:int = 3;
       
       private function buildSubTree(evidences:Array):Object
       {
@@ -121,7 +121,7 @@
       private function dateFunction(item:Object, column:AdvancedDataGridColumn):String
       {
         try {
-          var value:int = item[column.dataField];
+          var value:Number = item[column.dataField];
           return value ? TimeUtils.timestampFormatter(value * 1000) : '';
         } catch (e:Error) {}
         return '';
@@ -130,7 +130,7 @@
       private function sizeFunction(item:Object, column:AdvancedDataGridColumn):String
       {
         try {
-          var value:int = item[column.dataField];
+          var value:Number = item[column.dataField];
           return value && item.attr == FILE ? Size.toHumanBytes(value) : '';
         } catch (e:Error) {}
         return '';

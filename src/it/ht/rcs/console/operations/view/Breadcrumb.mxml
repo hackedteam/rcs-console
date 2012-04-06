@@ -37,8 +37,17 @@
         }
         return null;
       }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        up.filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
+      }
     ]]>
   </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="0xffffff" blurX="12" blurY="12" strength="3"/>
+  </fx:Declarations>
   
   <s:Rect width="100%" height="100%" bottomLeftRadiusX="5" bottomLeftRadiusY="-5"
           bottomRightRadiusX="5" bottomRightRadiusY="-5" topLeftRadiusX="5" topLeftRadiusY="5"
@@ -49,7 +58,8 @@
   <s:HGroup width="100%" gap="7" paddingBottom="4" paddingLeft="6" paddingTop="4"
             verticalAlign="middle">
     
-    <s:Image source="@Embed('/img/NEW/up.png')" buttonMode="true" click="onUpOneLevel(event)"/>
+    <s:Image id="up" source="@Embed('/img/NEW/up.png')" buttonMode="true"
+             click="onUpOneLevel(event)" rollOver="onRoll(event)" rollOut="onRoll(event)"/>
     
     <mx:LinkButton visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
                    label="{R.get('ALL_OPERATIONS')}"

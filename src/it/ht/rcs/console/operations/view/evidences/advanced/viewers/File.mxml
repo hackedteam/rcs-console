@@ -9,11 +9,20 @@
 									 backgroundAlpha="0.5">
 	<fx:Script>
 		<![CDATA[
+			import flash.filesystem.File;
+			
 			import flashx.textLayout.conversion.TextConverter;
-
+			
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.Size;
+			import it.ht.rcs.console.utils.StringUtils;
 
 			private var _evidence:Object;
+			private var file:flash.filesystem.File;
+			private var stream:URLStream;
+			private var extension:String;
+			private var request:URLRequest
 
 			[Bindable]
 			private var size:String;
@@ -30,6 +39,8 @@
 				{
 					size=Size.toHumanBytes(evidence.data.size)
 				}
+        downloadStatusTxt.text=""
+        downloadBtn.label="Download"
 			}
 
 			public function get evidence():Object
@@ -41,6 +52,75 @@
 			{
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
+			}
+
+			private function getFile():void
+			{
+				if(downloadBtn.label=="Download")
+        {
+          var target:String=EvidenceManager.instance.evidenceFilter.target;
+          var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+          extension=StringUtils.getExtension(evidence.data.path)
+          var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+          
+          request=new URLRequest(url);
+          stream=new URLStream();
+          file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+          file.browseForSave("Download " + fileName);
+          file.addEventListener(Event.SELECT, onSelect);
+        }
+        else if(downloadBtn.label=="Open")
+        {
+          try
+          {
+            file.openWithDefaultApplication()
+          }
+          catch (e:Error)
+          {
+            downloadStatusTxt.text="Unable to open the file with default application."
+          }
+
+        }
+			}
+
+			private function onSelect(e:Event):void
+			{
+        downloadBtn.enabled=false;
+				if (file.extension != extension)
+				{
+					file=new flash.filesystem.File(file.nativePath + "." + extension);
+				}
+				stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+        stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+        stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+        stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+ 				stream.load(request);
+			}
+      
+      private function onDownloadProgress(e:ProgressEvent):void
+      {
+        var perc:int=int((e.bytesLoaded/e.bytesTotal)*100)
+        downloadStatusTxt.text="Downloading file..."+perc+" % completed."
+      }
+      
+      private function onDownloadError(e:*):void
+      {
+        downloadBtn.enabled=true;
+        downloadStatusTxt.text="Error downloading file. Try again"
+      }
+
+			private function onFileDownloaded(e:Event):void
+			{
+        downloadBtn.label="Open"
+        downloadStatusTxt.text="File downloaded successfully."
+        downloadBtn.enabled=true;
+				var fileData:ByteArray=new ByteArray();
+				stream.readBytes(fileData, 0, stream.bytesAvailable);
+				var fileStream:FileStream=new FileStream();
+				fileStream.open(file, FileMode.WRITE);
+				fileStream.writeBytes(fileData, 0, fileData.length);
+				fileStream.close();
+       
 			}
 		]]>
 	</fx:Script>
@@ -76,4 +156,18 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Size: &lt;/b&gt;'+size, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="15"/>
+	<s:Line width="100%"
+					visible="{evidence.data.type=='capture'}"
+					includeInLayout="{evidence.data.type=='capture'}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:HGroup visible="{evidence.data.type=='capture'}"
+            includeInLayout="{evidence.data.type=='capture'}" verticalAlign="middle">
+    <s:Button id="downloadBtn"
+              label="Download"
+              click="getFile()"/>
+    <s:Label id="downloadStatusTxt"/>
+  </s:HGroup>
 </s:BorderContainer>

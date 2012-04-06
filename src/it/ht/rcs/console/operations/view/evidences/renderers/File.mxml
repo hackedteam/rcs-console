@@ -4,44 +4,131 @@
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																width="100%"
-																height="100%">
+																height="100%"
+                                creationComplete="init()">
 
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.DB;
 			import flashx.textLayout.conversion.TextConverter;
       import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.utils.StringUtils;
+      
+      
+      private var file:flash.filesystem.File;
+      private var stream:URLStream;
+      private var extension:String;
+      private var request:URLRequest
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
-				// program, path, size
-        
-        //type could be open or capture
+				
 				super.data=value;
-        trace("file type: "+data.data.type)
-        if(data.data.type=="open")
-        {
-          programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-          programTxt.visible=programTxt.includeInLayout=true;
-        }
-        else
-        {
-          programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
-          programTxt.visible=programTxt.includeInLayout=false;
-        }
-			
-				pathTxt.textFlow=TextConverter.importToFlow("<b>Path: </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        if(isNaN(data.data.size))
-        {
-          sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
-        }
-        else
-        {
-          sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
-        }
+         init()
 				
 			}
+      
+      private function init():void
+      {
+        if(data)
+        {
+          trace("file type: "+data.data.type)
+          if(data.data.type=="open")
+          {
+            programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+            programTxt.visible=programTxt.includeInLayout=true;
+          }
+          else
+          {
+            programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
+            programTxt.visible=programTxt.includeInLayout=false;
+          }
+          
+          pathTxt.textFlow=TextConverter.importToFlow("<b>Path: </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          if(isNaN(data.data.size))
+          {
+            sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+        }
+        downloadStatusTxt.text=""
+        downloadBtn.label="Download"
+      }
+      
+      private function getFile():void
+      {
+        if(downloadBtn.label=="Download")
+        {
+          var target:String=EvidenceManager.instance.evidenceFilter.target;
+          var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+          extension=StringUtils.getExtension(data.data.path)
+          var fileName:String=data.data._grid + encodeURIComponent(target) + "." + extension;
+          
+          request=new URLRequest(url);
+          stream=new URLStream();
+          file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+          file.browseForSave("Download " + fileName);
+          file.addEventListener(Event.SELECT, onSelect);
+        }
+        else if(downloadBtn.label=="Open")
+        {
+          try
+          {
+            file.openWithDefaultApplication()
+          }
+          catch (e:Error)
+          {
+            downloadStatusTxt.text="Unable to open the file with default application."
+          }
+          
+        }
+      }
+      
+      private function onSelect(e:Event):void
+      {
+        downloadBtn.enabled=false;
+        if (file.extension != extension)
+        {
+          file=new flash.filesystem.File(file.nativePath + "." + extension);
+        }
+        stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+        stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+        stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+        stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+        stream.load(request);
+      }
+      
+      private function onDownloadProgress(e:ProgressEvent):void
+      {
+        var perc:int=int((e.bytesLoaded/e.bytesTotal)*100)
+        downloadStatusTxt.text="Downloading file..."+perc+" % completed."
+      }
+      
+      private function onDownloadError(e:*):void
+      {
+        downloadBtn.enabled=true;
+        downloadStatusTxt.text="Error downloading file. Try again"
+      }
+      
+      private function onFileDownloaded(e:Event):void
+      {
+        downloadBtn.label="Open"
+        downloadStatusTxt.text="File downloaded successfully."
+        downloadBtn.enabled=true;
+        var fileData:ByteArray=new ByteArray();
+        stream.readBytes(fileData, 0, stream.bytesAvailable);
+        var fileStream:FileStream=new FileStream();
+        fileStream.open(file, FileMode.WRITE);
+        fileStream.writeBytes(fileData, 0, fileData.length);
+        fileStream.close();
+        
+      }
 
 		]]>
 	</fx:Script>
@@ -55,7 +142,7 @@
 									width="100%"/>
 
 		</s:HGroup>
-		<s:Line width="100%" visible="{data.data.type=='open'}">
+		<s:Line width="100%" visible="{data.data.type=='open'}" includeInLayout="{data.data.type=='open'}">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
@@ -67,5 +154,16 @@
 			<s:RichText id="sizeTxt"
 									width="25%"/>
 		</s:HGroup>
+    <s:Line width="100%" visible="{data.data.type=='capture'}" includeInLayout="{data.data.type=='capture'}">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:HGroup visible="{data.data.type=='capture'}" includeInLayout="{data.data.type=='capture'}" verticalAlign="middle">
+      <s:Button id="downloadBtn"
+                label="Download"
+                click="getFile()"/>
+      <s:Label id="downloadStatusTxt"/>
+    </s:HGroup>
 	</s:VGroup>
 </renderers:EvidenceDataRenderer>

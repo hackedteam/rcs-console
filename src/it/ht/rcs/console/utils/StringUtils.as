@@ -6,6 +6,13 @@ package it.ht.rcs.console.utils
     {
     }
     
+    public static function getExtension(path:String):String
+    {
+      var extension:String = path.substring(path.lastIndexOf(".")+1, path.length);
+      return extension;
+    }
+    
+    
     public static function truncate(s:String,len:int, replacement:String):String
     {
       var truncated:String;

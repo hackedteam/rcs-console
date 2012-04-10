@@ -240,15 +240,15 @@ package it.ht.rcs.console.operations.view
           break;
 	
         default:
-          clearVars();
-          CurrentManager = null;
-          currentFilter = null;
+//          clearVars();
+//          CurrentManager = null;
+//          currentFilter = null;
           break;
       }
       if (CurrentManager) {
         CurrentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
         CurrentManager.instance.listenRefresh();
-      }        
+      }
     }
     
     private function onDataLoaded(e:DataLoadedEvent):void

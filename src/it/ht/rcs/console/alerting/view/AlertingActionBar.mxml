@@ -38,6 +38,9 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
+      public var alerts:AlertingTable;
+      public var logs:LogsTable;
+      
       private function onNewClick():void
       {
         var popup:AlertForm = PopUpManager.createPopUp(root, AlertForm, true) as AlertForm;
@@ -58,8 +61,12 @@
         AlertPopUp.show(R.get('CONFIRM_ALERT_DELETION'), R.get('CONFIRM'),
                         AlertPopUp.YES|AlertPopUp.NO, null,
                         function(e:CloseEvent):void {
-                          if (e.detail == AlertPopUp.YES) 
+                          if (e.detail == AlertPopUp.YES) {
                             AlertManager.instance.removeItem(selectedObject);
+                            selectedObject = null;
+                            alerts.selectedItem = null;
+                            logs.dataProvider = null;
+                          }
                         }, null, AlertPopUp.NO);
       }
       

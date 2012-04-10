@@ -2,46 +2,42 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
-                   xmlns:html="flash.html.*"
+									 xmlns:html="flash.html.*"
 									 height="100%"
 									 width="100%"
-                   borderColor="0xCCCCCC"
-                   backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1" 
-                   creationComplete="init()">
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1"
+									 creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-			
+
 			import it.ht.rcs.console.utils.Size;
-      
-      private var html:HTMLLoader = new HTMLLoader();
+
+			//private var html:HTMLLoader=new HTMLLoader();
 
 			private var _evidence:Object;
+			private var fullHtml:String;
+      [Bindable]
+			private var cleanHtml:String;
+			[Bindable]
+			private var hasImages:Boolean
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
-        _evidence=value;
-       
-        //html.addEventListener(Event.COMPLETE, onLoadingComplete)
-          
-        //html.loadString(value.data.content);
-        
-        var loader:URLLoader=new URLLoader()
-        var req:URLRequest=new URLRequest("http://www.repubblica.it")
-        loader.addEventListener(Event.COMPLETE, onLoadingComplete)
-        //loader.load(req)
-        
+				_evidence=value;
+				fullHtml=value.data.content;
+				hasImages=false;
+				if (fullHtml.search(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g")) != -1)
+				{
+					hasImages=true;
+				}
+				cleanHtml=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
+				html.htmlText=cleanHtml;
 			}
-      
-      
-      private function onLoadingComplete(e:Event):void
-      {
-        var cleanHTML:String=e.currentTarget.data.replace(new RegExp("<img.*?(</img>|/>)", "g"), "<img/>");    
-        html.loadString(cleanHTML)
-        
-      }
+
 
 			public function get evidence():Object
 			{
@@ -53,51 +49,83 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
-      private function init():void
-      {
-        
-        html.width=htmlBox.width;
-        html.height=htmlBox.height;
-        htmlBox.addChild(html)
-      }
-      private function scaleHTML(e:Event):void
-      {
-        html.width=htmlBox.width;
-        html.height=htmlBox.height;
-      }
+
+			private function init():void
+			{
+
+				/* html.width=htmlBox.width;
+				html.height=htmlBox.height;
+				htmlBox.addChild(html); */
+				//TODO - add scrollbars to html content
+
+			}
+
+			private function scaleHTML(e:Event):void
+			{
+			/* 	html.width=htmlBox.width;
+				html.height=htmlBox.height; */
+			}
+
+			private function renderImages():void
+			{
+        warningBox.visible=warningBox.includeInLayout=false;
+        cleanHtml=fullHtml;
+				html.htmlText=cleanHtml;
+			}
 		]]>
 	</fx:Script>
-<s:layout>
-  <s:VerticalLayout paddingBottom="10"
-                    paddingLeft="10"
-                    paddingRight="10"
-                    paddingTop="10"
-                    />
-</s:layout>
-  <s:RichText id="fromTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+evidence.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="rcptTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Recipients: &lt;/b&gt;'+evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
- <s:RichText id="subjectTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+evidence.data.subject, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <mx:UIComponent id="htmlBox" width="100%" height="100%" resize="scaleHTML(event)"/>
-  
- <!--<s:Scroller height="100%"
-              width="100%">
-    
-    <s:RichEditableText editable="false"
-                        id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="15"/>
-  </s:Scroller>-->
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<s:RichText id="fromTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+evidence.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="rcptTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Recipients: &lt;/b&gt;'+evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="subjectTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+evidence.data.subject, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+
+	<s:RichText textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="15"/>
+	<s:Spacer width="100%"/>
+
+	<s:BorderContainer width="100%"
+										 backgroundAlpha="1"
+										 backgroundColor="#FFFAA5"
+										 borderColor="#FFE66B"
+										 borderWeight="2"
+										 cornerRadius="5"
+										 visible="{hasImages}"
+                     includeInLayout="{hasImages}"
+                     id="warningBox">
+    <s:layout>
+      <s:HorizontalLayout paddingBottom="5" paddingLeft="10" paddingRight="10" paddingTop="5" verticalAlign="middle" horizontalAlign="center"/>
+    </s:layout>
+    <s:Label text="This message contains images not displayed for security reasons" paddingTop="2"/>
+    <mx:LinkButton label="Display images" buttonMode="true" paddingLeft="3" paddingRight="3" click="renderImages()" fontWeight="bold"/>
+	</s:BorderContainer>
+	<mx:HTML id="html" width="100%" height="100%" verticalScrollPolicy="auto" paddingRight="10" htmlText="{cleanHtml}"/>
 </s:BorderContainer>

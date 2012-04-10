@@ -15,10 +15,11 @@
 
 			import it.ht.rcs.console.utils.Size;
 
-			private var html:HTMLLoader=new HTMLLoader();
+			//private var html:HTMLLoader=new HTMLLoader();
 
 			private var _evidence:Object;
 			private var fullHtml:String;
+      [Bindable]
 			private var cleanHtml:String;
 			[Bindable]
 			private var hasImages:Boolean
@@ -26,7 +27,6 @@
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
-
 				_evidence=value;
 				fullHtml=value.data.content;
 				hasImages=false;
@@ -35,7 +35,7 @@
 					hasImages=true;
 				}
 				cleanHtml=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
-				html.loadString(cleanHtml);
+				html.htmlText=cleanHtml;
 			}
 
 
@@ -53,23 +53,24 @@
 			private function init():void
 			{
 
-				html.width=htmlBox.width;
+				/* html.width=htmlBox.width;
 				html.height=htmlBox.height;
-				htmlBox.addChild(html);
+				htmlBox.addChild(html); */
 				//TODO - add scrollbars to html content
 
 			}
 
 			private function scaleHTML(e:Event):void
 			{
-				html.width=htmlBox.width;
-				html.height=htmlBox.height;
+			/* 	html.width=htmlBox.width;
+				html.height=htmlBox.height; */
 			}
 
 			private function renderImages():void
 			{
         warningBox.visible=warningBox.includeInLayout=false;
-				html.loadString(fullHtml)
+        cleanHtml=fullHtml;
+				html.htmlText=cleanHtml;
 			}
 		]]>
 	</fx:Script>
@@ -126,15 +127,5 @@
     <s:Label text="This message contains images not displayed for security reasons" paddingTop="2"/>
     <mx:LinkButton label="Display images" buttonMode="true" paddingLeft="3" paddingRight="3" click="renderImages()" fontWeight="bold"/>
 	</s:BorderContainer>
-
-	<s:Scroller height="100%"
-							width="100%">
-		<s:VGroup height="100%"
-							width="100%">
-			<mx:UIComponent id="htmlBox"
-											height="100%"
-											width="100%"
-											resize="scaleHTML(event)"/>
-		</s:VGroup>
-	</s:Scroller>
+	<mx:HTML id="html" width="100%" height="100%" verticalScrollPolicy="auto" paddingRight="10" htmlText="{cleanHtml}"/>
 </s:BorderContainer>

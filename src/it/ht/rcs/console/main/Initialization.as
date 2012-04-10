@@ -63,7 +63,7 @@ package it.ht.rcs.console.main
       Update.check();
       
       var managers:Array = [];
-         
+      
       if (user.is_any())
       {
         SearchManager.instance.listenRefresh();

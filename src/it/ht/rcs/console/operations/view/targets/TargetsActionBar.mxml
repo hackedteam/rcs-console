@@ -18,12 +18,16 @@
   
   <actionbar:Separator/>
   
+  <s:Button label="{R.get('MOVE_TARGET')}"
+            icon="@Embed('/img/NEW/move.png')" click="moveTarget(event)"
+            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null}"/>
+  
+  <actionbar:Separator/>
+  
   <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
             icon="@Embed('/img/NEW/newDashboard.png')" click="addToDashboard(event)"
-            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null}"
-            visible="{section.currentState == 'singleOperation'}"
-            includeInLayout="{section.currentState == 'singleOperation'}"/>
-  
+            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null}"/>
+
   <s:Spacer width="100%"/>
   
   <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
@@ -34,6 +38,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
@@ -91,6 +96,13 @@
       {
         DashboardController.instance.newDashboardItem(selectedObject._id);
         AlertPopUp.show(R.get('ADDED'));
+      }
+      
+      private function moveTarget(event:MouseEvent):void
+      {
+        var popup:MoveItemPopup = PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;
+        popup.itemToMove = selectedObject;
+        PopUpManager.centerPopUp(popup);
       }
     ]]>
   </fx:Script>

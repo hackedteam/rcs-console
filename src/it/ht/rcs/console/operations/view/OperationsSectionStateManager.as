@@ -77,6 +77,11 @@ package it.ht.rcs.console.operations.view
       var item:* = i || getRealItem(event);
       if (!item) return;
       
+      if (CurrentManager) {
+        CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
+        CurrentManager.instance.unlistenRefresh();
+      }
+      
       if (item is Operation)
       {
         selectedOperation = item;

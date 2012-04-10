@@ -12,25 +12,30 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-			
+
 			import it.ht.rcs.console.utils.Size;
-			
-			import spark.components.VScrollBar;
 
 			private var html:HTMLLoader=new HTMLLoader();
 
 			private var _evidence:Object;
-      private var fullHtml:String;
-      private var cleanHtml:String;
+			private var fullHtml:String;
+			private var cleanHtml:String;
+			[Bindable]
+			private var hasImages:Boolean
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
+
 				_evidence=value;
-        fullHtml=value.data.content;
-        var clean:String=""
-       
-				//html.loadString(clean);
+				fullHtml=value.data.content;
+				hasImages=false;
+				if (fullHtml.search(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g")) != -1)
+				{
+					hasImages=true;
+				}
+				cleanHtml=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
+				html.loadString(cleanHtml);
 			}
 
 
@@ -47,11 +52,11 @@
 
 			private function init():void
 			{
-       
+
 				html.width=htmlBox.width;
 				html.height=htmlBox.height;
 				htmlBox.addChild(html);
-        //TODO - add scrollbars to html content
+				//TODO - add scrollbars to html content
 
 			}
 
@@ -59,6 +64,12 @@
 			{
 				html.width=htmlBox.width;
 				html.height=htmlBox.height;
+			}
+
+			private function renderImages():void
+			{
+        warningBox.visible=warningBox.includeInLayout=false;
+				html.loadString(fullHtml)
 			}
 		]]>
 	</fx:Script>
@@ -95,16 +106,34 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
+
 	<s:RichText textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="15"/>
+	<s:Spacer width="100%"/>
+
+	<s:BorderContainer width="100%"
+										 backgroundAlpha="1"
+										 backgroundColor="#FFFAA5"
+										 borderColor="#FFE66B"
+										 borderWeight="2"
+										 cornerRadius="5"
+										 visible="{hasImages}"
+                     includeInLayout="{hasImages}"
+                     id="warningBox">
+    <s:layout>
+      <s:HorizontalLayout paddingBottom="5" paddingLeft="10" paddingRight="10" paddingTop="5" verticalAlign="middle" horizontalAlign="center"/>
+    </s:layout>
+    <s:Label text="This message contains images not displayed for security reasons" paddingTop="2"/>
+    <mx:LinkButton label="Display images" buttonMode="true" paddingLeft="3" paddingRight="3" click="renderImages()" fontWeight="bold"/>
+	</s:BorderContainer>
 
 	<s:Scroller height="100%"
 							width="100%">
-		<s:VGroup  height="100%"
-               width="100%">
+		<s:VGroup height="100%"
+							width="100%">
 			<mx:UIComponent id="htmlBox"
-                      height="100%"
-                      width="100%"
+											height="100%"
+											width="100%"
 											resize="scaleHTML(event)"/>
 		</s:VGroup>
 	</s:Scroller>

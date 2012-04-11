@@ -85,7 +85,10 @@
       }
       
       private function isNoticeVisible():Boolean {
-        return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0);
+        try {
+          return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0);
+        } catch (e:Error) {}
+        return false;
       }
       
       private function onRemovedFromStage():void
@@ -162,7 +165,7 @@
           selectedObject.push(evidenceDg.selectedItems[0]);
           actionBar.selectedObjects=selectedObject;
           notice.visible=notice.includeInLayout=false;
-         
+          
         }
         else
         {

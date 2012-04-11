@@ -33,6 +33,8 @@
       {
         FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
         refresh();
+        if (bar)
+          bar.selectedObject = grid.selectedItem;
       }
       
       private function onRemovedFromStage():void
@@ -68,9 +70,7 @@
     ]]>
   </fx:Script>
   
-  <!--
-  <agents:AgentsConfigListActionBar section="{section}"/>
-  -->
+  <agents:AgentsConfigListActionBar id="bar" section="{section}" selectedObject="{grid.selectedItem}"/>
   
   <s:DataGrid id="grid" width="100%" height="100%" dataProvider="{configs}"
               doubleClick="onDoubleClick(event)" doubleClickEnabled="true">

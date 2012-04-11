@@ -7,8 +7,13 @@
   <s:Button label="{R.get('NEW_CONFIG')}" click="onNewClick()"
             icon="@Embed('/img/windows/user2.png')"/>
   
+  <s:Button label="{R.get('EDIT')}" click="onEdit()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/edit.png')"/>
+  
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.agent.model.Config;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import locale.R;
@@ -20,7 +25,14 @@
       
       private function onNewClick():void
       {
-        
+        var configAsString:String = DefaultConfigBuilder.getDefaultConfigAsString(section.stateManager.selectedAgent);
+        var config:Config = new Config({config:configAsString});
+        section.stateManager.manageItemSelection(config);
+      }
+      
+      private function onEdit():void
+      {
+        section.stateManager.manageItemSelection(selectedObject);
       }
     ]]>
   </fx:Script>

@@ -8,6 +8,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.utils.DateUtils;
       import it.ht.rcs.console.utils.TimeUtils;
       
@@ -38,7 +39,7 @@
         fromDate.selectedDate = DateUtils.parseDateTimeString(module[property].filter.datefrom);
         fromTime.time = module[property].filter.datefrom.split(' ')[1];
         
-        notForever.selected = module[property].filter.hasOwnProperty('dateto');
+        notForever.selected = module[property].filter.dateto != DefaultConfigBuilder.FOREVER_DATE;
         if (notForever.selected) {
           toDate.selectedDate = DateUtils.parseDateTimeString(module[property].filter.dateto);
           toTime.time = module[property].filter.dateto.split(' ')[1];
@@ -60,7 +61,10 @@
         if (notForever.selected)
           module[property].filter.dateto = formatter.format(toDate.selectedDate) + ' ' + toTime.time;
         else
-          delete(module[property].filter.dateto);
+          //delete(module[property].filter.dateto);
+          module[property].filter.dateto = DefaultConfigBuilder.FOREVER_DATE;
+        // the DATETO is needed because zeno (Fabrizio Cornelli) has broken his code
+        // from RCS 7.x to RCS daVinci. He owes me a beer :)
         
         if (showMaxSize)
           module[property].filter.maxsize = parseInt(maxSize.text) * 1000;

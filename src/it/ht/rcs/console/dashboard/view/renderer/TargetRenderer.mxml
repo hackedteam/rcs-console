@@ -3,7 +3,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
-                autoDrawBackground="false" buttonMode="true" doubleClick="onClick(event)" doubleClickEnabled="true">
+                autoDrawBackground="false" buttonMode="true" click="onClick(event)">
   
   <s:layout>
     <s:VerticalLayout gap="12" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -24,10 +24,15 @@
         event.item = SearchManager.instance.getItem(data._id);
         FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        container.setStyle('backgroundColor', event.type == MouseEvent.ROLL_OVER ? 0xa8c6ee : 0xffffff);
+      }
     ]]>
   </fx:Script>
   
-  <s:BorderContainer width="50" height="50" borderColor="#dddddd" cornerRadius="10">
+  <s:BorderContainer id="container" width="50" height="50" borderColor="#dddddd" cornerRadius="10" rollOver="onRoll(event)" rollOut="onRoll(event)">
     
     <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
                    source="@Embed('/img/NEW/target_36.png')" verticalCenter="0"/>

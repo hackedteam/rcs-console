@@ -28,15 +28,37 @@
       
       private function onClick(event:MouseEvent):void
       {
-        EvidenceManager.instance.evidenceFilter.type = [data.type];
+        setFilter();
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      public function setFilter():void
+      {
+        var filter:Object = EvidenceManager.instance.evidenceFilter;
+        filter.date = 'dr';
+        delete(filter._id);
+        filter.from = 0;
+        filter.to = 0;
+        filter.type = [data.type];
+        delete(filter.rel);
+        delete(filter.info);
+        delete(filter.blo);
+      }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        icon.filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
       }
     ]]>
   </fx:Script>
   
-    <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
-                   verticalCenter="0"/>
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="0x444444" blurX="4" blurY="4" strength="2"/>
+  </fx:Declarations>
+  
+    <s:Image id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
+                   verticalCenter="0" rollOver="onRoll(event)" rollOut="onRoll(event)"/>
     
     <s:Label text="{data.count}"/>
   

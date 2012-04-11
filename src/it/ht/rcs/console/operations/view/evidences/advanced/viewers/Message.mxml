@@ -12,10 +12,8 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
 			import it.ht.rcs.console.utils.Size;
 
-			//private var html:HTMLLoader=new HTMLLoader();
 
 			private var _evidence:Object;
 			private var fullHtml:String;
@@ -37,8 +35,7 @@
 				cleanHtml=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
 				html.htmlText=cleanHtml;
 			}
-
-
+      
 			public function get evidence():Object
 			{
 				return _evidence; //from, rcpt,subject, size, content
@@ -53,17 +50,6 @@
 			private function init():void
 			{
 
-				/* html.width=htmlBox.width;
-				html.height=htmlBox.height;
-				htmlBox.addChild(html); */
-				//TODO - add scrollbars to html content
-
-			}
-
-			private function scaleHTML(e:Event):void
-			{
-			/* 	html.width=htmlBox.width;
-				html.height=htmlBox.height; */
 			}
 
 			private function renderImages():void
@@ -72,6 +58,13 @@
         cleanHtml=fullHtml;
 				html.htmlText=cleanHtml;
 			}
+      
+      private function cleanHTMLText(text:String):String
+      {
+        var clean:String=text.replace("<", "&lt;");
+        clean=clean.replace(">", "&gt;");
+        return clean;
+      }
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -82,7 +75,7 @@
 	</s:layout>
 	<s:RichText id="fromTxt"
 							width="100%"
-							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+evidence.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+cleanHTMLText(evidence.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="15"/>
 	<s:Line width="100%">
 		<s:stroke>
@@ -91,7 +84,7 @@
 	</s:Line>
 	<s:RichText id="rcptTxt"
 							width="100%"
-							textFlow="{TextConverter.importToFlow('&lt;b&gt;Recipients: &lt;/b&gt;'+evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Recipients: &lt;/b&gt;'+cleanHTMLText(evidence.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="15"/>
 	<s:Line width="100%">
 		<s:stroke>
@@ -100,7 +93,7 @@
 	</s:Line>
 	<s:RichText id="subjectTxt"
 							width="100%"
-							textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+evidence.data.subject, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+cleanHTMLText(evidence.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="15"/>
 	<s:Line width="100%">
 		<s:stroke>

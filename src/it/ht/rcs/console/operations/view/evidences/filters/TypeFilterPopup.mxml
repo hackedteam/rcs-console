@@ -101,6 +101,16 @@
           item.checkbox.selected = val;
         });
       }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        hasFilter = filter.hasOwnProperty(property);
+        deselectAll();
+        if (hasFilter && filter[property] is Array)
+          filter[property].forEach(function(item:String, index:int, array:Array):void {
+            this[item].checkbox.selected = true;
+          }, this);
+      }
     ]]>
   </fx:Script>
   

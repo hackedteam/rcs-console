@@ -5,6 +5,7 @@
   
 	<fx:Script>
 		<![CDATA[
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.TypeCount;
       import it.ht.rcs.console.operations.view.evidences.renderers.CountList;
       
@@ -13,47 +14,13 @@
 			private var _counts:ArrayCollection;
       
       [Bindable]
-      private var _total:int;
-      
-			private var _filtered:int=0;
+      public var total:Number = 0;
       
 			[Bindable]
-			public function set counts(value:ArrayCollection):void
-			{
-				_counts=value;
-
-				var s:String="";
-				for (var i:int=0; i < value.length; i++)
-				{
-					var typeCount:TypeCount=value.getItemAt(i) as TypeCount;
-					if(typeCount.type=="total")
-          {
-            _total=typeCount.count
-          }
-				}
-				
-			}
-
-			public function get counts():ArrayCollection
-			{
-				return _counts;
-			}
-
-			[Bindable]
-			public function set filtered(value:int):void
-			{
-				_filtered=value;
-     
-			}
-
-			public function get filtered():int
-			{
-				return _filtered;
-			}
-
-			
+      public var filtered:Number = 0;
+      
 		]]>
 	</fx:Script>
   <s:Spacer width="100%"/>
-  <s:Label id="countTxt" text="Showing: {filtered}/{_total}" useHandCursor="true" buttonMode="true" visible="{_total>0}"/>
+  <s:Label id="countTxt" text="Showing: {filtered}/{total}" useHandCursor="true" buttonMode="true"/>
 </s:HGroup>

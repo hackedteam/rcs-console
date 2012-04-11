@@ -20,7 +20,10 @@
       
       private function onClick(e:MouseEvent):void
       {
-        evidenceView.resetFilter();
+        if (EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id'))
+          evidenceView.resetFilter(); // full reset
+        else
+          evidenceView.resetFilterKeepType(); // keep type
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         evidenceView.refreshData();
       }
@@ -30,5 +33,5 @@
   
   <s:Label text="A filter is set and some evidence may not show up." paddingTop="2"/>
   <mx:LinkButton label="Remove this filter" buttonMode="true" paddingLeft="3" paddingRight="3" click="onClick(event)"/>
-    
+  
 </s:BorderContainer>

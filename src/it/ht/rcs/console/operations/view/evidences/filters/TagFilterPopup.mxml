@@ -88,7 +88,14 @@
       
       override public function rebuild(e:Event=null):void
       {
+        var checks:Array = [none, low, medium, high, critical];
+        
         hasFilter = filter.hasOwnProperty(property);
+        deselectAll();
+        if (hasFilter && filter[property] is Array)
+          filter[property].forEach(function(item:int, index:int, array:Array):void {
+            checks[item].selected = true;
+          });
       }
     ]]>
   </fx:Script>

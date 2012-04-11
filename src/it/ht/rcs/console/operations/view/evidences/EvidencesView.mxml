@@ -55,6 +55,7 @@
         delete(filter.rel);
         delete(filter.type);
         delete(filter.info);
+        delete(filter.blo);
       }
       
       private function onDataLoaded(e:DataLoadedEvent):void
@@ -67,8 +68,12 @@
           viewer.visible=viewer.includeInLayout=false;
           evidenceDg.visible=evidenceDg.includeInLayout=true;
           counter.visible=true;
-          notice.visible=notice.includeInLayout=true;
         }
+        notice.visible=notice.includeInLayout=isNoticeVisible();
+      }
+      
+      private function isNoticeVisible():Boolean {
+        return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || EvidenceManager.instance._view.length == 0;
       }
       
       private function onRemovedFromStage():void
@@ -92,7 +97,7 @@
       public function refreshData(event:FilterEvent=null):void
       {
         evidenceDg.dataProvider=null;
-        filteredById = EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id');
+        filteredById = isNoticeVisible();
         EvidenceManager.instance.refresh();
       }
       
@@ -179,7 +184,7 @@
         evidenceDg.visible=evidenceDg.includeInLayout=true;
         counter.visible=true;
         actionBar.selectedObjects = evidenceDg.selectedItems;
-        notice.visible=notice.includeInLayout=EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id');
+        notice.visible=notice.includeInLayout=isNoticeVisible();
       }
       
       private function onGridDataChange():void

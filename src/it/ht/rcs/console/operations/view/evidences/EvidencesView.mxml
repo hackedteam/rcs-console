@@ -11,7 +11,9 @@
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceFileExporter;
       
       import mx.core.FlexGlobals;
       
@@ -194,6 +196,13 @@
         actionBar.selectedObjects=evidenceDg.selectedItems; */
         actionBar.selectedObjects=new Vector.<Object>
       }
+      
+      private function export():void
+      {
+        var evidence:Evidence=evidenceDg.selectedItems[0] as Evidence
+        trace("Export: "+evidence.type)
+        EvidenceFileExporter.export(evidenceDg.selectedItems)
+      }
     ]]>
   </fx:Script>
   
@@ -202,7 +211,7 @@
     <s:State name="count"/>
   </s:states>
   
-  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="toggleDetail()"/>
+  <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="toggleDetail()" export="export()"/>
   <evidences:FilterNotice id="notice" visible="{filteredById}" includeInLayout="{filteredById}" evidenceView="{this}"/>
   <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
   <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose();" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>

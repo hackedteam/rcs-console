@@ -29,7 +29,11 @@
       
       private function save():void
       {
-        DB.instance.user.message(user, formText.text);
+        if (formBroad.selected)
+          UserManager.instance.send_message(null, formText.text);
+        else
+          UserManager.instance.send_message(user._id, formText.text);
+                
         PopUpManager.removePopUp(this);
       }
       
@@ -38,6 +42,9 @@
   
   <s:Form defaultButton="{saveButton}">
 
+    <s:FormItem label="Broadcast">
+      <s:CheckBox id="formBroad"/>
+    </s:FormItem>
     <s:FormItem label="{R.get('MESSAGE')}">
       <s:TextInput id="formText" width="200"/>
     </s:FormItem>

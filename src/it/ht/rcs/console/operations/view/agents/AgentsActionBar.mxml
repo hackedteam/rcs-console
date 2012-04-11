@@ -34,7 +34,7 @@
     
     <actionbar:Separator/>
     
-    <s:Button label="{R.get('MOVE_AGENT')}"
+    <s:Button label="{R.get('MOVE')}"
               icon="@Embed('/img/NEW/move.png')" click="moveAgent(event)"
               enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null}"/>
     
@@ -185,13 +185,13 @@
         a.path = new ArrayCollection();
         a.path.addAll(selectedObject.path);
         a.path.addItem(selectedObject._id);
-        AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void { AlertPopUp.show(R.get('ADDED')); });
+        AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void { AlertPopUp.show(R.get('ADDED_TO_ALERT', [selectedObject.name])); });
       }
       
       private function addToDashboard(event:MouseEvent):void
       {
         DashboardController.instance.newDashboardItem(selectedObject._id);
-        AlertPopUp.show(R.get('ADDED'));
+        AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
       }
       
       private function moveAgent(event:MouseEvent):void

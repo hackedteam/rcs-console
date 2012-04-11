@@ -3,8 +3,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                autoDrawBackground="false" creationComplete="init()"
-               >
+                autoDrawBackground="false" buttonMode="true" click="onClick(event)">
   
   <s:layout>
     <s:VerticalLayout gap="8" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -13,30 +12,32 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.evidences.renderers.EvidenceIcons;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.FileEvent;
       
       override public function set data(value:Object):void
       {
         super.data = value;
         icon.source = data ? EvidenceIcons[data.type] : null;
         toolTip = data ? data.type : null;
-
       }
       
-      private function init():void
+      private function onClick(event:MouseEvent):void
       {
-        this.buttonMode=true;
-        this.useHandCursor=true;
+        EvidenceManager.instance.evidenceFilter.type = [data.type];
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
       }
     ]]>
   </fx:Script>
   
- 
-   
     <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
-                   verticalCenter="0" />
+                   verticalCenter="0"/>
     
     <s:Label text="{data.count}"/>
-    
   
 </s:ItemRenderer>

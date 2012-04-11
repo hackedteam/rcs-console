@@ -20,8 +20,10 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.collections.ArrayList;
       import mx.collections.HierarchicalCollectionView;
       import mx.collections.HierarchicalData;
+      import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ObjectUtil;
@@ -41,7 +43,7 @@
         
         var grouped:Object = groupByAgentId(event.result as ArrayCollection);
         for (var aid:String in grouped) {
-          var subroot:Object = buildSubTree(grouped[aid]);
+          var subroot:Object = buildSubTree(grouped[aid], aid);
           subroot.parent = root;
           root.children.push(subroot);
         }
@@ -55,12 +57,31 @@
       private function groupByAgentId(collection:ArrayCollection):Object
       {
         var grouped:Object = {};
-        for each (var e:Evidence in collection) {
-          if (!grouped.hasOwnProperty(e.aid))
-            grouped[e.aid] = [];
+        
+        var agents:Array = getAgentsIds();
+        
+        for each (var aid:String in agents)
+          grouped[aid] = [];
+        
+        for each (var e:Evidence in collection)
           grouped[e.aid].push(e);
-        }
+
         return grouped;
+      }
+      
+      private function getAgentsIds():Array
+      {
+        var ids:Array = [];
+        
+        if (section.stateManager.selectedAgent == null) {
+          var agents:ListCollectionView = AgentManager.instance.getAgentsForTarget(section.stateManager.selectedTarget._id);
+          for each (var a:Agent in agents)
+            ids.push(a._id);
+        } else {
+          ids.push(section.stateManager.selectedAgent._id);
+        }
+        
+        return ids;
       }
       
       public static const ROOT:int = -2;
@@ -69,9 +90,13 @@
       public static const EMPTY_FOLDER:int = 1;
       public static const FULL_FOLDER:int = 3;
       
-      private function buildSubTree(evidences:Array):Object
+      private function buildSubTree(evidences:Array, aid:String):Object
       {
         var subroot:Object = { name: 'Agent', children: [], attr: SUBROOT, parent: null };
+        
+        var agent:Agent = AgentManager.instance.getItem(aid);
+        subroot.name = agent.name;
+        subroot.agent = agent;
         
         for each (var e:Evidence in evidences) {
           var path:String = e.data.path;
@@ -101,12 +126,6 @@
                 delete(node.children);
             }
           }
-        }
-        
-        if (e) {
-          var agent:Agent = AgentManager.instance.getItem(e.aid);
-          subroot.name = agent.name;
-          subroot.agent = agent;
         }
         
         return subroot;

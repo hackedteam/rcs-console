@@ -3,11 +3,13 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
-                             creationComplete="init()" save="save()">
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_GLOBALS')}">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.utils.Size;
+      
+      import locale.R;
       
       import mx.collections.ArrayList;
       
@@ -17,8 +19,8 @@
       {
         nohide.dataProvider = new ArrayList(globals.nohide);
         
-        min.text = String(globals.quota.min / Size.MIB);
-        max.text = String(globals.quota.max / Size.MIB);
+        min.text = String(Math.round(globals.quota.min / Size.MIB));
+        max.text = String(Math.round(globals.quota.max / Size.MIB));
         wipe.selected = globals.wipe;
         driver.selected = globals.remove_driver;
       }
@@ -51,25 +53,25 @@
   
   <s:Form defaultButton="{saveButton}">
     
-    <s:FormItem label="Minimum disk free">
+    <s:FormItem label="{R.get('GLOBAL_MIN_DISK_FREE')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="min" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
         <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Maximum evidence size">
+    <s:FormItem label="{R.get('GLOBAL_MAX_EVIDENCE')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="max" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
         <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Wipe">
+    <s:FormItem label="{R.get('GLOBAL_WIPE')}">
       <s:CheckBox id="wipe"/>
     </s:FormItem>
     
-    <s:FormItem label="Remove Driver">
+    <s:FormItem label="{R.get('GLOBAL_REMOVE_DRIVER')}">
       <s:CheckBox id="driver"/>
     </s:FormItem>
     

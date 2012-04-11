@@ -150,7 +150,9 @@ package it.ht.rcs.console.operations.view
         else delete(EvidenceManager.instance.evidenceFilter.type);
         
         if (event.evidenceIds) {
-          delete(EvidenceManager.instance.evidenceFilter.date);
+          EvidenceManager.instance.evidenceFilter.date = 'dr';
+          EvidenceManager.instance.evidenceFilter.from = 0;
+          EvidenceManager.instance.evidenceFilter.to = 0;
           EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
         }
         else delete(EvidenceManager.instance.evidenceFilter._id);

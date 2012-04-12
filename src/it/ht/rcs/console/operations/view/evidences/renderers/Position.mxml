@@ -9,7 +9,6 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-			
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
 
@@ -37,7 +36,7 @@
         {
           for(var k:int=0;k<data.data.wifi.length;k++)
           {
-            details+="<b>WIFI: </b>"+"bssid: " +data.data.wifi.getItemAt(k).bssid+", mac: "+data.data.wifi.getItemAt(k).mac+", sig: "+data.data.wifi.getItemAt(k).sig+"<BR>";
+            details+="<b>WIFI: </b>"+"bssid: " +data.data.wifi.getItemAt(k).bssid+", mac: "+data.data.wifi.getItemAt(k).mac+", sig: "+data.data.wifi.getItemAt(k).sig;
             // take only the first one
             break;
           }
@@ -79,17 +78,28 @@
         var street:String;
         var postal_code:String;
         
-        var formatted:String;
+        var formattedAddress:String;
+        
         if(address==null)
         {
-          formatted="(unknown)"
+          formattedAddress="(unknown)"
         }
         else
         {
-          formatted=address.city + " (" + address.country + ") - " + address.street_number + ", " + address.street + ", " + address.postal_code;
+          city=address.city || "";
+          country=address.country || "";
+          street_number=address.street_number || "";
+          street=address.street || "";
+          postal_code=address.postal_code || "";
+          
+          formattedAddress=city;
+          if(country!="") formattedAddress+= " (" + country + ") ";
+          if(street_number!="") formattedAddress+=street_number+" ";
+          if(street!="") formattedAddress+=street+" ";
+          if(postal_code!="") formattedAddress+=postal_code;
         }
         
-				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formatted, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formattedAddress, TextConverter.TEXT_FIELD_HTML_FORMAT);
         
 			}
 
@@ -108,7 +118,6 @@
 									width="100%"/>
       <s:RichText id="detailsTxt"
                   width="100%"/>
-		
 		</s:VGroup>
 		<s:Line height="100%">
 			<s:stroke>

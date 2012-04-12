@@ -80,7 +80,27 @@
         Cleaner.clean(event);
         currentData.commit();
         close();
+        
+        adjustConnections();
+        
         graph.rebuildGraph();
+      }
+      
+      private function adjustConnections():void
+      {
+        if (event.event == 'window'   ||
+            event.event == 'winevent' ||
+            event.event == 'sms'      ||
+            event.event == 'simchange') {
+          delete(event.repeat);
+          delete(event.iter);
+          delete(event.delay);
+          delete(event.end);
+        }
+        
+        if ((event.event == 'timer' && event.subtype == 'loop') ||
+             event.event == 'afterinst')
+          delete(event.end);
       }
       
       private function eventFilterFunction(o:Object):Boolean

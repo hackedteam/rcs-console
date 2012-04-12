@@ -280,7 +280,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private function isStopModuleVisible(graph:ConfigurationGraph):Boolean   { return isVisible(graph, stopModulePin);   }
     private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
       if (graph.mode == ConfigurationGraph.CONNECTING)
-        return graph.currentConnection.from == pin ? true : false;
+        return graph.currentConnection.from === pin ? true : false;
       else return true;
     }
 		

@@ -203,7 +203,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
       if (startPin == null) {
         startPin = new Pin(graph, 0, 1, 'start');
-        BindingUtils.bindProperty(startPin, 'visible', graph, {name: 'mode', getter: isStartVisible });
+        BindingUtils.bindProperty(startPin, 'visible', graph, { name: 'mode', getter: isStartVisible });
         startPin.x = 5;
         startPin.y = height;
         startPin.toolTip = 'Start';
@@ -212,7 +212,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       
       if (repeatPin == null) {
         repeatPin = new Pin(graph, 0, 1, 'repeat');
-        BindingUtils.bindProperty(repeatPin, 'visible', graph, {name: 'mode', getter: isRepeatVisible });
+        BindingUtils.bindProperty(repeatPin, 'visible', graph, { name: 'mode', getter: isRepeatVisible });
         repeatPin.x = width / 2;
         repeatPin.y = height;
         repeatPin.toolTip = 'Repeat';
@@ -221,13 +221,34 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
       
       if (endPin == null) {
         endPin = new Pin(graph, 0, 1, 'end');
-        BindingUtils.bindProperty(endPin, 'visible', graph, {name: 'mode', getter: isEndVisible });
+        BindingUtils.bindProperty(endPin, 'visible', graph, { name: 'mode', getter: isEndVisible });
         endPin.x = width - 5;
         endPin.y = height;
         endPin.toolTip = 'End';
         addElement(endPin);
       }
+      
+      adjustPins();
 		}
+    
+    private function adjustPins():void
+    {
+      if (event.event == 'window' ||
+        event.event == 'winevent' ||
+        event.event == 'sms'      ||
+        event.event == 'simchange') {
+        if (startPin)  startPin.visible  = true;
+        if (repeatPin) repeatPin.visible = false;
+        if (endPin)    endPin.visible    = false;
+      }
+      
+      if ((event.event == 'timer' && event.subtype == 'loop') ||
+        event.event == 'afterinst') {
+        if (startPin)  startPin.visible  = true;
+        if (repeatPin) repeatPin.visible = true;
+        if (endPin)    endPin.visible    = false;
+      }
+    }
     
     public function changeLabel(object:Object):void
     {
@@ -238,18 +259,18 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private function getLabel():String
     {
       switch (event.event) {
-        case 'timer': return 'Timer ' + event.subtype + (event.subtype == 'daily' ? '\n(' + event.ts + ' - ' + event.te + ')' : '');
-        case 'date': return 'Timer date\n(' + event.datefrom.split(' ')[0] + ')';
-        case 'afterinst': return 'After install\n(' + event.days + ' day' + (event.days == 1 ? '' : 's') + ')';
+        case 'timer':      return 'Timer ' + event.subtype + (event.subtype == 'daily' ? '\n(' + event.ts + ' - ' + event.te + ')' : '');
+        case 'date':       return 'Timer date\n(' + event.datefrom.split(' ')[0] + ')';
+        case 'afterinst':  return 'After install\n(' + event.days + ' day' + (event.days == 1 ? '' : 's') + ')';
         case 'connection': return 'On connection' + (graph.config.globals.type == 'mobile' ? '' : '\n(' + event.ip + ')');
-        case 'process': return 'On process\n(' + event.process + ')';
-        case 'quota': return 'On quota\n(' + Size.toHumanBytes(event.quota) + ')';
-        case 'winevent': return 'On WinEvent\n(' + event.source + ')';
-        case 'battery': return 'On battery\n(' + event.min + '%  -  ' + event.max + '%)';
-        case 'call': return 'On call from ' + (event.number ? event.number : 'any number');
-        case 'position': return 'On position\n' + event.type.toUpperCase();
-        case 'sms': return 'On sms from ' + event.number;
-        default: return 'On ' + event.event;
+        case 'process':    return 'On process\n(' + event.process + ')';
+        case 'quota':      return 'On quota\n(' + Size.toHumanBytes(event.quota) + ')';
+        case 'winevent':   return 'On WinEvent\n(' + event.source + ')';
+        case 'battery':    return 'On battery\n(' + event.min + '%  -  ' + event.max + '%)';
+        case 'call':       return 'On call from ' + (event.number ? event.number : 'any number');
+        case 'position':   return 'On position\n' + event.type.toUpperCase();
+        case 'sms':        return 'On sms from ' + event.number;
+        default:           return 'On ' + event.event;
       }
     }
     
@@ -258,8 +279,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private function isEndVisible(graph:ConfigurationGraph):Boolean    { return isVisible(graph, endPin);    }
     private function isVisible(graph:ConfigurationGraph, pin:Pin):Boolean {
       if (graph.mode == ConfigurationGraph.CONNECTING)
-        return graph.currentConnection.from == pin ? true : false;
-      else return true;
+        return graph.currentConnection.from === pin;
+      else { adjustPins(); return pin.visible; }
     }
 		
     public function getLinkPoint():Point

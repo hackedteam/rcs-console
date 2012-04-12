@@ -4,18 +4,17 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
           width="100%" height="100%" addedToStage="onAddedToStage()" horizontalAlign="center"
-          removedFromStage="onRemovedFromStage()">
+          removedFromStage="onRemovedFromStage()" creationComplete="init()">
 
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.operations.view.evidences.EvidenceFileExporter;
       
       import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
       
       import spark.events.GridEvent;
       
@@ -24,6 +23,14 @@
       
       [Bindable]
       public var filteredById:Boolean = false;
+      
+      private var exporter:EvidenceFileExporter;
+      private var exportMonitor:ExportPopUp;
+      
+      private function init():void
+      {
+        exporter=new EvidenceFileExporter();
+      }
       
       private function onAddedToStage():void
       {
@@ -214,10 +221,20 @@
       
       private function export():void
       {
-        var evidence:Evidence=evidenceDg.selectedItems[0] as Evidence
-        trace("Export: "+evidence.type)
-        EvidenceFileExporter.export(evidenceDg.selectedItems)
+        //open popup and add listeners
+        
+        exporter.export(evidenceDg.selectedItems)
+        exporter.addEventListener(EvidenceFileExporter.EXPORT_START,onExportStart)
       }
+      
+      private function onExportStart(e:Event):void
+      {
+        exportMonitor=PopUpManager.createPopUp(this as DisplayObject,ExportPopUp,true) as ExportPopUp;
+        exportMonitor.exporter=exporter;
+        PopUpManager.centerPopUp(exportMonitor);
+      }
+      
+      
     ]]>
   </fx:Script>
   

@@ -16,6 +16,7 @@
 						accessibilityDescription=""/>
   <fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
+    [Event(name="ready", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
@@ -77,13 +78,8 @@
 				_mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
 
 				map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
-
-
-				if (_positions.length > 0)
-				{
-					drawPositions()
-				}
 				_ready=true;
+        dispatchEvent(new Event("ready"));
 
 			}
 
@@ -140,7 +136,8 @@
 					marker.foreground.alpha=1
 
 					bounds.extend(coordinates);
-					drawCircle(_positions[i].range / 1000, coordinates);
+          //TODO
+					//drawCircle(_positions[i].range / 1000, coordinates);
 					_overlays.push(marker);
 					_markers.push(marker);
 					map.addOverlay(marker);
@@ -228,6 +225,11 @@
 				_scale=calculateMapScale();
        
 			}
+      
+      public function get ready():Boolean
+      {
+        return _ready;
+      }
 
 			public function set selectedPosition(value:Object):void
 			{

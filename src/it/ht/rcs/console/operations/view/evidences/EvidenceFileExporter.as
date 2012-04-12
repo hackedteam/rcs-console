@@ -21,34 +21,71 @@ package it.ht.rcs.console.operations.view.evidences
   
   public class EvidenceFileExporter extends EventDispatcher
   {
+    private var directory:File;
+    private var file:File;
+    private var extension:String;
+    private var request:URLRequest;
+    private var stream:URLStream;
+    private var evidences:Vector.<Object>;
+    private var currentEvidence:Evidence;
     
-    private static var file:File;
-    private static var extension:String;
-    private static var request:URLRequest;
-    private static var stream:URLStream;
-    private static var currentEvidence:Evidence;
+    public var currentIndex:int=0;
+    public var total:int=0;
+    public var bytesLoaded:Number;
+    public var bytesTotal:Number
     
-    public function EvidenceFileExporter()
+    public static const EXPORT_START:String="exportStart";
+    public static const EXPORT_PROGRESS:String="exportProgress";
+    public static const EXPORT_COMPLETE:String="exportComplete";
+    public static const EXPORT_END:String="exportEnd";
+
+    
+    public function export(list:Vector.<Object>):void
     {
+      evidences=list;
+      total=evidences.length;
+      directory=File.desktopDirectory;// Another one??
+      directory.browseForDirectory("Choose a directory");
+      //file.addEventListener(Event.CANCEL, onDirectoryCancel)
+      directory.addEventListener(Event.SELECT, onDirectorySelected)
       
     }
     
-    public static function export(evidences:Vector.<Object>):void
+    private function onDirectorySelected(e:Event):void
     {
-   
-      for(var i:int=0;i<evidences.length;i++)
-      {
-        currentEvidence=evidences[i] as Evidence;
+      trace("directory selected");
+      trace(directory.nativePath);
+      startQueue()
+    }
+    
+    private function startQueue():void
+    {
+        dispatchEvent(new Event(EXPORT_START));
+        currentIndex=0;
+        currentEvidence=evidences[currentIndex] as Evidence;
         exportFile(currentEvidence)
+    }
+    private function next():void
+    {
+      currentIndex++;
+      if(currentIndex<evidences.length)
+      {
+        currentEvidence=evidences[currentIndex] as Evidence;
+        exportFile(currentEvidence);
+      }
+      else
+      {
+        trace("queue completed")
+        dispatchEvent(new Event(EXPORT_END));
       }
     }
     
-    private static function exportFile(evidence:Evidence):void
+    private function exportFile(evidence:Evidence):void
     {
       switch(evidence.type)
       {
         case "screenshot":
-          exportText(evidence);
+          exportImage(evidence);
           break;
         
         case "screenshot":
@@ -122,100 +159,83 @@ package it.ht.rcs.console.operations.view.evidences
     
     }
     
-    private static function onDownloadProgress(e:ProgressEvent):void
+    private function onDownloadProgress(e:ProgressEvent):void
     {
-      var perc:int=int((e.bytesLoaded/e.bytesTotal)*100)
+      var perc:int=int((e.bytesLoaded/e.bytesTotal)*100);
       trace("downloading file "+perc)
+      bytesLoaded=e.bytesLoaded
+      bytesTotal=e.bytesTotal
+      dispatchEvent(new Event(EXPORT_PROGRESS));
     }
     
-    private static function onDownloadError(e:*):void
+    private function onDownloadError(e:*):void
     {
-     trace("Error downloading file")
+     trace("Error downloading file");
     }
     
-    private static function onFileDownloaded(e:Event):void
+    private function onFileDownloaded(e:Event):void
     {
       stream.removeEventListener(Event.COMPLETE, onFileDownloaded);
       stream.removeEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
       stream.removeEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
       stream.removeEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
-        
       var fileData:ByteArray=new ByteArray();
       stream.readBytes(fileData, 0, stream.bytesAvailable);
       var fileStream:FileStream=new FileStream();
       fileStream.open(file, FileMode.WRITE);
       fileStream.writeBytes(fileData, 0, fileData.length);
       fileStream.close();
+      dispatchEvent(new Event(EXPORT_COMPLETE));
+      next()
       
     }
-    private static function exportText(evidence:Evidence):void
+    private function exportText(evidence:Evidence):void
     {
       trace("export text")
+      bytesLoaded=0
+      bytesTotal=0
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       extension="txt"
       var fileName:String=evidence._id + encodeURIComponent(target) + "." + extension;
-      file=File.documentsDirectory.resolvePath(fileName);
-      file.addEventListener(Event.SELECT, onTextSelect);
-      stream=new URLStream();
-      file.browseForSave("Download " + fileName);
-      
-      
-    }
-    
-    private static function exportImage(evidence:Evidence):void
-    {
-      trace("export image")
-      var target:String=EvidenceManager.instance.evidenceFilter.target;
-      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
-      extension="jpg"
-      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
-      file=File.documentsDirectory.resolvePath(fileName);
-      file.addEventListener(Event.SELECT, onMediaSelect);
-      request=new URLRequest(url);
-      stream=new URLStream();
-      file.browseForSave("Download " + fileName);
-      
-    }
-    
-    private static function exportSound(evidence:Evidence):void
-    {
-      trace("export sound")
-      var target:String=EvidenceManager.instance.evidenceFilter.target;
-      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
-      extension="mp3"
-      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
-      file=File.documentsDirectory.resolvePath(fileName);
-      file.addEventListener(Event.SELECT, onMediaSelect);
-      request=new URLRequest(url);
-      stream=new URLStream();
-      file.browseForSave("Download " + fileName);
-    }
-    
-    private static function onTextSelect(e:Event):void
-    {
-      trace("ON text selection")
-      
-      //add listeners
+      file=new File(directory.nativePath +"/"+fileName);//add 
       var content:String=getInfo(currentEvidence)
-      
-      if (file.extension != extension)
-      {
-        file=new File(file.nativePath + "." + extension);
-      }
       var fileStream:FileStream=new FileStream();
       fileStream.open(file, FileMode.WRITE);
       fileStream.writeUTFBytes(content);
       fileStream.close();
+      dispatchEvent(new Event(EXPORT_COMPLETE));
+      next();
+      
     }
     
-    
-    private static function onMediaSelect(e:Event):void
+    private function exportImage(evidence:Evidence):void
     {
+      trace("export image");
+      var target:String=EvidenceManager.instance.evidenceFilter.target;
+      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+      extension="jpg";
+      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+      request=new URLRequest(url);
+      stream=new URLStream();
+      file=new File(directory.nativePath +"/"+fileName);//add filename
+      stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+      stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+      stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+      stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+      stream.load(request);
+      
+    }
     
-      if (file.extension != extension)
-      {
-        file=new File(file.nativePath + "." + extension);
-      }
+    private function exportSound(evidence:Evidence):void
+    {
+      trace("export sound")
+      var target:String=EvidenceManager.instance.evidenceFilter.target;
+      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+      extension="mp3";
+      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+      request=new URLRequest(url);
+      stream=new URLStream();
+      file=new File(directory.nativePath +"/"+fileName);//add filename
       stream.addEventListener(Event.COMPLETE, onFileDownloaded);
       stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
       stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
@@ -223,7 +243,15 @@ package it.ht.rcs.console.operations.view.evidences
       stream.load(request);
     }
     
-    private static function getInfo(evidence:Evidence):String
+   
+    
+    private function setFileName(evidence:Evidence):String //TODO
+    {
+      var name:String="";
+      return name;
+    }
+    
+    private function getInfo(evidence:Evidence):String
     {
       var info:String;
       switch(evidence.type)
@@ -311,7 +339,6 @@ package it.ht.rcs.console.operations.view.evidences
           info+="URL: "+evidence.data.url+"\n"; //TODO 
           break;
         
-          
       }
       return info;
     }

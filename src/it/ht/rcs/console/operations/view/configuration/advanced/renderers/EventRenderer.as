@@ -233,19 +233,20 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private function adjustPins():void
     {
+      if (startPin)  startPin.visible  = true;
+      if (repeatPin) repeatPin.visible = true;
+      if (endPin)    endPin.visible    = true;
+      
       if (event.event == 'window' ||
         event.event == 'winevent' ||
         event.event == 'sms'      ||
         event.event == 'simchange') {
-        if (startPin)  startPin.visible  = true;
         if (repeatPin) repeatPin.visible = false;
         if (endPin)    endPin.visible    = false;
       }
       
       if ((event.event == 'timer' && event.subtype == 'loop') ||
         event.event == 'afterinst') {
-        if (startPin)  startPin.visible  = true;
-        if (repeatPin) repeatPin.visible = true;
         if (endPin)    endPin.visible    = false;
       }
     }

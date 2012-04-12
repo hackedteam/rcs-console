@@ -7,6 +7,8 @@
   
   <fx:Script>
     <![CDATA[
+      import locale.R;
+      
       public var event:Object;
       
       private function init():void
@@ -42,19 +44,22 @@
 
   <s:Form defaultButton="{saveButton}">
     
-    <s:FormItem label="Delay">
+    <s:FormItem label="{R.get('DELAY')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="delay" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" seconds"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Iterations">
+    <s:FormItem label="{R.get('ITERATIONS')}">
       <s:VGroup>
-        <s:RadioButton label="Forever" group="{dateGroup}" selected="true"/>
-        <s:RadioButton id="notForever" label="Times" group="{dateGroup}"/>
-        <s:TextInput id="iter" enabled="{notForever.selected}" restrict="0-9" textAlign="center"
-                     widthInChars="3"/>
+        <s:RadioButton label="{R.get('FOREVER')}" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="notForever" label="{R.get('LIMIT')}" group="{dateGroup}"/>
+        <s:HGroup verticalAlign="middle">
+          <s:TextInput id="iter" enabled="{notForever.selected}" restrict="0-9" textAlign="center"
+                       widthInChars="3"/>
+          <s:Label paddingTop="1" text=" {R.get('TIMES')}"/>
+        </s:HGroup>
       </s:VGroup>
     </s:FormItem>
     
@@ -63,7 +68,7 @@
   <fx:Declarations>
     <s:RadioButtonGroup id="dateGroup" change="onChange(event)"/>
     <fx:Array id="vals">
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           required="true" source="{delay}" triggerEvent=""/>
       <mx:NumberValidator property="text" required="true" source="{iter}" triggerEvent=""/>
     </fx:Array>

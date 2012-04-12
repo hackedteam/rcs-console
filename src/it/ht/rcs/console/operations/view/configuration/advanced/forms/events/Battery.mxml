@@ -8,6 +8,8 @@
   
   <fx:Script>
     <![CDATA[
+      import locale.R;
+      
       private function init():void
       {
         min.text = event.min || '0';
@@ -28,18 +30,18 @@
   </fx:Script>
   
   <s:Label width="280" lineHeight="16"
-           text="This event triggers an action when the battery level is in the specified range"/>
+           text="{R.get('CONFIG_HELP_BATTERY')}"/>
   
   <s:Form>
   
-    <s:FormItem label="Min">
+    <s:FormItem label="{R.get('MIN')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="min" maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" %"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Max">
+    <s:FormItem label="{R.get('MAX')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="max" maxChars="3" restrict="0-9" textAlign="center" widthInChars="3"/>
         <s:Label paddingTop="1" text=" %"/>
@@ -50,10 +52,10 @@
   
   <fx:Declarations>
     <fx:Array id="vals">
-      <mx:NumberValidator exceedsMaxError="Value must not be more than 100" maxValue="100"
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [100])}" maxValue="100"
                           property="text" required="true" source="{min}" triggerEvent=""/>
-      <mx:NumberValidator exceedsMaxError="Value must not be more than 100"
-                          lowerThanMinError="Value must be more than 'Min'" maxValue="100"
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [100])}"
+                          lowerThanMinError="{R.get('VALIDATION_MIN', ['Min'])}" maxValue="100"
                           minValue="{parseInt(min.text) + 1}" property="text" required="true"
                           source="{max}" triggerEvent=""/>
     </fx:Array>

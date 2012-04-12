@@ -10,6 +10,8 @@
     <![CDATA[
       import it.ht.rcs.console.utils.MetaValidator;
       
+      import locale.R;
+      
       [Bindable]
       public var mobile:Boolean;
       
@@ -46,28 +48,28 @@
   </events:states>
   
   <s:Label includeIn="desktop" width="280" lineHeight="16"
-           text="This event triggers an action when the device establishes a TCP connection to the specified address"/>
+           text="{R.get('CONFIG_HELP_CONNECTION_DESKTOP')}"/>
   
   <s:Label includeIn="mobile" width="280" lineHeight="16"
-           text="This event triggers an action when a data channel is active"/>
+           text="{R.get('CONFIG_HELP_CONNECTION_MOBILE')}"/>
   
   <s:Form includeIn="desktop">
     
-    <s:FormItem label="IP Address">
+    <s:FormItem label="{R.get('IP_ADDRESS')}">
       <s:HGroup>
         <s:TextInput id="ip" maxChars="15" restrict="0-9." showErrorTip="true" textAlign="center"
                      widthInChars="8"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Netmask">
+    <s:FormItem label="{R.get('NETMASK')}">
       <s:HGroup>
         <s:TextInput id="netmask" maxChars="15" restrict="0-9." showErrorTip="true"
                      textAlign="center" widthInChars="8"/>
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Port">
+    <s:FormItem label="{R.get('PORT')}">
       <s:HGroup>
         <s:TextInput id="port" maxChars="5" restrict="0-9" showErrorTip="true" textAlign="center"
                      widthInChars="3"/>
@@ -82,7 +84,7 @@
                           triggerEvent=""/>
       <mx:RegExpValidator expression="{MetaValidator.ipExpr}" flags="g" property="text"
                           source="{netmask}" triggerEvent=""/>
-      <mx:NumberValidator exceedsMaxError="Out of range" maxValue="65535" property="text"
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_OUT_RANGE')}" maxValue="65535" property="text"
                           required="true" source="{port}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>

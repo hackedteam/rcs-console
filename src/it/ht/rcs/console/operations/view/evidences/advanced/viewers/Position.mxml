@@ -15,9 +15,15 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-
-			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
+      
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
 			[Bindable]
 			private var _evidence:Object;
 			[Bindable]
@@ -35,12 +41,24 @@
 			private var address:String;
 			[Bindable]
 			private var details:String;
+      
+
+      
+     
 
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
 				_evidence=value;
+        
+        
+        if(evidence.data.latitude == null || evidence.data.longitude == null || isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude))
+        {
+          var id:String=encodeURIComponent(value._id);
+          var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+        }
 
 				if (evidence.data.type == null)
 				{
@@ -181,6 +199,17 @@
 			{
 				mapViewer.positions=_positions;
 			}
+      
+      private function onShowResult(e:ResultEvent):void
+      {
+
+          
+      }
+      
+      private function onShowFault(e:FaultEvent):void
+      {
+        
+      }
 		]]>
 	</fx:Script>
 	<s:layout>

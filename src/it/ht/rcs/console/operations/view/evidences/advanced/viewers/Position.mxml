@@ -84,7 +84,7 @@
 				}
 				else
 				{
-					accuracy=evidence.data.accuracy
+					accuracy=evidence.data.accuracy+" mt"
 				}
 				var city:String;
 				var country:String;
@@ -129,6 +129,11 @@
 						details+="<b>WIFI: </b>" + "bssid: " + evidence.data.wifi.getItemAt(k).bssid + ", mac: " + evidence.data.wifi.getItemAt(k).mac + ", sig: " + evidence.data.wifi.getItemAt(k).sig + "<BR>";
 					}
 				}
+        if(evidence.data.ip != null)
+        {
+          details+="<b>IP: </b> "+ evidence.data.ip;
+        }
+        detailsTxt.visible=details!="";
 
 			}
 
@@ -140,6 +145,7 @@
 
 			public function set evidences(value:Vector.<Object>):void
 			{
+        trace("set evidences called")
 				evidence=value[0];
 
 
@@ -149,7 +155,8 @@
 					var pos:Object={lat: value[i].data.latitude, lng: value[i].data.longitude, range: value[i].data.accuracy, evidence: value[i]};
 					_positions.push(pos);
 				}
-				//if( mapViewer.ready) mapViewer.positions=_positions;
+        trace("is Map ready? "+mapViewer.ready)
+				if( mapViewer.ready) mapViewer.positions=_positions;
 
 			}
 
@@ -172,7 +179,7 @@
 
 			private function onMapReady():void
 			{
-				// mapViewer.positions=_positions;
+				mapViewer.positions=_positions;
 			}
 		]]>
 	</fx:Script>
@@ -237,7 +244,8 @@
 												paddingTop="10"
 												selectable="false"
 												textFlow="{TextConverter.importToFlow(details, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-												color="0xFFFFFF"/>
+												color="0xFFFFFF"
+                        />
 	</s:Group>
 
 </s:BorderContainer>

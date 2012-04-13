@@ -54,7 +54,7 @@
 				var longitude:String;
 				if (data.data.latitude == null || isNaN(data.data.latitude))
 				{
-					latitude="(unknown)";
+					latitude="unknown";
 				}
 				else
 				{
@@ -62,7 +62,7 @@
 				}
         if (data.data.longitude == null || isNaN(data.data.longitude))
         {
-          longitude="(unknown)"
+          longitude="unknown"
         }
         else
         {
@@ -82,7 +82,7 @@
         
         if(address==null)
         {
-          formattedAddress="(unknown)"
+          formattedAddress="<br>unknown"
         }
         else
         {
@@ -92,11 +92,10 @@
           street=address.street || "";
           postal_code=address.postal_code || "";
           
-          formattedAddress=city;
-          if(country!="") formattedAddress+= " (" + country + ") ";
-          if(street_number!="") formattedAddress+=street_number+" ";
-          if(street!="") formattedAddress+=street+" ";
-          if(postal_code!="") formattedAddress+=postal_code;
+          formattedAddress = ""
+          if (street != "") formattedAddress += "<br>" + street + " " + street_number; 
+          if (city != "") formattedAddress += "<br>" + postal_code + " " + city;
+          if (country != "") formattedAddress+= "<br>" + country;
         }
         
 				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formattedAddress, TextConverter.TEXT_FIELD_HTML_FORMAT);

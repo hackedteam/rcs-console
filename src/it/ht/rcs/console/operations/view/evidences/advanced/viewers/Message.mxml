@@ -12,29 +12,60 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
+			
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.Size;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/attachment16.png")]
+      public var AttachIcon:Class;
 
 			private var _evidence:Object;
-			private var fullHtml:String;
+      
+			private var fullHtml:String="";
       [Bindable]
-			private var cleanHtml:String;
+			private var cleanHtml:String="";
 			[Bindable]
-			private var hasImages:Boolean
+			private var hasImages:Boolean;
+      
+      private var loader:URLLoader=new URLLoader();
+      
+      
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
-				_evidence=value;
-				/* fullHtml=value.data.content;
-				hasImages=false;
-				if (fullHtml.search(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g")) != -1)
-				{
-					hasImages=true;
-				}
-				cleanHtml=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
-        cleanHtml=""
-				html.htmlText=cleanHtml; */
+        _evidence=value;
+       if(value.type=="message")
+       {
+         cleanHtml="";
+         var id:String=encodeURIComponent(value._id);
+         var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+         
+         //var id:String=encodeURIComponent(value.data._grid);
+         //var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target; //export
+         var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; //export
+         
+         loader.addEventListener(Event.COMPLETE, onContentLoaded);
+         loader.load(new URLRequest(url));
+         
+       }
 			}
+      
+      private function onContentLoaded(e:Event):void
+      {
+        fullHtml=e.currentTarget.data;
+        hasImages=false;
+        if (fullHtml.search(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g")) != -1)
+        {
+         hasImages=true;
+        }
+        cleanHtml=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
+        
+        html.htmlText=cleanHtml;
+        loader.removeEventListener(Event.COMPLETE, onContentLoaded);
+      }
       
 			public function get evidence():Object
 			{
@@ -56,7 +87,7 @@
 			{
         warningBox.visible=warningBox.includeInLayout=false;
         cleanHtml=fullHtml;
-				//html.htmlText=cleanHtml;
+				html.htmlText=cleanHtml;
 			}
       
       private function cleanHTMLText(text:String):String
@@ -95,11 +126,20 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+cleanHTMLText(evidence.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
-	<s:Line width="100%">
+	<s:Line width="100%" visible="{evidence.data.attach>0}" includeInLayout="{evidence.data.attach>0}">
 		<s:stroke>
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
+  <s:HGroup verticalAlign="middle" horizontalAlign="left" visible="{evidence.data.attach>0}" includeInLayout="{evidence.data.attach>0}">
+    <s:Image source="{AttachIcon}"/>
+    <s:Label id="attachTxt" text="{evidence.data.attach} Attachments"/>
+  </s:HGroup>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
 
 	<s:RichText textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
@@ -120,5 +160,5 @@
     <s:Label text="This message contains images not displayed for security reasons" paddingTop="2"/>
     <mx:LinkButton label="Display images" buttonMode="true" paddingLeft="3" paddingRight="3" click="renderImages()" fontWeight="bold"/>
 	</s:BorderContainer>
-	<!-- <mx:HTML id="html" width="100%" height="100%" verticalScrollPolicy="auto" paddingRight="10" htmlText="{cleanHtml}"/> -->
+	<mx:HTML id="html" width="100%" height="100%" verticalScrollPolicy="auto" paddingRight="10" htmlText="{cleanHtml}"/>
 </s:BorderContainer>

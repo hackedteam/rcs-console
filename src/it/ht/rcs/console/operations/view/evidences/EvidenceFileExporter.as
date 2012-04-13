@@ -137,7 +137,7 @@ package it.ht.rcs.console.operations.view.evidences
           break;
         
         case "message":
-          exportText(evidence);
+          exportMessage(evidence);
           break;
         
         case "password":
@@ -226,6 +226,24 @@ package it.ht.rcs.console.operations.view.evidences
       
     }
     
+    private function exportMessage(evidence:Evidence):void
+    {
+      trace("export image");
+      var target:String=EvidenceManager.instance.evidenceFilter.target;
+      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+      extension="eml";
+      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+      request=new URLRequest(url);
+      stream=new URLStream();
+      file=new File(directory.nativePath +"/"+fileName);//add filename
+      stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+      stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+      stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+      stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+      stream.load(request);
+      
+    }
+    
     private function exportSound(evidence:Evidence):void
     {
       trace("export sound")
@@ -302,14 +320,6 @@ package it.ht.rcs.console.operations.view.evidences
           info="Keylog: "+"\n\n";
           info+="Program: "+evidence.data.program+"\n";
           info+="Window: "+evidence.data.window+"\n";
-          info+="Content: "+evidence.data.content+"\n";
-          break;
-        
-        case "message":
-          info="Message: "+"\n\n";
-          info+="From: "+evidence.data.from+"\n";
-          info+="Rcpt: "+evidence.data.rcpt+"\n";
-          info+="Subject: "+evidence.data.subject+"\n";
           info+="Content: "+evidence.data.content+"\n";
           break;
         

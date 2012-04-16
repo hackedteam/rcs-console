@@ -190,10 +190,20 @@
         actionBar.selectedObjects=selectedObject
         evidenceDg.selectedItems=selectedObject
         trace("selected index: "+evidenceDg.selectedIndex)
-        
+     
         evidenceDg.ensureCellIsVisible(evidenceDg.selectedIndex)
         
       }
+      
+      private function onViewerUpdate():void
+      {
+      trace("viewer update")
+      //evidenceDg.visible=true;
+      //viewer.visible=false;
+      //evidenceDg.dataProvider.setItemAt(viewer.currentItem, evidenceDg.selectedIndex)
+      //evidenceDg.selectedItem=viewer.currentItem;
+      }
+      
       private function onViewerClose():void
       {
         closeViewer();
@@ -246,7 +256,7 @@
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="toggleDetail()" export="export()"/>
   <evidences:FilterNotice id="notice" visible="{filteredById}" includeInLayout="{filteredById}" evidenceView="{this}"/>
   <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
-  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose();" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()"/>
+  <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose();" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()" update="onViewerUpdate()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
   <evidences:EvidenceCounter id="counter" total="{EvidenceManager.instance.total}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>
 

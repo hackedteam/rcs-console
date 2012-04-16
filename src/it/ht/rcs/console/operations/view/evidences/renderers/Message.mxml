@@ -16,12 +16,40 @@
       [Bindable]
       override public function set data(value:*):void
       {
-        
         super.data=value;
-        fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
-        recipientsTxt.textFlow=TextConverter.importToFlow("<b>Recipients: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
-        subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
-        sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" +data.data.type , TextConverter.TEXT_FIELD_HTML_FORMAT);
+        if(value.data.type=="mail")
+        {
+          
+          fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          recipientsTxt.textFlow=TextConverter.importToFlow("<b>Recipients: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+        else if(value.data.type=="sms")
+        {
+          if(data.data.from!="local")
+          {
+            fromTxt.visible=fromTxt.includeInLayout=true;
+            fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            fromTxt.visible=fromTxt.includeInLayout=false;
+          }
+         
+          if(data.data.rcpt!="local")
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=true;
+            recipientsTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=false;
+          }
+          subjectTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + cleanHTMLText(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
       }
       
       private function cleanHTMLText(text:String):String
@@ -40,6 +68,8 @@
             width="100%">
     <s:VGroup verticalAlign="top"
               width="50%">
+      <s:RichText id="typeTxt"
+                  width="100%"/>
       <s:RichText id="fromTxt"
                   width="100%"/>
       <s:RichText id="recipientsTxt"

@@ -1,303 +1,372 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx"
-         xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
-         xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
-         width="100%" height="100%" show="onShow()" hide="onHide()" exitState="onExitState()" enterState="onEnterState()" >
-  <fx:Metadata> 
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
+				 xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
+				 width="100%"
+				 height="100%"
+				 show="onShow()"
+				 hide="onHide()"
+				 exitState="onExitState()"
+				 enterState="onEnterState()">
+	<fx:Metadata> 
     [Event(name="close", type="flash.events.Event")]
+    [Event(name="update", type="flash.events.Event")]
     [Event(name="selectionChange", type="flash.events.Event")]
   </fx:Metadata>
-  <fx:Declarations>
-    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="350"/>
-    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="350"/>
-  </fx:Declarations>
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      
-      import mx.collections.IList;
-      
-      [Bindable]
-      [Embed (source="/img/NEW/delete_16.png" )]
-      public var CloseIcon:Class;
-      
-      [Bindable]
-      public var dataProvider:IList;
-     
-      public var currentIndex:int;
-      private var _currentItem:Evidence;
-      private var _currentItems:Vector.<Object>;
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="350"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="350"/>
+	</fx:Declarations>
 
-      private function close():void
-      {
-       dispatchEvent(new Event("close"));
-      }
-      [Bindable]
-      public function set currentItems(value:Vector.<Object>):void
-      {
-        _currentItems=value;
-        currentItem=currentItems[0] as Evidence;
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
 
-      }
+			import mx.collections.IList;
+
+			[Bindable]
+			[Embed(source="/img/NEW/delete_16.png")]
+			public var CloseIcon:Class;
+
+			[Bindable]
+			public var dataProvider:IList;
+
+			public var currentIndex:int;
+			private var _currentItem:Evidence;
+			private var _currentItems:Vector.<Object>;
+
+			private function close():void
+			{
+				dispatchEvent(new Event("close"));
+			}
+
+			[Bindable]
+			public function set currentItems(value:Vector.<Object>):void
+			{
+				_currentItems=value;
+				currentItem=currentItems[0] as Evidence;
+
+			}
+
+			public function get currentItems():Vector.<Object>
+			{
+				return _currentItems
+			}
+
+			[Bindable]
+			public function set currentItem(value:Evidence):void
+			{
+				_currentItem=value;
+				if (!currentItem)
+					return;
+				if (hasState(currentItem.type))
+				{
+					currentState=currentItem.type;
+					//TODO
+					if (currentState == "screenshot")
+					{
+						screenshotViewer.evidence=currentItem;
+					}
+					if (currentState == "camera")
+					{
+						cameraViewer.evidence=currentItem;
+					}
+					if (currentState == "mouse")
+					{
+						mouseViewer.evidence=currentItem;
+					}
+					if (currentState == "device")
+					{
+						deviceViewer.evidence=currentItem;
+					}
+
+					//TODO
+					if (currentState == "position")
+					{
+            positionViewer.isUpdated=false;
+						positionViewer.evidences=currentItems;
+            
+						/* if(currentItems.length>1 && sameType("position", currentItems))
+							{
+								positionViewer.evidences=currentItems;
+								trace("condition true")
+							}
+							else
+							{
+								positionViewer.evidences=currentItems;
+								positionViewer.evidence=currentItem;
+								trace("condition false")
+							}  */
+					}
+					if (currentState == "keylog")
+					{
+						keylogViewer.evidence=currentItem;
+					}
+					if (currentState == "password")
+					{
+						passwordViewer.evidence=currentItem;
+					}
+					if (currentState == "addressbook")
+					{
+						addressbookViewer.evidence=currentItem;
+					}
+					if (currentState == "file")
+					{
+						fileViewer.evidence=currentItem;
+					}
+					if (currentState == "chat")
+					{
+						chatViewer.evidence=currentItem;
+					}
+					if (currentState == "call")
+					{
+						callViewer.evidence=currentItem;
+					}
+					if (currentState == "application")
+					{
+						applicationViewer.evidence=currentItem;
+					}
+					if (currentState == "message")
+					{
+						messageViewer.evidence=currentItem;
+					}
+					if (currentState == "url")
+					{
+						urlViewer.evidence=currentItem;
+					}
+					if (currentState == "mic")
+					{
+						micViewer.evidence=currentItem;
+					}
+					if (currentState == "calendar")
+					{
+						calendarViewer.evidence=currentItem;
+					}
+					if (currentState == "clipboard")
+					{
+						clipboardViewer.evidence=currentItem;
+					}
+					if (currentState == "print")
+					{
+						printViewer.evidence=currentItem;
+					}
+
+				}
+				else
+				{
+					currentState="none"
+				}
+				fadeIn.play([this]);
+			}
+
+			public function get currentItem():Evidence
+			{
+				return _currentItem;
+			}
+
+			private function onShow():void
+			{
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+			}
+
+			private function onHide():void
+			{
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+				if (currentState == "call")
+				{
+					callViewer.reset();
+				}
+			}
+
+			private function onKeyPress(e:KeyboardEvent):void
+			{
+				switch (e.keyCode)
+				{
+					case 39:
+						if (currentIndex < dataProvider.length - 1)
+						{
+							trace("avanti")
+							currentIndex++
+							currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
+							dispatchEvent(new Event("selectionChange"));
+						}
+						break;
+					case 37:
+						if (currentIndex > 0)
+						{
+							trace("indietro")
+							currentIndex--
+							currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
+							dispatchEvent(new Event("selectionChange"));
+						}
+						break;
+
+				}
+			}
+
+			public function editNote():void
+			{
+				infoPanel.editNote()
+			}
+
+			private function onExitState():void
+			{
+				if (currentState == "call")
+				{
+					callViewer.reset()
+				}
+
+				if (currentState == "mic")
+				{
+					micViewer.reset()
+				}
+			}
+
+			private function onEnterState():void
+			{
+				if (currentState == "call")
+				{
+					callViewer.evidence=currentItem;
+				}
+				if (currentState == "mic")
+				{
+					micViewer.evidence=currentItem;
+				}
+			}
+
+			private function sameType(type:String, selectedItems:Vector.<Object>):Boolean
+			{
+				var result:Boolean=true;
+				var value:String=selectedItems[0].type;
+				for (var i:int=0; i < selectedItems.length; i++)
+				{
+
+					if (selectedItems[i].type != value)
+					{
+						result=false;
+						break;
+					}
+				}
+				return result;
+			}
+
+			private function onMapChange():void
+			{
+				_currentItem=positionViewer.evidence as Evidence;
+				infoPanel.evidence=currentItem;
+				currentIndex=dataProvider.getItemIndex(currentItem);
+				dispatchEvent(new Event("selectionChange"));
+			}
       
-      public function get currentItems():Vector.<Object>
-      {
-       return _currentItems
-      }
-      
-      [Bindable]
-      public function set currentItem(value:Evidence):void
-      {
-        _currentItem=value;
-        if(!currentItem) return;
-        if(hasState(currentItem.type))
-        {
-          currentState=currentItem.type;
-          //TODO
-          if(currentState=="screenshot")
-          {
-            screenshotViewer.evidence=currentItem;
-          }
-          if(currentState=="camera")
-          {
-            cameraViewer.evidence=currentItem;
-          }
-          if(currentState=="mouse")
-          {
-            mouseViewer.evidence=currentItem;
-          }
-          if(currentState=="device")
-          {
-            deviceViewer.evidence=currentItem;
-          }
-          
-          //TODO
-          if(currentState=="position")
-          {
-            positionViewer.evidences=currentItems;
-            /* if(currentItems.length>1 && sameType("position", currentItems))
-              {
-                positionViewer.evidences=currentItems;
-                trace("condition true")
-              }
-              else
-              {
-                positionViewer.evidences=currentItems;
-                positionViewer.evidence=currentItem;
-                trace("condition false")
-              }  */
-          }
-          if(currentState=="keylog")
-          {
-            keylogViewer.evidence=currentItem;
-          }
-          if(currentState=="password")
-          {
-            passwordViewer.evidence=currentItem;
-          }
-          if(currentState=="addressbook")
-          {
-            addressbookViewer.evidence=currentItem;
-          }
-          if(currentState=="file")
-          {
-            fileViewer.evidence=currentItem;
-          }
-          if(currentState=="chat")
-          {
-            chatViewer.evidence=currentItem;
-          }
-          if(currentState=="call")
-          {
-            callViewer.evidence=currentItem;
-          }
-          if(currentState=="application")
-          {
-            applicationViewer.evidence=currentItem;
-          }
-          if(currentState=="message")
-          {
-            messageViewer.evidence=currentItem;
-          }
-          if(currentState=="url")
-          {
-            urlViewer.evidence=currentItem;
-          }
-          if(currentState=="mic")
-          {
-            micViewer.evidence=currentItem;
-          }
-          if(currentState=="calendar")
-          {
-            calendarViewer.evidence=currentItem;
-          }
-          if(currentState=="clipboard")
-          {
-            clipboardViewer.evidence=currentItem;
-          }
-          if(currentState=="print")
-          {
-            printViewer.evidence=currentItem;
-          }
-          
-        }
-        else
-        {
-          currentState="none"
-        }
-        fadeIn.play([this]);
-      }
-      
-      public function get currentItem():Evidence
-      {
-        return  _currentItem;
-      }
-      
-      private function onShow():void
-      {
-        stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
-      }
-      
-      private function onHide():void
-      {
-        stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
-        if(currentState=="call")
-        {
-          callViewer.reset();
-        }
-      }
-      
-      private function onKeyPress(e:KeyboardEvent):void
-      {
-        switch(e.keyCode)
-        {
-          case 39:
-           if(currentIndex<dataProvider.length-1)
-           {
-             trace("avanti")
-             currentIndex++
-             currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
-             dispatchEvent(new Event("selectionChange"));
-           }
-            break;
-          case 37:
-            if(currentIndex>0)
-            {
-              trace("indietro")
-              currentIndex--
-              currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
-              dispatchEvent(new Event("selectionChange"));
-            }
-            break;
-           
-        }
-      }
-      
-      public function editNote():void
-      {
-        infoPanel.editNote()
-      }
-      private function onExitState():void
-      {
-        if(currentState=="call")
-        {
-          callViewer.reset()
-        }
-        
-        if(currentState=="mic")
-        {
-          micViewer.reset()
-        }
-      }
-      
-      private function onEnterState():void
-      {
-        if(currentState=="call")
-        {
-          callViewer.evidence=currentItem;
-        }
-        if(currentState=="mic")
-        {
-          micViewer.evidence=currentItem;
-        }
-      }
-      
-      private function sameType(type:String, selectedItems:Vector.<Object>):Boolean
-      {
-        var result:Boolean=true;
-        var value:String=selectedItems[0].type;
-        for (var i:int=0; i < selectedItems.length; i++)
-        {
-          
-          if (selectedItems[i].type != value)
-          {
-            result=false;
-            break;
-          }
-        }
-        return result;
-      }
-      private function onMapChange():void
+      private function onMapUpdate():void
       {
         _currentItem=positionViewer.evidence as Evidence;
-        infoPanel.evidence=currentItem;
-        currentIndex=dataProvider.getItemIndex(currentItem);
-        dispatchEvent(new Event("selectionChange"));
+        dispatchEvent(new Event("update"));
       }
-      
-      
-    ]]>
-  </fx:Script>
+		]]>
+	</fx:Script>
 
-  <s:states>
-    <s:State name="none"/>
-    <s:State name="addressbook"/>
-    <s:State name="application"/>
-    <s:State name="calendar"/>
-    <s:State name="call"/>
-    <s:State name="camera"/>
-    <s:State name="chat"/>
-    <s:State name="clipboard"/>
-    <s:State name="device"/>
-    <s:State name="file"/>
-    <s:State name="keylog"/>
-    <s:State name="message"/>
-    <s:State name="mic"/>
-    <s:State name="mouse"/>
-    <s:State name="password"/>
-    <s:State name="position"/>
-    <s:State name="print"/>
-    <s:State name="screenshot"/>
-    <s:State name="url"/>
-  </s:states>
-  
-  
-  <s:HGroup  width="100%" height="100%">
-    
-  <viewers:Addressbook evidence="{currentItem}" includeIn="addressbook" id="addressbookViewer"/>
-  <viewers:Application evidence="{currentItem}" includeIn="application" id="applicationViewer"/>
-  <viewers:Calendar evidence="{currentItem}" includeIn="calendar" id="calendarViewer"/>
-  <viewers:Call evidence="{currentItem}" includeIn="call" id="callViewer"/>
-  <viewers:Camera evidence="{currentItem}" includeIn="camera" id="cameraViewer"/>
-  <viewers:Chat evidence="{currentItem}" includeIn="chat" id="chatViewer"/>
-  <viewers:Clipboard evidence="{currentItem}" includeIn="clipboard" id="clipboardViewer"/>
-  <viewers:Device evidence="{currentItem}" includeIn="device" id="deviceViewer"/>
-  <viewers:File evidence="{currentItem}" includeIn="file" id="fileViewer"/>
-  <viewers:Keylog evidence="{currentItem}" includeIn="keylog" id="keylogViewer"/>
-  <viewers:Message evidence="{currentItem}" includeIn="message" id="messageViewer"/>
-  <viewers:Mic evidence="{currentItem}" includeIn="mic" id="micViewer"/>
-  <viewers:Mouse evidence="{currentItem}" includeIn="mouse" id="mouseViewer"/>
-  <viewers:Password evidence="{currentItem}" includeIn="password" id="passwordViewer"/>
-  <viewers:Position evidences="{currentItems}" includeIn="position" id="positionViewer" change="onMapChange()" evidence="{currentItem}"/>
-  <viewers:Print evidence="{currentItem}" includeIn="print" id="printViewer"/>
-  <viewers:Screenshot evidence="{currentItem}" includeIn="screenshot" id="screenshotViewer"/>
-  <viewers:Url evidence="{currentItem}" includeIn="url" id="urlViewer"/>
-  <evidences:EvidenceInfoPanel evidence="{currentItem}" id="infoPanel" height="100%"/>
+	<s:states>
+		<s:State name="none"/>
+		<s:State name="addressbook"/>
+		<s:State name="application"/>
+		<s:State name="calendar"/>
+		<s:State name="call"/>
+		<s:State name="camera"/>
+		<s:State name="chat"/>
+		<s:State name="clipboard"/>
+		<s:State name="device"/>
+		<s:State name="file"/>
+		<s:State name="keylog"/>
+		<s:State name="message"/>
+		<s:State name="mic"/>
+		<s:State name="mouse"/>
+		<s:State name="password"/>
+		<s:State name="position"/>
+		<s:State name="print"/>
+		<s:State name="screenshot"/>
+		<s:State name="url"/>
+	</s:states>
 
- </s:HGroup>
-  <s:Image source="{CloseIcon}" y="{10}" x="{this.width-infoPanel.width-30}" useHandCursor="true" buttonMode="true" click="close()"/> 
+
+	<s:HGroup width="100%"
+						height="100%">
+
+		<viewers:Addressbook evidence="{currentItem}"
+												 includeIn="addressbook"
+												 id="addressbookViewer"/>
+		<viewers:Application evidence="{currentItem}"
+												 includeIn="application"
+												 id="applicationViewer"/>
+		<viewers:Calendar evidence="{currentItem}"
+											includeIn="calendar"
+											id="calendarViewer"/>
+		<viewers:Call evidence="{currentItem}"
+									includeIn="call"
+									id="callViewer"/>
+		<viewers:Camera evidence="{currentItem}"
+										includeIn="camera"
+										id="cameraViewer"/>
+		<viewers:Chat evidence="{currentItem}"
+									includeIn="chat"
+									id="chatViewer"/>
+		<viewers:Clipboard evidence="{currentItem}"
+											 includeIn="clipboard"
+											 id="clipboardViewer"/>
+		<viewers:Device evidence="{currentItem}"
+										includeIn="device"
+										id="deviceViewer"/>
+		<viewers:File evidence="{currentItem}"
+									includeIn="file"
+									id="fileViewer"/>
+		<viewers:Keylog evidence="{currentItem}"
+										includeIn="keylog"
+										id="keylogViewer"/>
+		<viewers:Message evidence="{currentItem}"
+										 includeIn="message"
+										 id="messageViewer"/>
+		<viewers:Mic evidence="{currentItem}"
+								 includeIn="mic"
+								 id="micViewer"/>
+		<viewers:Mouse evidence="{currentItem}"
+									 includeIn="mouse"
+									 id="mouseViewer"/>
+		<viewers:Password evidence="{currentItem}"
+											includeIn="password"
+											id="passwordViewer"/>
+		<viewers:Position evidences="{currentItems}"
+											includeIn="position"
+											id="positionViewer"
+											change="onMapChange()"
+                      update="onMapUpdate()"
+											evidence="{currentItem}"/>
+		<viewers:Print evidence="{currentItem}"
+									 includeIn="print"
+									 id="printViewer"/>
+		<viewers:Screenshot evidence="{currentItem}"
+												includeIn="screenshot"
+												id="screenshotViewer"/>
+		<viewers:Url evidence="{currentItem}"
+								 includeIn="url"
+								 id="urlViewer"/>
+		<evidences:EvidenceInfoPanel evidence="{currentItem}"
+																 id="infoPanel"
+																 height="100%"/>
+
+	</s:HGroup>
+	<s:Image source="{CloseIcon}"
+					 y="{10}"
+					 x="{this.width-infoPanel.width-30}"
+					 useHandCursor="true"
+					 buttonMode="true"
+					 click="close()"/>
 </s:Group>

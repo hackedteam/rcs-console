@@ -37,7 +37,7 @@
 			import com.google.maps.overlays.GroundOverlayOptions;
 			import com.google.maps.overlays.Marker;
 			import com.google.maps.overlays.MarkerOptions;
-
+			
 			import it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.CustomMarker;
 
 			private var position:LatLng;
@@ -139,7 +139,8 @@
 
 						bounds.extend(coordinates);
 						//TODO
-						drawCircle(_positions[i].range / 1000, coordinates);
+						var circleBounds:LatLngBounds=drawCircle(_positions[i].range / 1000, coordinates);
+           bounds.union(circleBounds)
 						_overlays.push(marker);
 						_markers.push(marker);
 						map.addOverlay(marker);
@@ -150,23 +151,24 @@
 			}
 
 
-			private function drawCircle(radiusKm:Number, position:LatLng):void
+			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
 			{
+        _scale=calculateMapScale();
+        var shape:Shape=new Shape();
+        var overlay:GroundOverlay;
+        var bounds:LatLngBounds;
+        var centrePoint:Point;
+        var topLeft:LatLng;
+        var bottomRight:LatLng;
+        var options:GroundOverlayOptions;
+        var circleWidth:Number=radiusKm * 2 * _scale;
+        
+        
+        
 				if (isNaN(radiusKm) || radiusKm <= 0)
 				{
-					return;
+					return new LatLngBounds();
 				}
-
-
-				_scale=calculateMapScale();
-				var shape:Shape=new Shape();
-				var overlay:GroundOverlay;
-				var bounds:LatLngBounds;
-				var centrePoint:Point;
-				var topLeft:LatLng;
-				var bottomRight:LatLng;
-				var options:GroundOverlayOptions;
-				var circleWidth:Number=radiusKm * 2 * _scale;
 
 				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
 				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
@@ -188,6 +190,7 @@
 					*/
 				if (circleWidth < map.height)
 				{
+          trace("need to zoom in")
 					options=new GroundOverlayOptions();
 					options.applyProjection=true;
 					_circleOverlay=new GroundOverlay(shape, bounds, options);
@@ -197,15 +200,18 @@
 				}
 				else
 				{
-
-					// the circle has gone outside the viewable map area.
+          trace("need to zoom out") // the circle has gone outside the viewable map area.
 					options=new GroundOverlayOptions();
 					options.applyProjection=true;
 					_circleOverlay=new GroundOverlay(shape, bounds, options);
 					map.addOverlay(_circleOverlay);
 					_overlays.push(_circleOverlay)
-					_circles.push(_circleOverlay)
+					_circles.push(_circleOverlay) 
+            
+            
 				}
+        
+        return bounds
 			}
 
 			private function calculateMapScale():Number
@@ -244,6 +250,7 @@
 						var marker:Marker=_markers[i] as Marker;
 						var circle:GroundOverlay=_circles[i] as GroundOverlay;
 						var customMarker:CustomMarker=marker.getOptions().icon as CustomMarker;
+            
 						if (customMarker.data == _selectedPosition.evidence)
 						{
 							customMarker.alpha=1;

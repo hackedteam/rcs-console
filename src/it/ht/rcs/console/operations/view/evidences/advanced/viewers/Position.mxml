@@ -12,6 +12,7 @@
 									 creationPolicy="all">
 	<fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
+    [Event(name="update", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
@@ -25,7 +26,7 @@
       import mx.rpc.events.ResultEvent;
       
 			[Bindable]
-			private var _evidence:Object;
+			private var _evidence:Evidence;
 			[Bindable]
 			private var _positions:Array;
 
@@ -41,19 +42,16 @@
 			private var address:String;
 			[Bindable]
 			private var details:String;
+      [Bindable]
+      public var isUpdated:Boolean;
       
-
-      
-     
-
-
 			[Bindable]
-			public function set evidence(value:Object):void
+			public function set evidence(value:Evidence):void
 			{
 				_evidence=value;
         
         
-        if(evidence.data.latitude == null || evidence.data.longitude == null || isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude))
+        if((isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude)) && !isUpdated)
         {
           var id:String=encodeURIComponent(value._id);
           var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
@@ -69,41 +67,34 @@
 					type=evidence.data.type;
 				}
 
-				if (evidence.data.latitude == null || isNaN(evidence.data.latitude))
+				if (isNaN(evidence.data.latitude))
 				{
 					latitude="(unknown)";
 				}
 				else
 				{
-					latitude=evidence.data.latitude;
+					latitude=String(evidence.data.latitude);
 				}
 
-				if (evidence.data.longitude == null || isNaN(evidence.data.longitude))
+				if (isNaN(evidence.data.longitude))
 				{
 					longitude="(unknown)";
 				}
 				else
 				{
-					longitude=evidence.data.longitude;
+					longitude=String(evidence.data.longitude);
 				}
 
-				if (evidence.data.accuracy == null || isNaN(evidence.data.accuracy))
+				if (isNaN(evidence.data.accuracy))
 				{
 					accuracy="(unknown)";
 				}
 				else
 				{
-					accuracy=evidence.data.accuracy;
+					accuracy=String(evidence.data.accuracy+" mt");
 				}
 
-				if (evidence.data.accuracy == null || isNaN(evidence.data.accuracy))
-				{
-					accuracy="(unknown)";
-				}
-				else
-				{
-					accuracy=evidence.data.accuracy+" mt"
-				}
+				
 				var city:String;
 				var country:String;
 				var street_number:String;
@@ -155,7 +146,7 @@
 
 			}
 
-			public function get evidence():Object
+			public function get evidence():Evidence
 			{
 				return _evidence;
 			}
@@ -164,7 +155,7 @@
 			public function set evidences(value:Vector.<Object>):void
 			{
         trace("set evidences called")
-				evidence=value[0];
+				evidence=value[0] as Evidence;
 
 
 				_positions=new Array();
@@ -202,14 +193,24 @@
       
       private function onShowResult(e:ResultEvent):void
       {
-
-          
+          isUpdated=true;
+          evidence=e.result as Evidence;
+          dispatchEvent(new Event("update"));
       }
       
       private function onShowFault(e:FaultEvent):void
       {
         
       }
+      
+      private function checkForPositionUpdate():void
+      {
+        isUpdated=false;
+        var id:String=encodeURIComponent(evidence._id);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+      }
+      
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -236,7 +237,7 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	<s:HGroup>
+	<s:HGroup verticalAlign="middle" width="100%">
 		<s:RichText id="latTxt"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Latitude: &lt;/b&gt;'+latitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 								fontSize="12"/>
@@ -246,14 +247,9 @@
 		<s:RichText id="accTxt"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Accuracy: &lt;/b&gt;'+accuracy, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 								fontSize="12"/>
+    <s:Spacer width="100%"/>
+    <mx:LinkButton id="refreshBtn" label="Update position" click="checkForPositionUpdate()" fontWeight="bold"/>
 	</s:HGroup>
-	<s:Line width="100%">
-		<s:stroke>
-			<s:SolidColorStroke color="0xCCCCCC"/>
-		</s:stroke>
-	</s:Line>
-
-
 
 	<s:Group width="100%"
 					 height="100%">
@@ -274,7 +270,6 @@
 												selectable="false"
 												textFlow="{TextConverter.importToFlow(details, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 												color="0xFFFFFF"
-                        />
+                        /> 
 	</s:Group>
-
 </s:BorderContainer>

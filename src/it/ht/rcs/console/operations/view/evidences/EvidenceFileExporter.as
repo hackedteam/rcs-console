@@ -196,7 +196,7 @@ package it.ht.rcs.console.operations.view.evidences
       bytesTotal=0
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       extension="txt"
-      var fileName:String=evidence._id + encodeURIComponent(target) + "." + extension;
+      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       file=new File(directory.nativePath +"/"+fileName);//add 
       var content:String=getInfo(currentEvidence)
       var fileStream:FileStream=new FileStream();
@@ -214,7 +214,7 @@ package it.ht.rcs.console.operations.view.evidences
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
       extension="jpg";
-      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
       file=new File(directory.nativePath +"/"+fileName);//add filename
@@ -232,7 +232,7 @@ package it.ht.rcs.console.operations.view.evidences
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
       extension="eml";
-      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
       file=new File(directory.nativePath +"/"+fileName);//add filename
@@ -250,7 +250,7 @@ package it.ht.rcs.console.operations.view.evidences
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
       extension="mp3";
-      var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;
+      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
       file=new File(directory.nativePath +"/"+fileName);//add filename

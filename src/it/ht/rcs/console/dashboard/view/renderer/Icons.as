@@ -52,6 +52,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/nc.png')]
     public static const nc32:Class;
     
+    [Embed(source='/img/NEW/worker.png')]
+    public static const worker32:Class;
+    
     
     [Embed(source='/img/NEW/device/mobile_android.png')]
     public static const mobile_android:Class;

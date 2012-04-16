@@ -14,6 +14,9 @@
       
       import mx.collections.ListCollectionView;
       
+      import spark.events.GridSelectionEvent;
+      import spark.events.IndexChangeEvent;
+      
       [Bindable]
       private var view:ListCollectionView;
 
@@ -39,16 +42,22 @@
         } catch (e:Error) {}
         return true;
       }
+      
+      private function nias_changeHandler(event:IndexChangeEvent):void
+      {
+        rulesActionBar.selectedInjector = nias.selectedItem;
+        rulesActionBar.selectedRule = null;
+      }
     ]]>
   </fx:Script>
   
   <nia:NIAActionBar id="actionBar" selectedObject="{nias.selectedItem}" view="{view}"/>
   
-  <nia:NIAList id="nias" dataProvider="{view}"/>
+  <nia:NIAList id="nias" dataProvider="{view}" change="nias_changeHandler(event)"/>
   
-  <nia:RulesActionBar selectedInjector="{nias.selectedItem as Injector}"
+  <nia:RulesActionBar id="rulesActionBar" selectedInjector="{nias.selectedItem as Injector}"
                       selectedRule="{rules.selectedItem as InjectorRule}"/>
    
-  <nia:RulesGrid id="rules" dataProvider="{Console.currentSession.user.is_tech() ? nias.selectedItem.rules : null}"/>
+  <nia:RulesGrid id="rules" dataProvider="{Console.currentSession.user.is_tech() ? nias.selectedItem.rules : null}" />
 
 </s:VGroup>

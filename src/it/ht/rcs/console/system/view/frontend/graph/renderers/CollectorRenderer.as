@@ -160,6 +160,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     {
       if (Console.currentSession.user.is_sys())
         (this.parentDocument as Frontend).list.edit(collector);
+      selected = true;
     }
     
     private var _selected:Boolean = false;

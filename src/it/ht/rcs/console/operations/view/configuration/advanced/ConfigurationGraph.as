@@ -232,9 +232,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       
       if (element is Connection) {
         toExclude = toExclude.concat(getConnectionBounds(element as Connection));
-      } else if (element is ActionRenderer || element is EventRenderer) {
+      } else if (element is EventRenderer) {
         toExclude = toExclude.concat(getOutBoundElements(element));
         toExclude = toExclude.concat(getDestinations(toExclude));
+      } else if (element is ActionRenderer) {
+        toExclude = toExclude.concat(getOutBoundElements(element));
+        toExclude = toExclude.concat(getDestinations(toExclude));
+        toExclude = toExclude.concat(getInBoundElements(element));
+        toExclude = toExclude.concat(getSources(toExclude));
       } else if (element is ModuleRenderer) {
         toExclude = toExclude.concat(getInBoundElements(element));
         toExclude = toExclude.concat(getSources(toExclude));
@@ -261,7 +266,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         v = v.concat(er.endPin.outBoundConnections());
       }
       
-      if (element is ActionRenderer) {
+      else if (element is ActionRenderer) {
         var ar:ActionRenderer = element as ActionRenderer;
         v = v.concat(ar.enableEventPin.outBoundConnections());
         v = v.concat(ar.disableEventPin.outBoundConnections());
@@ -279,6 +284,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       if (element is ModuleRenderer) {
         var mr:ModuleRenderer = element as ModuleRenderer;
         v = v.concat(mr.inBoundConnections());
+      }
+      
+      else if (element is ActionRenderer) {
+        var ar:ActionRenderer = element as ActionRenderer;
+        v = v.concat(ar.inBoundConnections());
       }
       
       return v;

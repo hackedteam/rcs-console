@@ -55,7 +55,7 @@ package it.ht.rcs.console.utils.itemfield
       addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
       
-      //_path = new ArrayCollection();
+      _path = new ArrayCollection();
     }
     
     private function onAddedToStage(event:Event):void
@@ -111,31 +111,31 @@ package it.ht.rcs.console.utils.itemfield
         _dataProvider.refresh();
     }
     
-//    public function set path(item:Object):void
-//    {
-//       _path = item.path;
-//       _path.addItem(item._id);
-//       trace("_path = " + _path.toArray());
-//       _dataProvider.refresh();
-//    }
+    public function set path(item:Object):void
+    {
+       if (item == null) return;
+       
+       _path = item.path;
+       _path.addItem(item._id);
+       _dataProvider.refresh();
+    }
     
     private function filter(item:Object):Boolean
     {
       if (!isVisibleType(item._kind)) return false;
+      
+      if (_path && _path.length > 0) {
+        for (var i:int = 0; i < _path.length; i++) {
+          if (item.path[i] != _path[i])
+            return false;
+        }
+      }
+      
       if (text == '') return true;
       
-//      if (_path.length > item.path.length) return true;
-//      trace(item.path.toArray());
-//      trace(_path.toArray());
-//      for (var i:int = 0; i < _path.length; i++) {
-//        if (item.path[i] != _path[i]) {
-//          trace(item.path[i] + " == " + _path[i] + "? ... NO!");
-//          return false;
-//        }
-//        trace(item.path[i] + " == " + _path[i] + "? ... YES!");
-//      }
-
       var toMatch:String = item.name.toLowerCase() + ' ' + item.desc.toLowerCase();
+      if (item.ident)
+        toMatch = toMatch + ' ' + item.ident.toLowerCase();
       
       return toMatch.indexOf(text.toLowerCase()) >= 0;
     }

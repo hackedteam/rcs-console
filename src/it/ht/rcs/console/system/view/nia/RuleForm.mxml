@@ -13,6 +13,7 @@
       import it.ht.rcs.console.network.model.Injector;
       import it.ht.rcs.console.network.model.InjectorRule;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
       
       import locale.R;
       
@@ -187,6 +188,10 @@
           close();
       }
       
+      private function onTargetSelection(event:ItemFieldEvent):void
+      {
+        _selectedTarget = event.selectedItem;
+      }
     ]]>
   </fx:Script>
   
@@ -212,8 +217,8 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('TARGET')}">
-      <itemfield:ItemField id="target" width="200" kinds="{['target']}"
-                           selectedItemId="{rule.target_id}"></itemfield:ItemField>
+      <itemfield:ItemField id="target" width="200" kinds="{['target']}" itemSelected="onTargetSelection(event)"
+                           selectedItemId="{rule.target_id}"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('IDENT')}">
@@ -260,7 +265,7 @@
     <s:FormItem visible="{action.selectedItem != 'REPLACE'}" label="{R.get('AGENT')}"
                 includeInLayout="{action.selectedItem != 'REPLACE'}">
       <itemfield:ItemField id="agent" width="200" kinds="{['factory']}"
-                           selectedItemId="{rule.action_param}"/> <!-- path="{_selectedTarget}" -->
+                           selectedItemId="{rule.action_param}" path="{_selectedTarget}"/> <!--  -->
     </s:FormItem>
    
     <s:FormItem visible="{action.selectedItem == 'REPLACE'}" label="{R.get('FILE')}"

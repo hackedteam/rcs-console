@@ -23,6 +23,7 @@
       [Bindable]
       public function set evidence(value:Evidence):void
       {
+       
         _evidence=value;
         if (!evidence) return;
         if(hasState(evidence.type))
@@ -52,8 +53,8 @@
       
       private function onKeyDown(e:KeyboardEvent):void
       {
-        e.stopImmediatePropagation();
-        if(e.keyCode==13)
+        //e.stopImmediatePropagation();
+        if(e.keyCode==13 && !e.shiftKey)
         {
           hiddenFocusTxt.setFocus(); //a  trick to remove focus from note text area on Enter press
           saveNote();
@@ -112,12 +113,12 @@
         <s:BitmapImage id="icon" source="{dot}" visible="{evidence.blo}"/>
       </s:FormItem>
    
-      <s:HGroup verticalAlign="middle" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" gap="8">
-        <s:Label text="{R.get('RELEVANCE')}" fontWeight="bold" textAlign="right" width="65"/>
-        <utils:TagImage value="{evidence.rel}"/>
+      <s:HGroup verticalAlign="middle" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" gap="8" width="100%">
+       <s:Label text="{R.get('RELEVANCE')}" fontWeight="bold" textAlign="right" width="29%"/>
+       <utils:TagImage value="{evidence.rel}"/>
       </s:HGroup>
     </s:Form>
-    <s:Line width="80%">
+    <s:Line width="90%">
       <s:stroke>
         <s:SolidColorStroke color="0xCCCCCC"/>
       </s:stroke>
@@ -136,9 +137,12 @@
       </s:stroke>
     </s:Line>-->
     <s:Label id="hiddenFocusTxt" visible="false" includeInLayout="false"/>
-    <s:FormItem label="Note" height="100%">
-        <s:TextArea editable="true" text="{evidence.note}" change="saveNote()" id="noteTxt" keyDown="onKeyDown(event)" click="onNoteClick(event)" height="100%" />
-    </s:FormItem>
+    <s:HGroup width="90%" horizontalAlign="right" height="100%">
+      <s:Label text="Note:" fontWeight="bold"/>
+      <s:TextArea editable="true" text="{evidence.note}" change="saveNote()" id="noteTxt" keyDown="onKeyDown(event)" click="onNoteClick(event)" height="100%" width="100%"/>
+    </s:HGroup>
+        
+   
   </s:VGroup>
 
   <s:states>

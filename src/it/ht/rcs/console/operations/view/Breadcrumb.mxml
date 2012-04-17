@@ -3,11 +3,16 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:view="it.ht.rcs.console.operations.view.*"
-         width="100%">
+         width="100%" creationComplete="init()">
   
   <fx:Script>
     <![CDATA[
       import locale.R;
+      
+      import mx.controls.Alert;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
       
       [Bindable]
       public var section:OperationsSection;
@@ -41,6 +46,29 @@
       private function onRoll(event:MouseEvent):void
       {
         up.filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
+      }
+      
+      private function init():void
+      {
+        addEventListener(MouseEvent.CLICK, onClick, true, 0, true); // needed! we use capture to check if the current view is dirty and prevent switch
+      }
+      
+      private var lastClicked:UIComponent;
+      private function onClick(e:MouseEvent):void
+      {
+        if (e.bubbles)
+          if (section.currentState == 'config' && section.configView.getDirtyState()) {
+            lastClicked = e.target as UIComponent;
+            e.stopImmediatePropagation();
+            Alert.show(R.get('UNSAVED_CHANGES'), R.get('UNSAVED_CHANGES_TITLE'), Alert.OK|Alert.CANCEL, null, confirm);
+          }
+      }
+      
+      private function confirm(event:CloseEvent):void
+      {
+        if (event.detail == Alert.OK) {
+          lastClicked.dispatchEvent(new MouseEvent(MouseEvent.CLICK, false));
+        }
       }
     ]]>
   </fx:Script>

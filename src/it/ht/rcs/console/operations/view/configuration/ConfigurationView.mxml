@@ -15,11 +15,13 @@
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import mx.rpc.events.ResultEvent;
+      import mx.utils.ObjectUtil;
       
       [Bindable]
       public var section:OperationsSection;
       
       private var configAsConfig:Config;
+      
       [Bindable]
       public var configAsObject:Object;
       
@@ -43,9 +45,13 @@
         }
       }
       
+      private var originalConfigAsObject:Object;
+      
       public function displayConfig():void
       {
         if (configAsObject == null) return;
+        
+        updateOriginalConfig(configAsObject);
         
         currentState = configAsObject.globals.advanced ? "advanced" : "basic";
         switch (currentState) {
@@ -65,6 +71,17 @@
       private function init():void
       {
         displayConfig();
+      }
+      
+      public function updateOriginalConfig(config:Object):void
+      {
+        originalConfigAsObject = ObjectUtil.copy(config); // We save a copy to compare it when leaving section and detect changes
+      }
+      
+      public function getDirtyState():Boolean
+      {
+        var newConfig:Object = currentState == 'advanced' ? advanced.getConfig() : basic.getConfig();
+        return ObjectUtil.compare(newConfig, originalConfigAsObject) != 0;
       }
     ]]>
   </fx:Script>

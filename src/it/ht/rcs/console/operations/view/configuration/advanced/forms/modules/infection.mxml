@@ -11,6 +11,8 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       
+      import locale.R;
+      
       import mx.collections.ListCollectionView;
       
       private function init():void
@@ -28,7 +30,7 @@
         if (dp.length == 0) {
           mobile.selected = false;
           mobile.enabled = false;
-          mobileFI.toolTip = "No mobile factories to use";
+          mobileFI.toolTip = R.get('NO_MOBILE_FACTORIES');
         }
       }
       
@@ -54,7 +56,7 @@
   
   <s:Form>
     
-    <s:FormItem label="Infect mobile devices" id="mobileFI">
+    <s:FormItem label="{R.get('INFECT_MOBILE_DEVICES')}" id="mobileFI">
       <s:HGroup verticalAlign="middle">
         <s:CheckBox id="mobile"/>
         <s:DropDownList id="factory" width="150" enabled="{mobile.selected}" labelField="name"
@@ -62,21 +64,21 @@
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Infect other local users">
+    <s:FormItem label="{R.get('INFECT_LOCAL_USERS')}">
       <s:CheckBox id="local"/>
     </s:FormItem>
     
-    <s:FormItem label="Infect USB drives">
+    <s:FormItem label="{R.get('INFECT_USB_DRIVES')}">
       <s:CheckBox id="usb"/>
     </s:FormItem>
     
-    <s:FormItem label="Infect VMWare virtual machines">
+    <s:FormItem label="{R.get('INFECT_VMWARE')}">
       <s:HGroup verticalAlign="middle">
         <s:CheckBox id="vm"/>
-        <s:Label enabled="{vm.selected}" paddingTop="1" text="every "/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text="{R.get('EVERY').toLowerCase()} "/>
         <s:TextInput id="delay" enabled="{vm.selected}" restrict="0-9" showErrorTip="true" text="300"
                      textAlign="center" widthInChars="3"/>
-        <s:Label enabled="{vm.selected}" paddingTop="1" text=" seconds"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text=" {R.get('SECONDS').toLowerCase()}"/>
       </s:HGroup>
     </s:FormItem>
     
@@ -85,7 +87,7 @@
   <fx:Declarations>
     <fx:Array id="vals">
       <mx:StringValidator minLength="1" property="text" source="{delay}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           source="{delay}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>

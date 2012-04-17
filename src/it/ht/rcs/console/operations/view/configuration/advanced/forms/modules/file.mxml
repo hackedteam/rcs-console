@@ -10,6 +10,8 @@
     <![CDATA[
       import it.ht.rcs.console.utils.DateUtils;
       
+      import locale.R;
+      
       import mx.collections.ArrayList;
       import mx.formatters.DateFormatter;
       
@@ -81,7 +83,7 @@
       
       <s:Form>
       
-        <s:FormItem label="Include Filters">
+        <s:FormItem label="{R.get('INCLUDE_FILTER')}">
           <s:HGroup>
             <s:List id="includeList" width="150" height="156"/>
             <s:Button width="40" label="-" click="removeInclude(event)"
@@ -89,7 +91,7 @@
           </s:HGroup>
         </s:FormItem>
         
-        <s:FormItem label="Mask">
+        <s:FormItem label="{R.get('MASK')}">
           <s:HGroup>
             <s:TextInput id="includeProcess" width="150"/>
             <s:Button width="40" label="+" click="addInclude(event)"
@@ -102,7 +104,7 @@
       
       <s:Form defaultButton="{saveButton}">
         
-        <s:FormItem label="Exclude Filters">
+        <s:FormItem label="{R.get('EXCLUDE_FILTER')}">
           <s:HGroup>
             <s:List id="excludeList" width="150" height="156"/>
             <s:Button width="40" label="-" click="removeExclude(event)"
@@ -110,7 +112,7 @@
           </s:HGroup>
         </s:FormItem>
         
-        <s:FormItem label="Mask">
+        <s:FormItem label="{R.get('MASK')}">
           <s:HGroup>
             <s:TextInput id="excludeProcess" width="150"/>
             <s:Button width="40" label="+" click="addExclude(event)"
@@ -127,7 +129,7 @@
       
       <s:Form defaultButton="{saveButton}">
         
-        <s:FormItem label="Log path and access mode">
+        <s:FormItem label="{R.get('LOG_PATH_AND_ACCESS_MODE')}">
           <s:CheckBox id="open"/>
         </s:FormItem>
         
@@ -136,11 +138,11 @@
       
       <s:Form defaultButton="{saveButton}">
         
-        <s:FormItem label="Capture file content">
+        <s:FormItem label="{R.get('CAPTURE_FILE_CONTENT')}">
           <s:CheckBox id="capture"/>
         </s:FormItem>
         
-        <s:FormItem label="Min size" enabled="{capture.selected}">
+        <s:FormItem label="{R.get('MIN_SIZE')}" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
             <s:TextInput id="minSize" restrict="0-9" showErrorTip="true" textAlign="center"
                          widthInChars="5"/>
@@ -148,7 +150,7 @@
           </s:HGroup>
         </s:FormItem>
         
-        <s:FormItem label="Max size" enabled="{capture.selected}">
+        <s:FormItem label="{R.get('MAX_SIZE')}" enabled="{capture.selected}">
           <s:HGroup verticalAlign="middle">
             <s:TextInput id="maxSize" restrict="0-9" showErrorTip="true" textAlign="center"
                          widthInChars="5"/>
@@ -156,7 +158,7 @@
           </s:HGroup>
         </s:FormItem>
         
-        <s:FormItem label="Newer than" enabled="{capture.selected}">
+        <s:FormItem label="{R.get('NEWER_THAN')}" enabled="{capture.selected}">
           <mx:DateField id="date" width="150" editable="false" formatString="YYYY-MM-DD"
                         showToday="false"/>
         </s:FormItem>
@@ -170,11 +172,11 @@
     <fx:Array id="vals">
       <mx:StringValidator minLength="1" property="text" source="{minSize}" triggerEvent=""/>
       <mx:StringValidator minLength="1" property="text" source="{maxSize}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           source="{minSize}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           source="{maxSize}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Must be greater than min size" minValue="{minSize.text}"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_GREATER', ['\''+R.get('MIN_SIZE')+'\''])}" minValue="{minSize.text}"
                           property="text" source="{maxSize}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>

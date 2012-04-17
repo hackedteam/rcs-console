@@ -8,6 +8,7 @@
   
   <fx:Script>
     <![CDATA[
+      import locale.R;
       private function init():void
       {
         widthInput.text = module.width;
@@ -28,7 +29,7 @@
   
   <s:Form defaultButton="{saveButton}">
     
-    <s:FormItem label="Width">
+    <s:FormItem label="{R.get('WIDTH')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="widthInput" restrict="0-9" showErrorTip="true" textAlign="center"
                      widthInChars="3"/>
@@ -36,7 +37,7 @@
       </s:HGroup>
     </s:FormItem>
     
-    <s:FormItem label="Height">
+    <s:FormItem label="{R.get('HEIGHT')}">
       <s:HGroup verticalAlign="middle">
         <s:TextInput id="heightInput" restrict="0-9" showErrorTip="true" textAlign="center"
                      widthInChars="3"/>
@@ -49,10 +50,10 @@
   <fx:Declarations>
     <fx:Array id="vals">
       <mx:StringValidator minLength="1" property="text" source="{widthInput}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           source="{widthInput}" triggerEvent=""/>
       <mx:StringValidator minLength="1" property="text" source="{heightInput}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           source="{heightInput}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>

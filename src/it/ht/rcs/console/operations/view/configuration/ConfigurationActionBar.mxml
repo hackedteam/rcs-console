@@ -98,7 +98,7 @@
       private function onSave():void
       {
         saveConfig(goBackToList);
-        Alert.show("Config saved");
+        Alert.show(R.get('CONFIG_SAVED'));
       }
       
       private function saveConfig(callback:Function = null):Object
@@ -228,7 +228,10 @@
       {
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         configView.currentState = 'basic';
-        configView.basic.config = DefaultConfigBuilder.getDefaultConfig(a);
+        var newConfig:Object = DefaultConfigBuilder.getDefaultConfig(a);
+        if (a._kind == 'agent')
+          DefaultConfigBuilder.cleanPlatformConfig(a.platform, newConfig);
+        configView.basic.config = newConfig;
         configView.basic.displayConfig();
       }
     ]]>

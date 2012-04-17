@@ -9,6 +9,7 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.agent.model.Config;
@@ -41,8 +42,14 @@
         else // An Agent's config
         {
           configAsObject = JSON.parse(configAsConfig.config);
+          cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
           displayConfig();
         }
+      }
+      
+      private function cleanUnsupportedModules(platform:String, configAsObject:Object):void
+      {
+        DefaultConfigBuilder.cleanPlatformConfig(platform, configAsObject);
       }
       
       private var originalConfigAsObject:Object;

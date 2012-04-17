@@ -40,6 +40,7 @@ package it.ht.rcs.console.operations.view.evidences
     public static const EXPORT_PROGRESS:String="exportProgress";
     public static const EXPORT_COMPLETE:String="exportComplete";
     public static const EXPORT_END:String="exportEnd";
+    public static const EXPORT_ERROR:String="exportError";
 
     
     public function export(list:Vector.<Object>):void
@@ -111,7 +112,6 @@ package it.ht.rcs.console.operations.view.evidences
             exportFileCapture(evidence);
             break;
           }
-          
           break;
         
         case "mic":
@@ -180,6 +180,7 @@ package it.ht.rcs.console.operations.view.evidences
     private function onDownloadError(e:*):void
     {
      trace("Error downloading file");
+     dispatchEvent(new Event(EXPORT_ERROR));
     }
     
     private function onFileDownloaded(e:Event):void
@@ -209,6 +210,7 @@ package it.ht.rcs.console.operations.view.evidences
       file=new File(directory.nativePath +"/"+fileName);
       var content:String=getInfo(currentEvidence)
       var fileStream:FileStream=new FileStream();
+      fileStream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError)
       fileStream.open(file, FileMode.WRITE);
       fileStream.writeUTFBytes(content);
       fileStream.close();

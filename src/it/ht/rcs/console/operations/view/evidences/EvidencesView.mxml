@@ -166,7 +166,6 @@
       {
         if(!viewer.visible)
         {
-          
           viewer.currentItems=evidenceDg.selectedItems;
           viewer.currentIndex=evidenceDg.selectedIndices[0]
           viewer.visible=viewer.includeInLayout=true;
@@ -176,7 +175,6 @@
           selectedObject.push(evidenceDg.selectedItems[0]);
           actionBar.selectedObjects=selectedObject;
           notice.visible=notice.includeInLayout=false;
-          
         }
         else
         {
@@ -197,7 +195,7 @@
         
       }
       
-      private function onViewerUpdate():void
+      private function onViewerUpdate():void //TODO
       {
       trace("viewer update")
       //evidenceDg.visible=true;
@@ -225,16 +223,13 @@
       
       private function onGridDataChange():void
       {
-        /* evidenceDg.selectedItems=new Vector.<Object>
-        if(evidenceDg.selectedItems!=null)
-        actionBar.selectedObjects=evidenceDg.selectedItems; */
+       
         actionBar.selectedObjects=new Vector.<Object>
       }
       
       private function export():void
       {
-        //open popup and add listeners
-        
+
         exporter.export(evidenceDg.selectedItems)
         exporter.addEventListener(EvidenceFileExporter.EXPORT_START,onExportStart)
       }
@@ -256,7 +251,7 @@
   
   <evidences:EvidenceActionBar id="actionBar" editNote="onEditNote(event)" summary="toggleState()" counts="{EvidenceManager.instance.counts}" selectedObjects="{evidenceDg.selectedItems}" detail="toggleDetail()" export="export()"/>
   <evidences:FilterNotice id="notice" visible="{filteredById}" includeInLayout="{filteredById}" evidenceView="{this}"/>
-  <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" gridDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
+  <evidences:EvidenceGrid id="evidenceDg" selectionMode="multipleRows" itemDoubleClick="onGridDoubleClick(event)" dataChange="onGridDataChange()"/>
   <evidences:EvidenceAdvancedViewer id="viewer" visible="false" includeInLayout="false" close="onViewerClose();" dataProvider="{EvidenceManager.instance._view}" selectionChange="onViewerSelection()" update="onViewerUpdate()"/>
   <evidences:EvidenceCountPanel counts="{EvidenceManager.instance.counts}" includeIn="count" id="countPanel" width="100%"/>
   <evidences:EvidenceCounter id="counter" total="{EvidenceManager.instance.total}" filtered="{EvidenceManager.instance._view.length}" click="toggleState()"/>

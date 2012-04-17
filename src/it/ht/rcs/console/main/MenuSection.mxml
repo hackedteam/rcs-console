@@ -8,6 +8,8 @@
     <![CDATA[
       import it.ht.rcs.console.events.SectionEvent;
       
+      import locale.R;
+      
       import mx.collections.IList;
       import mx.controls.Alert;
       import mx.core.FlexGlobals;
@@ -28,10 +30,10 @@
       private var toChange:int;
       protected function onChanging(event:IndexChangeEvent):void
       {
-        if ((parentDocument.sections[parentDocument.sections.currentState] as Section).isDirty) {
+        if ((parentDocument.sections[parentDocument.sections.currentState] as Section).getDirtyState()) {
           event.preventDefault();
           toChange = event.newIndex;
-          Alert.show('Do you want to lose all the changes?', 'Dirty state', Alert.OK|Alert.CANCEL, null, confirm);
+          Alert.show(R.get('UNSAVED_CHANGES'), R.get('UNSAVED_CHANGES_TITLE'), Alert.OK|Alert.CANCEL, null, confirm);
         }
       }
       

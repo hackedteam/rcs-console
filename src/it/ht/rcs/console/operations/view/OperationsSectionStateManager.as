@@ -229,7 +229,14 @@ package it.ht.rcs.console.operations.view
           break;
         
         case 'config':
-          var agent:Agent = selectedAgent ? selectedAgent : selectedFactory;
+          var agent:Agent;
+          if (selectedFactory) {
+            agent = selectedFactory;
+            selectedAgent = null;
+          } else {
+            agent = selectedAgent;
+            selectedFactory = null;
+          }
           selectedOperation = OperationManager.instance.getItem(agent.path[0]);
           selectedTarget = TargetManager.instance.getItem(agent.path[1]);
           if(section.configView)

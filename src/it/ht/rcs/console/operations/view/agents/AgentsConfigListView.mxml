@@ -46,12 +46,12 @@
       private function refresh(e:Event=null):void
       {
         AgentManager.instance.show(section.stateManager.selectedAgent._id, function(e:ResultEvent):void {
-          section.stateManager.selectedAgent = e.result as Agent;
+          var a:Agent = e.result as Agent;
           var def:Sort = new Sort();
           def.fields = [new SortField('saved', true)];
-          section.stateManager.selectedAgent.configs.sort = def;
-          section.stateManager.selectedAgent.configs.refresh();
-          configs = section.stateManager.selectedAgent.configs;
+          a.configs.sort = def;
+          a.configs.refresh();
+          configs = a.configs;
         });
       }
       

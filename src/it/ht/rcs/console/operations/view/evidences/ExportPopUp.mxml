@@ -25,9 +25,11 @@
         _exporter.addEventListener(EvidenceFileExporter.EXPORT_PROGRESS, onExportProgress)
         _exporter.addEventListener(EvidenceFileExporter.EXPORT_COMPLETE, onExportComplete)
         _exporter.addEventListener(EvidenceFileExporter.EXPORT_END, onExportEnd)
+        _exporter.addEventListener(EvidenceFileExporter.EXPORT_ERROR, onExportError)
       }
       private function onExportStart(e:Event):void
       {
+        okBtn.visible=okBtn.enabled=false;
         statusTxt.text="Exporting file "+_exporter.currentIndex+"/"+_exporter.total;
       }
       
@@ -44,9 +46,20 @@
       
       private function onExportEnd(e:Event):void
       {
+        progressBar.setProgress(100, 100);
         statusTxt.text="Export completed"
-        PopUpManager.removePopUp(this)
-          
+        okBtn.visible=okBtn.enabled=true;
+        
+      }
+      private function onExportError(e:Event):void
+      {
+        statusTxt.text="Export completed"
+        okBtn.visible=okBtn.enabled=true;
+      }
+      
+      private function closePopUp():void
+      {
+        PopUpManager.removePopUp(this) 
       }
       
     ]]>
@@ -56,6 +69,7 @@
     <s:Label color="#ffffff" text="Exporting files..." id="statusTxt"/>
     <mx:ProgressBar id="progressBar" label="%3%%" color="#666666" fontSize="12" fontWeight="normal"
                     labelPlacement="center" mode="manual"/>
+    <s:Button label="OK" visible="false" click="closePopUp()" enabled="false" id="okBtn"/>
   </s:VGroup>
   
   <s:filters>

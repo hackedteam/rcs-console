@@ -37,7 +37,7 @@
 			import com.google.maps.overlays.GroundOverlayOptions;
 			import com.google.maps.overlays.Marker;
 			import com.google.maps.overlays.MarkerOptions;
-			
+
 			import it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.CustomMarker;
 
 			private var position:LatLng;
@@ -140,7 +140,7 @@
 						bounds.extend(coordinates);
 						//TODO
 						var circleBounds:LatLngBounds=drawCircle(_positions[i].range / 1000, coordinates);
-           bounds.union(circleBounds)
+						bounds.union(circleBounds)
 						_overlays.push(marker);
 						_markers.push(marker);
 						map.addOverlay(marker);
@@ -153,18 +153,16 @@
 
 			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
 			{
-        _scale=calculateMapScale();
-        var shape:Shape=new Shape();
-        var overlay:GroundOverlay;
-        var bounds:LatLngBounds;
-        var centrePoint:Point;
-        var topLeft:LatLng;
-        var bottomRight:LatLng;
-        var options:GroundOverlayOptions;
-        var circleWidth:Number=radiusKm * 2 * _scale;
-        
-        
-        
+				_scale=calculateMapScale();
+				var shape:Shape=new Shape();
+				var overlay:GroundOverlay;
+				var bounds:LatLngBounds;
+				var centrePoint:Point;
+				var topLeft:LatLng;
+				var bottomRight:LatLng;
+				var options:GroundOverlayOptions;
+				var circleWidth:Number=radiusKm * 2 * _scale;
+
 				if (isNaN(radiusKm) || radiusKm <= 0)
 				{
 					return new LatLngBounds();
@@ -172,46 +170,21 @@
 
 				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
 				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
-
 				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
 				shape.graphics.endFill();
-
 				centrePoint=_mapPane.fromLatLngToPaneCoords(position);
 				topLeft=_mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
 				bottomRight=_mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
 				bounds=new LatLngBounds(topLeft, bottomRight);
+				options=new GroundOverlayOptions();
+				options.applyProjection=true;
+				_circleOverlay=new GroundOverlay(shape, bounds, options);
+				map.addOverlay(_circleOverlay);
+				_overlays.push(_circleOverlay);
+				_circles.push(_circleOverlay);
 
-				/*  if (_circleOverlay != null)
-				 {
-					 map.removeOverlay(_circleOverlay);
 
-					 _circleOverlay = null;
-				 }
-					*/
-				if (circleWidth < map.height)
-				{
-          trace("need to zoom in")
-					options=new GroundOverlayOptions();
-					options.applyProjection=true;
-					_circleOverlay=new GroundOverlay(shape, bounds, options);
-					map.addOverlay(_circleOverlay);
-					_overlays.push(_circleOverlay)
-					_circles.push(_circleOverlay)
-				}
-				else
-				{
-          trace("need to zoom out") // the circle has gone outside the viewable map area.
-					options=new GroundOverlayOptions();
-					options.applyProjection=true;
-					_circleOverlay=new GroundOverlay(shape, bounds, options);
-					map.addOverlay(_circleOverlay);
-					_overlays.push(_circleOverlay)
-					_circles.push(_circleOverlay) 
-            
-            
-				}
-        
-        return bounds
+				return bounds
 			}
 
 			private function calculateMapScale():Number
@@ -232,7 +205,6 @@
 			private function onMapZoomed(event:MapEvent):void
 			{
 				_scale=calculateMapScale();
-
 			}
 
 			public function get ready():Boolean
@@ -250,7 +222,7 @@
 						var marker:Marker=_markers[i] as Marker;
 						var circle:GroundOverlay=_circles[i] as GroundOverlay;
 						var customMarker:CustomMarker=marker.getOptions().icon as CustomMarker;
-            
+
 						if (customMarker.data == _selectedPosition.evidence)
 						{
 							customMarker.alpha=1;

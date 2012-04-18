@@ -17,6 +17,7 @@
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.Size;
 			import it.ht.rcs.console.utils.StringUtils;
+      import it.ht.rcs.console.utils.FileUtils;
 
 			private var _evidence:Object;
 			private var file:flash.filesystem.File;
@@ -26,11 +27,15 @@
 
 			[Bindable]
 			private var size:String;
+      
+      [Bindable]
+      private var accessMask:String;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
 				_evidence=value;
+        accessMask=FileUtils.getAccessMask(value.data.access);
 				if (isNaN(evidence.data.size))
 				{
 					size="(unknown)"
@@ -156,9 +161,7 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Size: &lt;/b&gt;'+size, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
-	<s:Line width="100%"
-					visible="{evidence.data.type=='capture'}"
-					includeInLayout="{evidence.data.type=='capture'}">
+	<s:Line width="100%">
 		<s:stroke>
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
@@ -170,4 +173,9 @@
               click="getFile()"/>
     <s:Label id="downloadStatusTxt"/>
   </s:HGroup>
+  <s:RichText id="accessTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Access Mask: &lt;/b&gt;'+accessMask, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{evidence.data.type=='open'}"
+              includeInLayout="{evidence.data.type=='open'}"/>
 </s:BorderContainer>

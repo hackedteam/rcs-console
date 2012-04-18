@@ -28,14 +28,7 @@
 				_evidence=value;
 				if (!evidence)
 					return;
-				if (hasState(evidence.type))
-				{
-					currentState=evidence.type;
-				}
-				else
-				{
-					currentState="none";
-				}
+				
 			}
 
 			public function get evidence():Evidence
@@ -80,6 +73,7 @@
 			}
 		]]>
 	</fx:Script>
+  
 
 	<s:Line left="0"
 					top="0"
@@ -121,6 +115,9 @@
 						height="100%"
 						horizontalAlign="center">
 		<s:Form visible="{evidence != null}">
+      <s:layout>
+        <s:FormLayout/>
+      </s:layout>  
 			<s:FormItem label="{R.get('DATE_ACQUIRED')}">
 				<s:RichEditableText editable="false"
 														text="{TimeUtils.timestampFormatter(evidence.da * 1000)}"/>
@@ -140,27 +137,17 @@
 											 source="{dot}"
 											 visible="{evidence.blo}"/>
 			</s:FormItem>
+      <s:FormItem label="{R.get('RELEVANCE')}" skinClass="it.ht.rcs.console.skins.EvidenceFormItemSkin">
+        <utils:TagImage value="{evidence.rel}"/>
+      </s:FormItem>
 
-			<s:HGroup verticalAlign="middle"
-								paddingBottom="5"
-								paddingLeft="5"
-								paddingRight="5"
-								paddingTop="5"
-								gap="8"
-								width="100%">
-				<s:Label text="{R.get('RELEVANCE')}"
-								 fontWeight="bold"
-								 textAlign="right"
-								 width="29%"/>
-
-				<utils:TagImage value="{evidence.rel}"/>
-			</s:HGroup>
 		</s:Form>
 		<s:Line width="90%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
+    <s:Spacer height="20"/>
 		<s:Label id="hiddenFocusTxt"
 						 visible="false"
 						 includeInLayout="false"/>
@@ -179,25 +166,4 @@
 									width="100%"/>
 		</s:HGroup>
 	</s:VGroup>
-	<s:states>
-		<s:State name="none"/>
-		<s:State name="addressbook"/>
-		<s:State name="application"/>
-		<s:State name="calendar"/>
-		<s:State name="call"/>
-		<s:State name="camera"/>
-		<s:State name="chat"/>
-		<s:State name="clipboard"/>
-		<s:State name="device"/>
-		<s:State name="file"/>
-		<s:State name="keylog"/>
-		<s:State name="message"/>
-		<s:State name="mic"/>
-		<s:State name="mouse"/>
-		<s:State name="password"/>
-		<s:State name="position"/>
-		<s:State name="print"/>
-		<s:State name="screenshot"/>
-		<s:State name="url"/>
-	</s:states>
 </s:Group>

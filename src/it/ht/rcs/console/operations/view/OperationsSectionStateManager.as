@@ -28,6 +28,9 @@ package it.ht.rcs.console.operations.view
     
     [Bindable]
     public var view:ListCollectionView;
+    
+    [Bindable]
+    public var tableView:ListCollectionView;
 
     [Bindable] public var selectedOperation:Operation;
     [Bindable] public var selectedTarget:Target;
@@ -38,6 +41,7 @@ package it.ht.rcs.console.operations.view
     private var section:OperationsSection;
     
     private var customTypeSort:Sort;
+    private var tableSort:Sort;
     private var collator:SortingCollator;
     
     public static var currInstance:OperationsSectionStateManager;
@@ -52,6 +56,9 @@ package it.ht.rcs.console.operations.view
       
       customTypeSort = new Sort();
       customTypeSort.compareFunction = customTypeCompareFunction;
+      
+      tableSort = new Sort();
+      tableSort.compareFunction = customTypeCompareFunction;
     }
     
     private function getRealItem(event:SectionEvent):*
@@ -249,9 +256,6 @@ package it.ht.rcs.console.operations.view
           break;
 	
         default:
-//          clearVars();
-//          CurrentManager = null;
-//          currentFilter = null;
           break;
       }
       if (CurrentManager) {
@@ -271,6 +275,17 @@ package it.ht.rcs.console.operations.view
       view = getView();
       removeCustomTypes(view);
       addCustomTypes(view);
+      
+      if (CurrentManager != null)
+        tableView = CurrentManager.instance.getView(tableSort, tableFilterFunction);
+    }
+    
+    private function tableFilterFunction(item:Object):Boolean
+    {
+      if (item.hasOwnProperty('customType')) return false;
+      else if (currentFilter != null)
+        return currentFilter(item);
+      else return true;
     }
     
     private function removeCustomTypes(list:ListCollectionView):void

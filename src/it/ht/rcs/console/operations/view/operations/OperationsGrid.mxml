@@ -35,7 +35,16 @@
           return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
         } catch (e:Error) {}
         return '';
-       
+      }
+      
+      private function sizeSortCompareFunction(obj1:Object, obj2:Object, column:GridColumn):int
+      {
+        try {
+          if ((obj1.stat.size+obj1.stat.grid_size) == (obj2.stat.size+obj2.stat.grid_size)) return 0;
+          else if ((obj1.stat.size+obj1.stat.grid_size) > (obj2.stat.size+obj2.stat.grid_size)) return 1;
+          else return -1;
+        } catch (e:Error) {}
+        return 0;
       }
     ]]>
   </fx:Script>
@@ -53,7 +62,7 @@
       
       <s:GridColumn dataField="stat.last_child" headerText="{R.get('LAST_TARGET')}" labelFunction="targetLabel"/>
 
-      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80"/>
+      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80" sortCompareFunction="sizeSortCompareFunction"/>
 
     </s:ArrayList>
   </s:columns>

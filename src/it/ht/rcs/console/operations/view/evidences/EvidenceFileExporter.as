@@ -21,6 +21,7 @@ package it.ht.rcs.console.operations.view.evidences
   
   import mx.collections.ArrayCollection;
   
+  
   public class EvidenceFileExporter extends EventDispatcher
   {
     private var directory:File;
@@ -343,7 +344,7 @@ package it.ht.rcs.console.operations.view.evidences
         case "file":
           info="File: "+"\n\n";
           info+="Program: "+evidence.data.program+"\n";
-          info+="Path: "+evidence.data.program+"\n";
+          info+="Path: "+evidence.data.path+"\n";
           info+="Size: "+Size.toHumanBytes(evidence.data.size)+"\n";
           break;
         

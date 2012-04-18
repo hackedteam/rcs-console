@@ -12,6 +12,8 @@
       import it.ht.rcs.console.utils.DateUtils;
       import it.ht.rcs.console.utils.TimeUtils;
       
+      import locale.R;
+      
       import mx.events.ValidationResultEvent;
       import mx.formatters.DateFormatter;
       
@@ -49,7 +51,7 @@
         }
         
         if (showMaxSize)
-          maxSize.text = String(module[property].filter.maxsize / 1000);
+          maxSize.text = module[property].filter.maxsize ? String(module[property].filter.maxsize / 1000) : '100';
       }
       
       public function save():void
@@ -79,7 +81,9 @@
       
       public function isValid():Boolean
       {
-        if (forever.selected) return true;
+        if (!isEnabled.selected) return true;
+        
+        if (forever.selected) return (!showMaxSize || maxSizeVal.isValid());
         
         computeFromToTimeDifference();
         var valid:Boolean = (!showMaxSize || maxSizeVal.isValid()) && dateVal.validate(difference).type == ValidationResultEvent.VALID;
@@ -87,11 +91,11 @@
       }
       
       [Bindable]
-      private var difference:int;
+      private var difference:Number;
       private function computeFromToTimeDifference():void
       {
-        var f:int = DateUtils.parseDateTimeString(formatter.format(fromDate.selectedDate) + ' ' + fromTime.time).time;
-        var t:int = DateUtils.parseDateTimeString(formatter.format(toDate.selectedDate) + ' ' + toTime.time).time;
+        var f:Number = DateUtils.parseDateTimeString(formatter.format(fromDate.selectedDate) + ' ' + fromTime.time).time;
+        var t:Number = DateUtils.parseDateTimeString(formatter.format(toDate.selectedDate) + ' ' + toTime.time).time;
         difference = t - f;
       }
     ]]>
@@ -102,27 +106,27 @@
   
   <s:Form>
     
-    <s:FormItem label="Enabled">
+    <s:FormItem label="{R.get('ENABLED')}">
       <s:CheckBox id="isEnabled"/>
     </s:FormItem>
     
-    <s:FormItem label="From" enabled="{isEnabled.selected}">
+    <s:FormItem label="{R.get('FROM')}" enabled="{isEnabled.selected}">
       <mx:DateField id="fromDate" width="151" editable="false" formatString="YYYY-MM-DD"
                     showToday="false" yearNavigationEnabled="true"/>
       <utils:TimeField id="fromTime"/>
     </s:FormItem>
     
-    <s:FormItem label="To" enabled="{isEnabled.selected}">
+    <s:FormItem label="{R.get('TO')}" enabled="{isEnabled.selected}">
       <s:VGroup>
-        <s:RadioButton id="forever" label="Forever" group="{dateGroup}" selected="true"/>
-        <s:RadioButton id="notForever" label="Date" group="{dateGroup}"/>
+        <s:RadioButton id="forever" label="{R.get('FOREVER')}" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="notForever" label="{R.get('DATE')}" group="{dateGroup}"/>
         <mx:DateField id="toDate" width="151" editable="false" enabled="{notForever.selected}"
                       formatString="YYYY-MM-DD" showToday="true" yearNavigationEnabled="true"/>
         <utils:TimeField id="toTime" enabled="{notForever.selected}"/>
       </s:VGroup>
     </s:FormItem>
     
-    <s:FormItem visible="{showMaxSize}" label="Max size" enabled="{isEnabled.selected}">
+    <s:FormItem visible="{showMaxSize}" label="{R.get('MAX_SIZE')}" enabled="{isEnabled.selected}">
       <s:HGroup id="hgr" verticalAlign="middle">
         <s:TextInput id="maxSize" restrict="0-9" showErrorTip="true" textAlign="center"
                      widthInChars="3"/>
@@ -136,12 +140,12 @@
     <s:RadioButtonGroup id="dateGroup"/>
     <fx:Array id="vals">
       <mx:StringValidator minLength="1" property="text" source="{maxSize}" triggerEvent=""/>
-      <mx:NumberValidator lowerThanMinError="Value must be more than 0" minValue="1" property="text"
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
                           source="{maxSize}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="maxSizeVal" validators="{vals}"/>
     <mx:NumberValidator id="dateVal" listener="{toDate}"
-                        lowerThanMinError="Date to must me greater than date from" minValue="0"
+                        lowerThanMinError="{R.get('VALIDATION_MIN', ['\''+R.get('FROM')+'\''])}" minValue="0"
                         triggerEvent=""/>
   </fx:Declarations>
   

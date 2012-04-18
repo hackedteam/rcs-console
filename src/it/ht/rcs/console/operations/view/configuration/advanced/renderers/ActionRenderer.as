@@ -17,7 +17,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   import spark.components.BorderContainer;
   import spark.components.Group;
   import spark.components.Label;
-  import spark.components.VGroup;
   import spark.primitives.BitmapImage;
 
   public class ActionRenderer extends Group implements Linkable

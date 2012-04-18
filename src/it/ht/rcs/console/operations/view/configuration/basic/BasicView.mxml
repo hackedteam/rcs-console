@@ -26,15 +26,8 @@
       {
         isMobile = config.globals.type.toLowerCase() == 'mobile';
         
-        call.selected       = hasAction('call');
-        calendar.selected   = hasAction('calendar') || hasAction('addressbook');
-        messages.selected   = hasAction('messages') || hasAction('chat');
-        url.selected        = hasAction('url');
-        file.selected       = hasAction('file');
-        keylog.selected     = hasAction('keylog');
-        screenshot.selected = hasLoop('SCREENSHOT');
-        camera.selected     = hasLoop('CAMERA');
-        position.selected   = hasLoop('POSITION');
+        enableModules();
+        selectModules();
         
         var fileModule:Object = getModule('file');
         if (file.selected) {
@@ -73,6 +66,32 @@
           sync.minutes.text = "10";
           sync.host.selectedItem = entryPoints.length > 0 ? entryPoints.getItemAt(0) : null;
         }
+      }
+      
+      private function enableModules():void
+      {
+        call.enabled       = getModule('call') != null;
+        calendar.enabled   = getModule('calendar') != null || getModule('addressbook') != null;
+        messages.enabled   = getModule('messages') != null || getModule('chat') != null;
+        url.enabled        = getModule('url') != null;
+        file.enabled       = getModule('file') != null;
+        keylog.enabled     = getModule('keylog') != null;
+        screenshot.enabled = getModule('screenshot') != null;
+        camera.enabled     = getModule('camera') != null;
+        position.enabled   = getModule('position') != null;
+      }
+      
+      private function selectModules():void
+      {
+        call.selected       = call.enabled ? hasAction('call') : false;
+        calendar.selected   = calendar.enabled ? (hasAction('calendar') || hasAction('addressbook')) : false;
+        messages.selected   = messages.enabled ? (hasAction('messages') || hasAction('chat')) : false;
+        url.selected        = url.enabled ? hasAction('url') : false;
+        file.selected       = file.enabled ? hasAction('file') : false;
+        keylog.selected     = keylog.enabled ? hasAction('keylog') : false;
+        screenshot.selected = screenshot.enabled ? hasLoop('SCREENSHOT') : false;
+        camera.selected     = camera.enabled ? hasLoop('CAMERA') : false;
+        position.selected   = position.enabled ? hasLoop('POSITION') : false;
       }
       
       private function hasLoop(loop:String):Boolean

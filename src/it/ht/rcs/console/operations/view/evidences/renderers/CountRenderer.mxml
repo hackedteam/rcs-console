@@ -15,8 +15,13 @@
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.evidences.renderers.EvidenceIcons;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
+      import locale.R;
+      
+      import mx.controls.Alert;
       import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
       import mx.events.FileEvent;
       
       override public function set data(value:Object):void
@@ -28,9 +33,18 @@
       
       private function onClick(event:MouseEvent):void
       {
-        setFilter();
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
-        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+        if ((data.count as Number) > 10000)
+          AlertPopUp.show(R.get('HIGH_EVIDENCE_NUMBER', [data.count]), R.get('WARNING'), Alert.OK | Alert.CANCEL, null, confirm);
+        else confirm();
+      }
+      
+      private function confirm(event:CloseEvent=null):void
+      {
+        if (event == null || event.detail == Alert.OK) {
+          setFilter();
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+        }
       }
       
       public function setFilter():void

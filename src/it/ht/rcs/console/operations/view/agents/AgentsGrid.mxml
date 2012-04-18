@@ -2,7 +2,7 @@
 <s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
             xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
-            width="100%" height="100%" doubleClickEnabled="true" sortableColumns="false">
+            width="100%" height="100%" doubleClickEnabled="true" sortableColumns="true">
   
   <fx:Script>
     <![CDATA[
@@ -28,7 +28,22 @@
           return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
         } catch (e:Error) {}
         return '';
-
+      }
+      
+      private function sizeSortCompareFunction(obj1:Object, obj2:Object, column:GridColumn):int
+      {
+        try {
+          if (obj1._kind == 'agent' && obj2._kind == 'agent') {
+            if ((obj1.stat.size+obj1.stat.grid_size) == (obj2.stat.size+obj2.stat.grid_size)) return 0;
+            else if ((obj1.stat.size+obj1.stat.grid_size) > (obj2.stat.size+obj2.stat.grid_size)) return 1;
+            else return -1;
+          } else if (obj1._kind == 'factory' && obj2._kind == 'factory')
+            return 0;
+          else if (obj1._kind == 'factory')
+            return -1;
+          else return 1;
+        } catch (e:Error) {}
+        return 0;
       }
     ]]>
   </fx:Script>
@@ -47,7 +62,7 @@
       <s:GridColumn dataField="stat.last_sync" headerText="{R.get('LAST_SYNC')}" labelFunction="dateLabel" width="130" resizable="false"/>
       <s:GridColumn dataField="ident" headerText="{R.get('IDENT')}" width="120" resizable="false"/>
       <s:GridColumn dataField="instance" headerText="{R.get('INSTANCE')}" width="280" resizable="false"/>
-      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80"/>
+      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80" sortCompareFunction="sizeSortCompareFunction"/>
       
     </s:ArrayList>
   </s:columns>

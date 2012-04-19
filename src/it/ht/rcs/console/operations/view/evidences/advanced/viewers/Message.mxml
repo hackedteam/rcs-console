@@ -39,7 +39,7 @@
 				{
 					if (value.data.type == "mail")
 					{
-						content="";
+					
 						var id:String=encodeURIComponent(value._id);
 						var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 
@@ -52,7 +52,8 @@
 					}
 					else if (value.data.type == "sms")
 					{
-						content=value.data.content;
+						content=value.data.content || "";
+            
 					}
 
 				}
@@ -66,6 +67,7 @@
 				{
 					hasImages=true;
 				}
+        if(content==null) content="";
 				content=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
 
 				html.htmlText=content;

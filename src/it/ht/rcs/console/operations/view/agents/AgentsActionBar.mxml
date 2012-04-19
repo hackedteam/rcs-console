@@ -5,12 +5,14 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:HGroup visible="{section.currentState == 'singleTarget'}" gap="0"
-            includeInLayout="{section.currentState == 'singleTarget'}">
+  <s:HGroup visible="{section.currentState == 'singleTarget' || section.currentState == 'allAgents'}" gap="0"
+            includeInLayout="{section.currentState == 'singleTarget' || section.currentState == 'allAgents'}">
     
     <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
               enabled="{Console.currentSession.user.is_tech()}"
-              icon="@Embed('/img/NEW/newFactory.png')"/>
+              icon="@Embed('/img/NEW/newFactory.png')"
+              visible="{section.currentState == 'singleTarget'}"
+              includeInLayout="{section.currentState == 'singleTarget'}"/>
     
     <s:Button label="{R.get('EDIT')}" click="onEditClick()"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
@@ -30,20 +32,11 @@
               icon="@Embed('/img/NEW/alert.png')" click="addToAlert(event)"
               enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"/>
     
-    
     <actionbar:Separator/>
     
     <s:Button label="{R.get('MOVE')}"
               icon="@Embed('/img/NEW/move.png')" click="moveAgent(event)"
               enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null &amp;&amp; selectedObject is Agent}"/>
-    
-    <actionbar:Separator/>
-    
-    <s:Button label="{R.get('EVIDENCE_IMPORT')}" click="importEvidence(event)"
-              icon="@Embed('/img/NEW/import.png')" enabled="{Console.currentSession.user.is_tech()}"/>
-    
-    <s:Button label="{R.get('EVIDENCE_EXPORT')}"
-              icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
     
     <actionbar:Separator/>
     
@@ -56,6 +49,19 @@
     
   </s:HGroup>
   
+  
+  <s:HGroup visible="{section.currentState == 'singleTarget'}" gap="0"
+            includeInLayout="{section.currentState == 'singleTarget'}">
+    
+    <actionbar:Separator/>
+    
+    <s:Button label="{R.get('EVIDENCE_IMPORT')}" click="importEvidence(event)"
+              icon="@Embed('/img/NEW/import.png')" enabled="{Console.currentSession.user.is_tech()}"/>
+    
+    <s:Button label="{R.get('EVIDENCE_EXPORT')}"
+              icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
+  
+  </s:HGroup>
   
   <s:HGroup visible="{section.currentState == 'singleAgent'}" gap="0"
             includeInLayout="{section.currentState == 'singleAgent'}">

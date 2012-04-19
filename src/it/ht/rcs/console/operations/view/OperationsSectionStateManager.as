@@ -1,5 +1,7 @@
 package it.ht.rcs.console.operations.view
 {
+  import flash.utils.Dictionary;
+  
   import it.ht.rcs.console.accounting.controller.UserManager;
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
@@ -19,6 +21,7 @@ package it.ht.rcs.console.operations.view
   import mx.collections.ListCollectionView;
   
   import spark.collections.Sort;
+  import spark.collections.SortField;
   import spark.components.TextInput;
   import spark.globalization.SortingCollator;
 
@@ -201,6 +204,7 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'allAgents';
           CurrentManager = AgentManager;
           currentFilter = searchFilterFunction;
+          prepareAgentsDictionary();
           update();
           break;
         
@@ -217,6 +221,7 @@ package it.ht.rcs.console.operations.view
           section.currentState = 'singleTarget';
           CurrentManager = AgentManager;
           currentFilter = singleTargetFilterFunction;
+          prepareAgentsDictionary();
           update();
           break;
         case 'singleAgent':
@@ -274,9 +279,12 @@ package it.ht.rcs.console.operations.view
       view = getView();
       removeCustomTypes(view);
       addCustomTypes(view);
+      //view.refresh();
       
-      if (CurrentManager != null)
+      if (CurrentManager != null) {
         tableView = CurrentManager.instance.getView(tableSort, tableFilterFunction);
+        tableView.refresh();
+      }
     }
     
     private function tableFilterFunction(item:Object):Boolean
@@ -322,7 +330,6 @@ package it.ht.rcs.console.operations.view
         lcv = new ListCollectionView(new ArrayList());
         lcv.sort = customTypeSort;
         lcv.filterFunction = currentFilter;
-        lcv.refresh();
       }
       return lcv;
     }
@@ -337,14 +344,12 @@ package it.ht.rcs.console.operations.view
     private function customTypeCompareFunction(a:Object, b:Object, fields:Array=null):int
     {
       if (!a && !b) return  0;
-      if ( a && !b) return  1;
-      if (!a &&  b) return -1;
+      if ( a && !b) return -1;
+      if (!a &&  b) return  1;
       
       var aIsCustom:Boolean  = a.hasOwnProperty('customType');
-      var aIsFactory:Boolean = a._kind == 'factory';
       var bIsCustom:Boolean  = b.hasOwnProperty('customType');
-      var bIsFactory:Boolean = b._kind == 'factory';
-
+      
       if (aIsCustom && bIsCustom) {
         var distance:int = a.order - b.order;
         return distance / Math.abs(distance);
@@ -352,10 +357,50 @@ package it.ht.rcs.console.operations.view
       if (aIsCustom) return -1;
       if (bIsCustom) return  1;
       
-      if ((aIsFactory && bIsFactory) || (!aIsFactory && !bIsFactory))
-        return collator.compare(a.name, b.name);
+      var aIsAgent:Boolean = a is Agent;
+      var bIsAgent:Boolean = b is Agent;
       
-      return aIsFactory ? -1 : 1;
+      if (aIsAgent && bIsAgent) {
+        
+        var aIsFactory:Boolean = a._kind == 'factory';
+        var bIsFactory:Boolean = b._kind == 'factory';
+        
+        if (aIsFactory && bIsFactory)
+          return collator.compare(a.name, b.name);
+        
+        if (!aIsFactory && !bIsFactory) {
+          if (a.ident == b.ident)
+            return collator.compare(a.name, b.name);
+          return collator.compare(getFactory(a.ident).name, getFactory(b.ident).name);
+        }
+        
+        if (aIsFactory && !bIsFactory) {
+          if (a.ident == b.ident) return -1;
+          return collator.compare(a.name, getFactory(b.ident).name);
+        }
+        
+        if (!aIsFactory && bIsFactory) {
+          if (a.ident == b.ident) return 1;
+          return collator.compare(getFactory(a.ident).name, b.name);
+        }
+        
+      }
+      
+      return collator.compare(a.name, b.name);
+      
+    }
+    
+    private var agentsDict:Dictionary;
+    private function prepareAgentsDictionary():void {
+      agentsDict = new Dictionary(true);
+      for each (var agent:Object in AgentManager.instance.getView())
+        if (agent is Agent && agent._kind == 'factory')
+          agentsDict[agent.ident] = agent;
+    }
+    
+    private function getFactory(ident:String):Object {
+      var f:Agent = agentsDict[ident];
+      return f ? f : {name: ''};
     }
     
     // This reference is injected by the action bars, when they are displayed

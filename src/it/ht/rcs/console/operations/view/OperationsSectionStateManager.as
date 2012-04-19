@@ -7,7 +7,6 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
-  import it.ht.rcs.console.evidence.model.Evidence;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
@@ -354,7 +353,7 @@ package it.ht.rcs.console.operations.view
       if (bIsCustom) return  1;
       
       if ((aIsFactory && bIsFactory) || (!aIsFactory && !bIsFactory))
-        return collator.compare(a.name, b.name); // 0
+        return collator.compare(a.name, b.name);
       
       return aIsFactory ? -1 : 1;
     }

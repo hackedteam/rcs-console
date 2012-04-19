@@ -21,6 +21,8 @@
       
       import mx.collections.ArrayList;
       
+      import spark.filters.ColorMatrixFilter;
+      
       public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
       public static var ns:Namespace = appDescriptor.namespace();
       
@@ -47,7 +49,7 @@
         /* start maximized on small screen */
         if (Screen.mainScreen.bounds.width <= 1280) {
           stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
-          parentApplication.gripper.visible = false;
+          gripper.visible = false;
         }
         
         NativeCursor.registerCursors();
@@ -62,6 +64,21 @@
         currentState = 'loggedOut';
         if (mainContainer) // can be null if quitting before first login
           mainContainer.removeAllElements();
+      }
+      
+      public function toggleContrast():void
+      {
+        if (filters == null || filters.length == 0) {
+          var matrix:Array = new Array();
+          matrix = matrix.concat([1.5,   0,   0, 0, -200]); // red
+          matrix = matrix.concat([0,   1.5,   0, 0, -200]); // green
+          matrix = matrix.concat([0,     0, 1.5, 0, -200]); // blue
+          matrix = matrix.concat([0,     0,   0, 1,    0]); // alpha
+          var contrastFilter:ColorMatrixFilter = new ColorMatrixFilter(matrix);
+          filters = [contrastFilter];
+        } else {
+          filters = null;
+        }
       }
     ]]>
   </fx:Script>

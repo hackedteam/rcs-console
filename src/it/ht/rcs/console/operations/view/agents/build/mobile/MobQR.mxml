@@ -87,11 +87,23 @@
       
       private function collName(o:Object):String
       {
-        // TODO: instead of this check, filter only valid collectors
-        if (o != null && o['address'] != '')
+        if (o == null)
+          return 'invalid address';
+        
+        if (o.hasOwnProperty('address') && o['address'] != '')
           return "http://" + o['address']  + '/';
         
-        return 'invalid address';
+        return o.toString();
+      }
+      
+      private function complete_with_slash(url:String):String
+      {
+        var ret:String = url;
+        
+        if (url.charAt(url.length-1) != '/')
+          ret += '/';
+        
+        return ret;
       }
       
       protected function create():void
@@ -127,7 +139,7 @@
         }
         
         params['factory'] = {_id: parentDocument.factory._id};
-        params['generate']['link'] = url.textInput.text + appname.text;
+        params['generate']['link'] = complete_with_slash(url.textInput.text) + appname.text;
         
         DownloadManager.instance.createTask("build", parentDocument.factory.name + '_qrcode.zip', params, onSuccess, onFailure);
       }

@@ -109,6 +109,17 @@
         return o.toString();
       }
       
+      private function complete_with_slash(url:String):String
+      {
+        var ret:String = url;
+        
+        if (url.charAt(url.length-1) != '/')
+          ret += '/';
+        
+        return ret;
+      }
+
+      
       protected function send():void
       {        
 
@@ -149,7 +160,7 @@
         }
         
         params['deliver']['number'] = number.text;
-        params['deliver']['link'] = url.textInput.text + appname.text;
+        params['deliver']['link'] = complete_with_slash(url.textInput.text) + appname.text;
         
         if (servindication.selected)
           params['deliver']['type'] = 'si';

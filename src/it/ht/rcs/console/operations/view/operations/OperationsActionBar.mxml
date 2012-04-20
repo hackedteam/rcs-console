@@ -11,6 +11,9 @@
   <s:Button label="{R.get('EDIT')}" click="onEditClick()"
             enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/edit.png')"/>
   
+  <s:Button label="{R.get('CLOSE')}" click="onCloseClick()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status=='open'}" icon="@Embed('/img/NEW/paperclose.png')"/>
+  
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
             enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
@@ -58,6 +61,17 @@
         popup.operation = selectedObject as Operation;
         popup.currentState = OperationsForm.EDIT;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onCloseClick():void
+      {
+        var operation:Operation= selectedObject as Operation;
+        AlertPopUp.show(R.get('CONFIRM_OPERATION_CLOSE', [operation.name]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              operation.status='closed';
+          }, null, AlertPopUp.NO);
       }
       
       private function onDeleteClick():void

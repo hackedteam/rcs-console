@@ -13,6 +13,10 @@
             enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/edit.png')"/>
   
+  <s:Button label="{R.get('CLOSE')}" click="onCloseClick()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
+            icon="@Embed('/img/NEW/paperclose.png')"/>
+  
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
@@ -69,6 +73,17 @@
         popup.target = selectedObject as Target;
         popup.currentState = TargetsForm.EDIT;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onCloseClick():void
+      {
+        var target:Target= selectedObject as Target;
+        AlertPopUp.show(R.get('CONFIRM_TARGET_CLOSE', [target.name]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+            target.status='closed';
+          }, null, AlertPopUp.NO);
       }
       
       private function onDeleteClick():void

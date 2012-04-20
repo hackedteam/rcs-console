@@ -18,6 +18,10 @@
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
               icon="@Embed('/img/NEW/edit.png')"/>
     
+    <s:Button label="{R.get('CLOSE')}" click="onCloseClick()"
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject.status=='open' &amp;&amp; selectedObject is Agent}" 
+              icon="@Embed('/img/NEW/paperclose.png')"/>
+    
     <s:Button label="{R.get('DELETE')}" click="onDeleteClick(event)"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}" 
               icon="@Embed('/img/NEW/delete_32.png')"/>
@@ -140,6 +144,17 @@
           popup2.currentState = AgentsForm.EDIT;
           PopUpManager.centerPopUp(popup2);
         }
+      }
+      
+      private function onCloseClick():void
+      {
+        var message:String=selectedObject._kind == 'agent'?R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]):R.get('CONFIRM_FACTORY_DELETION', [selectedObject.name])
+        AlertPopUp.show(message, R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              selectedObject.status='closed';
+          }, null, AlertPopUp.NO);
       }
       
       private function onDeleteClick(event:MouseEvent):void

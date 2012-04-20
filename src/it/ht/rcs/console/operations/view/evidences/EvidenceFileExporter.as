@@ -166,6 +166,9 @@ package it.ht.rcs.console.operations.view.evidences
         case "url":
           exportText(evidence);
           break;
+        
+        default:
+         next();
       }
     
     }

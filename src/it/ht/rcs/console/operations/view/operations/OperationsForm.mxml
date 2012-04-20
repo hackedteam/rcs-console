@@ -14,8 +14,11 @@
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operation.model.Operation;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
+      
+      import mx.events.CloseEvent;
       
       public static const CREATE:String = 'create';
       public static const EDIT:String = 'edit';
@@ -35,19 +38,36 @@
       
       private function onSave(event:SaveEvent):void
       {
+        
         if (hasValidationErrors())
           return;
         
-        operation.name = operationName.text;
-        operation.desc = desc.text;
-        operation.contact = contact.text;
-        operation.group_ids = groups.dataProvider.toArray();
-        operation.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
+        if(currentState == EDIT && status.selectedItem.label.toLowerCase() != operation.status)
+        {
+          AlertPopUp.show(R.get('CONFIRM_OPERATION_CLOSE', [operation.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+              {doSave();close()}
+            }, null, AlertPopUp.NO);
+          return;
+        }
+          
+        doSave();
         
         if (currentState == CREATE)
           OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(); });
         else
           close();
+      }
+      
+      private function doSave():void
+      {
+        operation.name = operationName.text;
+        operation.desc = desc.text;
+        operation.contact = contact.text;
+        operation.group_ids = groups.dataProvider.toArray();
+        operation.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
       }
       
       private function hasValidationErrors():Boolean

@@ -36,12 +36,12 @@
               status.selectedItem = s;
         }
         
-        opName.setFocus();
+        agentName.setFocus();
       }
       
       private function onSave(event:SaveEvent):void
       {
-        if(currentState == EDIT && status.selectedItem.label.toLowerCase() != agent.status)
+        if(currentState == EDIT && getStatus() != agent.status)
         {
           AlertPopUp.show(R.get('CONFIRM_AGENT_CLOSE', [agent.name]), R.get('CONFIRM'),
             AlertPopUp.YES|AlertPopUp.NO, null,
@@ -56,25 +56,29 @@
         close();
       }
       
+      private function getStatus():String
+      {
+        return status.selectedIndex == 0 ? 'open' : 'closed';
+      }
+      
       private function doSave():void
       {
-        agent.name = opName.text;
+        agent.name = agentName.text;
         agent.desc = desc.text;
         agent.type = type.selectedItem.label.toLowerCase();
-        agent.status = status.selectedItem.label.toLowerCase();
+        agent.status = getStatus();
       }
     ]]>
   </fx:Script>
   
   <utils:states>
-    <s:State name="create"/>
     <s:State name="edit"/>
   </utils:states>
   
   <s:Form width="100%" defaultButton="{saveButton}">
     
     <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="opName" width="250" text="{agent.name}" restrict="A-Za-z0-9'\-_ " maxChars="20"/>
+      <s:TextInput id="agentName" width="250" text="{agent.name}" restrict="A-Za-z0-9'\-_ " maxChars="20"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('DESCRIPTION')}">

@@ -189,8 +189,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       for each (var action:Object in config.actions) {
         for each (var subaction:Object in action.subactions) {
           if (subaction.action == 'event') {
-            if (subaction.status == 'enable'  && subaction.enable  > index) subaction.enable  = subaction.enable  - 1;
-            if (subaction.status == 'disable' && subaction.disable > index) subaction.disable = subaction.disable - 1;
+            if (subaction.status == 'enable'  && subaction.event > index) subaction.event = subaction.event - 1;
+            if (subaction.status == 'disable' && subaction.event > index) subaction.event = subaction.event - 1;
           }
         }
       }

@@ -18,14 +18,16 @@
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
               icon="@Embed('/img/NEW/edit.png')"/>
     
-    <s:Button label="{R.get('CLOSE')}" click="onCloseClick()"
-              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject.status=='open' &amp;&amp; selectedObject is Agent}" 
-              icon="@Embed('/img/NEW/paperclose.png')"/>
-    
     <s:Button label="{R.get('DELETE')}" click="onDeleteClick(event)"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}" 
               icon="@Embed('/img/NEW/delete_32.png')"/>
       
+    <actionbar:Separator/>
+    
+    <s:Button label="{R.get('CLOSE')}" click="onCloseClick()"
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject.status=='open' &amp;&amp; selectedObject is Agent}" 
+              icon="@Embed('/img/NEW/lock32.png')"/>
+    
     <actionbar:Separator/>
     
     <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
@@ -148,7 +150,7 @@
       
       private function onCloseClick():void
       {
-        var message:String=selectedObject._kind == 'agent'?R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]):R.get('CONFIRM_FACTORY_DELETION', [selectedObject.name])
+        var message:String=selectedObject._kind == 'agent'?R.get('CONFIRM_AGENT_CLOSE', [selectedObject.name]):R.get('CONFIRM_FACTORY_CLOSE', [selectedObject.name])
         AlertPopUp.show(message, R.get('CONFIRM'),
           AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
@@ -217,12 +219,14 @@
         AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
       }
       
+      
       private function moveAgent(event:MouseEvent):void
       {
         var popup:MoveItemPopup = PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;
         popup.itemToMove = selectedObject;
         PopUpManager.centerPopUp(popup);
       }
+ 
     ]]>
   </fx:Script>
 

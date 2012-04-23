@@ -8,10 +8,14 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Config;
       import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
       
       import locale.R;
+      
+      import mx.rpc.events.ResultEvent;
       
       public static const EDIT:String = 'edit';
       
@@ -24,8 +28,8 @@
       
       private function onSave(event:SaveEvent):void
       {
-        config.desc = desc.text;
-        close();
+        AgentManager.instance.updateConfig(OperationsSectionStateManager.currInstance.selectedAgent, config, desc.text, 
+          function(e:ResultEvent):void { close(); });
       }
     ]]>
   </fx:Script>

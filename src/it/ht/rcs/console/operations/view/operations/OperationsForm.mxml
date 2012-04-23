@@ -42,12 +42,17 @@
         operation.desc = desc.text;
         operation.contact = contact.text;
         operation.group_ids = groups.dataProvider.toArray();
-        operation.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
+        operation.status = (currentState == CREATE) ? 'open' : getStatus();
         
         if (currentState == CREATE)
           OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(); });
         else
           close();
+      }
+      
+      private function getStatus():String
+      {
+        return status.selectedIndex == 0 ? 'open' : 'closed';
       }
       
       private function hasValidationErrors():Boolean
@@ -56,7 +61,7 @@
         
         groups.errorString = '';
         if (groups.dataProvider.length == 0) {
-          groups.errorString = 'Please select at least a group';
+          groups.errorString = R.get('GROUP_SELECT_ONE');
           hasError = true;
         }
         
@@ -69,7 +74,7 @@
         }
         
         if (!hasGroup) {
-          groups.errorString = 'Please select at least one of your groups';
+          groups.errorString = R.get('GROUP_SELECT_YOURS');
           hasError = true;
         }
         

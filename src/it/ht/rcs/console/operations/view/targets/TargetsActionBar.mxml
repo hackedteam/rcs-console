@@ -18,6 +18,12 @@
   
   <actionbar:Separator/>
   
+  <s:Button label="{R.get('CLOSE')}" click="onClose()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status == 'open'}"
+            icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <actionbar:Separator/>
+  
   <s:Button label="{R.get('MOVE_TARGET')}"
             icon="@Embed('/img/NEW/move.png')" click="moveTarget(event)"
             enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null}"/>
@@ -78,6 +84,16 @@
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES)
               TargetManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function onClose():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_TARGET_CLOSING', [selectedObject.name]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              TargetManager.instance.closeTarget(selectedObject._id);
           }, null, AlertPopUp.NO);
       }
       

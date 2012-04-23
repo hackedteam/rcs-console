@@ -36,12 +36,17 @@
       {
         target.name = targetName.text;
         target.desc = desc.text;
-        target.status = (currentState == CREATE) ? 'open' : status.selectedItem.label.toLowerCase();
+        target.status = (currentState == CREATE) ? 'open' : getStatus();
         
         if (currentState == CREATE)
           TargetManager.instance.addTarget(target, operation, function(target:Target):void { close(); });
         else
           close();
+      }
+      
+      private function getStatus():String
+      {
+        return status.selectedIndex == 0 ? 'open' : 'closed';
       }
     ]]>
   </fx:Script>

@@ -5,7 +5,7 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:Button label="{R.get('NEW_TARGET')}" click="onNewClick()" enabled="{Console.currentSession.user.is_admin()}"
+  <s:Button label="{R.get('NEW_TARGET')}" click="onNewClick()" enabled="{Console.currentSession.user.is_admin() &amp;&amp; section.stateManager.selectedOperation.status=='open'}"
             icon="@Embed('/img/NEW/newTarget.png')" visible="{section.currentState == 'singleOperation'}"
             includeInLayout="{section.currentState == 'singleOperation'}"/>
   
@@ -19,7 +19,7 @@
   <actionbar:Separator/>
   
   <s:Button label="{R.get('CLOSE')}" click="onCloseClick()"
-            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status=='open'}"
             icon="@Embed('/img/NEW/lock32.png')"/>
   
   <actionbar:Separator/>

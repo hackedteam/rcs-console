@@ -28,7 +28,11 @@
         group.name = formName.text;
         
         if (currentState == 'create')
-          GroupManager.instance.addGroup(group, function(g:Group):void { close(); });
+          GroupManager.instance.addGroup(group, function(g:Group):void { 
+            GroupManager.instance.addUser(g, Console.currentSession.user);
+            close();
+          });
+        
         else
           close();
       }

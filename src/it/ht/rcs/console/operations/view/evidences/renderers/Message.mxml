@@ -50,6 +50,31 @@
           subjectTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + cleanHTMLText(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT);
           sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
+        
+        else if(value.data.type=="mms")
+        {
+          if(data.data.from!="local")
+          {
+            fromTxt.visible=fromTxt.includeInLayout=true;
+            fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            fromTxt.visible=fromTxt.includeInLayout=false;
+          }
+          
+          if(data.data.rcpt!="local")
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=true;
+            recipientsTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=false;
+          }
+          subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
       }
       
       private function cleanHTMLText(text:String):String

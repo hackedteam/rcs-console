@@ -9,10 +9,10 @@
             includeInLayout="{section.currentState == 'singleTarget' || section.currentState == 'allAgents'}">
     
     <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
-              enabled="{Console.currentSession.user.is_tech()}"
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; section.stateManager.selectedOperation.status == 'open'}"
               icon="@Embed('/img/NEW/newFactory.png')"
               visible="{section.currentState == 'singleTarget'}"
-              includeInLayout="{section.currentState == 'singleTarget'}"/>
+              includeInLayout="{section.currentState == 'singleTarget'}" />
     
     <s:Button label="{R.get('EDIT')}" click="onEditClick()"
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}"
@@ -22,6 +22,12 @@
               enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent}" 
               icon="@Embed('/img/NEW/delete_32.png')"/>
       
+    <actionbar:Separator/>
+    
+    <s:Button label="{R.get('CLOSE')}" click="onClose()"
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject.status == 'open' &amp;&amp; selectedObject is Agent}" 
+              icon="@Embed('/img/NEW/lock32.png')"/>
+    
     <actionbar:Separator/>
     
     <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
@@ -36,7 +42,8 @@
     
     <s:Button label="{R.get('MOVE')}"
               icon="@Embed('/img/NEW/move.png')" click="moveAgent(event)"
-              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null &amp;&amp; selectedObject is Agent}"/>
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject is Agent
+                        &amp;&amp; selectedObject.status == 'open' &amp;&amp; section.stateManager.selectedTarget.status == 'open'}"/>
     
     <actionbar:Separator/>
     
@@ -142,6 +149,17 @@
         }
       }
       
+      private function onClose():void
+      {
+        var message:String = selectedObject._kind == 'agent' ? R.get('CONFIRM_AGENT_CLOSE', [selectedObject.name]) : R.get('CONFIRM_FACTORY_CLOSE', [selectedObject.name]);
+        AlertPopUp.show(message, R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              selectedObject.status = 'closed';
+          }, null, AlertPopUp.NO);
+      }
+      
       private function onDeleteClick(event:MouseEvent):void
       {
         AlertPopUp.show(R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]), R.get('CONFIRM'),
@@ -202,12 +220,14 @@
         AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
       }
       
+      
       private function moveAgent(event:MouseEvent):void
       {
         var popup:MoveItemPopup = PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;
         popup.itemToMove = selectedObject;
         PopUpManager.centerPopUp(popup);
       }
+ 
     ]]>
   </fx:Script>
 

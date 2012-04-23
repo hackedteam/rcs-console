@@ -55,6 +55,12 @@
 						content=value.data.content || "";
             
 					}
+          
+          else if (value.data.type == "mms")
+          {
+            content=value.data.content || "";
+            
+          }
 
 				}
 			}
@@ -141,8 +147,8 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+cleanHTMLText(evidence.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"
-							visible="{evidence.data.type=='mail'}"
-							includeInLayout="{evidence.data.type=='mail'}"/>
+							visible="{evidence.data.type=='mail' || evidence.data.type=='mms'}"
+							includeInLayout="{evidence.data.type=='mail' || evidence.data.type=='mms'}"/>
 	<s:Line width="100%"
 					visible="{evidence.data.attach>0}"
 					includeInLayout="{evidence.data.attach>0}">
@@ -159,8 +165,8 @@
 						 text="{evidence.data.attach} Attachments"/>
 	</s:HGroup>
 	<s:Line width="100%"
-					visible="{evidence.data.type=='mail'}"
-					includeInLayout="{evidence.data.type=='mail'}">
+					visible="{evidence.data.type=='mail' || evidence.data.type=='mms'}"
+					includeInLayout="{evidence.data.type=='mail' || evidence.data.type=='mms'}">
 		<s:stroke>
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>

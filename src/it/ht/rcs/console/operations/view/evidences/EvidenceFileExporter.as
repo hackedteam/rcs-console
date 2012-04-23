@@ -244,18 +244,25 @@ package it.ht.rcs.console.operations.view.evidences
     private function exportMessage(evidence:Evidence):void
     {
       
-      var target:String=EvidenceManager.instance.evidenceFilter.target;
-      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
-      extension="eml";
-      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
-      request=new URLRequest(url);
-      stream=new URLStream();
-      file=new File(directory.nativePath +"/"+fileName);
-      stream.addEventListener(Event.COMPLETE, onFileDownloaded);
-      stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
-      stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
-      stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
-      stream.load(request);
+     if(evidence.data.type=="mail")
+     {
+       var target:String=EvidenceManager.instance.evidenceFilter.target;
+       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+       extension="eml";
+       var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
+       request=new URLRequest(url);
+       stream=new URLStream();
+       file=new File(directory.nativePath +"/"+fileName);
+       stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+       stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+       stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+       stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+       stream.load(request);
+     }
+     if(evidence.data.type=="sms" || evidence.data.type=="mms")
+     {
+       exportText(evidence);
+     }
       
     }
     
@@ -364,6 +371,14 @@ package it.ht.rcs.console.operations.view.evidences
           info+="Service: "+evidence.data.service+"\n";
           info+="User: "+evidence.data.user+"\n";
           info+="Pass: "+evidence.data.pass+"\n";
+          break;
+        
+        case "message":
+          info="Message: "+"\n\n";
+          info+="From: "+evidence.data.from+"\n";
+          info+="To: "+evidence.data.rcpt+"\n";
+          info+="Subject: "+evidence.data.subject+"\n";
+          info+="Content: "+evidence.data.content+"\n";
           break;
         
         case "position":

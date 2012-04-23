@@ -13,6 +13,9 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
+      import mx.collections.ArrayCollection;
+      import mx.collections.IList;
+      import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
       import mx.managers.PopUpManager;
       
@@ -82,7 +85,9 @@
       private function onDataLoaded(e:DataLoadedEvent):void
       {
         trace("on data loaded")
+        evidenceDg.dataProvider=null;
         evidenceDg.invalidateDisplayList();
+        evidenceDg.invalidateSize()
         evidenceDg.dataProvider=EvidenceManager.instance._view;
         evidenceDg.visible=true;
         if(viewer.visible)
@@ -92,7 +97,11 @@
           counter.visible=true;
           actionBar.toggleDetailButton();
         }
+       
+        evidenceDg.validateDisplayList();
+        evidenceDg.validateSize();
         evidenceDg.validateNow();
+        evidenceDg.scrollDown();
         notice.visible=notice.includeInLayout=isNoticeVisible();
       }
       

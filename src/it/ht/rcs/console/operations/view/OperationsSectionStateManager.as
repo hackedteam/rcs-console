@@ -35,7 +35,7 @@ package it.ht.rcs.console.operations.view
     public var tableView:ListCollectionView;
 
     [Bindable] public var selectedOperation:Operation;
-    [Bindable] public var selectedTarget:Target;
+    [Bindable] public var selectedTarget:Target; 
     [Bindable] public var selectedAgent:Agent;
     [Bindable] public var selectedFactory:Agent;
     [Bindable] public var selectedConfig:Config;

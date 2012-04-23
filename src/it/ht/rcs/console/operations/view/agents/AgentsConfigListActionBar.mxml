@@ -19,6 +19,7 @@
       import locale.R;
       
       import mx.controls.Alert;
+      import mx.managers.PopUpManager;
       
       [Bindable]
       public var section:OperationsSection;
@@ -32,7 +33,11 @@
       
       private function onEdit():void
       {
-        section.stateManager.manageItemSelection(selectedObject);
+        var popup:ConfigForm = PopUpManager.createPopUp(root, ConfigForm, true) as ConfigForm;
+        popup.config = selectedObject as Config;
+        popup.currentState = FactoriesForm.EDIT;
+        PopUpManager.centerPopUp(popup);
+        //section.stateManager.manageItemSelection(selectedObject);
       }
     ]]>
   </fx:Script>

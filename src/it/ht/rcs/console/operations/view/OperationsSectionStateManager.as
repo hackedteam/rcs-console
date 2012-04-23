@@ -279,7 +279,8 @@ package it.ht.rcs.console.operations.view
       view = getView();
       removeCustomTypes(view);
       addCustomTypes(view);
-      view.refresh();
+      if (view)
+        view.refresh();
       
       if (CurrentManager != null) {
         tableView = CurrentManager.instance.getView(tableSort, tableFilterFunction);

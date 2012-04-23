@@ -45,11 +45,12 @@
       
       private function refresh(e:Event=null):void
       {
+        grid.selectedItem = bar.selectedObject = null;
         AgentManager.instance.show(section.stateManager.selectedAgent._id, function(e:ResultEvent):void {
           var a:Agent = e.result as Agent;
-          var def:Sort = new Sort();
-          def.fields = [new SortField('saved', true)];
-          a.configs.sort = def;
+          var sort:Sort = new Sort();
+          sort.fields = [new SortField('saved', true)];
+          a.configs.sort = sort;
           a.configs.refresh();
           configs = a.configs;
         });

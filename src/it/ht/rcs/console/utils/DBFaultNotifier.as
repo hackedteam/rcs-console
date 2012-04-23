@@ -3,6 +3,7 @@ package it.ht.rcs.console.utils
   
   import it.ht.rcs.console.IFaultNotifier;
   import it.ht.rcs.console.accounting.controller.SessionManager;
+  import it.ht.rcs.console.push.PushController;
   
   import mx.managers.CursorManager;
   import mx.resources.ResourceManager;
@@ -22,13 +23,17 @@ package it.ht.rcs.console.utils
       CursorManager.removeBusyCursor();
       
       /* avoid multiple messages, by checking if the currentSession is valid */
-      if (Console.currentSession == null) {
+      if (Console.currentSession == null)
+        return;
+      
+      if (PushController.instance.status == PushController.CONNECTING) {
+        AlertPopUp.show("Reconnecting...");
         return;
       }
       
       /* errors from the websocket interface */
       if (e.type == 'ws') {
-        AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'WS_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
+        //AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'WS_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR_CODE', [e.statusCode.toString()]));
         SessionManager.instance.forceLogout();
         return; 
       }

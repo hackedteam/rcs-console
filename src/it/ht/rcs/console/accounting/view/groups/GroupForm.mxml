@@ -10,11 +10,19 @@
       import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
       
       import locale.R;
       
+      import mx.events.FlexEvent;
+      
+      import spark.events.GridSelectionEvent;
+      import spark.events.IndexChangeEvent;
+      
       [Bindable]
       public var group:Group;
+      
+      public var groupView:GroupView;
       
       private function init():void
       {
@@ -28,9 +36,23 @@
         group.name = formName.text;
         
         if (currentState == 'create')
-          GroupManager.instance.addGroup(group, function(g:Group):void { 
-            GroupManager.instance.addUser(g, Console.currentSession.user);
-            close();
+          GroupManager.instance.addGroup(group, function(g:Group):void {
+            
+            GroupManager.instance.addUser(g, Console.currentSession.user, function():void{
+              
+              groupView.groupList.list.selectedItem=g;
+              var index:int=groupView.groupList.list.dataProvider.getItemIndex(g);
+              groupView.groupList.list.ensureIndexIsVisible(index);
+              groupView.groupList.list.dispatchEvent(new FlexEvent(FlexEvent.VALUE_COMMIT));
+              
+              groupView.groupTable.table.selectedItem=g;
+              groupView.groupTable.table.ensureCellIsVisible(groupView.groupTable.table.selectedIndex);
+              
+              groupView.groupTable.table.dispatchEvent(new GridSelectionEvent(GridSelectionEvent.SELECTION_CHANGE));
+              
+              close();
+            });
+           
           });
         
         else

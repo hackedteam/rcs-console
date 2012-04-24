@@ -14,7 +14,10 @@
   <s:Button label="{R.get('RETRIEVE_TREE')}" click="onRetrieve(event)"
             enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.EMPTY_FOLDER ||
                                                          selectedObject.attr == FileSystemView.FULL_FOLDER  ||
-                                                         selectedObject.attr == FileSystemView.SUBROOT)}"
+                                                         selectedObject.attr == FileSystemView.SUBROOT)
+            &amp;&amp; section.stateManager.selectedTarget.status=='open' &amp;&amp; selectedObject.agent.status=='open'
+            }"
+      
             icon="@Embed('/img/NEW/download.png')"/>
   
   <s:Spacer width="100%"/>
@@ -22,6 +25,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import locale.R;
@@ -29,7 +33,7 @@
       import mx.controls.Alert;
       import mx.managers.PopUpManager;
       import mx.rpc.events.ResultEvent;
-
+      [Bindable]
       public var section:OperationsSection;
       
       private function onDownload(e:MouseEvent):void

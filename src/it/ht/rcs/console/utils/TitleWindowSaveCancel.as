@@ -4,8 +4,10 @@ package it.ht.rcs.console.utils
   import flash.events.MouseEvent;
   
   import it.ht.rcs.console.events.SaveEvent;
+  import it.ht.rcs.console.events.SessionEvent;
   
   import mx.managers.PopUpManager;
+  import mx.core.FlexGlobals;
   
   import spark.components.Button;
   import spark.components.TitleWindow;
@@ -19,7 +21,7 @@ package it.ht.rcs.console.utils
     public var saveButton:Button;
     
     [Bindable]
-    [SkinPart(required='false')]
+    [SkinPart(required='false')]Ï
     public var cancelButton:Button;
     
     public var showSaveButton:Boolean = true;
@@ -28,7 +30,10 @@ package it.ht.rcs.console.utils
     public function TitleWindowSaveCancel()
     {
       super();
+      // add listener for logout event and close window
+      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, close,false,0,true)
     }
+   
     
     override protected function partAdded(partName:String, instance:Object):void
     {
@@ -57,6 +62,7 @@ package it.ht.rcs.console.utils
     
     protected function close(event:Event=null):void
     {
+      
       PopUpManager.removePopUp(this);
     }
     

@@ -7,7 +7,7 @@
   
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
-  <s:Button label="{R.get('DELETE_ALL')}" click="onDeleteAllClick()" enabled="{view.length > 0}" icon="@Embed('/img/NEW/delete_all.png')"/>
+  <s:Button label="{R.get('DELETE_ALL')}" click="onDeleteAllClick()" enabled="{view &amp;&amp; view.length > 0}" icon="@Embed('/img/NEW/delete_all.png')"/>
   
  
   <fx:Script>
@@ -21,12 +21,21 @@
       
       import mx.events.CloseEvent;
       
+      public var section:AlertingSection;
+      
       private function onDeleteClick():void
       {
-        var alert:Alert = (parent as AlertingSection).alerts.selectedItem as Alert;
+        var alert:Alert = section.alertBar.selectedObject as Alert;
         var i:int = alert.logs.getItemIndex(selectedObject as AlertLog);
         
         alert.logs.removeItemAt(i);
+        
+        section.alerts.selectedItem = null;
+        section.alertBar.selectedObject = null;
+        section.logs.dataProvider = null;
+        section.logs.selectedItem = null;
+        section.logBar.selectedObject = null;
+          
         /* if there are no more items, invalidate the arraycollection to avoid displaying the 0 counter */
         if (alert.logs.length == 0)
           alert.logs = null;
@@ -44,6 +53,8 @@
                             alert.logs.removeAll();
                             /* to avoid displaying the 0 counter */
                             alert.logs = null;
+                            section.alerts.selectedItem = null;
+                            section.alertBar.selectedObject = null;
                           }
                         }, null, AlertPopUp.NO);
       }

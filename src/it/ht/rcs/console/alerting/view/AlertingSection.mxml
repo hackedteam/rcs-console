@@ -15,13 +15,18 @@
   
   <fx:Script>
     <![CDATA[
+      import com.hurlant.crypto.symmetric.NullPad;
+      
       import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.alert.model.Alert;
       
+      import mx.collections.ArrayCollection;
+      import mx.collections.ArrayList;
       import mx.collections.ListCollectionView;
       
       import spark.collections.Sort;
       import spark.collections.SortField;
+      import spark.events.GridSelectionEvent;
       
       [Bindable]
       private var view:ListCollectionView;
@@ -30,7 +35,7 @@
       {
         var defaultSort:Sort = new Sort();
         defaultSort.fields = [new SortField('_id', false, false)];
-        view = AlertManager.instance.getView(defaultSort, searchFilterFunction);        
+        view = AlertManager.instance.getView(defaultSort, searchFilterFunction);
       }
       
       private function onAddedToStage():void
@@ -47,26 +52,40 @@
       
       private function searchFilterFunction(item:Object):Boolean
       {
-        if (item.keywords == null && actionBar.searchInput.text.length > 0)
+        if (item.keywords == null && alertBar.searchInput.text.length > 0)
           return false;
         
         try {
-          return item.keywords.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+          return item.keywords.toLowerCase().indexOf(alertBar.searchInput.text.toLowerCase()) != -1;
         } catch (e:Error) {}
         
         return true;
+      }
+      
+      private function alertsSelectionChange(event:GridSelectionEvent):void
+      {
+        alertBar.selectedObject = alerts.selectedItem ? alerts.selectedItem : null;
+        logs.dataProvider = alerts.selectedItem ? alerts.selectedItem.logs : null;
+        logs.selectedItem = null;
+        logBar.selectedObject = null;
+        logBar.view = logs.dataProvider as ArrayCollection;
+      }
+      
+      private function logsSelectionChange(event:GridSelectionEvent):void
+      {
+        logBar.selectedObject = logs.selectedItem ? logs.selectedItem : null;
       }
     ]]>
   </fx:Script>
   
 
-  <view:AlertingActionBar id="actionBar" selectedObject="{alerts.selectedItem}" view="{view}" alerts="{alerts}" logs="{logs}"/>
+  <view:AlertingActionBar id="alertBar" view="{view}" section="{this}"/>
   
-  <view:AlertingTable id="alerts" dataProvider="{view}"/>
+  <view:AlertingTable id="alerts" dataProvider="{view}" selectionChange="alertsSelectionChange(event)"/>
   
-  <view:LogsActionBar selectedObject="{logs.selectedItem}" view="{(alerts.selectedItem as Alert).logs}"/>
+  <view:LogsActionBar id="logBar" section="{this}"/>
 
-  <view:LogsTable id="logs" dataProvider="{(alerts.selectedItem as Alert).logs}"/>
+  <view:LogsTable id="logs" selectionChange="logsSelectionChange(event)"/>
 
 
 </main:Section>

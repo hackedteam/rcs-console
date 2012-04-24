@@ -335,7 +335,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     private function getAllElements():Vector.<UIComponent>
     {
       var all:Vector.<UIComponent> = new Vector.<UIComponent>();
-      all = all.concat(events); all = all.concat(actions); all = all.concat(connections); all = all.concat(modules);
+      all = all.concat(events); all = all.concat(actions); all = all.concat(modules); all = all.concat(connections);
       return all;
     }
     

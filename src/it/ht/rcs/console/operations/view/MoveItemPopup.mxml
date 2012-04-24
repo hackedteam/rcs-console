@@ -30,6 +30,11 @@
           return;
         }
         
+        if (itemField.selectedItem.status == 'closed') {
+          itemField.errorString = R.get('MOVE_CLOSED');
+          return;
+        }
+        
         if (itemToMove is Agent)
           DB.instance.agent.move(itemToMove._id, itemField.selectedItem._id, onResult);
         else if (itemToMove is Target)

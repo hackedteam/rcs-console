@@ -17,16 +17,6 @@
   
   <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
   
-  <!--
-  
-  <s:BorderContainer borderVisible="false" top="5" left="5" right="5" height="20" backgroundAlpha="0.0">
-    <s:Button x="0" y="0" label="N" width="30" height="20" click="addAlert()" toolTip="{resourceManager.getString('localized_main', 'NEW')}" skinClass="it.ht.rcs.console.skins.NewButton"/>
-    <s:Button x="40" y="0" label="E" width="30" height="20" click="editAlert(alertlist.selectedItem as Alert)" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'EDIT')}" skinClass="it.ht.rcs.console.skins.EditButton"/>
-    <s:Button x="80" y="0" label="D" width="30" height="20" click="deleteAlert(alertlist.selectedItem as Alert)" enabled="{alertlist.selectedItem != null}" toolTip="{resourceManager.getString('localized_main', 'DELETE')}" skinClass="it.ht.rcs.console.skins.DeleteButton"/>
-  </s:BorderContainer>
-  
-  -->
-  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.alert.controller.AlertManager;
@@ -38,8 +28,7 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
-      public var alerts:AlertingTable;
-      public var logs:LogsTable;
+      public var section:AlertingSection;
       
       private function onNewClick():void
       {
@@ -64,8 +53,8 @@
                           if (e.detail == AlertPopUp.YES) {
                             AlertManager.instance.removeItem(selectedObject);
                             selectedObject = null;
-                            alerts.selectedItem = null;
-                            logs.dataProvider = null;
+                            section.alerts.selectedItem = null;
+                            section.logs.dataProvider = null;
                           }
                         }, null, AlertPopUp.NO);
       }

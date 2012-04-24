@@ -223,6 +223,7 @@ package it.ht.rcs.console.utils.itemfield
     
     public function set selectedItemId(id:String):void
     {
+      if (id == null) selectItem(null, false);
       for each (var item:SearchItem in _dataProvider)
         if (item._id == id)
           selectItem(item, false);

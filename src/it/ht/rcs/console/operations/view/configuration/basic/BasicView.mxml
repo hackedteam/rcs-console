@@ -11,8 +11,10 @@
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
       
       import mx.collections.ListCollectionView;
       
@@ -198,6 +200,8 @@
         model.syncHost = sync.host.selectedItem.address;
         
         config = BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
+        if (OperationsSectionStateManager.currInstance.selectedAgent != null)
+          DefaultConfigBuilder.cleanPlatformConfig(OperationsSectionStateManager.currInstance.selectedAgent.platform, config);
         return config;
       }
       

@@ -31,9 +31,8 @@ package it.ht.rcs.console.utils
     {
       super();
       // add listener for logout event and close window
-      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, close,false,0,true)
+      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, close, false, 0, true);
     }
-   
     
     override protected function partAdded(partName:String, instance:Object):void
     {
@@ -62,7 +61,6 @@ package it.ht.rcs.console.utils
     
     protected function close(event:Event=null):void
     {
-      
       PopUpManager.removePopUp(this);
     }
     

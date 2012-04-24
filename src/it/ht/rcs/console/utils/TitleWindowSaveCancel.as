@@ -21,7 +21,7 @@ package it.ht.rcs.console.utils
     public var saveButton:Button;
     
     [Bindable]
-    [SkinPart(required='false')]Ï
+    [SkinPart(required='false')]
     public var cancelButton:Button;
     
     public var showSaveButton:Boolean = true;

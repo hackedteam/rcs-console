@@ -4,7 +4,7 @@
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
                 autoDrawBackground="false" buttonMode="true" click="onClick(event)"
-                toolTip="{data.type}">
+                toolTip="{data.type}" toolTipShow="onToolTipShow(event)">
   
   <s:layout>
     <s:VerticalLayout gap="8" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
@@ -17,7 +17,10 @@
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleIcons;
       import it.ht.rcs.console.search.controller.SearchManager;
       
+      import mx.controls.ToolTip;
       import mx.core.FlexGlobals;
+      import mx.events.ToolTipEvent;
+      import mx.managers.ToolTipManager;
       
       override public function set data(value:Object):void
       {
@@ -25,6 +28,16 @@
         icon.source = data ? ModuleIcons[data.type] : null;
         toolTip = data ? data.type : null;
       }
+      
+      private function onToolTipShow(e:ToolTipEvent):void
+      {
+        var pt:Point = new Point(container.x, container.y);
+        var globalPoint:Point = container.contentToGlobal(pt);
+        e.toolTip.x=globalPoint.x;
+        e.toolTip.y=globalPoint.y+50;
+      }
+      
+     
       
       private function onClick(e:MouseEvent):void
       {
@@ -39,6 +52,7 @@
       private function onRoll(event:MouseEvent):void
       {
         container.setStyle('backgroundColor', event.type == MouseEvent.ROLL_OVER ? 0xa8c6ee : 0xffffff);
+       
       }
     ]]>
   </fx:Script>

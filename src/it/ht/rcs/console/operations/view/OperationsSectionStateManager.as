@@ -63,7 +63,7 @@ package it.ht.rcs.console.operations.view
       tableSort.compareFunction = customTypeCompareFunction;
     }
     
-    private function getRealItem(event:SectionEvent):*
+    private function getItemFromEvent(event:SectionEvent):*
     {
       var item:SearchItem = event ? event.item : null;
       if (!item) return null;
@@ -83,7 +83,7 @@ package it.ht.rcs.console.operations.view
     
     public function manageItemSelection(i:*, event:SectionEvent=null):void
     {
-      var item:* = i || getRealItem(event);
+      var item:* = i || getItemFromEvent(event);
       if (!item) return;
       
       if (CurrentManager) {

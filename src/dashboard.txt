@@ -1,0 +1,30 @@
+Il DashboardController funziona a grandi linee cosi:
+
+Al login, carica dentro _dashboard_ids gli id degli elementi in dashboard per l'utente corrente.
+
+Quando la sezione dashboard e' visualizzata, parte un timer di autorefresh che cicla su _dashboard_ids e per ogni id
+chiama la SearchManager.showItem, la quale ritorna un SearchItem con la proprieta' Stat valorizzata.
+
+Stat ha due proprieta' imporanti, evidence e dashboard. Sono hash le cui chiavi sono i tipi di evidence ("camera", "keylog", etc)
+mentre i valori sono rispettivametne il numero totale di evidence e il numero di evidence catturate durante l'ultima sync.
+
+La dashboard deve visualizzare nei pallini rossi il numero di evidence catturate nell'ultima sync e nei pallini bianchi
+il numero totale di evidence catturate da quando la console e' accesa.
+
+Ogni elemento della dashboard e' un DashboardItem, una delle cui proprieta' e' baseline. Baseline e' un riferimento a un'oggetto Stat
+valorizzato allo Stat che si ottiene come risultato della prima refresh. Le refresh seguenti andranno a sottrarre questi valori ai propri
+per visualizzare il numero corretto di evidence.
+
+In dashboard possono finire Operation, Target e Agent.
+
+Target e Agent implementano l'algoritmo semplice, in quanto la show per questi item ritorna gia' tutte le info necessarie per visualizzare
+i numeri. In particolare gli oggetti Target conservano gia' gli aggregati per i propri Agent. Basta quindi prendere i dati, fare le dovute
+differenze e visualizzare.
+
+Discorso diverso per le Operation. Un oggetto Operation in dashboard non deve visualizzare la lista delle evidence ma la lista dei Target.
+
+Durante il ciclo di refresh generale, ogni volta che un elemento di _dashboard_ids si riferisce a una Operation, il DashboardController
+recupera la lista dei Target per quella Operation. Per ogni Target esegue la show e l'algoritmo riprende come precedentemente descritto.
+
+Quindi occhi che il refresh della dashboard e' asincrono al quadrato. Primo sospettato in caso di stranezze? Tempo di refresh < del tempo
+che ci mette a fare la show di tutti gli elementi (sospettatissime le Operation)

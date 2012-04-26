@@ -1,0 +1,25 @@
+OperationSectionStateManager e' l'oggetto che si occupa di modificare la vista della sezione Operation.
+
+Il motivo per cui questo oggetto esiste e' che le viste e gli stati della sezione Operation sono molti e molto differenti, gestire quindi
+i cambi di stato all'interno della sezione sarebbe stato molto confusionario. La confusione non puo' essere rimossa ma per lo meno e' esiliata
+dentro questo oggetto i cui principi di funzionamento *in teoria* sono abbastanza lineari.
+
+Il concetto alla base di OSSM e': "dammi l'oggetto che vuoi visualizzare (una oepration, un target, una config...) e ci penso io a modificare
+la vista e gli stati per visualizzarti correttamente quell'oggetto".
+
+Metodo principale, quindi, manageItemSelection. ManageItemSelection accetta un Item generico e l'idea e' che alla fine dell'esecuzione di questo
+metodo, la sezione e' pronta e sta visualizzando l'oggetto passato nel modo corretto.
+
+A grandi linee il funzionamento di questo metodo e':
+
+- fai pulizia dello stato precedente (spesso questo significa semplicemente rimuovere i refresh listener dai manager precedenti)
+- valorizza eventuali variabili di stato utili per visualizzare lo stato corretto (alcune subview, per semplicita', si aspettano certa roba valorizzata)
+- cambia lo stato (questo ovviamente scatena i vari addedToStage/removedFromStage)
+- effettua eventuali azioni supplementari (es. aggiungere ai recents)
+
+"Cambia lo stato" e' sicuramente il punto in cui avvengono le cose interessanti. Nella maggior parte dei casi questo passo puo' essere ulteriormente
+suddiviso in:
+
+- Ottieni il manager corretto per visualizzare la vista
+- Iscrivi il refresh, imposta eventuali filtri e sort, ottieni i dati
+- aggiungi i "customType" se necessario (filesystem, evidence, etc...)

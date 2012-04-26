@@ -13,6 +13,33 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/factory_16.png')]
     public static const factory16:Class;
+    
+    [Embed(source='/img/NEW/desktop_16.png')]
+    public static const desktop16:Class;
+    
+    [Embed(source='/img/NEW/mobile_16.png')]
+    public static const mobile16:Class;
+    
+    [Embed(source='/img/NEW/windows16.png')]
+    public static const windows16:Class;
+    
+    [Embed(source='/img/NEW/osx16.png')]
+    public static const osx16:Class;
+    
+    [Embed(source='/img/NEW/android_16.png')]
+    public static const android16:Class;
+    
+    [Embed(source='/img/NEW/ios16.png')]
+    public static const ios16:Class;
+    
+    [Embed(source='/img/NEW/os_blackberry.png')]
+    public static const blackberry16:Class;
+   
+    [Embed(source='/img/NEW/os_s60.png')]
+    public static const symbian16:Class;
+    
+    [Embed(source='/img/NEW/winmo16.png')]
+    public static const winmo16:Class;
 
     [Embed(source='/img/NEW/operation.png')]
     public static const operationBig:Class;
@@ -23,7 +50,6 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/agent.png')]
     public static const agentBig:Class;
  
-    
     [Embed(source='/img/NEW/error_32.png')]
     public static const error32:Class;
     
@@ -35,7 +61,6 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/unknown_32.png')]
     public static const unknown32:Class;
-    
     
     [Embed(source='/img/NEW/anonymizer.png')]
     public static const anonymizer32:Class;

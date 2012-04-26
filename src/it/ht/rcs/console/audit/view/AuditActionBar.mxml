@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  <s:Button label="{R.get('RESET_FILTERS')}" click="resetFilters()"
+            icon="@Embed('/img/NEW/resetFilters.png')"/>
+  
+  <actionbar:Separator width="40"/>
+  
+  <s:Button label="{R.get('EXPORT')}" click="export()" icon="@Embed('/img/NEW/export.png')"/>
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.audit.controller.AuditManager;
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.task.view.TaskPopup;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      private function resetFilters():void
+      {
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+        AuditManager.instance.refresh();
+      }
+      
+      private function export():void
+      {
+        var popup:TaskPopup = new TaskPopup();
+        popup.type = "audit";
+        popup.params = AuditManager.instance.filter;
+        PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
+        PopUpManager.centerPopUp(popup);
+      }
+    ]]>
+  </fx:Script>
+  
+</actionbar:ActionBar>

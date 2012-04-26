@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
+          width="100%" height="100%" addedToStage="onAddedToStage()"
+          removedFromStage="onRemovedFromStage()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      [Bindable]
+      private var configs:ArrayCollection;
+      
+      private function onAddedToStage():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, refresh);
+        refresh();
+        if (bar)
+          bar.selectedObject = grid.selectedItem;
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, refresh);
+        configs = null; // to avoid flickering when switching view
+      }
+      
+      private function refresh(e:Event=null):void
+      {
+        grid.selectedItem = bar.selectedObject = null;
+        AgentManager.instance.show(section.stateManager.selectedAgent._id, function(e:ResultEvent):void {
+          var a:Agent = e.result as Agent;
+          var sort:Sort = new Sort();
+          sort.fields = [new SortField('saved', true)];
+          a.configs.sort = sort;
+          a.configs.refresh();
+          configs = a.configs;
+        });
+      }
+      
+      private function dateLabel(item:Object, column:GridColumn):String
+      {
+        try {
+          return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function onDoubleClick(event:MouseEvent):void
+      {
+        section.stateManager.manageItemSelection(grid.selectedItem);
+      }
+    ]]>
+  </fx:Script>
+  
+  <agents:AgentsConfigListActionBar id="bar" section="{section}" selectedObject="{grid.selectedItem}"/>
+  
+  <s:DataGrid id="grid" width="100%" height="100%" dataProvider="{configs}"
+              doubleClick="onDoubleClick(event)" doubleClickEnabled="true">
+    <s:columns>
+      <s:ArrayList>
+        
+        <s:GridColumn dataField="desc" headerText="{R.get('DESCRIPTION')}"/>
+        <s:GridColumn dataField="user" headerText="{R.get('USER')}"/>
+        <s:GridColumn dataField="saved" headerText="{R.get('SAVED')}" labelFunction="dateLabel"
+                      sortDescending="true"/>
+        <s:GridColumn dataField="sent" headerText="{R.get('SENT_TIME')}" labelFunction="dateLabel"/>
+        <s:GridColumn dataField="activated" headerText="{R.get('ACTIVATED')}"
+                      labelFunction="dateLabel"/>
+
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+  
+</s:VGroup>

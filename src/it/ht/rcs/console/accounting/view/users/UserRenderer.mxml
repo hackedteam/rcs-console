@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true" doubleClick="onDoubleClick(event)" doubleClickEnabled="true"
+                toolTip="{data.session ? R.get('USER_ONLINE') : null}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.model.User;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      [Embed(source='/img/NEW/user.png')]
+      private static const offline:Class;
+      [Embed(source='/img/NEW/user_online.png')]
+      private static const online:Class;
+      
+      private function onDoubleClick(event:MouseEvent):void
+      {
+        if (event.altKey) {
+          var ps:UserMessage = PopUpManager.createPopUp(root, UserMessage, true) as UserMessage;
+          ps.user = data as User;
+          PopUpManager.centerPopUp(ps);  
+          return;
+        }
+        
+        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
+        popup.user = data as User;
+        popup.currentState = 'edit';
+        PopUpManager.centerPopUp(popup);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Image top="8" alpha="{data.enabled ? 1 : .5}" horizontalCenter="0"
+           source="{data.session ? online : offline}"/>
+
+  <s:Label left="8" right="8" top="70" bottom="8" minWidth="90" maxWidth="90" fontFamily="Myriad"
+           fontSize="14" lineHeight="15" maxDisplayedLines="2" text="{data.name}" textAlign="center"
+           verticalAlign="middle"/>
+  
+</s:ItemRenderer>

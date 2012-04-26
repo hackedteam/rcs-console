@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+                             creationPolicy="all" creationComplete="init()">
+  
+  <s:HGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+    <s:Scroller maxHeight="400" width="180">
+      <s:VGroup id="container">
+      </s:VGroup>
+    </s:Scroller>
+  </s:HGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
+      
+      import spark.components.CheckBox;
+      
+      private var checkList:Vector.<AgentFilterItemRenderer> = new Vector.<AgentFilterItemRenderer>();
+      
+      private function init():void
+      {
+        var tId:String = OperationsSectionStateManager.currInstance.selectedTarget._id;
+        var list:ListCollectionView = AgentManager.instance.getAgentsForTarget(tId);
+        for each (var a:Agent in list)
+        {
+          var check:AgentFilterItemRenderer = new AgentFilterItemRenderer();
+          check.checkbox.label = a.name;
+          check.agent = a;
+          checkList.push(check);
+          container.addElement(check);
+        }
+      }
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function getValues():Array
+      {
+        var toReturn:Array = [];
+        for each (var check:AgentFilterItemRenderer in checkList)
+          if (check.checkbox.selected)
+            toReturn.push(check.agent._id);
+        
+        return toReturn;
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        deselectAll();
+        commit(fireEvent);
+      }
+      
+      private function deselectAll():void
+      {
+        checkList.forEach(function(item:AgentFilterItemRenderer, index:int, array:Vector.<AgentFilterItemRenderer>):void {
+          item.checkbox.selected = false;
+        });
+      }
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

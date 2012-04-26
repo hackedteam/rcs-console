@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_GLOBALS')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.Size;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayList;
+      
+      public var globals:Object;
+      
+      private function init():void
+      {
+        nohide.dataProvider = new ArrayList(globals.nohide);
+        
+        min.text = String(Math.round(globals.quota.min / Size.MIB));
+        max.text = String(Math.round(globals.quota.max / Size.MIB));
+        wipe.selected = globals.wipe;
+        driver.selected = globals.remove_driver;
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return;
+        
+        globals.quota.min = parseInt(min.text) * Size.MIB;
+        globals.quota.max = parseInt(max.text) * Size.MIB;
+        globals.wipe = wipe.selected;
+        globals.remove_driver = driver.selected;
+        globals.nohide = ArrayList(nohide.dataProvider).source;;
+        close();
+      }
+      
+      private function addNoHide(event:MouseEvent):void
+      {
+        nohide.dataProvider.addItem(nohideMask.text);
+        nohideMask.text = '';
+        nohideMask.setFocus();
+      }
+      private function removeNoHide(event:MouseEvent):void
+      {
+        nohide.dataProvider.removeItemAt(nohide.selectedIndex);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('GLOBAL_MIN_DISK_FREE')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="min" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
+        <s:Label paddingTop="1" text=" MiB"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('GLOBAL_MAX_EVIDENCE')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="max" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
+        <s:Label paddingTop="1" text=" MiB"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('GLOBAL_WIPE')}">
+      <s:CheckBox id="wipe"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('GLOBAL_REMOVE_DRIVER')}">
+      <s:CheckBox id="driver"/>
+    </s:FormItem>
+    
+    <s:FormItem label="No Hide">
+      <s:HGroup>
+        <s:List id="nohide" width="150" height="156"/>
+        <s:Button width="40" label="-" click="removeNoHide(event)" enabled="{nohide.selectedItem}"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('MASK')}">
+      <s:HGroup>
+        <s:TextInput id="nohideMask" width="150"/>
+        <s:Button width="40" label="+" click="addNoHide(event)" enabled="{nohideMask.text != ''}"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [4000])}" maxValue="4000"
+                          property="text" required="true" source="{min}" triggerEvent=""/>
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [4000])}" maxValue="4000"
+                          property="text" required="true" source="{max}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</utils:TitleWindowSaveCancel>

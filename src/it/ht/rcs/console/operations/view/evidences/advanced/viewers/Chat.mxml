@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="100%"
+									 width="100%"
+                   borderColor="0xCCCCCC"
+                   backgroundColor="0xFFFFFF"
+                   backgroundAlpha="1">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			import it.ht.rcs.console.utils.Size;
+
+			private var _evidence:Object;
+
+			[Bindable]
+			private var renderMode:String
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+				_evidence=value;
+				if (evidence.data.program == "Facebook")
+				{
+					renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
+				}
+				else
+				{
+					renderMode=TextConverter.PLAIN_TEXT_FORMAT
+				}
+
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence; //topic, peer, content, program
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<s:RichText id="topicTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Topic: &lt;/b&gt;'+evidence.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="peerTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Peer: &lt;/b&gt;'+evidence.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="programTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="contentLabelTxt"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Scroller height="100%"
+							width="100%">
+		<s:RichEditableText editable="false"
+												id="contentTxt"
+												textFlow="{TextConverter.importToFlow(lineBreak(evidence.data.content), renderMode)}"
+												fontSize="12"/>
+	</s:Scroller>
+</s:BorderContainer>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               xmlns:build="it.ht.rcs.console.operations.view.agents.build.*"
+               width="600" height="480" close="close(event)" creationComplete="init(event)" title="{R.get('BUILD_FROM_FACTORY')}">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.operations.view.agents.build.BuildFormIcons;
+      
+      import locale.R;
+      
+      import mx.collections.ICollectionView;
+      import mx.collections.XMLListCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
+      import mx.events.ListEvent;
+      import mx.managers.PopUpManager;
+      
+      import spark.events.TextOperationEvent;
+      
+      [Bindable]
+      public var factory:Agent;
+      
+      [Bindable]
+      private var treeData_desktop:XMLList =
+        <>
+          <node folder='true' label="Silent Installer" state="none" >
+            <node label="OSX" state='dsk_silent' desc='BUILD_SILENT' icon="osxIcon"/>
+            <node label="Windows" state='dsk_silent' desc='BUILD_SILENT' icon="windowsIcon"/>
+          </node>
+          <node folder='true' label="Melted Application" state="none" >
+            <node label="OSX" state='dsk_melted' desc='BUILD_MELTED' icon="osxIcon"/>
+            <node label="Windows" state='dsk_melted' desc='BUILD_MELTED' icon="windowsIcon"/>
+          </node>
+          <node folder='true' label="U3 Installation" state="none" >
+            <node label="Windows" state='dsk_U3' desc='BUILD_U3' icon="windowsIcon"/>
+          </node>
+          <node folder='true' label="Applet Web" state="none">
+            <node label="Multi-Platform" state='dsk_applet' desc='BUILD_APPLET' icon="desktopIcon"/>
+          </node>
+          <node folder='true' label="Offline Installation" state="none">
+            <node label="Multi-Platform" state='dsk_offline' desc='BUILD_OFFLINE' icon="desktopIcon"/>
+          </node>            
+          <node folder='true' label="Exploit" state="none" >
+            <node label="OSX" state='exploit' desc='BUILD_EXPLOIT' icon="osxIcon"/>
+            <node label="Windows" state='exploit' desc='BUILD_EXPLOIT' icon="windowsIcon"/>
+          </node>
+          <node folder='true' label="Network Injection" state="none" >
+            <node label="OSX" state='dsk_nia' desc='BUILD_NIA' icon="osxIcon"/>
+            <node label="Windows" state='dsk_nia' desc='BUILD_NIA' icon="windowsIcon"/>
+          </node>
+        </>;
+      
+      [Bindable]
+      private var treeData_mobile:XMLList =
+        <>
+          <node folder='true' label="Local Installation" state="none">
+            <node label="Blackberry" state='mob_local' desc='BUILD_LOCAL_BLACKBERRY' icon="blackberryIcon"/>
+            <node label="WinMo" state='mob_local' desc='BUILD_LOCAL_WINMO' icon="winMoIcon"/> 
+          </node>
+          <node folder='true' label="Installation Package" state="none">
+            <node label="Android" state='mob_silent' desc='BUILD_SILENT' icon="androidIcon"/>
+            <node label="Blackberry" state='mob_silent' desc='BUILD_SILENT' icon="blackberryIcon"/>
+            <node label="iOS" state='mob_silent' desc='BUILD_SILENT' icon="iosIcon"/>
+            <node label="Symbian" state='mob_silent' desc='BUILD_SILENT' icon="symbianIcon"/>
+            <node label="WinMo" state='mob_silent' desc='BUILD_SILENT' icon="winMoIcon"/>
+          </node>
+          <node folder='true' label="Melted Application" state="none">
+            <node label="WinMo" state='mob_melted' desc='BUILD_MELTED' icon="winMoIcon"/>
+          </node>
+          <node folder='true' label="Wap Push Message" state="none">
+            <node label="MultiPlatform" state='mob_wap' desc='BUILD_WAP' icon="mobileIcon" />
+            <node label="Android" state='mob_wap' desc='BUILD_WAP' icon="androidIcon"/>
+            <node label="Blackberry" state='mob_wap' desc='BUILD_WAP' icon="blackberryIcon"/>
+            <node label="Symbian" state='mob_wap' desc='BUILD_WAP' icon="symbianIcon"/>
+            <node label="WinMo" state='mob_wap' desc='BUILD_WAP' icon="winMoIcon"/>
+          </node>
+          <node folder='true' label="QR Code / Web Link" state="none">
+            <node label="MultiPlatform" state='mob_qr' desc='BUILD_QR' icon="mobileIcon"/>
+            <node label="Android" state='mob_qr' desc='BUILD_QR' icon="androidIcon"/>
+            <node label="Blackberry" state='mob_qr' desc='BUILD_QR' icon="blackberryIcon"/>
+            <node label="Symbian" state='mob_qr' desc='BUILD_QR' icon="symbianIcon"/>
+            <node label="WinMo" state='mob_qr' desc='BUILD_QR' icon="winMoIcon"/>
+          </node>
+          <node folder='true' label="Exploit" state="none">
+            <node label="iOS" state='exploit' desc='BUILD_EXPLOIT' icon="iosIcon"/>
+          </node>
+        </>;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_windows.png')]
+      public var windowsIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_apple.png')]
+      public var osxIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_blackberry.png')]
+      public var blackberryIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_android.png')]
+      public var androidIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_s60.png')]
+      public var symbianIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_apple.png')]
+      public var iosIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/os_windows.png')]
+      public var winMoIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/agent_desktop_16.png')]
+      public var desktopIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/agent_mobile_16.png')]
+      public var mobileIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/openFolder.gif')]
+      public var openFolderIcon:Class;
+      
+      [Bindable]
+      [Embed('/img/buildform/closedFolder.gif')]
+      public var closedFolderIcon:Class;
+      
+      protected function close(event:*):void
+      { 
+        PopUpManager.removePopUp(this);
+      }
+      
+     
+      private function filterFunc(node:Object):ICollectionView
+      {
+        var str:String = searchTree.text.replace(/\s/g,"\\s");
+        var re:RegExp = new RegExp(str, "i");
+        //trace (node.@label + " " + node.descendants().length());
+        //return new XMLListCollection( node.*.(@label.match(re) || @desc.match(re) || descendants().(@label.match(re) || @desc.match(re)).length() > 0) );
+        
+        return new XMLListCollection( node.*.(@label.match(re) || @desc.match(re)) );
+        
+      }
+      
+
+      protected function searchTree_changeHandler(event:TextOperationEvent):void
+      {
+        if (searchTree.text) {
+          openAllTreeNodes(vectorTree); 
+        } else {
+          closeAllTreeNodes(vectorTree);
+        }
+        vectorTree.invalidateList();
+      }
+      
+      private function openAllTreeNodes(tree:Tree):void {
+        tree.openItems = tree.dataProvider;
+      }
+      
+      private function closeAllTreeNodes(tree:Tree):void {
+        tree.openItems = [];
+      }
+      
+      protected function vectorTree_changeHandler(event:ListEvent):void
+      {
+        leftPanel.platform = null;
+
+        if (vectorTree.selectedItem.@state != 'none')
+          leftPanel.platform = vectorTree.selectedItem.@label.toLowerCase();
+
+        leftPanel.desc = vectorTree.selectedItem.@desc;
+        leftPanel.currentState = vectorTree.selectedItem.@state;
+      }
+      
+      protected function init(event:FlexEvent):void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, close);
+        
+        // replace the localized descriptions
+        for each (var element:* in treeData_desktop) {
+          for each(var node:* in element..node) {
+            node.@desc = R.get(node.@desc);
+          }
+        }
+        
+        for each (var el:* in treeData_mobile) {
+          for each(var no:* in el..node) {
+            no.@desc = R.get(no.@desc);
+          }
+        }        
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:TextInput id="searchTree" left="10" top="10" width="200"
+               change="searchTree_changeHandler(event)"
+               skinClass="it.ht.rcs.console.skins.TextInputSearchSkin"/>
+  
+  <mx:Tree id="vectorTree" left="10" top="35" bottom="10" width="200"
+           change="vectorTree_changeHandler(event)"
+           dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
+           dataProvider="{factory.type == 'desktop' ? treeData_desktop : treeData_mobile}"
+           labelField="@label" iconField="@icon" folderClosedIcon="{closedFolderIcon}" folderOpenIcon="{openFolderIcon}"/>
+  
+  <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" factory="{factory}"/>
+    
+</s:TitleWindow>

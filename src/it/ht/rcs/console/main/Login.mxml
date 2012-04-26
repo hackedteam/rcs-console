@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%" addedToStage="onAddedToStage()" clipAndEnableScrolling="true"
+         creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.accounting.model.Session;
+      import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.Clock;
+      import it.ht.rcs.console.utils.DBFaultNotifier;
+      import it.ht.rcs.console.utils.Update;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ArrayList;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.CursorManager;
+      
+      private function init():void
+      {
+        /* User wants to logout but there is something he needs to know */
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.ABORT_LOGOUT, onAbortLogout);
+        /* User finally logged out (priority used to be sure this handler gets called last) */
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, onLogout, false, Number.NEGATIVE_INFINITY);
+      }
+      
+      private function onLogin(e:Event=null):void
+      {
+        CursorManager.setBusyCursor();
+        login.enabled = false;
+        
+        errorMessage.text = '';
+        errorMessage.includeInLayout = false;
+        
+        SessionManager.instance.login(username.text, password.text, server.text, new DBFaultNotifier(), new R(), onSuccess, onFailure);
+      }
+      
+      private function onSuccess(session:Session):void
+      {
+        /* take the current session from result */
+        Console.currentSession = session;
+        if (Console.currentSession.user.recent_ids == null)
+          Console.currentSession.user.recent_ids = new ArrayCollection();
+        /* set the locale of the current user */
+        resourceManager.localeChain = [Console.currentSession.user.locale];
+        /* update the clock timezone */
+        Clock.instance.setConsoleTimezone(Console.currentSession.user.timezone);
+        
+        /* start the push manager */
+        if (!DB.instance.demo)
+          PushController.instance.connect(DB.instance.connected_host, DB.instance.connected_port + 1);
+        
+        /* initialize the managers */
+        loading.visible = true;
+        Initialization.instance.addEventListener("initialized", onInitComplete);
+        Initialization.instance.initialize(loading);
+      }
+      
+      private function onInitComplete(e:Event):void {
+        CursorManager.removeBusyCursor();
+        login.enabled = true;
+        loading.visible = false;
+        loading.setProgress(0, 1);
+        
+        /* switch to the main stage */
+        (FlexGlobals.topLevelApplication as Console).goLoggedIn();
+        /* send the global LOGIN event */
+        FlexGlobals.topLevelApplication.dispatchEvent(new SessionEvent(SessionEvent.LOGIN));
+      }
+      
+      private function onFailure(message:String):void
+      {
+        CursorManager.removeBusyCursor();
+        login.enabled = true;
+        loading.visible = false;
+        
+        errorMessage.text = message;
+        errorMessage.includeInLayout = true;
+      }
+      
+      private function onAbortLogout(e:SessionEvent):void
+      {
+        AlertPopUp.show(R.get('CONFIRM_LOGOUT'), R.get('CONFIRM'),
+                        AlertPopUp.OK | AlertPopUp.CANCEL, null,
+                        function(event:CloseEvent):void {
+                          if(event.detail == AlertPopUp.OK)
+                            SessionManager.instance.forceLogout(e.exitApplicationAfterLogout);
+                        });
+      }
+      
+      private function onLogout(e:SessionEvent):void
+      {
+        (FlexGlobals.topLevelApplication as Console).goLoggedOut();
+        Console.currentSession = null;
+      }
+      
+      private function onAddedToStage():void
+      {
+        password.text = '';
+      }
+      
+      private function onActivateContrast(event:MouseEvent):void
+      {
+        if (event.shiftKey)
+          (parentApplication as Console).toggleContrast();
+      }
+    ]]>
+  </fx:Script>
+  
+  
+  <s:Image width="100%" height="100%" horizontalAlign="center"
+           source="@Embed('/img/windows/sfondo.png')" verticalAlign="middle" verticalCenter="-20"/>
+  
+  <s:VGroup width="100%" height="100%" gap="50" horizontalAlign="center" verticalAlign="middle">
+    
+    <s:Panel id="panel" doubleClick="onActivateContrast(event)" doubleClickEnabled="true"
+             title="{'RCS Console ' + Console.rcsVersion.substring(0, Console.rcsVersion.length - 2)}">
+      
+      <s:layout>
+        <s:VerticalLayout gap="0" paddingTop="10"/>
+      </s:layout>
+      
+      <s:Label id="errorMessage" width="100%" color="#ff0000" textAlign="center" includeInLayout="false"/>
+      
+      <s:Form addedToStage="username.setFocus();" id="loginForm">
+        
+        <s:FormItem label="Username">
+          <s:TextInput id="username" width="200" text="{SessionManager.instance.lastUsername}" enter="onLogin()"/>
+        </s:FormItem>
+        <s:FormItem label="Password">
+          <s:TextInput id="password" width="200" displayAsPassword="true" enter="onLogin()"/>
+        </s:FormItem>
+        <s:FormItem label="Server">
+          <s:TextInput id="server" width="200" text="{SessionManager.instance.lastServer}" enter="onLogin()"/>
+        </s:FormItem>
+        <s:FormItem>
+          <s:layout>
+            <s:VerticalLayout horizontalAlign="right" verticalAlign="middle"/>
+          </s:layout>
+          <s:Button id="login" label="Login" click="onLogin()"
+                    skinClass="it.ht.rcs.console.main.skins.chrome.RCSLoginButton"/>
+        </s:FormItem>
+        
+      </s:Form>
+      
+    </s:Panel>
+    
+    <mx:ProgressBar id="loading" visible="false" label="" mode="manual"/>
+
+  </s:VGroup>
+  
+</s:Group>

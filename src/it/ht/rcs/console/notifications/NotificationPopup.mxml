@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   width="350" height="80" addedToStage="onAddedToStage()" backgroundAlpha=".8"
+                   backgroundColor="#333333" borderVisible="false" click="dispose()"
+                   cornerRadius="5" creationPolicy="all">
+
+  <s:HGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle"
+            verticalCenter="1">
+    
+    <s:RichText id="message" width="330" color="#ffffff" fontFamily="Myriad" fontSize="16"
+                lineHeight="20" maxDisplayedLines="3" textAlign="center"/>
+    
+  </s:HGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.events.SessionEvent;
+      
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      public static function showNotification(message:String, showTime:Number=0):void
+      {
+        var popup:NotificationPopup = new NotificationPopup();
+        popup.adjustPosition();
+        PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, false);
+        popup.message.textFlow = TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        if (showTime > 0) {
+          var t:Timer = new Timer(showTime * 1000, 1);
+          t.addEventListener(TimerEvent.TIMER, popup.dispose);
+          t.start();
+        }
+      }
+      
+      private function onAddedToStage():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, dispose);
+        FlexGlobals.topLevelApplication.addEventListener(Event.RESIZE, adjustPosition);
+        fadeIn.play();
+      }
+      
+      private function dispose(event:Event=null):void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.LOGOUT, dispose);
+        FlexGlobals.topLevelApplication.removeEventListener(Event.RESIZE, adjustPosition);
+        fadeOut.play(); // Will remove the popup at the end
+      }
+      
+      private function fadeOutEnd():void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function adjustPosition(event:Event=null):void
+      {
+        this.x = FlexGlobals.topLevelApplication.width / 2 - this.width / 2;
+        this.y = FlexGlobals.topLevelApplication.height - this.height - 30;
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:Sequence id="fadeIn" target="{this}">
+      <s:Parallel duration="200">
+        <s:Fade alphaFrom="0" alphaTo="1"/>
+        <s:Move yFrom="{this.y + 50}" yTo="{this.y}"/>
+      </s:Parallel>
+      <s:Fade alphaFrom="1" alphaTo="0.3" duration="100"/>
+      <s:Fade alphaFrom="0.3" alphaTo="1" duration="100"/>
+    </s:Sequence>
+    <s:Parallel id="fadeOut" duration="200" effectEnd="fadeOutEnd()" target="{this}">
+      <s:Fade alphaFrom="1" alphaTo="0"/>
+      <s:Move yFrom="{this.y}" yTo="{this.y - 50}"/>
+    </s:Parallel>
+  </fx:Declarations>
+
+</s:BorderContainer>

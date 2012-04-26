@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     xmlns:view="it.ht.rcs.console.operations.view.*">
+  
+  <s:Button label="{R.get('NEW_TARGET')}" click="onNewClick()" enabled="{Console.currentSession.user.is_admin() &amp;&amp; section.stateManager.selectedOperation.status=='open'}"
+            icon="@Embed('/img/NEW/newTarget.png')" visible="{section.currentState == 'singleOperation'}"
+            includeInLayout="{section.currentState == 'singleOperation'}"/>
+  
+  <s:Button label="{R.get('EDIT')}" click="onEditClick()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
+            icon="@Embed('/img/NEW/edit.png')"/>
+  
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}"
+            icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('CLOSE')}" click="onClose()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status == 'open'}"
+            icon="@Embed('/img/NEW/lock32.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('MOVE_TARGET')}"
+            icon="@Embed('/img/NEW/move.png')" click="moveTarget(event)"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null  &amp;&amp; selectedObject.status=='open' &amp;&amp; section.stateManager.selectedOperation.status=='open'}"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
+            icon="@Embed('/img/NEW/newDashboard.png')" click="addToDashboard(event)"
+            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status == 'open'}"/>
+
+  <s:Spacer width="100%"/>
+  
+  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)" removedFromStage="onRemovedFromStage()"/>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.operations.view.MoveItemPopup;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.target.controller.TargetManager;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      private function onNewClick():void
+      {
+        var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
+        popup.operation = section.stateManager.selectedOperation;
+        popup.target = new Target(Target.defaultTarget());
+        popup.currentState = TargetsForm.CREATE;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onEditClick():void
+      {
+        var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
+        popup.operation = section.stateManager.selectedOperation;
+        popup.target = selectedObject as Target;
+        popup.currentState = TargetsForm.EDIT;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDeleteClick():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_TARGET_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              TargetManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function onClose():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_TARGET_CLOSE', [selectedObject.name]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              TargetManager.instance.closeTarget(selectedObject._id);
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        searchInput.text = '';
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        section.stateManager.searchField = searchInput;
+        section.stateManager.view.refresh();
+      }
+      
+      private function addToDashboard(event:MouseEvent):void
+      {
+        DashboardController.instance.newDashboardItem(selectedObject._id);
+        AlertPopUp.show(R.get('ADDED'));
+      }
+      
+      private function moveTarget(event:MouseEvent):void
+      {
+        var popup:MoveItemPopup = PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;
+        popup.itemToMove = selectedObject;
+        PopUpManager.centerPopUp(popup);
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="100" 
+         close="closeMe(event)" title="{R.get('EVIDENCE_EXPORT')}"
+         creationComplete="init()"
+         xmlns:view="it.ht.rcs.console.utils.*">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+
+      public var target:Target
+      public var agent:Agent;
+      
+      protected function closeMe(event:*):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function init():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, closeMe);
+        
+        exportname.text = defaultName();
+      }
+      
+      protected function export(event:MouseEvent):void
+      {
+        var filter:Object = {};
+        
+        filter.target = target._id;
+                
+        if (agent != null) {
+          filter.agent = agent._id;
+        }
+        
+        DownloadManager.instance.createTask("filesystem", exportname.text, {filter: filter}); 
+        
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function defaultName():String
+      {
+        var export_file:String = '';
+        
+        if (target != null)
+          export_file += target.name
+        
+        if (agent != null)
+          export_file += " - " + agent.name
+
+        export_file += " - " + "Filesystem Export";
+        
+        return export_file;
+      }
+      
+    ]]>
+  </fx:Script>
+
+  <s:VGroup left="15" top="15" horizontalAlign="center" verticalAlign="middle">
+    <s:HGroup horizontalAlign="right" width="100%">
+      <s:HGroup verticalAlign="middle" width="100%" horizontalAlign="left">
+        <s:Label text="{R.get('REPORT_NAME')}:" fontWeight="bold"/>
+        <s:TextInput id="exportname" width="250"/>
+      </s:HGroup>
+      <s:Button label="{R.get('EXPORT')}" click="export(event)"/>
+    </s:HGroup>
+  </s:VGroup>
+  
+</s:TitleWindow>

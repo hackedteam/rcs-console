@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  
+  <s:Button label="{R.get('NEW_BACKUP')}" click="onNewClick()" icon="@Embed('/img/NEW/newBackup.png')"/>
+  
+  <s:Button label="{R.get('EDIT')}" click="onEditClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/edit.png')"/>
+  
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+
+  <actionbar:Separator width="40"/>
+  
+  <s:Button label="{R.get('RUN_NOW')}" click="onRunClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/run.png')"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
+      import it.ht.rcs.console.backup.model.BackupJob;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      
+      private function onNewClick():void
+      {
+        var popup:BackupJobForm = PopUpManager.createPopUp(root, BackupJobForm, true) as BackupJobForm;
+        popup.currentState = 'create';
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      
+      private function onEditClick():void
+      {
+        var popup:BackupJobForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, BackupJobForm, true) as BackupJobForm;
+		    popup.currentState = 'edit';
+        popup.job = selectedObject as BackupJob;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDeleteClick():void
+      {
+		    BackupJobManager.instance.removeItem(selectedObject);
+      }
+      
+      private function onRunClick():void
+      {
+        BackupJobManager.instance.runJob(selectedObject as BackupJob, function (j:BackupJob):void {
+          BackupJobManager.instance.refresh();
+          BackupArchiveManager.instance.refresh();
+        });
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

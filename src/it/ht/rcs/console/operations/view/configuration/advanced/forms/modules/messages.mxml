@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()" save="save()" title="Messages">
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var mobile:Boolean;
+      
+      private function init():void
+      {
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
+        PopUpManager.centerPopUp(this);
+      }
+      
+      private function save():void
+      {
+        if (mobile && [email, sms, mms].every(isValid)) {
+          email.save();
+          sms.save();
+          mms.save();
+          close();
+        } else if (!mobile && email.isValid()) {
+          email.save();
+          delete(module.sms);
+          delete(module.mms);
+          close();
+        } else return;
+      }
+      
+      private function isValid(item:MessageType, index:int, array:Array):Boolean
+      {
+        return item.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:HGroup paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20">
+    
+    <modules:MessageType id="email" module="{module}" property="mail" label="Mail"/>
+    <modules:MessageType id="sms" visible="{mobile}" includeInLayout="{mobile}" module="{module}"
+                         property="sms" showMaxSize="false" label="SMS"/>
+    <modules:MessageType id="mms" visible="{mobile}" includeInLayout="{mobile}" module="{module}"
+                         property="mms" showMaxSize="false" label="MMS"/>
+  
+  </s:HGroup>
+  
+</modules:ModuleForm>

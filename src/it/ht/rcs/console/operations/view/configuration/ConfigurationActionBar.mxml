@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     addedToStage="onAddedToStage(event)">
+
+  <s:HGroup visible="{section.stateManager.selectedFactory != null}" gap="0"
+            includeInLayout="{section.stateManager.selectedFactory != null}">
+    <s:Button label="{R.get('BUILD')}" click="build(event)" icon="@Embed('/img/NEW/build.png')"/>
+    <actionbar:Separator/>
+  </s:HGroup>
+  
+  <s:Button label="{R.get('SAVE')}" click="onSave()" icon="@Embed('/img/NEW/save.png')"/>
+  
+  <s:HGroup visible="{configView.currentState == 'advanced'}" gap="0"
+            includeInLayout="{configView.currentState == 'advanced'}">
+    <s:Button label="{R.get('EDIT')}" click="onEdit()"
+              enabled="{configView.advanced.graph.selectedElement != null}"
+              icon="@Embed('/img/NEW/edit.png')"/>
+    <s:Button label="{R.get('DELETE')}" click="onDelete()"
+              enabled="{configView.advanced.graph.selectedElement != null &amp;&amp; !(configView.advanced.graph.selectedElement is ModuleRenderer)}"
+              icon="@Embed('/img/NEW/delete_32.png')"/>
+    <actionbar:Separator/>
+    <s:Button label="{R.get('BACK_TO_BASIC')}" click="backToBasic(event)" icon="@Embed('/img/NEW/basic.png')"/>
+  </s:HGroup>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('EXPORT')}" click="export(event)" icon="@Embed('/img/NEW/export.png')"/>
+  <s:Button label="{R.get('IMPORT')}" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
+  
+  <s:HGroup visible="{configView.currentState == 'basic'}" gap="0"
+            includeInLayout="{configView.currentState == 'basic'}">
+    <actionbar:Separator/>
+    <s:Button label="{R.get('CONFIG_ADVANCED')}" click="goToAdvanced(event)"
+              icon="@Embed('/img/NEW/config_32.png')"/>
+  </s:HGroup>
+  
+  <s:HGroup visible="{configView.currentState == 'advanced'}" gap="0">
+    <actionbar:Separator/>
+    
+    <s:Button label="{R.get('ADD_EVENT')}" click="addEvent(event)" icon="@Embed('/img/NEW/newEvent.png')"/>
+    <s:Button label="{R.get('ADD_ACTION')}" click="addAction(event)" icon="@Embed('/img/NEW/newAction.png')"/>
+    
+    <s:Button label="{R.get('EDIT_GLOBALS')}" click="editGlobals(event)" icon="@Embed('/img/NEW/globals.png')"/>
+    
+    <actionbar:Separator/>
+    
+    <s:Button id="collapse" label="{R.get('COLLAPSE')}" click="onCollapseAll()" icon="{collapseIcon}"/>
+    
+  </s:HGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.agent.model.Config;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.agents.build.BuildForm;
+      import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
+      import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleRenderer;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.controls.Alert;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
+      
+      [Embed('/img/NEW/expand_all.png')]
+      private static const expandIcon:Class;
+      [Embed('/img/NEW/collapse_all.png')]
+      private static const collapseIcon:Class;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      [Bindable]
+      public var configView:ConfigurationView;
+      
+      private function build(event:MouseEvent):void
+      {
+        saveConfig();
+        
+        var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
+        b.factory = section.stateManager.selectedFactory;
+        PopUpManager.centerPopUp(b);
+      }
+      
+      private function onAddedToStage(event:Event):void
+      {
+        configView = parent as ConfigurationView;
+      }
+      
+      private function onSave():void
+      {
+        saveConfig(goBackToList);
+        Alert.show(R.get('CONFIG_SAVED'));
+      }
+      
+      private function saveConfig(callback:Function = null):Object
+      {
+        var config:Object = getConfig();
+        if (config == null) return null;
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        AgentManager.instance.addConfig(a, JSON.stringify(config), callback);
+        configView.updateOriginalConfig(config);
+        return config;
+      }
+      
+      private function goBackToList(c:Config):void
+      {
+        if (configView.section.stateManager.selectedAgent != null)
+          section.stateManager.setState('agentConfigList');
+      }
+      
+      private function onEdit():void
+      {
+        var element:* = configView.advanced.graph.selectedElement;
+        if (element != null && element.hasOwnProperty('onDoubleClick'))
+          element.onDoubleClick(null);
+      }
+      
+      private function onDelete():void
+      {
+        var element:* = configView.advanced.graph.selectedElement;
+        if (element != null && element.hasOwnProperty('deleteEvent'))
+          element.deleteEvent();
+        else if (element != null && element.hasOwnProperty('deleteAction'))
+          element.deleteAction();
+        else if (element != null && element.hasOwnProperty('deleteConnection'))
+          element.deleteConnection();
+      }
+      
+      private function importFile(e:MouseEvent):void
+      {
+        var f:File = new File();
+        f.addEventListener(Event.SELECT, function(e:Event):void {
+          var fileStream:FileStream = new FileStream();
+          fileStream.open(e.target as File, FileMode.READ);
+          var config:String = fileStream.readUTFBytes(fileStream.bytesAvailable);
+          var configAsObject:Object = JSON.parse(config);
+          configView.configAsObject = configAsObject;
+          configView.displayConfig();
+        });
+        f.browseForOpen('Open config', [new FileFilter('Config (*.json)', '*.json')]);
+      }
+      
+      private function export(event:MouseEvent):void
+      {
+        var config:Object = saveConfig();
+        
+        var f:File = new File();
+        f.addEventListener(Event.SELECT, function(e:Event):void {
+          var file:File = e.target as File;
+          if (file.nativePath.indexOf('.json') == -1)
+            file.nativePath = file.nativePath + '.json';
+          var fileStream:FileStream = new FileStream();
+          fileStream.open(file, FileMode.WRITE);
+          fileStream.writeUTFBytes(PrettyPrinter.prettyPrint(config));
+          fileStream.close();
+          file.openWithDefaultApplication();
+        });
+        f.browseForSave('Save config');
+      }
+      
+      private function getConfig():Object
+      {
+        var config:Object = null;
+        if (configView.currentState == 'advanced')
+          config = configView.advanced.getConfig();
+        else if (configView.basic.isValid())
+          config = configView.basic.getConfig();
+        
+        return config;
+      }
+      
+      private function addAction(event:MouseEvent):void
+      {
+        configView.advanced.addAction(null);
+      }
+      
+      private function addEvent(event:MouseEvent):void
+      {
+        configView.advanced.addEvent(null);
+      }
+      
+      private function editGlobals(event:MouseEvent):void
+      {
+        var popup:GlobalsForm = PopUpManager.createPopUp(root, GlobalsForm, true) as GlobalsForm;
+        popup.globals = configView.configAsObject.globals;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function goToAdvanced(event:MouseEvent):void
+      {
+        configView.basic.config.globals.advanced = true;
+        saveConfig();
+        
+        configView.currentState = 'advanced';
+        configView.advanced.config = configView.basic.config;
+        configView.advanced.displayConfig();
+      }
+      
+      private function onCollapseAll():void
+      {
+        configView.advanced.graph.collapsed = !configView.advanced.graph.collapsed;
+        configView.advanced.config.globals.collapsed = configView.advanced.graph.collapsed;
+        configView.advanced.graph.rebuildGraph();
+        collapse.label = configView.advanced.graph.collapsed ? R.get('EXPAND') : R.get('COLLAPSE');
+        collapse.iconDisplay.source = configView.advanced.graph.collapsed ? expandIcon : collapseIcon;
+      }
+      
+      private function backToBasic(event:MouseEvent):void
+      {
+        AlertPopUp.show(R.get('BACK_TO_BASIC_WARNING'), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              doBackToBasic();
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function doBackToBasic():void
+      {
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        configView.currentState = 'basic';
+        var newConfig:Object = DefaultConfigBuilder.getDefaultConfig(a);
+        if (a._kind == 'agent')
+          DefaultConfigBuilder.cleanPlatformConfig(a.platform, newConfig);
+        configView.basic.config = newConfig;
+        configView.basic.displayConfig();
+      }
+    ]]>
+  </fx:Script>
+  
+</actionbar:ActionBar>

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 xmlns:html="flash.html.*"
+									 height="100%"
+									 width="100%"
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1"
+									 creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.utils.Size;
+
+			[Bindable]
+			[Embed(source="/img/evidence/attachment16.png")]
+			public var AttachIcon:Class;
+
+			private var _evidence:Object;
+
+			private var fullHtml:String="";
+			[Bindable]
+			private var content:String="";
+			[Bindable]
+			private var hasImages:Boolean;
+
+			private var loader:URLLoader=new URLLoader();
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+				_evidence=value;
+				if (value.type == "message")
+				{
+					if (value.data.type == "mail")
+					{
+					
+						var id:String=encodeURIComponent(value._id);
+						var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+
+						//var id:String=encodeURIComponent(value.data._grid);
+						//var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target; //export
+						var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; //export
+
+						loader.addEventListener(Event.COMPLETE, onContentLoaded);
+						loader.load(new URLRequest(url));
+					}
+					else if (value.data.type == "sms")
+					{
+						content=value.data.content || "";
+            
+					}
+          
+          else if (value.data.type == "mms")
+          {
+            content=value.data.content || "";
+            
+          }
+
+				}
+			}
+
+			private function onContentLoaded(e:Event):void
+			{
+				fullHtml=e.currentTarget.data;
+				hasImages=false;
+				if (fullHtml.search(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g")) != -1)
+				{
+					hasImages=true;
+				}
+        if(content==null) content="";
+				content=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
+
+				html.htmlText=content;
+				loader.removeEventListener(Event.COMPLETE, onContentLoaded);
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence; //from, rcpt,subject, size, content
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+
+			private function init():void
+			{
+
+			}
+
+			private function renderImages():void
+			{
+				warningBox.visible=warningBox.includeInLayout=false;
+				content=fullHtml;
+				html.htmlText=content;
+			}
+
+			private function cleanHTMLText(text:String):String
+			{
+				var clean:String=text.replace("<", "&lt;");
+				clean=clean.replace(">", "&gt;");
+				return clean;
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<s:RichText id="fromTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+cleanHTMLText(evidence.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{evidence.data.from!='local'}"
+							includeInLayout="{evidence.data.from!='local'}"/>
+	<s:Line width="100%"
+					visible="{evidence.data.from!='local'}"
+					includeInLayout="{evidence.data.from!='local'}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="rcptTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Recipients: &lt;/b&gt;'+cleanHTMLText(evidence.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{evidence.data.rcpt!='local'}"
+							includeInLayout="{evidence.data.rcpt!='local'}"/>
+	<s:Line width="100%"
+					visible="{evidence.data.rcpt!='local'}"
+					includeInLayout="{evidence.data.rcpt!='local'}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="subjectTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Subject: &lt;/b&gt;'+cleanHTMLText(evidence.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{evidence.data.type=='mail' || evidence.data.type=='mms'}"
+							includeInLayout="{evidence.data.type=='mail' || evidence.data.type=='mms'}"/>
+	<s:Line width="100%"
+					visible="{evidence.data.attach>0}"
+					includeInLayout="{evidence.data.attach>0}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:HGroup verticalAlign="middle"
+						horizontalAlign="left"
+						visible="{evidence.data.attach>0}"
+						includeInLayout="{evidence.data.attach>0}">
+		<s:Image source="{AttachIcon}"/>
+		<s:Label id="attachTxt"
+						 text="{evidence.data.attach} Attachments"/>
+	</s:HGroup>
+	<s:Line width="100%"
+					visible="{evidence.data.type=='mail' || evidence.data.type=='mms'}"
+					includeInLayout="{evidence.data.type=='mail' || evidence.data.type=='mms'}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+
+	<s:RichText textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Spacer width="100%"/>
+
+	<s:BorderContainer width="100%"
+										 backgroundAlpha="1"
+										 backgroundColor="#FFFAA5"
+										 borderColor="#FFE66B"
+										 borderWeight="2"
+										 cornerRadius="5"
+										 visible="{hasImages}"
+										 includeInLayout="{hasImages}"
+										 id="warningBox">
+		<s:layout>
+			<s:HorizontalLayout paddingBottom="5"
+													paddingLeft="10"
+													paddingRight="10"
+													paddingTop="5"
+													verticalAlign="middle"
+													horizontalAlign="center"/>
+		</s:layout>
+		<s:Label text="This message contains images not displayed for security reasons"
+						 paddingTop="2"/>
+		<mx:LinkButton label="Display images"
+									 buttonMode="true"
+									 paddingLeft="3"
+									 paddingRight="3"
+									 click="renderImages()"
+									 fontWeight="bold"/>
+	</s:BorderContainer>
+	<mx:HTML id="html"
+					 width="100%"
+					 height="100%"
+					 verticalScrollPolicy="auto"
+					 paddingRight="10"
+					 htmlText="{content}"/>
+</s:BorderContainer>

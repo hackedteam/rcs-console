@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%"
+                                height="100%" >
+  
+  <fx:Script>
+    <![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.utils.Size;
+      
+      [Bindable]
+      override public function set data(value:*):void
+      {
+        super.data=value;
+        typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" +data.data.type , TextConverter.TEXT_FIELD_HTML_FORMAT);
+        if(value.data.type=="mail")
+        {
+          
+          fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          recipientsTxt.textFlow=TextConverter.importToFlow("<b>Recipients: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+        else if(value.data.type=="sms")
+        {
+          if(data.data.from!="local")
+          {
+            fromTxt.visible=fromTxt.includeInLayout=true;
+            fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            fromTxt.visible=fromTxt.includeInLayout=false;
+          }
+         
+          if(data.data.rcpt!="local")
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=true;
+            recipientsTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=false;
+          }
+          subjectTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + cleanHTMLText(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+        
+        else if(value.data.type=="mms")
+        {
+          if(data.data.from!="local")
+          {
+            fromTxt.visible=fromTxt.includeInLayout=true;
+            fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            fromTxt.visible=fromTxt.includeInLayout=false;
+          }
+          
+          if(data.data.rcpt!="local")
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=true;
+            recipientsTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            recipientsTxt.visible=recipientsTxt.includeInLayout=false;
+          }
+          subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+      }
+      
+      private function cleanHTMLText(text:String):String
+      {
+        var clean:String=text.replace("<", "&lt;");
+        clean=clean.replace(">", "&gt;");
+        return clean; 
+        
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:HGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:VGroup verticalAlign="top"
+              width="50%">
+      <s:RichText id="typeTxt"
+                  width="100%"/>
+      <s:RichText id="fromTxt"
+                  width="100%"/>
+      <s:RichText id="recipientsTxt"
+                  width="100%" maxDisplayedLines="4"/>
+    </s:VGroup>
+    <s:Line height="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:VGroup verticalAlign="top"
+              width="50%">
+      <s:RichText id="subjectTxt"
+                  width="100%" maxDisplayedLines="4"/>
+      <s:RichText id="sizeTxt"
+                  width="100%"/>
+    </s:VGroup>
+  </s:HGroup>
+</renderers:EvidenceDataRenderer>

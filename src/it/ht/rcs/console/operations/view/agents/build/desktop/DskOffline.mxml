@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      protected function create():void
+      {
+        var params:Object;
+        var filename:String;
+        
+        if (iso.selected) {
+          params = {platform: 'iso', generate: {platforms: ['windows', 'osx'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected} } };
+          filename = parentDocument.factory.name + '_offline.iso'
+        } else {
+          params = {platform: 'usb', generate: {platforms: ['windows'], demo: createBtn.demo.selected, 
+                                                binary: {demo: createBtn.demo.selected, admin: false}, melt: {admin: false} } };
+          filename = parentDocument.factory.name + '_usb.zip'
+        }
+        
+        params['factory'] = {_id: parentDocument.factory._id};
+        
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
+      }
+      
+      public function set platform(platform:*):void
+      {
+        if (platform == null)
+          return;
+        
+        createBtn.platforms = ['windows', 'osx'];
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="Media"/>
+  </fx:Declarations>
+    
+  <s:VGroup left="10" top="10">
+    <s:RadioButton id="iso" label="Bootable CD/DVD" fontWeight="bold" groupName="Media" selected="true"/>
+    <s:RadioButton id="usb" label="Bootable USB drive" fontWeight="bold" groupName="Media"/>
+  </s:VGroup>
+  <s:Label left="150" top="15" text="Windows and OSX"/>
+  <s:Label left="150" top="40" text="Windows only"/>
+  
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
+  
+</s:Group>

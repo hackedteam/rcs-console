@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   width="300" height="80" backgroundColor="#666666" cornerRadius="10"
+                   creationComplete="init()" creationPolicy="all">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.events.UploadEvent;
+      
+      public var fileReference:FileReference;
+      
+      private function init():void
+      {
+        fileReference.addEventListener(ProgressEvent.PROGRESS, onProgress);
+        fileReference.upload(new URLRequest(DB.hostAutocomplete(Console.currentSession.server) + "upload"), "content");
+      }
+      
+      private function onProgress(event:ProgressEvent):void {
+        progressBar.setProgress(event.bytesLoaded, event.bytesTotal);
+      }
+      
+    ]]>
+  </fx:Script>
+
+  <s:VGroup width="100%" height="100%" gap="10" horizontalAlign="center" verticalAlign="middle">
+    <s:Label color="#ffffff" text="Uploading file and saving rule..."/>
+    <mx:ProgressBar id="progressBar" label="%3%%" color="#666666" fontSize="12" fontWeight="normal"
+                    labelPlacement="center" mode="manual"/>
+  </s:VGroup>
+  
+  <s:filters>
+    <s:DropShadowFilter angle="0" blurX="5" blurY="5" color="#666666" distance="0" quality="2"
+                        strength="1"/>
+  </s:filters>
+
+</s:BorderContainer>

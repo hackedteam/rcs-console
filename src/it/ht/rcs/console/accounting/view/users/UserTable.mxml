@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
+            xmlns:mx="library://ns.adobe.com/flex/mx"
+            width="100%" height="100%" doubleClickEnabled="true" doubleClick="onDoubleClick()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function formatDate(item:Object, column:GridColumn):String
+      {
+        try {
+          return TimeUtils.timestampFormatter(item.session.time * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function onDoubleClick():void
+      {
+        var popup:UserForm = PopUpManager.createPopUp(root, UserForm, true) as UserForm;
+        popup.user = this.selectedItem as User;
+        popup.currentState = 'edit';
+        PopUpManager.centerPopUp(popup);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:columns>
+    <s:ArrayList>
+      
+      
+      <s:GridColumn dataField="name" headerText="{R.get('USER')}"/>
+
+      <s:GridColumn dataField="desc" headerText="{R.get('DESCRIPTION')}"/>
+
+      <s:GridColumn dataField="contact" headerText="{R.get('CONTACT')}"/>
+           
+      <s:GridColumn width="30" dataField="enabled" headerText="En" resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer>
+                <s:CheckBox left="8" right="5" top="4" selected="{data.enabled}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn dataField="privs" headerText="{R.get('PRIVILEGES')}"
+                    itemRenderer="it.ht.rcs.console.accounting.view.users.PrivsGridRenderer"
+                    resizable="false" width="85"/>
+
+      <s:GridColumn dataField="session.time" headerText="{R.get('LOGON_TIME')}"
+                    labelFunction="formatDate" width="130" resizable="false"/>
+      
+      <s:GridColumn dataField="session.address" headerText="{R.get('ADDRESS')}"/>
+      
+      
+    </s:ArrayList>
+  </s:columns>
+  
+</s:DataGrid>

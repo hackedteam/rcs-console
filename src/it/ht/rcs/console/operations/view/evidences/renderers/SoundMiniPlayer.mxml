@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+          xmlns:s="library://ns.adobe.com/flex/spark" 
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          verticalAlign="middle"
+          creationComplete="init()">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      private var _sound:Sound;
+      private var _channel:SoundChannel;
+      private var _playingTime:int;
+      private var _pausePoint:Number=0;
+      private var _isPlaying:Boolean=false;
+      private var _isLoaded:Boolean=false;
+      private var _duration:Number;
+      private var _position:Number;
+      private var _hasFocus:Boolean;
+      
+      public var url:String;
+      
+      [Bindable]
+      [Embed (source="/img/mediaplayers/playSmall.png" )]
+      public var PlayIcon:Class;
+      [Bindable]
+      [Embed (source="/img/mediaplayers/pauseSmall.png" )]
+      public var PauseIcon:Class;
+      [Bindable]
+      [Embed (source="/img/mediaplayers/stopSmall.png" )]
+      public var StopIcon:Class;
+      
+      private function init():void
+      {
+        if(!_sound)
+        {
+         _sound=new Sound();
+        }
+      }
+      
+      private function loadSound():void
+      {
+        _sound.addEventListener(ProgressEvent.PROGRESS, onSoundLoading)
+        _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError)
+        _sound.addEventListener(Event.COMPLETE, onSoundLoaded);
+        _sound.load(new URLRequest(url));
+        trace("url"+url)
+      }
+
+      private function update(e:Event):void
+      {
+        statusTxt.text="playing "+TimeUtils.formatTime(_channel.position)+" | "+TimeUtils.formatTime(_duration);
+      }
+
+      private function onSoundLoading(e:ProgressEvent):void
+      {
+        trace("sound loading")
+        var perc:int=(e.bytesLoaded/e.bytesTotal)*100;
+        trace(e.bytesLoaded+" - "+e.bytesTotal)
+        if(e.bytesLoaded>10)
+        {
+        statusTxt.text="Loading sound data: "+String(perc)+"%"
+        }
+      }
+      
+      private function onSoundError(e:IOErrorEvent):void
+      {
+        trace("sound error")
+        statusTxt.text="Unable to load sound"
+        playBtn.enabled=true;
+        stopBtn.enabled=false;
+        _sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading);
+        _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
+        _sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
+      }
+      
+      private function onSoundLoaded(e:Event):void
+      {
+        trace("sound loaded")
+        _sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading);
+        _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
+        _sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
+        playBtn.enabled=true;
+        stopBtn.enabled=true;
+        _isLoaded=true;
+        _duration=_sound.length
+        if(_hasFocus)
+        {
+          _channel = _sound.play(_pausePoint);
+          _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+          _isPlaying = true;
+          playBtn.setStyle("icon", PauseIcon);
+          playBtn.toolTip="pause"
+          statusTxt.text="playing "+TimeUtils.formatTime(_channel.position)+" | "+TimeUtils.formatTime(_duration); 
+          addEventListener(Event.ENTER_FRAME,update);
+        }
+        else
+        {
+          statusTxt.text="Sound data loaded";
+        }
+      }
+      private function onSoundComplete(e:Event):void
+      {
+        _channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete);
+        _pausePoint = 0;
+        _channel=_sound.play(0)
+        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+        _channel.stop();
+        _isPlaying = false;
+        playBtn.setStyle("icon", PlayIcon);
+        playBtn.toolTip="play"
+        statusTxt.text="stopped"
+        removeEventListener(Event.ENTER_FRAME,update);
+      }
+      private function onPlayClick(e:MouseEvent):void
+      {
+        if(_isLoaded)
+        {
+          if (_isPlaying) {
+            _pausePoint = _channel.position;
+            _channel.stop();
+            _isPlaying = false;
+            playBtn.setStyle("icon", PlayIcon);
+            playBtn.toolTip="play"
+            statusTxt.text="paused"
+            removeEventListener(Event.ENTER_FRAME,update)
+          } else {
+            _channel = _sound.play(_pausePoint);
+            _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+            _isPlaying = true;
+            playBtn.setStyle("icon", PauseIcon);
+            playBtn.toolTip="pause"
+            statusTxt.text="playing "+TimeUtils.formatTime(_channel.position)+" | "+TimeUtils.formatTime(_duration);
+            addEventListener(Event.ENTER_FRAME,update);
+          }
+        }
+        else
+        {
+          playBtn.enabled=false;
+          loadSound();
+        }
+      }
+      
+      private function onStopClick(e:MouseEvent):void
+      {
+        _pausePoint = 0;
+        _channel=_sound.play(0);
+        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+        _channel.stop();
+        _isPlaying = false;
+        playBtn.setStyle("icon", PlayIcon);
+        playBtn.toolTip="play";
+        statusTxt.text="stopped";
+        removeEventListener(Event.ENTER_FRAME,update)
+      }
+      
+      public function set hasFocus(value:Boolean):void
+      {
+        
+        if(!value)
+        {
+          if (_isPlaying) {
+            _pausePoint = _channel.position;
+            _channel.stop();
+            _isPlaying = false;
+            playBtn.setStyle("icon", PlayIcon);
+            playBtn.toolTip="play";
+            statusTxt.text="paused";
+            removeEventListener(Event.ENTER_FRAME,update);
+          } 
+        }
+        _hasFocus=value;
+      }
+
+    ]]>
+  </fx:Script>
+  <s:Button id="playBtn" enabled="true" click="onPlayClick(event)" width="16" height="16 " icon="{PlayIcon}" toolTip="play" useHandCursor="true" mouseChildren="false"/>
+  <s:Button id="stopBtn" enabled="false" click="onStopClick(event)" width="16" height="16" icon="{StopIcon}" toolTip="stop" useHandCursor="true" mouseChildren="false"/>
+  <s:Label id="statusTxt"/>
+</s:HGroup>

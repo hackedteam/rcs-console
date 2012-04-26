@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.MetaValidator;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var mobile:Boolean;
+      
+      private function init():void
+      {
+        if (mobile)
+          currentState = 'mobile';
+        else {
+          ip.text = event.ip || "0.0.0.0";
+          netmask.text = event.netmask || "0.0.0.0";
+          port.text = event.port || "0";
+        }
+      }
+      
+      override public function commit():void
+      {
+        if (!mobile) {
+          event.ip = ip.text;
+          event.netmask = netmask.text;
+          event.port = parseInt(port.text);
+        }
+      }
+      
+      override public function isValid():Boolean
+      {
+        return mobile ? true : val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <events:states>
+    <s:State name="desktop"/>
+    <s:State name="mobile"/>
+  </events:states>
+  
+  <s:Label includeIn="desktop" width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_CONNECTION_DESKTOP')}"/>
+  
+  <s:Label includeIn="mobile" width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_CONNECTION_MOBILE')}"/>
+  
+  <s:Form includeIn="desktop">
+    
+    <s:FormItem label="{R.get('IP_ADDRESS')}">
+      <s:HGroup>
+        <s:TextInput id="ip" maxChars="15" restrict="0-9." showErrorTip="true" textAlign="center"
+                     widthInChars="8"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('NETMASK')}">
+      <s:HGroup>
+        <s:TextInput id="netmask" maxChars="15" restrict="0-9." showErrorTip="true"
+                     textAlign="center" widthInChars="8"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PORT')}">
+      <s:HGroup>
+        <s:TextInput id="port" maxChars="5" restrict="0-9" showErrorTip="true" textAlign="center"
+                     widthInChars="3"/>
+      </s:HGroup>
+    </s:FormItem>
+
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:RegExpValidator expression="{MetaValidator.ipExpr}" flags="g" property="text" source="{ip}"
+                          triggerEvent=""/>
+      <mx:RegExpValidator expression="{MetaValidator.ipExpr}" flags="g" property="text"
+                          source="{netmask}" triggerEvent=""/>
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_OUT_RANGE')}" maxValue="65535" property="text"
+                          required="true" source="{port}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</events:EventFields>

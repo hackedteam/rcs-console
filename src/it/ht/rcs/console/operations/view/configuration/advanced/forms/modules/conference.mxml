@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()" save="save()" title="Conference">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      private function init():void
+      {
+        number.text = module.number;
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return;
+        
+        module.number = number.text;
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('NUMBER')}">
+      <s:HGroup>
+        <s:TextInput id="number" width="140" restrict="0-9+" showErrorTip="true"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator minLength="1" property="text" source="{number}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+
+</modules:ModuleForm>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx">
+
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      public var section:OperationsSection;
+      
+      private function onClick(event:MouseEvent):void
+      {
+        section.stateManager.setState(event.currentTarget.id);
+      }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        (event.target as Image).filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="0xffffff" blurX="12" blurY="12" strength="3"/>
+  </fx:Declarations>
+  
+  <s:layout>
+    <s:HorizontalLayout gap="10" paddingRight="10" verticalAlign="middle"/>
+  </s:layout>
+  
+  <s:Image id="allOperations" buttonMode="true" click="onClick(event)" rollOver="onRoll(event)" rollOut="onRoll(event)"
+           source="@Embed('/img/NEW/operation_16.png')" toolTip="{R.get('ALL_OPERATIONS')}"/>
+  
+  <s:Image id="allTargets" buttonMode="true" click="onClick(event)" rollOver="onRoll(event)" rollOut="onRoll(event)"
+           source="@Embed('/img/NEW/target_16.png')" toolTip="{R.get('ALL_TARGETS')}"/>
+  
+  <s:Image id="allAgents" visible="{Console.currentSession.user.is_view()}" buttonMode="true"
+           rollOver="onRoll(event)" rollOut="onRoll(event)"
+           click="onClick(event)" includeInLayout="{Console.currentSession.user.is_view()}"
+           source="@Embed('/img/NEW/agent_16.png')" toolTip="{R.get('ALL_AGENTS')}"/>
+  
+</s:Group>

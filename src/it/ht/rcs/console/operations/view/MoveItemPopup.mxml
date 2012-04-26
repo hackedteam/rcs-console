@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
+                             creationComplete="init()" save="doMove()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.target.controller.TargetManager;
+      import it.ht.rcs.console.target.model.Target;
+      
+      import locale.R;
+      
+      import mx.rpc.events.ResultEvent;
+      
+      public var itemToMove:Object;
+      
+      private function doMove(e:Event=null):void
+      {
+        if (itemField.selectedItem == null) {
+          itemField.errorString = R.get('MOVE_WARNING');
+          return;
+        }
+        
+        if (itemField.selectedItem.status == 'closed') {
+          itemField.errorString = R.get('MOVE_CLOSED');
+          return;
+        }
+        
+        if (itemToMove is Agent)
+          DB.instance.agent.move(itemToMove._id, itemField.selectedItem._id, onResult);
+        else if (itemToMove is Target)
+          DB.instance.target.move(itemToMove._id, itemField.selectedItem._id, onResult);
+      }
+      
+      private function onResult(re:ResultEvent):void
+      {
+        doGigaRefresh();
+        
+        OperationsSectionStateManager.currInstance.setState('allOperations');
+        
+        close();
+      }
+      
+      private function doGigaRefresh():void
+      {
+        var user:User = Console.currentSession.user;
+        
+        if (user.is_any())
+          SearchManager.instance.refresh();
+        
+        if (user.is_admin() || user.is_tech() || user.is_view())
+        {
+          OperationManager.instance.refresh();
+          TargetManager.instance.refresh();
+        }
+        
+        if (user.is_tech() || user.is_view())
+        {
+          AgentManager.instance.refresh();
+        }
+      }
+      
+      private function init():void
+      {
+        if (itemToMove is Agent) {
+          itemField.kinds = ['target'];
+          tip.text = R.get('MOVE_TOOLTIP', [itemToMove._kind, itemToMove.name, 'target']);
+        }
+        else if (itemToMove is Target) {
+          itemField.kinds = ['operation'];
+          tip.text = R.get('MOVE_TOOLTIP', ['target', itemToMove.name, 'operation']);
+        }
+      }
+    ]]>
+  </fx:Script>
+
+  <s:VGroup gap="20" horizontalAlign="center" paddingBottom="20" paddingLeft="20" paddingRight="20"
+            paddingTop="20">
+    <s:Label id="tip" width="220" textAlign="center"/>
+    <itemfield:ItemField id="itemField" width="180"/>
+  </s:VGroup>
+  
+</utils:TitleWindowSaveCancel>

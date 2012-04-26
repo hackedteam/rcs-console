@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
+            xmlns:mx="library://ns.adobe.com/flex/mx"
+            width="100%" height="100%" doubleClick="doubleClick(event)" doubleClickEnabled="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.InjectorRule;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.search.model.SearchItem;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      protected function doubleClick(event:MouseEvent):void
+      {
+        /* only tech can modify a rule */
+        if (!Console.currentSession.user.is_tech() || selectedItem == null)
+          return;
+        
+        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+        popup.mode = 'edit';
+        popup.injector = (parentDocument as NIA).nias.selectedItem;
+        popup.rule = selectedItem as InjectorRule;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function targetname(item:Object, column:GridColumn):String
+      {
+        var target:SearchItem = SearchManager.instance.getItem(item[column.dataField]);
+        if (target == null)
+          return '*** *** ***';
+        
+        return target.name;
+      }
+
+      private function agentname(item:Object, column:GridColumn):String
+      {
+        var agent:SearchItem = SearchManager.instance.getItem(item[column.dataField]);
+        if (agent == null) {
+          if (item['action'] == 'REPLACE')
+            return item[column.dataField];
+          else
+            return '*** *** ***';
+        }
+        return agent.name;
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:columns>
+    <s:ArrayList>
+      
+      
+      <s:GridColumn width="30" dataField="enabled" headerText="{R.get('ENABLED_SHORT')}"
+                    resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer>
+                <s:CheckBox left="8" top="4" selected="@{data.enabled}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="30" dataField="disable_sync" headerText="{R.get('SYNC_SHORT')}"
+                    resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:SkinnableContainer>
+                <s:CheckBox left="9" top="4" enabled="false" selected="{data.disable_sync}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      
+      <s:GridColumn width="35" dataField="probability" headerText="{R.get('PROBABILITY_SHORT')}" resizable="false"/>
+      <s:GridColumn dataField="target_id" headerText="{R.get('TARGET')}" labelFunction="targetname"/>
+      <s:GridColumn dataField="ident" headerText="{R.get('IDENT')}"/>
+      <s:GridColumn dataField="ident_param" headerText="{R.get('USER_PATTERN')}"/>
+      <s:GridColumn dataField="resource" headerText="{R.get('RESOURCE_PATTERN')}"/>
+      <s:GridColumn dataField="action" headerText="{R.get('ACTION')}"/>
+      <s:GridColumn dataField="action_param_name" headerText="{R.get('PARAMETERS')}" labelFunction="agentname"/>
+    
+      
+    </s:ArrayList>
+  </s:columns>
+  
+</s:DataGrid>

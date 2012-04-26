@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="onSave(event)"
+                             title="{currentState == CREATE ? R.get('NEW_TARGET') : R.get('EDIT_TARGET')}">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.operation.model.Operation;
+      import it.ht.rcs.console.target.controller.TargetManager;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      
+      public static const CREATE:String = 'create';
+      public static const EDIT:String = 'edit';
+      
+      [Bindable] public var operation:Operation;
+      [Bindable] public var target:Target;
+      
+      private function init():void
+      {
+        if (currentState == EDIT) {
+          for each (var s:Object in statuses)
+            if (s.label.toLowerCase() == target.status)
+              status.selectedItem = s;
+        }
+        
+        targetName.setFocus();
+      }
+      
+      private function onSave(event:SaveEvent):void
+      {
+
+        if(currentState == EDIT && getStatus() != target.status)
+        {
+          AlertPopUp.show(R.get('CONFIRM_TARGET_CLOSE', [target.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                { doSave(); close(); }
+            }, null, AlertPopUp.NO);
+          return;
+        }
+        
+        doSave();
+        
+        if (currentState == CREATE)
+          TargetManager.instance.addTarget(target, operation, function(target:Target):void { close(); });
+        else
+          close();
+        
+      }
+      
+      private function getStatus():String
+      {
+        return status.selectedIndex == 0 ? 'open' : 'closed';
+      }
+      
+      private function doSave():void
+      {
+        target.name = targetName.text;
+        target.desc = desc.text;
+        target.status = (currentState == CREATE) ? 'open' : getStatus();
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <s:Form width="100%" defaultButton="{saveButton}">
+
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="targetName" width="250" text="{target.name}" restrict="A-Za-z0-9'\-_ " maxChars="20"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DESCRIPTION')}">
+      <s:TextArea id="desc" width="250" heightInLines="3" text="{target.desc}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('STATUS')}"
+                enabled="{currentState == EDIT &amp;&amp; target.status == 'open'}">
+      <s:DropDownList id="status" width="150" requireSelection="true">
+        <s:ArrayCollection id="statuses">
+          <fx:Object label="OPEN"/>
+          <fx:Object label="CLOSED"/>
+        </s:ArrayCollection>
+      </s:DropDownList>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</utils:TitleWindowSaveCancel>

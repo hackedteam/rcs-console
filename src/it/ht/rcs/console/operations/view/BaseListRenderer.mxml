@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true" doubleClickEnabled="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.dashboard.view.renderer.Icons;
+      import it.ht.rcs.console.operation.model.Operation;
+      import it.ht.rcs.console.target.model.Target;
+      
+      [Embed(source='/img/NEW/operation.png')]
+      private static const operationIcon:Class;
+      
+      [Embed(source='/img/NEW/target.png')]
+      private static const targetIcon:Class;
+      
+      [Embed(source='/img/NEW/evidence_50.png')]
+      private static const evidenceIcon:Class;
+      
+      [Embed(source='/img/NEW/filesystem_50.png')]
+      private static const fsIcon:Class;
+      
+      [Embed(source='/img/NEW/info_50.png')]
+      private static const infoIcon:Class;
+      
+      [Embed(source='/img/NEW/config_50.png')]
+      private static const configIcon:Class;
+      
+      [Embed(source='/img/NEW/filetransfer_50.png')]
+      private static const fileTransferIcon:Class;
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        
+        bottomLabel.text = data ? data.name : '';
+        iconType.source = data ? getTypeIcon() : null;
+        
+        alpha = data && data.hasOwnProperty('status') && data.status && data.status.toLowerCase() == 'closed' ? .5 : 1;
+        
+        if (data && data.hasOwnProperty('demo') && data.demo)
+          iconType.filters = [glow_demo];
+        else
+          iconType.filters = null;
+      }
+      
+      private function getTypeIcon():Class
+      {
+        if (data is Operation)
+          return operationIcon;
+        else if (data is Target)
+          return targetIcon;
+        else if (data is Agent && data._kind == 'agent')
+          return data.platform ? Icons[data.type + '_' + data.platform] : Icons['agent_' + data.type];
+        else if (data is Agent && data._kind == 'factory')
+          return Icons['agent_' + data.type];
+        
+        // see addCustomTypes() in stateManager
+        else if (data is Object && data.customType == 'evidence')
+          return evidenceIcon;
+        else if (data is Object && data.customType == 'filesystem')
+          return fsIcon;
+        else if (data is Object && data.customType == 'info')
+          return infoIcon;
+        else if (data is Object && data.customType == 'configlist')
+          return configIcon;
+        else if (data is Object && data.customType == 'filetransfer')
+          return fileTransferIcon;
+        
+        return null;
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow_demo" color="#5C8FFF" blurX="8" blurY="8" strength="2"/>
+    <s:GlowFilter id="glow_special" color="0x3082c4" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
+  
+  <s:Image id="iconType" top="5" horizontalCenter="0"/>
+  
+  <s:Label id="bottomLabel" top="62" width="110" horizontalCenter="0" paddingBottom="5"
+           textAlign="center" maxDisplayedLines="2"/>
+  
+</s:ItemRenderer>

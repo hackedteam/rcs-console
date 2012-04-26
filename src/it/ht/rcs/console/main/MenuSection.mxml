@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.SectionEvent;
+      
+      import locale.R;
+      
+      import mx.collections.IList;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      
+      import spark.events.IndexChangeEvent;
+      
+      [Bindable]
+      public var sections:IList;
+      
+      private function onButtonClick(event:IndexChangeEvent):void
+      {
+        var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        sectionEvent.section = sections.getItemAt(event.newIndex).label as String;
+        FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+      }
+      
+      private var toChange:int;
+      protected function onChanging(event:IndexChangeEvent):void
+      {
+        if ((parentDocument.sections[parentDocument.sections.currentState] as Section).getDirtyState()) {
+          event.preventDefault();
+          toChange = event.newIndex;
+          Alert.show(R.get('UNSAVED_CHANGES'), R.get('UNSAVED_CHANGES_TITLE'), Alert.OK|Alert.CANCEL, null, confirm);
+        }
+      }
+      
+      private function confirm(event:CloseEvent):void
+      {
+        if (event.detail == Alert.OK) {
+          var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+          sectionEvent.section = sections.getItemAt(toChange).label as String;
+          FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+        }
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:HorizontalLayout gap="0" horizontalAlign="left" paddingBottom="12" paddingLeft="5"
+                        paddingRight="5" paddingTop="12" verticalAlign="middle"/>
+  </s:layout>
+  
+  <s:ButtonBar id="bar" change="onButtonClick(event)" changing="onChanging(event)"
+               dataProvider="{sections}" labelField="label" requireSelection="true"
+               skinClass="it.ht.rcs.console.main.skins.chrome.RCSMenuSectionSkin"/>
+  
+</s:Group>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                    xmlns:s="library://ns.adobe.com/flex/spark" 
+                    xmlns:mx="library://ns.adobe.com/flex/mx" clipAndEnableScrolling="true"
+					          xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*" dataChange="onDataChange()"
+          
+					>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.evidence.model.EvidenceData;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceGrid;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      
+      private function init():void{
+        
+        currentState="loading"
+      }
+      private function onDataChange():void
+      {
+       
+        this.invalidateDisplayList() //TODO
+      }
+      
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        currentState="loading"
+        if (!data) return;
+        if(hasState(data.type))
+        {
+          currentState=data.type;
+
+        }
+        else
+        {
+          currentState="none"
+        }
+        
+      }
+      override public function set data(value:Object):void{
+        
+        super.data=value;
+       
+      }
+
+    ]]>
+  </fx:Script>
+  <s:layout>
+    <s:HorizontalLayout verticalAlign="middle" horizontalAlign="left"  paddingLeft="6" paddingRight="6" paddingTop="4"/>
+  </s:layout>
+	<s:states>
+    <s:State name="none"/>
+    <s:State name="addressbook"/>
+    <s:State name="application"/>
+    <s:State name="calendar"/>
+    <s:State name="call"/>
+    <s:State name="camera"/>
+    <s:State name="chat"/>
+    <s:State name="clipboard"/>
+		<s:State name="device"/>
+		<s:State name="file"/>
+		<s:State name="keylog"/>
+    <s:State name="message"/>
+		<s:State name="mic"/>
+    <s:State name="mouse"/>
+		<s:State name="password"/>
+    <s:State name="position"/>
+		<s:State name="print"/>
+		<s:State name="screenshot"/>
+		<s:State name="url"/>
+    <s:State name="loading"/>
+	</s:states>
+  
+  <renderers:Addressbook includeIn="addressbook" data="{data}"/>
+  <renderers:Application includeIn="application" data="{data}"/>
+  <renderers:Calendar includeIn="calendar" data="{data}"/>
+  <renderers:Call includeIn="call" data="{data}"/>
+  <renderers:Camera includeIn="camera" data="{data}"/>
+  <renderers:Chat includeIn="chat" data="{data}"/>
+  <renderers:Clipboard includeIn="clipboard" data="{data}"/>
+  <renderers:Device includeIn="device" data="{data}"/>
+  <renderers:File includeIn="file" data="{data}"/>
+  <renderers:Keylog includeIn="keylog" data="{data}"/>
+  <renderers:Message includeIn="message" data="{data}"/>
+  <renderers:Mouse includeIn="mouse" data="{data}"/>
+  <renderers:Mic includeIn="mic" data="{data}"/>
+  <renderers:Password includeIn="password" data="{data}"/>
+  <renderers:Position includeIn="position" data="{data}"/>
+  <renderers:Print includeIn="print" data="{data}"/>
+	<renderers:Screenshot includeIn="screenshot" data="{data}"/>
+  <renderers:Url includeIn="url" data="{data}"/>
+  <renderers:LoadingRenderer includeIn="loading"/>
+</s:GridItemRenderer>

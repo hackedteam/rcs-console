@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="100%"
+									 width="100%"
+                   borderColor="0xCCCCCC"
+                   backgroundColor="0xFFFFFF"
+                   backgroundAlpha="1">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+
+			private var _evidence:Object;
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+        _evidence=value;
+        scroller.verticalScrollBar.value=0;
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence;
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+		]]>
+	</fx:Script>
+<s:layout>
+  <s:HorizontalLayout paddingBottom="10"
+                      paddingLeft="10"
+                      paddingRight="8"
+                      paddingTop="30"
+                      />
+</s:layout>
+		<s:Scroller height="100%"
+								width="100%" id="scroller">
+			<s:RichEditableText editable="false"
+													id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+		</s:Scroller>
+
+</s:BorderContainer>

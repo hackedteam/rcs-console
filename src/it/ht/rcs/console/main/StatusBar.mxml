@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:task="it.ht.rcs.console.task.view.*"
+         width="100%" height="30">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.view.users.ClockProfile;
+      import it.ht.rcs.console.accounting.view.users.UserProfile;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.utils.Clock;
+      
+      import mx.managers.PopUpManager;
+      
+      private function onUserClick(event:MouseEvent):void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, UserProfile, true));
+      }
+      
+      private function onDateClick(event:MouseEvent):void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, ClockProfile, true));
+      }
+    ]]>
+  </fx:Script>
+  
+  <task:DownloadManagerBar buttonMode="true"/>
+  
+  <s:Group width="100%" height="100%">
+    <s:layout>
+      <s:HorizontalLayout paddingLeft="10" paddingRight="10" verticalAlign="middle"/>
+    </s:layout>
+  
+    <s:BitmapImage source="@Embed('/img/NEW/user_16.png')" verticalCenter="5"/>
+    <s:Label buttonMode="true" click="onUserClick(event)" color="#555555" fontFamily="Myriad"
+             fontSize="12" maxDisplayedLines="1" paddingTop="1"
+             text="{Console.currentSession.user.name}\@{Console.currentSession.server}"/>
+    
+    <s:Spacer width="10"/>
+    
+    <s:Label text="{PushController.instance.status}" color="#555555" fontFamily="Myriad"
+             fontSize="12" maxDisplayedLines="1" paddingTop="1"/>
+    
+    <s:Spacer width="100%"/>
+    
+    <s:Label buttonMode="true" click="onDateClick(event)" color="#555555" fontFamily="Myriad"
+             fontSize="12" maxDisplayedLines="1" paddingTop="1"
+             text="{Clock.instance.statusBarTime}"/>
+  </s:Group>
+  
+</s:Group>

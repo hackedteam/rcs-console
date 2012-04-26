@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_EVENT')}">
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.view.configuration.advanced.ConfigurationGraph;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      import spark.events.IndexChangeEvent;
+      
+      public var event:Object;
+      public var graph:ConfigurationGraph;
+      
+      public var currentData:EventFields;
+      
+      [Bindable]
+      private var mobile:Boolean;
+      
+      private function init():void
+      {
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
+        
+        // filtro gli eventi x desktop o mobile
+        eventTypes.filterFunction = eventFilterFunction;
+        eventTypes.refresh();
+        
+        eventEnabled.selected = event.enabled;
+        desc.text = event.desc;
+
+        // se l'evento e' un date o un afterinst, in realta devo far vedere timer
+        var toSelect:String = event.event.toLowerCase();
+        if (['date', 'afterinst'].indexOf(toSelect) != -1)
+          toSelect = 'timer';
+        
+        for each (var o:Object in ArrayCollection(type.dataProvider).source)
+          if (o.label.toLowerCase() == toSelect)
+            type.selectedItem = o;
+        
+        currentState = event.event;
+        switchView();
+        
+        desc.setFocus();
+        desc.selectAll();
+      }
+      
+      private function onChange(e:IndexChangeEvent):void
+      {
+        currentState = type.selectedItem.label.toLowerCase();
+        switchView();
+      }
+      
+      private function switchView():void
+      {
+        if (['date', 'afterinst'].indexOf(currentState) != -1)
+          currentData = timer;
+        else
+          currentData = this[currentState] as EventFields;
+        
+        currentData.event = event;
+        PopUpManager.centerPopUp(this);
+      }
+      
+      private function save():void
+      {
+        if (!currentData.isValid())
+          return;
+        
+        event.enabled = eventEnabled.selected;
+        event.desc = desc.text;
+        event.event = currentState;
+        Cleaner.clean(event);
+        currentData.commit();
+        close();
+        
+        adjustConnections();
+        
+        graph.rebuildGraph();
+      }
+      
+      private function adjustConnections():void
+      {
+        if (event.event == 'window'   ||
+            event.event == 'winevent' ||
+            event.event == 'sms'      ||
+            event.event == 'simchange') {
+          delete(event.repeat);
+          delete(event.iter);
+          delete(event.delay);
+          delete(event.end);
+        }
+        
+        if ((event.event == 'timer' && event.subtype == 'loop') ||
+             event.event == 'afterinst')
+          delete(event.end);
+      }
+      
+      private function eventFilterFunction(o:Object):Boolean
+      {
+        return o.type.indexOf(graph.config.globals.type.toLowerCase()) != -1;
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="none"/>
+
+    <s:State name="ac"/>
+    <s:State name="afterinst"/>
+    <s:State name="battery"/>
+    <s:State name="call"/>
+    <s:State name="connection"/>
+    <s:State name="date"/>
+    <s:State name="position"/>
+    <s:State name="process"/>
+    <s:State name="quota"/>
+    <s:State name="screensaver"/>
+    <s:State name="simchange"/>
+    <s:State name="sms"/>
+    <s:State name="standby"/>
+    <s:State name="timer"/>
+    <s:State name="window"/>
+    <s:State name="winevent"/>
+  </utils:states>
+  
+  <utils:layout>
+    <s:VerticalLayout paddingBottom="2" paddingLeft="2" paddingRight="10" paddingTop="2"/>
+  </utils:layout>
+  
+  <s:Form defaultButton="{saveButton}">
+
+    <s:FormItem label="{R.get('ENABLED')}">
+      <s:CheckBox id="eventEnabled"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="desc" width="160"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="type" width="160" change="onChange(event)" dataProvider="{eventTypes}"
+                      labelField="label" requireSelection="true"/>
+    </s:FormItem>
+    
+    <s:Spacer height="20"/>
+    
+    <events:Ac          id="ac"          includeIn="ac"/>
+    <events:Battery     id="battery"     includeIn="battery"/>
+    <events:Call        id="call"        includeIn="call"/>
+    <events:Connection  id="connection"  includeIn="connection" mobile="{mobile}"/>
+    <events:Position    id="position"    includeIn="position"/>
+    <events:Process     id="process"     includeIn="process" mobile="{mobile}"/>
+    <events:Quota       id="quota"       includeIn="quota"/>
+    <events:Screensaver id="screensaver" includeIn="screensaver"/>
+    <events:SimChange   id="simchange"   includeIn="simchange"/>
+    <events:Sms         id="sms"         includeIn="sms"/>
+    <events:Standby     id="standby"     includeIn="standby"/>
+    <events:Timer       id="timer"       includeIn="timer,date,afterinst"/>
+    <events:Window      id="window"      includeIn="window"/>
+    <events:WinEvent    id="winevent"    includeIn="winevent"/>
+
+  </s:Form>
+
+  <fx:Declarations>
+    <s:ArrayCollection id="eventTypes">
+      <fx:Object label="AC"          type="mobile"/>
+      <fx:Object label="Battery"     type="mobile"/>
+      <fx:Object label="Call"        type="mobile"/>
+      <fx:Object label="Connection"  type="mobile,desktop"/>
+      <fx:Object label="Position"    type="mobile"/>
+      <fx:Object label="Process"     type="mobile,desktop"/>
+      <fx:Object label="Quota"       type="desktop"/>
+      <fx:Object label="Screensaver" type="desktop"/>
+      <fx:Object label="SimChange"   type="mobile"/>
+      <fx:Object label="Sms"         type="mobile"/>
+      <fx:Object label="Standby"     type="mobile"/>
+      <fx:Object label="Timer"       type="mobile,desktop"/>
+      <fx:Object label="Window"      type="desktop"/>
+      <fx:Object label="WinEvent"    type="desktop"/>
+    </s:ArrayCollection>
+  </fx:Declarations>
+  
+</utils:TitleWindowSaveCancel>

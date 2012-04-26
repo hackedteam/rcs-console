@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.audit.view.filters.*"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             show="show()">
+
+  <s:ComboBox id="combo" width="150" styleName="auditFilter" keyUp="onKeyUp(event)"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.collections.IList;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.utils.StringUtil;
+      
+      override public function commit(fireEvent:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        combo.selectedItem = '';
+        commit(fireEvent);
+      }
+      
+      override public function set filterValues(filterValues:IList):void
+      {
+        combo.dataProvider = filterValues;
+        combo.selectedItem = filter[property];
+      }
+      
+      private function getValues():Array
+      {
+        
+        if (!combo.selectedItem || combo.selectedItem == '')
+          return [];
+        
+        combo.selectedItem = StringUtil.trim(combo.selectedItem);
+        
+        if (combo.selectedItem.indexOf(',') != -1)
+          return combo.selectedItem.split(',');
+        
+//        if (combo.selectedItems.length == 1)
+//          return [combo.dropdown.selectedItem];
+//        
+//        if (combo.filteredCollection.length > 0) {
+//          var values:Array = [];
+//          for each (var item:String in combo.filteredCollection)
+//            values.push(item);
+//          return values;
+//        }
+        
+        return [combo.selectedItem];
+        
+      }
+      
+      private function show():void
+      {
+        combo.setFocus();
+        combo.selectedItem = filter[property];
+      }
+      
+      protected function onKeyUp(event:KeyboardEvent):void
+      {
+        if (event.keyCode == Keyboard.ENTER)
+          commit();
+      }
+      
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

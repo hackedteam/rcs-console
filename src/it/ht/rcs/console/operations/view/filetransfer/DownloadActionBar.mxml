@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  <s:Button label="{R.get('NEW_DOWNLOAD')}" click="onDownload(event)" icon="@Embed('/img/NEW/download.png')"/>
+  
+  <s:Button label="{R.get('DELETE')}" click="onDelete(event)" icon="@Embed('/img/NEW/delete_32.png')" enabled="{selectedObject}"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
+
+      public var section:OperationsSection;
+      
+      private function onDownload(e:MouseEvent):void
+      {
+        var popup:NewDownloadPopup = PopUpManager.createPopUp(root, NewDownloadPopup, true) as NewDownloadPopup;
+        popup.section = section;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDelete(e:MouseEvent):void
+      {
+        AgentManager.instance.deleteDownload(section.stateManager.selectedAgent, selectedObject._id, onDeleteSuccess);
+      }
+      
+      private function onDeleteSuccess(e:ResultEvent):void
+      {
+        FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
+      }
+    ]]>
+  </fx:Script>
+  
+</actionbar:ActionBar>

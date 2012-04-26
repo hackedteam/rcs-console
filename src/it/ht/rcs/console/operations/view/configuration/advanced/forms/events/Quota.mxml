@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.Size;
+      
+      import locale.R;
+      
+      private function init():void
+      {
+        var q:int = event.quota || 100 * Size.MIB;
+        quota.text = String(q / Size.MIB);
+      }
+      
+      override public function commit():void
+      {
+        event.quota = parseInt(quota.text) * Size.MIB;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_QUOTA')}"/>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('QUOTA')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="quota" restrict="0-9" textAlign="center" widthInChars="4"/>
+        <s:Label paddingTop="1" text=" MiB"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator property="text" required="true" source="{quota}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+
+</events:EventFields>

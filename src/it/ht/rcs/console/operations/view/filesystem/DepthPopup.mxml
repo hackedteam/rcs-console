@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             save="save()" title="Retrieve">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      [Bindable]
+      public var item:Object;
+      
+      private function save():void
+      {
+        var path:String;
+        if (item.attr == FileSystemView.SUBROOT)
+          path = '/';
+        else {
+          path = item.evidence ? item.evidence.data.path : buildPath();
+          var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
+          var lastChar:String = path.charAt(path.length-1);
+          if (lastChar != separator)
+            path = path + separator + '*';
+        }
+
+        var aid:String = getAgentId();
+        AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
+          AlertPopUp.show('Item scheduled for retrieval');
+          close();
+        });
+      }
+      
+      private function buildPath():String
+      {
+        var pathElements:Array = [];
+        var el:Object = item;
+        do {
+          pathElements.push(el.name);
+          el = el.parent;
+        } while (el.attr != FileSystemView.SUBROOT);
+        
+        return pathElements.reverse().join('/');
+      }
+      
+      private function getAgentId():String
+      {
+        var el:Object = item;
+        if (item.attr != FileSystemView.SUBROOT) {
+          do {
+            el = el.parent;
+          } while (el.attr != FileSystemView.SUBROOT);
+        }
+        return el.agent._id;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    <s:FormItem label="Depth">
+      <s:HGroup verticalAlign="middle">
+        <s:NumericStepper id="depthStepper" maximum="5" minimum="1" value="1"/>
+        <s:Label paddingTop="1" text=" levels"/>
+      </s:HGroup>
+    </s:FormItem>
+  </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="group"/>
+  </fx:Declarations>
+
+</utils:TitleWindowSaveCancel>

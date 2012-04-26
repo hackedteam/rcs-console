@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      private function init():void
+      {
+        eventId.text = event.id || '0';
+        source.text = event.source;
+      }
+      
+      override public function commit():void
+      {
+        event.id = parseInt(eventId.text);
+        event.source = source.text;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_WINEVENT')}"/>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('EVENT_ID')}">
+      <s:HGroup>
+        <s:TextInput id="eventId" restrict="0-9" widthInChars="4"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('SOURCE')}">
+      <s:HGroup>
+        <s:TextInput id="source"/>
+      </s:HGroup>
+    </s:FormItem>
+  
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator property="text" required="true" source="{eventId}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{source}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+    
+</events:EventFields>

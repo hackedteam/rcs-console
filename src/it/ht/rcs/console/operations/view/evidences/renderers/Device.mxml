@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" mouseDown="onMouseDown(event)"
+                                >
+  <fx:Script>
+    <![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      import it.ht.rcs.console.utils.StringUtils;
+      import it.ht.rcs.console.DB;
+      
+      [Bindable]
+      override public function set data(value:*):void
+      {
+        super.data=value;
+        // content
+        var content:String=data.data.content.replace(new RegExp("\n\n", "g"), "\n");
+        content=content.replace(new RegExp("\n", "g"), "<br>");
+        contentTxt.textFlow= TextConverter.importToFlow(content, TextConverter.TEXT_FIELD_HTML_FORMAT);
+      }
+      
+      private function onMouseDown(e:MouseEvent):void
+      {
+        //e.stopImmediatePropagation();
+      }
+      
+
+    ]]>
+  </fx:Script>
+  <s:HGroup verticalAlign="top"
+            width="100%">
+    <s:RichText textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+    
+      <s:RichText id="contentTxt" minWidth="0" height="70"/>
+
+  </s:HGroup>
+  
+</renderers:EvidenceDataRenderer>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <s:Button label="{R.get('DELETE_ALL')}" click="onDeleteAllClick()" enabled="{view &amp;&amp; view.length > 0}" icon="@Embed('/img/NEW/delete_all.png')"/>
+  
+ 
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.alert.model.AlertLog;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      
+      public var section:AlertingSection;
+      
+      private function onDeleteClick():void
+      {
+        var alert:Alert = section.alertBar.selectedObject as Alert;
+        var i:int = alert.logs.getItemIndex(selectedObject as AlertLog);
+        
+        alert.logs.removeItemAt(i);
+        
+        section.alerts.selectedItem = null;
+        section.alertBar.selectedObject = null;
+        section.logs.dataProvider = null;
+        section.logs.selectedItem = null;
+        section.logBar.selectedObject = null;
+          
+        /* if there are no more items, invalidate the arraycollection to avoid displaying the 0 counter */
+        if (alert.logs.length == 0)
+          alert.logs = null;
+      }
+      
+      private function onDeleteAllClick():void
+      {
+        var alert:Alert = (parent as AlertingSection).alerts.selectedItem as Alert;
+
+        AlertPopUp.show(R.get('CONFIRM_ALERT_LOG_DELETION'), R.get('CONFIRM'),
+                        AlertPopUp.YES|AlertPopUp.NO, null,
+                        function(e:CloseEvent):void {
+                          if (e.detail == AlertPopUp.YES) { 
+                            /* if null is passed, delete all the logs */
+                            alert.logs.removeAll();
+                            /* to avoid displaying the 0 counter */
+                            alert.logs = null;
+                            section.alerts.selectedItem = null;
+                            section.alertBar.selectedObject = null;
+                          }
+                        }, null, AlertPopUp.NO);
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

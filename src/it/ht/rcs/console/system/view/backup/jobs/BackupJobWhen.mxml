@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="150" >
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.backup.model.BackupJobTime;
+      
+      import locale.R;
+      
+      public function set data(when:BackupJobTime):void 
+      {
+        hours.value = parseInt(when.time.substr(0,2));
+        minutes.value = parseInt(when.time.substr(3,2));
+        
+        if (when.week.length != 0) {
+          week.selected = true;
+          when.week.source.forEach(arrayToWeek);
+        }
+
+        if (when.month.length != 0) {
+          month.selected = true;
+          monthdays.text = when.month.toString();
+        }
+
+      }
+      
+      private function arrayToWeek(element:*, index:int, arr:Array):void 
+      {
+        (this["day" + element.toString()] as CheckBox).selected = true;
+      } 
+      
+      public function get data():BackupJobTime
+      {
+        var hh:String = hours.value < 10 ? "0" + hours.value.toString() : hours.value.toString();
+        var mm:String = minutes.value < 10 ? "0" + minutes.value.toString() : minutes.value.toString();
+        var t:String = hh + ":" + mm;
+        
+        var w:Array = new Array;
+        
+        if (week.selected) {
+          for (var i:int=0; i< 7; i++) {
+            if ((this["day" + i.toString()] as CheckBox).selected)
+              w.push(i);  
+          }
+        }
+        
+        var m:Array = new Array;
+        
+        if (month.selected) {
+          m = monthdays.text.split(',');
+        }
+        
+        return new BackupJobTime({week: w, month: m, time: t});
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="type"/>
+  </fx:Declarations>
+
+  <s:HGroup verticalAlign="middle">
+    <s:Label x="2" y="6" text="{R.get('TIME')}"/>
+    <s:NumericStepper id="hours" width="40" maximum="23" minimum="0"/>
+    <s:Label text=":" top="5"/>
+    <s:NumericStepper id="minutes" width="40" maximum="59" minimum="0"/>
+    <s:Label text="UTC"/>
+  </s:HGroup>
+  
+
+  <s:RadioButton groupName="type" id="everyday" top="30" left="5" label="{R.get('EVERYDAY')}" selected="true"/>
+  
+  <s:HGroup top="60" left="5">
+    <s:RadioButton groupName="type" id="week" y="57" left="5" label="{R.get('EVERY')}"/>
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_1')}"/>
+      <s:CheckBox width="15" height="15" id="day1"/>      
+    </s:VGroup>
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_2')}"/>
+      <s:CheckBox width="15" height="15" id="day2"/>      
+    </s:VGroup>
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_3')}"/>
+      <s:CheckBox width="15" height="15" id="day3"/>      
+    </s:VGroup>
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_4')}"/>
+      <s:CheckBox width="15" height="15" id="day4"/>      
+    </s:VGroup>
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_5')}"/>
+      <s:CheckBox width="15" height="15" id="day5"/>      
+    </s:VGroup>  
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_6')}"/>
+      <s:CheckBox width="15" height="15" id="day6"/>      
+    </s:VGroup>
+    <s:VGroup horizontalAlign="center" enabled="{week.selected}">
+      <s:Spacer height="1"/>
+      <s:Label text="{R.get('WEEK_DAY_0')}"/>
+      <s:CheckBox width="15" height="15" id="day0"/>      
+    </s:VGroup> 
+  </s:HGroup>
+  
+  <s:RadioButton groupName="type" id="month" top="120" left="5" label="{R.get('EVERY')}"/>
+  <s:HGroup left="65" top="120" verticalAlign="middle">
+    <s:TextInput id="monthdays" width="50"/>
+    <s:Label text="{R.get('EVERY_OF_MONTH')}" />
+  </s:HGroup>
+
+  
+</s:Group>

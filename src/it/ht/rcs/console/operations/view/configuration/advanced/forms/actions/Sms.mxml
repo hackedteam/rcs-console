@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                      xmlns:s="library://ns.adobe.com/flex/spark"
+                      xmlns:mx="library://ns.adobe.com/flex/mx"
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+                      xmlns:utils="it.ht.rcs.console.utils.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      override public function fillFields():void
+      {
+        if (!number) return;
+        number.text = action.number;
+        position.selected = action.position;
+        sim.selected = action.sim;
+        text.selected = action.text != '';
+        textArea.text = action.text;
+        
+        if (group.selection == null)
+          group.selection = position;
+      }
+      
+      override public function commit():void
+      {
+        action.number = number.text;
+        action.position = position.selected;
+        action.sim = sim.selected;
+        action.text = text.selected ? textArea.text : '';
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="330" lineHeight="16"
+           text="{R.get('CONFIG_HELP_SMS_ACTION')}"/>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('NUMBER')}">
+      <s:HGroup>
+        <s:TextInput id="number" width="160" restrict="0-9+"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('SEND')}">
+      <s:VGroup>
+        <s:RadioButton id="position" label="{R.get('POSITION')}" group="{group}"/>
+        <s:RadioButton id="sim" label="{R.get('SIM')}" group="{group}"/>
+        <s:RadioButton id="text" label="{R.get('TEXT')}" group="{group}"/>
+        <s:TextArea id="textArea" width="220" heightInLines="4" enabled="{text.selected}"/>
+      </s:VGroup>
+    </s:FormItem>
+
+  </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="group"/>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{number}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+    
+</actions:ActionFields>

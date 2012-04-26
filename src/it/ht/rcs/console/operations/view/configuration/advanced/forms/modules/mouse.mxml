@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()" save="save()" title="Mouse">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      private function init():void
+      {
+        widthInput.text = module.width;
+        heightInput.text = module.height;
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return;
+        
+        module.width = parseInt(widthInput.text);
+        module.height = parseInt(heightInput.text);
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('WIDTH')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="widthInput" restrict="0-9" showErrorTip="true" textAlign="center"
+                     widthInChars="3"/>
+        <s:Label paddingTop="1" text=" pixels"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('HEIGHT')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="heightInput" restrict="0-9" showErrorTip="true" textAlign="center"
+                     widthInChars="3"/>
+        <s:Label paddingTop="1" text=" pixels"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator minLength="1" property="text" source="{widthInput}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
+                          source="{widthInput}" triggerEvent=""/>
+      <mx:StringValidator minLength="1" property="text" source="{heightInput}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
+                          source="{heightInput}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+
+</modules:ModuleForm>

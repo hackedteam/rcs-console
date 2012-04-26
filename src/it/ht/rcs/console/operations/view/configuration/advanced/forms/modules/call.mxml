@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Call">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      [Bindable]
+      private var mobile:Boolean;
+      
+      private function init():void
+      {
+        mobile = graph.config.globals.type == 'mobile';
+        
+        if (mobile)
+          record.selected = module.record;
+        else
+          recordFormItem.visible = recordFormItem.includeInLayout = false;
+        
+        buffer.value = module.buffer / 1000;
+        quality.value = module.compression;
+      }
+      
+      private function save():void
+      {
+        if (graph.config.globals.type == 'mobile')
+          module.record = record.selected;
+        else
+          delete(module.record);
+        module.buffer = buffer.value * 1000;
+        module.compression = quality.value;
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form>
+
+    <s:FormItem id="recordFormItem" label="{R.get('ENABLE_CALL_RECORDING')}">
+      <s:CheckBox id="record"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('BUFFER_SIZE')}" enabled="{!mobile || record.selected}">
+      <s:HGroup verticalAlign="middle">
+        <s:HSlider id="buffer" width="150" dataTipPrecision="0" maximum="1000" minimum="128"
+                   snapInterval="32" stepSize="32"/>
+        <s:Label paddingTop="1" text=" kB"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('QUALITY')}" enabled="{!mobile || record.selected}">
+      <s:HSlider id="quality" width="150" dataTipPrecision="0" maximum="10" minimum="1"
+                 snapInterval="1" stepSize="1"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</modules:ModuleForm>

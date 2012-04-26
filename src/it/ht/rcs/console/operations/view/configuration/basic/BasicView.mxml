@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+          xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+          xmlns:basic="it.ht.rcs.console.operations.view.configuration.basic.*"
+          xmlns:selectors="it.ht.rcs.console.operations.view.configuration.basic.selectors.*"
+          xmlns:utils="it.ht.rcs.console.utils.*"
+          width="100%" height="100%" horizontalAlign="center">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
+      
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      public var config:Object;
+      
+      [Bindable]
+      private var isMobile:Boolean = false;
+      
+      public function displayConfig():void
+      {
+        isMobile = config.globals.type.toLowerCase() == 'mobile';
+        
+        enableModules();
+        selectModules();
+        
+        var fileModule:Object = getModule('file');
+        if (file.selected) {
+          file.documents.selected = (fileModule.accept as Array).indexOf('*.doc') != -1;
+          file.images.selected = (fileModule.accept as Array).indexOf('*.jpg') != -1;
+        } else {
+          file.documents.selected = true; // Default value
+          file.images.selected = false;
+        }
+          
+        if (screenshot.selected)
+          screenshot.seconds.text = String(getDelayFor('SCREENSHOT'));
+        else
+          screenshot.seconds.text = "120"; // Default value
+        
+        if (camera.selected) {
+          camera.seconds.text = String(getDelayFor('CAMERA'));
+          camera.times.text = String(getIterFor('CAMERA'));
+        } else {
+          camera.seconds.text = "120"; // Default value
+          camera.times.text = "1"; // Default value
+        }
+        
+        if (position.selected)
+          position.minutes.text = String(getDelayFor('POSITION') / 60);
+        else
+          position.minutes.text = "15"; // Default value
+        
+        var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
+        sync.host.dataProvider = entryPoints;
+        sync.selected = hasLoop('SYNC');
+        if (sync.selected) {
+          sync.minutes.text = String(getDelayFor('SYNC') / 60);
+          setEntryPoint(entryPoints);
+        } else {
+          sync.minutes.text = "10";
+          sync.host.selectedItem = entryPoints.length > 0 ? entryPoints.getItemAt(0) : null;
+        }
+      }
+      
+      private function enableModules():void
+      {
+        call.enabled       = getModule('call') != null;
+        calendar.enabled   = getModule('calendar') != null || getModule('addressbook') != null;
+        messages.enabled   = getModule('messages') != null || getModule('chat') != null;
+        url.enabled        = getModule('url') != null;
+        file.enabled       = getModule('file') != null;
+        keylog.enabled     = getModule('keylog') != null;
+        screenshot.enabled = getModule('screenshot') != null;
+        camera.enabled     = getModule('camera') != null;
+        position.enabled   = getModule('position') != null;
+      }
+      
+      private function selectModules():void
+      {
+        call.selected       = call.enabled ? hasAction('call') : false;
+        calendar.selected   = calendar.enabled ? (hasAction('calendar') || hasAction('addressbook')) : false;
+        messages.selected   = messages.enabled ? (hasAction('messages') || hasAction('chat')) : false;
+        url.selected        = url.enabled ? hasAction('url') : false;
+        file.selected       = file.enabled ? hasAction('file') : false;
+        keylog.selected     = keylog.enabled ? hasAction('keylog') : false;
+        screenshot.selected = screenshot.enabled ? hasLoop('SCREENSHOT') : false;
+        camera.selected     = camera.enabled ? hasLoop('CAMERA') : false;
+        position.selected   = position.enabled ? hasLoop('POSITION') : false;
+      }
+      
+      private function hasLoop(loop:String):Boolean
+      {
+        for each (var a:Object in config.actions)
+          if (a.desc == loop)
+            return true;
+        return false;
+      }
+      
+      private function hasAction(name:String):Boolean
+      {
+        var startupAction:Object;
+        for each (var a:Object in config.actions)
+          if (a.desc == 'STARTUP')
+            startupAction = a;
+          
+        if (startupAction == null) return false;
+        
+        for each (var sa:Object in startupAction.subactions)
+          if (sa.action == 'module' && sa.module == name)
+            return true;
+        
+        return false;
+      }
+      
+      private function getModule(module:String):Object
+      {
+        for each (var m:Object in config.modules)
+          if (m.module == module)
+            return m;
+        return null;
+      }
+      
+      private function getDelayFor(desc:String):int
+      {
+        var event:Object;
+        for each (var e:Object in config.events)
+          if (e.desc == desc)
+            event = e;
+        
+        return event == null ? 0 : event.delay as int;
+      }
+      
+      private function getIterFor(desc:String):int
+      {
+        var event:Object;
+        for each (var e:Object in config.events)
+        if (e.desc == desc)
+          event = e;
+        
+        return event == null ? 0 : event.iter as int;
+      }
+      
+      private function setEntryPoint(ep:ListCollectionView):void
+      {
+        var host:String = null;
+        for each (var a:Object in config.actions)
+          if (a.desc == 'SYNC')
+            host = a.subactions[0].host;
+
+        if (host == null || host == '') {
+          sync.host.selectedItem = ep.length > 0 ? ep.getItemAt(0) : null;
+          return;
+        }
+        
+        for each (var c:Collector in ep)
+          if (c.address == host) {
+            sync.host.selectedItem = c;
+            return;
+          }
+        
+        sync.host.selectedItem = new Collector({name: host, address: host});
+      }
+      
+      public function getConfig():Object
+      {
+        var model:Object = {};
+        
+        model.isMobile = isMobile;
+        
+        model.call       = call.selected;
+        model.calendar   = calendar.selected;
+        model.messages   = messages.selected;
+        model.url        = url.selected;
+        model.file       = file.selected;
+        model.keylog     = keylog.selected;
+        model.screenshot = screenshot.selected;
+        model.camera     = camera.selected;
+        model.position   = position.selected;
+        model.sync       = sync.selected;
+
+        model.documents  = file.documents.selected;
+        model.images     = file.images.selected;
+        
+        model.screenshotDelay = Number(screenshot.seconds.text);
+        
+        model.cameraDelay = Number(camera.seconds.text);
+        model.cameraIter = Number(camera.times.text);
+        
+        model.positionDelay = Number(position.minutes.text) * 60;
+        
+        model.syncDelay = Number(sync.minutes.text) * 60;
+        model.syncHost = sync.host.selectedItem.address;
+        
+        config = BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
+        if (OperationsSectionStateManager.currInstance.selectedAgent != null)
+          DefaultConfigBuilder.cleanPlatformConfig(OperationsSectionStateManager.currInstance.selectedAgent.platform, config);
+        return config;
+      }
+      
+      public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup width="100%" maxWidth="1200" gap="15" paddingTop="10">
+  
+    <s:HGroup width="100%" gap="20">
+      <selectors:SimpleSelector id="call"
+                                title="{isMobile ? 'Calls (Phone)' : 'Calls (Phone, Skype, MSN)'}"/>
+      <selectors:SimpleSelector id="calendar" title="Contacts &amp; Calendar"/>
+    </s:HGroup>
+    
+    <s:HGroup width="100%" gap="20">
+      <selectors:SimpleSelector id="messages" title="Messages (Mail, SMS, Chat)"/>
+      <selectors:SimpleSelector id="url" title="Visited Websites"/>
+    </s:HGroup>
+    
+    <s:HGroup width="100%" gap="20">
+      <selectors:FileSelector id="file" enabled="{!isMobile}" title="Accessed Files"/>
+      <selectors:SimpleSelector id="keylog"
+                                title="{isMobile ? 'Keylog' : 'Keylog, Mouse &amp; Password'}"/>
+    </s:HGroup>
+    
+    <s:HGroup width="100%" gap="20">
+      <selectors:ScreenshotSelector id="screenshot" title="Screenshots"/>
+      <selectors:CameraSelector id="camera" title="Camera"/>
+    </s:HGroup>
+    
+    <s:HGroup width="100%" gap="20">
+      <selectors:PositionSelector id="position" title="Position"/>
+      <selectors:SyncSelector id="sync" title="Online Synchronization"/>
+    </s:HGroup>
+    
+  </s:VGroup>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{screenshot.seconds}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{camera.seconds}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{camera.times}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{position.minutes}"
+                          triggerEvent=""/>
+      <mx:NumberValidator minValue="1" property="text" required="true" source="{sync.minutes}"
+                          triggerEvent=""/>
+      <mx:NumberValidator property="selectedIndex" required="true" source="{sync.host}"
+                          triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+    
+</s:VGroup>

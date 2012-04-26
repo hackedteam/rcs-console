@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%"
+                                >
+	
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.DB;
+      import flashx.textLayout.conversion.TextConverter;
+      
+  		
+      [Bindable]
+      override public function set data(value:*):void
+      {
+        
+        super.data=value;
+        programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        actionTxt.textFlow= TextConverter.importToFlow("<b>Action: </b>"+data.data.action, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          if(data.data.desc!="")
+          {
+            descTxt.visible=descTxt.includeInLayout=true;
+            descTxt.textFlow= TextConverter.importToFlow("<b>Description: </b>"+data.data.desc, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          }
+          else
+          {
+            descTxt.visible=descTxt.includeInLayout=false;
+          }
+  		}
+      
+      private function init():void
+      {
+       
+      }
+
+		]]>
+	</fx:Script>
+  <s:HGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:VGroup verticalAlign="middle" width="50%">
+      <s:RichText id="programTxt" width="100%"/>
+      <s:RichText id="actionTxt" width="100%"/>
+    </s:VGroup>
+    <s:Line height="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:VGroup verticalAlign="middle" width="50%">
+      <s:RichText id="descTxt" width="100%"/>
+    </s:VGroup>
+  </s:HGroup>
+</renderers:EvidenceDataRenderer>

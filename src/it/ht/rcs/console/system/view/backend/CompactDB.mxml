@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="300" height="220" 
+         close="closeMe(event)" title="{R.get('COMPACT_DB')}"
+         xmlns:view="it.ht.rcs.console.utils.*">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      protected function closeMe(event:*):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+
+      protected function compact(event:MouseEvent):void
+      {
+
+        DownloadManager.instance.createTask("compact", null, null);         
+        PopUpManager.removePopUp(this);
+      }
+
+      
+    ]]>
+  </fx:Script>
+
+  <s:VGroup left="15" top="15" horizontalAlign="center" right="15">
+
+    <s:Label text="{R.get('COMPACT_DESC')}" width="100%" height="100%" textJustify="distribute" textAlign="justify"/>
+    
+    <s:Spacer height="10" />
+    
+    <s:CheckBox id="agree" selected="false" label="{R.get('COMPACT_AGREE')}" />
+    
+    <s:HGroup horizontalAlign="center" width="100%">
+      <s:Button label="{R.get('COMPACT')}" click="compact(event)" enabled="{agree.selected}"/>
+      <s:Button label="{R.get('CANCEL')}" click="closeMe(event)"/>
+    </s:HGroup>
+  </s:VGroup>
+  
+</s:TitleWindow>

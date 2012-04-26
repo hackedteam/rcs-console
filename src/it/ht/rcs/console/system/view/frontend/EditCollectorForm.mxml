@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            creationComplete="init()" save="save()"
+                            title="{R.get('EDIT') + ' ' + collector.name}" xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.utils.StringUtil;
+      
+      [Bindable]
+      public var collector:Collector;
+      
+      private function init():void
+      {
+        nameField.setFocus();
+        getLogs();
+      }
+      
+      private function getLogs():void
+      {
+        CollectorManager.instance.getLogs(collector._id, function(logs:ArrayCollection):void {
+          logTable.dataProvider = logs;
+        });
+      }
+      
+      private function clearLogs():void
+      {
+        CollectorManager.instance.clearLogs(collector._id, function():void {
+          logTable.dataProvider = null;
+        });
+      }
+
+      private function save():void
+      {
+        if (StringUtil.trim(address.text) == '') {
+          AlertPopUp.show('COLLECTOR_INVALID_ADDRESS');
+          address.setFocus();
+          return;
+        }
+        
+        /* keep the name the first to be modified */
+        collector.name = nameField.text;
+        collector.address = address.text;
+        collector.desc = desc.text;
+        if (collector.type == 'remote') {
+          collector.port = parseInt(port.text);
+          collector.poll = poll.selected;
+        }
+        
+        close();
+      }
+      
+      private function formatdate(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup paddingLeft="20" paddingRight="20">
+    
+    <s:HGroup>
+      
+      <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('NAME')}">
+          <s:TextInput id="nameField" width="200" text="{collector.name}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('DESCRIPTION')}">
+          <s:TextArea id="desc" width="200" heightInLines="2" text="{collector.desc}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('VERSION')}">
+          <s:TextInput width="80" enabled="false" text="{collector.version}" textAlign="center"/>
+        </s:FormItem>
+      </s:Form>
+      
+      <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('ADDRESS')}">
+          <s:TextInput id="address" width="150" text="{collector.address}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('PORT')}" visible="{collector.type == 'remote'}">
+          <s:TextInput id="port" width="40" maxChars="5" restrict="0-9" text="{collector.port}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('POLL')}" visible="{collector.type == 'remote'}">
+          <s:CheckBox id="poll" selected="{collector.poll}"/>
+        </s:FormItem>
+      </s:Form>
+      
+    </s:HGroup>
+  
+    <actionbar:ActionBar width="100%">
+      <s:Button icon="@Embed('/img/NEW/logRefresh.png')" label="{R.get('REFRESH_LOGS')}" click="getLogs()"/>
+      <actionbar:Separator width="30"/>
+      <s:Button icon="@Embed('/img/NEW/delete_all.png')" label="{R.get('CLEAR_LOGS')}" click="clearLogs()"/>
+    </actionbar:ActionBar>
+    
+    <s:DataGrid id="logTable" height="200" width="100%">
+      <s:columns>
+        <s:ArrayList>
+          <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>
+          <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
+          <s:GridColumn dataField="desc" headerText="{R.get('INFO')}"></s:GridColumn>
+        </s:ArrayList>
+      </s:columns>
+    </s:DataGrid>
+    
+  </s:VGroup>
+  
+  
+</utils:TitleWindowSaveCancel>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Screenshot">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      [Bindable]
+      private var mobile:Boolean;
+      
+      private function init():void
+      {
+        mobile = graph.config.globals.type == 'mobile';
+        
+        switch (module.quality) {
+          case 'lo' : quality.value = 0; break;
+          case 'med': quality.value = 1; break;
+          case 'hi' : quality.value = 2; break;
+          default: quality.value = 1; break;
+        }
+        onlywindow.selected = module.onlywindow;
+      }
+      
+      private function save():void
+      {
+        switch (quality.value) {
+          case 0 : module.quality = 'lo'; break;
+          case 1 : module.quality = 'med'; break;
+          case 2 : module.quality = 'hi'; break;
+          default: break;
+        }
+        module.onlywindow = onlywindow.selected;
+        close();
+      }
+      
+      private function dataTipFunction(value:Number):String
+      {
+        switch (value) {
+          case 0 : return R.get('LOW');
+          case 1 : return R.get('MEDIUM');
+          case 2 : return R.get('HIGH');
+          default: return '';
+        }
+      }
+    ]]>
+  </fx:Script>
+
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('QUALITY')}">
+      <s:HSlider id="quality" width="150" dataTipFormatFunction="dataTipFunction" maximum="2"
+                 minimum="0" snapInterval="1" stepSize="1"/>
+    </s:FormItem>
+    
+    <s:FormItem visible="{!mobile}" label="Only foreground window" includeInLayout="{!mobile}">
+      <s:CheckBox id="onlywindow"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</modules:ModuleForm>

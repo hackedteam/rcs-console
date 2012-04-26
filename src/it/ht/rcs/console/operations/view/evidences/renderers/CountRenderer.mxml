@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                autoDrawBackground="false" buttonMode="true" click="onClick(event)">
+  
+  <s:layout>
+    <s:VerticalLayout gap="8" horizontalAlign="center" paddingBottom="10" paddingLeft="10"
+                      paddingRight="10" paddingTop="10" verticalAlign="top"/>
+  </s:layout>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.operations.view.evidences.renderers.EvidenceIcons;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.events.FileEvent;
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        icon.source = data ? EvidenceIcons[data.type] : null;
+        toolTip = data ? data.type : null;
+      }
+      
+      private function onClick(event:MouseEvent):void
+      {
+        if ((data.count as Number) > 10000)
+          AlertPopUp.show(R.get('HIGH_EVIDENCE_NUMBER', [data.count]), R.get('WARNING'), Alert.OK | Alert.CANCEL, null, confirm);
+        else confirm();
+      }
+      
+      private function confirm(event:CloseEvent=null):void
+      {
+        if (event == null || event.detail == Alert.OK) {
+          setFilter();
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+        }
+      }
+      
+      public function setFilter():void
+      {
+        var filter:Object = EvidenceManager.instance.evidenceFilter;
+        filter.date = 'dr';
+        delete(filter._id);
+        filter.from = 0;
+        filter.to = 0;
+        filter.type = [data.type];
+        delete(filter.rel);
+        delete(filter.info);
+        delete(filter.blo);
+      }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        icon.filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="0x444444" blurX="4" blurY="4" strength="2"/>
+  </fx:Declarations>
+  
+    <s:Image id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
+                   verticalCenter="0" rollOver="onRoll(event)" rollOut="onRoll(event)"/>
+    
+   <s:Label text="{data.count}"/>
+</s:ItemRenderer>

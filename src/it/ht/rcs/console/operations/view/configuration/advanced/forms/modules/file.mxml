@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()" save="save()" title="File">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.DateUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayList;
+      import mx.formatters.DateFormatter;
+      
+      private var formatter:DateFormatter;
+
+      private function init():void
+      {
+        formatter = new DateFormatter();
+        formatter.formatString = 'YYYY-MM-DD JJ:NN:SS';
+        
+        includeList.dataProvider = new ArrayList(module.accept);
+        excludeList.dataProvider = new ArrayList(module.deny);
+        
+        open.selected = module.open;
+        
+        capture.selected = module.capture;
+        minSize.text = module.minsize;
+        maxSize.text = module.maxsize;
+        date.selectedDate = DateUtils.parseDateTimeString(module.date);
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return;
+        
+        module.open = open.selected;
+        
+        if (capture.selected) {
+          module.capture = true;
+          module.minsize = parseInt(minSize.text);
+          module.maxsize = parseInt(maxSize.text);
+          module.date = formatter.format(date.selectedDate);
+        } else {
+          module.capture = false;
+        }
+        
+        module.accept = ArrayList(includeList.dataProvider).source;
+        module.deny = ArrayList(excludeList.dataProvider).source;
+        
+        close();
+      }
+      
+      private function addInclude(event:MouseEvent):void
+      {
+        includeList.dataProvider.addItem(includeProcess.text);
+        includeProcess.text = '';
+        includeProcess.setFocus();
+      }
+      private function addExclude(event:MouseEvent):void
+      {
+        excludeList.dataProvider.addItem(excludeProcess.text);
+        excludeProcess.text = '';
+        excludeProcess.setFocus();
+      }
+      private function removeInclude(event:MouseEvent):void
+      {
+        includeList.dataProvider.removeItemAt(includeList.selectedIndex);
+      }
+      private function removeExclude(event:MouseEvent):void
+      {
+        excludeList.dataProvider.removeItemAt(excludeList.selectedIndex);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup>
+    <s:HGroup gap="30">
+      
+      <s:Form>
+      
+        <s:FormItem label="{R.get('INCLUDE_FILTER')}">
+          <s:HGroup>
+            <s:List id="includeList" width="150" height="156"/>
+            <s:Button width="40" label="-" click="removeInclude(event)"
+                      enabled="{includeList.selectedItem}"/>
+          </s:HGroup>
+        </s:FormItem>
+        
+        <s:FormItem label="{R.get('MASK')}">
+          <s:HGroup>
+            <s:TextInput id="includeProcess" width="150"/>
+            <s:Button width="40" label="+" click="addInclude(event)"
+                      enabled="{includeProcess.text != ''}"/>
+          </s:HGroup>
+        </s:FormItem>
+      
+      </s:Form>
+      
+      
+      <s:Form defaultButton="{saveButton}">
+        
+        <s:FormItem label="{R.get('EXCLUDE_FILTER')}">
+          <s:HGroup>
+            <s:List id="excludeList" width="150" height="156"/>
+            <s:Button width="40" label="-" click="removeExclude(event)"
+                      enabled="{excludeList.selectedItem}"/>
+          </s:HGroup>
+        </s:FormItem>
+        
+        <s:FormItem label="{R.get('MASK')}">
+          <s:HGroup>
+            <s:TextInput id="excludeProcess" width="150"/>
+            <s:Button width="40" label="+" click="addExclude(event)"
+                      enabled="{excludeProcess.text != ''}"/>
+          </s:HGroup>
+        </s:FormItem>
+        
+      </s:Form>
+      
+    </s:HGroup>
+    
+    
+    <s:HGroup gap="30">
+      
+      <s:Form defaultButton="{saveButton}">
+        
+        <s:FormItem label="{R.get('LOG_PATH_AND_ACCESS_MODE')}">
+          <s:CheckBox id="open"/>
+        </s:FormItem>
+        
+      </s:Form>
+      
+      
+      <s:Form defaultButton="{saveButton}">
+        
+        <s:FormItem label="{R.get('CAPTURE_FILE_CONTENT')}">
+          <s:CheckBox id="capture"/>
+        </s:FormItem>
+        
+        <s:FormItem label="{R.get('MIN_SIZE')}" enabled="{capture.selected}">
+          <s:HGroup verticalAlign="middle">
+            <s:TextInput id="minSize" restrict="0-9" showErrorTip="true" textAlign="center"
+                         widthInChars="5"/>
+            <s:Label paddingTop="1" text=" bytes"/>
+          </s:HGroup>
+        </s:FormItem>
+        
+        <s:FormItem label="{R.get('MAX_SIZE')}" enabled="{capture.selected}">
+          <s:HGroup verticalAlign="middle">
+            <s:TextInput id="maxSize" restrict="0-9" showErrorTip="true" textAlign="center"
+                         widthInChars="5"/>
+            <s:Label paddingTop="1" text=" bytes"/>
+          </s:HGroup>
+        </s:FormItem>
+        
+        <s:FormItem label="{R.get('NEWER_THAN')}" enabled="{capture.selected}">
+          <mx:DateField id="date" width="150" editable="false" formatString="YYYY-MM-DD"
+                        showToday="false"/>
+        </s:FormItem>
+        
+      </s:Form>
+      
+    </s:HGroup>
+  </s:VGroup>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator minLength="1" property="text" source="{minSize}" triggerEvent=""/>
+      <mx:StringValidator minLength="1" property="text" source="{maxSize}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
+                          source="{minSize}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
+                          source="{maxSize}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_GREATER', ['\''+R.get('MIN_SIZE')+'\''])}" minValue="{minSize.text}"
+                          property="text" source="{maxSize}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</modules:ModuleForm>

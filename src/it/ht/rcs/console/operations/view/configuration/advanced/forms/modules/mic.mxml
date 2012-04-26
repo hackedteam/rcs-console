@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Microphone">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      private function init():void
+      {
+        silence.value = module.silence;
+        threshold.value = module.threshold;
+        autosense.selected = module.autosense;
+      }
+      
+      private function save():void
+      {
+        module.silence = silence.value;
+        module.threshold = threshold.value;
+        module.autosense = autosense.selected;
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('SILENCE_BETWEEN_VOICES')}">
+      <s:HSlider id="silence" width="150" dataTipPrecision="0" maximum="600" minimum="0"
+                 snapInterval="5" stepSize="5"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('VOICE_RECOGNITION')}">
+      <s:HSlider id="threshold" width="150" dataTipPrecision="2" maximum=".4" minimum=".05"
+                 snapInterval=".01" stepSize=".01"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('AUTOSENSE')}">
+      <s:CheckBox id="autosense"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+</modules:ModuleForm>

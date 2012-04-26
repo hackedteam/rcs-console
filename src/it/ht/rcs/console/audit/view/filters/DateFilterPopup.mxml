@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.audit.view.filters.*"
+                             creationComplete="init()" show="show()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.utils.Clock;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import mx.core.FlexGlobals;
+      
+      private function init():void
+      {
+        hasFilter = true;
+        var today:int = new Date().time/1000;
+        setFromTimestamp(today - (60*60*24));
+        setToTimestamp(today);
+      }
+      
+      override public function commit(fireEvent:Boolean=true):void
+      {
+        if (fromTo.selected) {
+          filter.from = getFromTimestamp();
+          filter.to = getToTimestamp();
+        } else if (lastWeek.selected) {
+          filter.from = getOneWeekAgo();
+          delete(filter.to);
+        } else {
+          delete(filter.from);
+          delete(filter.to);
+        }
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function show():void
+      {
+//        fromH.setFocus();
+//        if (filter.from)
+//          setFromTimestamp(filter.from);
+//        if (filter.to)
+//          setToTimestamp(filter.to);
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="group"/>
+  </fx:Declarations>
+  
+  <s:VGroup gap="10" styleName="evidenceFilter">
+    
+    <s:RadioButton label="Last 24 Hours" group="{group}" selected="true"/>
+    <s:RadioButton id="lastWeek" label="Last Week" group="{group}"/>
+    <s:RadioButton id="fromTo" label="From/To" group="{group}"/>
+    
+    <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
+      
+      <s:HGroup verticalAlign="middle">
+        <s:Label width="40" text="From"/>
+        <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0"
+                          valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="fromM" change="adjust()" maximum="59" minimum="0" value="0"
+                          valueFormatFunction="pad"/>
+      </s:HGroup>
+      
+      <s:HGroup verticalAlign="middle">
+        <s:Label width="40" text="To"/>
+        <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23"
+                          valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="toM" change="adjust()" maximum="59" minimum="0" value="59"
+                          valueFormatFunction="pad"/>
+      </s:HGroup>
+      
+    </s:VGroup>
+    
+  </s:VGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      private function adjust():void
+      {
+        var fromTS:int = getFromTimestamp();
+        var toTS:int = getToTimestamp();
+        
+        if (fromTS > toTS)
+          setToTimestamp(fromTS);
+      }
+      
+      private function getFromTimestamp():int
+      {
+        from.selectedDate.hours = fromH.value;
+        from.selectedDate.minutes = fromM.value;
+        return Clock.instance.toUTCTime(from.selectedDate) / 1000;
+      }
+      private function getToTimestamp():int
+      {
+        to.selectedDate.hours = toH.value;
+        to.selectedDate.minutes = toM.value;
+        return Clock.instance.toUTCTime(to.selectedDate) / 1000;
+      }
+      
+      private function setFromTimestamp(ts:int):void
+      {
+        var fromDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
+        from.selectedDate = fromDate;
+        fromH.value = fromDate.hours;
+        fromM.value = fromDate.minutes;
+      }
+      private function setToTimestamp(ts:int):void
+      {
+        var toDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
+        to.selectedDate = toDate;
+        toH.value = toDate.hours;
+        toM.value = toDate.minutes;
+      }
+      
+      private function getOneWeekAgo():int
+      {
+        return (Clock.instance.toUTCTime(new Date()) / 1000) - 604800; // seconds in 7 days
+      }
+      
+      private function pad(n:Number):String
+      {
+        return TimeUtils.zeroPad(n, 2);
+      }
+    ]]>
+  </fx:Script>
+
+</filters:AbstractFilterPopup>

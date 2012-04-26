@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true" doubleClick="edit()" doubleClickEnabled="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.model.Injector;
+      
+      import mx.managers.PopUpManager;
+      
+      private function edit():void
+      {
+        if (!Console.currentSession.user.is_sys())
+          return;
+        
+        var popup:EditNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditNIAForm, true) as EditNIAForm;
+        popup.injector = data as it.ht.rcs.console.network.model.Injector;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        
+        if (data && LicenseManager.instance.nia_demo)
+          nia.filters = [glow_demo];  
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow_demo" color="#5C8FFF" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
+
+  <mx:Image id="nia" top="8" source="@Embed('/img/NEW/injector_50.png')" horizontalCenter="0"/>
+  <s:Label left="8" right="8" top="70" bottom="8" minWidth="90" maxWidth="90" fontFamily="Myriad"
+           fontSize="14" lineHeight="15" maxDisplayedLines="2" text="{data.name}" textAlign="center"
+           verticalAlign="middle"/>
+  
+</s:ItemRenderer>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  
+  <s:Button label="{R.get('NEW_GROUP')}" click="onNewClick()" icon="@Embed('/img/NEW/newGroup.png')"/>
+  
+  <s:Button label="{R.get('EDIT_GROUP')}" click="onEditClick()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/edit.png')"/>
+  
+  <s:Button label="{R.get('DELETE_GROUP')}" click="onDeleteClick()"
+            enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <actionbar:Separator width="40"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      private function onNewClick():void
+      {
+        var popup:GroupForm = PopUpManager.createPopUp(root, GroupForm, true) as GroupForm;
+        popup.groupView=parent as GroupView;
+        popup.currentState = 'create';
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onEditClick():void
+      {
+        var popup:GroupForm = PopUpManager.createPopUp(root, GroupForm, true) as GroupForm;
+        popup.group = selectedObject as Group;
+        popup.currentState = 'edit';
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onDeleteClick():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_GROUP_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) 
+              GroupManager.instance.removeItem(selectedObject);
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        if (view != null) view.refresh();
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                xmlns:view="it.ht.rcs.console.dashboard.view.*"
+                xmlns:renderer="it.ht.rcs.console.dashboard.view.renderer.*"
+                xmlns:utils="it.ht.rcs.console.utils.*"
+                xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                addedToStage="onAddedToStage()" autoDrawBackground="false"
+                removedFromStage="onRemovedFromStage()" left="0" right="0">
+  
+  <s:layout>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </s:layout>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.dashboard.controller.DashboardItem;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      
+      [Bindable]
+      private var item:DashboardItem;
+      
+      private var tick:Timer = new Timer(1000);
+      
+      private function onAddedToStage():void
+      {
+        tick.addEventListener(TimerEvent.TIMER, onTick);
+        tick.start();
+      }
+      
+      public function onRemovedFromStage():void
+      {
+        tick.removeEventListener(TimerEvent.TIMER, onTick);
+        tick.stop();
+        this.setFocus();
+      }
+      
+      private function onTick(e:Event):void
+      {
+        try {
+          lastSyncText.text = TimeUtils.timestampFormatter(item.lastSync * 1000)
+          if (lastSyncText.text != R.get('NEVER')) {
+            lastSyncText.text += '  (' + TimeUtils.timestampDiffFromNow(item.lastSync) + ' ago)  ';
+            if (item._kind == 'agent')
+              lastSyncText.text += sync_status(item.lastSyncStatus);
+          }
+        } catch (e:Error) {}
+      }
+      
+      private function sync_status(status:int):String
+      {
+        switch(status) {
+          case 0:
+            return R.get('IDLE');
+            break;
+          case 1:
+            return R.get('IN_PROGRESS');
+            break;
+          case 2:
+            return R.get('TIMEOUT');
+            break;
+        }
+        return '';
+      }
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+        if (!data) return;
+        item = value as DashboardItem;
+        icon.source = Icons[item._kind + '16'];
+        if (item._kind == 'agent')
+          iconBig.source = Icons[item.type + '_' + item.platform];
+        else
+          iconBig.source = Icons[item._kind + 'Big'];
+        
+        if (item.status != 'open')
+          iconBigText.text = item.status.toUpperCase();
+          
+        if (item.status == 'closed')
+          iconBig.alpha = 0.5;
+
+        if (item.demo) {
+          iconBigText.text = 'DEMO';
+          iconBig.filters = [glow_demo];
+        } else {
+          iconBig.filters = null;
+        }
+          
+        currentState = item._kind;
+      }
+      
+      public function minimize():void { details.visible = details.includeInLayout = false; }
+      public function maximize():void { details.visible = details.includeInLayout = true; }
+      
+      private function onToggle():void
+      {
+        details.visible ? minimize() : maximize();
+      }
+      
+      private function onDelete():void
+      {
+        DashboardController.instance.removeItem(data);
+      }
+      
+      private function onItemClick():void
+      {
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = SectionEvent.OPERATIONS;
+        event.item = SearchManager.instance.getItem(item._id);
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
+      }
+      
+      private function onIconRoll(event:MouseEvent):void
+      {
+        iconBig.filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="#888888" blurX="6" blurY="6" strength="2"/>
+    <s:GlowFilter id="glow_demo" color="#5C8FFF" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
+  
+  <s:states>
+    <s:State name="agent"/>
+    <s:State name="target"/>
+    <s:State name="operation"/>
+  </s:states>
+  
+  <s:BorderContainer width="100%" borderColor="#dddddd" borderWeight="2" cornerRadius="10">
+    
+    <s:backgroundFill>
+      <s:LinearGradient rotation="90">
+        <s:GradientEntry color="#eeeeee"/>
+        <s:GradientEntry color="#ffffff"/>
+        <s:GradientEntry color="#ffffff"/>
+      </s:LinearGradient>
+    </s:backgroundFill>
+    
+    <s:VGroup width="100%" gap="15" paddingBottom="10" paddingLeft="10" paddingRight="10"
+              paddingTop="10">
+      
+      <s:HGroup width="100%" gap="8" verticalAlign="middle">
+        <s:HGroup width="400" gap="8" verticalAlign="middle">
+          <s:Image id="icon" visible="{!details.visible}" includeInLayout="{!details.visible}"/>
+          <s:Label fontFamily="Myriad" fontSize="18" fontWeight="bold" paddingTop="2"
+                   text="{item.name}"/>
+          <s:Label width="100%" fontFamily="Myriad" fontSize="15" paddingTop="4" paddingLeft="5"
+                   text="{item.desc}" maxDisplayedLines="1"/>
+        </s:HGroup>
+        
+        <s:Label fontFamily="Myriad" fontSize="13" fontWeight="bold" paddingTop="5" text="{R.get('LAST_SYNC')}: "/>
+        <s:Label id="lastSyncText" width="300" fontFamily="Myriad" fontSize="13" paddingRight="10" paddingTop="5"/>
+        
+        <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totSync != 0}" style="red"
+                                value="{item.totSync}"/>
+        <renderer:CounterBaloon visible="{!details.visible &amp;&amp; item.totTot != 0}" style="white" value="{item.totTot}"/>
+        
+        <s:Spacer width="100%"/>
+        
+        <s:Label buttonMode="true" click="onToggle()" fontFamily="Myriad" fontSize="18" text="_"/>
+        <s:Label buttonMode="true" click="onDelete()" fontFamily="Myriad" fontSize="18" text="X"/>
+      </s:HGroup>
+      
+      <s:HGroup id="details" width="100%" gap="5" paddingLeft="10" verticalAlign="middle">
+        <s:VGroup horizontalAlign="center">
+          <s:Image id="iconBig" buttonMode="true" click="onItemClick()" rollOut="onIconRoll(event)" rollOver="onIconRoll(event)"/>
+          <s:Label id="iconBigText"/>          
+        </s:VGroup>
+        <actionbar:Separator/>
+        <renderer:ModuleList width="100%" includeIn="target,agent" dataProvider="{item.modules}" itemId="{item._id}"/>
+        <renderer:TargetList width="100%" includeIn="operation" dataProvider="{item.targets}"/>
+      </s:HGroup>
+      
+    </s:VGroup>
+    
+  </s:BorderContainer>
+
+</s:ItemRenderer>

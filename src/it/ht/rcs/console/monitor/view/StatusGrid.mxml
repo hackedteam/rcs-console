@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
+            xmlns:mx="library://ns.adobe.com/flex/mx"
+            width="100%" requestedRowCount="5">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      private function dateLabelFunction(item:Object, column:GridColumn):String {
+        try {
+          return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
+    ]]>
+  </fx:Script>
+
+  <s:columns>
+    <s:ArrayList>
+      
+      
+      <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.TypeRenderer"
+                    resizable="false"/>
+      
+      <s:GridColumn width="200" dataField="name" headerText="{R.get('NAME')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.LabelRenderer"/>
+      
+      <s:GridColumn width="120" dataField="address" headerText="{R.get('ADDRESS')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.LabelRenderer"/>
+      
+      <s:GridColumn width="130" dataField="time" headerText="{R.get('LAST_CONTACT')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.LabelRenderer" labelFunction="dateLabelFunction"/>
+      
+      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.StatusRenderer"/>
+      
+      <s:GridColumn width="70" dataField="cpu" headerText="{R.get('CPU_PROCESS')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.CPURenderer"
+                    resizable="false"/>
+      
+      <s:GridColumn width="70" dataField="pcpu" headerText="{R.get('CPU_TOTAL')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.CPURenderer"
+                    resizable="false"/>
+      
+      <s:GridColumn width="80" dataField="disk" headerText="{R.get('DISK_FREE')}"
+                    itemRenderer="it.ht.rcs.console.monitor.view.renderers.DiskRenderer"
+                    resizable="false"/>
+
+      
+    </s:ArrayList>
+  </s:columns>
+
+</s:DataGrid>

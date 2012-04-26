@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="1024" height="100%"
+         resize="onResize()"
+         creationComplete="init()"
+         >
+  <fx:Script>
+    <![CDATA[
+      import flash.display.Bitmap;
+      import flash.display.BitmapData;
+      import flash.display.Sprite;
+      import flash.events.Event;
+      import flash.events.MouseEvent;
+      import flash.events.TimerEvent;
+      import flash.geom.Rectangle;
+      import flash.media.Sound;
+      import flash.media.SoundChannel;
+      import flash.net.URLRequest;
+      import flash.text.TextField;
+      import flash.text.TextFormat;
+      import flash.utils.ByteArray;
+      import flash.utils.Timer;
+      
+      import mx.controls.Label;
+      
+      import spark.components.Group;
+      import spark.core.SpriteVisualElement;
+      
+      private var _monitorWidth:Number=1024;
+      private var _monitorHeight:Number=512;
+      
+      //Styling
+      private var _backgroundColor:uint=0xCCCCCC;//RGBA
+      private var _waveColor:uint=0x333333;
+      private var _selectionColor:uint=0x110000FF;
+      private var _playheadColor:uint=0xFFFF0000;
+      private var _playheadWidth:Number=2;
+      
+      private var _scaleFactor:Number=1;
+      
+      private var _samples:ByteArray = new ByteArray();
+      
+      private var _buffer:BitmapData = new BitmapData(_monitorWidth,_monitorHeight,false,_backgroundColor);
+      private var _cursorBuffer:BitmapData = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+      private var _selectBuffer:BitmapData = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+      
+      [Bindable]
+      private var _selectScreen:Bitmap = new Bitmap(_selectBuffer);
+      [Bindable]
+      private var _cursorScreen:Bitmap = new Bitmap(_cursorBuffer);		
+      [Bindable]
+      private var _screen:Bitmap = new Bitmap(_buffer);
+      
+      private var _rect:Rectangle = new Rectangle(0,0,1,0);
+      
+      private var _playingTime:int;
+      private var _ratio:Number;
+      private var _step:int;
+      
+      private var _zone:Rectangle = new Rectangle(0,0,_playheadWidth,_monitorHeight);
+      private var _selectionRect:Rectangle = new Rectangle(0,0,0,_monitorHeight);
+      private var _clickedPosition:int;
+      
+      private var sound:Sound;
+      private var loopIndex:int=0;
+      private var sampleRate:int = 44100;
+      private var numBlocks:int=10;
+      private var sampleBit:int  = 8;
+      
+      public static const SELECTION:String="selection";
+      public static const READY:String="ready";
+        
+        
+      private function init():void
+      {
+        
+      }
+      
+      public function clear():void
+      {
+        
+        loopIndex=0;
+        _buffer = new BitmapData(_monitorWidth,_monitorHeight,false,_backgroundColor);
+        _cursorBuffer = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+        _selectBuffer = new BitmapData(_monitorWidth,_monitorHeight,true,_backgroundColor);
+        
+        _selectScreen = new Bitmap(_selectBuffer);
+        _cursorScreen = new Bitmap(_cursorBuffer);		
+        _screen = new Bitmap(_buffer);
+        
+        _rect = new Rectangle(0,0,1,0);
+        
+        _playingTime=0;
+        
+        
+        _zone = new Rectangle(0,0,_playheadWidth,_monitorHeight);
+
+        
+        _selectionRect = new Rectangle(0,0,0,_monitorHeight);
+        _selectBuffer.fillRect( _selectBuffer.rect, _backgroundColor);
+        
+        removeEventListener( MouseEvent.CLICK, onClick );
+        removeEventListener( MouseEvent.MOUSE_DOWN, onMouseIsDown );
+        
+      }
+      
+      private function onResize():void
+      {
+        trace("component resize")
+
+        _scaleFactor=this.width/1024;
+        _ratio = (_playingTime / _buffer.width)
+        
+      }
+      private function loop(e:Event):void
+      {
+        if(loopIndex<=numBlocks-1)
+        {
+          var sampleLength:Number = Math.floor((sound.length / 1000) * sampleRate);
+          var ba:ByteArray;
+          
+          ba = new ByteArray();
+          sound.extract(ba, sampleLength/numBlocks);
+          drawBlock(ba, loopIndex)
+          loopIndex++
+          var perc:int=(loopIndex/numBlocks)*100
+          loadingTxt.text="Computing sound spectrum... "+perc+"% . Please wait."
+        }
+        else
+        {
+          trace("end")
+          loopIndex=0;
+          loadingTxt.text=""
+          _ratio = (_playingTime / _buffer.width)
+          removeEventListener(Event.ENTER_FRAME,loop);
+          addEventListener( MouseEvent.CLICK, onClick );
+          addEventListener( MouseEvent.MOUSE_DOWN, onMouseIsDown );
+          dispatchEvent(new Event(READY))
+        }
+      }
+      
+      private function drawBlock(ba:ByteArray, index:int):void
+      { 
+        var xIncrement:Number=_monitorWidth/10;
+        var startX:Number=0+(xIncrement*index);
+        
+        ba.position=0;
+        
+        var sampleSize:int = (_monitorWidth/numBlocks) * sampleBit;
+        var sampleEvery:int = ba.length / sampleSize;
+        
+        do { sampleEvery-- } while ( sampleEvery % sampleBit );
+        
+        var left:Number;
+        var right:Number;
+        var mono:Number;
+        var rect:Rectangle = new Rectangle(0, 0, 1, 0);
+        
+        for (var i:int=0; i<sampleSize; i++)
+        {
+          ba.position = i * sampleEvery;
+          
+          left = ba.readFloat()*128;
+          right = ba.readFloat()*128;
+          rect.x      = (i / sampleBit)+(xIncrement*index);
+          if (left>0)
+          {
+            rect.y = 128-left;
+            rect.height = left;
+          } else
+          {
+            rect.y = 128;
+            rect.height = -left;
+          }
+          
+          _buffer.fillRect( rect, _waveColor );
+          
+          if (right>0)
+          {
+            rect.y = 350-right;
+            rect.height = right;
+          } else
+          {
+            rect.y = 350;
+            rect.height = -right;
+          }
+          
+          _buffer.fillRect( rect, _waveColor );
+        }
+        
+      }
+      
+      
+      public function update(position:Number):void
+      {
+        
+        _cursorBuffer.fillRect( _cursorBuffer.rect,_backgroundColor );
+        
+        _zone.x = (_buffer.width / _playingTime) * position;
+        _cursorBuffer.fillRect( _zone , _playheadColor );
+        
+      }
+      
+      public function draw(sound:Sound):void
+      {
+        this.sound=sound;
+        _playingTime=sound.length;
+        _ratio = (_playingTime / _buffer.width)
+        removeEventListener( MouseEvent.CLICK, onClick );
+        removeEventListener( MouseEvent.MOUSE_DOWN, onMouseIsDown );
+        addEventListener(Event.ENTER_FRAME, loop)    
+      }
+      public function clearSelection():void
+      {
+        _selectBuffer.fillRect( _selectBuffer.rect, _backgroundColor);
+        _selectionRect.x = 0;
+        _selectionRect.width = 0;
+      }
+      
+      private function onMouseIsDown( e:MouseEvent ):void
+      {
+        addEventListener( MouseEvent.MOUSE_MOVE, onMove );
+        _selectBuffer.fillRect( _selectBuffer.rect, _backgroundColor);
+        _clickedPosition = this.mouseX/_scaleFactor;
+        
+        _selectionRect.x = _clickedPosition;
+        _selectionRect.width = 0;
+      }
+      
+      private function onMove( e:MouseEvent ):void
+      {
+        if ( (this.mouseX/_scaleFactor) > _clickedPosition )
+        {
+          _selectionRect.width = (this.mouseX/_scaleFactor)-(_clickedPosition);
+        } 
+        else
+        {
+          _selectionRect.x = this.mouseX/_scaleFactor;
+          _selectionRect.width = Math.abs ((this.mouseX/_scaleFactor)-_clickedPosition);
+        }
+        _selectBuffer.fillRect( _selectionRect, _selectionColor );
+      }
+      
+      private function onClick( e:MouseEvent ):void
+      {
+        dispatchEvent(new Event(SELECTION));
+        removeEventListener( MouseEvent.MOUSE_MOVE, onMove );
+      }
+      
+      public function get selectionRect():Rectangle
+      {
+        return _selectionRect;
+      }
+      
+      public function get ratio():Number
+      {
+        return _ratio;
+      }
+      
+      public function set backgroundColor(value:uint):void{
+        _backgroundColor=value;
+      }
+      
+      public function set waveColor(value:uint):void{
+        _waveColor=value;
+      }
+      
+      public function set selectionColor(value:uint):void{
+        _selectionColor=value;
+      }
+      
+      public function set playheadColor(value:uint):void
+      {
+        _playheadColor=value;
+      }
+      
+      public function set playheadWidth(value:Number):void
+      {
+        _playheadWidth=value;
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:BitmapImage source="{_screen}" width="100%" height="100%"/>
+  <s:BitmapImage source="{_selectScreen}" width="100%" height="100%"/>
+  <s:BitmapImage source="{_cursorScreen}" width="100%" height="100%"/>
+  <s:Label id="loadingTxt" x="20" y="20" fontSize="16"/>
+</s:Group>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  <s:Button label="{R.get('NEW_CONFIG')}" click="onNewClick()"
+            icon="@Embed('/img/new/newConfig.png')"/>
+  
+  <s:Button label="{R.get('EDIT')}" click="onEdit()" enabled="{selectedObject != null}"
+            icon="@Embed('/img/NEW/edit.png')"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.agent.model.Config;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import locale.R;
+      
+      import mx.controls.Alert;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var section:OperationsSection;
+      
+      private function onNewClick():void
+      {
+        var configAsString:String = DefaultConfigBuilder.getDefaultConfigAsString(section.stateManager.selectedAgent);
+        var config:Config = new Config({config:configAsString});
+        section.stateManager.manageItemSelection(config);
+      }
+      
+      private function onEdit():void
+      {
+        var popup:ConfigForm = PopUpManager.createPopUp(root, ConfigForm, true) as ConfigForm;
+        popup.config = selectedObject as Config;
+        popup.currentState = FactoriesForm.EDIT;
+        PopUpManager.centerPopUp(popup);
+        //section.stateManager.manageItemSelection(selectedObject);
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

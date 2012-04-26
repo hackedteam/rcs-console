@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      private function init():void
+      {
+        number.text = event.number || '*';
+      }
+      
+      override public function commit():void
+      {
+        if (number.text == '*')
+          delete(event.number);
+        else
+          event.number = number.text;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_CALL')}"/>
+  
+  <s:Form>
+  
+    <s:FormItem label="{R.get('NUMBER')}">
+      <s:HGroup>
+        <s:TextInput id="number" width="140" restrict="0-9+*" showErrorTip="true"/>
+      </s:HGroup>
+    </s:FormItem>
+  
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{number}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</events:EventFields>

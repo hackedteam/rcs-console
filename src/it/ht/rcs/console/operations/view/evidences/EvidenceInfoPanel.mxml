@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:utils="it.ht.rcs.console.utils.*"
+				 xmlns:details="it.ht.rcs.console.operations.view.evidences.advanced.details.*"
+				 width="325"
+				 height="100%"
+				 click="onClick(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.utils.TimeUtils;
+			import it.ht.rcs.console.ObjectUtils;
+
+			import locale.R;
+
+			private var _evidence:Evidence;
+
+			[Embed('/img/NEW/gray_dot.png')]
+			private static const dot:Class;
+
+			[Bindable]
+			public function set evidence(value:Evidence):void
+			{
+
+				_evidence=value;
+				if (!evidence)
+					return;
+				
+			}
+
+			public function get evidence():Evidence
+			{
+				return _evidence;
+			}
+
+			private function saveNote():void
+			{
+				evidence.note=noteTxt.text;
+			}
+
+			public function editNote():void
+			{
+				noteTxt.setFocus();
+				noteTxt.selectAll();
+			}
+
+			private function onKeyDown(e:KeyboardEvent):void
+			{
+				//e.stopImmediatePropagation();
+				if (e.keyCode == 13 && !e.shiftKey)
+				{
+					hiddenFocusTxt.setFocus(); //a  trick to remove focus from note text area on Enter press
+					saveNote();
+				}
+
+			}
+
+			private function onClick(e:MouseEvent):void
+			{
+				if (focusManager.getFocus() == noteTxt)
+				{
+					hiddenFocusTxt.setFocus(); //a  trick to remove focus from note text area on Enter press
+					saveNote();
+				}
+			}
+
+			private function onNoteClick(e:MouseEvent):void
+			{
+				e.stopImmediatePropagation()
+			}
+		]]>
+	</fx:Script>
+  
+
+	<s:Line left="0"
+					top="0"
+					bottom="0">
+		<s:stroke>
+			<s:SolidColorStroke color="#333333"/>
+		</s:stroke>
+	</s:Line>
+
+	<s:Rect left="6"
+					top="0"
+					width="100%"
+					height="30"
+					bottomLeftRadiusX="5"
+					bottomLeftRadiusY="5"
+					topLeftRadiusX="5"
+					topLeftRadiusY="5">
+		<s:fill>
+			<s:LinearGradient>
+				<s:entries>
+					<s:GradientEntry color="#dddddd"/>
+					<s:GradientEntry color="#ffffff"/>
+				</s:entries>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+
+	<s:Label left="15"
+					 height="30"
+					 color="#333333"
+					 fontFamily="Myriad"
+					 fontSize="18"
+					 text="{R.get('DETAILS')}"
+					 verticalAlign="middle"/>
+
+	<s:VGroup left="6"
+						top="35"
+						width="100%"
+						height="100%"
+						horizontalAlign="center">
+		<s:Form visible="{evidence != null}">
+      <s:layout>
+        <s:FormLayout/>
+      </s:layout>  
+			<s:FormItem label="{R.get('DATE_ACQUIRED')}">
+				<s:RichEditableText editable="false"
+														text="{TimeUtils.timestampFormatter(evidence.da * 1000)}"/>
+			</s:FormItem>
+			<s:FormItem label="{R.get('DATE_RECEIVED')}">
+				<s:RichEditableText editable="false"
+														text="{TimeUtils.timestampFormatter(evidence.dr * 1000)}"/>
+			</s:FormItem>
+			<s:FormItem label="{R.get('TYPE')}">
+				<s:RichEditableText editable="false"
+														lineHeight="15"
+														text="{ObjectUtils.capitalize(evidence.type)}"
+														id="typeTxt"/>
+			</s:FormItem>
+			<s:FormItem label="Report">
+				<s:BitmapImage id="icon"
+											 source="{dot}"
+											 visible="{evidence.blo}"/>
+			</s:FormItem>
+      <s:FormItem label="{R.get('RELEVANCE')}" skinClass="it.ht.rcs.console.skins.EvidenceFormItemSkin" textAlign="right">
+        <utils:TagImage value="{evidence.rel}"/>
+      </s:FormItem>
+
+		</s:Form>
+		<s:Line width="90%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+    <s:Spacer height="20"/>
+		<s:Label id="hiddenFocusTxt"
+						 visible="false"
+						 includeInLayout="false"/>
+		<s:HGroup width="90%"
+							horizontalAlign="right"
+							height="100%">
+			<s:Label text="Note:"
+							 fontWeight="bold"/>
+			<s:TextArea editable="true"
+									text="{evidence.note}"
+                  focusOut="saveNote()"
+									id="noteTxt"
+									keyDown="onKeyDown(event)"
+									click="onNoteClick(event)"
+									height="100%"
+									width="100%"/>
+		</s:HGroup>
+	</s:VGroup>
+</s:Group>

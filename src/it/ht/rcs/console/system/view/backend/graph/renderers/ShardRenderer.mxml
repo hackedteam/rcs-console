@@ -1,0 +1,109 @@
+<renderers:NetworkObject xmlns:fx="http://ns.adobe.com/mxml/2009"
+                         xmlns:s="library://ns.adobe.com/flex/spark"
+                         xmlns:mx="library://ns.adobe.com/flex/mx"
+                         xmlns:renderers="it.ht.rcs.console.system.view.backend.graph.renderers.*"
+                         width="{WIDTH}" height="{HEIGHT}" click="onClick(event)"
+                         mouseDown="onMouseDown(event)" mouseOver="onMouseOver(event)"
+                         transitions="{[tr1, tr2]}">
+  
+  <renderers:layout>
+    <s:VerticalLayout gap="6" horizontalAlign="center" paddingBottom="5" paddingLeft="5"
+                      paddingRight="5" paddingTop="5" verticalAlign="top"/>
+  </renderers:layout>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.shard.controller.ShardManager;
+      import it.ht.rcs.console.shard.model.Shard;
+      import it.ht.rcs.console.shard.model.ShardStat;
+      import it.ht.rcs.console.utils.Size;
+      
+      import spark.components.Label;
+        
+      private static const WIDTH:Number  = 130; // 5*2 (padding) + 120 (width of label)
+      private static const HEIGHT:Number = 66 + 26; // 5*2 (padding) + 50 (height of container) + 6 (gap) + 26 (height of label)
+      
+      private static const NORMAL_COLOR:Number = 0xffffff;
+      private static const SELECTED_COLOR:Number = 0xa8c6ee;
+      
+      [Bindable]
+      public var _shard:Shard;
+      [Bindable]
+      private var _stats:ShardStat;
+      
+      [Embed(source='/img/NEW/shard.png')]
+      private static const shardIcon:Class;
+      
+      [Embed(source='/img/NEW/ok.png')]
+      private static const okIcon:Class;
+      [Embed(source='/img/NEW/error.png')]
+      private static const errorIcon:Class;
+      
+      private function onMouseOver(me:MouseEvent):void
+      {
+        me.stopPropagation();
+        Mouse.cursor = MouseCursor.AUTO;
+      }
+      
+      private function onMouseDown(me:MouseEvent):void
+      {
+        me.stopPropagation();
+      }
+      
+      private function onClick(me:MouseEvent):void
+      {
+        me.stopPropagation();
+        currentState = currentState == 'expanded' ? 'collapsed' : 'expanded';
+      }
+      
+      public function set shard(value:Shard):void
+      {
+        _shard = value;
+        ShardManager.instance.getStats(_shard._id, function (e:ShardStat):void {
+          _stats = e;
+        });
+      }
+    ]]>
+  </fx:Script>
+  
+  <renderers:states>
+    <s:State name="collapsed"/>
+    <s:State name="expanded"/>
+  </renderers:states>
+  
+  <s:BorderContainer id="container" width="50" height="50" backgroundColor="{NORMAL_COLOR}"
+                     borderColor="#dddddd" cornerRadius="10"
+                     width.expanded="150" height.expanded="150">
+    
+    <s:BitmapImage right="-6" top="-6" depth="10" source="{(_stats.ok == 1) ? okIcon : errorIcon}"/>
+        
+    <s:Group width="{container.width}" height="{container.height}" clipAndEnableScrolling="true">
+
+      <s:BitmapImage source="{shardIcon}"/>
+      <s:Label left="60" top="15" fontSize="12" fontWeight="bold" maxDisplayedLines="1" text="{_shard._id}"/>
+      
+      <s:TextArea visible="{_stats.ok != 1}" left="10" top="50" width="120" height="30"
+                  borderVisible="false" color="#FF0000" contentBackgroundAlpha="0.0" editable="false"
+                  fontSize="12" text="{_stats.errmsg}"/> 
+      
+      <s:Label left="10" top="90" text="Data Size:"/>
+      <s:Label left="80" top="90" fontSize="12" text="{Size.toHumanBytes(_stats.dataSize)}"/>
+      
+      <s:Label left="10" top="110" text="On Disk:"/>
+      <s:Label left="80" top="110" fontSize="12" text="{Size.toHumanBytes(_stats.storageSize)}"/> 
+    </s:Group>
+    
+  </s:BorderContainer>
+  
+  <s:Label width="120" maxDisplayedLines="2" text="{_shard.host}" textAlign="center"/>
+  
+  <fx:Declarations>
+    <s:Transition id="tr1" fromState="collapsed" toState="expanded">
+      <s:Resize duration="150" target="{container}"/>
+    </s:Transition>
+    <s:Transition id="tr2" fromState="expanded" toState="collapsed">
+      <s:Resize duration="150" target="{container}"/>
+    </s:Transition>
+  </fx:Declarations>
+  
+</renderers:NetworkObject>

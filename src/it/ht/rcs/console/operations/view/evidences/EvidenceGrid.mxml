@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+						width="100%"
+						height="100%"
+						sortableColumns="false"
+						variableRowHeight="true"
+						editable="true"
+						alternatingRowColors="[#FFFFFF, #EEEEEE]"
+						gridItemEditorSessionStarting="onItemEditingStart()"
+						gridItemEditorSessionSave="onItemEditingSave()"
+						doubleClickEnabled="true"
+						gridClick="onGridClick(event)"
+						gridDoubleClick="onGridDoubleClick(event)">
+	<fx:Metadata> 
+    [Event(name="dataChange", type="flash.events.Event")]
+    [Event(name="itemDoubleClick", type="spark.events.GridEvent")]
+  </fx:Metadata>
+
+	<fx:Script>
+
+		<![CDATA[
+			import it.ht.rcs.console.ObjectUtils;
+			import it.ht.rcs.console.agent.controller.AgentManager;
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
+			
+			import mx.collections.IList;
+			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
+			
+			import spark.core.NavigationUnit;
+			import spark.events.GridEvent;
+			import spark.events.GridItemEditorEvent;
+      
+      private var lastColumnIndex:int = -1;
+      private var lastRowIndex:int = -1;
+
+			[Bindable]
+			public var filter:Object=EvidenceManager.instance.evidenceFilter;
+
+			private function dateLabelFunction(item:Object, column:GridColumn):String
+			{
+				return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+			}
+
+			public function editNote():void
+			{
+				if (!selectedItems || selectedItems.length < 1)
+				{
+					return;
+				}
+				else
+				{
+					var rowIndex:int=this.selectedIndices[0];
+					var columnIndex:int=5; //note column index
+					this.startItemEditorSession(rowIndex, columnIndex);
+				}
+			}
+
+			private function onItemEditingStart():void
+			{
+
+			}
+
+			private function onItemEditingSave():void
+			{
+				for (var i:int=0; i < selectedItems.length; i++)
+				{
+					var evidence:Evidence=selectedItems[i] as Evidence;
+					evidence.note=selectedItem.note;
+				}
+			}
+
+			private function showName(item:Object, column:GridColumn):String
+			{
+				var agent:Agent=AgentManager.instance.getItem(item.aid);
+				if (agent == null)
+					return "<unknown>";
+				return agent.name;
+			}
+
+			private function capitalize(item:Object, column:GridColumn):String
+			{
+				return ObjectUtils.capitalize(item.type);
+			}
+
+			private function showData(item:Object, column:GridColumn):String
+			{
+				return item.data._grid;
+			}
+
+
+			[Bindable]
+			override public function set dataProvider(value:IList):void
+			{
+				super.dataProvider=value;
+				dispatchEvent(new Event("dataChange"));
+
+				this.grid.addEventListener(Event.RESIZE, onGridResize);
+			}
+
+			private function onGridResize(e:Event):void
+			{
+				//scrollDown(e);
+			}
+
+			public function scrollDown():void
+			{
+				
+        this.grid.ensureCellIsVisible(this.dataProvider.length-1);
+			}
+      
+      private function onGridClick(e:GridEvent):void
+      {
+        trace("grid click")
+        lastRowIndex = e.rowIndex;
+        lastColumnIndex = e.columnIndex;
+      }
+      
+      private function onGridDoubleClick(e:GridEvent):void
+      {
+        trace("grid second click")
+        if (e.rowIndex == lastRowIndex && e.columnIndex == lastColumnIndex)
+        {
+          var ge:GridEvent=new GridEvent("itemDoubleClick",true);
+          ge.columnIndex=e.columnIndex;
+          ge.column=e.column;
+          ge.rowIndex=e.rowIndex
+          ge.item=e.item;
+          dispatchEvent(ge);
+        }
+        
+        lastRowIndex = e.rowIndex;
+        lastColumnIndex = e.columnIndex;
+      }
+		]]>
+	</fx:Script>
+	<s:columns>
+		<s:ArrayList>
+
+			<s:GridColumn width="130"
+										dataField="da"
+										headerText="{R.get('DATE_ACQUIRED')}"
+										labelFunction="dateLabelFunction"
+										resizable="false"
+										editable="false">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.DateFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+				<s:itemRenderer>
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn width="130"
+										dataField="dr"
+										headerText="{R.get('DATE_RECEIVED')}"
+										labelFunction="dateLabelFunction"
+										resizable="false"
+										editable="false">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.DateFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+				<s:itemRenderer>
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn width="37"
+										dataField="rel"
+										headerText="{R.get('RELEVANCE_SHORT')}"
+										itemRenderer="it.ht.rcs.console.alerting.view.TagRenderer"
+										resizable="false"
+										editable="false">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TagFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn width="90"
+										dataField="type"
+										headerText="{R.get('TYPE')}"
+										resizable="false"
+										editable="false"
+										labelFunction="capitalize">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TypeFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+				<s:itemRenderer>
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="right"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 fontWeight="bold"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn dataField="data"
+										headerText="{R.get('INFO')}"
+										width="500"
+										itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceRenderer"
+										resizable="true"
+										editable="false">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TextFilterPopup"
+																						propertyName="info"/>
+					</fx:Component>
+				</s:headerRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn id="noteColumn"
+										dataField="note"
+										headerText="{R.get('NOTE')}"
+										resizable="false"
+										editable="true">
+				<s:itemRenderer>
+					<fx:Component>
+						<s:GridItemRenderer height="60">
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 maxDisplayedLines="4"
+											 width="100%"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+
+			<s:GridColumn width="30"
+										dataField="blo"
+										headerText="{R.get('REPORT_SHORT')}"
+										itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.BlotterRenderer"
+										resizable="false"
+										editable="false">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.BlotterFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn width="150"
+										dataField="aid"
+										headerText="Agent"
+										labelFunction="showName"
+										resizable="true"
+										editable="false"
+										visible="{parentDocument.section.stateManager.selectedAgent == null}">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.AgentFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+				<s:itemRenderer>
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+		</s:ArrayList>
+	</s:columns>
+</s:DataGrid>

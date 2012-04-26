@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                             xmlns:s="library://ns.adobe.com/flex/spark" 
+                             xmlns:mx="library://ns.adobe.com/flex/mx" 
+                             xmlns:utils="it.ht.rcs.console.utils.*" width="400" height="380"
+                             save="saveMe()" creationComplete="init()"
+                             title="{resourceManager.getString('localized_main', 'EDIT_BACKUP').toUpperCase()}" 
+                             xmlns:view="it.ht.rcs.console.system.view.*" 
+                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*" 
+                             xmlns:backend="it.ht.rcs.console.system.view.backend.*"
+                             xmlns:backups="it.ht.rcs.console.system.view.backup.backups.*" 
+                             xmlns:jobs="it.ht.rcs.console.system.view.backup.jobs.*">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
+      import it.ht.rcs.console.backup.model.BackupJob;
+      import it.ht.rcs.console.backup.model.BackupJobTime;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _job:BackupJob;
+      [Bindable]
+      private var _what:String;
+      [Bindable]
+      private var _id:String;
+
+      [Bindable]
+      private var types:ArrayCollection = new ArrayCollection(['metadata', 'full', 'operation', 'target']);
+      
+      private function init():void
+      {
+        formType.setFocus();
+        if (currentState == 'create') {
+          job = new BackupJob(BackupJob.defaultJob());
+        }
+      }
+      
+      public function set job(j:BackupJob):void
+      {
+        _job = j;
+        _what = _job.what.split(':')[0];
+        _id = _job.what.split(':')[1];
+      }
+      
+      private function saveMe():void
+      {
+        _job.enabled = formEnabled.selected;
+        _job.name = formName.text;
+          
+        var what:String = formType.selectedItem;
+        if (what == 'operation' || what == 'target')
+          what += ":" + searchField.selectedItem._id;
+        
+        _job.what = what;
+        
+        _job.when = formWhen.data;
+        
+        /* reset the status on save */
+        _job.lastrun = "";
+        _job.status = 'QUEUED';
+        
+        if (currentState == 'create')
+          BackupJobManager.instance.addJob(ObjectUtils.toHash(_job), function(b:BackupJob):void { close(); });
+        else
+          close();
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <fx:Metadata>
+    [ResourceBundle("localized_main")] 
+  </fx:Metadata>
+  
+  <s:Form left="5" right="5" top="5" bottom="5" skinClass="it.ht.rcs.console.skins.CompactForm" >
+    <s:FormItem label="{R.get('ENABLED')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:CheckBox id="formEnabled" selected="{_job.enabled}"/>
+    </s:FormItem>
+    <s:FormItem label="{R.get('WHAT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:HGroup>
+        <s:DropDownList id="formType" width="100" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_what)}"/>
+        <itemfield:ItemField id="searchField" right="5" top="0" selectedItemId="{_id}" kinds="{[formType.selectedItem]}" visible="{formType.selectedItem == 'operation' || formType.selectedItem == 'target'}"/>        
+      </s:HGroup>
+    </s:FormItem>
+    <s:FormItem label="{R.get('WHEN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <jobs:BackupJobWhen id="formWhen" data="{_job.when}"/>
+    </s:FormItem>
+    <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="formName" text="{_job.name}" width="200" restrict="^ /\\" />
+    </s:FormItem>
+
+    
+  </s:Form>
+</utils:TitleWindowSaveCancel>

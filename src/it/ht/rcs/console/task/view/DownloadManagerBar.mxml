@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%" verticalCenter="-2">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.notifications.NotificationPopup;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      
+      import mx.managers.PopUpManager;
+      
+      private function onClick():void
+      {
+        //NotificationPopup.showNotification('This is a <b>test notification</b> very long lkjasd klajsd klajs dlkaj sdkl ajsdkl jasdjka sdjkf askldjf laskdjf lkasj dflkja sdklfj laksjd f', 3);
+        if (!DownloadManagerWindow.instance) {
+          var popup:DownloadManagerWindow = PopUpManager.createPopUp(this.parentApplication as DisplayObject, DownloadManagerWindow, false) as DownloadManagerWindow;
+          PopUpManager.centerPopUp(popup);
+        } else {
+          DownloadManagerWindow.instance.visible = true;
+        }
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:HorizontalLayout horizontalAlign="center" verticalAlign="middle"/>
+  </s:layout>
+  
+  <mx:ProgressBar width="200" label="" click="onClick()" indeterminate="{DownloadManager.instance.running}" visible="{DownloadManager.instance.active}" labelPlacement="right"
+                  paddingLeft="15" trackHeight="13"/>  
+  
+</s:Group>

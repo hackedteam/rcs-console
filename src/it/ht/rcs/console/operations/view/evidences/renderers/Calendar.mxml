@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%"
+                                >
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DB;
+      import flashx.textLayout.conversion.TextConverter;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      [Bindable]
+      override public function set data(value:*):void
+      {
+        
+        super.data=value;
+        // begin, end, event, info
+        beginTxt.textFlow= TextConverter.importToFlow("<b>Begin: </b>"+TimeUtils.timestampFormatter(data.data.begin*1000), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        endTxt.textFlow= TextConverter.importToFlow("<b>End: </b>"+TimeUtils.timestampFormatter(data.data.end*1000), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        eventTxt.textFlow= TextConverter.importToFlow("<b>Event: </b>"+data.data.event, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        infoTxt.textFlow= TextConverter.importToFlow("<b>Info: </b>"+data.data.info, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:HGroup verticalAlign="top"
+            height="100%"
+            width="100%">
+    <s:VGroup verticalAlign="middle" width="50%">
+      <s:RichText id="beginTxt" />
+      <s:RichText id="endTxt" />
+      <s:RichText id="eventTxt" />
+    </s:VGroup>
+    <s:Line height="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:VGroup verticalAlign="top" width="50%">
+      <s:RichText id="infoTxt" width="100%"/>
+    </s:VGroup>
+  </s:HGroup>
+  
+</renderers:EvidenceDataRenderer>

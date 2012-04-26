@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          width="100%" height="100%" creationComplete="init()" gap="-1">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      
+      [Bindable]
+      private var _group:Group;
+      
+      [Bindable] private var selectedDP:ListCollectionView;
+      [Bindable] private var availableDP:ListCollectionView;
+      
+      private function init():void
+      {
+        availableDP = UserManager.instance.getView(null, listFilterFunction);
+      }
+      
+      private function listFilterFunction(item:Object):Boolean
+      {
+        try {
+          return selectedDP.getItemIndex(item) == -1;
+        } catch (e:Error) {}
+        return true;
+      }
+      
+      public function set group(g:Group):void
+      {
+        trace("setting Group")
+        _group = g;
+        selectedDP = getSelectedDP();
+        selectedUsers.sortByColumns(Vector.<int>([0]), true);
+        if (availableDP) availableDP.refresh();
+      }
+      
+      private function getSelectedDP():ListCollectionView
+      {
+        var dp:ListCollectionView = new ListCollectionView(new ArrayList());
+        if (_group) for each (var _id:String in _group.user_ids) {
+          var user:User = UserManager.instance.getItem(_id);
+          if (user) dp.addItem(user);
+        }
+        return dp;
+      }
+      
+      private function addUser():void
+      {
+        var user:User = availableUsers.selectedItem as User;
+        if (user == null || _group == null) return;
+        GroupManager.instance.addUser(_group, user, function():void {
+          selectedDP.addItem(user);
+          availableDP.refresh();
+          selectedUsers.selectedItem = user;
+        });
+      }
+      
+      private function removeUser():void
+      {
+        var user:User = selectedUsers.selectedItem as User;
+        if (user == null || _group == null) return;
+        GroupManager.instance.removeUser(_group, user, function():void {
+          selectedDP.removeItemAt(selectedDP.getItemIndex(user));
+          availableDP.refresh();
+          selectedUsers.selectedItem = null;
+        });
+      }
+    ]]>
+  </fx:Script>
+
+  <s:HGroup width="100%" gap="-1" horizontalAlign="right">
+    
+    <s:Button width="30" label="-" click="removeUser()" cornerRadius="0"/>
+    
+    <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
+      <mx:popUp>
+        <s:List id="availableUsers" minWidth="150" height="200" click="addUser()"
+                dataProvider="{availableDP}" filters="{[dropShadow]}" labelField="name"
+                textAlign="left"/>
+      </mx:popUp>
+    </mx:PopUpButton>
+    
+  </s:HGroup>
+  
+  <s:DataGrid id="selectedUsers" width="100%" height="100%" dataProvider="{selectedDP}">
+    <s:columns>
+      <s:ArrayList>
+        <s:GridColumn dataField="name" headerText="{R.get('USERS_IN_GROUP')}"/>
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+
+  <fx:Declarations>
+    <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"
+                        distance="8"/>
+  </fx:Declarations>
+  
+</s:VGroup>

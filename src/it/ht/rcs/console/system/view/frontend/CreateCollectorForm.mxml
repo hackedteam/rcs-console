@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            save="save()" creationComplete="init(event)"
+                            title="{R.get('ANONYMIZER_ADD')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
+      
+      [Bindable]
+      public var collector:Collector;
+      
+      private function save():void
+      {
+        if (StringUtil.trim(address.text) == '') {
+          AlertPopUp.show('COLLECTOR_INVALID_ADDRESS');
+          address.setFocus();
+          return;
+        }
+        
+        collector.name = collName.text;
+        collector.desc = description.text;
+        collector.address = address.text;
+        collector.port = parseInt(port.text);
+        collector.poll = poll.selected;
+        
+        CollectorManager.instance.addCollector(ObjectUtils.toHash(collector), function(i:Collector):void { close(); });
+      }
+      
+      private function init(event:FlexEvent):void
+      {
+        collector = new Collector(Collector.defaultCollector());        
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form left="5" right="5" bottom="10" skinClass="it.ht.rcs.console.skins.CompactForm">
+    
+    <s:FormItem label="{R.get('NAME')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="collName" width="200" text="{collector.name}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DESCRIPTION')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextArea id="description" width="200" height="60" text="{collector.desc}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ADDRESS')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="address" width="200" text="{collector.address}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PORT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:TextInput id="port" width="100" text="{collector.port}" restrict="0-9" maxChars="5"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('POLL')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
+      <s:CheckBox id="poll" selected="{collector.poll}"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

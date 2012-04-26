@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
+                             creationComplete="init()" creationPolicy="all" currentState="normal"
+                             save="save()" title="{R.get('EDIT_RULE')}">
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.network.model.InjectorRule;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var rule:InjectorRule;
+      public var injector:Injector;
+      
+      public var mode:String = 'edit';
+      
+      private var fileReference:FileReference;
+      private var fileChanged:Boolean = false;
+      
+      [Bindable]
+      private var _selectedTarget:Object;
+      
+      public function init():void
+      {
+        
+        if (mode == 'create') {
+          
+          rule = new InjectorRule(InjectorRule.defaultInjectorRule());
+          
+        } else if (mode == 'edit') {
+          
+          ident.selectedItem = rule.ident;
+          action.selectedItem = rule.action;
+          
+          if (rule.target_id && rule.target_id.length == 1 && rule.target_id[0])
+          for each (var t:Object in target.dataProvider) {
+            if (t._id == rule.target_id[0]) {
+              target.selectedItemId = t._id;
+              break;
+            }
+          }
+          
+          if (rule.action == 'REPLACE') {
+            
+            currentState = 'fileSelected';
+            fileName.text = rule.action_param_name;
+            
+          } else {
+            
+            for each (var b:Object in agent.dataProvider) {
+              if (b._id == rule.action_param) {
+                agent.selectedItemId = b._id;
+                break;
+              }
+            }
+            
+          }
+        
+        }
+        
+      }
+      
+      private function save():void
+      {
+
+        if (hasValidationErrors())
+          return;
+        
+        if (action.selectedItem != 'REPLACE')
+          manageInject();
+        
+        else if (fileChanged)
+          manageReplaceWithUpload();
+        
+        else
+          manageReplace();
+      }
+      
+      private function hasValidationErrors():Boolean
+      {
+        var hasError:Boolean = false;
+        
+        target.errorString = '';
+        if (!target.selectedItem) {
+          target.errorString = 'Please select a target';
+          hasError = true;
+        }
+        
+        agent.errorString = '';
+        if (action.selectedItem != 'REPLACE' && !agent.selectedItem) {
+          agent.errorString = 'Please select an agent';
+          hasError = true;
+        }
+        
+        return hasError;
+      }
+      
+      private function populateCommonProperties():void
+      {
+        rule.enabled = isEnabled.selected;
+        rule.disable_sync = sync.selected;
+        rule.probability = probability.value;
+        rule.ident = ident.selectedItem;
+        rule.ident_param = ident_param.text;
+        rule.resource = resource.text;
+        rule.action = action.selectedItem;
+        
+        if (mode == 'create' || target.selectedItem._id != rule.target_id[0])
+          rule.target_id = [target.selectedItem._id];
+      }
+      
+      private function manageInject():void
+      {
+        populateCommonProperties();
+        rule.action_param = agent.selectedItem ? agent.selectedItem._id : null;
+        rule.action_param_name = agent.selectedItem ? agent.selectedItem._id : null;
+        
+        saveRule();
+      }
+      
+      private function manageReplace():void
+      {
+        populateCommonProperties();
+        
+        saveRule();
+      }
+      
+      private var uploadPopup:UploadPopup;
+      private function manageReplaceWithUpload():void
+      {
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        populateCommonProperties();
+        rule.action_param = event.data;
+        rule.action_param_name = fileReference.name;
+
+        saveRule();
+      }
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
+      }
+      
+      private function browse():void
+      {
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.browse();
+      }
+      
+      private function fileSelection(event:Event):void
+      {
+        currentState = 'fileSelected';
+        fileName.text = event.target.name;
+        fileChanged = true;
+      }
+      
+      private function saveRule():void
+      {
+        if (mode == 'create')
+          injector.rulesManager.addRule(injector._id, rule, function(rule:InjectorRule):void { close(); });
+        else
+          close();
+      }
+      
+      private function onTargetSelection(event:ItemFieldEvent):void
+      {
+        _selectedTarget = event.selectedItem;
+        agent.selectedItemId = null;
+      }
+    ]]>
+  </fx:Script>
+  
+  
+  <utils:states>
+    <s:State name="normal"/>
+    <s:State name="fileSelected"/>
+  </utils:states>
+  
+  <s:Form id="ruleForm" defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('ENABLED')}">
+      <s:CheckBox id="isEnabled" selected="{rule.enabled}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DISABLE_ON_SYNC')}">
+      <s:CheckBox id="sync" selected="{rule.disable_sync}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PROBABILITY')}">
+      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1"
+                 value="{rule.probability}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('TARGET')}">
+      <itemfield:ItemField id="target" width="200" kinds="{['target']}" itemSelected="onTargetSelection(event)"
+                           selectedItemId="{rule.target_id}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('IDENT')}">
+      <s:DropDownList id="ident" width="200" requireSelection="true">
+        <s:dataProvider>
+          <s:ArrayCollection>
+            <fx:String>STATIC-IP</fx:String>
+            <fx:String>STATIC-RANGE</fx:String>
+            <fx:String>STATIC-MAC</fx:String>
+            <fx:String>DHCP</fx:String>
+            <fx:String>RADIUS-LOGIN</fx:String>
+            <fx:String>RADIUS-CALLID</fx:String>
+            <fx:String>RADIUS-SESSID</fx:String>
+            <fx:String>RADIUS-TECHKEY</fx:String>
+            <fx:String>STRING-CLIENT</fx:String>
+            <fx:String>STRING-SERVER</fx:String>
+          </s:ArrayCollection>
+        </s:dataProvider>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('USER_PATTERN')}">
+      <s:TextInput id="ident_param" width="200" text="{rule.ident_param}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('RESOURCE_PATTERN')}">
+      <s:TextInput id="resource" width="200" text="{rule.resource}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ACTION')}">
+      <s:DropDownList id="action" width="200" change="{currentState = 'normal'}"
+                      requireSelection="true">
+         <s:dataProvider>
+           <s:ArrayCollection>
+             <fx:String>INJECT-EXE</fx:String>
+             <fx:String>INJECT-HTML</fx:String>
+             <fx:String>INJECT-UPGRADE</fx:String>
+             <fx:String>REPLACE</fx:String>
+           </s:ArrayCollection>
+         </s:dataProvider>
+       </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem visible="{action.selectedItem != 'REPLACE'}" label="{R.get('AGENT')}"
+                includeInLayout="{action.selectedItem != 'REPLACE'}">
+      <itemfield:ItemField id="agent" width="200" kinds="{['factory']}"
+                           selectedItemId="{rule.action_param}" path="{_selectedTarget}"/> <!--  -->
+    </s:FormItem>
+   
+    <s:FormItem visible="{action.selectedItem == 'REPLACE'}" label="{R.get('FILE')}"
+                includeInLayout="{action.selectedItem == 'REPLACE'}">
+      <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
+      <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
+               maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
+               verticalAlign="middle"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:main="it.ht.rcs.console.main.*"
+              xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
+              xmlns:targets="it.ht.rcs.console.operations.view.targets.*"
+              xmlns:agents="it.ht.rcs.console.operations.view.agents.*"
+              xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+              xmlns:evidences="it.ht.rcs.console.operations.view.evidences.*"
+              xmlns:view="it.ht.rcs.console.operations.view.*"
+              xmlns:info="it.ht.rcs.console.operations.view.info.*"
+              xmlns:transfer="it.ht.rcs.console.operations.view.filetransfer.*"
+              xmlns:filesystem="it.ht.rcs.console.operations.view.filesystem.*"
+              creationComplete="init()" stateChangeComplete="onStateChange(event)">
+  
+  
+  <main:states>
+    <s:State name="none"/>
+    
+    <s:State name="allOperations"/>
+    <s:State name="singleOperation"/>
+    
+    <s:State name="allTargets"/>
+    <s:State name="singleTarget"/>
+    
+    <s:State name="allAgents"/>
+    <s:State name="singleAgent"/>
+    <s:State name="agentConfigList"/>
+    
+    <s:State name="config"/>
+    
+    <s:State name="evidence"/>
+    <s:State name="filesystem"/>
+    <s:State name="info"/>
+    
+    <s:State name="filetransfer"/>
+  </main:states>
+  
+  
+  <main:layout>
+    <s:VerticalLayout gap="2" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
+  
+  <view:Breadcrumb section="{this}"/>
+  
+  
+  <operations:OperationsView includeIn="allOperations" section="{this}"/>
+  
+  <targets:TargetsView includeIn="singleOperation,allTargets" section="{this}"/>
+  
+  <agents:AgentsView id="singleAgent" includeIn="singleTarget,allAgents,singleAgent" section="{this}"/>
+  
+  <agents:AgentsConfigListView includeIn="agentConfigList" section="{this}"/>
+  
+  <configuration:ConfigurationView id="configView" includeIn="config" section="{this}"/>
+  
+  <evidences:EvidencesView id="evidenceView" includeIn="evidence" section="{this}"/>
+  
+  <info:InfoView includeIn="info" section="{this}"/>
+  
+  <transfer:FileTransferView includeIn="filetransfer" section="{this}"/>
+  
+  <filesystem:FileSystemView id="filesystem" includeIn="filesystem" section="{this}"/>
+
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.target.controller.TargetManager;
+      
+      import mx.events.FlexEvent;
+      
+      [Bindable]
+      public var stateManager:OperationsSectionStateManager;
+      
+      private var eventToManage:SectionEvent = null;
+      private function init():void
+      {
+        stateManager = new OperationsSectionStateManager(this);
+        
+        if (eventToManage)
+          stateManager.manageItemSelection(null, eventToManage);
+        else
+          stateManager.setState('allOperations');
+      }
+      
+      public function changeSection(event:SectionEvent):void
+      {
+        if (!event.item) return;
+        
+        if (stateManager) {
+          currentState = 'none';
+          stateManager.setState('none');
+        }
+        
+        // This method is called before init if we never entered the operation section,
+        // so we check if stateManager is present, otherwise we delay the item selection
+        if (stateManager)
+          stateManager.manageItemSelection(null, event);
+        else
+          eventToManage = event;
+      }
+      
+      private function onStateChange(event:FlexEvent):void
+      {
+        // Single agent does not have a table view. Always switch to icon view (first element of the viewstack)
+        if (currentState == 'singleAgent')
+          singleAgent.views.selectedIndex = 0;
+      }
+      
+      override public function getDirtyState():Boolean
+      {
+        if (currentState == 'config')
+          return configView.getDirtyState();
+        else return false;
+      }
+    ]]>
+  </fx:Script>
+  
+</main:Section>

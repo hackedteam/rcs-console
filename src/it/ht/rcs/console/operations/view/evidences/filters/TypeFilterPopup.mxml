@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+                             creationComplete="init()" show="show()">
+  
+  <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+    
+    <filters:TypeFilterItemRenderer id="addressbook" label="addressbook"/>
+    <filters:TypeFilterItemRenderer id="application" label="application"/>
+    <filters:TypeFilterItemRenderer id="calendar"    label="calendar"/>
+    <filters:TypeFilterItemRenderer id="call"        label="call"/>
+    
+    <filters:TypeFilterItemRenderer id="camera"    label="camera"/>
+    <filters:TypeFilterItemRenderer id="chat"      label="chat"/>
+    <filters:TypeFilterItemRenderer id="clipboard" label="clipboard"/>
+    <filters:TypeFilterItemRenderer id="device"    label="device"/>
+    
+    <filters:TypeFilterItemRenderer id="file"     label="file"/>
+    <filters:TypeFilterItemRenderer id="keylog"   label="keylog"/>
+    <filters:TypeFilterItemRenderer id="message"  label="message"/>
+    <filters:TypeFilterItemRenderer id="mic"      label="mic"/>
+    
+    <filters:TypeFilterItemRenderer id="mouse"    label="mouse"/>
+    <filters:TypeFilterItemRenderer id="password" label="password"/>
+    <filters:TypeFilterItemRenderer id="position" label="position"/>
+    <filters:TypeFilterItemRenderer id="print"    label="print"/>
+    
+    <filters:TypeFilterItemRenderer id="screenshot" label="screenshot"/>
+    <filters:TypeFilterItemRenderer id="url"        label="url"/>
+    
+    <s:HGroup>
+      <s:Button label="Select All" width="90" click="applyAll(true)"/>
+      <s:Button label="Deselect All" width="90" click="applyAll(false)"/>
+    </s:HGroup>
+    
+  </s:VGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      
+      private var checks:Array;
+      
+      private function init():void
+      {
+        checks = [addressbook, application, calendar, call, camera, chat, clipboard, device, file,
+                  keylog, message, mic, mouse, password, position, print, screenshot, url];
+      }
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function getValues():Array
+      {
+        var toReturn:Array = [];
+        
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          if (item.checkbox.selected)
+            toReturn.push(item.id);
+        });
+        
+        return toReturn;
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        deselectAll();
+        commit(fireEvent);
+      }
+
+      private function deselectAll():void
+      {
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = false;
+        });
+      }
+      
+      private function show():void
+      {
+        if (!filter.hasOwnProperty(property)) return;
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = filter[property].indexOf(item.id) != -1;
+        });
+      }
+      
+      private function applyAll(val:Boolean):void
+      {
+        checks.forEach(function(item:TypeFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = val;
+        });
+      }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        hasFilter = filter.hasOwnProperty(property);
+        deselectAll();
+        if (hasFilter && filter[property] is Array)
+          filter[property].forEach(function(item:String, index:int, array:Array):void {
+            this[item].checkbox.selected = true;
+          }, this);
+      }
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

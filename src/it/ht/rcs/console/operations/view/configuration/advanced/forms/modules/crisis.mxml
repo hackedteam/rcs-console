@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    creationComplete="init()" save="save()" title="Crisis">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      import mx.collections.ArrayList;
+      import mx.managers.PopUpManager;
+
+      [Bindable]
+      private var mobile:Boolean = false;
+      
+      private function init():void
+      {
+        mobile = graph.config.globals.type.toLowerCase() == 'mobile';
+        
+        network.selected = module.network.enabled;
+        hook.selected = module.hook.enabled;
+        networkList.dataProvider = new ArrayList(module.network.processes);
+        hookList.dataProvider = new ArrayList(module.hook.processes);
+        
+        mic.selected = module.mic;
+        call.selected = module.call;
+        camera.selected = module.camera;
+        position.selected = module.position;
+        synchronize.selected = module.synchronize;
+        
+        PopUpManager.centerPopUp(this);
+      }
+      
+      private function save():void
+      {
+        if (network.selected) {
+          module.network.enabled = true;
+          module.network.processes = ArrayList(networkList.dataProvider).source;
+        } else {
+          module.network.enabled = false;
+          module.network.processes = [];
+        }
+        
+        if (hook.selected) {
+          module.hook.enabled = true;
+          module.hook.processes = ArrayList(hookList.dataProvider).source;
+        } else {
+          module.hook.enabled = false;
+          module.hook.processes = [];
+        }
+        
+        module.mic = mic.selected;
+        module.call = call.selected;
+        module.camera = camera.selected;
+        module.position = position.selected;
+        module.synchronize = synchronize.selected;
+        
+        close();
+      }
+      
+      private function addNetwork(event:MouseEvent):void
+      {
+        networkList.dataProvider.addItem(networkProcess.text);
+        networkProcess.text = '';
+        networkProcess.setFocus();
+      }
+      private function addHook(event:MouseEvent):void
+      {
+        hookList.dataProvider.addItem(hookProcess.text);
+        hookProcess.text = '';
+        hookProcess.setFocus();
+      }
+      private function removeNetwork(event:MouseEvent):void
+      {
+        networkList.dataProvider.removeItemAt(networkList.selectedIndex);
+      }
+      private function removeHook(event:MouseEvent):void
+      {
+        hookList.dataProvider.removeItemAt(hookList.selectedIndex);
+      }
+    ]]>
+  </fx:Script>
+
+  <s:Form visible="{mobile}" includeInLayout="{mobile}">
+    
+    <s:FormItem label="{R.get('MIC')}">
+      <s:CheckBox id="mic"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('CALL')}">
+      <s:CheckBox id="call"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('CAMERA')}">
+      <s:CheckBox id="camera"/>
+    </s:FormItem>
+
+    <s:FormItem label="{R.get('POSITION')}">
+      <s:CheckBox id="position"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('SYNC')}">
+      <s:CheckBox id="synchronize"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <s:HGroup visible="{!mobile}" gap="30" includeInLayout="{!mobile}">
+    
+    <s:Form>
+      
+      <s:FormItem label="{R.get('INHIBITS_NETWORK')}">
+        <s:CheckBox id="network"/>
+      </s:FormItem>
+      
+      <s:FormItem label="{R.get('INHIBITORS')}" enabled="{network.selected}">
+        <s:HGroup>
+          <s:List id="networkList" width="150"/>
+          <s:Button width="40" label="-" click="removeNetwork(event)"
+                    enabled="{networkList.selectedItem}"/>
+        </s:HGroup>
+      </s:FormItem>
+      
+      <s:FormItem label="{R.get('PROCESS')}" enabled="{network.selected}">
+        <s:HGroup>
+          <s:TextInput id="networkProcess" width="150"/>
+          <s:Button width="40" label="+" click="addNetwork(event)"
+                    enabled="{networkProcess.text != ''}"/>
+        </s:HGroup>
+      </s:FormItem>
+      
+    </s:Form>
+    
+    <s:Form defaultButton="{saveButton}">
+      
+      <s:FormItem label="{R.get('INHIBITS_HOOKING')}">
+        <s:CheckBox id="hook"/>
+      </s:FormItem>
+      
+      <s:FormItem label="{R.get('INHIBITORS')}" enabled="{hook.selected}">
+        <s:HGroup>
+          <s:List id="hookList" width="150"/>
+          <s:Button width="40" label="-" click="removeHook(event)" enabled="{hookList.selectedItem}"/>
+        </s:HGroup>
+      </s:FormItem>
+      
+      <s:FormItem label="{R.get('PROCESS')}" enabled="{hook.selected}">
+        <s:HGroup>
+          <s:TextInput id="hookProcess" width="150"/>
+          <s:Button width="40" label="+" click="addHook(event)" enabled="{hookProcess.text != ''}"/>
+        </s:HGroup>
+      </s:FormItem>
+      
+    </s:Form>
+    
+  </s:HGroup>
+
+</modules:ModuleForm>

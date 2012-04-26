@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:users="it.ht.rcs.console.accounting.view.users.*"
+         width="255" height="100%">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      [Bindable]
+      public var selectedItem:*;
+      
+      private function groupLabelFunction(_id:Object):String
+      {
+        var group:it.ht.rcs.console.accounting.model.Group = GroupManager.instance.getItem(_id as String);
+        return group ? group.name : '';
+      }
+    ]]>
+  </fx:Script>
+
+  <s:Line left="0" top="0" bottom="0">
+    <s:stroke><s:SolidColorStroke color="#333333"/></s:stroke>
+  </s:Line>
+  
+  <s:Rect left="6" top="0" width="100%" height="30" bottomLeftRadiusX="5" bottomLeftRadiusY="5"
+          topLeftRadiusX="5" topLeftRadiusY="5">
+    <s:fill>
+      <s:LinearGradient>
+        <s:entries>
+          <s:GradientEntry color="#dddddd"/>
+          <s:GradientEntry color="#ffffff"/>
+        </s:entries>
+      </s:LinearGradient>
+    </s:fill>
+  </s:Rect>
+  
+  <s:Label left="15" height="30" color="#333333" fontFamily="Myriad" fontSize="18"
+           text="{R.get('USER_DETAILS')}" verticalAlign="middle"/>
+
+  <s:VGroup left="6" top="35" width="100%" height="100%">
+    <s:Form visible="{selectedItem != null}">
+      <s:FormItem label="{R.get('NAME')}">
+        <s:RichEditableText editable="false" text="{selectedItem.name}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('DESCRIPTION')}">
+        <s:RichEditableText width="150" height="30" editable="false" lineHeight="15"
+                            text="{selectedItem.desc}" textAlign="left"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('CONTACT')}">
+        <s:RichEditableText editable="false" text="{selectedItem.contact}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('PRIVILEGES')}">
+        <users:PrivsRenderer data="{selectedItem.privs}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LOGON_TIME')}">
+        <s:RichEditableText editable="false"
+                            text="{TimeUtils.timestampFormatter(selectedItem.session.time * 1000)}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('ADDRESS')}">
+        <s:RichEditableText editable="false" text="{selectedItem.session.address}"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('GROUPS')}">
+        <s:List id="selectedGroups" width="140" minWidth="0" height="320" borderVisible="false"
+                dataProvider="{selectedItem.group_ids}" labelFunction="groupLabelFunction"
+                textAlign="left"/>
+      </s:FormItem>
+    </s:Form>
+  </s:VGroup>
+
+</s:Group>

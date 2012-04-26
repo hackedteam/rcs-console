@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%">
+  
+  <fx:Script>
+    <![CDATA[
+      import mx.collections.ListCollectionView;
+      
+      import spark.components.List;
+      
+      [Bindable]
+      public var dataProvider:ListCollectionView;
+      
+      [Bindable]
+      public var linkWith:List;
+      
+      private function itemsLabelFunction(item:Object, column:GridColumn):String
+      {
+        return item[column.dataField].length;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:DataGrid id="table" width="100%" height="100%" dataProvider="{dataProvider}"
+              selectedItem="{linkWith.selectedItem}">
+    <s:columns>
+      <s:ArrayList>
+        <s:GridColumn dataField="name" headerText="Name"/>
+        <s:GridColumn dataField="user_ids" headerText="Users" labelFunction="itemsLabelFunction"/>
+        <s:GridColumn dataField="item_ids" headerText="Operations" labelFunction="itemsLabelFunction"/>
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
+
+</s:Group>

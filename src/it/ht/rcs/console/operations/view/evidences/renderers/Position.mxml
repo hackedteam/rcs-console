@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																width="100%"
+																height="100%">
+
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
+
+			[Bindable]
+			override public function set data(value:*):void
+			{
+				super.data=value;
+				if (data.data.type == null)
+				{
+					typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
+				}
+				else
+				{
+					typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" + data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				}
+        
+        var details:String="";
+        if(data.data.cell != null)
+        {
+          if (data.data.type == 'GSM')
+            details+="<b>Cell: </b>"+ "mcc: "+data.data.cell.mcc+" mnc: "+data.data.cell.mnc + " lac: "+data.data.cell.lac+ " cid: "+data.data.cell.cid+" db: "+data.data.cell.db + " adv: "+data.data.cell.adv+" age: "+data.data.cell.age;
+          else
+            details+="<b>Cell: </b>"+ "mcc: "+data.data.cell.mcc+" sid: "+data.data.cell.sid + " nid: "+data.data.cell.nid+ " bid: "+data.data.cell.bid+" db: "+data.data.cell.db + " adv: "+data.data.cell.adv+" age: "+data.data.cell.age;
+        }
+        
+        if(data.data.wifi != null)
+        {
+          for(var k:int=0;k<data.data.wifi.length;k++)
+          {
+            details+="<b>WIFI: </b>"+"bssid: " +data.data.wifi.getItemAt(k).bssid+", mac: "+data.data.wifi.getItemAt(k).mac+", sig: "+data.data.wifi.getItemAt(k).sig;
+            // take only the first one
+            break;
+          }
+        }
+
+        if(data.data.ip != null)
+        {
+          details+="<b>IP: </b> "+ data.data.ip;
+        }
+        
+        detailsTxt.textFlow=TextConverter.importToFlow(details, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        
+        
+				var latitude:String;
+				var longitude:String;
+        
+				if (isNaN(data.data.latitude))
+				{
+					latitude="unknown";
+				}
+				else
+				{
+					latitude=String(data.data.latitude);
+				}
+        if ( isNaN(data.data.longitude))
+        {
+          longitude="unknown"
+        }
+        else
+        {
+          longitude=String(data.data.longitude);
+        }
+        
+				coordsTxt.textFlow=TextConverter.importToFlow("<b>Lat: </b>" + latitude + " | <b>Long: </b>" + longitude, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
+        
+        var city:String;
+        var country:String;
+        var street_number:String;
+        var street:String;
+        var postal_code:String;
+        
+        var formattedAddress:String;
+        
+        if(address==null)
+        {
+          formattedAddress="<br>unknown"
+        }
+        else
+        {
+          city=address.city || "";
+          country=address.country || "";
+          street_number=address.street_number || "";
+          street=address.street || "";
+          postal_code=address.postal_code || "";
+          
+          formattedAddress = ""
+          if (street != "") formattedAddress += "<br>" + street + " " + street_number; 
+          if (city != "") formattedAddress += "<br>" + postal_code + " " + city;
+          if (country != "") formattedAddress+= "<br>" + country;
+        }
+        
+				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formattedAddress, TextConverter.TEXT_FIELD_HTML_FORMAT);
+			}
+
+			private function init():void
+			{
+
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup verticalAlign="top"
+						height="100%"
+						width="100%">
+		<s:VGroup verticalAlign="middle"
+							width="100%">
+			<s:RichText id="typeTxt"
+									width="100%"/>
+      <s:RichText id="detailsTxt"
+                  width="100%"/>
+		</s:VGroup>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:VGroup verticalAlign="middle"
+							width="100%">
+      <s:RichText id="coordsTxt"
+                  width="100%"/>
+			<s:RichText id="addressTxt"
+									width="100%"/>
+		</s:VGroup>
+	</s:HGroup>
+</renderers:EvidenceDataRenderer>

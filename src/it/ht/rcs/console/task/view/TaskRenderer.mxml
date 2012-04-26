@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.task.controller.DownloadTask;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      
+      private function cancel():void
+      {
+        if (data.isInProgress() || data.isDownloading())
+          AlertPopUp.show(R.get('CONFIRM_TASK_DELETION'), R.get('CONFIRM'),
+                          AlertPopUp.OK | AlertPopUp.CANCEL, null, doCancel);
+        else
+          DownloadManager.instance.removeTask(data as DownloadTask);
+      }
+      
+      private function doCancel(event:CloseEvent):void
+      {
+        if (event.detail == AlertPopUp.OK)
+          DownloadManager.instance.removeTask(data as DownloadTask);
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:SkinnableContainer width="100%" height="60" toolTip="{data.task.time}">
+    <s:Label left="5" top="8" fontWeight="bold"
+             text="{data.task.description + '  ' + (data.task.file_name == null ? '' : ('(' +  data.task.file_name + ')'))}"/>
+    <mx:ProgressBar left="5" right="10" top="20" label="%3%%" labelPlacement="right" mode="polled"
+                    name="creationProgress" source="{data.creation_percentage}"/>
+    <mx:ProgressBar left="5" right="10" top="30" label="%3%%" labelPlacement="right" mode="polled"
+                    name="downloadProgress" source="{data.download_percentage}" visible="{data.task.file_name != null}" />
+    <s:Button right="5" top="5" width="15" height="15" click="cancel()"
+              skinClass="spark.skins.spark.TitleWindowCloseButtonSkin" toolTip="{R.get('CANCEL')}"/>
+  </s:SkinnableContainer>
+  
+</s:ItemRenderer>

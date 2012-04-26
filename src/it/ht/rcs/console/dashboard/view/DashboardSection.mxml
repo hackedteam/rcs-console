@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:main="it.ht.rcs.console.main.*"
+              xmlns:dashboard="it.ht.rcs.console.dashboard.view.*"
+              xmlns:search="it.ht.rcs.console.operations.search.*"
+              xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
+              addedToStage="onAddedToStage()" creationComplete="init()"
+              removedFromStage="onRemovedFromStage()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      
+      import mx.collections.ListCollectionView;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
+      
+      [Bindable]
+      private var view:ListCollectionView;
+      
+      private function init():void
+      {
+        var sort:Sort = new Sort();
+        sort.fields = [new SortField('lastSync', true, true), new SortField('_id', true, true)];
+        view = DashboardController.instance.getView(sort, searchFilterFunction);
+        DashboardController.instance.refresh();
+      }
+      
+      private function onAddedToStage():void
+      {
+        DashboardController.instance.refresh();
+        DashboardController.instance.startAutoRefresh();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        DashboardController.instance.stopAutoRefresh();
+      }
+      
+      private function searchFilterFunction(item:Object):Boolean
+      {
+        try {
+          return item.name.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+        } catch (e:Error) {}
+        return true;
+      }
+    ]]>
+  </fx:Script>
+  
+  <main:layout>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
+  <dashboard:DashboardActionBar id="actionBar" view="{view}"/>
+  
+  <s:List id="list" width="100%" height="100%" borderVisible="false" dataProvider="{view}"
+          itemRenderer="it.ht.rcs.console.dashboard.view.renderer.DashboardRenderer"/>
+  
+</main:Section>

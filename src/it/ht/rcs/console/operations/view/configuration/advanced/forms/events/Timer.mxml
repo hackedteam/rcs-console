@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.utils.DateUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.formatters.DateFormatter;
+      import mx.managers.PopUpManager;
+      
+      import spark.events.IndexChangeEvent;
+      
+      private var formatter:DateFormatter;
+      
+      private function init():void
+      {
+        formatter = new DateFormatter();
+        formatter.formatString = 'YYYY-MM-DD';
+        
+        try { // l'errore si verifica switchando a timer un evento gia' creato
+          currentState = event.hasOwnProperty('subtype') ? event.subtype : event.event;
+        } catch (e:Error) {
+          currentState = 'loop';
+        }
+        
+        for each (var key:String in ArrayCollection(type.dataProvider).source)
+          if (key.toLowerCase().indexOf(currentState) != -1)
+            type.selectedItem = key;
+
+        switch (currentState) {
+          case 'loop':
+            break;
+          case 'daily':
+            dailyFrom.time = event.ts;
+            dailyTo.time = event.te;
+            break;
+          case 'date':
+            dateFromDate.selectedDate = DateUtils.parseDateTimeString(event.datefrom);
+            dateFromTime.time = event.datefrom.split(' ')[1];
+            if (event.hasOwnProperty('dateto')) {
+              notForever.selected = true;
+              dateToDate.selectedDate = DateUtils.parseDateTimeString(event.dateto);
+              dateToTime.time = event.dateto.split(' ')[1];
+            } else
+              forever.selected = true;
+            break;
+          case 'afterinst':
+            days.text = event.days || '1';
+            break;
+          default:
+            break;
+        }
+      }
+      
+      override public function commit():void
+      {
+        switch (currentState) {
+          case 'loop':
+            event.event = 'timer';
+            event.subtype = 'loop';
+            event.ts = '00:00:00';
+            event.te = '23:59:59';
+            break;
+          case 'daily':
+            event.event = 'timer';
+            event.subtype = 'daily';
+            event.ts = dailyFrom.time;
+            event.te = dailyTo.time;
+            break;
+          case 'date':
+            event.event = 'date';
+            event.datefrom = formatter.format(dateFromDate.selectedDate) + ' ' + dateFromTime.time;
+            if (notForever.selected)
+              event.dateto = formatter.format(dateToDate.selectedDate) + ' ' + dateToTime.time;
+            else
+              delete(event.dateto);
+            break;
+          case 'afterinst':
+            event.event = 'afterinst';
+            event.days = parseInt(days.text);
+            break;
+          default:
+            break;
+        }
+      }
+      
+      private function onChange(event:IndexChangeEvent):void
+      {
+        currentState = states[type.selectedIndex].name;
+        if (currentState == 'date' && dateGroup.selection == null)
+          forever.selected = true;
+        PopUpManager.centerPopUp(parentDocument.hostComponent.parent.parentDocument.hostComponent as EventForm); // I know...
+      }
+      
+      override public function isValid():Boolean
+      {
+        switch(currentState) {
+          case 'loop':
+            return true;
+          case 'daily':
+            return true;
+          case 'date':
+            return true;
+          case 'afterinst':
+            return afterVal.isValid();
+          default:
+            return false;
+        }
+      }
+    ]]>
+  </fx:Script>
+  
+  <events:states>
+    <s:State name="loop"/>
+    <s:State name="daily"/>
+    <s:State name="date"/>
+    <s:State name="afterinst"/>
+  </events:states>
+  
+  <s:Label includeIn="loop" width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_TIMER_LOOP')}"/>
+  
+  <s:Label includeIn="daily" width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_TIMER_DAILY')}"/>
+  
+  <s:Label includeIn="date" width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_TIMER_DATE')}"/>
+  
+  <s:Label includeIn="afterinst" width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_TIMER_AFTERINST')}"/>
+  
+  <s:Form>
+  
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="type" width="126" change="onChange(event)" requireSelection="true">
+        <s:dataProvider>
+          <s:ArrayCollection>
+            <fx:String>Loop</fx:String>
+            <fx:String>Daily</fx:String>
+            <fx:String>Date</fx:String>
+            <fx:String>AfterInst</fx:String>
+          </s:ArrayCollection>
+        </s:dataProvider>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    
+    <s:FormItem includeIn="daily" label="{R.get('FROM')}">
+      <utils:TimeField id="dailyFrom"/>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="daily" label="{R.get('TO')}">
+      <utils:TimeField id="dailyTo"/>
+    </s:FormItem>
+    
+    
+    <s:FormItem includeIn="date" label="{R.get('FROM')}">
+      <s:VGroup>
+        <mx:DateField id="dateFromDate" width="150" formatString="YYYY-MM-DD"
+                      selectedDate="{new Date()}" showToday="true" yearNavigationEnabled="true"/>
+        <utils:TimeField id="dateFromTime"/>
+      </s:VGroup>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="date" label="{R.get('TO')}">
+      <s:VGroup>
+        <s:RadioButton id="forever" label="{R.get('FOREVER')}" group="{dateGroup}"/>
+        <s:RadioButton id="notForever" label="{R.get('DATE')}" group="{dateGroup}"/>
+        <mx:DateField id="dateToDate" width="150" enabled="{notForever.selected}" 
+                      formatString="YYYY-MM-DD" selectedDate="{new Date()}" showToday="true"
+                      yearNavigationEnabled="true"/>
+        <utils:TimeField id="dateToTime" enabled="{notForever.selected}"/>
+      </s:VGroup>
+    </s:FormItem>
+    
+    
+    <s:FormItem includeIn="afterinst" label="{R.get('DAYS')}">
+      <s:HGroup>
+        <s:TextInput id="days" restrict="0-9" text="1" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="dateGroup"/>
+    <fx:Array id="afterVals">
+      <mx:NumberValidator property="text" required="true" source="{days}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="afterVal" validators="{afterVals}"/>
+  </fx:Declarations>
+  
+</events:EventFields>

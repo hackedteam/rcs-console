@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      import spark.events.IndexChangeEvent;
+
+      private function init():void
+      {
+        currentState = event.type;
+        
+        for each (var key:String in ArrayCollection(type.dataProvider).source)
+          if (key.toLowerCase().indexOf(currentState) != -1)
+            type.selectedItem = key;
+        
+        switch (currentState) {
+          case 'gps':
+            latitude.text  = event.latitude  || '0';
+            longitude.text = event.longitude || '0';
+            distance.text  = event.distance  || '0';
+            break;
+          case 'cell':
+            country.text = event.country || '*';
+            network.text = event.network || '*';
+            area.text    = event.area    || '*';
+            cellId.text  = event.id      || '*';
+            break;  
+          default: break;
+        }
+      }
+      
+      override public function commit():void
+      {
+        event.type = currentState;
+        
+        switch (currentState) {
+          case 'gps':
+            event.latitude  = parseFloat(latitude.text);
+            event.longitude = parseFloat(longitude.text);
+            event.distance  = parseFloat(distance.text);
+            break;
+          case 'cell':
+            if (country.text == '*')
+              delete(event.country);
+            else
+              event.country = parseInt(country.text);
+              
+            if (network.text == '*')
+              delete(event.network);
+            else
+              event.network = parseInt(network.text);
+            
+            if (area.text == '*')
+              delete(event.area);
+            else
+              event.area    = parseInt(area.text);
+            
+            if (cellId.text == '*')
+              delete(event.cellId);
+            else
+              event.id      = parseInt(cellId.text);
+            
+            break;  
+          default: break;
+        }
+      }
+      
+      private function onChange(event:IndexChangeEvent):void
+      {
+        currentState = states[type.selectedIndex].name;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return currentState == 'gps' ? gpsVal.isValid() : cellVal.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <events:states>
+    <s:State name="gps"/>
+    <s:State name="cell"/>
+  </events:states>
+
+  <s:Label width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_POSITION')}"/>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="type" change="onChange(event)" requireSelection="true">
+        <s:dataProvider>
+          <s:ArrayCollection>
+            <fx:String>GPS</fx:String>
+            <fx:String>GSM Cell</fx:String>
+          </s:ArrayCollection>
+        </s:dataProvider>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="gps" label="{R.get('LATITUDE')}">
+      <s:HGroup>
+        <s:TextInput id="latitude" restrict="0-9." textAlign="center" widthInChars="5"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="gps" label="{R.get('LONGITUDE')}">
+      <s:HGroup>
+        <s:TextInput id="longitude" restrict="0-9." textAlign="center" widthInChars="5"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="gps" label="{R.get('DISTANCE')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="distance" restrict="0-9" textAlign="center" widthInChars="5"/>
+        <s:Label paddingTop="1" text=" meters"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    
+    <s:FormItem includeIn="cell" label="Country">
+      <s:HGroup>
+        <s:TextInput id="country" restrict="0-9*" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="cell" label="Network">
+      <s:HGroup>
+        <s:TextInput id="network" restrict="0-9*" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="cell" label="Area">
+      <s:HGroup>
+        <s:TextInput id="area" restrict="0-9*" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem includeIn="cell" label="ID">
+      <s:HGroup>
+        <s:TextInput id="cellId" restrict="0-9*" textAlign="center" widthInChars="3"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="gpsVals">
+      <mx:NumberValidator property="text" required="true" source="{latitude}" triggerEvent="" domain="real"/>
+      <mx:NumberValidator property="text" required="true" source="{longitude}" triggerEvent="" domain="real"/>
+      <mx:NumberValidator property="text" required="true" source="{distance}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="gpsVal" validators="{gpsVals}"/>
+    <fx:Array id="cellVals">
+      <mx:StringValidator property="text" required="true" source="{country}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{network}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{area}" triggerEvent=""/>
+      <mx:StringValidator property="text" required="true" source="{cellId}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="cellVal" validators="{cellVals}"/>
+  </fx:Declarations>
+
+</events:EventFields>

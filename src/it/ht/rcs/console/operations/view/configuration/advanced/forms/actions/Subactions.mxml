@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      
+      import mx.collections.ArrayList;
+      import mx.core.mx_internal;
+      
+      import spark.components.ScrollSnappingMode;
+      import spark.events.IndexChangeEvent;
+      
+      public var form:ActionForm;
+      
+      private function init():void
+      {
+        // filtro gli eventi x desktop o mobile
+        actionTypes.filterFunction = actionFilterFunction;
+        actionTypes.refresh();
+      }
+      
+      private function onChange(event:Event=null):void
+      {
+        form.changeState(list.selectedItem.action);
+      }
+      
+      private function addSubaction(me:MouseEvent):void
+      {
+        addButton.close();
+        
+        if (form.currentData && !form.currentData.isValid())
+          return;
+        
+        var sub:Object = DefaultConfigBuilder.getDefaultAction(subactions.selectedItem.label.toLowerCase());
+        list.dataProvider.addItem(sub);
+        list.selectedItem = sub;
+        onChange();
+      }
+      
+      private function removeSubaction(me:MouseEvent):void
+      {
+        if (list.selectedItem) {
+          var idx:int = list.selectedIndex;
+          list.dataProvider.removeItemAt(idx);
+          list.selectedIndex = list.dataProvider.length > idx ? idx : idx - 1;
+          form.changeState(list.selectedItem ? list.selectedItem.action : 'none');
+        }
+      }
+      
+      private function moveUp():void
+      {
+        var s:Array = (list.dataProvider as ArrayList).source;
+        var i:int = list.selectedIndex;
+        if (i == 0) return;
+        
+        var a:Object = s.splice(i, 1, s[i-1]);
+        s.splice(i-1, 1, a[0]);
+        (list.dataProvider as ArrayList).source = (list.dataProvider as ArrayList).source;
+        list.selectedItem = a[0];
+      }
+      
+      private function moveDown():void
+      {
+        var s:Array = (list.dataProvider as ArrayList).source;
+        var i:int = list.selectedIndex;
+        if (i == list.dataProvider.length - 1) return;
+        
+        var a:Object = s.splice(i, 1, s[i+1]);
+        s.splice(i+1, 1, a[0]);
+        (list.dataProvider as ArrayList).source = (list.dataProvider as ArrayList).source;
+        list.selectedItem = a[0];
+      }
+      
+      private function onChanging(event:IndexChangeEvent):void
+      {
+        if (form.currentData && !form.currentData.isValid())
+          event.preventDefault();
+      }
+
+      private function actionFilterFunction(o:Object):Boolean
+      {
+        return o.type.indexOf(form.graph.config.globals.type.toLowerCase()) != -1;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup gap="-1">
+      
+    <s:List id="list" width="200" height="100" minWidth="0" borderColor="#2d2d2d"
+            change="onChange(event)" changing="onChanging(event)"
+            itemRenderer="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.SubactionItemRenderer"/>
+    
+    <s:HGroup width="200" gap="-1" horizontalAlign="right">
+      
+      <s:Button width="30" label="-" click="removeSubaction(event)" cornerRadius="0"
+                enabled="{list.selectedItem != null}"/>
+      
+      <mx:PopUpButton id="addButton" width="48" label="+" cornerRadius="0" openAlways="true" closeOnActivity="true">
+        <mx:popUp>
+          <s:List id="subactions" click="addSubaction(event)" filters="{[dropShadow]}"
+                  labelField="label" textAlign="left" dataProvider="{actionTypes}"/>
+        </mx:popUp>
+      </mx:PopUpButton>
+      
+    </s:HGroup>
+  
+  </s:VGroup>
+  
+  <s:VGroup>
+    <s:Button width="30" label="↑" click="moveUp()" fontSize="17"/>
+    <s:Button width="30" label="↓" click="moveDown()" fontSize="17"/>
+  </s:VGroup>
+  
+  <fx:Declarations>
+    <s:DropShadowFilter id="dropShadow" alpha="0.25" angle="90" blurX="20" blurY="20" color="#333333"
+                        distance="8"/>
+    <s:ArrayCollection id="actionTypes">
+      <fx:Object label="Synchronize" type="mobile,desktop"/>
+      <fx:Object label="Execute"     type="mobile,desktop"/>
+      <fx:Object label="Uninstall"   type="mobile,desktop"/>
+      <fx:Object label="Log"         type="mobile,desktop"/>
+      <fx:Object label="Sms"         type="mobile"/>
+      <fx:Object label="Destroy"     type="mobile,desktop"/>
+    </s:ArrayCollection>
+  </fx:Declarations>
+  
+</s:HGroup>

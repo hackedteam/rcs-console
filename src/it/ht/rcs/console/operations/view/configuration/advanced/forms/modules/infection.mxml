@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modules:ModuleForm xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()" save="save()" title="Infection">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      
+      private function init():void
+      {
+        var dp:ListCollectionView = AgentManager.instance.getMobileFactoriesForTarget(graph.section.stateManager.selectedTarget._id);
+        factory.dataProvider = dp;
+        
+        local.selected  = module.local;
+        usb.selected    = module.usb;
+        mobile.selected = module.mobile;
+        vm.selected     = module.vm != 0;
+        if (vm.selected)
+          delay.text = module.vm;
+        
+        if (dp.length == 0) {
+          mobile.selected = false;
+          mobile.enabled = false;
+          mobileFI.toolTip = R.get('NO_MOBILE_FACTORIES');
+        }
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return;
+        
+        module.local  = local.selected;
+        module.usb    = usb.selected;
+        module.mobile = mobile.selected;
+        module.vm     = vm.selected ? parseInt(delay.text) : 0;
+        
+        if (mobile.selected)
+          module.factory = (factory.selectedItem as Agent).ident;
+        else
+          module.factory = "";
+        
+        close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('INFECT_MOBILE_DEVICES')}" id="mobileFI">
+      <s:HGroup verticalAlign="middle">
+        <s:CheckBox id="mobile"/>
+        <s:DropDownList id="factory" width="150" enabled="{mobile.selected}" labelField="name"
+                        requireSelection="true"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('INFECT_LOCAL_USERS')}">
+      <s:CheckBox id="local"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('INFECT_USB_DRIVES')}">
+      <s:CheckBox id="usb"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('INFECT_VMWARE')}">
+      <s:HGroup verticalAlign="middle">
+        <s:CheckBox id="vm"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text="{R.get('EVERY').toLowerCase()} "/>
+        <s:TextInput id="delay" enabled="{vm.selected}" restrict="0-9" showErrorTip="true" text="300"
+                     textAlign="center" widthInChars="3"/>
+        <s:Label enabled="{vm.selected}" paddingTop="1" text=" {R.get('SECONDS').toLowerCase()}"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator minLength="1" property="text" source="{delay}" triggerEvent=""/>
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
+                          source="{delay}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</modules:ModuleForm>

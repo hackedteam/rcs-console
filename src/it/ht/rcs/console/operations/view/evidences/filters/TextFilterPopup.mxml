@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*" show="show()">
+
+  <s:TextInput id="input" width="250" styleName="auditFilter" enter="commit()"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      import mx.utils.StringUtil;
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        input.text = StringUtil.trim(input.text);
+        hasFilter = input.text != '';
+        hasFilter ? filter[property] = input.text : delete(filter[property]) ;
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+        
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        input.text = '';
+        commit(fireEvent);
+      }
+      
+      private function show():void
+      {
+        input.setFocus();
+        input.text = filter[property];
+      }
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

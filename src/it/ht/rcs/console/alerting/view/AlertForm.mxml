@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:view="it.ht.rcs.console.alerting.view.*"
+                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_ALERT')}">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.model.Alert;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      
+      [Bindable]
+      public var alert:Alert;
+
+      [Bindable]
+      private var types:ArrayCollection = new ArrayCollection(['LOG', 'MAIL', 'NONE']);
+      [Bindable]
+      private var actions:ArrayCollection = new ArrayCollection(['EVIDENCE', 'SYNC', 'INSTANCE']);
+      [Bindable]
+      private var evidence:ArrayCollection = new ArrayCollection(['*', 'ADDRESSBOOK', 'APPLICATION', 'CALENDAR', 'CALL', 'CAMERA', 'CHAT', 'CLIPBOARD', 'DEVICE', 
+                                                                  'FILE', 'FILESYSTEM', 'INFO', 'KEYLOG', 'POSITION', 'MESSAGE', 'MIC', 
+                                                                  'MOUSE', 'PASSWORD', 'PRINT', 'SCREENSHOT', 'URL']);
+      
+      private function init():void
+      {
+        formAction.setFocus();
+        if (currentState == 'create')
+          alert = new Alert(Alert.defaultAlert());
+        else
+          formPath.selectedItemId = (alert.path.length > 0) ? alert.path.getItemAt(alert.path.length - 1) as String : null;
+      }
+      
+      private function save():void
+      {
+        var path:ArrayCollection;
+        
+        alert.enabled = formEnabled.selected;
+        alert.type = formType.selectedItem;
+
+        if (formPath.selectedItem && formPath.text != '') {
+          path = new ArrayCollection();
+          path.addAll(formPath.selectedItem.path);
+          path.addItem(formPath.selectedItem._id);
+        } else {
+          path = new ArrayCollection();
+        }
+        alert.path = path;
+        
+        alert.action = formAction.selectedItem;
+        if (alert.action == 'EVIDENCE') {
+          alert.evidence = formEvidence.selectedItem.toLowerCase();
+          alert.keywords = formKeyword.text;
+          alert.tag = formTag.value;
+        } else {
+          alert.evidence = '';
+          alert.keywords = '';
+          alert.tag = 0;
+        }
+        alert.suppression = parseInt(formSuppression.text);
+        
+        if (currentState == 'create')
+          AlertManager.instance.addAlert(ObjectUtils.toHash(alert), function(a:Alert):void { close(); });
+        else
+          close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <s:Form>
+    
+    <s:FormItem label="{R.get('ENABLED')}">
+      <s:CheckBox id="formEnabled" selected="{alert.enabled}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ALERT_EVENT')}">
+      <s:DropDownList id="formAction" width="100" dataProvider="{actions}"
+                      selectedIndex="{actions.toArray().indexOf(alert.action)}"/>
+    </s:FormItem>
+
+    <s:FormItem label="{R.get('PATH')}">
+      <itemfield:ItemField id="formPath" right="5" top="0"
+                           kinds="{(formAction.selectedItem == 'INSTANCE') ? ['operation', 'target', 'factory'] : ['operation', 'target', 'agent'] }"/>
+    </s:FormItem>
+    
+    <s:FormItem label="Evidence" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:DropDownList id="formEvidence" width="120" dataProvider="{evidence}"
+                      selectedIndex="{evidence.toArray().indexOf(alert.evidence.toUpperCase())}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('KEYWORD')}" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:TextInput id="formKeyword" width="200" text="{alert.keywords}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('RELEVANCE')}" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+      <s:HGroup verticalAlign="middle">
+        <s:HSlider id="formTag" width="30" maximum="4" minimum="0" value="{alert.tag}" showDataTip="false"/>
+        <utils:TagImage value="{formTag.value}"/>        
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="formType" width="70" dataProvider="{types}"
+                      selectedIndex="{types.toArray().indexOf(alert.type)}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('SUPPRESSION_TIME')}" enabled="{formAction.selectedItem == 'EVIDENCE' &amp;&amp; formType.selectedItem != 'NONE'}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="formSuppression" width="40" text="{alert.suppression}" textAlign="right"/>
+        <s:Label text="sec"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

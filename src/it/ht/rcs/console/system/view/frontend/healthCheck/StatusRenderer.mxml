@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    clipAndEnableScrolling="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        if (data) {
+          switch (data.status) {
+            case HealthCheckEntry.OK:
+              lblData.text = R.get('HEALTH_CHECK_OK');
+              lblData.setStyle('color', 0x3082c4);
+              lblData.setStyle('fontWeight', 'bold');
+              break;
+            case HealthCheckEntry.KO:
+              lblData.text = R.get('HEALTH_CHECK_KO');
+              lblData.setStyle('color', 0xff0000);
+              lblData.setStyle('fontWeight', 'bold');
+              break;
+            case HealthCheckEntry.INVALID:
+              lblData.text = R.get('HEALTH_CHECK_INVALID');
+              lblData.setStyle('color', 0xff0000);
+              lblData.setStyle('fontWeight', 'bold');
+              break;
+            case HealthCheckEntry.CHECKING:
+              lblData.text = R.get('HEALTH_CHECK_CHECKING');
+              lblData.setStyle('color', 0x0000ff);
+              lblData.setStyle('fontWeight', 'bold');
+              break;
+            case HealthCheckEntry.IDLE:
+              lblData.text = R.get('HEALTH_CHECK_IDLE');
+              lblData.setStyle('color', 0x000000);
+              lblData.setStyle('fontWeight', 'normal');
+              break;
+            default:
+              lblData.text = '';
+              lblData.setStyle('color', 0x000000);
+              lblData.setStyle('fontWeight', 'normal');
+              break;
+          }
+        }
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label id="lblData" left="7" top="9"/>
+  
+</s:GridItemRenderer>

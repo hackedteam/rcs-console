@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+										 xmlns:s="library://ns.adobe.com/flex/spark"
+										 xmlns:mx="library://ns.adobe.com/flex/mx"
+										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+										 xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+										 creationComplete="init()"
+										 removedFromStage="onRemovedFromStage()"
+										 addedToStage="onAddedToStage()">
+
+	<s:Button label="{R.get('EVIDENCE_DOWNLOAD')}"
+						click="onExportClick()"
+						icon="@Embed('/img/evidence/boxdownload32.png')"
+						enabled="{selectedObjects.length>=1}"
+            />
+	<actionbar:Separator width="40"/>
+	<editors:TagEditor label="{R.get('RELEVANCE')}"
+										 enabled="false"
+										 id="tagEditor"
+										 change="onRelevanceChange(event)"/>
+
+	<s:Button label="{R.get('REPORT_ADD')}"
+						click="onReportClick()"
+						enabled="false"
+						icon="@Embed('/img/evidence/paperplus32.png')"
+						id="reportBtn"
+						width="150"/>
+
+
+	<s:Button label="{R.get('EDIT_NOTE')}"
+						click="onEditNoteClick()"
+						enabled="{selectedObjects.length>0}"
+						icon="@Embed('/img/evidence/notepencil32.png')"/>
+
+	<actionbar:Separator width="40"/>
+	<s:Button label="{R.get('SUMMARY_SHOW')}"
+						click="onSummaryClick()"
+						icon="@Embed('/img/evidence/linedpaperplus32.png')"
+						id="summaryBtn"/>
+	<actionbar:Separator width="40"/>
+	<s:Button label="{R.get('DETAIL_SHOW')}"
+						click="onDetailClick()"
+						icon="@Embed('/img/evidence/article32.png')"
+						id="detailBtn"
+						enabled="{selectedObjects.length>0}"/>
+
+	<fx:Metadata> 
+    [Event(name="editNote", type="flash.events.Event")]
+    [Event(name="summary", type="flash.events.Event")] 
+    [Event(name="export", type="flash.events.Event")] 
+    [Event(name="detail", type="flash.events.Event")] 
+  </fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.evidence.model.TypeCount;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+
+			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
+
+
+			[Bindable]
+			private var _total:int;
+
+			private var _counts:ArrayCollection;
+
+			[Embed(source="/img/evidence/paperplus32.png")]
+			public var ReportAddIcon:Class;
+
+			[Embed(source="/img/evidence/paperminus32.png")]
+			public var ReportRemoveIcon:Class;
+
+			[Embed(source="/img/evidence/linedpaperplus32.png")]
+			public var SummaryShowIcon:Class;
+
+			[Embed(source="/img/evidence/linedpaperminus32.png")]
+			public var SummaryHideIcon:Class;
+
+			[Embed(source="/img/evidence/article32.png")]
+			public var DetailShowIcon:Class;
+
+			[Embed(source="/img/evidence/stop32.png")]
+			public var DetailHideIcon:Class;
+
+			[Bindable]
+			public function set counts(value:ArrayCollection):void
+			{
+				_counts=value;
+
+				var s:String="";
+				for (var i:int=0; i < value.length; i++)
+				{
+					var typeCount:TypeCount=value.getItemAt(i) as TypeCount;
+					if (typeCount.type == "total")
+					{
+						_total=typeCount.count
+					}
+				}
+			}
+
+			public function get counts():ArrayCollection
+			{
+				return _counts;
+			}
+
+			[Bindable]
+			public function set selectedObjects(value:Vector.<Object>):void
+			{
+
+				_selectedObjects=value;
+
+				if (!selectedObjects)
+				{
+					tagEditor.tag=0
+					tagEditor.enabled=false;
+					reportBtn.enabled=false;
+					toggleReportButton(true)
+					return;
+				}
+
+				if (selectedObjects.length < 1)
+				{
+					tagEditor.tag=0;
+					tagEditor.enabled=false;
+					reportBtn.enabled=false;
+					stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+          stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp)
+				}
+				else if (selectedObjects.length == 1 && selectedObjects[0]!=null)
+				{
+					tagEditor.tag=selectedObjects[0].rel;
+					tagEditor.enabled=true;
+					reportBtn.enabled=true;
+					toggleReportButton(selectedObjects[0].blo);
+					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp)
+				}
+				else
+				{
+					tagEditor.tag=0;
+					tagEditor.enabled=true;
+					var blotterValue:Boolean;
+					if (sameValue(selectedObjects, "blo"))
+					{
+						blotterValue=selectedObjects[0].blo;
+					}
+					if (sameValue(selectedObjects, "rel"))
+					{
+						tagEditor.tag=selectedObjects[0].rel;
+
+					}
+					reportBtn.enabled=true;
+					toggleReportButton(blotterValue);
+					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
+          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				}
+			}
+
+			public function get selectedObjects():Vector.<Object>
+			{
+				return _selectedObjects;
+			}
+
+
+			public function onSummaryClick():void
+			{
+				dispatchEvent(new Event("summary"))
+
+			}
+
+			public function onDetailClick():void
+			{
+				dispatchEvent(new Event("detail"))
+
+			}
+
+			private function init():void
+			{
+
+			}
+      
+      private function onKeyUp(e:KeyboardEvent):void
+      {
+        
+      }
+			private function onKeyPress(e:KeyboardEvent):void
+			{
+       trace(e.ctrlKey)
+       trace(e.keyCode)
+
+				switch (e.keyCode)
+				{
+         
+					//0 key
+					case 48:
+						if(e.ctrlKey) updateRelevance(0);
+						break;
+					//1 key
+					case 49:
+            if(e.ctrlKey) updateRelevance(1);
+						break;
+					//2 key
+					case 50:
+            if(e.ctrlKey) updateRelevance(2);
+						break;
+					//3 key
+					case 51:
+            if(e.ctrlKey) updateRelevance(3);
+						break;
+					//4 key
+					case 52:
+            if(e.ctrlKey) updateRelevance(4);
+						break;
+					//n key
+					case 78:
+            if(e.ctrlKey){
+  						e.stopPropagation()
+  						e.preventDefault()
+  						onEditNoteClick()
+            }
+						break;
+					//r key
+					case 82:
+            if(e.ctrlKey){
+  						updateReport(reportBtn.getStyle("icon") == ReportAddIcon);
+  						toggleReportButton(reportBtn.getStyle("icon") == ReportAddIcon)
+            }
+						break;
+				}
+
+			}
+
+			private function onRemovedFromStage():void
+			{
+				stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+			}
+
+			private function onAddedToStage():void
+			{
+
+			}
+
+			private function sameValue(selectedObjects:Vector.<Object>, property:String):Boolean
+			{
+
+				var result:Boolean=true;
+				var value:*=selectedObjects[0][property];
+        
+				for (var i:int=0; i < selectedObjects.length; i++)
+				{
+
+					if (selectedObjects[i][property] != value)
+					{
+						result=false;
+						break;
+					}
+				}
+				return result;
+			}
+
+			public function toggleDetailButton():void
+			{
+				if (detailBtn.label == R.get('DETAIL_SHOW'))
+				{
+					detailBtn.setStyle("icon", DetailHideIcon);
+					detailBtn.label=R.get('DETAIL_HIDE');
+				}
+				else
+				{
+					detailBtn.setStyle("icon", DetailShowIcon);
+					detailBtn.label=R.get('DETAIL_SHOW');
+				}
+			}
+
+			public function toggleSummaryButton(state:String):void
+			{
+
+				if (state == "count")
+				{
+					summaryBtn.setStyle("icon", SummaryHideIcon);
+					summaryBtn.label=R.get('SUMMARY_HIDE');
+				}
+				else
+				{
+					summaryBtn.setStyle("icon", SummaryShowIcon);
+					summaryBtn.label=R.get('SUMMARY_SHOW');
+				}
+
+			}
+
+			private function toggleReportButton(value:Boolean):void
+			{
+
+				if (value)
+				{
+					reportBtn.setStyle("icon", ReportRemoveIcon);
+					reportBtn.label=R.get('REPORT_REMOVE');
+				}
+				else
+				{
+					reportBtn.setStyle("icon", ReportAddIcon);
+					reportBtn.label=R.get('REPORT_ADD');
+				}
+
+			}
+
+			private function onExportClick():void
+			{
+        dispatchEvent(new Event("export"));
+			}
+
+			private function updateRelevance(value:int):void
+			{
+				if(selectedObjects!=null)
+        {
+          for (var i:int=0; i < selectedObjects.length; i++)
+          {
+            var evidence:Evidence=selectedObjects[i] as Evidence;
+            evidence.rel=value
+            
+          }
+          tagEditor.tag=value;
+        }
+
+			}
+
+			private function updateReport(value:Boolean):void
+			{
+				if(selectedObjects!=null)
+        {
+          for (var i:int=0; i < selectedObjects.length; i++)
+          {
+            var evidence:Evidence=selectedObjects[i] as Evidence;
+            evidence.blo=value;
+          }
+        }
+
+			}
+
+			private function onRelevanceChange(e:Event):void
+			{
+				var tagEditor:TagEditor=e.currentTarget as TagEditor;
+				updateRelevance(tagEditor.tag);
+			}
+
+			private function onEditNoteClick():void
+			{
+				dispatchEvent(new Event("editNote"));
+			}
+
+			private function onReportClick():void
+			{
+				var value:Boolean=(reportBtn.getStyle("icon") == ReportAddIcon);
+				updateReport(value);
+				toggleReportButton(value);
+				// EvidenceManager.instance.updateReport([_id], true)
+			}
+		]]>
+	</fx:Script>
+
+</actionbar:ActionBar>

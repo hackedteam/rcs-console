@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%" creationComplete="init()" show="init()"
+                                >
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="350"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="350"/>
+  </fx:Declarations>
+  <fx:Script>
+    
+    <![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.ImageCache;
+      
+      private var _loader:Loader=new Loader();
+      private var _maxWidth:Number=80;
+      private var _maxHeight:Number=80;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/spinner30.swf")]
+      public var SpinnerAnimation:Class;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+      public var BrokenImage:Class;
+      
+      [Bindable]
+      private var frameWidth:Number=4;
+      [Bindable]
+      private var url:String;
+      [Bindable]
+      override public function set data(value:*):void
+      {
+        super.data=value;
+        init();
+      }
+      
+      private function init():void
+      {
+        draw();       
+      }
+      
+      private function draw():void
+      {
+        img.smooth=true;
+        
+        //img.contentLoader=ImageCache.getInstance().cache;
+        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        img.addEventListener(Event.COMPLETE, onImageLoaded);
+        img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        if(data)
+        {
+          url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          img.source=url;
+          spoolTxt.textFlow= TextConverter.importToFlow("<b>Spool: </b>"+data.data.spool, TextConverter.TEXT_FIELD_HTML_FORMAT);
+         
+        }
+      }
+      
+      private function onImageLoading(e:ProgressEvent):void
+      {
+        img.visible=false;
+        spinner.visible=true;
+      }
+      
+      private function onImageError(e:IOErrorEvent):void
+      {
+        spinner.visible=false;
+        img.source=new BrokenImage() 
+        img.visible=true;
+        fadeIn.play([img]);
+      }
+      
+      private function onImageLoaded(e:Event):void
+      {
+        spinner.visible=false;
+        img.visible=true;
+        fadeIn.play([img]);
+        
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:HGroup verticalAlign="middle" width="100%">
+    <s:VGroup>
+      <s:BorderContainer id="frame" 
+                         width="{img.width+(frameWidth*2)}"
+                         height="{img.height+(frameWidth*2)}"
+                         backgroundColor="0xFFFFFF"
+                         borderColor="0xCCCCCC">
+        <s:SWFLoader id="spinner" width="30" height="30"  x="27" y="27" source="{SpinnerAnimation}"/>
+        <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}" visible="false">
+        </s:BitmapImage>
+      </s:BorderContainer>
+    </s:VGroup>
+    <s:VGroup width="100%">
+      <s:RichText id="spoolTxt"/>
+      
+    </s:VGroup>
+  </s:HGroup>
+</renderers:EvidenceDataRenderer>

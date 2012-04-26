@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      [Bindable]
+      public var mobile:Boolean;
+      
+      private function init():void
+      {
+        if (mobile)
+          currentState = 'mobile';
+
+        type.selectedIndex = event.window ? 1 : 0;
+        process.text = event.process;
+        focus.selected = event.focus;
+      }
+      
+      override public function commit():void
+      {
+        event.window = type.selectedIndex == 1;
+        event.process = process.text;
+        event.focus = focus.selected;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <events:states>
+    <s:State name="desktop"/>
+    <s:State name="mobile"/>
+  </events:states>
+  
+  <s:Label width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_PROCESS')}"/>
+  
+  <s:Form>
+      
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="type" width="160" requireSelection="true">
+        <s:dataProvider>
+          <s:ArrayList>
+            <fx:String>{R.get('PROCESS_NAME')}</fx:String>
+            <fx:String>{R.get('WINDOW_TITLE')}</fx:String>
+          </s:ArrayList>
+        </s:dataProvider>
+      </s:DropDownList>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('STRING')}">
+      <s:HGroup>
+        <s:TextInput id="process" width="160"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ON_FOCUS')}" includeIn="desktop">
+      <s:CheckBox id="focus"/>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{process}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</events:EventFields>

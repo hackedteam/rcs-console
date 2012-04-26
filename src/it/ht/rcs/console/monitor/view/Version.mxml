@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:old="it.ht.rcs.console.monitor.view.old.*"
+                   width="300" height="100%" borderColor="#dddddd" borderWeight="2"
+                   cornerRadius="10" addedToStage="onAddedToStage()">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.update.controller.CoreManager;
+      import it.ht.rcs.console.update.model.Core;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.utils.ArrayUtil;
+      
+      private var cores:ListCollectionView;
+      
+      [Bindable] public var windowsVersion:String;
+      [Bindable] public var osxVersion:String;
+      
+      [Bindable] public var androidVersion:String;
+      [Bindable] public var blackberryVersion:String;
+      [Bindable] public var symbianVersion:String;
+      [Bindable] public var iosVersion:String;
+      [Bindable] public var winmoVersion:String;
+      
+      private function onAddedToStage():void
+      {
+        cores = CoreManager.instance.getView();
+        updateVersions();
+      }
+      
+      private function updateVersions():void
+      {
+        var platforms:Array = ['android', 'blackberry', 'symbian', 'ios', 'winmo', 'windows', 'osx'];
+        for each (var plat:String in platforms)
+          setVersionFor(plat);
+      }
+      
+      private function setVersionFor(platform:String):void
+      {
+        for each (var core:Core in cores)
+          if (core.name == platform)
+            this[platform + 'Version'] = core.version;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label left="35" top="-12" width="100" backgroundColor="#ffffff" color="#333333"
+           fontFamily="Myriad" fontSize="24" text="{R.get('VERSION')}" textAlign="center"/>
+  
+  <s:HGroup width="100%" height="100%">
+    
+    <s:VGroup width="300" height="100%" paddingTop="10" horizontalAlign="center">
+      <s:Form>
+        
+        <s:FormItem label="Console">
+          <s:Label width="100%" styleName="monitor" text="{Console.appVersion.replace(/\./g, '')}"/>
+        </s:FormItem>
+        
+        <s:FormItem visible="{LicenseManager.instance.agent_android}" label="Android"
+                    includeInLayout="{LicenseManager.instance.agent_android}">
+          <s:Label width="100%" styleName="monitor" text="{androidVersion}"/>
+        </s:FormItem>
+        
+        <s:FormItem visible="{LicenseManager.instance.agent_blackberry}" label="Blackberry"
+                    includeInLayout="{LicenseManager.instance.agent_blackberry}">
+          <s:Label width="100%" styleName="monitor" text="{blackberryVersion}"/>
+        </s:FormItem>
+
+        <s:FormItem visible="{LicenseManager.instance.agent_ios}" label="iOS"
+                    includeInLayout="{LicenseManager.instance.agent_ios}">
+          <s:Label width="100%" styleName="monitor" text="{iosVersion}"/>
+        </s:FormItem>
+
+        <s:FormItem visible="{LicenseManager.instance.agent_osx}" label="OSX"
+                    includeInLayout="{LicenseManager.instance.agent_osx}">
+          <s:Label width="100%" styleName="monitor" text="{osxVersion}"/>
+        </s:FormItem>
+
+        <s:FormItem visible="{LicenseManager.instance.agent_symbian}" label="Symbian"
+                    includeInLayout="{LicenseManager.instance.agent_symbian}">
+          <s:Label width="100%" styleName="monitor" text="{symbianVersion}"/>
+        </s:FormItem>
+
+        <s:FormItem visible="{LicenseManager.instance.agent_windows}" label="Windows"
+                    includeInLayout="{LicenseManager.instance.agent_windows}">
+          <s:Label width="100%" styleName="monitor" text="{windowsVersion}"/>
+        </s:FormItem>
+
+        <s:FormItem visible="{LicenseManager.instance.agent_winmo}" label="WinMo"
+                    includeInLayout="{LicenseManager.instance.agent_winmo}">
+          <s:Label width="100%" styleName="monitor" text="{winmoVersion}"/>
+        </s:FormItem>
+        
+      </s:Form>
+    </s:VGroup>
+  
+  </s:HGroup>
+  
+</s:BorderContainer>

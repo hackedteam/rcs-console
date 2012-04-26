@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_GROUP')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
+      
+      import locale.R;
+      
+      import mx.events.FlexEvent;
+      
+      import spark.events.GridSelectionEvent;
+      import spark.events.IndexChangeEvent;
+      
+      [Bindable]
+      public var group:Group;
+      
+      public var groupView:GroupView;
+      
+      private function init():void
+      {
+        formName.setFocus();
+        if (currentState == 'create')
+          group = new Group(Group.defaultGroup());
+      }
+      
+      private function save():void
+      {
+        group.name = formName.text;
+        
+        if (currentState == 'create')
+          GroupManager.instance.addGroup(group, function(g:Group):void {
+            
+            GroupManager.instance.addUser(g, Console.currentSession.user, function():void{
+              
+              groupView.groupList.list.selectedItem=g;
+              var index:int=groupView.groupList.list.dataProvider.getItemIndex(g);
+              groupView.groupList.list.ensureIndexIsVisible(index);
+              groupView.groupList.list.dispatchEvent(new FlexEvent(FlexEvent.VALUE_COMMIT));
+              
+              groupView.groupTable.table.selectedItem=g;
+              groupView.groupTable.table.ensureCellIsVisible(groupView.groupTable.table.selectedIndex);
+              
+              groupView.groupTable.table.dispatchEvent(new GridSelectionEvent(GridSelectionEvent.SELECTION_CHANGE));
+              
+              close();
+            });
+           
+          });
+        
+        else
+          close();
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="formName" width="200" maxChars="20" text="{group.name}"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

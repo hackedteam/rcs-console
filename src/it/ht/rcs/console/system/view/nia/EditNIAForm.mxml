@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                            xmlns:s="library://ns.adobe.com/flex/spark"
+                            xmlns:utils="it.ht.rcs.console.utils.*"
+                            xmlns:mx="library://ns.adobe.com/flex/mx"
+                            save="save()" creationComplete="init()"
+                            title="{R.get('EDIT') + ' ' + injector.name}" xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.network.controller.InjectorManager;
+      import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      
+      public var mode:String = 'create';
+      
+      [Bindable]
+      public var injector:it.ht.rcs.console.network.model.Injector;
+
+      private function init():void
+      {
+        getLogs();
+      }
+      
+      private function getLogs():void
+      {
+        InjectorManager.instance.getLogs(injector._id, function(logs:ArrayCollection):void {
+          logTable.dataProvider = logs;
+        });
+      }
+      
+      private function clearLogs():void
+      {
+        InjectorManager.instance.clearLogs(injector._id, function():void {
+          logTable.dataProvider = null;
+        });
+      }
+      
+      protected function save():void
+      {
+        /* keep the name the first to be modified */
+        injector.name = nameField.text;
+        injector.address = address.text;
+        injector.port = parseInt(port.text);
+        injector.desc = desc.text;
+        injector.redirect = "auto";
+        injector.poll = poll.selected;
+        
+        close();
+      }
+      
+      private function formatdate(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup paddingLeft="20" paddingRight="20">
+    
+    <s:HGroup>
+  
+      <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('NAME')}">
+          <s:TextInput id="nameField" width="200" text="{injector.name}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('DESCRIPTION')}">
+          <s:TextArea id="desc" width="200" heightInLines="2" text="{injector.desc}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('VERSION')}">
+          <s:TextInput width="80" enabled="false" text="{injector.version}"/>
+        </s:FormItem>
+      </s:Form>
+      
+      <s:Form defaultButton="{saveButton}">
+        <s:FormItem label="{R.get('POLL')}">
+          <s:CheckBox id="poll" selected="{injector.poll}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('ADDRESS')}">
+          <s:TextInput id="address" width="150" text="{injector.address}"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('PORT')}">
+          <s:TextInput id="port" width="40" maxChars="5" restrict="0-9" text="{injector.port}"/>
+        </s:FormItem>
+      </s:Form>
+
+    </s:HGroup>
+    
+    <actionbar:ActionBar width="100%">
+      <s:Button icon="@Embed('/img/NEW/logRefresh.png')" label="{R.get('REFRESH_LOGS')}" click="getLogs()"/>
+      <actionbar:Separator width="30"/>
+      <s:Button icon="@Embed('/img/NEW/delete_all.png')" label="{R.get('CLEAR_LOGS')}" click="clearLogs()"/>
+    </actionbar:ActionBar>
+  
+    <s:DataGrid id="logTable" height="200" width="100%">
+      <s:columns>
+        <s:ArrayList>
+          <s:GridColumn width="150" dataField="time" labelFunction="formatdate" headerText="{R.get('TIME')}"></s:GridColumn>
+          <s:GridColumn width="60" dataField="type" headerText="{R.get('TYPE')}"></s:GridColumn>
+          <s:GridColumn dataField="desc" headerText="{R.get('INFO')}"></s:GridColumn>
+        </s:ArrayList>
+      </s:columns>
+    </s:DataGrid>
+
+  </s:VGroup>
+</utils:TitleWindowSaveCancel>

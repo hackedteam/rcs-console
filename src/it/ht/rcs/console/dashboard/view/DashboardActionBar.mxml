@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  <s:Button label="{R.get('ADD_TO_DASHBOARD')}" click="onAddToDashboard(event)"
+            icon="@Embed('/img/NEW/newDashboard.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <!--s:Button label="{R.get('SORT_BY_TIME')}" icon="@Embed('/img/NEW/sort19.png')" click="sort_by_time()"/>
+  
+  <s:Button label="{R.get('SORT_BY_NAME')}" icon="@Embed('/img/NEW/sortAZ.png')" click="sort_by_name()"/>
+  
+  <actionbar:Separator/-->
+  
+  <s:Button id="collapse" label="{R.get('COLLAPSE_ALL')}" click="onCollapseAll()"
+            icon="{collapseIcon}"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardItem;
+      import it.ht.rcs.console.dashboard.view.renderer.DashboardRenderer;
+      
+      import locale.R;
+      
+      import mx.collections.Sort;
+      import mx.managers.PopUpManager;
+      
+      import spark.components.DataGroup;
+      
+      [Embed('/img/NEW/expand_all.png')]
+      private static const expandIcon:Class;
+      [Embed('/img/NEW/collapse_all.png')]
+      private static const collapseIcon:Class;
+
+      private function onAddToDashboard(event:MouseEvent):void
+      {
+        var popup:AddToDashboardPopup = PopUpManager.createPopUp(root, AddToDashboardPopup, true) as AddToDashboardPopup;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+//      private function compareSyncTime(a:DashboardItem, b:DashboardItem, fields:Array=null):int {
+//        if (a.lastSync < b.lastSync)
+//          return 1;
+//        else if (a.lastSync > b.lastSync)
+//          return -1;
+//        else
+//          return 0
+//      };
+//      
+//      private function sort_by_time():void
+//      {
+//        var sort:Sort = new Sort();
+//        sort.compareFunction = compareSyncTime;
+//        view.sort = sort;
+//        view.refresh();
+//      }
+//      
+//      private function sort_by_name():void
+//      {
+//        view.sort = new Sort();
+//        view.refresh();
+//      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        if (view) view.refresh();
+      }
+      
+      private var expanded:Boolean = true;
+      private function onCollapseAll():void
+      {
+        try {
+          var index:int = 0;
+          var dg:DataGroup = (parent as DashboardSection).list.dataGroup;
+          while (true) {
+            var dr:DashboardRenderer = dg.getChildAt(index) as DashboardRenderer;
+            expanded ? dr.minimize() : dr.maximize();
+            index++;
+          }
+        } catch (e:Error) {}
+        expanded = !expanded;
+        collapse.label = expanded ? R.get('COLLAPSE_ALL') : R.get('EXPAND_ALL');
+        collapse.iconDisplay.source = expanded ? collapseIcon : expandIcon;
+      }
+    ]]>
+  </fx:Script>
+  
+</actionbar:ActionBar>

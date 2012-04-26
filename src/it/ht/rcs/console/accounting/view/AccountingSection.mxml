@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:main="it.ht.rcs.console.main.*"
+              xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
+              xmlns:oldusers="it.ht.rcs.console.accounting.view.oldusers.*"
+              xmlns:users="it.ht.rcs.console.accounting.view.users.*"
+              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+  
+  <main:layout>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.controller.OperationManager;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      
+      import locale.R;
+      
+      private function onAddedToStage():void
+      {
+        UserManager.instance.listenRefresh();
+        UserManager.instance.refresh();
+        GroupManager.instance.listenRefresh();
+        GroupManager.instance.refresh();
+        OperationManager.instance.listenRefresh();
+        OperationManager.instance.refresh();
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        UserManager.instance.unlistenRefresh();
+        GroupManager.instance.unlistenRefresh();
+        OperationManager.instance.unlistenRefresh();
+      }
+    ]]>
+  </fx:Script>
+
+  <mx:ViewStack id="subSections" width="100%" height="100%">
+    
+    <s:NavigatorContent label="{R.get('USERS')}">
+      <users:UserView/>
+    </s:NavigatorContent>
+    
+    <s:NavigatorContent label="{R.get('GROUPS')}">
+      <groups:GroupView/>
+    </s:NavigatorContent>
+  
+  </mx:ViewStack>
+
+</main:Section>

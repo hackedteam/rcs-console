@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:srilabs="com.srilabs.*"
+                   width="100%" borderColor="#aaaaaa" cornerRadius="5" creationPolicy="all">
+  
+  <fx:Script>
+    <![CDATA[
+      [Bindable]
+      public var title:String;
+      
+      public function get selected():Boolean { return check.selected; }
+      public function set selected(s:Boolean):void
+      {
+        check.selected = s;
+        options.visible = check.selected;
+      }
+      
+      private function onSwitch(event:MouseEvent):void
+      {
+        options.visible = check.selected;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Rect width="100%" height="90" radiusX="5" radiusY="5">
+    <s:fill>
+      <s:LinearGradient rotation="90">
+        <s:entries>
+          <s:GradientEntry color="#f5f5f5"/>
+          <s:GradientEntry color="#d5d5d5"/>
+        </s:entries>
+      </s:LinearGradient>
+    </s:fill>
+  </s:Rect>
+  
+  <srilabs:iCheckBox id="check" right="15" top="12" width="110" height="28" animated="false"
+                     click="onSwitch(event)" text1="ON" text2="OFF"/>
+  
+  <s:Label left="15" top="12" height="28" fontFamily="Myriad" fontSize="18" fontWeight="bold"
+           text="{title}" verticalAlign="middle"/>
+  
+  <s:Label visible="{!enabled}" top="45" width="100%" height="40" fontFamily="Myriad" fontSize="17"
+           includeInLayout="{!enabled}" paddingLeft="15" text="Not available on this platform"
+           verticalAlign="middle"/>
+  
+  <s:HGroup id="options" visible="false" top="44" width="100%" height="40" hideEffect="{fadeOut}"
+            paddingLeft="15" showEffect="{fadeIn}" verticalAlign="middle" gap="30">
+    
+    <s:CheckBox id="documents" label="Documents" fontFamily="Myriad" fontSize="17"/>
+    
+    <s:CheckBox id="images" label="Images" fontFamily="Myriad" fontSize="17"/>
+    
+  </s:HGroup>
+  
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="100"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="100"/>
+  </fx:Declarations>
+  
+</s:BorderContainer>

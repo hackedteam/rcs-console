@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                      xmlns:s="library://ns.adobe.com/flex/spark"
+                      xmlns:mx="library://ns.adobe.com/flex/mx"
+                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+                      xmlns:utils="it.ht.rcs.console.utils.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      override public function fillFields():void
+      {
+        if (!command) return;
+        command.text = action.command;
+      }
+      
+      override public function commit():void
+      {
+        action.command = command.text;
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="330" text="{R.get('CONFIG_HELP_EXECUTE')}" lineHeight="16"/>
+  
+  <s:Form>
+  
+    <s:FormItem label="{R.get('COMMAND')}">
+      <s:HGroup>
+        <s:TextInput id="command" width="200"/>
+      </s:HGroup>
+    </s:FormItem>
+  
+  </s:Form>
+  
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:StringValidator property="text" required="true" source="{command}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</actions:ActionFields>

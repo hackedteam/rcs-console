@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             creationComplete="init()" save="save()">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      public var event:Object;
+      
+      private function init():void
+      {
+        delay.text = event.delay || '60';
+        notForever.selected = event.hasOwnProperty('iter');
+        iter.text = event.iter || '1';
+        delay.setFocus();
+      }
+      
+      private function save():void
+      {
+        if (!val.isValid())
+          return; 
+        
+        event.delay = parseInt(delay.text);
+        
+        if (notForever.selected)
+          event.iter = parseInt(iter.text);
+        else
+          delete(event.iter);
+        
+        close();
+      }
+      
+      private function onChange(event:Event):void
+      {
+        if (!notForever.selected)
+          iter.text = '1';
+      }
+    ]]>
+  </fx:Script>
+
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('DELAY')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="delay" restrict="0-9" textAlign="center" widthInChars="3"/>
+        <s:Label paddingTop="1" text=" seconds"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('ITERATIONS')}">
+      <s:VGroup>
+        <s:RadioButton label="{R.get('FOREVER')}" group="{dateGroup}" selected="true"/>
+        <s:RadioButton id="notForever" label="{R.get('LIMIT')}" group="{dateGroup}"/>
+        <s:HGroup verticalAlign="middle">
+          <s:TextInput id="iter" enabled="{notForever.selected}" restrict="0-9" textAlign="center"
+                       widthInChars="3"/>
+          <s:Label paddingTop="1" text=" {R.get('TIMES')}"/>
+        </s:HGroup>
+      </s:VGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <fx:Declarations>
+    <s:RadioButtonGroup id="dateGroup" change="onChange(event)"/>
+    <fx:Array id="vals">
+      <mx:NumberValidator lowerThanMinError="{R.get('VALIDATION_MIN', [0])}" minValue="1" property="text"
+                          required="true" source="{delay}" triggerEvent=""/>
+      <mx:NumberValidator property="text" required="true" source="{iter}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+  
+</utils:TitleWindowSaveCancel>

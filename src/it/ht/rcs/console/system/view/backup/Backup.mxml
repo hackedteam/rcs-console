@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:backups="it.ht.rcs.console.system.view.backup.backups.*"
+          xmlns:jobs="it.ht.rcs.console.system.view.backup.jobs.*" 
+          xmlns:archives="it.ht.rcs.console.system.view.backup.archives.*"
+          width="100%" height="100%" addedToStage="onAddedToStage(event)"
+          removedFromStage="onRemovedFromStage(event)" xmlns:backup="it.ht.rcs.console.system.view.backup.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
+      import it.ht.rcs.console.backup.model.BackupJob;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.system.view.backup.jobs.BackupJobForm;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
+      
+      
+      [Bindable]
+      private var _backup_job_view:ListCollectionView;
+      [Bindable]
+      private var _backup_archive_view:ListCollectionView;
+      
+      private function onAddedToStage(event:Event):void
+      {
+        BackupJobManager.instance.listenRefresh();
+        BackupJobManager.instance.refresh();
+        BackupArchiveManager.instance.listenRefresh();
+        BackupArchiveManager.instance.refresh();
+        _backup_job_view = BackupJobManager.instance.getView(); 
+        _backup_archive_view = BackupArchiveManager.instance.getView();
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRemovedFromStage(event:Event):void
+      {
+        BackupJobManager.instance.unlistenRefresh();
+        _backup_job_view = null;
+        BackupArchiveManager.instance.unlistenRefresh();
+        _backup_archive_view = null;
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRefresh(e:RefreshEvent):void
+      {
+        archivesActionBar.selectedObject = jobsActionBar.selectedObject = null;
+      }
+      
+      private function selectJob(j:BackupJob):void
+      {
+        backupjobs.selectedItem = j;
+      }
+      
+      
+      private function editJob(b:BackupJob):void
+      {
+        var popup:BackupJobForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, BackupJobForm, true) as BackupJobForm;
+        popup.currentState = 'edit';
+        popup.job = b;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+
+    <s:VGroup width="100%" height="100%">
+      <jobs:JobsActionBar id="jobsActionBar" view="{_backup_job_view}" selectedObject="{backupjobs.selectedItem}"/>
+      
+      <jobs:BackupJobs id="backupjobs" dataProvider="{_backup_job_view}"
+                       doubleClick="editJob(backupjobs.selectedItem as BackupJob)"
+                       doubleClickEnabled="true"/>
+    </s:VGroup>
+  
+    <s:VGroup width="100%" height="100%">
+      <archives:ArchivesActionBar id="archivesActionBar" view="{_backup_archive_view}" selectedObject="{backuparchives.selectedItem}"/>
+      
+      <archives:BackupArchives id="backuparchives" dataProvider="{_backup_archive_view}"/>
+    </s:VGroup>
+  
+</s:VGroup>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+                             show="show()" creationPolicy="all">
+  
+  <s:HGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" verticalAlign="middle" width="170">
+    <s:CheckBox id="blotter" label="Included in report"/>
+    <s:Spacer width="100%"/>
+    <s:BitmapImage source="{dot}"/>
+  </s:HGroup>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
+      
+      [Embed('/img/NEW/gray_dot.png')]
+      private static const dot:Class;
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function getValues():Array
+      {
+        var toReturn:Array = [];
+        
+        if (blotter.selected)
+          toReturn.push(true);
+
+        return toReturn;
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        blotter.selected = false;
+        commit(fireEvent);
+      }
+      
+      private function show():void
+      {
+        if (!filter.hasOwnProperty(property)) return;
+        blotter.selected = filter[property];
+      }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        hasFilter = filter.hasOwnProperty(property);
+        blotter.selected = hasFilter;
+      }
+    ]]>
+  </fx:Script>
+  
+</filters:AbstractFilterPopup>

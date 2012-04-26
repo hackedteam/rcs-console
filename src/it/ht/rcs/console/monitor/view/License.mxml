@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                   xmlns:s="library://ns.adobe.com/flex/spark"
+                   xmlns:mx="library://ns.adobe.com/flex/mx"
+                   width="900" height="100%" borderColor="#dddddd" borderWeight="2"
+                   cornerRadius="10" xmlns:old="it.ht.rcs.console.monitor.view.old.*">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+    ]]>
+  </fx:Script>
+  
+  <s:Label left="35" top="-12" width="100" backgroundColor="#ffffff" color="#333333"
+           fontFamily="Myriad" fontSize="24" text="{R.get('LICENSE')}" textAlign="center"/>
+  
+  <s:HGroup width="100%" height="100%">
+    
+    <s:VGroup width="300" height="100%" paddingTop="10">
+      <s:Form>
+        <s:FormItem label="{R.get('VERSION')}">
+          <s:Label text="{Console.rcsVersion}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('LICENSE_TYPE')}">
+          <s:Label text="{LicenseManager.instance.type}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('LICENSE_SERIAL')}">
+          <s:Label text="{LicenseManager.instance.serial}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('LICENSE_EXPIRY')}">
+          <s:Label text="{TimeUtils.timestampDateFormatter(LicenseManager.instance.expiry * 1000)}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('LICENSE_MAINTENANCE')}">
+          <s:Label text="{TimeUtils.timestampDateFormatter(LicenseManager.instance.maintenance * 1000)}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+      </s:Form>
+    </s:VGroup>
+    
+    <s:VGroup width="300" height="100%">
+      <s:Form>
+        <s:FormItem label="{R.get('USERS')}">
+          <s:Label text="{LicenseManager.instance.users.curr} / {LicenseManager.instance.users.max}" width="100%"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('AGENTS')}">
+          <s:Label text="{LicenseManager.instance.agent_total.curr} / {LicenseManager.instance.agent_total.max}" width="100%"/>
+        </s:FormItem>
+        <s:FormItem label="Desktop">
+          <s:VGroup gap="10">
+            <s:Label text="{LicenseManager.instance.agent_desktop.curr} / {LicenseManager.instance.agent_desktop.max}" width="100%"/>
+            <s:HGroup verticalAlign="middle" gap="10">
+              <s:Image source="{(LicenseManager.instance.agent_windows) ? PlatformIcons.windowsOn : PlatformIcons.windowsOff}"
+                             toolTip="Windows: {LicenseManager.instance.agent_windows ? 'YES' : 'NO'}{LicenseManager.instance.agent_windows_demo ? '  +  DEMO' : ''}"/>
+              <s:Image source="{(LicenseManager.instance.agent_osx) ? PlatformIcons.osxOn : PlatformIcons.osxOff}"
+                             toolTip="OSX: {LicenseManager.instance.agent_osx ? 'YES' : 'NO'}{LicenseManager.instance.agent_osx_demo ? '  +  DEMO' : ''}"/>
+            </s:HGroup>
+          </s:VGroup>
+        </s:FormItem>
+        <s:FormItem label="Mobile">
+          <s:VGroup gap="10">
+            <s:Label text="{LicenseManager.instance.agent_mobile.curr} / {LicenseManager.instance.agent_mobile.max}" width="100%"/>
+            <s:HGroup>
+              <s:Image source="{(LicenseManager.instance.agent_android) ? PlatformIcons.androidOn : PlatformIcons.androidOff}"
+                       toolTip="Android: {LicenseManager.instance.agent_android ? 'YES' : 'NO'}{LicenseManager.instance.agent_android_demo ? '  +  DEMO' : ''}"/>
+              <s:Image source="{(LicenseManager.instance.agent_blackberry) ? PlatformIcons.blackberryOn : PlatformIcons.blackberryOff}"
+                       toolTip="Blackberry: {LicenseManager.instance.agent_blackberry ? 'YES' : 'NO'}{LicenseManager.instance.agent_blackberry_demo ? '  +  DEMO' : ''}"/>
+              <s:Image source="{(LicenseManager.instance.agent_winmo) ? PlatformIcons.windowsPhoneOn : PlatformIcons.windowsPhoneOff}"
+                       toolTip="WinMo: {LicenseManager.instance.agent_winmo ? 'YES' : 'NO'}{LicenseManager.instance.agent_winmo_demo ? '  +  DEMO' : ''}"/>
+              <s:Image source="{(LicenseManager.instance.agent_ios) ? PlatformIcons.iosOn : PlatformIcons.iosOff}"
+                       toolTip="iOS: {LicenseManager.instance.agent_ios ? 'YES' : 'NO'}{LicenseManager.instance.agent_ios_demo ? '  +  DEMO' : ''}"/>
+              <s:Image source="{(LicenseManager.instance.agent_symbian) ? PlatformIcons.s60On : PlatformIcons.s60Off}"
+                       toolTip="Symbian: {LicenseManager.instance.agent_symbian ? 'YES' : 'NO'}{LicenseManager.instance.agent_symbian_demo ? '  +  DEMO' : ''}"/>
+            </s:HGroup>
+          </s:VGroup>
+        </s:FormItem>
+      </s:Form>
+    </s:VGroup>
+    
+    <s:VGroup width="300" height="100%">
+      <s:Form>
+        <s:FormItem label="{R.get('SHARDS')}">
+          <s:Label text="{LicenseManager.instance.shards.curr} / {LicenseManager.instance.shards.max}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="{R.get('COLLECTORS')}">
+          <s:Label text="{LicenseManager.instance.collectors.curr} / {LicenseManager.instance.collectors.max}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Anonymizers">
+          <s:Label text="{LicenseManager.instance.anonymizers.curr} / {LicenseManager.instance.anonymizers.max}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Network Injector">
+          <s:Label text="{LicenseManager.instance.nia_demo ? 'DEMO' : LicenseManager.instance.nia.curr + '/' + LicenseManager.instance.nia.max}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Remote Mobile Installer">
+          <s:Label text="{LicenseManager.instance.rmi_demo ? 'DEMO' : (LicenseManager.instance.rmi) ? R.get('YES') : R.get('NO')}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Alerting">
+          <s:Label text="{(LicenseManager.instance.alerting) ? R.get('YES') : R.get('NO')}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+        <s:FormItem label="Connectors">
+          <s:Label text="{(LicenseManager.instance.connectors) ? R.get('YES') : R.get('NO')}" width="100%" styleName="monitor"/>
+        </s:FormItem>
+      </s:Form>
+    </s:VGroup>
+  
+  </s:HGroup>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="#ff0000" blurX="8" blurY="8" strength="2"/>
+  </fx:Declarations>
+  
+</s:BorderContainer>

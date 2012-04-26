@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+              xmlns:s="library://ns.adobe.com/flex/spark"
+              xmlns:mx="library://ns.adobe.com/flex/mx"
+              xmlns:main="it.ht.rcs.console.main.*"
+              xmlns:audit="it.ht.rcs.console.audit.view.*" creationComplete="init()"
+              addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.audit.controller.AuditManager;
+      import it.ht.rcs.console.events.DataLoadedEvent;
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      
+      private var created:Boolean = false;
+      private function init():void
+      {
+        created = true;
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        AuditManager.instance.listenRefresh();
+        AuditManager.instance.refresh();
+      }
+      
+      // Why this "created" check?
+      // Short version: It's needed.
+      // Long version: The callback of refresh() (called by start()) fires an event
+      // that should be received by table headers to populate filters.
+      // These headers are not yet created when the callback fires for the first time.
+      // So, the first time we call it via creationComplete(), subsequent calls will use
+      // the standard addedToStage().
+      private function onAddedToStage():void
+      {
+        if (created) {
+          FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+          AuditManager.instance.listenRefresh();
+          AuditManager.instance.refresh();
+        }
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChanged);
+        AuditManager.instance.unlistenRefresh();
+      }
+      
+      private function onFilterChanged(event:FilterEvent):void
+      {
+        AuditManager.instance.refresh();
+      }
+    ]]>
+  </fx:Script>
+  
+  <main:layout>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+  </main:layout>
+  
+  <audit:AuditActionBar/>
+  
+  <audit:AuditGrid id="grid" dataProvider="{AuditManager.instance._view}"/>
+  
+</main:Section>

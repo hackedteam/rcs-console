@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+  
+  <s:Button label="{R.get('DELETE')}" enabled="{Console.currentSession.user.is_sys() &amp;&amp; selectedObject != null}" click="onDelete(event)"
+            icon="@Embed('/img/NEW/delete_32.png')"/>
+  
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('ALERTING_GROUP')}" click="onAlertingGroup()" enabled="{Console.currentSession.user.is_admin()}"
+            icon="@Embed('/img/NEW/alert.png')"/>
+  
+  <s:Spacer width="100%"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.monitor.controller.MonitorManager;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function onAlertingGroup():void
+      {
+        PopUpManager.centerPopUp(PopUpManager.createPopUp(root, AlertingGroup, true));
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        if (view) view.refresh();
+      }
+      
+      protected function onDelete(event:MouseEvent):void
+      {
+        MonitorManager.instance.removeItem(selectedObject);
+      }
+     
+    ]]>
+  </fx:Script>
+  
+</actionbar:ActionBar>

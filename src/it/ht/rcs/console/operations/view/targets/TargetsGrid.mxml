@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+            xmlns:s="library://ns.adobe.com/flex/spark"
+            xmlns:mx="library://ns.adobe.com/flex/mx"
+            width="100%" height="100%" doubleClickEnabled="true" sortableColumns="true">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      private function dateLabel(item:Object, column:GridColumn):String
+      {
+        try {
+          return TimeUtils.timestampFormatter(item.stat.last_sync * 1000);
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function agentLabel(item:Object, column:GridColumn):String
+      {
+        try {
+          return SearchManager.instance.getItem(item.stat.last_child).name;
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function sizeLabel(item:Object, column:GridColumn):String
+      {
+        try {
+          return Size.toHumanBytes(item.stat.size + item.stat.grid_size);
+        } catch (e:Error) {}
+        return '';
+      }
+      
+      private function sizeSortCompareFunction(obj1:Object, obj2:Object, column:GridColumn):int
+      {
+        try {
+          if ((obj1.stat.size+obj1.stat.grid_size) == (obj2.stat.size+obj2.stat.grid_size)) return 0;
+          else if ((obj1.stat.size+obj1.stat.grid_size) > (obj2.stat.size+obj2.stat.grid_size)) return 1;
+          else return -1;
+        } catch (e:Error) {}
+        return 0;
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:columns>
+    <s:ArrayList>
+      
+      <s:GridColumn dataField="name" headerText="{R.get('NAME')}"/>
+      
+      <s:GridColumn dataField="desc" headerText="{R.get('DESCRIPTION')}"/>
+      
+      <s:GridColumn dataField="status" headerText="{R.get('STATUS')}"/>
+    
+      <s:GridColumn dataField="stat.last_sync" headerText="{R.get('LAST_SYNC')}" labelFunction="dateLabel" width="130"/>
+      
+      <s:GridColumn dataField="stat.last_child" headerText="{R.get('LAST_AGENT')}" labelFunction="agentLabel"/>
+      
+      <s:GridColumn dataField="stat" headerText="{R.get('SIZE')}" labelFunction="sizeLabel" width="80" sortCompareFunction="sizeSortCompareFunction"/>
+      
+    </s:ArrayList>
+  </s:columns>
+  
+</s:DataGrid>

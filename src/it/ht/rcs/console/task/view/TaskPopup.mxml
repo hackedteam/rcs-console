@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               close="close()" creationComplete="init()">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import locale.R;
+      
+      public var type:String;
+      public var params:Object;
+      
+      private function init():void
+      {
+        fileName.setFocus();
+      }
+      
+      private function close():void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function onClick():void
+      {
+        DownloadManager.instance.createTask(type, fileName.text, {filter: params}, onSuccess, onFailure);
+      }
+		  
+  	  private function onSuccess(e:ResultEvent):void
+      {
+        close();
+  	  }
+  		
+  	  private function onFailure(e:FaultEvent):void
+      {
+  		  fileName.errorString = R.get('FILENAME_ALREADY_TAKEN'); // 'File name is already taken. Please choose a different one.';
+  	  }
+    ]]>
+  </fx:Script>
+  
+  <s:layout>
+    <s:VerticalLayout gap="10" horizontalAlign="left" paddingBottom="20" paddingLeft="20"
+                      paddingRight="20" paddingTop="20"/>
+  </s:layout>
+  
+  <s:Label text="{R.get('FILENAME_CHOOSE')}" />
+  <s:TextInput id="fileName" width="200" enter="onClick()"/>
+  <s:Button label="OK" click="onClick()"/>
+
+</s:TitleWindow>

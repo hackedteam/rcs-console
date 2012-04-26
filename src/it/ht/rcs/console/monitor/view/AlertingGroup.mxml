@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" 
+               xmlns:utils="it.ht.rcs.console.utils.*"
+               width="300" height="180"
+               close="closeMe()" save="save()"
+               creationComplete="init()"
+               title="{R.get('ALERTING_GROUP')}">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      private var _group_view:ListCollectionView;
+      [Bindable]
+      private var _alert_group:Group;
+      
+      private function init():void
+      {
+        _group_view = GroupManager.instance.getView();
+
+        _alert_group = GroupManager.instance.alertGroup();
+        
+        if (_alert_group != null) {
+          noalert.selected = false;
+          alertgroup.selectedItem = _alert_group;
+        } else {
+          noalert.selected = true;
+          alertgroup.selectedIndex = 0;
+        }
+        
+      }
+      
+      private function save():void
+      {
+        if (noalert.selected == true)
+          GroupManager.instance.setalertGroup(null);
+        else
+          GroupManager.instance.setalertGroup(alertgroup.selectedItem as Group);
+
+        PopUpManager.removePopUp(this);  
+      }
+      
+      private function closeMe():void
+      {
+        PopUpManager.removePopUp(this);  
+      }
+    ]]>
+  </fx:Script>
+  <s:CheckBox id="noalert" label="No Alert" left="20" top="20" toolTip="{R.get('NO_ALERT_GROUP')}"/>
+  <s:DropDownList id="alertgroup" left="20" top="60" right="20" enabled="{noalert.selected == false}" 
+                  toolTip="{R.get('ALERT_GROUP_LIST')}" 
+                  dataProvider="{_group_view}"
+                  labelField="name"/>
+
+</utils:TitleWindowSaveCancel>

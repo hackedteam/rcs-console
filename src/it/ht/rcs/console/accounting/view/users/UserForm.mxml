@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
+                             creationComplete="init()" save="save()" title="{R.get('EDIT_USER')}">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var user:User;
+      
+      private function init():void
+      {
+        formName.setFocus();
+        if (currentState == 'create')
+          user = new User(User.defaultUser());
+      }
+      
+      private function save():void
+      {
+        if (user.pass == '') {
+          AlertPopUp.show(R.get('USER_NO_PASS'), R.get('ERROR'));
+          return;
+        }
+        
+        /* keep the name the first to be modified */
+        user.name = formName.text;
+        user.enabled = formEnabled.selected;
+        user.desc = formDescription.text;
+        user.contact = formContact.text;
+        user.locale = formLocale.selectedItem;
+        user.timezone = formConsoletime.selectedIndex - 12;
+        
+        var privs:ArrayCollection = new ArrayCollection();
+        if (formAdmin.selected) privs.addItem('ADMIN');
+        if (formSys.selected)   privs.addItem('SYS');
+        if (formTech.selected)  privs.addItem('TECH');
+        if (formView.selected)  privs.addItem('VIEW');
+        
+        if (privs.toString() != user.privs.toString())
+          user.privs = privs;
+
+        user.group_ids = groups.dataProvider.toArray();
+        
+        if (currentState == 'create')
+          UserManager.instance.addUser(user, function(u:User):void { close(); });
+        else
+          close();
+      }
+      
+      private function changePass():void
+      {
+        var cp:ChangePassword = PopUpManager.createPopUp(root, ChangePassword, true) as ChangePassword;
+        cp.user = user;
+        cp.mode = currentState;
+        PopUpManager.centerPopUp(cp);
+      }
+    ]]>
+  </fx:Script>
+  
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+  
+  <s:Form defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('ENABLED')}">
+      <!-- the current user cannot disable himself -->
+      <s:CheckBox id="formEnabled" enabled="{user._id != Console.currentSession.user._id}"
+                  selected="{user.enabled}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('NAME')}">
+      <s:TextInput id="formName" width="200" maxChars="20" text="{user.name}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('DESCRIPTION')}">
+      <s:TextArea id="formDescription" width="200" heightInLines="3" text="{user.desc}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('CONTACT')}">
+      <s:TextInput id="formContact" width="200" text="{user.contact}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PASSWORD')}">
+      <s:Button width="100" label="{R.get('CHANGE')}..." click="changePass()"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('PRIVILEGES')}">
+      <!-- <s:TileGroup width="200" horizontalGap="5" verticalGap="8"> -->
+      <s:VGroup>        
+        <s:HGroup horizontalAlign="left" verticalAlign="middle">
+          <s:CheckBox id="formAdmin" width="15"
+                      enabled="{user._id != Console.currentSession.user._id}"
+                      selected="{user.privs.getItemIndex('ADMIN') != -1}"/>
+          <s:Image source="@Embed('img/privs/admin.png')"/>
+          <s:Label text="Administrator"/>
+        </s:HGroup>
+
+        <s:HGroup horizontalAlign="left" verticalAlign="middle">
+		      <s:CheckBox id="formSys" width="15" label="SYS"
+                      selected="{user.privs.getItemIndex('SYS') != -1}"/>
+          <s:Image source="@Embed('img/privs/sys.png')"/>
+          <s:Label text="System Administrator"/>
+        </s:HGroup>
+
+        <s:HGroup horizontalAlign="left" verticalAlign="middle">
+          <s:CheckBox id="formTech" width="15" label="TECH"
+                      selected="{user.privs.getItemIndex('TECH') != -1}"/>
+          <s:Image source="@Embed('img/privs/tech.png')"/>
+          <s:Label text="Technician"/>
+        </s:HGroup>
+
+        <s:HGroup horizontalAlign="left" verticalAlign="middle">
+          <s:CheckBox id="formView" width="15" label="VIEW"
+                      selected="{user.privs.getItemIndex('VIEW') != -1}"/>
+          <s:Image source="@Embed('img/privs/view.png')"/>
+          <s:Label text="Evidence Analyst"/>
+        </s:HGroup>
+
+      </s:VGroup>
+
+        <!-- </s:TileGroup> -->
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('LANGUAGE')}">
+      <s:DropDownList id="formLocale" width="100" dataProvider="{Console.locales}"
+                      requireSelection="true"
+                      selectedIndex="{Console.locales.getItemIndex(user.locale)}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('CONSOLE_TIMEZONE')}">
+      <s:DropDownList id="formConsoletime" width="100" dataProvider="{ClockProfile.timezones}"
+                      selectedIndex="{user.timezone + 12}"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('GROUPS')}">
+      <groups:GroupSelector id="groups" width="200" dataProvider="{user.group_ids}"/>
+    </s:FormItem>
+    
+  </s:Form>
+
+</utils:TitleWindowSaveCancel>

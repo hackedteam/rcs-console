@@ -11,19 +11,26 @@
 			override public function set data(value:Object):void
 			{
 				super.data=value;
-				switch (data._kind)
-				{
-					case "factory":
-						icon.source=Icons[data.type + '16'];
-						break;
-          
-          case "agent":
-            icon.source=Icons[data.platform + '16'];
-            break;
-
-					default:
-						icon.source=data ? Icons[data._kind + '16'] : null;
-				}
+			  if(data!=null)
+        {
+          switch (data._kind)
+          {
+            case "factory":
+              icon.source=Icons[data.type + '16'];
+              break;
+            
+            case "agent":
+              icon.source=Icons[data.platform + '16'];
+              break;
+            
+            default:
+              icon.source=data ? Icons[data._kind + '16'] : null;
+          }
+        }
+        else
+        {
+          icon.source=null;
+        }
 			}
 		]]>
 	</fx:Script>

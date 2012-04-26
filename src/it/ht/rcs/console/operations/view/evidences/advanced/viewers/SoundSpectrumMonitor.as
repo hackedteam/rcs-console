@@ -176,9 +176,8 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers
 		
 		private function onClick( e:MouseEvent ):void
 		{
-			dispatchEvent(new Event(SELECTION))
+			dispatchEvent(new Event(SELECTION));
 			removeEventListener( MouseEvent.MOUSE_MOVE, onMove );
-			
 		}
 		
 		public function get selectionRect():Rectangle

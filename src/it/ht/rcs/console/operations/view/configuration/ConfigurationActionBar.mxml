@@ -197,6 +197,16 @@
       
       private function goToAdvanced(event:MouseEvent):void
       {
+        AlertPopUp.show(R.get('GO_TO_ADVANCED_WARNING'), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              doGoToAdvanced();
+          }, null, AlertPopUp.NO);
+      }
+      
+      private function doGoToAdvanced():void
+      {
         configView.basic.config.globals.advanced = true;
         saveConfig();
         

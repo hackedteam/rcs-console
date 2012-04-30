@@ -45,7 +45,9 @@
 						enabled="{selectedObjects.length>0}"/>
   <actionbar:Separator width="40"/>
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
-            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"/>
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"
+            visible="{LicenseManager.instance.deletion == true}"
+            includeInLayout="{LicenseManager.instance.deletion == true}"/>
 
 	<fx:Metadata> 
     [Event(name="editNote", type="flash.events.Event")]
@@ -56,16 +58,17 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.evidence.model.TypeCount;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.evidence.model.TypeCount;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-      import mx.events.CloseEvent;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
       import mx.controls.Alert;
+      import mx.events.CloseEvent;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
 

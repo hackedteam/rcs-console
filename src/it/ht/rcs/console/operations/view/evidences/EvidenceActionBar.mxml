@@ -43,6 +43,9 @@
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}"/>
+  <actionbar:Separator width="40"/>
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"/>
 
 	<fx:Metadata> 
     [Event(name="editNote", type="flash.events.Event")]
@@ -56,13 +59,15 @@
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.evidence.model.TypeCount;
+      import it.ht.rcs.console.utils.AlertPopUp;
 			
 			import locale.R;
 			
 			import mx.collections.ArrayCollection;
+      import mx.events.CloseEvent;
+      import mx.controls.Alert;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
-
 
 			[Bindable]
 			private var _total:int;
@@ -178,6 +183,20 @@
 				dispatchEvent(new Event("detail"))
 
 			}
+      
+      private function onDeleteClick():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+            for(var i:int=0;i<selectedObjects.length;i++)
+            {
+              EvidenceManager.instance.removeItem(selectedObjects[i])
+            }
+          
+          }, null, AlertPopUp.NO);
+      }
 
 			private function init():void
 			{

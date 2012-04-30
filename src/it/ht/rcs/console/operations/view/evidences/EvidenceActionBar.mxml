@@ -53,7 +53,8 @@
     [Event(name="editNote", type="flash.events.Event")]
     [Event(name="summary", type="flash.events.Event")] 
     [Event(name="export", type="flash.events.Event")] 
-    [Event(name="detail", type="flash.events.Event")] 
+    [Event(name="detail", type="flash.events.Event")]
+    [Event(name="delete", type="flash.events.Event")] 
   </fx:Metadata>
 
 	<fx:Script>
@@ -195,8 +196,9 @@
             if (e.detail == AlertPopUp.YES)
             for(var i:int=0;i<selectedObjects.length;i++)
             {
-              EvidenceManager.instance.removeItem(selectedObjects[i])
+              EvidenceManager.instance.removeItem(selectedObjects[i]);
             }
+            dispatchEvent(new Event("delete"));
           
           }, null, AlertPopUp.NO);
       }

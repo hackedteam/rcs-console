@@ -3,13 +3,31 @@
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
                    width="900" height="100%" borderColor="#dddddd" borderWeight="2"
-                   cornerRadius="10" xmlns:old="it.ht.rcs.console.monitor.view.old.*">
+                   cornerRadius="10" xmlns:old="it.ht.rcs.console.monitor.view.old.*"
+                   addedToStage="added(event)">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.update.model.UpdateVersions;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
+      
+      import mx.events.FlexEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      private var db_version:String;
+      
+      protected function added(event:Event):void
+      {
+        DB.instance.update.all(function (e:ResultEvent):void {
+          var versions:UpdateVersions = e.result as UpdateVersions;
+          db_version = versions.db;
+        });
+      }
+     
     ]]>
   </fx:Script>
   
@@ -21,7 +39,7 @@
     <s:VGroup width="300" height="100%" paddingTop="10">
       <s:Form>
         <s:FormItem label="{R.get('VERSION')}">
-          <s:Label text="{Console.rcsVersion}" width="100%" styleName="monitor"/>
+          <s:Label text="{db_version}" width="100%" styleName="monitor"/>
         </s:FormItem>
         <s:FormItem label="{R.get('LICENSE_TYPE')}">
           <s:Label text="{LicenseManager.instance.type}" width="100%" styleName="monitor"/>

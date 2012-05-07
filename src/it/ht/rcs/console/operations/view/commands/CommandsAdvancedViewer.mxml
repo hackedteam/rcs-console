@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:commands="it.ht.rcs.console.operations.view.commands.*"
+				 width="100%"
+				 height="100%"
+				 >
+	<fx:Metadata> 
+    [Event(name="close", type="flash.events.Event")]
+    [Event(name="update", type="flash.events.Event")]
+    [Event(name="selectionChange", type="flash.events.Event")]
+  </fx:Metadata>
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="350"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="350"/>
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+
+			import mx.collections.IList;
+
+			[Bindable]
+			[Embed(source="/img/NEW/delete_16.png")]
+			public var CloseIcon:Class;
+
+			[Bindable]
+			public var dataProvider:IList;
+
+			public var currentIndex:int;
+			private var _currentItem:Evidence;
+			private var _currentItems:Vector.<Object>;
+
+			private function close():void
+			{
+				dispatchEvent(new Event("close"));
+			}
+
+			[Bindable]
+			public function set currentItems(value:Vector.<Object>):void
+			{
+				_currentItems=value;
+				currentItem=currentItems[0] as Evidence;
+			}
+
+			public function get currentItems():Vector.<Object>
+			{
+				return _currentItems
+			}
+
+			[Bindable]
+			public function set currentItem(value:Evidence):void
+			{
+				_currentItem=value;
+			
+				fadeIn.play([this]);
+			}
+
+			public function get currentItem():Evidence
+			{
+				return _currentItem;
+			}
+
+		]]>
+	</fx:Script>
+
+	
+	<s:HGroup width="100%"
+						height="100%">
+
+		<commands:CommandsDetail evidence="{currentItem}"/>
+	
+		<commands:CommandsInfoPanel evidence="{currentItem}"
+																 id="infoPanel"
+																 height="100%"/>
+
+	</s:HGroup>
+	<s:Image source="{CloseIcon}"
+					 y="{10}"
+					 x="{this.width-infoPanel.width-30}"
+					 useHandCursor="true"
+					 buttonMode="true"
+					 click="close()"/>
+</s:Group>

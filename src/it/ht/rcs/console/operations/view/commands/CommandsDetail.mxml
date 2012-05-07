@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="100%"
+									 width="100%"
+                   borderColor="0xCCCCCC"
+                   backgroundColor="0xFFFFFF"
+                   backgroundAlpha="1">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+
+			private var _evidence:Object;
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+        _evidence=value; //program, action, description
+
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence;
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+		]]>
+	</fx:Script>
+<s:layout>
+  <s:VerticalLayout paddingBottom="10"
+                      paddingLeft="10"
+                      paddingRight="10"
+                      paddingTop="10"
+                      />
+</s:layout>
+  <s:RichText id="commandTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Command: &lt;/b&gt;'+evidence.data.command, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+  <s:Line width="100%">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:Scroller height="100%"
+              width="100%" id="scroller">
+    <s:RichEditableText editable="false"
+                        id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+  </s:Scroller>
+</s:BorderContainer>

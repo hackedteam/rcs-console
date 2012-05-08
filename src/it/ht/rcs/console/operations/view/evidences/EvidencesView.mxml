@@ -106,7 +106,7 @@
       
       private function isNoticeVisible():Boolean {
         try {
-          return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0);
+          return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date=="dr");
         } catch (e:Error) {}
         return false;
       }
@@ -221,7 +221,6 @@
       }
       private function closeViewer():void
       {
-        
           viewer.visible=viewer.includeInLayout=false;
           viewer.currentItem=null;
           evidenceDg.selectedIndex=viewer.currentIndex;
@@ -229,7 +228,6 @@
           counter.visible=true;
           actionBar.selectedObjects = evidenceDg.selectedItems;
           notice.visible=notice.includeInLayout=isNoticeVisible();
-      
       }
       
       private function onDelete():void
@@ -259,8 +257,7 @@
         exportMonitor.exporter=exporter;
         PopUpManager.centerPopUp(exportMonitor);
       }
-      
-      
+
     ]]>
   </fx:Script>
   

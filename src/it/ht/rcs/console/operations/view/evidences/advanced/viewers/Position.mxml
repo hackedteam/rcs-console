@@ -50,7 +50,7 @@
 			{
 				_evidence=value;
         
-        
+  
         if((isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude)) && !isUpdated)
         {
           var id:String=encodeURIComponent(value._id);
@@ -194,8 +194,11 @@
       private function onShowResult(e:ResultEvent):void
       {
           isUpdated=true;
-          evidence=e.result as Evidence;
+          var updated:Vector.<Object>=new Vector.<Object>()
+          updated.push(e.result as Evidence)
+          evidences=updated;
           dispatchEvent(new Event("update"));
+         trace("done")
       }
       
       private function onShowFault(e:FaultEvent):void

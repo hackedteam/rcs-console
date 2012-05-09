@@ -36,12 +36,12 @@
         _evidence=value;
         target=EvidenceManager.instance.evidenceFilter.target;
         _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
- 
-        if(evidence.type=="call")
+      
+        if(evidence.type=="call" && evidence.data._grid!=null)
         {
           player.sound=_url;
         }
-        trace("duration: "+_evidence.data.duration)
+          
       }
       
       public function get evidence():Evidence
@@ -75,5 +75,5 @@
     </s:stroke>
   </s:Line>
  
-<viewers:AudioPlayer id="player"/>
+<viewers:AudioPlayer id="player" visible="{evidence.data._grid!=null}"/>
 </s:BorderContainer>

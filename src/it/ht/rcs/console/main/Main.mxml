@@ -10,6 +10,7 @@
     <![CDATA[
       import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
       
       import mx.collections.ArrayList;
@@ -25,6 +26,17 @@
 
         if (Console.currentSession.user.is_any())
           MonitorManager.instance.startCounters();
+        
+        // if we are in "archve" mode, dashboard and alerting don't make any sense
+        if (LicenseManager.instance.archive) {
+          // move backward to avoid problems with index after remove
+          for (var i:int = mainSections.length - 1; i >= 0; i--) {
+            var e:Object = mainSections.getItemAt(i);
+            if (e.label == 'Alerting' || e.label == 'Dashboard')
+              mainSections.removeItemAt(i);
+          }
+        }
+          
       }
       
       private function onAddedToStage():void

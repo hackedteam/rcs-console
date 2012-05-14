@@ -63,7 +63,7 @@ package it.ht.rcs.console.operations.view
       tableSort.compareFunction = customTypeCompareFunction;
     }
     
-    private function getRealItem(event:SectionEvent):*
+    private function getItemFromEvent(event:SectionEvent):*
     {
       var item:SearchItem = event ? event.item : null;
       if (!item) return null;
@@ -83,7 +83,7 @@ package it.ht.rcs.console.operations.view
     
     public function manageItemSelection(i:*, event:SectionEvent=null):void
     {
-      var item:* = i || getRealItem(event);
+      var item:* = i || getItemFromEvent(event);
       if (!item) return;
       
       if (CurrentManager) {
@@ -150,6 +150,10 @@ package it.ht.rcs.console.operations.view
       else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'filetransfer')
       {
         section.currentState = 'filetransfer';
+      }
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'commands')
+      {
+        section.currentState = 'commands';
       }
       
       if (event && event.subsection == 'evidence')
@@ -316,6 +320,8 @@ package it.ht.rcs.console.operations.view
       }
       if (currentState == 'singleAgent') {
         list.addItemAt({name: R.get('INFO'),        customType: 'info',         order: 2}, 0);
+        //list.addItemAt({name: R.get('COMMANDS'),        customType: 'commands',         order: 3}, 0);
+        //list.addItemAt({name: R.get('IP_ADDRESS'),        customType: 'ipaddresses',         order: 4}, 0);
         if (Console.currentSession.user.is_tech()) {
           list.addItemAt({name: R.get('CONFIG'),        customType: 'configlist',   order: 3}, 0);
           list.addItemAt({name: R.get('FILE_TRANSFER'), customType: 'filetransfer', order: 4}, 0);

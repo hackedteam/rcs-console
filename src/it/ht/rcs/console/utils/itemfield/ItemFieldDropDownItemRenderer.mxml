@@ -1,28 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                xmlns:s="library://ns.adobe.com/flex/spark"
-                xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true">
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.dashboard.view.renderer.Icons;
-      
-      override public function set data(value:Object):void
-      {
-        super.data = value;
-        icon.source = data ? Icons[data._kind + '16'] : null;
-      }
-    ]]>
-  </fx:Script>
-  
-  <s:states>
-    <s:State name="normal"/>
-    <s:State name="hovered"/>
-    <s:State name="selected"/>
-  </s:states>
-  
-  <s:BitmapImage id="icon" left="5" top="5" bottom="5"/>
-  <s:Label id="lbl" left="28" top="8" text="{data.text}"/>
-  
+								xmlns:s="library://ns.adobe.com/flex/spark"
+								xmlns:mx="library://ns.adobe.com/flex/mx"
+								autoDrawBackground="true">
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.dashboard.view.renderer.Icons;
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+			  if(data!=null)
+        {
+          switch (data._kind)
+          {
+            case "factory":
+              icon.source=Icons[data.type + '16'];
+              break;
+            
+            case "agent":
+              icon.source=Icons[data.platform + '16'];
+              break;
+            
+            default:
+              icon.source=data ? Icons[data._kind + '16'] : null;
+          }
+        }
+        else
+        {
+          icon.source=null;
+        }
+			}
+		]]>
+	</fx:Script>
+
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+
+	<s:BitmapImage id="icon"
+								 left="5"
+								 top="5"
+								 bottom="5"/>
+	<s:Label id="lbl"
+					 left="28"
+					 top="8"
+					 text="{data.text}"/>
+
 </s:ItemRenderer>

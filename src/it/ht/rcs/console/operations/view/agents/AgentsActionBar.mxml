@@ -9,7 +9,7 @@
             includeInLayout="{section.currentState == 'singleTarget' || section.currentState == 'allAgents'}">
     
     <s:Button label="{R.get('NEW_FACTORY')}" click="onNewClick()"
-              enabled="{Console.currentSession.user.is_tech() &amp;&amp; section.stateManager.selectedTarget.status == 'open'}"
+              enabled="{Console.currentSession.user.is_tech() &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; LicenseManager.instance.archive == false}"
               icon="@Embed('/img/NEW/newFactory.png')"
               visible="{section.currentState == 'singleTarget'}"
               includeInLayout="{section.currentState == 'singleTarget'}" />
@@ -32,11 +32,15 @@
     
     <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
               icon="@Embed('/img/NEW/newDashboard.png')" click="addToDashboard(event)"
-              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; (selectedObject as Agent)._kind == 'agent' &amp;&amp; selectedObject.status == 'open'}"/>
+              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; (selectedObject as Agent)._kind == 'agent' &amp;&amp; selectedObject.status == 'open'}"
+              visible="{LicenseManager.instance.archive == false}"
+              includeInLayout="{LicenseManager.instance.archive == false}"/>
     
     <s:Button label="{R.get('ADD_TO_ALERT')}"
               icon="@Embed('/img/NEW/alert.png')" click="addToAlert(event)"
-              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject.status == 'open'}"/>
+              enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject.status == 'open'}"
+              visible="{LicenseManager.instance.archive == false}"
+              includeInLayout="{LicenseManager.instance.archive == false}"/>
     
     <actionbar:Separator/>
     
@@ -51,7 +55,9 @@
               icon="@Embed('/img/NEW/update.png')" enabled="{Console.currentSession.user.is_tech() &amp;&amp; 
                                                              selectedObject &amp;&amp; 
                                                             (selectedObject as Agent)._kind  == 'agent' &amp;&amp; 
-                                                            (selectedObject as Agent).status == 'open'}"/>
+                                                            (selectedObject as Agent).status == 'open'}"
+              visible="{LicenseManager.instance.archive == false}"
+              includeInLayout="{LicenseManager.instance.archive == false}"/>
     
     
   </s:HGroup>
@@ -102,6 +108,7 @@
       import it.ht.rcs.console.alert.controller.AlertManager;
       import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.evidences.EvidenceExport;

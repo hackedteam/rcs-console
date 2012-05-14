@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+										 xmlns:s="library://ns.adobe.com/flex/spark"
+										 xmlns:mx="library://ns.adobe.com/flex/mx"
+										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+										 xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+										 creationComplete="init()"
+										 removedFromStage="onRemovedFromStage()"
+										 addedToStage="onAddedToStage()">
+
+	<s:Button label="{R.get('EVIDENCE_DOWNLOAD')}"
+						click="onExportClick()"
+						icon="@Embed('/img/evidence/boxdownload32.png')"
+						enabled="{selectedObject != null}"
+            />
+	<actionbar:Separator width="40"/>
+	
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"
+            visible="{LicenseManager.instance.deletion == true}"
+            includeInLayout="{LicenseManager.instance.deletion == true}"/>
+	<fx:Metadata> 
+    [Event(name="export", type="flash.events.Event")] 
+    [Event(name="detail", type="flash.events.Event")]
+    [Event(name="delete", type="flash.events.Event")] 
+  </fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.evidence.model.TypeCount;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.events.CloseEvent;
+
+			[Embed(source="/img/evidence/paperplus32.png")]
+			public var ReportAddIcon:Class;
+
+			[Embed(source="/img/evidence/paperminus32.png")]
+			public var ReportRemoveIcon:Class;
+
+			[Embed(source="/img/evidence/linedpaperplus32.png")]
+			public var SummaryShowIcon:Class;
+
+			[Embed(source="/img/evidence/linedpaperminus32.png")]
+			public var SummaryHideIcon:Class;
+
+			[Embed(source="/img/evidence/article32.png")]
+			public var DetailShowIcon:Class;
+
+			[Embed(source="/img/evidence/stop32.png")]
+			public var DetailHideIcon:Class;
+
+			public function onDetailClick():void
+			{
+				dispatchEvent(new Event("detail"))
+			}
+      
+      public function onExportClick():void
+      {
+        
+      }
+      
+      private function onDeleteClick():void
+      {
+        
+      }
+
+			private function init():void
+			{
+
+			}
+      
+			private function onRemovedFromStage():void
+			{
+				
+			}
+
+			private function onAddedToStage():void
+			{
+
+			}
+		
+		]]>
+	</fx:Script>
+
+</actionbar:ActionBar>

@@ -235,11 +235,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       } else if (element is EventRenderer) {
         toExclude = toExclude.concat(getOutBoundElements(element));
         toExclude = toExclude.concat(getDestinations(toExclude));
-      } else if (element is ActionRenderer) {
+      } else if (element is ActionRenderer) {//fix this 
         toExclude = toExclude.concat(getOutBoundElements(element));
         toExclude = toExclude.concat(getDestinations(toExclude));
-        toExclude = toExclude.concat(getInBoundElements(element));
-        toExclude = toExclude.concat(getSources(toExclude));
+        //toExclude = toExclude.concat(getInBoundElements(element));
+        //toExclude = toExclude.concat(getSources(toExclude));
       } else if (element is ModuleRenderer) {
         toExclude = toExclude.concat(getInBoundElements(element));
         toExclude = toExclude.concat(getSources(toExclude));

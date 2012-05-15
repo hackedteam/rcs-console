@@ -4,43 +4,56 @@
 					xmlns:mx="library://ns.adobe.com/flex/mx"
 					height="100%"
 					width="100%"
-					creationComplete="init()" xmlns:utils="it.ht.rcs.console.utils.*">
+					creationComplete="init()"
+					xmlns:utils="it.ht.rcs.console.utils.*">
 	<fx:Script>
 		<![CDATA[
-      import mx.skins.halo.BrokenImageBorderSkin;
-      [Bindable]
+			import flash.net.URLLoader;
+			
+			import it.ht.rcs.console.utils.BMPDecoder;
+			
+			import mx.skins.halo.BrokenImageBorderSkin;
+
+
+			[Bindable]
 			private var _url:String;
 			[Bindable]
 			private var _rotation:Number=0;
-      [Bindable]
+			[Bindable]
 			private var fitToScreen:Boolean=true;
-      [Bindable]
-      [Embed (source="/img/evidence/leftturnarrow32.png" )]
-      public var RotateCCWIcon:Class;
-      [Bindable]
-      [Embed (source="/img/evidence/turnright32.png" )]
-      public var RotateCWIcon:Class;
-      [Bindable]
-      [Embed (source="/img/evidence/zoomplus32.png" )]
-      public var ZoomPlus:Class;
-      [Bindable]
-      [Embed (source="/img/evidence/zoomminus32.png" )]
-      public var ZoomMinus:Class;
-      [Bindable]
-      [Embed (source="/img/evidence/slide32.png" )]
-      public var FitIcon:Class;
-      [Bindable]
-      [Embed (source="/img/evidence/originalsize32.png" )]
-      public var OriginalSizeIcon:Class;
-      
-      [Bindable]
-      [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
-      public var BrokenImage:Class;
-      
-      private var minZoom:Number=0.2;
-      private var maxZoom:Number=4;
-      private var zoomLevel:Number=1;
-      
+			[Bindable]
+			[Embed(source="/img/evidence/leftturnarrow32.png")]
+			public var RotateCCWIcon:Class;
+			[Bindable]
+			[Embed(source="/img/evidence/turnright32.png")]
+			public var RotateCWIcon:Class;
+			[Bindable]
+			[Embed(source="/img/evidence/zoomplus32.png")]
+			public var ZoomPlus:Class;
+			[Bindable]
+			[Embed(source="/img/evidence/zoomminus32.png")]
+			public var ZoomMinus:Class;
+			[Bindable]
+			[Embed(source="/img/evidence/slide32.png")]
+			public var FitIcon:Class;
+			[Bindable]
+			[Embed(source="/img/evidence/originalsize32.png")]
+			public var OriginalSizeIcon:Class;
+
+			[Bindable]
+			[Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+			public var BrokenImage:Class;
+
+			private var minZoom:Number=0.2;
+			private var maxZoom:Number=4;
+			private var zoomLevel:Number=1;
+
+			private var imgLoader:URLLoader=new URLLoader();
+
+			//BMP 
+			private static const MAGIC_NUMBER:String="BM";
+		
+
 			private function init():void
 			{
 				img.smooth=false;
@@ -53,14 +66,21 @@
 			{
 				_url=value;
 				_rotation=0;
-				img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+
+				/* img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
 				img.addEventListener(Event.COMPLETE, onImageLoaded);
 				img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-				img.source=_url;
-        zoomLevel=1;
-        img.scaleX=img.scaleY=zoomLevel
-      
-        fit();
+				img.source=_url; */
+				imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
+				imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				imgLoader.load(new URLRequest(_url));
+
+				zoomLevel=1;
+				img.scaleX=img.scaleY=zoomLevel
+
+				fit();
 
 				//img.contentLoader=ImageCache.getInstance().cache;
 				//img.contentLoader.load(_url)
@@ -81,29 +101,51 @@
 			private function onImageError(e:IOErrorEvent):void
 			{
 				trace("image error");
-        img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
-        img.removeEventListener(Event.COMPLETE, onImageLoaded)
-        img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				/* img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
+				img.removeEventListener(Event.COMPLETE, onImageLoaded)
+				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				img.source=new BrokenImage(); */
+
+				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
         img.source=new BrokenImage();
-        toolBox.enabled=false;
+
+				toolBox.enabled=false;
 			}
 
 			private function onImageLoaded(e:Event):void
 			{
-				img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
+				/* img.removeEventListener(ProgressEvent.PROGRESS, onImageLoading)
 				img.removeEventListener(Event.COMPLETE, onImageLoaded)
-				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
-        toolBox.enabled=true;
+				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError); */
+
+				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+
+        if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
+        {
+          img.source=new BMPDecoder().decode(e.target.data as ByteArray)
+          return;
+        }
+        else
+        {
+         img.source=e.target.data
+        }
+				toolBox.enabled=true;
 
 			}
 
+			
+
 			private function fit():void
 			{
-        zoomLevel=1;
+				zoomLevel=1;
 				img.scaleMode="letterbox";
 				img.percentWidth=100;
 				img.percentHeight=100;
-        fitToScreen=true;
+				fitToScreen=true;
 			}
 
 			private function originalSize():void
@@ -111,28 +153,30 @@
 				img.scaleMode="letterbox";
 				img.width=img.bitmapData.width;
 				img.height=img.bitmapData.height;
-        fitToScreen=false;
-        
-        zoomLevel=1;
-        img.scaleX=img.scaleY=zoomLevel
-      
+				fitToScreen=false;
+
+				zoomLevel=1;
+				img.scaleX=img.scaleY=zoomLevel
+
 			}
 
 			private function zoom(factor:Number):void
 			{
-        if(!fitToScreen)
-        {
-            zoomLevel+=factor;
-            zoomLevel=uint((zoomLevel)*10)/10;
-            if(zoomLevel>maxZoom) zoomLevel=maxZoom;
-            else if(zoomLevel<minZoom) zoomLevel=minZoom;
-         
-            img.scaleX=img.scaleY=zoomLevel
-            
-           
-            
+				if (!fitToScreen)
+				{
+					zoomLevel+=factor;
+					zoomLevel=uint((zoomLevel) * 10) / 10;
+					if (zoomLevel > maxZoom)
+						zoomLevel=maxZoom;
+					else if (zoomLevel < minZoom)
+						zoomLevel=minZoom;
 
-        }
+					img.scaleX=img.scaleY=zoomLevel
+
+
+
+
+				}
 			}
 
 			private function rotate(direction:int):void
@@ -147,83 +191,120 @@
 			}
 		]]>
 	</fx:Script>
-		<s:HGroup paddingBottom="10"
-							paddingLeft="10"
-							paddingRight="10"
-							paddingTop="10"
-							width="100%"
-							height="100%">
-			<s:Scroller width="100%"
-									height="100%"
-									id="scroller">
-				<utils:ScrollableGraph width="100%"
-									height="100%" id="scrollBox" verticalCenter="0" horizontalCenter="0"
-									>
-          <utils:layout>
-            <s:HorizontalLayout verticalAlign="middle"
-                                horizontalAlign="center"/>
-          </utils:layout>
-					<s:Group id="imgBox"
-									 width="100%"
-									 height="100%" rotation="{_rotation}" verticalCenter="0" horizontalCenter="0">
-            <s:layout>
-              <s:HorizontalLayout verticalAlign="middle"
-                                  horizontalAlign="center"/>
-            </s:layout>
-						<s:BitmapImage id="img"
-													 width="100%"
-													 height="100%"
-													 scaleMode="letterbox" source="{_url}" verticalCenter="0" horizontalCenter="0"/>
-					</s:Group>
-				</utils:ScrollableGraph>
-			</s:Scroller>
-		</s:HGroup>
-    <s:Line width="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-	<s:HGroup width="100%" verticalAlign="middle" id="toolBox">
-    <s:Image source="{FitIcon}" buttonMode="true" useHandCursor="true" toolTip="Fit to Screen" click="fit()" enabled="{!fitToScreen}"/>
-    <s:Line height="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:Image source="{OriginalSizeIcon}" buttonMode="true" useHandCursor="true" toolTip="Original Size" click="originalSize()" enabled="{fitToScreen}"/>
-		
-    <s:Line height="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:Image source="{ZoomPlus}" buttonMode="true" useHandCursor="true" toolTip="Zoom In" click="zoom(+.2)" enabled="{!fitToScreen}"/>
-    <s:Line height="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:Image source="{ZoomMinus}" buttonMode="true" useHandCursor="true" toolTip="Zoom Out" click="zoom(-.2)" enabled="{!fitToScreen}"/>
-    <s:Line height="100%" >
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:Image source="{RotateCCWIcon}" buttonMode="true" useHandCursor="true" toolTip="Rotate CCW" click="rotate(-1)"/>
-    <s:Line height="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:Image source="{RotateCWIcon}" buttonMode="true" useHandCursor="true" toolTip="Rotate CW" click="rotate(+1)"/>
-    <s:Line height="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-		<s:CheckBox label="Anti-alias" 
+	<s:HGroup paddingBottom="10"
+						paddingLeft="10"
+						paddingRight="10"
+						paddingTop="10"
+						width="100%"
+						height="100%">
+		<s:Scroller width="100%"
+								height="100%"
+								id="scroller">
+			<utils:ScrollableGraph width="100%"
+														 height="100%"
+														 id="scrollBox"
+														 verticalCenter="0"
+														 horizontalCenter="0">
+				<utils:layout>
+					<s:HorizontalLayout verticalAlign="middle"
+															horizontalAlign="center"/>
+				</utils:layout>
+				<s:Group id="imgBox"
+								 width="100%"
+								 height="100%"
+								 rotation="{_rotation}"
+								 verticalCenter="0"
+								 horizontalCenter="0">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle"
+																horizontalAlign="center"/>
+					</s:layout>
+					<s:BitmapImage id="img"
+												 width="100%"
+												 height="100%"
+												 scaleMode="letterbox"
+												 verticalCenter="0"
+												 horizontalCenter="0"/>
+				</s:Group>
+			</utils:ScrollableGraph>
+		</s:Scroller>
+	</s:HGroup>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:HGroup width="100%"
+						verticalAlign="middle"
+						id="toolBox">
+		<s:Image source="{FitIcon}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="Fit to Screen"
+						 click="fit()"
+						 enabled="{!fitToScreen}"/>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Image source="{OriginalSizeIcon}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="Original Size"
+						 click="originalSize()"
+						 enabled="{fitToScreen}"/>
+
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Image source="{ZoomPlus}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="Zoom In"
+						 click="zoom(+.2)"
+						 enabled="{!fitToScreen}"/>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Image source="{ZoomMinus}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="Zoom Out"
+						 click="zoom(-.2)"
+						 enabled="{!fitToScreen}"/>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Image source="{RotateCCWIcon}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="Rotate CCW"
+						 click="rotate(-1)"/>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Image source="{RotateCWIcon}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="Rotate CW"
+						 click="rotate(+1)"/>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:CheckBox label="Anti-alias"
 								change="onAntiAlias(event)"
 								id="antialiasCh"/>
-    
+
 	</s:HGroup>
 </s:VGroup>

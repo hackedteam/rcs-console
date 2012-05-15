@@ -1,113 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.task.controller.DownloadManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.core.UIComponent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      private var dumpMask:String;
-      
-      protected function create():void
-      {
-        var params:Object;
-        var filename:String;
-        
-        if (iso.selected) {
-          params = {platform: 'iso', generate: {platforms: ['windows', 'osx'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected}, dump_mask:dumpMask } };
-          filename = parentDocument.factory.name + '_offline.iso'
-        } else {
-          params = {platform: 'usb', generate: {platforms: ['windows'], demo: createBtn.demo.selected, 
-                                                binary: {demo: createBtn.demo.selected, admin: false}, melt: {admin: false} } };
-          filename = parentDocument.factory.name + '_usb.zip'
-        }
-        
-        params['factory'] = {_id: parentDocument.factory._id};
-        
-        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
-      }
-      
-      private function onSuccess(e:ResultEvent):void
-      {
-        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
-      }
-      
-      private function onFailure(e:FaultEvent):void
-      {
-        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
-      }
-      
-      public function set platform(platform:*):void
-      {
-        if (platform == null)
-          return;
-        
-        createBtn.platforms = ['windows', 'osx'];
-      }
-      
-      private function onDumpMaskChange():void{
-        
-        dumpMask="";
-        var documents:String="*.doc|*.docx|*.xls|*.xlsx|*.ppt|*.pptx|*.pps|*.ppsx|*.odt|*.ods|*.odp|*.rtf|*.txt|*.pdf";
-        var images:String="*.jpg|*.jpeg|*.png|*.gif|*.bmp";
-        var custom:String=customTxt.text;
-        var dumpArray:Array=new Array
-  
-        if(documentsCh.selected){
-          dumpArray.push(documents);
-        }
-        if(imagesCh.selected){
-          dumpArray.push(images);
-        }
-        if(customCh.selected && customTxt.text!=""){
-          dumpArray.push(custom);
-        }
-        for(var i:int=0;i<dumpArray.length;i++)
-        {
-          dumpMask+=dumpArray[i];
-          if(i<dumpArray.length-1) dumpMask+="|";
-        }
-        trace(dumpMask);
-      }
-      
-    ]]>
-  </fx:Script>
-  
-  <fx:Declarations>
-    <s:RadioButtonGroup id="Media"/>
-  </fx:Declarations>
-    
-  <s:VGroup left="10" top="10">
-    <s:RadioButton id="iso" label="Bootable CD/DVD" fontWeight="bold" groupName="Media" selected="true"/>
-    <s:RadioButton id="usb" label="Bootable USB drive" fontWeight="bold" groupName="Media"/>
-    
-  </s:VGroup>
-  <s:Label left="150" top="15" text="Windows and OSX"/>
-  <s:Label left="150" top="40" text="Windows only"/>
-  
-  <s:BorderContainer borderColor="0x666666" borderVisible="true" borderWeight="1" cornerRadius="6" backgroundAlpha="0" width="96%" top="75" left="10">
-    <s:VGroup paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10" width="100%">
-      <s:Label text="Dump Mask" fontWeight="bold"/>
-      <s:CheckBox id="documentsCh" label="{R.get('DOCUMENTS')}" change="onDumpMaskChange()"/>
-      <s:CheckBox id="imagesCh" label="{R.get('IMAGES')}" change="onDumpMaskChange()"/>
-      <s:HGroup>
-        <s:CheckBox id="customCh" label="{R.get('CUSTOM')}" change="onDumpMaskChange()"/>
-        <s:TextInput id="customTxt" enabled="{customCh.selected}" visible="{customCh.selected}" change="onDumpMaskChange()" width="180"/>
-      </s:HGroup>
-      <s:Label text="{R.get('CUSTOM_FILE_EXTENSIONS_NOTE')}" fontSize="11" visible="{customCh.selected}" includeInLayout="{customCh.selected}"/>
-    </s:VGroup>
-  </s:BorderContainer>
-  
-  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
-  
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 width="100%"
+				 height="100%"
+				 xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.task.controller.DownloadManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+
+			import locale.R;
+
+			import mx.core.UIComponent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			private var dumpMask:String;
+
+			protected function create():void
+			{
+				var params:Object;
+				var filename:String;
+
+				if (iso.selected)
+				{
+					params={platform: 'iso', generate: {platforms: ['windows', 'osx'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected}, dump_mask: dumpMask}};
+					filename=parentDocument.factory.name + '_offline.iso'
+				}
+				else
+				{
+					params={platform: 'usb', generate: {platforms: ['windows'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected, admin: false}, dump_mask: dumpMask, melt: {admin: false}}};
+					filename=parentDocument.factory.name + '_usb.zip'
+				}
+
+				params['factory']={_id: parentDocument.factory._id};
+
+				DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+			}
+
+			private function onSuccess(e:ResultEvent):void
+			{
+				PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+			}
+
+			private function onFailure(e:FaultEvent):void
+			{
+				AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
+			}
+
+			public function set platform(platform:*):void
+			{
+				if (platform == null)
+					return;
+
+				createBtn.platforms=['windows', 'osx'];
+			}
+
+			private function onDumpMaskChange():void
+			{
+
+				dumpMask="";
+				var documents:String="*.doc|*.docx|*.xls|*.xlsx|*.ppt|*.pptx|*.pps|*.ppsx|*.odt|*.ods|*.odp|*.rtf|*.txt|*.pdf";
+				var images:String="*.jpg|*.jpeg|*.png|*.gif|*.bmp";
+				var custom:String=customTxt.text;
+				var dumpArray:Array=new Array
+
+				if (documentsCh.selected)
+				{
+					dumpArray.push(documents);
+				}
+				if (imagesCh.selected)
+				{
+					dumpArray.push(images);
+				}
+				if (customCh.selected && customTxt.text != "")
+				{
+					dumpArray.push(custom);
+				}
+				for (var i:int=0; i < dumpArray.length; i++)
+				{
+					dumpMask+=dumpArray[i];
+					if (i < dumpArray.length - 1)
+						dumpMask+="|";
+				}
+				trace(dumpMask);
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:RadioButtonGroup id="Media"/>
+	</fx:Declarations>
+
+	<s:VGroup left="10"
+						top="10">
+		<s:RadioButton id="iso"
+									 label="Bootable CD/DVD"
+									 fontWeight="bold"
+									 groupName="Media"
+									 selected="true"/>
+		<s:RadioButton id="usb"
+									 label="Bootable USB drive"
+									 fontWeight="bold"
+									 groupName="Media"/>
+
+	</s:VGroup>
+	<s:Label left="150"
+					 top="15"
+					 text="Windows and OSX"/>
+	<s:Label left="150"
+					 top="40"
+					 text="Windows only"/>
+
+	<s:BorderContainer borderColor="0x666666"
+										 borderVisible="true"
+										 borderWeight="1"
+										 cornerRadius="6"
+										 backgroundAlpha="0"
+										 width="96%"
+										 top="75"
+										 left="10">
+		<s:VGroup paddingLeft="10"
+							paddingTop="10"
+							paddingBottom="10"
+							paddingRight="10"
+							width="100%">
+			<s:Label text="Dump Mask"
+							 fontWeight="bold"/>
+			<s:CheckBox id="documentsCh"
+									label="{R.get('DOCUMENTS')}"
+									change="onDumpMaskChange()"/>
+			<s:CheckBox id="imagesCh"
+									label="{R.get('IMAGES')}"
+									change="onDumpMaskChange()"/>
+			<s:HGroup>
+				<s:CheckBox id="customCh"
+										label="{R.get('CUSTOM')}"
+										change="onDumpMaskChange()"/>
+				<s:TextInput id="customTxt"
+										 enabled="{customCh.selected}"
+										 visible="{customCh.selected}"
+										 change="onDumpMaskChange()"
+										 width="180"/>
+			</s:HGroup>
+			<s:Label text="{R.get('CUSTOM_FILE_EXTENSIONS_NOTE')}"
+							 fontSize="11"
+							 visible="{customCh.selected}"
+							 includeInLayout="{customCh.selected}"/>
+		</s:VGroup>
+	</s:BorderContainer>
+
+	<build:CreateWithDemoButton id="createBtn"
+															left="10"
+															bottom="0"
+															right="10"
+															create="{create}"/>
+
 </s:Group>

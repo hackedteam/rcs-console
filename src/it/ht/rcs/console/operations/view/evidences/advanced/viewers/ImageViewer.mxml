@@ -11,9 +11,7 @@
 			import flash.net.URLLoader;
 			
 			import it.ht.rcs.console.utils.BMPDecoder;
-			
 			import mx.skins.halo.BrokenImageBorderSkin;
-
 
 			[Bindable]
 			private var _url:String;
@@ -53,7 +51,6 @@
 			//BMP 
 			private static const MAGIC_NUMBER:String="BM";
 		
-
 			private function init():void
 			{
 				img.smooth=false;
@@ -71,6 +68,7 @@
 				img.addEventListener(Event.COMPLETE, onImageLoaded);
 				img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
 				img.source=_url; */
+        img.visible=false;
 				imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
 				imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
 				imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
@@ -105,7 +103,7 @@
 				img.removeEventListener(Event.COMPLETE, onImageLoaded)
 				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
 				img.source=new BrokenImage(); */
-
+        img.visible=true;
 				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
 				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
 				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
@@ -133,11 +131,10 @@
         {
          img.source=e.target.data
         }
+        img.visible=true;
 				toolBox.enabled=true;
 
 			}
-
-			
 
 			private function fit():void
 			{
@@ -173,15 +170,11 @@
 
 					img.scaleX=img.scaleY=zoomLevel
 
-
-
-
 				}
 			}
 
 			private function rotate(direction:int):void
 			{
-
 				_rotation+=90 * direction;
 			}
 

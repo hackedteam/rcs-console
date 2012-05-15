@@ -75,6 +75,13 @@
         var contents:Array = dirReference.getDirectoryListing(); 
         var dataTotal:Object = {bytesTotal: contents.length - 1, bytesLoaded: 0};
         
+        //no files inside the directory
+        if(dataTotal.bytesTotal<=0)
+        {
+          currentState='select'
+          AlertPopUp.show(R.get('UPLOAD_ERROR', [""]));
+          return;
+        }
         progTotal.source = dataTotal;
         
         // we don't know the version, so we put 0
@@ -107,7 +114,7 @@
     <s:State name="uploading"/>
   </s:states>
 
-  <s:VGroup left="20" top="15">
+  <s:VGroup left="20" top="15" includeIn="select">
     <s:Button includeIn="select" label="Select Directory..." click="browse(event)"/>
     <s:Form>
       <s:FormItem label="Directory:">
@@ -131,7 +138,7 @@
     </s:Form>
   </s:VGroup>
 
-  <s:Button id="importbtn" includeIn="select" enabled="false" right="20" bottom="15" label="{R.get('IMPORT')}..." click="importDir(event)"/>
+  <s:Button id="importbtn" includeIn="select" enabled="false" right="20" bottom="15" label="{R.get('IMPORT')}..." click="importDir(event)" />
 
   <s:Label includeIn="uploading" left="20" fontWeight="bold" text="{R.get('EVIDENCE_IMPORTING')}..." verticalCenter="-20"/>
 

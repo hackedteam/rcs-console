@@ -167,6 +167,10 @@ package it.ht.rcs.console.operations.view.evidences
           exportText(evidence);
           break;
         
+        case "command":
+          exportText(evidence);
+          break;
+        
         default:
          next();
       }
@@ -467,6 +471,12 @@ package it.ht.rcs.console.operations.view.evidences
         case "url":
           info="URL: "+"\n\n";
           info+="URL: "+evidence.data.url+"\n"; //TODO 
+          break;
+        
+        case "command":
+          info="Cammand: "+"\n\n";
+          info="Command: "+evidence.data.command+"\n";
+          info+="Content: "+evidence.data.content+"\n";
           break;
         
       }

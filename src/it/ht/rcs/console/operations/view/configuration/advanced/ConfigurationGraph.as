@@ -30,7 +30,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     
     // Modes of operation
     public static const CONNECTING:String = 'connecting';
-    
+    [Bindable]
     public var collapsed:Boolean = false;
     
     // A reference to the currently selected element
@@ -211,11 +211,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
           return subaction;
       return null;
     }
-    
-    
-    
-    
-    
+
     // ----- HIGHLIGHTING -----
     
     private static const FULL_ALPHA:Number = 1;
@@ -352,10 +348,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       highlightedElement = null;
     }
     
-    
-    
-    
-    
     // ----- RENDERING -----
     
     private var bg:Rect;
@@ -364,6 +356,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     private var modules:Vector.<ModuleRenderer>;
     private var connections:Vector.<Connection>;
     private var modulesMap:Dictionary;
+    
 		public function rebuildGraph():void
 		{
 			removeAllElements();

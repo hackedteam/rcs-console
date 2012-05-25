@@ -144,6 +144,17 @@
           fileStream.open(e.target as File, FileMode.READ);
           var config:String = fileStream.readUTFBytes(fileStream.bytesAvailable);
           var configAsObject:Object = JSON.parse(config);
+          //configAsObject.globals.type
+          
+          //check if the imported config is same type
+          var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+          var currentType:String=a.type.toLowerCase();
+          var importedType:String=configAsObject.globals.type.toLowerCase();
+          if(currentType!=importedType)
+          {
+            AlertPopUp.show(R.get('CONFIG_IMPORT_INVALID_TYPE',[currentType, importedType]));
+            return;
+          }
           configView.configAsObject = configAsObject;
           configView.displayConfig();
         });

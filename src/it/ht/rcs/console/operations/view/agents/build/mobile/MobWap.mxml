@@ -122,6 +122,12 @@
       
       protected function send():void
       {        
+        trace("l: "+String(complete_with_slash(url.textInput.text) + appname.text + text.text).length)
+        if(String(complete_with_slash(url.textInput.text) + appname.text + text.text).length>120)
+        {
+          AlertPopUp.show(R.get('MESSAGE_TOO_LONG'), R.get('ERROR'));
+          return;
+        }
 
         if (number.text.length == 0 || number.text.charAt(0) != '+') {
           AlertPopUp.show(R.get('MISSING_NUMBER'), R.get('ERROR'));

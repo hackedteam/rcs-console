@@ -110,6 +110,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     public function onDoubleClick(me:MouseEvent):void
     {
+      
+      if (module.module == 'mic') return; // Do not edit mic in desktop and mobile
+      
+      
       if (graph.config.globals.type.toLowerCase() == 'desktop' && 
         (module.module == 'position' || module.module == 'device')) return; // Do not edit position and device in desktop
       

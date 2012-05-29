@@ -58,10 +58,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       setFocus();
     }
     
-    
-    
-    
-    
     // ----- CONNECTING -----
     
     // A reference to the currently dragged connection

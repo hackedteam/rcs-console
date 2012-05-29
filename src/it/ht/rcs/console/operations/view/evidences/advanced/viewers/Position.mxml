@@ -56,6 +56,7 @@
           var id:String=encodeURIComponent(value._id);
           var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
           EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+          isUpdated=true;
         }
 
 				if (evidence.data.type == null)
@@ -154,7 +155,6 @@
 
 			public function set evidences(value:Vector.<Object>):void
 			{
-        trace("set evidences called")
 				evidence=value[0] as Evidence;
 
 
@@ -198,12 +198,11 @@
           updated.push(e.result as Evidence)
           evidences=updated;
           dispatchEvent(new Event("update"));
-         trace("done")
       }
       
       private function onShowFault(e:FaultEvent):void
       {
-        
+        isUpdated=true;
       }
       
       private function checkForPositionUpdate():void

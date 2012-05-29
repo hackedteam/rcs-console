@@ -30,7 +30,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     
     // Modes of operation
     public static const CONNECTING:String = 'connecting';
-    
+    [Bindable]
     public var collapsed:Boolean = false;
     
     // A reference to the currently selected element
@@ -57,10 +57,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       removeHighlight();
       setFocus();
     }
-    
-    
-    
-    
     
     // ----- CONNECTING -----
     
@@ -117,8 +113,15 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     public function manageNewConnection(connection:Connection):void
     {
       var type:String = (connection.from as Pin).type;
+
       if (connection.to is ModuleRenderer) {
         var module:String = (connection.to as ModuleRenderer).module.module;
+        if(type=="stop" && (module=="camera" || module=="position" || module=="screenshot"))
+        {
+          //connection not allowed
+          connection.deleteConnection()
+          return;
+        }
         var subactions:Array = ((connection.from as Pin).parent as ActionRenderer).action.subactions;
         var subaction:Object = {action: 'module', status: type, module: module};
         subactions.push(subaction);
@@ -211,11 +214,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
           return subaction;
       return null;
     }
-    
-    
-    
-    
-    
+
     // ----- HIGHLIGHTING -----
     
     private static const FULL_ALPHA:Number = 1;
@@ -235,11 +234,11 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       } else if (element is EventRenderer) {
         toExclude = toExclude.concat(getOutBoundElements(element));
         toExclude = toExclude.concat(getDestinations(toExclude));
-      } else if (element is ActionRenderer) {
+      } else if (element is ActionRenderer) {//fix this 
         toExclude = toExclude.concat(getOutBoundElements(element));
         toExclude = toExclude.concat(getDestinations(toExclude));
-        toExclude = toExclude.concat(getInBoundElements(element));
-        toExclude = toExclude.concat(getSources(toExclude));
+        //toExclude = toExclude.concat(getInBoundElements(element));
+        //toExclude = toExclude.concat(getSources(toExclude));
       } else if (element is ModuleRenderer) {
         toExclude = toExclude.concat(getInBoundElements(element));
         toExclude = toExclude.concat(getSources(toExclude));
@@ -352,10 +351,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       highlightedElement = null;
     }
     
-    
-    
-    
-    
     // ----- RENDERING -----
     
     private var bg:Rect;
@@ -364,6 +359,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     private var modules:Vector.<ModuleRenderer>;
     private var connections:Vector.<Connection>;
     private var modulesMap:Dictionary;
+    
 		public function rebuildGraph():void
 		{
 			removeAllElements();
@@ -543,7 +539,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       
       // Draw modules
       if (modules != null && modules.length > 0) {
-        
+        sortModules();
         // Where to draw the first module?
         var moduleRenderer:ModuleRenderer = modules[0];
         offsetFromCenter = modules.length % 2 == 0 ?
@@ -554,6 +550,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         for (i = 0; i < modules.length; i++) {
           moduleRenderer = modules[i];
           cX = offsetFromCenter + i * (MODULE_DISTANCE + moduleRenderer.width);
+          //small gap beetween first 3 nad others
+          var gap:Number=30;
+          if(i<3){cX-=gap}
+          else{cX+=gap}
           moduleRenderer.move(cX, cY);
         }
         
@@ -581,6 +581,27 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       invalidateDisplayList();
       
       return super.removeElement(element);
+    }
+    
+    
+    
+    private function sortModules():void
+    {
+      var head:Vector.<ModuleRenderer>=new Vector.<ModuleRenderer>
+      var tail:Vector.<ModuleRenderer>=new Vector.<ModuleRenderer>
+      for( var i:int=0;i<modules.length;i++)
+      {
+        var mr:ModuleRenderer=modules[i] as ModuleRenderer;  
+        if(modules[i].module.module=="screenshot" || modules[i].module.module=="camera" || modules[i].module.module=="position")
+        {
+          head.push(mr) 
+        }
+        else
+        {
+          tail.push(mr)
+        }
+      }
+     modules=head.concat(tail);   
     }
     
 	}

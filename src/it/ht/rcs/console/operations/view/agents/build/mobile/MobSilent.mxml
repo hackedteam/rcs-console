@@ -40,6 +40,7 @@
       }
          
       private var uploadPopup:UploadPopup;
+      
       private function uploadCert(event:Event):void
       {
         fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
@@ -67,6 +68,7 @@
       
       protected function create():void
       {
+
         if (params != null)
           params = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'} };
         else
@@ -80,6 +82,18 @@
         }
                 
         if (currentState == 'symbian') {
+          if(!params.sign)
+          {
+            AlertPopUp.show(R.get('MISSING_CERT'));
+            return;
+          }
+          
+          if(!params.sign.cert)
+          {
+            AlertPopUp.show(R.get('MISSING_CERT'));
+            return;
+          }
+          
           params['sign']['edition'] = edition.selectedItem;
         }
 
@@ -135,7 +149,7 @@
     <s:FormItem label="S60 Edition">
       <s:DropDownList id="edition" selectedIndex="0" width="80">
         <mx:ArrayCollection>
-          <fx:String>symbian3</fx:String>
+          <fx:String>5th3rd</fx:String>
           <fx:String>5th</fx:String>
           <fx:String>3rd</fx:String>
         </mx:ArrayCollection>

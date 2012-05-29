@@ -48,23 +48,24 @@
         
         pattern = /FACTORY=(\w*)/;
         results = buffer.toString().match(pattern);
-        factory.text = results[1];
+        if(results) factory.text = results[1];
 
         pattern = /INSTANCE=(\w*)/;
         results = buffer.toString().match(pattern);
-        instance.text = results[1];
+        if(results) instance.text = results[1];
+        
 
         pattern = /PLATFORM=(\w*)/;
         results = buffer.toString().match(pattern);
-        platform.text = results[1];
+        if(results) platform.text = results[1];
 
         pattern = /USERID=(\w*)/;
         results = buffer.toString().match(pattern);
-        user.text = results[1];
+        if(results) user.text = results[1];
         
         pattern = /DEVICEID=(\w*)/;
         results = buffer.toString().match(pattern);
-        device.text = results[1];
+        if(results) device.text = results[1];
         
         importbtn.enabled = true;
       }
@@ -75,6 +76,13 @@
         var contents:Array = dirReference.getDirectoryListing(); 
         var dataTotal:Object = {bytesTotal: contents.length - 1, bytesLoaded: 0};
         
+        //no files inside the directory
+        if(dataTotal.bytesTotal<=0)
+        {
+          currentState='select'
+          AlertPopUp.show(R.get('UPLOAD_ERROR', [""]));
+          return;
+        }
         progTotal.source = dataTotal;
         
         // we don't know the version, so we put 0
@@ -82,8 +90,8 @@
           function (event:ResultEvent):void 
           {
         
-            for (var i:uint = 0; i < contents.length; i++) {
-        
+           for (var i:uint = 0; i < contents.length; i++) {
+           
               if (contents[i].name.indexOf('offline.ini') != -1)
                 continue;
              
@@ -107,7 +115,7 @@
     <s:State name="uploading"/>
   </s:states>
 
-  <s:VGroup left="20" top="15">
+  <s:VGroup left="20" top="15" includeIn="select">
     <s:Button includeIn="select" label="Select Directory..." click="browse(event)"/>
     <s:Form>
       <s:FormItem label="Directory:">
@@ -131,7 +139,7 @@
     </s:Form>
   </s:VGroup>
 
-  <s:Button id="importbtn" includeIn="select" enabled="false" right="20" bottom="15" label="{R.get('IMPORT')}..." click="importDir(event)"/>
+  <s:Button id="importbtn" includeIn="select" enabled="false" right="20" bottom="15" label="{R.get('IMPORT')}..." click="importDir(event)" />
 
   <s:Label includeIn="uploading" left="20" fontWeight="bold" text="{R.get('EVIDENCE_IMPORTING')}..." verticalCenter="-20"/>
 

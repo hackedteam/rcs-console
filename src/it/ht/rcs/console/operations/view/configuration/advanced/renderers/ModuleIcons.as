@@ -119,9 +119,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public static const winevent:Class;
     
     
-    
-    
-    
     [Embed(source='/img/actions/sync.png')]
     public static const synchronize:Class;
     

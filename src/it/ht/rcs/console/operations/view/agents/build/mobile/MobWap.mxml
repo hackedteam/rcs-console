@@ -122,6 +122,10 @@
       
       protected function send():void
       {        
+        if (String(complete_with_slash(url.textInput.text) + appname.text + text.text).length>120) {
+          AlertPopUp.show(R.get('MESSAGE_TOO_LONG'), R.get('ERROR'));
+          return;
+        }
 
         if (number.text.length == 0 || number.text.charAt(0) != '+') {
           AlertPopUp.show(R.get('MISSING_NUMBER'), R.get('ERROR'));
@@ -152,6 +156,17 @@
         }
         
         if (currentState == 'symbian') {
+          if(!params.sign)
+          {
+            AlertPopUp.show(R.get('MISSING_CERT'));
+            return;
+          }
+          
+          if(!params.sign.cert)
+          {
+            AlertPopUp.show(R.get('MISSING_CERT'));
+            return;
+          }
           params['generate']['sign']['edition'] = edition.selectedItem;
         }
 
@@ -242,7 +257,7 @@
     <s:FormItem label="S60 Edition">
       <s:DropDownList id="edition" selectedIndex="0" width="80">
         <mx:ArrayCollection>
-          <fx:String>symbian3</fx:String>
+          <fx:String>5th3rd</fx:String>
           <fx:String>5th</fx:String>
           <fx:String>3rd</fx:String>
         </mx:ArrayCollection>

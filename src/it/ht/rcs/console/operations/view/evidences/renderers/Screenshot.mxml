@@ -16,11 +16,16 @@
       
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.BMPDecoder;
       import it.ht.rcs.console.utils.ImageCache;
       
   		private var _loader:Loader=new Loader();
       private var _maxWidth:Number=80;
       private var _maxHeight:Number=80;
+      
+      private static const MAGIC_NUMBER:String="BM";
+      
+      private var imgLoader:URLLoader=new URLLoader();
       
       [Bindable]
       [Embed(source="/img/evidence/spinner30.swf")]
@@ -51,13 +56,14 @@
         img.smooth=true;
         
         //img.contentLoader=ImageCache.getInstance().cache;
-        img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
-        img.addEventListener(Event.COMPLETE, onImageLoaded);
-        img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
         if(data)
         {
           url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-          img.source=url;
+          imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
+          imgLoader.load(new URLRequest(url))
           programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
           windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
@@ -71,6 +77,9 @@
       
       private function onImageError(e:IOErrorEvent):void
       {
+        imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
         spinner.visible=false;
         img.source=new BrokenImage() 
         img.visible=true;
@@ -79,6 +88,18 @@
   		
   		private function onImageLoaded(e:Event):void
   		{
+        imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
+        {
+          img.source=new BMPDecoder().decode(e.target.data as ByteArray)
+          return;
+        }
+        else
+        {
+          img.source=e.target.data
+        }
         spinner.visible=false;
         img.visible=true;
         fadeIn.play([img]);

@@ -29,6 +29,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     private static const SELECTED_COLOR:uint = 0xdddddd;
     private static const ACCEPT_COLOR:uint   = 0x99bb99;
     private static const REJECT_COLOR:uint   = 0xbb9999;
+    private static const DISABLED_COLOR:uint = 0xE0E0E0;
+    private static const DISABLED_ALPHA:Number = 0.5;
 		
     private var container:BorderContainer;
     private var icon:BitmapImage;
@@ -101,14 +103,32 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     {
       if (graph.mode == ConfigurationGraph.CONNECTING) {
         graph.currentTarget = null;
-        container.setStyle('backgroundColor', NORMAL_COLOR);
+        if(event.enabled)
+        {
+          container.setStyle('backgroundColor', NORMAL_COLOR);
+          container.alpha=1;
+        }
+        else
+        {
+          container.setStyle('backgroundColor', DISABLED_COLOR);
+          container.alpha=DISABLED_ALPHA;
+        }
       }
     }
     
     private function onMouseUp(me:MouseEvent):void
     {
       if (graph.mode == ConfigurationGraph.CONNECTING)
-        container.setStyle('backgroundColor', NORMAL_COLOR);
+        if(event.enabled)
+        {
+          container.alpha=1;
+          container.setStyle('backgroundColor', NORMAL_COLOR);
+        }
+        else
+        {
+          container.alpha=DISABLED_ALPHA;
+          container.setStyle('backgroundColor', DISABLED_COLOR);
+        }
     }
     
     private function onClick(me:MouseEvent):void
@@ -169,7 +189,16 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function set selected(s:Boolean):void
     {
       _selected = s;
-      container.setStyle('backgroundColor', _selected ? SELECTED_COLOR : NORMAL_COLOR);
+      if(event.enabled)
+      {
+        container.alpha=1
+        container.setStyle('backgroundColor', _selected ? SELECTED_COLOR : NORMAL_COLOR); 
+      }
+      else
+      {
+        container.alpha=DISABLED_ALPHA
+        container.setStyle('backgroundColor', _selected ? SELECTED_COLOR : DISABLED_COLOR);
+      }
     }
     
     override protected function createChildren():void
@@ -180,7 +209,19 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         container = new BorderContainer();
         container.width = width;
         container.height = height;
-        container.setStyle('backgroundColor', NORMAL_COLOR);
+        
+        if(event.enabled)
+        {
+          container.alpha=1;
+          container.setStyle('backgroundColor', NORMAL_COLOR);
+        }
+        else
+        { 
+          container.alpha=DISABLED_ALPHA;
+          container.setStyle('backgroundColor', DISABLED_COLOR);
+        }
+
+      
         container.setStyle('borderColor', 0xdddddd);
         container.setStyle('cornerRadius', 10);
         
@@ -188,6 +229,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         icon.left = 6;
         icon.verticalCenter = -1;
         icon.source = ModuleIcons[event.event];
+        icon.alpha=event.enabled? 1: DISABLED_ALPHA;
         container.addElement(icon);
         
         textLabel = new Label();

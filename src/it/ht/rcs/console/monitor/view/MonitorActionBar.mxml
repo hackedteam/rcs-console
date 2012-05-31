@@ -12,21 +12,55 @@
   <s:Button label="{R.get('ALERTING_GROUP')}" click="onAlertingGroup()" enabled="{Console.currentSession.user.is_admin()}"
             icon="@Embed('/img/NEW/alert.png')"/>
   
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('LICENSE_UPDATE')}" click="onLicenseUpdate()" enabled="{Console.currentSession.user.is_admin()}"
+            icon="@Embed('/img/NEW/key.png')"/>
+  
+  
   <s:Spacer width="100%"/>
   
   <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
   
   <fx:Script>
     <![CDATA[
+      import flash.net.dns.AAAARecord;
+      
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
+      import mx.controls.Alert;
       import mx.managers.PopUpManager;
+      
+      private var fileReference:FileReference;
+      private var progressAlert:Alert;
       
       private function onAlertingGroup():void
       {
         PopUpManager.centerPopUp(PopUpManager.createPopUp(root, AlertingGroup, true));
+      }
+      
+      private function onLicenseUpdate():void
+      {
+        trace("updating license");
+        browse()
+      }
+      
+      private function browse():void
+      {
+       
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.browse([new FileFilter("RCS License", "*.lic")])
+      }
+      
+      private function fileSelection(event:Event):void
+      {
+        trace("file selected");
+        LicenseManager.instance.updateLicense(fileReference,onLicenseSuccess,onLicenseError,onLicenseProgress);
       }
       
       private function onKeyUp(event:KeyboardEvent):void
@@ -38,7 +72,25 @@
       {
         MonitorManager.instance.removeItem(selectedObject);
       }
-     
+      
+      private function onLicenseProgress(e:ProgressEvent):void
+      {
+        trace("license update in progress");
+      }
+      
+      private function onLicenseSuccess(e:Event):void
+      {
+        LicenseManager.instance.refresh();
+        PopUpManager.removePopUp(progressAlert)
+        AlertPopUp.show(R.get('LICENSE_UPDATE_SUCCESS'));
+        
+      }
+      
+      private function onLicenseError(e:*):void
+      {
+        AlertPopUp.show(R.get('LICENSE_UPDATE_FAILED'));
+      }
+      
     ]]>
   </fx:Script>
   

@@ -51,11 +51,19 @@
 				_evidence=value;
         
   
-        if((isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude)) && !isUpdated)
+        if(isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude))
         {
-          var id:String=encodeURIComponent(value._id);
-          var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-          EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+          if(!isUpdated)
+          {
+            var id:String=encodeURIComponent(value._id);
+            var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+            EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+            isUpdated=true;
+          }
+            
+        }
+        else
+        {
           isUpdated=true;
         }
 
@@ -177,7 +185,7 @@
 
 			private function init():void
 			{
-
+        mapViewer.addEventListener("ready", onMapReady)
 			}
 
 			private function onMapChange():void
@@ -186,8 +194,9 @@
 				dispatchEvent(new Event("change"));
 			}
 
-			private function onMapReady():void
+			private function onMapReady(e:Event):void
 			{
+        mapViewer.removeEventListener("ready", onMapReady)
 				mapViewer.positions=_positions;
 			}
       
@@ -257,7 +266,7 @@
 					 height="100%">
 		<viewers:MapViewer id="mapViewer"
 											 change="onMapChange()"
-											 ready="onMapReady()"/>
+											 ready="onMapReady(event)"/>
 		<s:RichEditableText id="detailsTxt"
 												right="0"
 												bottom="0"

@@ -18,6 +18,13 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
   
   public class ModuleRenderer extends Group implements Linkable
   {
+    
+    [Embed (source="img/modules/Create.png" )]
+    public var okIcon:Class;
+    
+    [Embed (source="img/modules/No-entry.png" )]
+    public var noIcon:Class;
+    
     private static const WIDTH:Number  = 45;
     private static const HEIGHT:Number = 45;
     
@@ -28,6 +35,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     private var container:BorderContainer;
     private var icon:BitmapImage;
+    
+    private var acceptDragIcon:BitmapImage;
     
     private var inBound:Vector.<Connection> = new Vector.<Connection>();
     public function inBoundConnections():Vector.<Connection>  { return inBound; }
@@ -73,12 +82,25 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         var pin:Pin = graph.currentConnection.from as Pin;
         var origin:Object = pin.parent;
         if (origin is ActionRenderer && ( pin.type == 'start' || pin.type == 'stop' )) { // Accept only inbound connections from actions
-          graph.currentTarget = this;
-          container.setStyle('backgroundColor', ACCEPT_COLOR);
-        } else {
+          
+          if (pin.type == 'stop' && (module.module=="screenshot" || module.module=="camera" || module.module=="position")) { // Deny stop actions on some modules
+            graph.currentTarget = null;
+            container.setStyle('backgroundColor', REJECT_COLOR);
+            acceptDragIcon.source=noIcon;
+          }else
+          {
+            graph.currentTarget = this;
+            container.setStyle('backgroundColor', ACCEPT_COLOR);
+            acceptDragIcon.source=okIcon;
+          }
+        }
+          
+        else {
           graph.currentTarget = null;
           container.setStyle('backgroundColor', REJECT_COLOR);
+          acceptDragIcon.source=noIcon;
         }
+        acceptDragIcon.visible=true;
       }
     }
     
@@ -88,6 +110,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         graph.currentTarget = null;
         container.setStyle('backgroundColor', NORMAL_COLOR);
       }
+      acceptDragIcon.visible=false;
     }
     
     private function onMouseUp(me:MouseEvent):void
@@ -111,8 +134,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public function onDoubleClick(me:MouseEvent):void
     {
       
-      if (module.module == 'mic') return; // Do not edit mic in desktop and mobile
-      
+      if (graph.config.globals.type.toLowerCase() == 'mobile' && module.module == 'mic') return; // Do not edit mic in mobile
       
       if (graph.config.globals.type.toLowerCase() == 'desktop' && 
         (module.module == 'position' || module.module == 'device')) return; // Do not edit position and device in desktop
@@ -154,7 +176,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         icon.source = ModuleIcons[module.module];
         container.addElement(icon);
         
+        acceptDragIcon=new BitmapImage();
+        acceptDragIcon.source=okIcon;
+        acceptDragIcon.x=32;
+        acceptDragIcon.y=-6;
+        acceptDragIcon.visible=false;
+        
         addElement(container);
+        //addElement(acceptDragIcon);
         
       }
       

@@ -38,7 +38,7 @@
           AgentManager.instance.show(factory._id, function(e:ResultEvent):void {
             configAsConfig = (e.result as Agent).configs.getItemAt(0) as Config;
             configAsObject = JSON.parse(configAsConfig.config);
-            displayConfig();
+            displayConfig(false);
           });
         }
         else // An Agent's config
@@ -47,7 +47,7 @@
           
           configAsObject = JSON.parse(configAsConfig.config);
           cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
-          displayConfig();
+          displayConfig(false);
         }
       }
       
@@ -58,11 +58,13 @@
       
       private var originalConfigAsObject:Object;
       
-      public function displayConfig():void
+      public function displayConfig(isImported:Boolean):void
       {
         if (configAsObject == null) return;
-        
-        updateOriginalConfig(configAsObject);
+        if(!isImported)
+        {
+          updateOriginalConfig(configAsObject)
+        }
         
         currentState = configAsObject.globals.advanced ? "advanced" : "basic";
         switch (currentState) {
@@ -81,7 +83,7 @@
       
       private function init():void
       {
-        displayConfig();
+        displayConfig(false);
       }
       
       public function updateOriginalConfig(config:Object):void

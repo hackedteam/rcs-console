@@ -5,6 +5,8 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.build.controller.BuildManager;
+      import it.ht.rcs.console.build.model.SymbianConf;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
@@ -25,7 +27,7 @@
       private var params:Object;
       
       private var platforms:Array;
-      
+ 
       public function set platform(value:*):void {
         if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
           currentState = value;
@@ -37,7 +39,7 @@
         urls = CollectorManager.instance.getEntryPointsView();
         
         if (value == null)
-          return;
+          return; 
         
         if (value == 'multiplatform')
           platforms = ['blackberry', 'android', 'symbian', 'winmo'];
@@ -45,10 +47,17 @@
           platforms = [value];
         
         createBtn.platforms = platforms;
+        
+        if(value == 'symbian')
+        {
+          if(BuildManager.instance.symbianConf==null)
+            getSymbianConf()
+        }
                 
       }
       
       private var fileReference:FileReference;
+      private var keyReference:FileReference;
       
       private function browse():void
       {
@@ -59,7 +68,20 @@
         fileReference.browse();
       }
       
+      private function browseForKey():void
+      {
+        
+        keyReference = new FileReference();
+        keyReference.addEventListener(Event.SELECT, onKeySelected);
+        keyReference.browse([new FileFilter("Key", "*.key")]);
+      }
+      private function onKeySelected(e:Event):void
+      {
+        keyTxt.text=keyReference.name;
+      }
+      
       private var uploadPopup:UploadPopup;
+      
       private function uploadCert(event:Event):void
       {
         fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
@@ -70,6 +92,52 @@
         uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
         uploadPopup.fileReference = fileReference;
         PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function setSymbianConf():void
+      {
+      //check form completion
+        if(uid1Txt.text=="" || uid1Txt.text.length<8 
+          || uid2Txt.text=="" || uid2Txt.text.length<8 
+          || uid3Txt.text=="" || uid3Txt.text.length<8 
+          || uid4Txt.text=="" || uid4Txt.text.length<8 
+          || uid5Txt.text=="" || uid5Txt.text.length<8 
+          || uid6Txt.text=="" || uid6Txt.text.length<8)
+        {
+          AlertPopUp.show(R.get('MISSING_UIDS'));
+          return;
+        }
+        else if(!keyReference || keyReference.name==null ||  keyReference.name=="")
+        {
+          AlertPopUp.show(R.get('MISSING_KEY'));
+          return;
+        }
+        else
+        {
+          uploadKey()
+        }
+      }
+      
+      private function uploadKey():void
+      {
+        keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+        
+        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference = keyReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onKeyUploadComplete(event:DataEvent):void
+      {
+        var key:String=event.data;
+        var conf:Object=new Object();
+        conf.key=key;
+        conf.uids=[uid1Txt.text,uid2Txt.text,uid3Txt.text,uid4Txt.text,uid5Txt.text,uid6Txt.text]
+        BuildManager.instance.getSymbianConf(conf,onSymbianConfResult,onSymbianConfFault)
+        PopUpManager.removePopUp(uploadPopup);
       }
       
       private function onUploadComplete(event:DataEvent):void
@@ -166,6 +234,23 @@
       {
         AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
       }
+      
+      public function getSymbianConf():void
+      {
+        
+        BuildManager.instance.getSymbianConf(null,onSymbianConfResult,onSymbianConfFault)
+      }
+      
+      private function onSymbianConfResult(e:ResultEvent):void
+      {
+        BuildManager.instance.symbianConf=e.result as SymbianConf;
+      }
+      
+      private function onSymbianConfFault(e:FaultEvent):void
+      {
+        trace("symbian conf fault")
+      }
+      
     ]]>
   </fx:Script>
   
@@ -204,7 +289,7 @@
     </s:FormItem>
   </s:Form>
   
-  <s:Form includeIn="symbian" left="10" top="105">
+  <s:Form includeIn="symbian" left="10" top="105" visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
     <s:FormItem label="{R.get('SYMBIAN_CERT')}">    
       <s:Button width="80" label="{R.get('BROWSE')}..." click="browse()"/>
     </s:FormItem>
@@ -217,8 +302,57 @@
         </mx:ArrayCollection>
       </s:DropDownList>
     </s:FormItem>
+   
   </s:Form>
   
-  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
+  <!-- Symbian configuration is OK-->
+  
+  <s:VGroup includeIn="symbian" left="10" top="190" visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}" includeInLayout="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
+    <s:Spacer height="40"/>
+    <s:Label text="{R.get('SYMBIAN_CONF_OK')}" />
+  </s:VGroup>
+  
+  <!-- You have no Symbian configuration yet, please provide the data: -->
+  
+  <s:VGroup includeIn="symbian" left="10" top="190" visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}" includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}">
+    <s:Label text="{R.get('SYMBIAN_CONF_MISSED')}" color="0xFF0000" fontWeight="bold"/>
+    
+      <s:HGroup paddingTop="10">
+        <s:HGroup verticalAlign="middle">
+          <s:Label text="uid 1" fontWeight="bold" />    
+          <s:TextInput width="62" id="uid1Txt" restrict="A-Fa-f0-9" maxChars="8"/>
+        </s:HGroup>
+        <s:HGroup verticalAlign="middle">
+          <s:Label text="uid 2" fontWeight="bold"/>    
+            <s:TextInput width="62" id="uid2Txt" restrict="A-Fa-f0-9" maxChars="8"/>
+        </s:HGroup>
+        <s:HGroup verticalAlign="middle">
+          <s:Label text="uid 3" fontWeight="bold"/>    
+            <s:TextInput width="62" id="uid3Txt" restrict="A-Fa-f0-9" maxChars="8"/>
+        </s:HGroup>
+      </s:HGroup>
+      
+    <s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 4" fontWeight="bold"/>    
+        <s:TextInput width="62" id="uid4Txt" restrict="A-Fa-f0-9" maxChars="8"/>
+      </s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 5" fontWeight="bold"/>  
+        <s:TextInput width="62" id="uid5Txt" restrict="A-Fa-f0-9" maxChars="8"/>
+      </s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 6" fontWeight="bold"/>    
+        <s:TextInput width="62" id="uid6Txt" restrict="A-Fa-f0-9" maxChars="8"/>
+      </s:HGroup>
+    </s:HGroup>
+    <s:HGroup verticalAlign="middle" paddingTop="10">
+      <s:Label text="Key" fontWeight="bold"/>        
+      <s:Button width="80" label="{R.get('BROWSE')}..." click="browseForKey()"/>
+      <s:Label id="keyTxt" text=""/>      
+    </s:HGroup>
+  </s:VGroup>
+  <s:Button label="{R.get('CONFIGURATION_SET')}" left="10" bottom="0" right="10" visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}" includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}" click="setSymbianConf()"/>
+  <build:CreateWithDemoButton id="createBtn" bottom="0" right="10" create="{create}" visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"/>
   
 </s:Group>

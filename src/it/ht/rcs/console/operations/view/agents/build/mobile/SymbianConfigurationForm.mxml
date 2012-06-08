@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:s="library://ns.adobe.com/flex/spark"
+               xmlns:mx="library://ns.adobe.com/flex/mx"
+               xmlns:build="it.ht.rcs.console.operations.view.agents.build.*"
+               width="340" height="200" close="close(event)" title="Symbian Configuration">
+  <fx:Script>
+    
+    <![CDATA[
+      
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.build.controller.BuildManager;
+      import it.ht.rcs.console.build.model.SymbianConf;
+      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
+      
+      import locale.R;
+      
+      private var keyReference:FileReference;
+      private var uploadPopup:UploadPopup;
+      
+      protected function close(event:*):void
+      { 
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function setSymbianConf():void
+      {
+        //check form completion
+        if (uid1Txt.text == "" || uid1Txt.text.length < 8 || uid2Txt.text == "" || uid2Txt.text.length < 8 || uid3Txt.text == "" || uid3Txt.text.length < 8 || uid4Txt.text == "" || uid4Txt.text.length < 8 || uid5Txt.text == "" || uid5Txt.text.length < 8 || uid6Txt.text == "" || uid6Txt.text.length < 8)
+        {
+          AlertPopUp.show(R.get('MISSING_UIDS'));
+          return;
+        }
+        else if (!keyReference || keyReference.name == null || keyReference.name == "")
+        {
+          AlertPopUp.show(R.get('MISSING_KEY'));
+          return;
+        }
+        else
+        {
+          uploadKey()
+        }
+      }
+      
+      private function uploadKey():void
+      {
+        keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+        
+        uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference=keyReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onKeyUploadComplete(event:DataEvent):void
+      {
+        var key:String=event.data;
+        var conf:Object=new Object();
+        conf.key=key;
+        conf.uids=[uid1Txt.text, uid2Txt.text, uid3Txt.text, uid4Txt.text, uid5Txt.text, uid6Txt.text]
+        BuildManager.instance.getSymbianConf(conf, onSymbianConfResult, onSymbianConfFault)
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function browseForKey():void
+      {
+        keyReference=new FileReference();
+        keyReference.addEventListener(Event.SELECT, onKeySelected);
+        keyReference.browse([new FileFilter("Key", "*.key")]);
+      }
+      
+      private function onKeySelected(e:Event):void
+      {
+        keyTxt.text=keyReference.name;
+      }
+      
+      private function onUploadError(event:Event):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        AlertPopUp.show(event.type);
+      }
+      
+      private function onSymbianConfResult(e:ResultEvent):void
+      {
+        BuildManager.instance.symbianConf=e.result as SymbianConf;
+      }
+      
+      private function onSymbianConfFault(e:FaultEvent):void
+      {
+        trace("symbian conf fault")
+      }
+
+    ]]>
+  </fx:Script>
+
+  <s:VGroup width="100%" horizontalAlign="left" verticalAlign="middle" paddingLeft="20" paddingTop="10"> 
+    <s:HGroup paddingTop="10">
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 1"
+                 fontWeight="bold"/>
+        <s:TextInput width="62"
+                     id="uid1Txt"
+                     restrict="A-Fa-f0-9"
+                     maxChars="8"/>
+      </s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 2"
+                 fontWeight="bold"/>
+        <s:TextInput width="62"
+                     id="uid2Txt"
+                     restrict="A-Fa-f0-9"
+                     maxChars="8"/>
+      </s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 3"
+                 fontWeight="bold"/>
+        <s:TextInput width="62"
+                     id="uid3Txt"
+                     restrict="A-Fa-f0-9"
+                     maxChars="8"/>
+      </s:HGroup>
+    </s:HGroup>
+    
+    <s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 4"
+                 fontWeight="bold"/>
+        <s:TextInput width="62"
+                     id="uid4Txt"
+                     restrict="A-Fa-f0-9"
+                     maxChars="8"/>
+      </s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 5"
+                 fontWeight="bold"/>
+        <s:TextInput width="62"
+                     id="uid5Txt"
+                     restrict="A-Fa-f0-9"
+                     maxChars="8"/>
+      </s:HGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:Label text="uid 6"
+                 fontWeight="bold"/>
+        <s:TextInput width="62"
+                     id="uid6Txt"
+                     restrict="A-Fa-f0-9"
+                     maxChars="8"/>
+      </s:HGroup>
+    </s:HGroup>
+    <s:HGroup verticalAlign="middle" horizontalAlign="left"
+              paddingTop="10">
+      <s:Label text="Key"
+               fontWeight="bold"/>
+      <s:Button width="80"
+                label="{R.get('BROWSE')}..."
+                click="browseForKey()"/>
+      <s:Label id="keyTxt"
+               text=""/>
+    </s:HGroup>
+    <s:Spacer height="12"/>
+    <s:HGroup width="100%"
+              horizontalAlign="center">
+      <s:Button label="{R.get('CANCEL')}" click="close(event)"/>
+      <s:Button label="{R.get('CONFIGURATION_SET')}" click="setSymbianConf()"/>
+    </s:HGroup>
+  </s:VGroup>
+  
+</s:TitleWindow>

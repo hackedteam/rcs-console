@@ -8,15 +8,15 @@
 
 	<fx:Script>
 		<![CDATA[
+			import it.ht.rcs.console.build.controller.BuildManager;
+			import it.ht.rcs.console.build.model.SymbianConf;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
 			import it.ht.rcs.console.task.controller.DownloadManager;
 			import it.ht.rcs.console.utils.AlertPopUp;
-			import it.ht.rcs.console.build.controller.BuildManager;
-			import it.ht.rcs.console.build.model.SymbianConf;
-
+			
 			import locale.R;
-
+			
 			import mx.core.UIComponent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
@@ -40,7 +40,6 @@
 			}
 
 			private var fileReference:FileReference;
-			private var keyReference:FileReference;
 
 			private var params:Object;
 
@@ -54,19 +53,6 @@
 			}
 
 
-			private function browseForKey():void
-			{
-
-				keyReference=new FileReference();
-				keyReference.addEventListener(Event.SELECT, onKeySelected);
-				keyReference.browse([new FileFilter("Key", "*.key")]);
-			}
-
-			private function onKeySelected(e:Event):void
-			{
-				keyTxt.text=keyReference.name;
-			}
-
 			private var uploadPopup:UploadPopup;
 
 			private function uploadCert(event:Event):void
@@ -79,47 +65,6 @@
 				uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
 				uploadPopup.fileReference=fileReference;
 				PopUpManager.centerPopUp(uploadPopup);
-			}
-
-			private function setSymbianConf():void
-			{
-				//check form completion
-				if (uid1Txt.text == "" || uid1Txt.text.length < 8 || uid2Txt.text == "" || uid2Txt.text.length < 8 || uid3Txt.text == "" || uid3Txt.text.length < 8 || uid4Txt.text == "" || uid4Txt.text.length < 8 || uid5Txt.text == "" || uid5Txt.text.length < 8 || uid6Txt.text == "" || uid6Txt.text.length < 8)
-				{
-					AlertPopUp.show(R.get('MISSING_UIDS'));
-					return;
-				}
-				else if (!keyReference || keyReference.name == null || keyReference.name == "")
-				{
-					AlertPopUp.show(R.get('MISSING_KEY'));
-					return;
-				}
-				else
-				{
-					uploadKey()
-				}
-			}
-
-			private function uploadKey():void
-			{
-				keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-				keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-				keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-				keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
-
-				uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-				uploadPopup.fileReference=keyReference;
-				PopUpManager.centerPopUp(uploadPopup);
-			}
-
-			private function onKeyUploadComplete(event:DataEvent):void
-			{
-				var key:String=event.data;
-				var conf:Object=new Object();
-				conf.key=key;
-				conf.uids=[uid1Txt.text, uid2Txt.text, uid3Txt.text, uid4Txt.text, uid5Txt.text, uid6Txt.text]
-				BuildManager.instance.getSymbianConf(conf, onSymbianConfResult, onSymbianConfFault)
-				PopUpManager.removePopUp(uploadPopup);
 			}
 
 
@@ -201,6 +146,12 @@
 			{
 				trace("symbian conf fault")
 			}
+      
+      private function editSymbianConf():void
+      {
+        var symbianConf:SymbianConfigurationForm=PopUpManager.createPopUp((this.parentDocument as DisplayObject).parent, SymbianConfigurationForm, true) as SymbianConfigurationForm;
+        PopUpManager.centerPopUp(symbianConf);
+      }
 		]]>
 	</fx:Script>
 
@@ -265,105 +216,36 @@
 			</s:DropDownList>
 		</s:FormItem>
 	</s:Form>
-	<!-- Symbian configuration is OK-->
-
-	<s:VGroup includeIn="symbian"
-						left="10"
-						top="190"
-						visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"
-						includeInLayout="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
-		<s:Spacer height="40"/>
-		<s:Label text="{R.get('SYMBIAN_CONF_OK')}"/>
-	</s:VGroup>
-
-	<!-- You have no Symbian configuration yet, please provide the data: -->
-
-	<s:VGroup includeIn="symbian"
-						left="10"
-						top="190"
-						visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
-						includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}">
-		<s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
-						 color="0xFF0000"
-						 fontWeight="bold"/>
-
-		<s:HGroup paddingTop="10">
-			<s:HGroup verticalAlign="middle">
-				<s:Label text="uid 1"
-								 fontWeight="bold"/>
-				<s:TextInput width="62"
-										 id="uid1Txt"
-										 restrict="A-Fa-f0-9"
-										 maxChars="8"/>
-			</s:HGroup>
-			<s:HGroup verticalAlign="middle">
-				<s:Label text="uid 2"
-								 fontWeight="bold"/>
-				<s:TextInput width="62"
-										 id="uid2Txt"
-										 restrict="A-Fa-f0-9"
-										 maxChars="8"/>
-			</s:HGroup>
-			<s:HGroup verticalAlign="middle">
-				<s:Label text="uid 3"
-								 fontWeight="bold"/>
-				<s:TextInput width="62"
-										 id="uid3Txt"
-										 restrict="A-Fa-f0-9"
-										 maxChars="8"/>
-			</s:HGroup>
-		</s:HGroup>
-
-		<s:HGroup>
-			<s:HGroup verticalAlign="middle">
-				<s:Label text="uid 4"
-								 fontWeight="bold"/>
-				<s:TextInput width="62"
-										 id="uid4Txt"
-										 restrict="A-Fa-f0-9"
-										 maxChars="8"/>
-			</s:HGroup>
-			<s:HGroup verticalAlign="middle">
-				<s:Label text="uid 5"
-								 fontWeight="bold"/>
-				<s:TextInput width="62"
-										 id="uid5Txt"
-										 restrict="A-Fa-f0-9"
-										 maxChars="8"/>
-			</s:HGroup>
-			<s:HGroup verticalAlign="middle">
-				<s:Label text="uid 6"
-								 fontWeight="bold"/>
-				<s:TextInput width="62"
-										 id="uid6Txt"
-										 restrict="A-Fa-f0-9"
-										 maxChars="8"/>
-			</s:HGroup>
-		</s:HGroup>
-		<s:HGroup verticalAlign="middle"
-							paddingTop="10">
-			<s:Label text="Key"
-							 fontWeight="bold"/>
-			<s:Button width="80"
-								label="{R.get('BROWSE')}..."
-								click="browseForKey()"/>
-			<s:Label id="keyTxt"
-							 text=""/>
-		</s:HGroup>
-	</s:VGroup>
-	<s:Button label="{R.get('CONFIGURATION_SET')}"
-						left="10"
-						bottom="0"
-						right="10"
-						visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
-						includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
-						click="setSymbianConf()"/>
+  <s:HGroup includeIn="symbian" 
+            left="10"
+            top="260"
+            verticalAlign="middle"
+            visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"
+            includeInLayout="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
+    <s:Spacer height="40"/>
+    <s:Label text="{R.get('SYMBIAN_CONF_OK')}"/>
+    <s:Button label="{R.get('EDIT')}" click="editSymbianConf()"/>
+  </s:HGroup>
+  
+  <!-- You have no Symbian configuration yet, please provide the data: -->
+  
+  <s:HGroup includeIn="symbian" 
+            left="10"
+            top="190"
+            verticalAlign="middle"
+            visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
+            includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}">
+    <s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
+             color="0xFF0000"
+             fontWeight="bold"/>
+    <s:Button label="{R.get('CONFIGURATION_SET')}" click="editSymbianConf()"/>
+  </s:HGroup>
 
 	<build:CreateWithDemoButton id="createBtn"
 															left="10"
 															bottom="0"
 															right="10"
 															create="{create}"
-															visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"/>
+															visible="{currentState=='all' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
 
 </s:Group>

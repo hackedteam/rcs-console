@@ -155,6 +155,10 @@ package it.ht.rcs.console.operations.view
       {
         section.currentState = 'commands';
       }
+      else if (item is Object && item.hasOwnProperty('customType') && item.customType == 'ipaddresses')
+      {
+        section.currentState = 'ipaddresses';
+      }
       
       if (event && event.subsection == 'evidence')
       {

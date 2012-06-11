@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*"
+						width="100%"
+						height="100%"
+						sortableColumns="false"
+						variableRowHeight="true"
+            doubleClickEnabled="true"
+            gridClick="onGridClick(event)"
+            gridDoubleClick="onGridDoubleClick(event)"
+            >
+  <fx:Metadata> 
+    [Event(name="dataChange", type="flash.events.Event")]
+    [Event(name="itemDoubleClick", type="spark.events.GridEvent")]
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
+      
+      import spark.events.GridEvent;
+
+			[Bindable]
+			public var filter:Object=EvidenceManager.instance.commandsFilter;
+      
+      private var lastColumnIndex:int = -1;
+      private var lastRowIndex:int = -1;
+
+			private function dateLabelFunction(item:Object, column:GridColumn):String
+			{
+				return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+			}
+      
+      private function formatContent(item:Object, column:GridColumn):String
+      {
+        var cleanContent:String;
+     /*    var content:String=item.data.content as String || "";
+        var pattern:RegExp=new RegExp("\r\n","g")
+        cleanContent=content.replace(pattern, "\n");
+        pattern=new RegExp("\n\n","g")
+        cleanContent=cleanContent.replace(pattern, "\n");
+        //trace("the result is: "+cleanContent);
+         */
+        return cleanContent;
+      }
+      
+      private function onGridClick(e:GridEvent):void
+      {
+        lastRowIndex = e.rowIndex;
+        lastColumnIndex = e.columnIndex;
+      }
+      
+      private function onGridDoubleClick(e:GridEvent):void
+      {
+        if (e.rowIndex == lastRowIndex && e.columnIndex == lastColumnIndex)
+        {
+          var ge:GridEvent=new GridEvent("itemDoubleClick",true);
+          ge.columnIndex=e.columnIndex;
+          ge.column=e.column;
+          ge.rowIndex=e.rowIndex
+          ge.item=e.item;
+          dispatchEvent(ge);
+        }
+        
+        lastRowIndex = e.rowIndex;
+        lastColumnIndex = e.columnIndex;
+      }
+
+			//show command and content (evidence.data.command) (evidence.data.content)
+		]]>
+	</fx:Script>
+	<s:columns>
+		<s:ArrayList>
+
+			<s:GridColumn width="130"
+										dataField="da"
+										headerText="{R.get('DATE_ACQUIRED')}"
+										labelFunction="dateLabelFunction"
+										resizable="false">
+				<s:headerRenderer>
+					<fx:Component>
+						<filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+																						editable="true"
+																						popupFactory="it.ht.rcs.console.operations.view.evidences.filters.DateFilterPopup"/>
+					</fx:Component>
+				</s:headerRenderer>
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn width="130"
+										dataField="dr"
+										headerText="{R.get('DATE_RECEIVED')}"
+										labelFunction="dateLabelFunction"
+										resizable="false"
+										editable="false">
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+			<s:GridColumn dataField="data.content"
+										headerText="Ip"
+										resizable="false">
+        <s:itemRenderer>
+          
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:layout>
+                <s:HorizontalLayout verticalAlign="middle"
+                                    horizontalAlign="left"
+                                    paddingLeft="6"
+                                    paddingRight="6"
+                                    paddingTop="4"/>
+              </s:layout>
+              <s:Label id="labelDisplay"/>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+			</s:GridColumn>
+			<s:GridColumn dataField="data.data.address"
+										headerText="Address"
+										resizable="false" labelFunction="formatContent">
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout horizontalAlign="left"
+																		verticalAlign="top"
+																		paddingBottom="8"
+																		paddingLeft="4"
+																		paddingRight="4"
+																		paddingTop="8"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 maxDisplayedLines="4"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+		</s:ArrayList>
+	</s:columns>
+
+</s:DataGrid>

@@ -50,10 +50,12 @@
         img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
         if(data)
         {
-          url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-          img.source=url;
+          if(data.data._grid!=null && data.type=="camera")
+          {
+            url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+            img.source=url;
+          }
         }
-
       }
       
       private function init():void
@@ -95,7 +97,7 @@
         <s:SWFLoader id="spinner" width="30" height="30"  x="27" y="27" source="{SpinnerAnimation}"/>
         <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}">
           <!--<s:mask>
-          <s:BorderContainer id="bmpMask" 
+          <s:BorderContainer id="bmpMask"  
           cornerRadius="{0}"
           width="{img.width}"
           height="{img.height}"/>

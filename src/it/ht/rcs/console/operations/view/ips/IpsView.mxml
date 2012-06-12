@@ -57,10 +57,10 @@
 
 			private function openDetail():void
 			{
-					/* viewer.currentItems=commandsGrid.selectedItems;
-					viewer.currentIndex=commandsGrid.selectedIndices[0];
+					/* viewer.currentItems=ipsGrid.selectedItems;
+					viewer.currentIndex=ipsGrid.selectedIndices[0];
 					viewer.visible=viewer.includeInLayout=true;
-					commandsGrid.visible=commandsGrid.includeInLayout=false; */
+					commandsGrid.visible=ipsGrid.includeInLayout=false; */
 			}
 
 			private function onViewerClose():void
@@ -98,7 +98,7 @@
 			private function onGridDoubleClick(e:GridEvent):void
 			{
        
-				openDetail()
+				//openDetail()
 			}
       
       private function onExportStart(e:Event):void
@@ -110,35 +110,30 @@
       
       private function export():void
       {
-        /* var toExport:Vector.<Object>=new Vector.<Object>
-        toExport.push(commandsGrid.selectedItem);
+        var toExport:Vector.<Object>=new Vector.<Object>
+        toExport.push(ipsGrid.selectedItem);
         exporter.export(toExport);
-        exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart); */
+        exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart); 
       }
       
       private function onDelete():void
       {
-        /* AlertPopUp.show(R.get('CONFIRM_COMMAND_DELETION'), R.get('CONFIRM'),
+        AlertPopUp.show(R.get('CONFIRM_IP_DELETION'), R.get('CONFIRM'),
           AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES)
             {
-              EvidenceManager.instance.removeCommand(commandsGrid.selectedItem as Evidence, section.stateManager.selectedTarget);
-              commandsGrid.dataProvider.removeItemAt(commandsGrid.selectedIndex);
-              commandsGrid.selectedItem=actionBar.selectedObject=null
-              if (viewer.visible) closeViewer();
+              EvidenceManager.instance.removeIp(ipsGrid.selectedItem as Evidence, section.stateManager.selectedTarget);
+              ipsGrid.dataProvider.removeItemAt(ipsGrid.selectedIndex);
+              ipsGrid.selectedItem=actionBar.selectedObject=null
+              //if (viewer.visible) closeViewer();
             }
-          }, null, AlertPopUp.NO); 
-         */
+          }, null, AlertPopUp.NO);   
       }
 		]]>
 	</fx:Script>
   <ips:IpsActionBar selectedObject="{ipsGrid.selectedItem}" export="export()" delete="onDelete()" id="actionBar"/>
-	<!--<commands:CommandsAdvancedViewer id="viewer"
-																	 visible="false"
-																	 includeInLayout="false"
-																	 dataProvider="{dataProvider}"
-																	 close="onViewerClose();"/>-->
+	
 	<ips:IpsGrid id="ipsGrid"
 												 dataProvider="{dataProvider}"
 												 itemDoubleClick="onGridDoubleClick(event)"/>

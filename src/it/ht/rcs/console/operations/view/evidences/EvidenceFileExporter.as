@@ -171,6 +171,10 @@ package it.ht.rcs.console.operations.view.evidences
           exportText(evidence);
           break;
         
+        case "ip":
+          exportText(evidence);
+          break;
+        
         default:
          next();
       }
@@ -311,6 +315,15 @@ package it.ht.rcs.console.operations.view.evidences
     private function getInfo(evidence:Evidence):String
     {
       var info:String;
+      
+      var address:String;
+      var city:String;
+      var country:String;
+      var street_number:String;
+      var street:String;
+      var postal_code:String;
+      
+      
       switch(evidence.type)
       {
         case "addressbook":
@@ -408,12 +421,7 @@ package it.ht.rcs.console.operations.view.evidences
           {
             lng=String(evidence.data.longitude)
           }
-          var address:String;
-          var city:String;
-          var country:String;
-          var street_number:String;
-          var street:String;
-          var postal_code:String;
+     
           
           if (evidence.data.address == null)
           {
@@ -475,8 +483,38 @@ package it.ht.rcs.console.operations.view.evidences
         
         case "command":
           info="Cammand: "+"\n\n";
-          info="Command: "+evidence.data.command+"\n";
+          info+="Command: "+evidence.data.command+"\n";
           info+="Content: "+evidence.data.content+"\n";
+          break;
+        
+        case "ip":
+          info="IP: "+"\n\n";
+          info+="IP Address: "+evidence.data.content+"\n";
+          
+          
+          if (evidence.data.address == null)
+          {
+            address='(unknown)';
+          }
+          else
+          {
+            city=evidence.data.address.city || "";
+            country=evidence.data.address.country || "";
+            street_number=evidence.data.address.street_number || "";
+            street=evidence.data.address.street || "";
+            postal_code=evidence.data.address.postal_code || "";
+            
+            address=city;
+            if (country != "")
+              address+=" (" + country + ") ";
+            if (street_number != "")
+              address+=street_number + " ";
+            if (street != "")
+              address+=street + " ";
+            if (postal_code != "")
+              address+=postal_code;
+          }
+          info+="Address: "+address+"\n";
           break;
         
       }

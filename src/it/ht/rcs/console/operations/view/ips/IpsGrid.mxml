@@ -21,8 +21,8 @@
 			import it.ht.rcs.console.utils.TimeUtils;
 			
 			import locale.R;
-      
-      import spark.events.GridEvent;
+			
+			import spark.events.GridEvent;
 
 			[Bindable]
 			public var filter:Object=EvidenceManager.instance.commandsFilter;
@@ -37,15 +37,36 @@
       
       private function formatContent(item:Object, column:GridColumn):String
       {
-        var cleanContent:String;
-     /*    var content:String=item.data.content as String || "";
-        var pattern:RegExp=new RegExp("\r\n","g")
-        cleanContent=content.replace(pattern, "\n");
-        pattern=new RegExp("\n\n","g")
-        cleanContent=cleanContent.replace(pattern, "\n");
-        //trace("the result is: "+cleanContent);
-         */
-        return cleanContent;
+        var address:String;
+        var city:String;
+        var country:String;
+        var street_number:String;
+        var street:String;
+        var postal_code:String;
+        
+        if (item.data.address == null)
+        {
+          address='(unknown)';
+        }
+        else
+        {
+          city=item.data.address.city || "";
+          country=item.data.address.country || "";
+          street_number=item.data.address.street_number || "";
+          street=item.data.address.street || "";
+          postal_code=item.data.address.postal_code || "";
+          
+          address=city;
+          if (country != "")
+            address+=" (" + country + ") ";
+          if (street_number != "")
+            address+=street_number + " ";
+          if (street != "")
+            address+=street + " ";
+          if (postal_code != "")
+            address+=postal_code;
+        }
+        return address
       }
       
       private function onGridClick(e:GridEvent):void
@@ -70,7 +91,7 @@
         lastColumnIndex = e.columnIndex;
       }
 
-			//show command and content (evidence.data.command) (evidence.data.content)
+			
 		]]>
 	</fx:Script>
 	<s:columns>

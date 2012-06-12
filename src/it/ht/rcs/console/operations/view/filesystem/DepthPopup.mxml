@@ -13,24 +13,39 @@
       [Bindable]
       public var item:Object;
       
+      [Bindable]
+      public var items:Array;
+      
+      private var numItemsToProcess:uint;
+      
       private function save():void
       {
         var path:String;
-        if (item.attr == FileSystemView.SUBROOT)
-          path = '/';
-        else {
-          path = item.evidence ? item.evidence.data.path : buildPath();
-          var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
-          var lastChar:String = path.charAt(path.length-1);
-          if (lastChar != separator)
-            path = path + separator + '*';
-        }
-
-        var aid:String = getAgentId();
-        AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
-          AlertPopUp.show('Item scheduled for retrieval');
-          close();
-        });
+        numItemsToProcess=items.length;
+       for(var i:int=0;i<items.length;i++)
+         {
+           if (items[i].attr == FileSystemView.SUBROOT)
+             path = '/';
+           else {
+             path = items[i].evidence ? items[i].evidence.data.path : buildPath();
+             var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
+             var lastChar:String = path.charAt(path.length-1);
+             if (lastChar != separator)
+               path = path + separator + '*';
+           }
+           
+           var aid:String = getAgentId(items[i]);
+           AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
+             numItemsToProcess--;
+             if(numItemsToProcess==0)
+             {
+               AlertPopUp.show('Items scheduled for retrieval');
+               close();
+             }
+           });
+           
+           
+         }
       }
       
       private function buildPath():String
@@ -45,7 +60,7 @@
         return pathElements.reverse().join('/');
       }
       
-      private function getAgentId():String
+      private function getAgentId(item:Object):String
       {
         var el:Object = item;
         if (item.attr != FileSystemView.SUBROOT) {

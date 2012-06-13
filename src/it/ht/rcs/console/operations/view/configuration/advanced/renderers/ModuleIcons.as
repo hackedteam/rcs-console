@@ -88,6 +88,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/events/connection.png')]
     public static const connection:Class;
     
+    [Embed(source='/img/events/idle.png')]
+    public static const idle:Class;
+    
     [Embed(source='/img/events/timer.png')]
     public static const date:Class;
     

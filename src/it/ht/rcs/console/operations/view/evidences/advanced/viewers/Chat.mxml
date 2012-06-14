@@ -2,14 +2,16 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
+                   xmlns:chat="it.ht.rcs.console.operations.view.evidences.advanced.viewers.chat.*"
 									 height="100%"
 									 width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1">
+                   backgroundAlpha="1" >
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
+      import spark.components.gridClasses.GridColumn;
 			
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.Size;
@@ -18,7 +20,8 @@
 			import locale.R;
 			
 			import mx.collections.ArrayCollection;
-
+      
+      [Bindable]
 			private var _evidence:Object;
 
 			[Bindable]
@@ -33,6 +36,7 @@
 				_evidence=value;
         
         chatFlow=EvidenceManager.instance.getChatFlow(evidence.data.program, evidence.data.peer);
+        
 				if (evidence.data.program == "Facebook")
 				{
 					renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
@@ -43,7 +47,7 @@
 				}
 
 			}
-
+      
 			public function get evidence():Object
 			{
 				return _evidence; //topic, peer, content, program
@@ -60,13 +64,7 @@
         return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
       }
       
-      private function formatMessage(item:Object, column:GridColumn):String
-      {
-        var content:String=item.data.content;
-        var nickname:String=content.split(":")[0];
-        var message:String=content.substring(nickname.length,content.length)
-        return nickname+">"+message;
-      }
+     
       
 		]]>
 	</fx:Script>
@@ -103,7 +101,8 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	<s:RichText id="contentLabelTxt"
+  
+<!--	<s:RichText id="contentLabelTxt"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
 	<s:Scroller height="100%"
@@ -112,9 +111,9 @@
 												id="contentTxt"
 												textFlow="{TextConverter.importToFlow(lineBreak(evidence.data.content), renderMode)}"
 												fontSize="12"/>
-	</s:Scroller>
+	</s:Scroller>-->
   <!-- format the grid -->
-  <s:DataGrid dataProvider="{chatFlow}" width="100%" height="100%">
+ <s:DataGrid dataProvider="{chatFlow}" width="100%" height="100%" skinClass="it.ht.rcs.console.skins.ChatSkin" selectedItem="{_evidence}" borderVisible="false" borderAlpha="0">
     <s:columns>
       <s:ArrayList>
         <s:GridColumn 
@@ -124,8 +123,9 @@
     <s:GridColumn 
                   dataField="data.content"
                   headerText="peer"
-                  resizable="false" labelFunction="formatMessage"/>
+                  resizable="false" itemRenderer="it.ht.rcs.console.operations.view.evidences.advanced.viewers.chat.ChatEntryRenderer"/>
       </s:ArrayList>
     </s:columns>
   </s:DataGrid>
+<!--  <chat:ChatRenderer id="chatRenderer" messages="{chatFlow}"/>-->
 </s:BorderContainer>

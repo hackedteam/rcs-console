@@ -306,6 +306,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         case 'date':       return 'Timer date\n(' + event.datefrom.split(' ')[0] + ')';
         case 'afterinst':  return 'After install\n(' + event.days + ' day' + (event.days == 1 ? '' : 's') + ')';
         case 'connection': return 'On connection' + (graph.config.globals.type == 'mobile' ? '' : '\n(' + event.ip + ')');
+        case 'idle':       return 'On Idle\n(' + (event.time) + ' sec )';
         case 'process':    return 'On process\n(' + event.process + ')';
         case 'quota':      return 'On quota\n(' + Size.toHumanBytes(event.quota) + ')';
         case 'winevent':   return 'On WinEvent\n(' + event.source + ')';

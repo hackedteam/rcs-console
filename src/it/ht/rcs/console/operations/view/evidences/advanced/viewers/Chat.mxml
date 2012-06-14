@@ -10,24 +10,36 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
+			
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.Size;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
 
 			private var _evidence:Object;
 
 			[Bindable]
 			private var renderMode:String
+      
+      [Bindable]
+      private var chatFlow:ArrayCollection;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
 				_evidence=value;
+        
+        chatFlow=EvidenceManager.instance.getChatFlow(evidence.data.program, evidence.data.peer);
 				if (evidence.data.program == "Facebook")
 				{
 					renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
 				}
 				else
 				{
-					renderMode=TextConverter.PLAIN_TEXT_FORMAT
+					renderMode=TextConverter.PLAIN_TEXT_FORMAT;
 				}
 
 			}
@@ -42,6 +54,20 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+      private function dateLabelFunction(item:Object, column:GridColumn):String
+      {
+        return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+      }
+      
+      private function formatMessage(item:Object, column:GridColumn):String
+      {
+        var content:String=item.data.content;
+        var nickname:String=content.split(":")[0];
+        var message:String=content.substring(nickname.length,content.length)
+        return nickname+">"+message;
+      }
+      
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -87,4 +113,19 @@
 												textFlow="{TextConverter.importToFlow(lineBreak(evidence.data.content), renderMode)}"
 												fontSize="12"/>
 	</s:Scroller>
+  <!-- format the grid -->
+  <s:DataGrid dataProvider="{chatFlow}" width="100%" height="100%">
+    <s:columns>
+      <s:ArrayList>
+        <s:GridColumn 
+          dataField="da"
+          headerText="{R.get('DATE_ACQUIRED')}"
+          labelFunction="dateLabelFunction"/>
+    <s:GridColumn 
+                  dataField="data.content"
+                  headerText="peer"
+                  resizable="false" labelFunction="formatMessage"/>
+      </s:ArrayList>
+    </s:columns>
+  </s:DataGrid>
 </s:BorderContainer>

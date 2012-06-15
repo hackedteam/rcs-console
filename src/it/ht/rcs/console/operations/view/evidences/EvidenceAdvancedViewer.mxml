@@ -54,7 +54,6 @@
 			{
 				_currentItems=value;
 				currentItem=currentItems[0] as Evidence;
-
 			}
 
 			public function get currentItems():Vector.<Object>
@@ -92,6 +91,7 @@
 					//TODO
 					if (currentState == "position")
 					{
+            
             //positionViewer.isUpdated=false;
 						//positionViewer.evidences=currentItems;
             
@@ -258,6 +258,14 @@
 				return result;
 			}
 
+      private function onChatChange():void
+      {
+        _currentItem=chatViewer.evidence as Evidence;
+        infoPanel.evidence=currentItem;
+        currentIndex=dataProvider.getItemIndex(currentItem);
+        dispatchEvent(new Event("selectionChange"));
+      }
+      
 			private function onMapChange():void
 			{
 			  _currentItem=positionViewer.evidence as Evidence;
@@ -319,7 +327,7 @@
 										id="cameraViewer"/>
 		<viewers:Chat evidence="{currentItem}"
 									includeIn="chat"
-									id="chatViewer"/>
+									id="chatViewer" change="onChatChange()"/>
 		<viewers:Clipboard evidence="{currentItem}"
 											 includeIn="clipboard"
 											 id="clipboardViewer"/>

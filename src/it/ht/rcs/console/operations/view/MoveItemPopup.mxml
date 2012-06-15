@@ -16,6 +16,7 @@
       import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       
       import locale.R;
       
@@ -35,10 +36,12 @@
           return;
         }
         
-        if (itemToMove is Agent)
-          DB.instance.agent.move(itemToMove._id, itemField.selectedItem._id, onResult);
-        else if (itemToMove is Target)
+        if (itemToMove is Agent) {
+          //DB.instance.agent.move(itemToMove._id, itemField.selectedItem._id, onResult);
+          DownloadManager.instance.createTask("moveagent", null, { _id: itemToMove._id, target: itemField.selectedItem._id}, onResult);
+        } else if (itemToMove is Target) {
           DB.instance.target.move(itemToMove._id, itemField.selectedItem._id, onResult);
+        }
       }
       
       private function onResult(re:ResultEvent):void

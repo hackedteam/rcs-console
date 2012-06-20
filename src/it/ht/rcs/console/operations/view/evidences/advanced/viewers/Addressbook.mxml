@@ -10,16 +10,38 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
+      import mx.collections.ArrayCollection;
       
-			private var _evidence:Object;
+      [Embed(source="img/evidence/contact.jpg")]
+      [Bindable]
+      public var contactImage:Class;
+      
+      private var _evidence:Object;
+      
+      [Bindable]
+			private var info:String;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
         _evidence=value;
+        info=""
 				//contentTxt.textFlow.columnCount=3;
-
-
+        var infoRows:Array=evidence.data.info.split("\n");
+        for(var i:int=0;i<infoRows.length;i++)
+        {
+          var infoRow:Array=infoRows[i].split(":",2);
+          if(infoRow[0]!=""){
+            if(infoRow[1])
+            {
+              info+=("<b>"+infoRow[0]+": </b>"+infoRow[1]+"<BR>");
+            }
+            else
+            {
+              info+=("<b>"+infoRow[0]+"</b>"+"<BR>");
+            }
+          }
+        }
 			}
 
 			public function get evidence():Object
@@ -35,28 +57,27 @@
 		]]>
 	</fx:Script>
 <s:layout>
-  <s:VerticalLayout paddingBottom="10"
+  <s:HorizontalLayout paddingBottom="10"
                     paddingLeft="10"
                     paddingRight="10"
-                    paddingTop="10"
+                    paddingTop="20"
                     />
 </s:layout>
+  <s:BorderContainer width="104" height="104" >
+    <s:BitmapImage source="{contactImage}" x="1" y="1"/>
+  </s:BorderContainer>
+<s:VGroup width="100%">
   <s:RichText id="programTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Name: &lt;/b&gt;'+evidence.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
   <s:Line width="100%">
     <s:stroke>
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
-  <s:RichText id="serviceTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Contact: &lt;/b&gt;'+evidence.data.contact, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-		<s:Scroller height="100%"
-								width="100%">
-			<s:RichEditableText editable="false"
-													id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Info: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
-		</s:Scroller>
+  <s:RichText id="serviceTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Contact: &lt;/b&gt;'+evidence.data.contact, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12" lineHeight="28"/>
 
+   
+      <s:RichText  lineHeight="18" width="100%"
+                          id="contentTxt" textFlow="{TextConverter.importToFlow(info, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+
+</s:VGroup>
 </s:BorderContainer>

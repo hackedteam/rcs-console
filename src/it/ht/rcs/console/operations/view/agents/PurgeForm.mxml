@@ -13,11 +13,11 @@
 			import it.ht.rcs.console.agent.model.Agent;
 			import it.ht.rcs.console.events.SessionEvent;
 			import it.ht.rcs.console.update.controller.CoreManager;
-			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.AlertPopUp;
-
+			import it.ht.rcs.console.utils.Clock;
+			
 			import locale.R;
-
+			
 			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -44,14 +44,19 @@
 
 			private function purge(event:*):void
 			{
-				var time:Number=Clock.instance.toUTCTime(dateSelector.selectedDate) / 1000;
-				var size:Number=sizeSelector.value * 1024
+        var time:Number=0;
+        var size:Number=0;
+        
+        if(dateCh.selected)
+          time=Clock.instance.toUTCTime(dateSelector.selectedDate) / 1000;
+		    if(sizeCh.selected)
+				size=sizeSelector.value * 1024;
 				AgentManager.instance.purge(agent._id, time, size, onPurgeResult, onPurgeFault)
 			}
 
 			private function onPurgeResult(e:ResultEvent):void
 			{
-				AlertPopUp.show(R.get('PURGE_SUCCESS'),"",0x4,this, closeMe);
+				AlertPopUp.show(R.get('PURGE_SUCCESS'), "", 0x4, this, closeMe);
 			}
 
 			private function onPurgeFault(e:FaultEvent):void
@@ -63,39 +68,51 @@
 	<s:VGroup top="10"
 						left="10"
 						right="10"
-						horizontalAlign="center">
+						horizontalAlign="center"
+						width="100%" height="100%">
 		<s:RichText fontSize="12"
 								width="100%"
-								text="{R.get('PURGE_DESC')}"/>
-		<s:Form>
-			<s:FormItem label="{R.get('DATE')}: {R.get('BEFORE')}">
-				<s:HGroup verticalAlign="middle">
-					
-					<mx:DateField disabledRanges="{[{rangeStart: new Date()}]}"
-												id="dateSelector"
-												selectedDate="{new Date()}"/>
-				</s:HGroup>
-			</s:FormItem>
-			<s:FormItem label="{R.get('SIZE')}: {R.get('BIGGER_THAN')}">
-				<s:HGroup verticalAlign="middle">
-				
-					<s:NumericStepper minimum="1"
-														maximum="10000"
-														id="sizeSelector"/>
-					<s:Label text="KB"/>
-				</s:HGroup>
-			</s:FormItem>
-		</s:Form>
-	</s:VGroup>
+								text="{R.get('PURGE_DESC')}" height="50"/>
 
-	<s:HGroup bottom="10"
-						width="100%"
-						horizontalAlign="center">
-		<s:Button id="upBtn"
-							label="{R.get('PURGE')}"
-							click="purge(event)"/>
-		<s:Button label="{R.get('CANCEL')}"
-							click="closeMe(event)"/>
-	</s:HGroup>
+		<s:HGroup verticalAlign="middle" width="90%">
+			<s:HGroup verticalAlign="middle" width="30%" horizontalAlign="right">
+				<s:Label text="{R.get('DATE')}"
+								 fontWeight="bold"/>
+				<s:CheckBox id="dateCh"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle" horizontalAlign="left" enabled="{dateCh.selected}" width="70%">
+				<s:Label text=": {R.get('BEFORE')}"/>
+				<mx:DateField disabledRanges="{[{rangeStart: new Date()}]}"
+											id="dateSelector"
+											selectedDate="{new Date()}"/>
+			</s:HGroup>
 
+		</s:HGroup>
+
+		<s:HGroup verticalAlign="middle" width="90%">
+
+			<s:HGroup verticalAlign="middle" width="30%" horizontalAlign="right">
+				<s:Label text="{R.get('SIZE')}"
+								 fontWeight="bold"/>
+				<s:CheckBox id="sizeCh"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle" horizontalAlign="left" enabled="{sizeCh.selected}" width="70%">
+				<s:Label text=": {R.get('BIGGER_THAN')}"/>
+
+				<s:NumericStepper minimum="1"
+													maximum="10000"
+													id="sizeSelector"/>
+				<s:Label text="KB"/>
+			</s:HGroup>
+		</s:HGroup>
+  </s:VGroup>
+		<s:HGroup bottom="10"
+							width="100%"
+							horizontalAlign="center">
+			<s:Button id="upBtn"
+								label="{R.get('PURGE')}"
+								click="purge(event)"/>
+			<s:Button label="{R.get('CANCEL')}"
+								click="closeMe(event)"/>
+		</s:HGroup>
 </s:TitleWindow>

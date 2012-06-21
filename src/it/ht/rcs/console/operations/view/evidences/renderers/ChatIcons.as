@@ -19,5 +19,8 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     
     [Embed(source='/img/evidence/social/twitter_16.png')]
     public static const twitter:Class;
+    
+    [Embed(source='/img/evidence/social/outlook_16.png')]
+    public static const outlook:Class;
   }
 }

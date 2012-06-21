@@ -18,6 +18,7 @@ package it.ht.rcs.console.operations.view.evidences
   import it.ht.rcs.console.evidence.model.Evidence;
   import it.ht.rcs.console.utils.Size;
   import it.ht.rcs.console.utils.StringUtils;
+  import it.ht.rcs.console.utils.TimeUtils;
   
   import mx.collections.ArrayCollection;
   
@@ -27,6 +28,7 @@ package it.ht.rcs.console.operations.view.evidences
     private var directory:File;
     private var file:File;
     private var extension:String;
+    private var originalName:String;
     private var request:URLRequest;
     private var stream:URLStream;
     private var evidences:Vector.<Object>;
@@ -296,8 +298,9 @@ package it.ht.rcs.console.operations.view.evidences
       
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+      originalName=StringUtils.getFilename(evidence.data.path)
       extension=StringUtils.getExtension(evidence.data.path)
-      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
+      var fileName:String=evidence.type+"_"+evidence._id +"_"+ originalName+ "." + extension;
       request=new URLRequest(url);
       stream=new URLStream();
       file=new File(directory.nativePath +"/"+fileName);
@@ -342,8 +345,8 @@ package it.ht.rcs.console.operations.view.evidences
         
         case "calendar":
           info="Calendar: "+"\n\n";
-          info+="Begin: "+evidence.data.begin+"\n";
-          info+="End: "+evidence.data.end+"\n";
+          info+="Begin: "+TimeUtils.timestampFormatter(evidence.data.begin*1000)+"\n";
+          info+="End: "+TimeUtils.timestampFormatter(evidence.data.end*1000)+"\n";
           info+="Event: "+evidence.data.event+"\n";
           info+="Info: "+evidence.data.info+"\n";
           break;

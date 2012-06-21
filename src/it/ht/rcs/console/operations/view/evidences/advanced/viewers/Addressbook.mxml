@@ -30,7 +30,7 @@
 			public function set evidence(value:Object):void
 			{
 				_evidence=value;
-
+        if(evidence.data.program)
 				ImageClass=ChatIcons[evidence.data.program.toLowerCase()]
 
 
@@ -91,12 +91,17 @@
 		<s:HGroup verticalAlign="middle">
 			<s:BitmapImage width="16"
 										 height="16"
-										 source="{ImageClass}"/>
+										 source="{ImageClass}"
+                     visible="{evidence.data.progam!=null}"
+                     includeInLayout="{evidence.data.progam!=null}"
+                     />
       <s:RichText id="programTxt"
                   width="100%"
                   textFlow="{TextConverter.importToFlow('&lt;b&gt;'+evidence.data.program+'&lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
                   fontSize="12"
                   lineHeight="28"
+                  visible="{evidence.data.progam!=null}"
+                  includeInLayout="{evidence.data.progam!=null}"
                   />
       
 			<s:RichText id="typeTxt"
@@ -104,8 +109,8 @@
 									textFlow="{TextConverter.importToFlow(' ('+evidence.data.type+')', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 									fontSize="12"
 									lineHeight="28"
-                  visible="{evidence.data.type!='peer'}"
-                  includeInLayout="{evidence.data.type!='peer'}"/>
+                  visible="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"
+                  includeInLayout="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"/>
 		</s:HGroup>
 
 		<s:RichText id="serviceTxt"

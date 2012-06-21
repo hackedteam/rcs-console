@@ -21,6 +21,7 @@
       private var file:flash.filesystem.File;
       private var stream:URLStream;
       private var extension:String;
+      private var originalName:String;
       private var request:URLRequest
 
 			[Bindable]
@@ -68,8 +69,9 @@
         {
           var target:String=EvidenceManager.instance.evidenceFilter.target;
           var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+          originalName=StringUtils.getFilename(data.data.path)
           extension=StringUtils.getExtension(data.data.path)
-          var fileName:String=data.data._grid + encodeURIComponent(target) + "." + extension;
+          var fileName:String=data.data._grid + encodeURIComponent(target) +"_"+originalName+ "." + extension;
           
           request=new URLRequest(url);
           stream=new URLStream();

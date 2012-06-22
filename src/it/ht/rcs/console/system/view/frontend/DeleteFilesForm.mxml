@@ -2,16 +2,18 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
 							 xmlns:s="library://ns.adobe.com/flex/spark"
 							 xmlns:mx="library://ns.adobe.com/flex/mx"
-							 width="600"
+							 width="700"
 							 height="400"
 							 close="closeMe(event)"
-							 title="{R.get('DELETE')}"
+							 title="{R.get('FILE_MANAGER')}"
 							 addedToStage="onAddedToStage(event)">
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.network.model.PublicDocument;
 			import it.ht.rcs.console.utils.TimeUtils;
+      import it.ht.rcs.console.utils.AlertPopUp;
 			
 			import locale.R;
 			
@@ -24,6 +26,9 @@
 
 			[Bindable]
 			private var publicDocuments:ArrayCollection;
+      
+      private var numItemsToDelete:uint=0;
+      
 
 			private function onAddedToStage(event:Event):void
 			{
@@ -42,11 +47,35 @@
 			{
 
 			}
+      
+      private function onDestroyResult(e:ResultEvent):void
+      {  
+        trace("destroyed result") 
+        numItemsToDelete--
+          trace("items rest"+ numItemsToDelete) 
+         if(numItemsToDelete<=0)
+         {
+           AlertPopUp.show(R.get('FILE_DELETION_SUCCESS'))
+           CollectorManager.instance.get_public(onPublicResult, onPublicFault)
+         }
+         
+      }
+      
+      private function onDestroyFault(e:FaultEvent):void
+      {
+        trace("destroyed fault")
+      }
+
 
 			protected function closeMe(event:*):void
 			{
 				PopUpManager.removePopUp(this);
 			}
+      
+      private function getFactoryName(item:Object, column:GridColumn):String
+      {
+        return SearchManager.instance.getItem(item.factory.getItemAt(0)).name;
+      }
 
 			private function formatTime(item:Object, column:GridColumn):String
 			{
@@ -61,6 +90,18 @@
         }
         else{
           documentsDg.clearSelection();
+        }
+      }
+      
+      private function destroy():void
+      {
+        numItemsToDelete=documentsDg.selectedItems.length;
+        
+        for(var i:int=0;i<documentsDg.selectedItems.length;i++)
+        {
+          var docToDestroy:PublicDocument=documentsDg.selectedItems[i] as PublicDocument;
+          CollectorManager.instance.public_destroy(docToDestroy._id, onDestroyResult, onDestroyFault)
+        
         }
       }
 		]]>
@@ -86,12 +127,13 @@
 				<s:ArrayList>
 					<s:GridColumn dataField="name"
 												headerText="{R.get('NAME')}"
-												width="90"/>
+												width="100"/>
 					<s:GridColumn dataField="time"
 												headerText="{R.get('TIME')}"
 												labelFunction="formatTime"/>
 					<s:GridColumn dataField="factory"
-												headerText="Factory"/>
+												headerText="Factory"
+                        labelFunction="getFactoryName"/>
 					<s:GridColumn dataField="user"
 												headerText="{R.get('USER')}"/>
 				</s:ArrayList>
@@ -106,7 +148,7 @@
 		<s:HGroup width="100%"
 							horizontalAlign="center">
 			<s:Button label="{R.get('DELETE')}"
-								enabled="{Boolean(documentsDg.selectionLength)}"/>
+								enabled="{Boolean(documentsDg.selectionLength)}" click="destroy()"/>
 			<s:Button label="{R.get('CANCEL')}"
 								click="closeMe(event)"/>
 		</s:HGroup>

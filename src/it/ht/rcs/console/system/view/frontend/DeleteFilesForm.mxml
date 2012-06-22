@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="600"
+							 height="400"
+							 close="closeMe(event)"
+							 title="{R.get('DELETE')}"
+							 addedToStage="onAddedToStage(event)">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.network.controller.CollectorManager;
+			import it.ht.rcs.console.network.model.PublicDocument;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.components.gridClasses.GridSelectionMode;
+
+			[Bindable]
+			private var publicDocuments:ArrayCollection;
+
+			private function onAddedToStage(event:Event):void
+			{
+
+				CollectorManager.instance.get_public(onPublicResult, onPublicFault)
+			}
+
+			private function onPublicResult(e:ResultEvent):void
+			{
+
+				publicDocuments=e.result as ArrayCollection;
+
+			}
+
+			private function onPublicFault(e:FaultEvent):void
+			{
+
+			}
+
+			protected function closeMe(event:*):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			private function formatTime(item:Object, column:GridColumn):String
+			{
+				return TimeUtils.timestampFormatter(item.time * 1000)
+			}
+      
+      private function selectAll(e:Event):void
+      {
+        if(e.currentTarget.selected)
+        {
+          documentsDg.selectAll();
+        }
+        else{
+          documentsDg.clearSelection();
+        }
+      }
+		]]>
+	</fx:Script>
+	<s:VGroup top="10"
+						left="10"
+						right="10"
+						bottom="10"
+						horizontalAlign="center"
+						height="100%"
+						paddingLeft="6"
+						paddingRight="6"
+						paddingTop="6"
+						paddingBottom="6">
+		<s:RichText width="100%"
+								text="{R.get('PUBLIC_DOCUMENTS_DELETION_DESC')}"/>
+		<s:DataGrid dataProvider="{publicDocuments}"
+								width="100%"
+								height="100%"
+								selectionMode="{GridSelectionMode.MULTIPLE_ROWS}"
+								id="documentsDg">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="name"
+												headerText="{R.get('NAME')}"
+												width="90"/>
+					<s:GridColumn dataField="time"
+												headerText="{R.get('TIME')}"
+												labelFunction="formatTime"/>
+					<s:GridColumn dataField="factory"
+												headerText="Factory"/>
+					<s:GridColumn dataField="user"
+												headerText="{R.get('USER')}"/>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:HGroup width="100%"
+							horizontalAlign="left">
+			<s:CheckBox id="allCh"
+									label="{R.get('SELECT_ALL')}" change="selectAll(event)"/>
+		</s:HGroup>
+
+		<s:HGroup width="100%"
+							horizontalAlign="center">
+			<s:Button label="{R.get('DELETE')}"
+								enabled="{Boolean(documentsDg.selectionLength)}"/>
+			<s:Button label="{R.get('CANCEL')}"
+								click="closeMe(event)"/>
+		</s:HGroup>
+	</s:VGroup>
+</s:TitleWindow>

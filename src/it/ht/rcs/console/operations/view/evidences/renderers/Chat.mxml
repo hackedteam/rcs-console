@@ -25,8 +25,27 @@
 			override public function set data(value:*):void
 			{
 				super.data=value;
-				ImageClass=ChatIcons[data.data.program.toLowerCase()]
+        if(data.data.program.toLowerCase()=="" || data.data.program.toLowerCase()==null)
+        {
+          ImageClass=ChatIcons["chat"]
+        }
+          
+        else if(data.data.program.toLowerCase()=="google talk")
+        {
+          ImageClass=ChatIcons["gtalk"]
+        }
+          
+        else if(data.data.program.toLowerCase()=="messenger")
+        {
+          ImageClass=ChatIcons["bbm"]
+        }    
+        else
+        {
+          ImageClass=ChatIcons[data.data.program.toLowerCase()]
+        }
+        
 				// topic, peer, content, program
+        
 				if (data.data.topic != "")
 				{
 					topicTxt.visible=topicTxt.includeInLayout=true;
@@ -46,7 +65,7 @@
 				}
 
 				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + data.data.content,TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 		]]>

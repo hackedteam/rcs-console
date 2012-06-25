@@ -40,6 +40,8 @@
 			}
 
 			private var fileReference:FileReference;
+      
+      private var keyReference:FileReference;
 
 			private var params:Object;
 
@@ -114,6 +116,12 @@
 						AlertPopUp.show(R.get('MISSING_CERT'));
 						return;
 					}
+          
+          if (!params.sign.key)
+          {
+            AlertPopUp.show(R.get('MISSING_KEY'));
+            return;
+          }
 
 					params['sign']['edition']=edition.selectedItem;
 				}
@@ -156,6 +164,38 @@
         var symbianConf:SymbianConfigurationForm=PopUpManager.createPopUp((this.parentDocument as DisplayObject).parent, SymbianConfigurationForm, true) as SymbianConfigurationForm;
         PopUpManager.centerPopUp(symbianConf);
       }
+      
+      private function browseForKey():void
+      {
+        keyReference=new FileReference();
+        keyReference.addEventListener(Event.SELECT, onKeySelected);
+        keyReference.browse([new FileFilter("Key", "*.key")]);
+      }
+      
+      private function onKeySelected(e:Event):void
+      {
+        uploadKey()
+      }
+      
+      private function uploadKey():void
+      {
+        keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+        
+        uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference=keyReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      private function onKeyUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        params['sign']['key']=event.data;
+      }
+      
 		]]>
 	</fx:Script>
 
@@ -210,12 +250,17 @@
 	<s:Form includeIn="symbian"
 					left="10"
 					top="35"
-					visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
+					visible="{BuildManager.instance.symbianConf.uids.length==6}">
 		<s:FormItem label="{R.get('SYMBIAN_CERT')}">
 			<s:Button width="80"
 								label="{R.get('BROWSE')}..."
 								click="browse()"/>
 		</s:FormItem>
+    <s:FormItem label="{R.get('SYMBIAN_KEY')}">
+      <s:Button width="80"
+                label="{R.get('BROWSE')}..."
+                click="browseForKey()"/>
+    </s:FormItem>
 		<s:FormItem label="S60 Edition">
 			<s:DropDownList id="edition"
 											selectedIndex="0"
@@ -230,10 +275,10 @@
 	</s:Form>
   <s:HGroup includeIn="symbian" 
             left="10"
-            top="260"
+            top="290"
             verticalAlign="middle"
-            visible="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}"
-            includeInLayout="{BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6}">
+            visible="{BuildManager.instance.symbianConf.uids.length==6}"
+            includeInLayout="{BuildManager.instance.symbianConf.uids.length==6}">
     <s:Spacer height="40"/>
     <s:HGroup verticalAlign="middle">
       <s:Label text="{R.get('SYMBIAN_CONF_OK')}"/>
@@ -247,8 +292,8 @@
             left="10"
             top="190"
             verticalAlign="middle"
-            visible="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}"
-            includeInLayout="{BuildManager.instance.symbianConf.key!=true || BuildManager.instance.symbianConf.uids.length!=6}">
+            visible="{BuildManager.instance.symbianConf.uids.length!=6}"
+            includeInLayout="{BuildManager.instance.symbianConf.uids.length!=6}">
     <s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
              color="0xFF0000"
              fontWeight="bold"/>
@@ -260,6 +305,6 @@
 															bottom="0"
 															right="10"
 															create="{create}"
-															visible="{currentState=='all' || currentState=='android' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
+															visible="{currentState=='all' || currentState=='android' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
 
 </s:Group>

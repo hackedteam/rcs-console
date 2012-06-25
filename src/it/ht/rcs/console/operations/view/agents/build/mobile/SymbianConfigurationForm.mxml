@@ -36,58 +36,13 @@
           AlertPopUp.show(R.get('MISSING_UIDS'));
           return;
         }
-       /*  else if (!keyReference || keyReference.name == null || keyReference.name == "")
-        {
-          AlertPopUp.show(R.get('MISSING_KEY'));
-          return;
-        } */
+      
         else
         {
           var conf:Object=new Object();
           conf.uids=[uid1Txt.text, uid2Txt.text, uid3Txt.text, uid4Txt.text, uid5Txt.text, uid6Txt.text]
           BuildManager.instance.getSymbianConf(conf, onSymbianConfResult, onSymbianConfFault)
         }
-      }
-      
-      private function uploadKey():void
-      {
-        keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-        keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-        keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-        keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
-        
-        uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-        uploadPopup.fileReference=keyReference;
-        PopUpManager.centerPopUp(uploadPopup);
-      }
-      
-      private function onKeyUploadComplete(event:DataEvent):void
-      {
-        var key:String=event.data;
-        var conf:Object=new Object();
-        conf.key=key;
-        conf.uids=[uid1Txt.text, uid2Txt.text, uid3Txt.text, uid4Txt.text, uid5Txt.text, uid6Txt.text]
-        BuildManager.instance.getSymbianConf(conf, onSymbianConfResult, onSymbianConfFault)
-        PopUpManager.removePopUp(uploadPopup);
-        PopUpManager.removePopUp(this);
-      }
-      
-      private function browseForKey():void
-      {
-        keyReference=new FileReference();
-        keyReference.addEventListener(Event.SELECT, onKeySelected);
-        keyReference.browse([new FileFilter("Key", "*.key")]);
-      }
-      
-      private function onKeySelected(e:Event):void
-      {
-        //keyTxt.text=keyReference.name;
-      }
-      
-      private function onUploadError(event:Event):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        AlertPopUp.show(event.type);
       }
       
       private function onSymbianConfResult(e:ResultEvent):void
@@ -168,11 +123,11 @@
       </s:HGroup>
     </s:HGroup>
     <s:Spacer height="12"/>
-    <s:HGroup width="100%"
-              horizontalAlign="center" bottom="10">
-      <s:Button label="{R.get('CANCEL')}" click="close(event)"/>
-      <s:Button label="{R.get('CONFIGURATION_SET')}" click="setSymbianConf()"/>
-    </s:HGroup>
+    
   </s:VGroup>
-  
+  <s:HGroup width="100%"
+            horizontalAlign="center" bottom="10">
+    <s:Button label="{R.get('CANCEL')}" click="close(event)"/>
+    <s:Button label="{R.get('CONFIGURATION_SET')}" click="setSymbianConf()"/>
+  </s:HGroup>
 </s:TitleWindow>

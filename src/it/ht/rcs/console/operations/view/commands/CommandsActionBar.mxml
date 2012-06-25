@@ -19,6 +19,15 @@
             enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"
             visible="{LicenseManager.instance.deletion == true}"
             includeInLayout="{LicenseManager.instance.deletion == true}"/>
+  
+  <actionbar:Separator width="40" visible="{LicenseManager.instance.deletion == true}"
+                       includeInLayout="{LicenseManager.instance.deletion == true}" />
+  
+  <s:Button label="{R.get('DETAIL_SHOW')}"
+            click="onDetailClick()"
+            icon="@Embed('/img/evidence/article32.png')"
+            id="detailBtn"
+            enabled="{selectedObject != null}"/>
 	<fx:Metadata> 
     [Event(name="export", type="flash.events.Event")] 
     [Event(name="detail", type="flash.events.Event")]
@@ -75,6 +84,20 @@
       private function onDeleteClick():void
       {
         dispatchEvent(new Event("delete"));
+      }
+      
+      public function toggleDetailButton():void
+      {
+        if (detailBtn.label == R.get('DETAIL_SHOW'))
+        {
+          detailBtn.setStyle("icon", DetailHideIcon);
+          detailBtn.label=R.get('DETAIL_HIDE');
+        }
+        else
+        {
+          detailBtn.setStyle("icon", DetailShowIcon);
+          detailBtn.label=R.get('DETAIL_SHOW');
+        }
       }
 
 			private function init():void

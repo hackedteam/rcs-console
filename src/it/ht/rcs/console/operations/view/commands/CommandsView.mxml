@@ -61,11 +61,13 @@
 					viewer.currentIndex=commandsGrid.selectedIndices[0];
 					viewer.visible=viewer.includeInLayout=true;
 					commandsGrid.visible=commandsGrid.includeInLayout=false;
+          actionBar.toggleDetailButton();
 			}
 
 			private function onViewerClose():void
 			{
 				closeViewer();
+
 			}
 
 			private function closeViewer():void
@@ -73,6 +75,7 @@
 				viewer.visible=viewer.includeInLayout=false;
 				//viewer.currentItem=null;
 				commandsGrid.visible=commandsGrid.includeInLayout=true;
+        actionBar.toggleDetailButton();
 			}
 
 			private function onRefresh(e:Event=null):void
@@ -131,9 +134,20 @@
           }, null, AlertPopUp.NO); 
         
       }
+      private function toggleDetail():void
+      {
+        if (!viewer.visible && commandsGrid.selectedItem != null)
+        {
+         openDetail()
+        }
+        else
+        {
+          closeViewer()
+        }
+      }
 		]]>
 	</fx:Script>
-  <commands:CommandsActionBar selectedObject="{commandsGrid.selectedItem}" export="export()" delete="onDelete()" id="actionBar"/>
+  <commands:CommandsActionBar selectedObject="{commandsGrid.selectedItem}" export="export()" delete="onDelete()" id="actionBar" detail="toggleDetail()"/>
 	<commands:CommandsAdvancedViewer id="viewer"
 																	 visible="false"
 																	 includeInLayout="false"

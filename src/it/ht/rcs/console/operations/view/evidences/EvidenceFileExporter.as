@@ -485,9 +485,9 @@ package it.ht.rcs.console.operations.view.evidences
           break;
         
         case "command":
-          info="Cammand: "+"\n\n";
+          info="Command: "+"\n\n";
           info+="Command: "+evidence.data.command+"\n";
-          info+="Content: "+evidence.data.content+"\n";
+          info+="Output: "+evidence.data.content+"\n";
           break;
         
         case "ip":

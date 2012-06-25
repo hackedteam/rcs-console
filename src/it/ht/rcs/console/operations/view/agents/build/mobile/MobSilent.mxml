@@ -24,7 +24,7 @@
 
 			public function set platform(value:*):void
 			{
-				if (value == 'blackberry' || value == 'symbian')
+				if (value == 'blackberry' || value == 'symbian' || value == 'android')
 					currentState=value;
 				else
 					currentState='all';
@@ -85,9 +85,9 @@
 			{
 
 				if (params != null)
-					params={platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}};
+					params={platform: parentDocument.platform, binary: {demo: createBtn.demo.selected, admin: admin.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}};
 				else
-					params={platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, melt: {appname: appname.text}, 'package': {type: 'remote'}};
+					params={platform: parentDocument.platform, binary: {demo: createBtn.demo.selected, admin: admin.selected}, melt: {appname: appname.text}, 'package': {type: 'remote'}};
 
 				if (currentState == 'blackberry')
 				{
@@ -157,7 +157,8 @@
 
 	<s:states>
 		<s:State name='all'/>
-		<s:State name='blackberry'/>
+    <s:State name='android'/>
+    <s:State name='blackberry'/>
 		<s:State name='symbian'/>
 	</s:states>
 
@@ -170,6 +171,13 @@
 								 text="installer"/>
 	</s:HGroup>
 
+  <s:VGroup includeIn="android" left="10" top="45">
+    <s:CheckBox left="10" id="admin" label="{R.get('REQUIRE_ADMIN')}" fontWeight="bold" selected="false"/>
+    <s:TextArea left="25" width="280" height="55" borderVisible="false"
+                contentBackgroundAlpha="0.0" editable="false"
+                text="{R.get('REQUIRE_ADMIN_DESC')}"/>    
+  </s:VGroup>
+  
 	<s:Form includeIn="blackberry"
 					left="10"
 					top="35">
@@ -248,6 +256,6 @@
 															bottom="0"
 															right="10"
 															create="{create}"
-															visible="{currentState=='all' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
+															visible="{currentState=='all' || currentState=='android' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
 
 </s:Group>

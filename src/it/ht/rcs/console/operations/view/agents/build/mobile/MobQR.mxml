@@ -34,7 +34,7 @@
 
 			public function set platform(value:*):void
 			{
-				if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
+				if (value == 'blackberry' || value == 'symbian' || value == 'multiplatform' || value == 'android')
 					currentState=value;
 				else
 					currentState='all';
@@ -142,9 +142,9 @@
 				}
 
 				if (params != null)
-					params={platform: 'qrcode', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
+					params={platform: 'qrcode', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected, admin: admin.selected}, sign: params['sign'], melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
 				else
-					params={platform: 'qrcode', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
+					params={platform: 'qrcode', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected, admin: admin.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
 
 				if (currentState == 'blackberry')
 				{
@@ -219,7 +219,8 @@
 	<s:states>
 		<s:State name='all'/>
 		<s:State name='multiplatform'/>
-		<s:State name='blackberry'/>
+    <s:State name='android'/>
+    <s:State name='blackberry'/>
 		<s:State name='symbian'/>
 	</s:states>
 
@@ -236,6 +237,13 @@
 		</s:FormItem>
 	</s:Form>
 
+  <s:VGroup includeIn="android" left="10" top="115">
+    <s:CheckBox left="10" id="admin" label="{R.get('REQUIRE_ADMIN')}" fontWeight="bold" selected="false"/>
+    <s:TextArea left="25" width="280" height="55" borderVisible="false"
+                contentBackgroundAlpha="0.0" editable="false"
+                text="{R.get('REQUIRE_ADMIN_DESC')}"/>    
+  </s:VGroup>
+  
 	<s:Form includeIn="blackberry"
 					left="10"
 					top="105">
@@ -317,6 +325,6 @@
 															bottom="0"
 															right="10"
 															create="{create}"
-															visible="{currentState=='all' || currentState=='blackberry' || currentState=='multiplatform' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
+															visible="{currentState=='all' || currentState=='android' || currentState=='blackberry' || currentState=='multiplatform' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.key==true &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
 
 </s:Group>

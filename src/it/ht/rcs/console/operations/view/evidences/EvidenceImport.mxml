@@ -16,6 +16,10 @@
       
       private var dirReference:File;
       
+      private var contents:Array;
+      private var uploadIndex:uint;
+      private var dataTotal:Object;
+      
       protected function closeMe(event:*):void
       {
         PopUpManager.removePopUp(this);
@@ -73,8 +77,8 @@
       protected function importDir(event:MouseEvent):void
       {
         currentState = "uploading";
-        var contents:Array = dirReference.getDirectoryListing(); 
-        var dataTotal:Object = {bytesTotal: contents.length - 1, bytesLoaded: 0};
+        contents = dirReference.getDirectoryListing(); 
+        dataTotal = {bytesTotal: contents.length - 1, bytesLoaded: 0};
         
         //no files inside the directory
         if(dataTotal.bytesTotal<=0)
@@ -89,23 +93,27 @@
         EvidenceManager.instance.sync(factory.text, instance.text, platform.text, '0', user.text, device.text,
           function (event:ResultEvent):void 
           {
+              EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[uploadIndex], onUploadResult, onUploadFault)
+                
+          }
+          )
+      }
+      
+      
+      private function onUploadResult(e:Event):void
+      {
+        if(uploadIndex<contents.length-1)
+        {
+          uploadIndex++;
+          dataTotal['bytesLoaded']++;
+          //if (contents[uploadIndex].name.indexOf('offline.ini') != -1)
+            EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[uploadIndex],onUploadResult, onUploadFault);
+        }
         
-           for (var i:uint = 0; i < contents.length; i++) {
-           
-              if (contents[i].name.indexOf('offline.ini') != -1)
-                continue;
-             
-              EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[i], 
-                function ():void {
-                  dataTotal['bytesLoaded']++;
-                }, 
-                function ():void {
-                  AlertPopUp.show(R.get('UPLOAD_ERROR', [contents[i].name]));
-                }
-              );
-            }
-          
-        } );
+      }
+      
+      private function onUploadFault(e:Event):void{
+        AlertPopUp.show(R.get('UPLOAD_ERROR', [contents[uploadIndex].name]));
       }
       
     ]]>

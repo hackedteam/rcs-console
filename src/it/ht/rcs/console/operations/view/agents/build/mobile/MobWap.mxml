@@ -81,7 +81,8 @@
 
 			private function browse():void
 			{
-				params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
+        if(!params)
+				  params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
 
 				fileReference=new FileReference();
 				fileReference.addEventListener(Event.SELECT, uploadCert);
@@ -108,7 +109,8 @@
 			private function onUploadComplete(event:DataEvent):void
 			{
 				PopUpManager.removePopUp(uploadPopup);
-
+        if(!params.sign)
+          params.sign={};
         params['sign']['cert']=event.data;
 			}
 
@@ -264,6 +266,8 @@
       
       private function browseForKey():void
       {
+        if(!params)
+          params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
         keyReference=new FileReference();
         keyReference.addEventListener(Event.SELECT, onKeySelected);
         keyReference.browse([new FileFilter("Key", "*.key")]);
@@ -289,7 +293,8 @@
       private function onKeyUploadComplete(event:DataEvent):void
       {
         PopUpManager.removePopUp(uploadPopup);
-        
+        if(!params.sign)
+          params.sign={};
         params['sign']['key']=event.data;
       }
       

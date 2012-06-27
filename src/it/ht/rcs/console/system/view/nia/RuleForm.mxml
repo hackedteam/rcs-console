@@ -205,6 +205,19 @@
           ident_param.enabled=true;
         }
       }
+      
+      private function  onActionChange():void
+      {
+        currentState="normal";
+        if(action.selectedItem=="INJECT-HTML-FLASH" || action.selectedItem=="INJECT-UPGRADE")
+        {
+          resource.text=""
+          resource.enabled=false;
+        }
+        else{
+          resource.enabled=true;
+        }
+      }
     ]]>
   </fx:Script>
   
@@ -263,7 +276,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('ACTION')}">
-      <s:DropDownList id="action" width="200" change="{currentState = 'normal'}"
+      <s:DropDownList id="action" width="200" change="onActionChange()"
                       requireSelection="true">
          <s:dataProvider>
            <s:ArrayCollection>

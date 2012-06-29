@@ -9,7 +9,7 @@
 				 show="onShow()"
 				 hide="onHide()"
 				 exitState="onExitState()"
-				 enterState="onEnterState()">
+				 enterState="onEnterState()" addedToStage="onAddedToStage()">
 	<fx:Metadata> 
     [Event(name="close", type="flash.events.Event")]
     [Event(name="update", type="flash.events.Event")]
@@ -43,7 +43,15 @@
 			public var currentIndex:int;
 			private var _currentItem:Evidence;
 			private var _currentItems:Vector.<Object>;
+      
+      private var previousState:String="";
 
+      
+      private function onAddedToStage():void
+      {
+      }
+      
+      
 			private function close():void
 			{
 				dispatchEvent(new Event("close"));
@@ -69,11 +77,14 @@
 					return;
 				if (hasState(currentItem.type))
 				{
+          previousState=currentState;
 					currentState=currentItem.type;
+          
 					//TODO
 					if (currentState == "screenshot")
 					{
 						screenshotViewer.evidence=currentItem;
+            trace("previousState: "+previousState);
 					}
 					if (currentState == "camera")
 					{

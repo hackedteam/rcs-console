@@ -3,19 +3,39 @@
                    xmlns:s="library://ns.adobe.com/flex/spark"
                    xmlns:mx="library://ns.adobe.com/flex/mx"
                    width="300" height="80" backgroundColor="#666666" cornerRadius="10"
-                   creationComplete="init()" creationPolicy="all">
+                   creationComplete="init()" creationPolicy="all" addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)">
   
   <fx:Script>
     <![CDATA[
-      import mx.managers.PopUpManager;
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.operations.view.evidences.EvidenceFileExporter;
+      
+      import mx.managers.PopUpManager;
       
       private var _exporter:EvidenceFileExporter;
 
       private function init():void
       {
         
+      }
+      
+      private function onAddedToStage(e:Event):void
+      {
+        this.stage.addEventListener(Event.RESIZE, onStageResize);
+        this.y=this.stage.stageHeight-this.height-10;
+        this.x=(this.stage.stageWidth-this.width)*.5;
+      }
+      
+      private function onRemovedFromStage(e:Event):void
+      {
+        this.stage.removeEventListener(Event.RESIZE, onStageResize);
+       
+      }
+      
+      private function onStageResize(e:Event):void
+      {
+        this.y=this.stage.stageHeight-this.height-10;
+        this.x=(this.stage.stageWidth-this.width)*.5;
       }
       
       public function set exporter(value:EvidenceFileExporter):void

@@ -125,6 +125,7 @@
 
 			private function onRemovedFromStage():void
 			{
+        this.stage.removeEventListener(Event.RESIZE, onStageResize)
 				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, refreshData);
 				EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
 				EvidenceManager.instance.unlistenRefresh();
@@ -281,16 +282,29 @@
 
 			private function export():void
 			{
+        exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart);
 				exporter.export(evidenceDg.selectedItems);
-				exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart);
+				
 			}
 
 			private function onExportStart(e:Event):void
 			{
-				exportMonitor=PopUpManager.createPopUp(this as DisplayObject, ExportPopUp, true) as ExportPopUp;
+				exportMonitor=PopUpManager.createPopUp(this as DisplayObject, ExportPopUp, false) as ExportPopUp;
+        
 				exportMonitor.exporter=exporter;
-				PopUpManager.centerPopUp(exportMonitor);
+				//PopUpManager.centerPopUp(exportMonitor);
+        exportMonitor.y=this.stage.stageHeight-exportMonitor.height-10;
+        exportMonitor.x=(this.stage.stageWidth-exportMonitor.width)*.5;
+        this.stage.addEventListener(Event.RESIZE, onStageResize);
 			}
+      private function onStageResize(e:Event):void
+      {
+        if(exportMonitor)
+        {
+          exportMonitor.y=this.stage.stageHeight-exportMonitor.height-10;
+          exportMonitor.x=(this.stage.stageWidth-exportMonitor.width)*.5;
+        }
+      }
 		]]>
 	</fx:Script>
 

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					width="100%"
+					height="100%"
+					addedToStage="onAddedToStage()"
+					removedFromStage="onRemovedFromStage()"
+          creationComplete="init()"
+					xmlns:ips="it.ht.rcs.console.operations.view.ips.*" >
+
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceFileExporter;
+      import it.ht.rcs.console.operations.view.evidences.ExportPopUp;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.events.GridEvent;
+
+			[Bindable]
+			public var section:OperationsSection;
+
+			[Bindable]
+			public var dataProvider:ArrayCollection;
+
+      private var exporter:EvidenceFileExporter;
+      private var exportMonitor:ExportPopUp;
+
+			private function onAddedToStage():void
+			{
+				EvidenceManager.instance.ipsFilter.target=section.stateManager.selectedTarget._id;
+				EvidenceManager.instance.ipsFilter.agent=section.stateManager.selectedAgent._id;
+				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onRefresh);
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				onRefresh()
+
+			}
+      private function init():void
+      {
+        exporter=new EvidenceFileExporter();
+      }
+
+			private function openDetail():void
+			{
+					/* viewer.currentItems=ipsGrid.selectedItems;
+					viewer.currentIndex=ipsGrid.selectedIndices[0];
+					viewer.visible=viewer.includeInLayout=true;
+					commandsGrid.visible=ipsGrid.includeInLayout=false; */
+			}
+
+			private function onViewerClose():void
+			{
+				closeViewer();
+			}
+
+			private function closeViewer():void
+			{
+			/* 	viewer.visible=viewer.includeInLayout=false;
+				//viewer.currentItem=null;
+				commandsGrid.visible=commandsGrid.includeInLayout=true; */
+			}
+
+			private function onRefresh(e:Event=null):void
+			{
+				EvidenceManager.instance.ips(onIpsResult)
+			}
+
+			private function onIpsResult(e:ResultEvent):void
+      {        
+					dataProvider=e.result as ArrayCollection;
+			}
+
+			private function onRemovedFromStage():void
+			{
+				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+
+				/* if (viewer.visible)
+				{
+					closeViewer();
+				} */
+			}
+
+			private function onGridDoubleClick(e:GridEvent):void
+			{
+       
+				//openDetail()
+			}
+      
+      private function onExportStart(e:Event):void
+      {
+        exportMonitor=PopUpManager.createPopUp(this as DisplayObject, ExportPopUp, true) as ExportPopUp;
+        exportMonitor.exporter=exporter;
+        PopUpManager.centerPopUp(exportMonitor);
+      }
+      
+      private function export():void
+      {
+        var toExport:Vector.<Object>=new Vector.<Object>
+        toExport.push(ipsGrid.selectedItem);
+        exporter.export(toExport);
+        exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart); 
+      }
+      
+      private function onDelete():void
+      {
+        AlertPopUp.show(R.get('CONFIRM_IP_DELETION'), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+            {
+              EvidenceManager.instance.removeIp(ipsGrid.selectedItem as Evidence, section.stateManager.selectedTarget);
+              ipsGrid.dataProvider.removeItemAt(ipsGrid.selectedIndex);
+              ipsGrid.selectedItem=actionBar.selectedObject=null
+              //if (viewer.visible) closeViewer();
+            }
+          }, null, AlertPopUp.NO);   
+      }
+		]]>
+	</fx:Script>
+  <ips:IpsActionBar selectedObject="{ipsGrid.selectedItem}" export="export()" delete="onDelete()" id="actionBar"/>
+	
+	<ips:IpsGrid id="ipsGrid"
+												 dataProvider="{dataProvider}"
+												 itemDoubleClick="onGridDoubleClick(event)"/>
+</s:VGroup>

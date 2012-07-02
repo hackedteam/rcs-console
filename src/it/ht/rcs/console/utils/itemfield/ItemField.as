@@ -55,6 +55,8 @@ package it.ht.rcs.console.utils.itemfield
       addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage);
       addEventListener(FlexEvent.CREATION_COMPLETE, init);
       
+      addEventListener(Event.CHANGE, onTextChange);
+      
       _path = new ArrayCollection();
     }
     
@@ -125,7 +127,8 @@ package it.ht.rcs.console.utils.itemfield
       if (!isVisibleType(item._kind)) return false;
       
       if (_path && _path.length > 0) {
-        for (var i:int = 0; i < _path.length; i++) {
+        for (var i:int = 0; i < item.path.length; i++) {
+         
           if (item.path[i] != _path[i])
             return false;
         }
@@ -227,6 +230,23 @@ package it.ht.rcs.console.utils.itemfield
       for each (var item:SearchItem in _dataProvider)
         if (item._id == id)
           selectItem(item, false);
+    }
+    
+    private function onTextChange(e:Event):void
+    {
+      trace("changed "+this.text);
+      _selectedItem=null;
+      
+      for(var i:int=0;i<this.dataProvider.length;i++)
+      {
+        var item:SearchItem=dataProvider[i] as SearchItem;
+        
+        if(item.name==this.text)
+        {
+          _selectedItem=item;
+          break;
+        }
+      }
     }
     
   }

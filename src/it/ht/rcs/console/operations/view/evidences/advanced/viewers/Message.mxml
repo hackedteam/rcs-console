@@ -37,36 +37,31 @@
 				_evidence=value;
 				if (value.type == "message")
 				{
-					if (value.data.type == "mail")
-					{
-            rcptTxt.visible=true;
-            fromTxt.visible=true;
-            subjectTxt.visible=true;
-            
-						var id:String=encodeURIComponent(value._id);
-						var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-
-						//var id:String=encodeURIComponent(value.data._grid);
-						//var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target; //export
-						var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; //export
-
-						loader.addEventListener(Event.COMPLETE, onContentLoaded);
-						loader.load(new URLRequest(url));
-					}
-					else if (value.data.type == "sms")
-					{
-						content=value.data.content || "";
-            
-					}
-          
-          else if (value.data.type == "mms")
+          switch (value.data.type)
           {
+          case "mail":
+            var id:String=encodeURIComponent(value._id);
+            var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+            var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; 
+            loader.addEventListener(Event.COMPLETE, onContentLoaded);
+            loader.load(new URLRequest(url));
+            break;
+          
+          case "sms":
             content=value.data.content || "";
-            
+            break;
+          
+          case "mms":
+            content=value.data.content || "";
+            break
+          
+          default:
+            content=value.data.content || "";
           }
-
+					
 				}
 			}
+      
 
 			private function onContentLoaded(e:Event):void
 			{

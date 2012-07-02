@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="330"
+							 height="230"
+							 close="closeMe(event)"
+							 title="{R.get('PURGE')}"
+							 creationComplete="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.agent.controller.AgentManager;
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.events.SessionEvent;
+			import it.ht.rcs.console.update.controller.CoreManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			
+			import locale.R;
+			
+			import mx.collections.ListCollectionView;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			[Bindable]
+			public var agent:Agent;
+
+			[Bindable]
+			private var upgradable:Boolean;
+
+			protected function closeMe(event:*):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			protected function init(event:FlexEvent):void
+			{
+
+			}
+
+			private function purge(event:*):void
+			{
+        var time:Number=0;
+        var size:Number=0;
+        
+        if(dateCh.selected)
+          time=Clock.instance.toUTCTime(dateSelector.selectedDate) / 1000;
+		    if(sizeCh.selected)
+				size=sizeSelector.value * 1024;
+				AgentManager.instance.purge(agent._id, time, size, onPurgeResult, onPurgeFault)
+			}
+
+			private function onPurgeResult(e:ResultEvent):void
+			{
+				AlertPopUp.show(R.get('PURGE_SUCCESS'), "", 0x4, this, closeMe);
+			}
+
+			private function onPurgeFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultString);
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup top="10"
+						left="10"
+						right="10"
+						horizontalAlign="center"
+						width="100%" height="100%">
+		<s:RichText fontSize="12"
+								width="100%"
+								text="{R.get('PURGE_DESC')}" height="50"/>
+
+		<s:HGroup verticalAlign="middle" width="90%">
+			<s:HGroup verticalAlign="middle" width="30%" horizontalAlign="right">
+				<s:Label text="{R.get('DATE')}"
+								 fontWeight="bold"/>
+				<s:CheckBox id="dateCh"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle" horizontalAlign="left" enabled="{dateCh.selected}" width="70%">
+				<s:Label text=": {R.get('BEFORE')}"/>
+				<mx:DateField disabledRanges="{[{rangeStart: new Date()}]}"
+											id="dateSelector"
+											selectedDate="{new Date()}"/>
+			</s:HGroup>
+
+		</s:HGroup>
+
+		<s:HGroup verticalAlign="middle" width="90%">
+
+			<s:HGroup verticalAlign="middle" width="30%" horizontalAlign="right">
+				<s:Label text="{R.get('SIZE')}"
+								 fontWeight="bold"/>
+				<s:CheckBox id="sizeCh"/>
+			</s:HGroup>
+			<s:HGroup verticalAlign="middle" horizontalAlign="left" enabled="{sizeCh.selected}" width="70%">
+				<s:Label text=": {R.get('BIGGER_THAN')}"/>
+
+				<s:NumericStepper minimum="1"
+													maximum="10000"
+													id="sizeSelector"/>
+				<s:Label text="KB"/>
+			</s:HGroup>
+		</s:HGroup>
+  </s:VGroup>
+		<s:HGroup bottom="10"
+							width="100%"
+							horizontalAlign="center">
+			<s:Button id="upBtn"
+								label="{R.get('PURGE')}"
+								click="purge(event)"/>
+			<s:Button label="{R.get('CANCEL')}"
+								click="closeMe(event)"/>
+		</s:HGroup>
+</s:TitleWindow>

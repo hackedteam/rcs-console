@@ -34,7 +34,10 @@
             icon="@Embed('/img/NEW/confirm.png')"
             enabled="{Console.currentSession.user.is_sys()}"/>
   
-
+  <actionbar:Separator width="40"/>
+  
+  <s:Button label="{R.get('FILE_MANAGER')}" click="deleteFiles()" icon="@Embed('/img/NEW/file_ex_32.png')"/>
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.network.controller.CollectorManager;
@@ -109,6 +112,12 @@
       {
         var popup:AnonUpgrade = PopUpManager.createPopUp(root, AnonUpgrade, true) as AnonUpgrade;
         popup.anon = selectedObject as Collector;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function deleteFiles():void
+      {
+        var popup:DeleteFilesForm = PopUpManager.createPopUp(root, DeleteFilesForm, true) as DeleteFilesForm;
         PopUpManager.centerPopUp(popup);
       }
       

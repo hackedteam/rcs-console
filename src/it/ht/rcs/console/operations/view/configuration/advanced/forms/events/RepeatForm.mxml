@@ -7,9 +7,14 @@
   
   <fx:Script>
     <![CDATA[
+      
+      import it.ht.rcs.console.operations.view.configuration.advanced.renderers.Connection;
+      import mx.managers.PopUpManager;
+      
       import locale.R;
       
       public var event:Object;
+      public var connection:it.ht.rcs.console.operations.view.configuration.advanced.renderers.Connection;
       
       private function init():void
       {
@@ -31,7 +36,14 @@
         else
           delete(event.iter);
         
-        close();
+        PopUpManager.removePopUp(this)
+      }
+      
+      override protected function close(event:Event=null):void
+      {
+        if(connection)
+          connection.deleteConnection();
+        super.close()
       }
       
       private function onChange(event:Event):void

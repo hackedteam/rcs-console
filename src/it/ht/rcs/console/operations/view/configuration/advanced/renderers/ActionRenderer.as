@@ -21,6 +21,12 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
 
   public class ActionRenderer extends Group implements Linkable
 	{
+    [Embed (source="img/modules/Create.png" )]
+    public var okIcon:Class;
+    
+    [Embed (source="img/modules/No-entry.png" )]
+    public var noIcon:Class;
+    
     private static const WIDTH_EXPANDED:Number  = 170;
     private static const WIDTH_COLLAPSED:Number = 50;
     private static const HEIGHT:Number = 50;
@@ -46,6 +52,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     public var stopModulePin:Pin;
     
     private var graph:ConfigurationGraph;
+    
+    private var acceptDragIcon:BitmapImage;
     
     public var action:Object;
     
@@ -191,7 +199,14 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         textLabel.maxDisplayedLines = 2;
         container.addElement(textLabel);
         
+        acceptDragIcon=new BitmapImage();
+        acceptDragIcon.source=okIcon
+        acceptDragIcon.x=72;
+        acceptDragIcon.y=-6;
+        //acceptDragIcon.visible=false;
+        
         addElement(container);
+        //addElement(acceptDragIcon);
       }
       
       if (enableEventPin == null) {

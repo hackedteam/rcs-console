@@ -59,7 +59,7 @@
 
 				evidenceDg.setFocus(); // keep! fixes various focusmanager bestiality when switching view (eg from dashboard)
 
-				trace("evidence view added to stage")
+				//trace("evidence view added to stage")
 			}
 
 			public function resetFilter():void
@@ -125,6 +125,7 @@
 
 			private function onRemovedFromStage():void
 			{
+      
 				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, refreshData);
 				EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
 				EvidenceManager.instance.unlistenRefresh();
@@ -281,16 +282,20 @@
 
 			private function export():void
 			{
+        exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart);
 				exporter.export(evidenceDg.selectedItems);
-				exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart);
+				
 			}
 
 			private function onExportStart(e:Event):void
 			{
-				exportMonitor=PopUpManager.createPopUp(this as DisplayObject, ExportPopUp, true) as ExportPopUp;
+				exportMonitor=PopUpManager.createPopUp(this as DisplayObject, ExportPopUp, false) as ExportPopUp;
+        
 				exportMonitor.exporter=exporter;
-				PopUpManager.centerPopUp(exportMonitor);
+				//PopUpManager.centerPopUp(exportMonitor);
+       
 			}
+
 		]]>
 	</fx:Script>
 

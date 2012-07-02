@@ -8,36 +8,64 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.DB;
 			import flashx.textLayout.conversion.TextConverter;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+
+			import mx.collections.ArrayCollection;
+
+			[Bindable]
+			private var renderMode:String;
       
-      [Bindable]
-      private var renderMode:String
+			[Bindable]
+			private var ImageClass:Class;
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
 				super.data=value;
-				// topic, peer, content, program
-				if(data.data.topic!="")
+        if(data.data.program.toLowerCase()=="" || data.data.program.toLowerCase()==null)
         {
-          topicTxt.visible=topicTxt.includeInLayout=true;
-          topicTxt.textFlow=TextConverter.importToFlow("<b>Topic: </b>" + data.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        }else
-        {
-          topicTxt.visible=topicTxt.includeInLayout=false;
+          ImageClass=ChatIcons["chat"]
         }
-        if(data.data.program=="Facebook")
+          
+        else if(data.data.program.toLowerCase()=="google talk")
         {
-          renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
+          ImageClass=ChatIcons["gtalk"]
         }
+          
+        else if(data.data.program.toLowerCase()=="messenger")
+        {
+          ImageClass=ChatIcons["bbm"]
+        }    
         else
         {
-          renderMode=TextConverter.PLAIN_TEXT_FORMAT
+          ImageClass=ChatIcons[data.data.program.toLowerCase()]
         }
+        
+				// topic, peer, content, program
+        
+				if (data.data.topic != "")
+				{
+					topicTxt.visible=topicTxt.includeInLayout=true;
+					topicTxt.textFlow=TextConverter.importToFlow("<b>Topic: </b>" + data.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+				else
+				{
+					topicTxt.visible=topicTxt.includeInLayout=false;
+				}
+				if (data.data.program == "Facebook")
+				{
+					renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
+				}
+				else
+				{
+					renderMode=TextConverter.PLAIN_TEXT_FORMAT
+				}
 
 				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>"+data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + data.data.content,TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 		]]>
@@ -45,25 +73,33 @@
 	<s:HGroup verticalAlign="top"
 						height="100%"
 						width="100%">
-		<s:VGroup verticalAlign="middle"
-							width="50%">
-			<s:RichText id="topicTxt"
-									width="100%"/>
-      <s:RichText id="contentTxt"
+    
+    <s:VGroup verticalAlign="middle"
+              width="50%">
+      <s:RichText id="peerTxt"
                   width="100%"/>
-		</s:VGroup>
+      <s:HGroup verticalAlign="middle">
+        <s:BitmapImage width="16"
+                       height="16"
+                       source="{ImageClass}"/>
+        <s:RichText id="programTxt"
+                    width="100%"/>
+      </s:HGroup>
+    </s:VGroup>
+    
+		
 		<s:Line height="100%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<s:VGroup verticalAlign="middle"
-							width="50%">
-      <s:RichText id="peerTxt"
+    <s:VGroup verticalAlign="middle"
+              width="50%">
+      <s:RichText id="topicTxt"
                   width="100%"/>
-			<s:RichText id="programTxt"
-									width="100%"/>
-		</s:VGroup>
+      <s:RichText id="contentTxt"
+                  width="100%"/>
+    </s:VGroup>
 	</s:HGroup>
 
 </renderers:EvidenceDataRenderer>

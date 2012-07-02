@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<events:EventFields xmlns:fx="http://ns.adobe.com/mxml/2009"
+                    xmlns:s="library://ns.adobe.com/flex/spark"
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    xmlns:utils="it.ht.rcs.console.utils.*"
+                    xmlns:events="it.ht.rcs.console.operations.view.configuration.advanced.forms.events.*"
+                    creationComplete="init()">
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      private function init():void
+      {
+        var t:int = event.time || 3600
+        time.text = String(t);
+      }
+      
+      override public function commit():void
+      {
+        event.time = parseInt(time.text) 
+      }
+      
+      override public function isValid():Boolean
+      {
+        return val.isValid();
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:Label width="280" lineHeight="16"
+           text="{R.get('CONFIG_HELP_IDLE')}"/>
+
+  <s:Form>
+    
+    <s:FormItem label="{R.get('TIME')}">
+      <s:HGroup verticalAlign="middle">
+        <s:TextInput id="time" restrict="0-9" textAlign="center" widthInChars="5" text="3600"/>
+        <s:Label paddingTop="1" text=" Sec"/>
+      </s:HGroup>
+    </s:FormItem>
+    
+  </s:Form>
+  <fx:Declarations>
+    <fx:Array id="vals">
+      <mx:NumberValidator property="text" required="true" source="{time}" triggerEvent=""/>
+    </fx:Array>
+    <utils:MetaValidator id="val" validators="{vals}"/>
+  </fx:Declarations>
+</events:EventFields>

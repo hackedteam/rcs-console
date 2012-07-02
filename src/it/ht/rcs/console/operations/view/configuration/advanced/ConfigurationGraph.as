@@ -133,7 +133,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         var event:Object = ((connection.from as Pin).parent as EventRenderer).event;
         event[type] = (config.actions as Array).indexOf(action);
         if (type == 'repeat')
-          displayRepeatPopup(event);
+          displayRepeatPopup(event, connection);
       } else if (connection.to is EventRenderer) {
         action = ((connection.from as Pin).parent as ActionRenderer).action;
         event = (connection.to as EventRenderer).event;
@@ -144,9 +144,10 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       }
     }
     
-    private function displayRepeatPopup(event:Object):void
+    private function displayRepeatPopup(event:Object, connection:Connection):void
     {
       var popup:RepeatForm = PopUpManager.createPopUp(root, RepeatForm, true) as RepeatForm;
+      popup.connection=connection;
       popup.event = event;
       PopUpManager.centerPopUp(popup);
     }

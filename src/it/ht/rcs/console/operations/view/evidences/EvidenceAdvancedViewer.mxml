@@ -9,7 +9,9 @@
 				 show="onShow()"
 				 hide="onHide()"
 				 exitState="onExitState()"
-				 enterState="onEnterState()">
+				 enterState="onEnterState()"
+				 addedToStage="onAddedToStage()"
+				 removedFromStage="onRemovedFromStage()">
 	<fx:Metadata> 
     [Event(name="close", type="flash.events.Event")]
     [Event(name="update", type="flash.events.Event")]
@@ -44,6 +46,20 @@
 			private var _currentItem:Evidence;
 			private var _currentItems:Vector.<Object>;
 
+			private var previousState:String="";
+
+
+			private function onAddedToStage():void
+			{
+				
+			}
+
+			private function onRemovedFromStage():void
+			{
+				
+			}
+
+
 			private function close():void
 			{
 				dispatchEvent(new Event("close"));
@@ -54,7 +70,6 @@
 			{
 				_currentItems=value;
 				currentItem=currentItems[0] as Evidence;
-
 			}
 
 			public function get currentItems():Vector.<Object>
@@ -70,11 +85,14 @@
 					return;
 				if (hasState(currentItem.type))
 				{
+					previousState=currentState;
 					currentState=currentItem.type;
+
 					//TODO
 					if (currentState == "screenshot")
 					{
 						screenshotViewer.evidence=currentItem;
+						trace("previousState: " + previousState);
 					}
 					if (currentState == "camera")
 					{
@@ -92,19 +110,20 @@
 					//TODO
 					if (currentState == "position")
 					{
-            positionViewer.isUpdated=false;
+
+						//positionViewer.isUpdated=false;
 						//positionViewer.evidences=currentItems;
-            
-						if(currentItems.length>1 && sameType("position", currentItems))
-							{
-								positionViewer.evidences=currentItems;
-							
-							}
-							else
-							{		
-								positionViewer.evidence=currentItem;
-				
-							}  
+
+						if (currentItems.length > 1 && sameType("position", currentItems))
+						{
+							positionViewer.evidences=currentItems;
+
+						}
+						else
+						{
+							positionViewer.evidence=currentItem;
+
+						}
 					}
 					if (currentState == "keylog")
 					{
@@ -175,6 +194,7 @@
 			private function onShow():void
 			{
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
+
 			}
 
 			private function onHide():void
@@ -184,6 +204,11 @@
 				{
 					callViewer.reset();
 				}
+       
+        if(currentState=="screenshot")
+          screenshotViewer.reset();
+        if(currentState=="camera")
+          cameraViewer.reset()
 			}
 
 			private function onKeyPress(e:KeyboardEvent):void
@@ -258,21 +283,29 @@
 				return result;
 			}
 
-			private function onMapChange():void
+			private function onChatChange():void
 			{
-			  _currentItem=positionViewer.evidence as Evidence;
+				_currentItem=chatViewer.evidence as Evidence;
 				infoPanel.evidence=currentItem;
 				currentIndex=dataProvider.getItemIndex(currentItem);
 				dispatchEvent(new Event("selectionChange"));
 			}
-      
-      private function onMapUpdate():void
-      {
-        currentItem=positionViewer.evidence as Evidence;
-        infoPanel.evidence=currentItem;
-        currentIndex=dataProvider.getItemIndex(currentItem);
-        dispatchEvent(new Event("update"));
-      }
+
+			private function onMapChange():void
+			{
+				_currentItem=positionViewer.evidence as Evidence;
+				infoPanel.evidence=currentItem;
+				currentIndex=dataProvider.getItemIndex(currentItem);
+				dispatchEvent(new Event("selectionChange"));
+			}
+
+			private function onMapUpdate():void
+			{
+				currentItem=positionViewer.evidence as Evidence;
+				infoPanel.evidence=currentItem;
+				currentIndex=dataProvider.getItemIndex(currentItem);
+				dispatchEvent(new Event("update"));
+			}
 		]]>
 	</fx:Script>
 
@@ -319,7 +352,8 @@
 										id="cameraViewer"/>
 		<viewers:Chat evidence="{currentItem}"
 									includeIn="chat"
-									id="chatViewer"/>
+									id="chatViewer"
+									change="onChatChange()"/>
 		<viewers:Clipboard evidence="{currentItem}"
 											 includeIn="clipboard"
 											 id="clipboardViewer"/>
@@ -348,7 +382,7 @@
 											includeIn="position"
 											id="positionViewer"
 											change="onMapChange()"
-                      update="onMapUpdate()"
+											update="onMapUpdate()"
 											evidence="{currentItem}"/>
 		<viewers:Print evidence="{currentItem}"
 									 includeIn="print"

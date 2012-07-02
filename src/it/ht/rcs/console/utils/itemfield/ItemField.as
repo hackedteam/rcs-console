@@ -127,7 +127,8 @@ package it.ht.rcs.console.utils.itemfield
       if (!isVisibleType(item._kind)) return false;
       
       if (_path && _path.length > 0) {
-        for (var i:int = 0; i < _path.length; i++) {
+        for (var i:int = 0; i < item.path.length; i++) {
+         
           if (item.path[i] != _path[i])
             return false;
         }

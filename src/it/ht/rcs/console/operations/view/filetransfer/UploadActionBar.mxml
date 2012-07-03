@@ -7,6 +7,7 @@
   <s:Button label="{R.get('NEW_UPLOAD')}" click="onUpload(event)" icon="@Embed('/img/NEW/upload.png')"/>
   <s:Button label="{R.get('EXPORT_FILE')}" click="onDownload(event)" enabled="{selectedObject != null}"
             icon="@Embed('/img/NEW/export.png')"/>
+  <s:Button label="{R.get('DELETE')}" click="onDelete(event)" icon="@Embed('/img/NEW/delete_32.png')" enabled="{selectedObject}"/>
   
   <s:Spacer width="100%"/>
   
@@ -96,6 +97,16 @@
       private function onComplete():void
       {
         AlertPopUp.show("Download completed");
+      }
+      
+      private function onDelete(e:MouseEvent):void
+      {
+        AgentManager.instance.deleteUpload(section.stateManager.selectedAgent, selectedObject._id, onDeleteSuccess);
+      }
+      
+      private function onDeleteSuccess(e:ResultEvent):void
+      {
+        FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
       }
     ]]>
   </fx:Script>

@@ -234,7 +234,7 @@ package it.ht.rcs.console.utils.itemfield
     
     private function onTextChange(e:Event):void
     {
-      trace("changed "+this.text);
+     
       _selectedItem=null;
       
       for(var i:int=0;i<this.dataProvider.length;i++)

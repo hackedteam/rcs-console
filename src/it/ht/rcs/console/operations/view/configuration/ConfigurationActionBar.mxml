@@ -70,6 +70,7 @@
       import mx.core.UIComponent;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
       [Embed('/img/NEW/expand_all.png')]
@@ -104,12 +105,22 @@
       
       private function saveConfig(callback:Function = null):Object
       {
+        if(configView.basic.sync.host.selectedItem==null)
+        {
+          AlertPopUp.show(R.get('MISSING_COLLECTOR'))
+          return null;
+        }
         var config:Object = getConfig();
         if (config == null) return null;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config), callback);
+        AgentManager.instance.addConfig(a, JSON.stringify(config), callback, faultCallback);
         configView.updateOriginalConfig(config);
         return config;
+      }
+      
+      private function faultCallback(e:FaultEvent):void
+      {
+      AlertPopUp.show(e.fault.faultDetail)
       }
       
       private function goBackToList(c:Config):void

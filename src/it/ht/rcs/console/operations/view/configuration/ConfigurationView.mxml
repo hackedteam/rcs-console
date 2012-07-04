@@ -23,7 +23,7 @@
       [Bindable]
       public var section:OperationsSection;
       
-      private var configAsConfig:Config;
+      private var configAsConfig:Config; 
       
       [Bindable]
       public var configAsObject:Object;
@@ -47,8 +47,13 @@
           
           configAsObject = JSON.parse(configAsConfig.config);
           cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
+          addMissingModules(section.stateManager.selectedAgent.platform, configAsObject)
           displayConfig(false);
         }
+      }
+      private function addMissingModules(platform:String, configAsObject:Object):void
+      {
+        DefaultConfigBuilder.addMissingModules(platform, configAsObject);
       }
       
       private function cleanUnsupportedModules(platform:String, configAsObject:Object):void
@@ -64,6 +69,8 @@
         if(!isImported)
         {
           updateOriginalConfig(configAsObject)
+          //cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
+          //addMissingModules(section.stateManager.selectedAgent.platform, configAsObject)
         }
         
         currentState = configAsObject.globals.advanced ? "advanced" : "basic";

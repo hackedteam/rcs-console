@@ -105,11 +105,14 @@
       
       private function saveConfig(callback:Function = null):Object
       {
-        if(configView.basic.sync.host.selectedItem==null)
-        {
-          AlertPopUp.show(R.get('MISSING_COLLECTOR'))
-          return null;
-        }
+       if(configView.currentState=='basic')
+       {
+         if(configView.basic.sync.host.selectedItem==null)
+         {
+           AlertPopUp.show(R.get('MISSING_COLLECTOR'))
+           return null;
+         }
+       }
         var config:Object = getConfig();
         if (config == null) return null;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;

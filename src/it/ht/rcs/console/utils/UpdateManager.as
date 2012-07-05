@@ -5,14 +5,17 @@ package it.ht.rcs.console.utils
   import flash.events.Event;
   import flash.events.IOErrorEvent;
   import flash.events.ProgressEvent;
+  import flash.events.TimerEvent;
   import flash.filesystem.File;
   import flash.filesystem.FileMode;
   import flash.filesystem.FileStream;
   import flash.net.URLRequest;
   import flash.net.URLStream;
   import flash.utils.ByteArray;
+  import flash.utils.Timer;
   
   import it.ht.rcs.console.DB;
+  import it.ht.rcs.console.events.SessionEvent;
   import it.ht.rcs.console.update.model.UpdateVersions;
   
   import locale.R;
@@ -22,14 +25,32 @@ package it.ht.rcs.console.utils
   import mx.managers.PopUpManager;
   import mx.rpc.events.ResultEvent;
 
-  public class Update
+  public class UpdateManager
   {
 
-    public function Update()
+    private static var _instance:UpdateManager = new UpdateManager();
+    public static function get instance():UpdateManager { return _instance; }
+    
+    private var autoCheck:Timer = new Timer(10*60*1000);
+    
+    public function UpdateManager()
     {
+      FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, onLogout);
+      autoCheck.addEventListener(TimerEvent.TIMER, check);
+    }
+        
+    protected function onLogout(e:SessionEvent):void 
+    {
+      autoCheck.stop();
     }
     
-    public static function check():void
+    public function start():void
+    {
+      autoCheck.start();
+      check(null);      
+    }
+    
+    public static function check(e:*):void
     {
       DB.instance.update.all(function (e:ResultEvent):void {
         

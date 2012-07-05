@@ -29,6 +29,7 @@
   
   <s:Button label="{R.get('EXPORT')}" click="export(event)" icon="@Embed('/img/NEW/export.png')"/>
   <s:Button label="{R.get('IMPORT')}" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
+  <s:Button label="{R.get('TEMPLATES')}" click="openTemplatePanel(event)" icon="@Embed('/img/NEW/template.png')"/>
   
   <s:HGroup visible="{configView.currentState == 'basic'}" gap="0"
             includeInLayout="{configView.currentState == 'basic'}">
@@ -62,6 +63,7 @@
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleRenderer;
+      import it.ht.rcs.console.operations.view.configuration.template.TemplateView;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -72,6 +74,8 @@
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
+      
+      import spark.primitives.Rect;
       
       [Embed('/img/NEW/expand_all.png')]
       private static const expandIcon:Class;
@@ -270,6 +274,22 @@
           DefaultConfigBuilder.cleanPlatformConfig(a.platform, newConfig);
         configView.basic.config = newConfig;
         configView.basic.displayConfig();
+      }
+      
+      private function onTemplateLoad(e:Event):void
+      {
+        var loadedConfig:Object=e.currentTarget.config;
+        configView.configAsObject = loadedConfig;
+        configView.displayConfig(true);
+      }
+      
+      private function openTemplatePanel(event:MouseEvent):void
+      {
+        var config:Object=getConfig();
+        var popup:TemplateView = PopUpManager.createPopUp(root, TemplateView, true) as TemplateView;
+        popup.addEventListener(TemplateView.TEMPLATE_LOAD, onTemplateLoad)
+        popup.config=config;
+        PopUpManager.centerPopUp(popup);
       }
     ]]>
   </fx:Script>

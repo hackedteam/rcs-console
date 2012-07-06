@@ -14,6 +14,11 @@
       
       import mx.core.FlexGlobals;
       
+      
+      public static const LAST_DAY:String="24h";
+      public static const LAST_WEEK:String="week";
+      public static const LAST_MONTH:String="month";
+      
       private function init():void
       {
         group.selection = null;
@@ -33,13 +38,20 @@
         if (fromTo.selected) {
           filter.from = getFromTimestamp();
           filter.to = getToTimestamp();
-        } else if (last24.selected) {
-          delete(filter.from);
+        } 
+        else if (last24.selected) {
+          filter.from = LAST_DAY;
           delete(filter.to);
-        } else if (lastWeek.selected) {
-          filter.from = getOneWeekAgo();
+        } 
+        else if (lastWeek.selected) {
+          filter.from = LAST_WEEK;
           delete(filter.to);
-        } else {
+        } 
+        else if (lastMonth.selected) {
+          filter.from = LAST_MONTH;
+          delete(filter.to);
+        } 
+        else {
           filter.from = 0;
           filter.to = 0;
         }
@@ -81,11 +93,13 @@
         else if (filter.from && filter.to) {
           fromTo.selected = true;
           setFromTimestamp(filter.from);
-          setToTimestamp(filter.to);
-        } else if (filter.from && !filter.to)
+          setToTimestamp(filter.to);  
+        } else if (filter.from==LAST_WEEK && !filter.to)//TODO CHECK!!!
           lastWeek.selected = true;
-        else if (!filter.from && !filter.to)
+        else if (filter.from==LAST_DAY && !filter.to)
           last24.selected = true;
+        else if (filter.from==LAST_MONTH && !filter.to)
+          lastMonth.selected = true;
       }
     ]]>
   </fx:Script>
@@ -98,6 +112,7 @@
     
     <s:RadioButton id="last24"   label="Last 24 Hours" group="{group}"/>
     <s:RadioButton id="lastWeek" label="Last Week"     group="{group}"/>
+    <s:RadioButton id="lastMonth" label="Last Month"     group="{group}"/>
  <!--s:RadioButton id="all"      label="All"           group="{group}"/-->
     <s:RadioButton id="fromTo"   label="From / To"     group="{group}"/>
     
@@ -160,6 +175,7 @@
         fromH.value = fromDate.hours;
         fromM.value = fromDate.minutes;
       }
+      
       private function setToTimestamp(ts:int):void
       {
         var toDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="600"
+							 height="500"
+							 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+							 addedToStage="onAddedToStage()"
+							 title="{R.get('FILTERS')}">
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Filter;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+
+
+			public static const FILTER_APPLY:String="filterApply";
+      
+      [Bindable]
+      public var evidenceView:EvidencesView;
+      
+			[Bindable]
+			public var filtersAC:ArrayCollection;
+
+			override protected function partAdded(partName:String, instance:Object):void
+			{
+				super.partAdded(partName, instance);
+
+				if (instance == closeButton)
+				{
+					instance.addEventListener(MouseEvent.CLICK, close);
+				}
+			}
+
+			protected function close(event:Event=null):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			private function onAddedToStage():void
+			{
+				//view.currentIndex=0;
+				EvidenceManager.instance.getFilters(onFilterResult, onFilterFault);
+			}
+
+
+
+			private function onDelete():void
+			{
+				AlertPopUp.show(R.get('FILTER_DELETION_CONFIRM'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						EvidenceManager.instance.destroyFilter(filtersDg.selectedItem as Filter, onDeleteResult, onDeleteFault);
+				}, null, AlertPopUp.NO);
+
+			}
+
+			private function onDeleteResult(e:ResultEvent):void
+			{
+				EvidenceManager.instance.getFilters(onFilterResult, onFilterFault);
+			}
+
+			private function onDeleteFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail)
+			}
+
+			private function onFilterResult(e:ResultEvent):void
+			{
+				filtersAC=e.result as ArrayCollection;
+				filtersAC.refresh();
+			}
+
+			private function onFilterFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail);
+			}
+
+			private function onApply():void
+			{
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+        
+				var currentFilter:Object=JSON.parse(filtersDg.selectedItem.filter);
+        currentFilter.target=evidenceView.section.stateManager.selectedTarget._id;
+        if (evidenceView.section.stateManager.selectedAgent != null)
+          EvidenceManager.instance.evidenceFilter.agent=evidenceView.section.stateManager.selectedAgent._id;
+        else
+          delete EvidenceManager.instance.evidenceFilter.agent;
+        
+        var evidenceFilter:Object=EvidenceManager.instance.evidenceFilter;
+        for(var prop:String in currentFilter)
+        {
+          evidenceFilter[prop]=currentFilter[prop];
+        }
+       
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+        
+				close();
+
+			}
+
+			private function addFilter():void
+			{
+				var currentFilter:Object=new Object();
+        currentFilter.name=descTxt.text;
+        currentFilter.private=privateCh.selected;
+        var criteria:Object=new Object();
+          for(var prop:String in EvidenceManager.instance.evidenceFilter)
+          {
+            if(prop!="target" && prop!="aid")
+              criteria[prop]=EvidenceManager.instance.evidenceFilter[prop]
+          }
+        currentFilter.filter=JSON.stringify(criteria);
+				EvidenceManager.instance.addFilter(currentFilter, onSaveResult, onSaveFault);
+        privateCh.selected=false;
+        descTxt.text="";
+			}
+
+			private function onCancel():void
+			{
+				dispatchEvent(new Event("close"))
+			}
+
+			private function onSaveResult(e:ResultEvent):void
+			{
+				EvidenceManager.instance.getFilters(onFilterResult, onFilterFault)
+				AlertPopUp.show(R.get('FILTER_SAVE_SUCCESS'), "", 0x4, null, function():void
+				{
+					dispatchEvent(new Event("close"))
+				})
+			}
+
+			private function onSaveFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail)
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+						height="100%"
+						paddingBottom="20"
+						paddingLeft="20"
+						paddingRight="20"
+						paddingTop="20">
+		<s:HGroup width="100%"
+							verticalAlign="middle">
+			<s:Label text="{R.get('FILTER_SAVE_AS_DESC')}"/>
+		</s:HGroup>
+		<s:HGroup width="100%"
+							verticalAlign="middle">
+      <s:Label text="{R.get('NAME')}"/>
+			<s:TextInput id="descTxt"
+									 width="100%"/>
+      <s:CheckBox label="private" id="privateCh"/>
+			<s:Button label="{R.get('SAVE')}"
+								enabled="{descTxt.text!=''}"
+								click="addFilter()"/>
+		</s:HGroup>
+		<s:Spacer height="5"/>
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Spacer height="5"/>
+		<s:Label text="{R.get('FILTER_LOAD_DESC')}"/>
+		<s:DataGrid dataProvider="{filtersAC}"
+								width="100%"
+								height="100%"
+								id="filtersDg">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="name"
+												headerText="{R.get('DESCRIPTION')}"/>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:HGroup width="100%"
+							horizontalAlign="right">
+			<s:Button label="{R.get('APPLY')}"
+								enabled="{filtersDg.selectedItem!=null}"
+								click="onApply()"/>
+			<s:Button label="{R.get('DELETE')}"
+								enabled="{filtersDg.selectedItem!=null}"
+								click="onDelete()"/>
+		</s:HGroup>
+
+	</s:VGroup>
+</s:TitleWindow>

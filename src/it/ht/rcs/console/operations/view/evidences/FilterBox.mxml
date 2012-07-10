@@ -5,7 +5,7 @@
                    borderWeight="1" cornerRadius="5">
   
   <s:layout>
-    <s:HorizontalLayout paddingBottom="5" paddingLeft="10" paddingRight="10" paddingTop="5" verticalAlign="middle"/>
+    <s:HorizontalLayout paddingBottom="6" paddingLeft="7" paddingRight="6" paddingTop="6" verticalAlign="middle"/>
   </s:layout>
   
   <fx:Script>
@@ -21,6 +21,7 @@
       import mx.rpc.events.ResultEvent;
       import mx.managers.PopUpManager;
       
+      [Bindable]
       public var evidenceView:EvidencesView;
       
       private function onShowIdChange():void
@@ -45,6 +46,7 @@
       {
         
         var popup:FilterView = PopUpManager.createPopUp(root, FilterView, true) as FilterView;
+        popup.evidenceView=evidenceView;
         //popup.addEventListener(TemplateView.TEMPLATE_LOAD, onTemplateLoad)
         //popup.config=config;
         PopUpManager.centerPopUp(popup);
@@ -53,6 +55,7 @@
     ]]>
   </fx:Script>
   
-  <s:CheckBox id="showIdCh" change="onShowIdChange()" label="{R.get('ID_COLUMN_SHOW')}"/>
-<s:Button label="get filters" click="openFilterPanel(event)"/>
+  <s:CheckBox id="showIdCh" change="onShowIdChange()" label="{R.get('ID_COLUMN_SHOW')}" fontWeight="bold"/>
+  <s:Spacer width="100%"/>
+<mx:LinkButton label="Filter presets" click="openFilterPanel(event)" fontWeight="bold"/>
 </s:BorderContainer>

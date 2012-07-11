@@ -419,6 +419,12 @@ package it.ht.rcs.console.operations.view
     public var searchField:TextInput;
     private function searchFilterFunction(item:Object):Boolean
     {
+      if(item is Agent)// show factory to tech users only
+      {
+        if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+          return false;
+      }
+      
       if (!searchField || searchField.text == '')
         return true;
       
@@ -431,7 +437,8 @@ package it.ht.rcs.console.operations.view
       
       if (item && item.hasOwnProperty('desc') && item.desc)
         result = result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
-      
+      //
+     
       return result;
     }
     
@@ -441,6 +448,8 @@ package it.ht.rcs.console.operations.view
         return searchFilterFunction(item);
       else return false;
     }
+    
+    
     
     private function singleTargetFilterFunction(item:Object):Boolean
     {

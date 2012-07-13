@@ -416,8 +416,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
             if (subaction.status == 'enable')  createConnection(ar.enableEventPin,  events[subaction.event]);
             if (subaction.status == 'disable') createConnection(ar.disableEventPin, events[subaction.event]);
           } else if (subaction.action == 'module') {
-            if (subaction.status == 'start') createConnection(ar.startModulePin, modulesMap[subaction.module]);
-            if (subaction.status == 'stop')  createConnection(ar.stopModulePin,  modulesMap[subaction.module]);
+            if (subaction.status == 'start' && modulesMap[subaction.module]) createConnection(ar.startModulePin, modulesMap[subaction.module]);
+            if (subaction.status == 'stop' && modulesMap[subaction.module])  createConnection(ar.stopModulePin,  modulesMap[subaction.module]);
           }
         }
       }

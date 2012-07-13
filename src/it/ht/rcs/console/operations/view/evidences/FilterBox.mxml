@@ -24,38 +24,34 @@
       [Bindable]
       public var evidenceView:EvidencesView;
       
-      private function onShowIdChange():void
-      {
-        evidenceView.evidenceDg.idVisible=showIdCh.selected;
-      }
+     
       
       private function getFilters():void
       {
-        EvidenceManager.instance.getFilters(onFilterResult, onFilterFault)
+        EvidenceManager.instance.getFilters(onFilterResult, onFilterFault);
       }
       
-      private function onFilterResult(e:ResultEvent):void{
+      private function onFilterResult(e:ResultEvent):void
+      {
       
       }
       
-      private function onFilterFault(e:FaultEvent):void{
+      private function onFilterFault(e:FaultEvent):void
+      {
       
       }
       
       private function openFilterPanel(event:MouseEvent):void
-      {
-        
+      {   
         var popup:FilterView = PopUpManager.createPopUp(root, FilterView, true) as FilterView;
         popup.evidenceView=evidenceView;
         //popup.addEventListener(TemplateView.TEMPLATE_LOAD, onTemplateLoad)
-       
         PopUpManager.centerPopUp(popup);
       }
       
     ]]>
   </fx:Script>
   
-  <s:CheckBox id="showIdCh" change="onShowIdChange()" label="{R.get('ID_COLUMN_SHOW')}" fontWeight="bold"/>
   <s:Spacer width="100%"/>
 <mx:LinkButton label="Filter presets" click="openFilterPanel(event)" fontWeight="bold"/>
 </s:BorderContainer>

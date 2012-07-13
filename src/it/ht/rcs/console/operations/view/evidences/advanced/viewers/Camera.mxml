@@ -20,6 +20,7 @@
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
+      import flashx.textLayout.conversion.TextConverter;
       
       private var _evidence:Evidence;
       
@@ -27,6 +28,9 @@
       private var _url:String;
       
       public var target:String;
+      
+      [Bindable]
+      public var idVisible:Boolean;
       
       [Bindable]
       public function set evidence(value:Evidence):void
@@ -39,7 +43,7 @@
       
       public function get evidence():Evidence
       {
-        return _evidence;
+        return _evidence; 
       }
       
       private function init():void
@@ -54,5 +58,14 @@
       
     ]]>
   </fx:Script>
+  <s:RichText id="idTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
 <viewers:ImageViewer id="imageViewer" url="{_url}"/>
 </s:BorderContainer>

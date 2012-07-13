@@ -31,6 +31,9 @@
       public var target:String;
       
       [Bindable]
+      public var idVisible:Boolean;
+      
+      [Bindable]
       public function set evidence(value:Evidence):void
       {
         _evidence=value;
@@ -60,6 +63,15 @@
    
     ]]>
   </fx:Script>
+  <s:RichText id="idTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
   <s:RichText id="programTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
   <s:Line width="100%" >
     <s:stroke>

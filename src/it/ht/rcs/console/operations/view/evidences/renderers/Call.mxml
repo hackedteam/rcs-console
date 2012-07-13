@@ -78,6 +78,14 @@
 			{
 				miniPlayer.hasFocus=true;
 			}
+      private function onPlay():void
+      {
+        var id:String=encodeURIComponent(data.data._grid);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        miniPlayer.url=url;
+        miniPlayer.loadSound()
+      }
 		]]>
 	</fx:Script>
 	<s:VGroup verticalAlign="middle"
@@ -98,6 +106,6 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<renderers:SoundMiniPlayer id="miniPlayer" visible="{data.data._grid!=null}"/>
+		<renderers:SoundMiniPlayer id="miniPlayer" visible="{data.data._grid!=null}" play="onPlay()"/>
 	</s:VGroup>
 </renderers:EvidenceDataRenderer>

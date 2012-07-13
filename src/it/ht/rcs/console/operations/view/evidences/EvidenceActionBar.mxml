@@ -33,16 +33,20 @@
 						icon="@Embed('/img/evidence/notepencil32.png')"/>
 
 	<actionbar:Separator width="40"/>
+  <s:Button label="{R.get('ID_COLUMN_SHOW')}"
+            click="onIdClick()"
+            icon="@Embed('/img/evidence/paper32.png')"
+            id="idBtn" width="80"/>
 	<s:Button label="{R.get('SUMMARY_SHOW')}"
 						click="onSummaryClick()"
 						icon="@Embed('/img/evidence/linedpaperplus32.png')"
-						id="summaryBtn"/>
+						id="summaryBtn" width="130"/>
 	<actionbar:Separator width="40"/>
 	<s:Button label="{R.get('DETAIL_SHOW')}"
 						click="onDetailClick()"
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
-						enabled="{selectedObjects.length>0}"/>
+						enabled="{selectedObjects.length>0}" width="100"/>
   <actionbar:Separator width="40"/>
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
             enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"
@@ -51,10 +55,11 @@
 
 	<fx:Metadata> 
     [Event(name="editNote", type="flash.events.Event")]
-    [Event(name="summary", type="flash.events.Event")] 
-    [Event(name="export", type="flash.events.Event")] 
-    [Event(name="detail", type="flash.events.Event")]
-    [Event(name="delete", type="flash.events.Event")] 
+    [Event(name="summary",  type="flash.events.Event")] 
+    [Event(name="export",   type="flash.events.Event")] 
+    [Event(name="detail",   type="flash.events.Event")]
+    [Event(name="delete",   type="flash.events.Event")]
+    [Event(name="idcolumn", type="flash.events.Event")] 
   </fx:Metadata>
 
 	<fx:Script>
@@ -95,6 +100,12 @@
 
 			[Embed(source="/img/evidence/stop32.png")]
 			public var DetailHideIcon:Class;
+      
+      [Embed(source="/img/evidence/papercheck32.png")]
+      public var IdHideIcon:Class;
+      
+      [Embed(source="/img/evidence/paper32.png")]
+      public var IdShowIcon:Class;
 
 			[Bindable] 
 			public function set counts(value:ArrayCollection):void
@@ -178,14 +189,17 @@
 
 			public function onSummaryClick():void
 			{
-				dispatchEvent(new Event("summary"))
-
+				dispatchEvent(new Event("summary"));
 			}
+      
+      public function onIdClick():void
+      {
+        dispatchEvent(new Event("idcolumn"));
+      }
 
 			public function onDetailClick():void
 			{
-				dispatchEvent(new Event("detail"))
-
+				dispatchEvent(new Event("detail"));
 			}
       
       private function onDeleteClick():void
@@ -300,6 +314,20 @@
 					detailBtn.label=R.get('DETAIL_SHOW');
 				}
 			}
+      
+      public function toggleIdButton():void
+      {
+        if (idBtn.label == R.get('ID_COLUMN_SHOW'))
+        {
+          idBtn.setStyle("icon", IdHideIcon);
+          idBtn.label=R.get('ID_COLUMN_HIDE');
+        }
+        else
+        {
+          idBtn.setStyle("icon", IdShowIcon);
+          idBtn.label=R.get('ID_COLUMN_SHOW');
+        }
+      }
 
 			public function toggleSummaryButton(state:String):void
 			{

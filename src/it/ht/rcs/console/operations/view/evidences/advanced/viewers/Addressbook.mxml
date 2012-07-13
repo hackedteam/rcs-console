@@ -25,6 +25,9 @@
 
 			[Bindable]
 			private var ImageClass:Class;
+      
+      [Bindable]
+      public var idVisible:Boolean;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -78,6 +81,16 @@
 									 y="1"/>
 	</s:BorderContainer>
 	<s:VGroup width="100%">
+    <s:RichText id="idTxt"
+                width="100%"
+                textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+                fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+    <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+      
 		<s:RichText id="NameTxt"
 								width="100%"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Name: &lt;/b&gt;'+evidence.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)}"

@@ -37,11 +37,12 @@
         
         popup = popupFactory.newInstance();
         popup.property = propertyName || column.dataField;
+        
         popup.filter = filter;
         
         PopUpManager.addPopUp(popup, this.owner, false);
         
-        showFilter.selected = filter.hasOwnProperty(column.dataField) || mandatory;
+        showFilter.selected = filter.hasOwnProperty(popup.property) || mandatory;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, popup.rebuild);
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
@@ -107,6 +108,7 @@
       // Triggered only when a filter is set (ie. when switching from selected to deselected state)
       // because the checkbox is disabled when there's no filter
       private function changeHandler(fireEvent:Boolean=true):void {
+        //trace("change "+column.dataField+" "+popup.hasFilter)
         popup.reset(fireEvent);
         popup.visible = false;
       }

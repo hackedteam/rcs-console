@@ -21,8 +21,8 @@
       private var _position:Number;
       private var _hasFocus:Boolean;
       
-      [Bindable]
-      public var url:String;
+    /*   [Bindable]
+      public var url:String; */
       
       [Bindable]
       [Embed (source="/img/mediaplayers/playSmall.png" )]
@@ -45,13 +45,13 @@
         }
       }
       
-      public function loadSound():void
+      public function loadSound(url:String):void
       {
         _sound.addEventListener(ProgressEvent.PROGRESS, onSoundLoading)
         _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError)
         _sound.addEventListener(Event.COMPLETE, onSoundLoaded);
         _sound.load(new URLRequest(url));
-        trace("url"+url)
+        
       }
 
       private function update(e:Event):void
@@ -179,10 +179,23 @@
         }
         _hasFocus=value;
       }
+      
+      public function reset():void
+      
+      {
+       trace("reset")
+       _sound=new Sound();
+       playBtn.enabled=true;
+       playBtn.setStyle("icon", PlayIcon);
+       playBtn.toolTip="play";
+       _isPlaying=false;
+       _isLoaded=false;
+      }
 
     ]]>
   </fx:Script>
   <s:Button id="playBtn" enabled="true" click="onPlayClick(event)" width="16" height="16 " icon="{PlayIcon}" toolTip="play" useHandCursor="true" mouseChildren="false"/>
   <s:Button id="stopBtn" enabled="false" click="onStopClick(event)" width="16" height="16" icon="{StopIcon}" toolTip="stop" useHandCursor="true" mouseChildren="false"/>
   <s:Label id="statusTxt"/>
+  <s:Label id="urlTxt" fontSize="12" color="0x000000" fontWeight="bold" visible="false"/>
 </s:HGroup>

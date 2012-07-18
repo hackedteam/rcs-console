@@ -26,7 +26,6 @@ package it.ht.rcs.console.system.view.frontend.graph
     override protected function onSimulatedClick():void { removeSelection(); }
     
     public var selectedElement:CollectorRenderer;
-    
     public function removeSelection():void
     {
       if (selectedElement != null) {
@@ -41,7 +40,10 @@ package it.ht.rcs.console.system.view.frontend.graph
 			trace('NetworkGraph: NodeEvent');
       //dispatchEvent(e.clone());
 		}
-
+    
+    
+    
+    
     
     // ----- RENDERING -----
     
@@ -192,7 +194,7 @@ package it.ht.rcs.console.system.view.frontend.graph
 						var ip:IPRenderer = ips[i];
             
             cX = cX + lastNode.width / 2 - ip.width / 2;
-            cY = cY - VERTICAL_DISTANCE - ip.height;
+            cY = cY - VERTICAL_DISTANCE - ip.height
 						ip.move(cX, cY);
       
 						graphics.moveTo(cX + ip.width / 2, cY + ip.height + VERTICAL_DISTANCE);
@@ -201,7 +203,9 @@ package it.ht.rcs.console.system.view.frontend.graph
   				}
           
         } // End collectors
+        
 			}
+
 		}
 
 	}

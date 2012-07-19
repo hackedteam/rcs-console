@@ -102,7 +102,7 @@ package it.ht.rcs.console.utils.itemfield
       var distance:int = kindOrder.indexOf(a._kind) - kindOrder.indexOf(b._kind);
       return distance / Math.abs(distance);
     }
-    
+    [Bindable]
     public function set kinds(value:Array):void
     {
       _kinds = [];
@@ -111,6 +111,11 @@ package it.ht.rcs.console.utils.itemfield
       
       if (_dataProvider != null)
         _dataProvider.refresh();
+    }
+    
+    public function get kinds():Array
+    {
+    return _kinds;
     }
     
     public function set path(item:Object):void
@@ -226,10 +231,19 @@ package it.ht.rcs.console.utils.itemfield
     
     public function set selectedItemId(id:String):void
     {
-      if (id == null) selectItem(null, false);
+      if (id == null)   
+      {
+        selectItem(null, false);
+        return;
+      }
+
       for each (var item:SearchItem in _dataProvider)
+      {
         if (item._id == id)
+        {
           selectItem(item, false);
+        }
+      }
     }
     
     private function onTextChange(e:Event):void

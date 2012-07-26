@@ -18,14 +18,22 @@
       private function onDoubleClick(event:MouseEvent):void
       {
         var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
-        if (item) section.stateManager.manageItemSelection(item);
+        if (item) {
+          if(item._kind == 'factory' && item.status!="open")
+            return;
+          section.stateManager.manageItemSelection(item)
+        };
       }
       
       private function onKeyUp(event:KeyboardEvent):void
       {
         if (event.keyCode == Keyboard.ENTER) {
           var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
-          if (item) section.stateManager.manageItemSelection(item);
+          if (item) {
+            if(item._kind == 'factory' && item.status!="open")
+              return;
+            section.stateManager.manageItemSelection(item)
+          };
         }
       }
     ]]>

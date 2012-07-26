@@ -8,20 +8,20 @@
             icon="@Embed('/img/NEW/export.png')" click="exportFS(event)"/>
   
   <s:Button label="{R.get('DOWNLOAD_FILE')}" click="onDownload(event)"
-            enabled="{selectedObject!= null &amp;&amp; selectedObject.attr == FileSystemView.FILE &amp;&amp;  sameType(selectedObjects)}"
+            enabled="{selectedObject!= null &amp;&amp; selectedObject.attr == FileSystemView.FILE &amp;&amp;  sameType(selectedObjects) &amp;&amp; isItemOpened()}"
             icon="@Embed('/img/NEW/download.png')"/>
   
   <s:Button label="{R.get('RETRIEVE_TREE')}" click="onRetrieve(event)"
             enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.EMPTY_FOLDER ||
                                                          selectedObject.attr == FileSystemView.FULL_FOLDER  ||
                                                          selectedObject.attr == FileSystemView.SUBROOT)
-                                              &amp;&amp; haveTree(selectedObjects)
+                                              &amp;&amp; haveTree(selectedObjects) &amp;&amp; isItemOpened()
             }"
       
             icon="@Embed('/img/NEW/folderplus32.png')"/>
   
   <s:Button label="{R.get('RETRIEVE_DEFAULT')}" click="onRetrieveDefault(event)"
-            enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.SUBROOT) &amp;&amp; sameType(selectedObjects)}"         
+            enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.SUBROOT) &amp;&amp; sameType(selectedObjects) &amp;&amp; isItemOpened()}"         
             icon="@Embed('/img/NEW/folder32.png')"/>
   
   <s:Spacer width="100%"/>
@@ -46,6 +46,20 @@
       public var selectedObjects:Array
       
       private var numFilesToProcess:int;
+      
+      private function isItemOpened():Boolean
+      {
+      var result:Boolean=false;
+      if(section.stateManager.selectedAgent!=null) 
+      {
+        result = section.stateManager.selectedAgent.status=='open'
+      }
+      else if(section.stateManager.selectedTarget!=null)
+      {
+        result = section.stateManager.selectedTarget.status=='open'
+      }
+        return result;
+      }
       
       private function sameType(items:Array):Boolean
       {

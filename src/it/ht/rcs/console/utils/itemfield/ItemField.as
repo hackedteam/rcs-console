@@ -129,6 +129,9 @@ package it.ht.rcs.console.utils.itemfield
     
     private function filter(item:Object):Boolean
     {
+      if(item.status=="closed")
+        return false;
+      
       if (!isVisibleType(item._kind)) return false;
       
       if (_path && _path.length > 0) {

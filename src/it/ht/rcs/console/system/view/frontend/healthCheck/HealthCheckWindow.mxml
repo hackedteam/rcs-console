@@ -81,11 +81,17 @@
       
       private function manageFault(e:FaultEvent):void
       {
-        currentEntry.status = HealthCheckEntry.KO;
+        if(e.statusCode==404 || e.statusCode==400 || e.statusCode==403)
+        {
+          currentEntry.status = HealthCheckEntry.OK;
+        }
+        else
+        {
+          currentEntry.status = HealthCheckEntry.KO;
+        }
         grid.invalidateDisplayList();
         checkNext();
-        //400-403-404
-        
+
       }
 
       private function manageInvalid():void

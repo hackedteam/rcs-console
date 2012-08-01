@@ -19,6 +19,9 @@ package it.ht.rcs.console.utils.itemfield
   import mx.managers.PopUpManager;
   
   import spark.components.TextInput;
+  import mx.core.FlexGlobals;    
+    
+    
 
   [Event(name="itemSelected", type="it.ht.rcs.console.utils.itemfield.ItemFieldEvent")]
   public class ItemField extends TextInput
@@ -62,12 +65,14 @@ package it.ht.rcs.console.utils.itemfield
     
     private function onAddedToStage(event:Event):void
     {
-      PopUpManager.addPopUp(dropDown, this, false);
+      //PopUpManager.addPopUp(dropDown, this, false);
+      FlexGlobals.topLevelApplication.systemManager.addChild(dropDown)
     }
     
     private function onRemovedFromStage(event:Event):void
     {
-      PopUpManager.removePopUp(dropDown);
+      //PopUpManager.removePopUp(dropDown);
+      FlexGlobals.topLevelApplication.systemManager.removeChild(dropDown)
     }
     
     private function init(event:FlexEvent):void

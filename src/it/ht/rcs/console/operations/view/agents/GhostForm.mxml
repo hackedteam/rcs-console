@@ -9,10 +9,12 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.AlertPopUp;
+     
       
       import locale.R;
       
@@ -66,20 +68,25 @@
         }
       }
       
+      private function myLabelToItem(value:String):Object
+      {
+        return new Collector({name:value, address:value});
+      }
+      
+      
 
     ]]>
   </fx:Script>
   
 
-  
   <s:Form width="100%" defaultButton="{saveButton}">
     
     <s:FormItem label="{R.get('GHOST_MAIN')}">
-      <s:ComboBox dataProvider="{collectors}" labelField="address" id="mainCb" width="150"/>
+      <s:ComboBox dataProvider="{collectors}" labelField="address" id="mainCb" width="150" labelToItemFunction="myLabelToItem"/>
     </s:FormItem>
     
     <s:FormItem label="{R.get('GHOST_SECONDARY')}">
-     <s:ComboBox dataProvider="{collectors}" labelField="address" id="secondaryCb" width="150"/>
+     <s:ComboBox dataProvider="{collectors}" labelField="address" id="secondaryCb" width="150" labelToItemFunction="myLabelToItem"/>
     </s:FormItem>
    
     

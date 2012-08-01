@@ -94,6 +94,11 @@
     <s:Button label="{R.get('PURGE')}" click="purgeAgent(event)" visible="{Console.currentSession.user.is_tech()}"
               icon="@Embed('/img/NEW/trash.png')"/>
     
+    <actionbar:Separator visible="{Console.currentSession.user.is_tech()}"/>
+    
+    <s:Button label="{R.get('GHOST_ACTIVATE')}" click="activateGhost(event)" visible="{Console.currentSession.user.is_tech()}"
+              icon="@Embed('/img/NEW/ghost.png')"/>
+    
   </s:HGroup>
   
   
@@ -115,6 +120,7 @@
       import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.evidences.EvidenceExport;
@@ -124,8 +130,11 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
       
       [Bindable]
       public var section:OperationsSection;
@@ -160,6 +169,16 @@
           popup2.currentState = AgentsForm.EDIT;
           PopUpManager.centerPopUp(popup2);
         }
+      }
+      
+      private function activateGhost(event:MouseEvent):void
+      {
+        var agent:Agent = section.stateManager.selectedAgent ? section.stateManager.selectedAgent : selectedObject as Agent;
+        var collectors:ListCollectionView=CollectorManager.instance.getConnected();
+        var popup:GhostForm = PopUpManager.createPopUp(root, GhostForm, true) as GhostForm;
+        popup.agent = agent;
+        popup.collectors = collectors;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onClose():void

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             save="onSave(event)" creationComplete="init()"
+                             title="{R.get('GHOST_ACTIVATE') }">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      import mx.collections.ListCollectionView;
+      import mx.events.CloseEvent;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      [Bindable]
+      public var collectors:ListCollectionView;
+      
+      public var agent:Agent;
+      
+      private function onSave(e:Event):void{
+        
+        var sync:Array=new Array()
+        
+        sync.push(mainCb.selectedItem.address);
+        sync.push(secondaryCb.selectedItem.address);
+        
+        AgentManager.instance.activateGhost(agent,sync,onResult, onFault)
+    
+      }
+      
+      protected function closeMe(event:*):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      private function onFault(e:FaultEvent):void{
+      
+        AlertPopUp.show(e.fault.faultString);
+      
+      }
+      
+      private function onResult(e:ResultEvent):void{
+      
+        AlertPopUp.show(R.get('GHOST_SUCCESS'), "", 0x4, this, closeMe);
+      
+      }
+      
+      private function init():void
+      {
+        if(collectors.getItemAt(0))
+          mainCb.selectedItem=collectors.getItemAt(0);
+        if(collectors.getItemAt(1))
+        {
+          secondaryCb.selectedItem=collectors.getItemAt(1);
+        }else{
+          secondaryCb.selectedItem=collectors.getItemAt(0);
+        }
+      }
+      
+
+    ]]>
+  </fx:Script>
+  
+
+  
+  <s:Form width="100%" defaultButton="{saveButton}">
+    
+    <s:FormItem label="{R.get('GHOST_MAIN')}">
+      <s:ComboBox dataProvider="{collectors}" labelField="address" id="mainCb" width="150"/>
+    </s:FormItem>
+    
+    <s:FormItem label="{R.get('GHOST_SECONDARY')}">
+     <s:ComboBox dataProvider="{collectors}" labelField="address" id="secondaryCb" width="150"/>
+    </s:FormItem>
+   
+    
+  </s:Form>
+  
+</utils:TitleWindowSaveCancel>

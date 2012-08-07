@@ -4,7 +4,7 @@
                xmlns:mx="library://ns.adobe.com/flex/mx"
                width="480" close="PopUpManager.removePopUp(this)" creationComplete="init()"
                title="{R.get('HEALTH_CHECK')}">
-  
+   
   <s:layout>
     <s:VerticalLayout horizontalAlign="center" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
   </s:layout>
@@ -81,9 +81,17 @@
       
       private function manageFault(e:FaultEvent):void
       {
-        currentEntry.status = HealthCheckEntry.KO;
+        if(e.statusCode==404 || e.statusCode==400 || e.statusCode==403 || e.statusCode==302)
+        {
+          currentEntry.status = HealthCheckEntry.OK;
+        }
+        else
+        {
+          currentEntry.status = HealthCheckEntry.KO;
+        }
         grid.invalidateDisplayList();
         checkNext();
+
       }
 
       private function manageInvalid():void

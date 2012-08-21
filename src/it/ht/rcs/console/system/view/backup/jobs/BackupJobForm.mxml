@@ -47,26 +47,19 @@
         _job = j;
         _what = _job.what.split(':')[0];
         _id = _job.what.split(':')[1];
-        formType.selectedIndex=types.toArray().indexOf(_what);
-        searchField.kinds=[formType.selectedItem];
-        searchField.selectedItemId=_id;
+        formType.selectedIndex = types.toArray().indexOf(_what);
+        searchField.kinds = [formType.selectedItem];
+        searchField.selectedItemId = _id;
         
       }
       
       private function saveMe():void
       {
-        
-        trace("Text in field: "+searchField.text)
-        trace("SelectedItem: "+searchField.selectedItem)
-        
-     
-        
         _job.enabled = formEnabled.selected;
         _job.name = formName.text;
           
         var what:String = formType.selectedItem;
-        if (what == 'operation' || what == 'target')
-        {
+        if (what == 'operation' || what == 'target') {
           //check if the name in text field is a valid item 
           if(!searchField.selectedItem || searchField.text!=searchField.selectedItem.name)
           {
@@ -74,9 +67,12 @@
             return;
           }
         
-        
           what += ":" + searchField.selectedItem._id;
+          _job.incremental = incremental.selected;
+        } else {
+          _job.incremental = false;
         }
+        
         _job.what = what;
         
         _job.when = formWhen.data;
@@ -108,10 +104,13 @@
       <s:CheckBox id="formEnabled" selected="{_job.enabled}"/>
     </s:FormItem>
     <s:FormItem label="{R.get('WHAT')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
-      <s:HGroup>
-        <s:DropDownList id="formType" width="100" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_what)}"/>
-        <itemfield:ItemField id="searchField" right="5" top="0" selectedItemId="{_id}" kinds="{[formType.selectedItem]}" visible="{formType.selectedItem == 'operation' || formType.selectedItem == 'target'}"/>        
-      </s:HGroup>
+      <s:VGroup>
+        <s:HGroup>
+          <s:DropDownList id="formType" width="100" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_what)}"/>
+          <itemfield:ItemField id="searchField" right="5" top="0" selectedItemId="{_id}" kinds="{[formType.selectedItem]}" visible="{formType.selectedItem == 'operation' || formType.selectedItem == 'target'}"/>        
+        </s:HGroup>
+        <s:CheckBox id="incremental" label="{R.get('INCREMENTAL')}" selected="{_job.incremental}" visible="{formType.selectedItem == 'operation' || formType.selectedItem == 'target'}"/>        
+      </s:VGroup>
     </s:FormItem>
     <s:FormItem label="{R.get('WHEN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">
       <jobs:BackupJobWhen id="formWhen" data="{_job.when}"/>

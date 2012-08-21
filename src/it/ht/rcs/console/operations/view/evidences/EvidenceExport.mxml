@@ -117,6 +117,8 @@
         
         filter.rel = getTags();
         
+        filter.date = (date_da.selected == true) ? 'da' : 'dr'
+        
         if (types.selectedItems.length > 0) {
           filter.type = new Array();
         
@@ -156,23 +158,37 @@
     ]]>
   </fx:Script>
 
+  <fx:Declarations>
+    <s:RadioButtonGroup id="date"/>
+  </fx:Declarations>
+  
   <s:VGroup left="15" top="15" horizontalAlign="center">
 
-    <s:HGroup verticalAlign="middle">
-      <s:Label width="40" text="{R.get('FROM')}" fontWeight="bold"/>
-      <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
-      <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0" valueFormatFunction="pad"/>
-      <s:Label text=":"/>
-      <s:NumericStepper id="fromM" change="adjust()" maximum="59" minimum="0" value="0" valueFormatFunction="pad"/>
+    <s:HGroup>
+      <s:VGroup>
+        <s:HGroup verticalAlign="middle">
+          <s:Label width="40" text="{R.get('FROM')}" fontWeight="bold"/>
+          <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
+          <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0" valueFormatFunction="pad"/>
+          <s:Label text=":"/>
+          <s:NumericStepper id="fromM" change="adjust()" maximum="59" minimum="0" value="0" valueFormatFunction="pad"/>
+        </s:HGroup>
+        
+        <s:HGroup verticalAlign="middle">
+          <s:Label width="40" text="{R.get('TO')}" fontWeight="bold"/>
+          <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
+          <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23" valueFormatFunction="pad"/>
+          <s:Label text=":"/>
+          <s:NumericStepper id="toM" change="adjust()" maximum="59" minimum="0" value="59" valueFormatFunction="pad"/>
+        </s:HGroup>        
+      </s:VGroup>
+      <s:Spacer width="10"/>
+      <s:VGroup verticalAlign="middle">
+        <s:RadioButton id="date_da" label="{R.get('DATE_ACQUIRED')}" selected="true" group="{date}"/>
+        <s:RadioButton id="date_dr" label="{R.get('DATE_RECEIVED')}" group="{date}"/>  
+      </s:VGroup>
     </s:HGroup>
     
-    <s:HGroup verticalAlign="middle">
-      <s:Label width="40" text="{R.get('TO')}" fontWeight="bold"/>
-      <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
-      <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23" valueFormatFunction="pad"/>
-      <s:Label text=":"/>
-      <s:NumericStepper id="toM" change="adjust()" maximum="59" minimum="0" value="59" valueFormatFunction="pad"/>
-    </s:HGroup>
 
     <s:HGroup paddingTop="15" gap="10">
       
@@ -212,11 +228,13 @@
               <fx:String>calendar</fx:String>
               <fx:String>call</fx:String>
               <fx:String>camera</fx:String>
+              <fx:String>command</fx:String>
               <fx:String>chat</fx:String>
               <fx:String>clipboard</fx:String>
               <fx:String>device</fx:String>
               <fx:String>file</fx:String>
               <fx:String>keylog</fx:String>
+              <fx:String>ip</fx:String>
               <fx:String>message</fx:String>
               <fx:String>mic</fx:String>
               <fx:String>mouse</fx:String>

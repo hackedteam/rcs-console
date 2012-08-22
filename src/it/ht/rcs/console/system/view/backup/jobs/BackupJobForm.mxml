@@ -68,13 +68,15 @@
           }
         
           what += ":" + searchField.selectedItem._id;
-          _job.incremental = incremental.selected;
-        } else {
+        } 
+
+        if (what == 'metadata') {
           _job.incremental = false;
+        } else {
+          _job.incremental = incremental.selected;          
         }
         
         _job.what = what;
-        
         _job.when = formWhen.data;
         
         /* reset the status on save */
@@ -109,7 +111,7 @@
           <s:DropDownList id="formType" width="100" dataProvider="{types}" selectedIndex="{types.toArray().indexOf(_what)}"/>
           <itemfield:ItemField id="searchField" right="5" top="0" selectedItemId="{_id}" kinds="{[formType.selectedItem]}" visible="{formType.selectedItem == 'operation' || formType.selectedItem == 'target'}"/>        
         </s:HGroup>
-        <s:CheckBox id="incremental" label="{R.get('INCREMENTAL')}" selected="{_job.incremental}" visible="{formType.selectedItem == 'operation' || formType.selectedItem == 'target'}"/>        
+        <s:CheckBox id="incremental" label="{R.get('INCREMENTAL')}" selected="{_job.incremental}" visible="{formType.selectedItem != 'metadata'}"/>        
       </s:VGroup>
     </s:FormItem>
     <s:FormItem label="{R.get('WHEN')}" skinClass="it.ht.rcs.console.skins.CompactFormItem">

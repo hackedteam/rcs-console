@@ -27,7 +27,7 @@
            if (items[i].attr == FileSystemView.SUBROOT)
              path = '/';
            else {
-             path = items[i].evidence ? items[i].evidence.data.path : buildPath();
+             path = buildPath();
              var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
              var lastChar:String = path.charAt(path.length-1);
              if (lastChar != separator)
@@ -52,12 +52,22 @@
       {
         var pathElements:Array = [];
         var el:Object = item;
+        
+        var separator:String = "/";
+        
         do {
           pathElements.push(el.name);
+          // on root check if it's windows or not
+          // windows is something like c: d:
+          // others are /
+          if (el.parent.attr == FileSystemView.SUBROOT) {
+           if (el.name != '/')
+             separator = "\\";
+          }
           el = el.parent;
         } while (el.attr != FileSystemView.SUBROOT);
         
-        return pathElements.reverse().join('/');
+        return pathElements.reverse().join(separator);
       }
       
       private function getAgentId(item:Object):String

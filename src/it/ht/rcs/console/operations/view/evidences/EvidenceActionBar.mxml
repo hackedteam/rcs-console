@@ -14,6 +14,13 @@
 						enabled="{selectedObjects.length>=1}"
             />
 	<actionbar:Separator width="40"/>
+
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"
+            visible="{LicenseManager.instance.deletion == true}"
+            includeInLayout="{LicenseManager.instance.deletion == true}"/>
+  <actionbar:Separator width="40" visible="{LicenseManager.instance.deletion == true}"
+                       includeInLayout="{LicenseManager.instance.deletion == true}"/>
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 enabled="false"
 										 id="tagEditor"
@@ -47,11 +54,7 @@
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}" width="100"/>
-  <actionbar:Separator width="40"/>
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
-            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"
-            visible="{LicenseManager.instance.deletion == true}"
-            includeInLayout="{LicenseManager.instance.deletion == true}"/>
+ 
 
 	<fx:Metadata> 
     [Event(name="editNote", type="flash.events.Event")]

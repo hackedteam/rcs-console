@@ -36,10 +36,9 @@
 
       private function init():void
       {
-        if(!_sound)
-        {
+       
          _sound=new Sound();
-        }
+       
       }
       
       public function loadSound(url:String):void
@@ -150,9 +149,12 @@
       private function onStopClick(e:MouseEvent):void
       {
         _pausePoint = 0;
+        if(_channel)
+        {
         _channel=_sound.play(0);
         _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
         _channel.stop();
+        }
         _isPlaying = false;
         playBtn.setStyle("icon", PlayIcon);
         playBtn.toolTip="play";
@@ -182,6 +184,13 @@
       
       {
        _sound=new Sound();
+       _pausePoint = 0;
+       //_channel=_sound.play(0);
+       if(_channel)
+       _channel.stop();
+       stopBtn.enabled=false;
+       statusTxt.text="";
+       removeEventListener(Event.ENTER_FRAME,update)
        playBtn.enabled=true;
        playBtn.setStyle("icon", PlayIcon);
        playBtn.toolTip="play";
@@ -194,5 +203,5 @@
   <s:Button id="playBtn" enabled="true" click="onPlayClick(event)" width="16" height="16 " icon="{PlayIcon}" toolTip="play" useHandCursor="true" mouseChildren="false"/>
   <s:Button id="stopBtn" enabled="false" click="onStopClick(event)" width="16" height="16" icon="{StopIcon}" toolTip="stop" useHandCursor="true" mouseChildren="false"/>
   <s:Label id="statusTxt"/>
-  <s:Label id="urlTxt" fontSize="12" color="0x000000" fontWeight="bold" visible="false" includeInLayout="false"/>
+  <s:Label id="urlTxt" fontSize="12" color="0xFF0000" fontWeight="bold" visible="false" includeInLayout="false"/>
 </s:HGroup>

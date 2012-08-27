@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx"  creationComplete="init()" title="WARNING TITLE">
+<fx:Script>
+  <![CDATA[
+    import mx.managers.PopUpManager;
+    import flash.events.Event;
+    
+    import locale.R;
+    
+    [Bindable]
+    public var doNotShow:Boolean;
+    
+    private function init():void
+    {
+      closeButton.visible=false;
+    }
+    
+    protected function close():void
+    {
+      dispatchEvent(new Event("close"))
+      PopUpManager.removePopUp(this);
+    }
+    private function setFlag():void
+    {
+      doNotShow=doNotShowCh.selected;
+    }
+    
+  ]]>
+</fx:Script>
+  <s:VGroup width="100%"
+            height="100%"
+            paddingBottom="20"
+            paddingLeft="20"
+            paddingRight="20"
+            paddingTop="20">
+    <s:VGroup width="100%" horizontalAlign="center">
+      <s:Label text="{R.get('SECURITY_WARNING_MESSAGE')}"/>
+      <s:CheckBox id="doNotShowCh" label="{R.get('SECURITY_WARNING_OPTION')}" click="setFlag()" selected="{doNotShow}"/>
+    </s:VGroup>
+    <s:HGroup width="100%" horizontalAlign="center">
+      <s:Button label="OK" click="close()"/>
+      
+    </s:HGroup>
+    </s:VGroup>
+ 
+</s:TitleWindow>

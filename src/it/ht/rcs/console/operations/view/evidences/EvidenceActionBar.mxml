@@ -54,7 +54,7 @@
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}" width="100"/>
- 
+
 
 	<fx:Metadata> 
     [Event(name="editNote", type="flash.events.Event")]
@@ -71,6 +71,7 @@
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.evidence.model.TypeCount;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -78,12 +79,16 @@
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
       import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
 
 			[Bindable]
 			private var _total:int;
 
+      [Bindable]
+      public var section:OperationsSection;
+      
 			private var _counts:ArrayCollection;
 
 			[Embed(source="/img/evidence/paperplus32.png")]
@@ -205,8 +210,16 @@
 				dispatchEvent(new Event("detail"));
 			}
       
-      private function onDeleteClick():void
+      private function onDeleteClick(event:MouseEvent):void
       {
+        if (event.altKey) {
+          var ed:EvidenceDeletion = PopUpManager.createPopUp(root, EvidenceDeletion, true) as EvidenceDeletion;
+          ed.target = section.stateManager.selectedTarget;
+          ed.agent = section.stateManager.selectedAgent;
+          PopUpManager.centerPopUp(ed);  
+          return;   
+        }
+        
         AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'),
           AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {

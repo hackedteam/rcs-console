@@ -4,6 +4,9 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           verticalAlign="middle"
           creationComplete="init()">
+  <fx:Metadata>
+    [Event(name="play", type="flash.events.Event")]
+  </fx:Metadata>
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.utils.TimeUtils;
@@ -18,7 +21,8 @@
       private var _position:Number;
       private var _hasFocus:Boolean;
       
-      public var url:String;
+    /*   [Bindable]
+      public var url:String; */
       
       [Bindable]
       [Embed (source="/img/mediaplayers/playSmall.png" )]
@@ -29,22 +33,21 @@
       [Bindable]
       [Embed (source="/img/mediaplayers/stopSmall.png" )]
       public var StopIcon:Class;
-      
+
       private function init():void
       {
-        if(!_sound)
-        {
+       
          _sound=new Sound();
-        }
+       
       }
       
-      private function loadSound():void
+      public function loadSound(url:String):void
       {
         _sound.addEventListener(ProgressEvent.PROGRESS, onSoundLoading)
-        _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError)
+        _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError);
         _sound.addEventListener(Event.COMPLETE, onSoundLoaded);
         _sound.load(new URLRequest(url));
-        trace("url"+url)
+        
       }
 
       private function update(e:Event):void
@@ -112,6 +115,7 @@
         statusTxt.text="stopped"
         removeEventListener(Event.ENTER_FRAME,update);
       }
+      
       private function onPlayClick(e:MouseEvent):void
       {
         if(_isLoaded)
@@ -137,16 +141,20 @@
         else
         {
           playBtn.enabled=false;
-          loadSound();
+          dispatchEvent(new Event("play"))
+          //loadSound();
         }
       }
       
       private function onStopClick(e:MouseEvent):void
       {
         _pausePoint = 0;
+        if(_channel)
+        {
         _channel=_sound.play(0);
         _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
         _channel.stop();
+        }
         _isPlaying = false;
         playBtn.setStyle("icon", PlayIcon);
         playBtn.toolTip="play";
@@ -171,10 +179,29 @@
         }
         _hasFocus=value;
       }
+      
+      public function reset():void
+      
+      {
+       _sound=new Sound();
+       _pausePoint = 0;
+       //_channel=_sound.play(0);
+       if(_channel)
+       _channel.stop();
+       stopBtn.enabled=false;
+       statusTxt.text="";
+       removeEventListener(Event.ENTER_FRAME,update)
+       playBtn.enabled=true;
+       playBtn.setStyle("icon", PlayIcon);
+       playBtn.toolTip="play";
+       _isPlaying=false;
+       _isLoaded=false;
+      }
 
     ]]>
   </fx:Script>
   <s:Button id="playBtn" enabled="true" click="onPlayClick(event)" width="16" height="16 " icon="{PlayIcon}" toolTip="play" useHandCursor="true" mouseChildren="false"/>
   <s:Button id="stopBtn" enabled="false" click="onStopClick(event)" width="16" height="16" icon="{StopIcon}" toolTip="stop" useHandCursor="true" mouseChildren="false"/>
   <s:Label id="statusTxt"/>
+  <s:Label id="urlTxt" fontSize="12" color="0xFF0000" fontWeight="bold" visible="false" includeInLayout="false"/>
 </s:HGroup>

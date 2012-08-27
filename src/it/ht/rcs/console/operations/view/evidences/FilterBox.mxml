@@ -5,29 +5,53 @@
                    borderWeight="1" cornerRadius="5">
   
   <s:layout>
-    <s:HorizontalLayout paddingBottom="5" paddingLeft="10" paddingRight="10" paddingTop="5" verticalAlign="middle"/>
+    <s:HorizontalLayout paddingBottom="6" paddingLeft="7" paddingRight="6" paddingTop="6" verticalAlign="middle"/>
   </s:layout>
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
       
       import locale.R;
       
       import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      import mx.managers.PopUpManager;
       
+      [Bindable]
       public var evidenceView:EvidencesView;
       
-      private function onShowIdChange():void
+     
+      
+      private function getFilters():void
       {
-        evidenceView.evidenceDg.idVisible=showIdCh.selected;
+        EvidenceManager.instance.getFilters(onFilterResult, onFilterFault);
       }
       
+      private function onFilterResult(e:ResultEvent):void
+      {
+      
+      }
+      
+      private function onFilterFault(e:FaultEvent):void
+      {
+      
+      }
+      
+      private function openFilterPanel(event:MouseEvent):void
+      {   
+        var popup:FilterView = PopUpManager.createPopUp(root, FilterView, true) as FilterView;
+        popup.evidenceView=evidenceView;
+        //popup.addEventListener(TemplateView.TEMPLATE_LOAD, onTemplateLoad)
+        PopUpManager.centerPopUp(popup);
+      }
       
     ]]>
   </fx:Script>
   
-  <s:CheckBox id="showIdCh" change="onShowIdChange()" label="{R.get('ID_COLUMN_SHOW')}"/>
-
+  <s:Spacer width="100%"/>
+<mx:LinkButton label="Filter presets" click="openFilterPanel(event)" fontWeight="bold"/>
 </s:BorderContainer>

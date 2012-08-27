@@ -13,6 +13,9 @@
 
 
 			private var _evidence:Object;
+      
+      [Bindable]
+      public var idVisible:Boolean;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -34,12 +37,21 @@
 		]]>
 	</fx:Script>
 <s:layout>
-  <s:HorizontalLayout paddingBottom="10"
+  <s:VerticalLayout paddingBottom="10"
                       paddingLeft="10"
                       paddingRight="8"
                       paddingTop="30"
                       />
 </s:layout>
+  <s:RichText id="idTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
 		<s:Scroller height="100%"
 								width="100%" id="scroller">
 			<s:RichEditableText editable="false"

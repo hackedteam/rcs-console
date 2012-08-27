@@ -66,8 +66,9 @@
 			{
 				var filter:Object=EvidenceManager.instance.evidenceFilter;
 				filter.date='dr';
+        filter.from="24h"
 				delete(filter._id);
-				delete(filter.from);
+				//delete(filter.from);
 				delete(filter.to);
 				delete(filter.rel);
 				delete(filter.type);
@@ -161,6 +162,15 @@
 				}
 				actionBar.toggleSummaryButton(currentState);
 			}
+      
+      private function showIdColumn():void
+      {
+        
+        evidenceDg.idVisible=!evidenceDg.idVisible;
+        viewer.idVisible=evidenceDg.idVisible;
+        actionBar.toggleIdButton();
+        
+      }
 
 			private function onEditNote(e:Event):void
 			{
@@ -307,13 +317,14 @@
 	<evidences:EvidenceActionBar id="actionBar"
 															 editNote="onEditNote(event)"
 															 summary="toggleState()"
+                               section="{section}"
+                               idcolumn="showIdColumn()"
 															 counts="{EvidenceManager.instance.counts}"
 															 selectedObjects="{evidenceDg.selectedItems}"
 															 detail="toggleDetail()"
 															 export="export()"
 															 delete="onDelete()"/>
-
-  <evidences:FilterBox width="100%" visible="{!viewer.visible}" includeInLayout="{!viewer.visible}" evidenceView="{this}"/>
+  <!--<evidences:FilterBox width="100%" visible="{!viewer.visible}" includeInLayout="{!viewer.visible}" evidenceView="{this}"/>-->
 	<evidences:FilterNotice id="notice"
 													visible="{filteredById}"
 													includeInLayout="{filteredById}"

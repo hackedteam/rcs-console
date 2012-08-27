@@ -9,7 +9,7 @@
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
 									 creationComplete="init()"
-									 creationPolicy="all">
+									 creationPolicy="all" xmlns:map="it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.*">
 	<fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
     [Event(name="update", type="flash.events.Event")]
@@ -45,12 +45,15 @@
       [Bindable]
       public var isUpdated:Boolean;
       
+      [Bindable]
+      public var idVisible:Boolean;
+      
 			[Bindable]
 			public function set evidence(value:Evidence):void
 			{
 				_evidence=value;
         
-  
+        
         if(isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude))
         {
           if(!isUpdated)
@@ -151,8 +154,9 @@
         {
           details+="<b>IP: </b> "+ evidence.data.ip;
         }
-        detailsTxt.visible=details!="";
-
+        detailPanel.visible=details!="";
+        if(detailPanel.visible)
+          detailPanel.currentState="expanded";
 			}
 
 			public function get evidence():Evidence
@@ -230,6 +234,15 @@
 											paddingRight="10"
 											paddingTop="10"/>
 	</s:layout>
+  <s:RichText id="idTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
 	<s:RichText id="typeTxt"
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Type: &lt;/b&gt;'+type, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
@@ -267,20 +280,6 @@
 		<viewers:MapViewer id="mapViewer"
 											 change="onMapChange()"
 											 ready="onMapReady(event)"/>
-		<s:RichEditableText id="detailsTxt"
-												right="0"
-												bottom="0"
-												backgroundAlpha="0.5"
-												backgroundColor="0x000000"
-												editable="false"
-												fontSize="10"
-												paddingBottom="10"
-												paddingLeft="10"
-												paddingRight="10"
-												paddingTop="10"
-												selectable="false"
-												textFlow="{TextConverter.importToFlow(details, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-												color="0xFFFFFF"
-                        /> 
-	</s:Group>
+    <map:DetailPanel details="{details}" id="detailPanel"/>
+</s:Group>
 </s:BorderContainer>

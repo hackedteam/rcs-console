@@ -30,6 +30,9 @@
 			private var hasImages:Boolean;
 
 			private var loader:URLLoader=new URLLoader();
+      
+      [Bindable]
+      public var idVisible:Boolean;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -115,6 +118,15 @@
 											paddingRight="10"
 											paddingTop="10"/>
 	</s:layout>
+  <s:RichText id="idTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
 	<s:RichText id="fromTxt"
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+cleanHTMLText(evidence.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT)}"

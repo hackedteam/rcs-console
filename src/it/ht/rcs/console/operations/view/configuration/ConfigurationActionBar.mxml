@@ -53,6 +53,8 @@
   
   <fx:Script>
     <![CDATA[
+      import flash.net.SharedObject;
+      
       import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
@@ -82,7 +84,40 @@
       [Bindable]
       public var configView:ConfigurationView;
       
+      private var securitySettings:SharedObject;
+      
       private function build(event:MouseEvent):void
+      {
+        var userId:String=Console.currentSession.user._id;
+        try
+        {
+          securitySettings = SharedObject.getLocal("securitySettings");
+        }
+        catch (error:Error)
+        {
+          trace("SharedObject Error:"+error.toString());
+          return;
+        }
+        if(!securitySettings.data[userId])
+        {
+          var sW:SecurityWarning=PopUpManager.createPopUp(root, SecurityWarning, true) as SecurityWarning;
+          sW.addEventListener("close", onWarningClose)
+          PopUpManager.centerPopUp(sW);
+        }
+        else{
+          doBuild()
+        }
+      }
+      
+      private function onWarningClose(e:Event):void
+      {
+        var userId:String=Console.currentSession.user._id;
+        var sW:SecurityWarning=e.currentTarget as SecurityWarning;
+        securitySettings.data[userId]=sW.doNotShow;
+        doBuild();
+      }
+      
+      private function doBuild():void
       {
         saveConfig();
         

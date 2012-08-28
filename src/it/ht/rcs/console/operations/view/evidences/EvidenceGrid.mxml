@@ -22,28 +22,32 @@
 	<fx:Script>
 
 		<![CDATA[
-			import it.ht.rcs.console.ObjectUtils;
-			import it.ht.rcs.console.agent.controller.AgentManager;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import mx.collections.IList;
-			import mx.events.CollectionEvent;
-			import mx.events.FlexEvent;
-			
-			import spark.core.NavigationUnit;
-			import spark.events.GridEvent;
-			import spark.events.GridItemEditorEvent;
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.IList;
+      import mx.controls.dataGridClasses.DataGridColumn;
+      import mx.events.CollectionEvent;
+      import mx.events.FlexEvent;
+      
+      import spark.core.NavigationUnit;
+      import spark.events.GridEvent;
+      import spark.events.GridItemEditorEvent;
       
       private var lastColumnIndex:int = -1;
       private var lastRowIndex:int = -1;
 
 			[Bindable]
 			public var filter:Object=EvidenceManager.instance.evidenceFilter;
+      
+      [Bindable]
+      public var idVisible:Boolean
 
 			private function dateLabelFunction(item:Object, column:GridColumn):String
 			{
@@ -59,7 +63,7 @@
 				else
 				{
 					var rowIndex:int=this.selectedIndices[0];
-					var columnIndex:int=5; //note column index
+					var columnIndex:int=this.noteColumn.columnIndex; //note column index
 					this.startItemEditorSession(rowIndex, columnIndex);
 				}
 			}
@@ -113,7 +117,6 @@
 
 			public function scrollDown():void
 			{
-				
         this.grid.ensureCellIsVisible(this.dataProvider.length-1);
 			}
       
@@ -142,8 +145,34 @@
 	</fx:Script>
 	<s:columns>
 		<s:ArrayList>
+      <s:GridColumn width="164"
+                    dataField="_id"
+                    headerText="Id"
+                    resizable="true"
+                    editable="false" visible="{idVisible}" id="idColumn">
+        <s:headerRenderer>
+          <fx:Component>
+            <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
+                                            popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TextFilterPopup"/>
+          </fx:Component>
+        </s:headerRenderer>
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <s:layout>
+                <s:HorizontalLayout verticalAlign="middle"
+                                    horizontalAlign="left"
+                                    paddingLeft="6"
+                                    paddingRight="6"
+                                    paddingTop="4"/>
+              </s:layout>
+              <s:Label id="labelDisplay"/>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
 
-			<s:GridColumn width="130"
+			<s:GridColumn width="124"
 										dataField="da"
 										headerText="{R.get('DATE_ACQUIRED')}"
 										labelFunction="dateLabelFunction"
@@ -171,7 +200,7 @@
 				</s:itemRenderer>
 			</s:GridColumn>
 
-			<s:GridColumn width="130"
+			<s:GridColumn width="124"
 										dataField="dr"
 										headerText="{R.get('DATE_RECEIVED')}"
 										labelFunction="dateLabelFunction"
@@ -244,7 +273,7 @@
 
 			<s:GridColumn dataField="data"
 										headerText="{R.get('INFO')}"
-										width="500"
+										width="400"
 										itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.EvidenceRenderer"
 										resizable="true"
 										editable="false">
@@ -266,7 +295,7 @@
           <fx:Component>
             <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"
                                             popupFactory="it.ht.rcs.console.operations.view.evidences.filters.TextFilterPopup"
-                                            propertyName="note"/>
+                                            propertyName="note" />
           </fx:Component>
         </s:headerRenderer>
 				<s:itemRenderer>

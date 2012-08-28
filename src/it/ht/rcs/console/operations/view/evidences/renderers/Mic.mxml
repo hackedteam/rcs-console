@@ -4,7 +4,7 @@
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																focusOut="onFocusOut()"
-																focusIn="onFocusIn()" creationComplete="init()"
+																focusIn="onFocusIn()" 
 																width="100%">
 
 	<fx:Script>
@@ -35,8 +35,14 @@
 			override public function set data(value:*):void
 			{
 				super.data=value;
-        init();
-		
+        //init();
+        miniPlayer.reset();
+        var id:String=encodeURIComponent(data.data._grid);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        dataTxt.textFlow=TextConverter.importToFlow("<b>Duration: </b>"+TimeUtils.formatTime(data.data.duration*1000), TextConverter.TEXT_FIELD_HTML_FORMAT);
+       // miniPlayer.url=url;
+        miniPlayer.urlTxt.text=url;
 			}
       
       private function init():void
@@ -49,11 +55,13 @@
        
         if(data)
         {
+          miniPlayer.reset();
           var id:String=encodeURIComponent(data.data._grid);
           var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
           url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
           dataTxt.textFlow=TextConverter.importToFlow("<b>Duration: </b>"+TimeUtils.formatTime(data.data.duration*1000), TextConverter.TEXT_FIELD_HTML_FORMAT);
-          miniPlayer.url=url;
+         // miniPlayer.url=url;
+          miniPlayer.urlTxt.text=url;
         }
       }
 
@@ -66,6 +74,15 @@
 			{
 				miniPlayer.hasFocus=true;
 			}
+      private function onPlay():void
+      {
+        var id:String=encodeURIComponent(data.data._grid);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        //miniPlayer.url=url;
+        miniPlayer.urlTxt.text=url;
+        miniPlayer.loadSound(url)
+      }
 		]]>
 	</fx:Script>
 	<s:VGroup verticalAlign="middle"
@@ -81,6 +98,7 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<renderers:SoundMiniPlayer id="miniPlayer"/>
+	  <!--<renderers:SoundMiniPlayer id="miniPlayer" url="{url}" play="onPlay()"/>-->
+    <renderers:SoundMiniPlayer id="miniPlayer" play="onPlay()"/>
 	</s:VGroup>
 </renderers:EvidenceDataRenderer>

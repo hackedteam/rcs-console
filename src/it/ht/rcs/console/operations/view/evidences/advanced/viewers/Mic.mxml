@@ -17,15 +17,19 @@
   </s:layout>
   <fx:Script>
     <![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
-      import flashx.textLayout.conversion.TextConverter;
       
       private var _evidence:Evidence;
       
       [Bindable]
       private var _url:String;
+      
+      [Bindable]
+      public var idVisible:Boolean;
       
       public var target:String;
       
@@ -40,6 +44,7 @@
         if(evidence.type=="mic")
         {
           player.sound=_url;
+          urlTxt.text=_url
         }
         trace("duration: "+_evidence.data.duration)
       }
@@ -55,13 +60,24 @@
       
       public function reset():void
       {
-        trace("viewer onHide")
-       player.reset()
+        trace("viewer onHide");
+        player.reset();
       }
+      
+      
       
     ]]>
   </fx:Script>
- 
+  <s:RichText id="idTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
+  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:Label id="urlTxt" fontSize="12" color="0x000000" fontWeight="bold" visible="false" includeInLayout="false"/>
   <s:Spacer height="30"/>
 <viewers:AudioPlayer id="player"/>
 </s:BorderContainer>

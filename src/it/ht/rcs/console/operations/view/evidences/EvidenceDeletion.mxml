@@ -39,9 +39,7 @@
         
         var today:int = new Date().time/1000;
         setFromTimestamp(today - 86400);
-        setToTimestamp(today);
-        
-        exportname.text = defaultName();
+        setToTimestamp(today);        
       }
       
       private function adjust():void
@@ -127,33 +125,23 @@
          }
         }
 
-        filter.blo = [blotter.selected];
-        
         filter.target = target._id;
                 
         if (agent != null) {
           filter.agent = agent._id;
         }
         
-        DownloadManager.instance.createTask("evidence", exportname.text, {filter: filter}); 
+        AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION'), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES) {
+              EvidenceManager.instance.destroy_all(filter);
+            }            
+          }, null, AlertPopUp.NO);
         
         PopUpManager.removePopUp(this);
       }
       
-      private function defaultName():String
-      {
-        var export_file:String = '';
-        
-        if (target != null)
-          export_file += target.name
-        
-        if (agent != null)
-          export_file += " - " + agent.name
-
-        export_file += " - " + "Evidence Export";
-        
-        return export_file;
-      }
       
     ]]>
   </fx:Script>
@@ -248,25 +236,13 @@
         </s:VGroup>
       </s:VGroup>
  
-      <s:VGroup height="100%">
-        <s:Label text="{R.get('REPORT')}:" fontWeight="bold"/>
-        <s:VGroup paddingLeft="15" width="135" height="100%">
-          <s:HGroup verticalAlign="top">
-            <s:CheckBox id="blotter"/>
-            <s:Label text="{R.get('REPORT_INCLUDED')}" width="100" />            
-          </s:HGroup>
-        </s:VGroup>
-      </s:VGroup>
     </s:HGroup>
         
     <s:Spacer height="20" />
     
     <s:HGroup horizontalAlign="right" width="100%">
-      <s:HGroup verticalAlign="middle" width="100%" horizontalAlign="left">
-        <s:Label text="{R.get('REPORT_NAME')}:" fontWeight="bold"/>
-        <s:TextInput id="exportname" width="250"/>
-      </s:HGroup>
-      <s:Button label="{R.get('EXPORT')}" click="export(event)"/>
+      <s:Button label="{R.get('DELETE')}" click="export(event)"/>
+      <s:Button label="{R.get('CANCEL')}" click="closeMe(event)"/>
     </s:HGroup>
   </s:VGroup>
   

@@ -152,6 +152,12 @@
 
 			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
 			{
+        if (isNaN(radiusKm) || radiusKm <= 0)
+        {
+          //return new LatLngBounds();
+          radiusKm=0.02
+        }
+        
 				_scale=calculateMapScale();
 				var shape:Shape=new Shape();
 				var overlay:GroundOverlay;
@@ -161,11 +167,6 @@
 				var bottomRight:LatLng;
 				var options:GroundOverlayOptions;
 				var circleWidth:Number=radiusKm * 2 * _scale;
-
-				if (isNaN(radiusKm) || radiusKm <= 0)
-				{
-					return new LatLngBounds();
-				}
 
 				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
 				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
@@ -225,11 +226,13 @@
 						if (customMarker.data == _selectedPosition.evidence)
 						{
 							customMarker.alpha=1;
+              if(circle)
 							circle.foreground.alpha=1;
 						}
 						else
 						{
 							customMarker.alpha=0.3;
+              if(circle)
 							circle.foreground.alpha=0.3;
 						}
 					}

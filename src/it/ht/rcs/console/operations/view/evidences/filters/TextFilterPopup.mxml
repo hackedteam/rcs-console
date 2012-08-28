@@ -19,6 +19,8 @@
         input.text = StringUtil.trim(input.text);
         hasFilter = input.text != '';
         hasFilter ? filter[property] = input.text : delete(filter[property]) ;
+        if(hasFilter && property=="_id")
+          filter[property]=[input.text]//id as Array
         visible = false;
         if (fireEvent)
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));

@@ -25,16 +25,104 @@
       import mx.collections.HierarchicalData;
       import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
+      import mx.events.AdvancedDataGridEvent;
+      import mx.events.CollectionEvent;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ObjectUtil;
       
       [Bindable]
       public var section:OperationsSection;
       
+      [Bindable]
+      private var hcv:HierarchicalData;
+      
+      
+      private var vScroll:int=0;
+      private var currentSelection:Array=new Array;
+      
+      
       public function showTree(e:Event=null):void
       {
-        var agent:Agent = section.stateManager.selectedAgent;
-        EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agent ? agent._id : null, onResult);
+        buildAgentsTree()
+        //EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agent ? agent._id : null,"[root]" ,onResult);
+      }
+      
+      //populate tree with agents without calling remote 'filesystem method'
+      private function buildAgentsTree():void
+      {
+        var root:FileSystemItem = new FileSystemItem();
+        //root.addEventListener("updated", onItemUpdated)
+        root.name=section.stateManager.selectedTarget.name;
+        root.children=[];
+        root.attr=ROOT
+        root.parent=null
+        root.scanned=true;
+        
+        var agents:ListCollectionView;
+        
+        if (section.stateManager.selectedAgent == null)
+        {
+          agents = AgentManager.instance.getAgentsForTarget(section.stateManager.selectedTarget._id);
+        }
+        else
+        {
+          var al:ArrayList=new ArrayList([section.stateManager.selectedAgent])
+          agents=new ListCollectionView(al);
+        }
+        for(var i:int=0;i<agents.length;i++)
+        {
+          var subroot:FileSystemItem = new FileSystemItem(); //temp
+          subroot.children = [{name:"retrieving data...", scanning:true}]//
+          subroot.attr=SUBROOT;
+          subroot.name = agents.getItemAt(i).name;
+          subroot.agent = agents.getItemAt(i) as Agent;
+          subroot.scanned=false;
+          subroot.parent = root;
+         
+          root.children.push(subroot)
+        }
+        
+        hcv = new HierarchicalData(root);
+        //hcv.showRoot = true;
+        grid.dataProvider = hcv;
+      }
+      
+      private function onItemOpen(e:AdvancedDataGridEvent):void
+      {
+        vScroll=grid.verticalScrollPosition;
+        //currentSelection=grid.selectedItems;
+        
+        trace("index: "+ vScroll)
+        var item:FileSystemItem=e.item as FileSystemItem;
+        grid.selectedItems=[item]
+        item.addEventListener("updated", onItemUpdated)
+        trace(item.name)
+        if(item.attr!=ROOT)
+        {
+          if(item.parent.attr==ROOT)
+          {
+            EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id,"[root]" , item.update);
+          }
+          else
+          {
+            EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, item.path+"\\", item.update);
+          }
+        }
+      }
+      
+      private function onItemUpdated(e:Event):void
+      {
+        e.currentTarget.removeEventListener("updated", onItemUpdated)
+        trace("item updated")
+        trace(e.currentTarget.children.length)
+        //grid.dataProvider=null
+        grid.invalidateDisplayList()
+        grid.dataProvider = hcv;
+        grid.validateNow();
+        grid.verticalScrollPosition=vScroll;
+        grid.selectedItems=[e.currentTarget]
+        
+        //grid.dataProvider.dispatchEvent( new CollectionEvent(CollectionEvent.COLLECTION_CHANGE) );
       }
       
       private function onResult(event:ResultEvent):void
@@ -84,11 +172,13 @@
         return ids;
       }
       
+     
+      
       public static const ROOT:int = -2;
       public static const SUBROOT:int = -1;
       public static const FILE:int = 0;
-      public static const EMPTY_FOLDER:int = 1;
-      public static const FULL_FOLDER:int = 3;
+      public static const FULL_FOLDER:int = 1;
+      public static const EMPTY_FOLDER:int = 3;
       
       private function buildSubTree(evidences:Array, aid:String):Object
       {
@@ -174,15 +264,18 @@
       {
         if (!item) return null;
         
-        if (item.hasOwnProperty('children')) {
+        if (item.scanning) return Icons.scanningIcon;
+        
+       // if (item.hasOwnProperty('children')) {
           switch (item.attr) {
             case ROOT: return Icons.target16;
             case SUBROOT: return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
             case EMPTY_FOLDER: return emptyFolder;
             case FULL_FOLDER: return fullFolder;
+            case FILE: return file;
             default: return null;
           }
-        }
+        //}
         
         return file;
       }
@@ -207,6 +300,8 @@
       actionBar.selectedObject=grid.selectedItems[0];
       actionBar.selectedObjects=grid.selectedItems;
       }
+      
+     
     ]]>
   </fx:Script>
   
@@ -215,7 +310,7 @@
   <!--mx:Tree id="tree" width="100%" height="100%" allowMultipleSelection="false" borderVisible="false"
            labelField="name" showRoot="true"/-->
   
-  <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false" iconFunction="fsIconFunction" allowMultipleSelection="true" change="onSelectionChange()">
+  <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false" iconFunction="fsIconFunction" allowMultipleSelection="true" change="onSelectionChange()" itemOpen="onItemOpen(event)" dataProvider="{hcv}">
     <mx:columns>
       <mx:AdvancedDataGridColumn dataField="name" width="400" headerText="{R.get('PATH')}"/>
       <mx:AdvancedDataGridColumn dataField="date" labelFunction="dateFunction" width="160" headerText="{R.get('DATE')}"/>

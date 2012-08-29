@@ -114,5 +114,8 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/device/agent_mobile.png')]
     public static const agent_mobile:Class;
     
+    [Embed(source='/img/evidence/spinner16.swf')]
+    public static const scanningIcon:Class;
+    
   }
 }

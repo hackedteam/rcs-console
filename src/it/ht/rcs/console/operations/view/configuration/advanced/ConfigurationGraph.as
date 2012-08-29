@@ -65,6 +65,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     // A reference to the link target (this is set by sub-components)
     [Bindable] public var currentTarget:Linkable;
     
+    private var head:Vector.<ModuleRenderer>
+    private var tail:Vector.<ModuleRenderer>
+    
     public function startConnection(from:Linkable):void
     {
       removeSelection();
@@ -553,7 +556,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
           cX = offsetFromCenter + i * (MODULE_DISTANCE + moduleRenderer.width);
           //small gap beetween first 3 nad others
           var gap:Number=30;
-          if(i<3){cX-=gap}
+          if(i<head.length){cX-=gap}
           else{cX+=gap}
           moduleRenderer.move(cX, cY);
         }
@@ -588,8 +591,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     
     private function sortModules():void
     {
-      var head:Vector.<ModuleRenderer>=new Vector.<ModuleRenderer>
-      var tail:Vector.<ModuleRenderer>=new Vector.<ModuleRenderer>
+      head=new Vector.<ModuleRenderer>
+      tail=new Vector.<ModuleRenderer>
       for( var i:int=0;i<modules.length;i++)
       {
         var mr:ModuleRenderer=modules[i] as ModuleRenderer;  

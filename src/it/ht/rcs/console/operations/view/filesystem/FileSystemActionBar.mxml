@@ -24,6 +24,13 @@
             enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.SUBROOT) &amp;&amp; sameType(selectedObjects) &amp;&amp; isItemOpened()}"         
             icon="@Embed('/img/NEW/folder32.png')"/>
   
+  <actionbar:Separator/>
+  
+  <s:Button label="{R.get('PENDING_REQUESTS')}"
+            icon="@Embed('/img/NEW/pending32.png')" click="openPendingDialog()"
+            enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.attr == FileSystemView.SUBROOT}"/>
+  
+  
   <s:Spacer width="100%"/>
   
   <fx:Script>
@@ -65,6 +72,7 @@
       {
         var result:Boolean=true;
         var attr:String=items[0].attr;
+        
         for(var i:int=0;i<items.length;i++)
         {
         if(items[i].attr!=attr)
@@ -132,7 +140,6 @@
             AlertPopUp.show('Items scheduled for default retrieval');  
           });
         }
-       
       }
       
       protected function exportFS(event:MouseEvent):void
@@ -140,6 +147,13 @@
         var popup:Export = PopUpManager.createPopUp(root, Export, true) as Export;
         popup.target = section.stateManager.selectedTarget;
         popup.agent = section.stateManager.selectedAgent;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function openPendingDialog():void
+      {
+        var popup:PendingForm = PopUpManager.createPopUp(root, PendingForm, true) as PendingForm;
+        popup.getFilesystems(selectedObject.agent);
         PopUpManager.centerPopUp(popup);
       }
       

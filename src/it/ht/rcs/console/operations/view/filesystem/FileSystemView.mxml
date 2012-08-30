@@ -54,7 +54,7 @@
         //root.addEventListener("updated", onItemUpdated)
         root.name=section.stateManager.selectedTarget.name;
         root.children=[];
-        root.attr=ROOT
+        root.attr=ROOT;
         root.parent=null
         root.scanned=true;
         
@@ -78,8 +78,7 @@
           subroot.agent = agents.getItemAt(i) as Agent;
           subroot.scanned=false;
           subroot.parent = root;
-         
-          root.children.push(subroot)
+          root.children.push(subroot);
         }
         
         hcv = new HierarchicalData(root);
@@ -95,6 +94,8 @@
         trace("index: "+ vScroll)
         var item:FileSystemItem=e.item as FileSystemItem;
         grid.selectedItems=[item]
+        actionBar.selectedObject=grid.selectedItems[0];
+        actionBar.selectedObjects=grid.selectedItems;
         item.addEventListener("updated", onItemUpdated)
         trace(item.name)
         if(item.attr!=ROOT)
@@ -113,18 +114,20 @@
       private function onItemUpdated(e:Event):void
       {
         e.currentTarget.removeEventListener("updated", onItemUpdated)
-        trace("item updated")
-        trace(e.currentTarget.children.length)
-        //grid.dataProvider=null
+        trace(e.currentTarget.children.length);
         grid.invalidateDisplayList()
         grid.dataProvider = hcv;
         grid.validateNow();
         grid.verticalScrollPosition=vScroll;
         grid.selectedItems=[e.currentTarget]
+          
+        actionBar.selectedObject=grid.selectedItems[0];
+        actionBar.selectedObjects=grid.selectedItems;
         
-        //grid.dataProvider.dispatchEvent( new CollectionEvent(CollectionEvent.COLLECTION_CHANGE) );
       }
       
+      //this is the old method to retrieve all data togheter
+     /*  
       private function onResult(event:ResultEvent):void
       {
         var root:Object = { name: section.stateManager.selectedTarget.name, children: [], attr: ROOT, parent: null };
@@ -140,7 +143,8 @@
         hcv.showRoot = true;
         grid.dataProvider = hcv;
         
-      }
+      } 
+      */
       
       private function groupByAgentId(collection:ArrayCollection):Object
       {
@@ -171,9 +175,7 @@
         
         return ids;
       }
-      
-     
-      
+
       public static const ROOT:int = -2;
       public static const SUBROOT:int = -1;
       public static const FILE:int = 0;

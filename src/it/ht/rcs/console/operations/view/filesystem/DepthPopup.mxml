@@ -35,12 +35,15 @@
            }
            
            var aid:String = getAgentId(items[i]);
+           items[i].pending=true;
            AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
              numItemsToProcess--;
              if(numItemsToProcess==0)
              {
                AlertPopUp.show('Items scheduled for retrieval');
+               dispatchEvent(new Event("close"))
                close();
+               
              }
            });
            

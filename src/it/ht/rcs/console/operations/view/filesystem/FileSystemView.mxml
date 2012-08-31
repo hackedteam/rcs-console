@@ -43,6 +43,8 @@
       
       public function showTree(e:Event=null):void
       {
+        actionBar.addEventListener("pendingUpdate", onPendingUpdate)
+        actionBar.addEventListener("pendingDelete", onPendingDelete)
         buildAgentsTree()
         //EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agent ? agent._id : null,"[root]" ,onResult);
       }
@@ -56,7 +58,6 @@
         root.children=[];
         root.attr=ROOT;
         root.parent=null
-        root.scanned=true;
         
         var agents:ListCollectionView;
         
@@ -76,7 +77,6 @@
           subroot.attr=SUBROOT;
           subroot.name = agents.getItemAt(i).name;
           subroot.agent = agents.getItemAt(i) as Agent;
-          subroot.scanned=false;
           subroot.parent = root;
           root.children.push(subroot);
         }
@@ -124,6 +124,40 @@
         actionBar.selectedObject=grid.selectedItems[0];
         actionBar.selectedObjects=grid.selectedItems;
         
+        //ask for pending items
+        e.currentTarget.addEventListener("pendingResult", onPendingResult)
+        AgentManager.instance.getFilesystems(e.currentTarget.agent,e.currentTarget.onPendingResult)
+        
+      }
+      
+      private function onPendingResult(e:Event):void
+      {
+        e.currentTarget.removeEventListener("pendingResult", onPendingResult)
+        grid.invalidateDisplayList();
+        grid.dataProvider = hcv;
+        grid.validateNow();
+        grid.verticalScrollPosition=vScroll;
+        grid.selectedItems=[e.currentTarget];
+        actionBar.selectedObject=grid.selectedItems[0];
+        actionBar.selectedObjects=grid.selectedItems;
+      }
+      
+      private function onPendingUpdate(e:Event):void
+      {
+        vScroll=grid.verticalScrollPosition;
+        grid.invalidateDisplayList();
+        grid.dataProvider = hcv;
+        grid.validateNow();
+        grid.verticalScrollPosition=vScroll;
+        grid.selectedItems=[e.currentTarget]
+        actionBar.selectedObject=grid.selectedItems[0];
+        actionBar.selectedObjects=grid.selectedItems;
+      }
+      
+      private function onPendingDelete(e:Event):void
+      {
+        trace(actionBar.deletedItems.length) //TODO
+
       }
       
       //this is the old method to retrieve all data togheter
@@ -249,6 +283,8 @@
         return '';
       }
       
+     
+      
       [Embed('/img/NEW/emptyFolder.png')]
       private static const emptyFolder:Class;
       [Embed('/img/NEW/fullFolder.png')]
@@ -314,7 +350,8 @@
   
   <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false" iconFunction="fsIconFunction" allowMultipleSelection="true" change="onSelectionChange()" itemOpen="onItemOpen(event)" dataProvider="{hcv}">
     <mx:columns>
-      <mx:AdvancedDataGridColumn dataField="name" width="400" headerText="{R.get('PATH')}"/>
+      <mx:AdvancedDataGridColumn dataField="name" width="400" headerText="{R.get('PATH')}" />
+      <mx:AdvancedDataGridColumn dataField="pending" headerText="Pending" itemRenderer="it.ht.rcs.console.operations.view.filesystem.renderers.PendingItemRenderer" width="80"/>
       <mx:AdvancedDataGridColumn dataField="date" labelFunction="dateFunction" width="160" headerText="{R.get('DATE')}"/>
       <mx:AdvancedDataGridColumn dataField="size" labelFunction="sizeFunction" width="100" headerText="{R.get('SIZE')}"/>
       <!--mx:AdvancedDataGridColumn dataField="attr" width="100"/-->

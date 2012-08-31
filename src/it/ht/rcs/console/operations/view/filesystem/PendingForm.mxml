@@ -27,11 +27,13 @@
       private var agent:Agent;
       private var itemsToDelete:int=0;
       private var deletionIndex:int=0;
-
+      public var deletedItems:Array;
       
       protected function closeMe(event:*):void
       {
+        dispatchEvent(new Event("pendingclose"))
         PopUpManager.removePopUp(this);
+        
       }
       
       private function init():void
@@ -56,6 +58,7 @@
       
       private function deleteFilesystem():void
       {
+        deletedItems=new Array()
         itemsToDelete=filesystemsDg.selectedItems.length;
         deletionIndex=0;
         AlertPopUp.show(R.get('FILESYSTEM_DELETION_CONFIRM'), R.get('CONFIRM'),
@@ -71,6 +74,7 @@
         deletionIndex++
           if(deletionIndex==itemsToDelete){
             getFilesystems(agent);
+            
           }
           else{
             doDelete(deletionIndex)
@@ -84,8 +88,9 @@
       }
       
       private function doDelete(currentIndex:int):void
-      {
+      {      
         AgentManager.instance.deleteFilesystem(agent,filesystemsDg.selectedItems[currentIndex]._id, onDeleteResult, onDeleteFault)
+        deletedItems.push(filesystemsDg.selectedItems[currentIndex]);
       }
       
     ]]>

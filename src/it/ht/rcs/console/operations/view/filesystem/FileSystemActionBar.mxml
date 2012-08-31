@@ -1,163 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
 <actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
-                     xmlns:s="library://ns.adobe.com/flex/spark"
-                     xmlns:mx="library://ns.adobe.com/flex/mx"
-                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
-  
-  <s:Button label="{R.get('EXPORT')}"
-            icon="@Embed('/img/NEW/export.png')" click="exportFS(event)"/>
-  
-  <s:Button label="{R.get('DOWNLOAD_FILE')}" click="onDownload(event)"
-            enabled="{selectedObject!= null &amp;&amp; selectedObject.attr == FileSystemView.FILE &amp;&amp;  sameType(selectedObjects) &amp;&amp; isItemOpened()}"
-            icon="@Embed('/img/NEW/download.png')"/>
-  
-  <s:Button label="{R.get('RETRIEVE_TREE')}" click="onRetrieve(event)"
-            enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.EMPTY_FOLDER ||
+										 xmlns:s="library://ns.adobe.com/flex/spark"
+										 xmlns:mx="library://ns.adobe.com/flex/mx"
+										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
+
+	<s:Button label="{R.get('EXPORT')}"
+						icon="@Embed('/img/NEW/export.png')"
+						click="exportFS(event)"/>
+
+	<s:Button label="{R.get('DOWNLOAD_FILE')}"
+						click="onDownload(event)"
+						enabled="{selectedObject!= null &amp;&amp; selectedObject.attr == FileSystemView.FILE &amp;&amp;  sameType(selectedObjects) &amp;&amp; isItemOpened()}"
+						icon="@Embed('/img/NEW/download.png')"/>
+
+	<s:Button label="{R.get('RETRIEVE_TREE')}"
+						click="onRetrieve(event)"
+						enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.EMPTY_FOLDER ||
                                                          selectedObject.attr == FileSystemView.FULL_FOLDER  ||
                                                          selectedObject.attr == FileSystemView.SUBROOT)
                                               &amp;&amp; haveTree(selectedObjects) &amp;&amp; isItemOpened()
             }"
+						icon="@Embed('/img/NEW/folderplus32.png')"/>
+
+	<s:Button label="{R.get('RETRIEVE_DEFAULT')}"
+						click="onRetrieveDefault(event)"
+						enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.SUBROOT) &amp;&amp; sameType(selectedObjects) &amp;&amp; isItemOpened()}"
+						icon="@Embed('/img/NEW/folder32.png')"/>
+
+	<actionbar:Separator/>
+
+	<s:Button label="{R.get('PENDING_REQUESTS')}"
+						icon="@Embed('/img/NEW/pending32.png')"
+						click="openPendingDialog()"
+						enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.attr == FileSystemView.SUBROOT}"/>
+
+
+	<s:Spacer width="100%"/>
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.agent.controller.AgentManager;
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.operations.view.OperationsSection;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			
+			import locale.R;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+
+			[Bindable]
+			public var section:OperationsSection;
+
+			[Bindable]
+			public var selectedObjects:Array
       
-            icon="@Embed('/img/NEW/folderplus32.png')"/>
-  
-  <s:Button label="{R.get('RETRIEVE_DEFAULT')}" click="onRetrieveDefault(event)"
-            enabled="{selectedObject != null &amp;&amp; (selectedObject.attr == FileSystemView.SUBROOT) &amp;&amp; sameType(selectedObjects) &amp;&amp; isItemOpened()}"         
-            icon="@Embed('/img/NEW/folder32.png')"/>
-  
-  <actionbar:Separator/>
-  
-  <s:Button label="{R.get('PENDING_REQUESTS')}"
-            icon="@Embed('/img/NEW/pending32.png')" click="openPendingDialog()"
-            enabled="{Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.attr == FileSystemView.SUBROOT}"/>
-  
-  
-  <s:Spacer width="100%"/>
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.agent.controller.AgentManager;
-      import it.ht.rcs.console.agent.model.Agent;
-      import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.controls.Alert;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.ResultEvent;
-      
-      [Bindable]
-      public var section:OperationsSection;
-    
-      [Bindable]
-      public var selectedObjects:Array
-      
-      private var numFilesToProcess:int;
-      
-      private function isItemOpened():Boolean
-      {
-      var result:Boolean=false;
-      if(section.stateManager.selectedAgent!=null) 
-      {
-        result = section.stateManager.selectedAgent.status=='open'
-      }
-      else if(section.stateManager.selectedTarget!=null)
-      {
-        result = section.stateManager.selectedTarget.status=='open'
-      }
-        return result;
-      }
-      
-      private function sameType(items:Array):Boolean
-      {
-        var result:Boolean=true;
-        var attr:String=items[0].attr;
+      public var deletedItems:Array;
+
+			private var numFilesToProcess:int;
+
+			private function isItemOpened():Boolean
+			{
+				var result:Boolean=false;
         
-        for(var i:int=0;i<items.length;i++)
-        {
-        if(items[i].attr!=attr)
-          {
-            result=false;
-            break;
-          }
-        }
-      return result;
-      }
-      
-      private function haveTree(items:Array):Boolean
-      {
-        var result:Boolean=true;
-      
-        for(var i:int=0;i<items.length;i++)
-        {
-          if(items[i].attr!=FileSystemView.EMPTY_FOLDER && items[i].attr!= FileSystemView.FULL_FOLDER && items[i].attr!=FileSystemView.SUBROOT)
-          {
-            result=false;
-            break;
-          }
-        }
-        return result;
-      }
-        
-        
-      private function onDownload(e:MouseEvent):void
-      {
-        numFilesToProcess=selectedObjects.length;
-        
-        for(var i:int=0;i<selectedObjects.length;i++)
-        {
-          AgentManager.instance.createDownload(selectedObjects[i].evidence.aid, selectedObjects[i].evidence.data.path, onCreate);
-        }
-        
-      }
-      
-      private function onCreate(e:ResultEvent):void
-      { 
-        numFilesToProcess--
-          if(numFilesToProcess==0)
-            
-        Alert.show('Items scheduled for download');
-      }
-      
-      private function onRetrieve(e:MouseEvent):void
-      {
-        //retrieve default
-        var popup:DepthPopup = PopUpManager.createPopUp(root, DepthPopup, true) as DepthPopup;
-        popup.item = selectedObject;
-        popup.items = selectedObjects;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function onRetrieveDefault(e:MouseEvent):void
-      {
-        numFilesToProcess=selectedObjects.length;
-        for(var i:int=0;i<selectedObjects.length;i++)
-        {
-          var aid:String= selectedObject.agent._id;
-          AgentManager.instance.filesystem(aid, "default", 0, function(e:Event):void {
-            numFilesToProcess--
-            if(numFilesToProcess==0)
-            AlertPopUp.show('Items scheduled for default retrieval');  
-          });
-        }
-      }
-      
-      protected function exportFS(event:MouseEvent):void
-      {
-        var popup:Export = PopUpManager.createPopUp(root, Export, true) as Export;
-        popup.target = section.stateManager.selectedTarget;
-        popup.agent = section.stateManager.selectedAgent;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function openPendingDialog():void
-      {
-        var popup:PendingForm = PopUpManager.createPopUp(root, PendingForm, true) as PendingForm;
-        popup.getFilesystems(selectedObject.agent);
-        PopUpManager.centerPopUp(popup);
-      }
-      
-    ]]>
-  </fx:Script>
-  
+				if (section.stateManager.selectedAgent != null)
+				{
+					result=section.stateManager.selectedAgent.status == 'open'
+				}
+				else if (section.stateManager.selectedTarget != null)
+				{
+					result=section.stateManager.selectedTarget.status == 'open'
+				}
+				return result;
+			}
+
+			private function sameType(items:Array):Boolean
+			{
+				var result:Boolean=true;
+				var attr:String=items[0].attr;
+
+				for (var i:int=0; i < items.length; i++)
+				{
+					if (items[i].attr != attr)
+					{
+						result=false;
+						break;
+					}
+				}
+				return result;
+			}
+
+			private function haveTree(items:Array):Boolean
+			{
+				var result:Boolean=true;
+
+				for (var i:int=0; i < items.length; i++)
+				{
+					if (items[i].attr != FileSystemView.EMPTY_FOLDER && items[i].attr != FileSystemView.FULL_FOLDER && items[i].attr != FileSystemView.SUBROOT)
+					{
+						result=false;
+						break;
+					}
+				}
+				return result;
+			}
+
+
+			private function onDownload(e:MouseEvent):void
+			{
+				numFilesToProcess=selectedObjects.length;
+
+				for (var i:int=0; i < selectedObjects.length; i++)
+				{
+					AgentManager.instance.createDownload(selectedObjects[i].evidence.aid, selectedObjects[i].evidence.data.path, onCreate);
+				}
+
+			}
+
+			private function onCreate(e:ResultEvent):void
+			{
+				numFilesToProcess--
+				if (numFilesToProcess == 0)
+
+					Alert.show('Items scheduled for download');
+			}
+
+			private function onRetrieve(e:MouseEvent):void
+			{
+				//retrieve default
+				var popup:DepthPopup=PopUpManager.createPopUp(root, DepthPopup, true) as DepthPopup;
+				popup.item=selectedObject;
+				popup.items=selectedObjects;
+				popup.addEventListener("close", DepthPopupClose)
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function DepthPopupClose(e:Event):void
+			{
+				dispatchEvent(new Event("pendingUpdate"))
+			}
+
+			private function onPendingClose(e:Event):void
+			{
+        deletedItems=e.currentTarget.deletedItems;
+				dispatchEvent(new Event("pendingDelete"))
+			}
+
+			private function onRetrieveDefault(e:MouseEvent):void
+			{
+				numFilesToProcess=selectedObjects.length;
+				for (var i:int=0; i < selectedObjects.length; i++)
+				{
+					var aid:String=selectedObject.agent._id;
+					AgentManager.instance.filesystem(aid, "default", 0, function(e:Event):void
+					{
+						numFilesToProcess--
+						if (numFilesToProcess == 0)
+							AlertPopUp.show('Items scheduled for default retrieval');
+					});
+				}
+			}
+
+			protected function exportFS(event:MouseEvent):void
+			{
+				var popup:Export=PopUpManager.createPopUp(root, Export, true) as Export;
+				popup.target=section.stateManager.selectedTarget;
+				popup.agent=section.stateManager.selectedAgent;
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function openPendingDialog():void
+			{
+        deletedItems=new Array()
+				var popup:PendingForm=PopUpManager.createPopUp(root, PendingForm, true) as PendingForm;
+				popup.getFilesystems(selectedObject.agent);
+				popup.addEventListener("pendingclose", onPendingClose)
+				PopUpManager.centerPopUp(popup);
+			}
+		]]>
+	</fx:Script>
+
 </actionbar:ActionBar>

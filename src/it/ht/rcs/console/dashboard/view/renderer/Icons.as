@@ -26,6 +26,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/osx16.png')]
     public static const osx16:Class;
     
+    [Embed(source='/img/NEW/linux16.png')]
+    public static const linux16:Class;
+    
     [Embed(source='/img/NEW/android_16.png')]
     public static const android16:Class;
     
@@ -101,6 +104,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/device/desktop_windows.png')]
     public static const desktop_windows:Class;
+    
+    [Embed(source='/img/NEW/device/desktop_linux.png')]
+    public static const desktop_linux:Class;
     
     [Embed(source='/img/NEW/device/factory_desktop.png')]
     public static const factory_desktop:Class;

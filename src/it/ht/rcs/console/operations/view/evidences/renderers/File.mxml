@@ -16,6 +16,9 @@
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.utils.StringUtils;
       import it.ht.rcs.console.utils.FileUtils;
+      import it.ht.rcs.console.agent.controller.AgentManager
+      import mx.rpc.events.ResultEvent;
+      import mx.controls.Alert;
       
       
       private var file:flash.filesystem.File;
@@ -132,7 +135,17 @@
         fileStream.close();
         
       }
-
+      
+      private function schedule():void
+      {
+        AgentManager.instance.createDownload(data.aid, data.data.path, onSchedule);
+      }
+      
+      private function onSchedule(e:ResultEvent):void
+      {
+          Alert.show('Item scheduled for download');
+      }
+      
 		]]>
 	</fx:Script>
 
@@ -169,6 +182,12 @@
                 label="Download"
                 click="getFile()"/>
       <s:Label id="downloadStatusTxt"/>
+    </s:HGroup>
+    
+    <s:HGroup visible="{data.data.type=='open'}" includeInLayout="{data.data.type=='open'}" verticalAlign="middle">
+      <s:Button id="retrieveBtn"
+                label="Retrieve"
+                click="schedule()"/>
     </s:HGroup>
     
 	</s:VGroup>

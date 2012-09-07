@@ -106,7 +106,15 @@
           }
           else
           {
-            EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, item.path+"\\", item.update);
+            
+            if(item.agent.platform=="windows" || item.agent.platform=="winmo" || item.agent.platform=="symbian")
+            {
+              EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, item.path+"\\", item.update);
+            }
+            else
+            {
+              EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, item.path+"/", item.update);
+            }
           }
         }
       }

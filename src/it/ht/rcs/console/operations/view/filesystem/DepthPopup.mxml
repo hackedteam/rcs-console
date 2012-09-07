@@ -8,6 +8,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       [Bindable]
@@ -24,11 +25,21 @@
         numItemsToProcess=items.length;
        for(var i:int=0;i<items.length;i++)
          {
-           if (items[i].attr == FileSystemView.SUBROOT)
+           if (items[i].attr == FileSystemView.SUBROOT)//-1
              path = '/';
            else {
              path = buildPath();
-             var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
+             //var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
+             var separator:String=""
+             var agent:Agent=items[i].agent;
+             if(items[i].agent.platform=="windows" || items[i].agent.platform=="winmo" || items[i].agent.platform=="symbian")
+             {
+               separator="\\";
+             }
+             else
+             {
+               separator="/";
+             }
              var lastChar:String = path.charAt(path.length-1);
              if (lastChar != separator)
                path = path + separator + '*';
@@ -54,19 +65,26 @@
       private function buildPath():String
       {
         var pathElements:Array = [];
-        var el:Object = item;
+        var el:Object = item;  
         
-        var separator:String = "/";
+        var separator:String = "";
+        if(item.agent.platform=="windows" || item.agent.platform=="winmo" || item.agent.platform=="symbian")
+        {
+          separator="\\"
+        }else
+        {
+          separator="/"
+        }
         
         do {
           pathElements.push(el.name);
           // on root check if it's windows or not
           // windows is something like c: d:
           // others are /
-          if (el.parent.attr == FileSystemView.SUBROOT) {
+         /*  if (el.parent.attr == FileSystemView.SUBROOT) {
            if (el.name != '/')
              separator = "\\";
-          }
+          } */
           el = el.parent;
         } while (el.attr != FileSystemView.SUBROOT);
         

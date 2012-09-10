@@ -15,15 +15,25 @@
                       paddingTop="10"
                       />
   </s:layout>
+  
+  <s:states>
+    <s:State name="image"/>
+    <s:State name="ocr"/>
+  </s:states>
+  
   <fx:Script>
     <![CDATA[
+      
+      import flashx.textLayout.conversion.TextConverter;
       
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
-      import flashx.textLayout.conversion.TextConverter;
 
       private var _evidence:Evidence;
+      private var _ocrLoaded:Boolean;
+      
+      private var loader:URLLoader=new URLLoader();
       
       [Bindable]
       private var _url:String;
@@ -43,6 +53,26 @@
           _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
           init();
         }
+        _ocrLoaded=false;
+        currentState="image";
+        
+      }
+      
+      private function loadOcrContent():void
+      {
+        //ocr
+        var id:String=encodeURIComponent(evidence._id);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; 
+        loader.addEventListener(Event.COMPLETE, onContentLoaded);
+        loader.load(new URLRequest(url));
+      }
+      
+      private function onContentLoaded(e:Event):void
+      {
+        var ocrContent:String=e.currentTarget.data;
+        ocrTxt.textFlow=TextConverter.importToFlow(ocrContent, TextConverter.PLAIN_TEXT_FORMAT)
+        _ocrLoaded=true;
       }
       
       public function get evidence():Evidence
@@ -59,6 +89,22 @@
       public function reset():void
       {
         imageViewer.reset()
+      }
+      
+      private function switchView():void
+      {
+        if(currentState=="image")
+        {
+          currentState="ocr"
+          switchBtn.label="Image"
+            if(!_ocrLoaded)
+              loadOcrContent();
+        }
+        else
+        {
+          currentState="image"
+          switchBtn.label="OCR"
+        }
       }
    
     ]]>
@@ -78,11 +124,15 @@
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
-  <s:RichText id="windowTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+  <s:HGroup width="100%" verticalAlign="middle">
+  <s:RichText id="windowTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12" width="100%"/>
+  <s:Button label="OCR" click="switchView()" id="switchBtn"/>
+  </s:HGroup>
   <s:Line width="100%" >
     <s:stroke>
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
-  <viewers:ImageViewer id="imageViewer" url="{_url}"/>
+  <viewers:ImageViewer id="imageViewer" url="{_url}" includeIn="image"/>
+  <s:RichText id="ocrTxt" textFlow="{TextConverter.importToFlow('OCR content', TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12" width="100%" includeIn="ocr"/>
 </s:BorderContainer>

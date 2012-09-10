@@ -43,9 +43,9 @@
 			import it.ht.rcs.console.agent.model.Agent;
 			import it.ht.rcs.console.operations.view.OperationsSection;
 			import it.ht.rcs.console.utils.AlertPopUp;
-			
+
 			import locale.R;
-			
+
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
@@ -55,15 +55,15 @@
 
 			[Bindable]
 			public var selectedObjects:Array
-      
-      public var deletedItems:Array;
+
+			public var deletedItems:Array;
 
 			private var numFilesToProcess:int;
 
 			private function isItemOpened():Boolean
 			{
 				var result:Boolean=false;
-        
+
 				if (section.stateManager.selectedAgent != null)
 				{
 					result=section.stateManager.selectedAgent.status == 'open'
@@ -123,7 +123,7 @@
 				numFilesToProcess--
 				if (numFilesToProcess == 0)
 
-					Alert.show('Items scheduled for download');
+					Alert.show(R.get('FILE_DOWNLOAD_SCHEDULED'));
 			}
 
 			private function onRetrieve(e:MouseEvent):void
@@ -143,7 +143,7 @@
 
 			private function onPendingClose(e:Event):void
 			{
-        deletedItems=e.currentTarget.deletedItems;
+				deletedItems=e.currentTarget.deletedItems;
 				dispatchEvent(new Event("pendingDelete"))
 			}
 
@@ -157,7 +157,7 @@
 					{
 						numFilesToProcess--
 						if (numFilesToProcess == 0)
-							AlertPopUp.show('Items scheduled for default retrieval');
+							AlertPopUp.show(R.get('FILE_RETRIEVE_DEFAULT'));
 					});
 				}
 			}
@@ -172,7 +172,7 @@
 
 			private function openPendingDialog():void
 			{
-        deletedItems=new Array()
+				deletedItems=new Array()
 				var popup:PendingForm=PopUpManager.createPopUp(root, PendingForm, true) as PendingForm;
 				popup.getFilesystems(selectedObject.agent);
 				popup.addEventListener("pendingclose", onPendingClose)

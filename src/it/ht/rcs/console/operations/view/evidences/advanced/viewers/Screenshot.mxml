@@ -43,6 +43,15 @@
       [Bindable]
       public var idVisible:Boolean;
       
+      [Embed(source="/img/NEW/eyeIcon.png")]
+      [Bindable]
+      public var eyeIcon:Class;
+      
+      
+      [Embed(source="/img/NEW/ocrIcon.png")]
+      [Bindable]
+      public var ocrIcon:Class;
+      
       [Bindable]
       public function set evidence(value:Evidence):void
       {
@@ -55,7 +64,8 @@
         }
         _ocrLoaded=false;
         currentState="image"
-        switchBtn.label="OCR"
+        switchBtn.toolTip="OCR"
+        switchBtn.source=ocrIcon;
         
       }
       
@@ -97,14 +107,16 @@
         if(currentState=="image")
         {
           currentState="ocr"
-          switchBtn.label="Image"
+          switchBtn.toolTip="Image"
+          switchBtn.source=eyeIcon;
             if(!_ocrLoaded)
               loadOcrContent();
         }
         else
         {
           currentState="image"
-          switchBtn.label="OCR"
+          switchBtn.toolTip="OCR"
+          switchBtn.source=ocrIcon;
         }
       }
    
@@ -127,7 +139,7 @@
   </s:Line>
   <s:HGroup width="100%" verticalAlign="middle">
   <s:RichText id="windowTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12" width="100%"/>
-  <s:Button label="OCR" click="switchView()" id="switchBtn"/>
+  <s:Image source="{ocrIcon}" toolTip="OCR" click="switchView()" id="switchBtn" useHandCursor="true" buttonMode="true"/>
   </s:HGroup>
   <s:Line width="100%" >
     <s:stroke>

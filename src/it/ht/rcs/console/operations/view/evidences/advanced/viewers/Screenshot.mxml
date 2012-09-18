@@ -26,6 +26,8 @@
       
       import flashx.textLayout.conversion.TextConverter;
       
+      import locale.R;
+      
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
@@ -82,7 +84,9 @@
       private function onContentLoaded(e:Event):void
       {
         var ocrContent:String=e.currentTarget.data;
-        ocrTxt.textFlow=TextConverter.importToFlow(ocrContent, TextConverter.PLAIN_TEXT_FORMAT)
+        if(ocrContent=="")
+          ocrContent=R.get('OCR_NO_DATA');
+        ocrTxt.textFlow=TextConverter.importToFlow(ocrContent, TextConverter.PLAIN_TEXT_FORMAT);
         _ocrLoaded=true;
       }
       

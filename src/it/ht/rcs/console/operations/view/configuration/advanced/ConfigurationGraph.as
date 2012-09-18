@@ -66,6 +66,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     [Bindable] public var currentTarget:Linkable;
     
     private var head:Vector.<ModuleRenderer>
+    private var middle:Vector.<ModuleRenderer>
     private var tail:Vector.<ModuleRenderer>
     
     public function startConnection(from:Linkable):void
@@ -119,7 +120,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 
       if (connection.to is ModuleRenderer) {
         var module:String = (connection.to as ModuleRenderer).module.module;
-        if(type=="stop" && (module=="camera" || module=="position" || module=="screenshot"))
+        if(type=="stop" && (module=="camera" || module=="position" || module=="screenshot" || module=="device"))
         {
           //connection not allowed
           connection.deleteConnection()
@@ -406,10 +407,13 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       // Adding modules
       var mr:ModuleRenderer;
       for each (var m:Object in config.modules) {
+        if(m.module!='print')
+        {
         mr = new ModuleRenderer(m, this);
         modules.push(mr);
         modulesMap[m.module] = mr;
         addElement(mr);
+        }
       }
       
       // Adding connections from actions to events and from actions to modules
@@ -557,8 +561,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
           //small gap beetween first 3 nad others
           var gap:Number=30;
           if(i<head.length){cX-=gap}
+          if(i>(modules.length-tail.length-1)){cX+=(gap*2)}
           else{cX+=gap}
-          moduleRenderer.move(cX, cY);
+          moduleRenderer.move(cX-gap, cY);
         }
         
       } // End modules
@@ -591,21 +596,29 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     
     private function sortModules():void
     {
-      head=new Vector.<ModuleRenderer>
-      tail=new Vector.<ModuleRenderer>
+      head = new Vector.<ModuleRenderer>
+      middle = new Vector.<ModuleRenderer>
+      tail = new Vector.<ModuleRenderer>
       for( var i:int=0;i<modules.length;i++)
       {
         var mr:ModuleRenderer=modules[i] as ModuleRenderer;  
-        if(modules[i].module.module=="screenshot" || modules[i].module.module=="camera" || modules[i].module.module=="position")
+        if(modules[i].module.module=="screenshot" || modules[i].module.module=="camera" || modules[i].module.module=="position"  || modules[i].module.module=="device")
         {
           head.push(mr) 
         }
+        
+        else if(modules[i].module.module=="crisis" || modules[i].module.module=="infection")
+        {
+          tail.push(mr) 
+        }
+        
         else
         {
-          tail.push(mr)
+          middle.push(mr)
         }
       }
-     modules=head.concat(tail);   
+     modules=head.concat(middle);  
+     modules=modules.concat(tail);
     }
     
 	}

@@ -7,6 +7,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.utils.Size;
       
       import locale.R;
@@ -15,11 +16,15 @@
       
       public var globals:Object;
       
+      [Bindable]
+      public var agent:Agent;
+      
       private function init():void
       {
         nohide.dataProvider = new ArrayList(globals.nohide);
         
-        min.text = String(Math.round(globals.quota.min / Size.MIB));
+        //min.text = String(Math.round(globals.quota.min / Size.MIB));
+        min.text = String(Size.roundDecimal((globals.quota.min / Size.MIB),2));
         max.text = String(Math.round(globals.quota.max / Size.MIB));
         wipe.selected = globals.wipe;
         driver.selected = globals.remove_driver;
@@ -30,11 +35,12 @@
         if (!val.isValid())
           return;
         
-        globals.quota.min = parseInt(min.text) * Size.MIB;
+        //globals.quota.min = parseInt(min.text) * Size.MIB;
+        globals.quota.min = Number(min.text) * Size.MIB;
         globals.quota.max = parseInt(max.text) * Size.MIB;
         globals.wipe = wipe.selected;
         globals.remove_driver = driver.selected;
-        globals.nohide = ArrayList(nohide.dataProvider).source;;
+        globals.nohide = ArrayList(nohide.dataProvider).source;
         close();
       }
       
@@ -55,14 +61,14 @@
     
     <s:FormItem label="{R.get('GLOBAL_MIN_DISK_FREE')}">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput id="min" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
+        <s:TextInput id="min" maxChars="7" restrict="0-9." textAlign="center" widthInChars="6"/>
         <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
     
     <s:FormItem label="{R.get('GLOBAL_MAX_EVIDENCE')}">
       <s:HGroup verticalAlign="middle">
-        <s:TextInput id="max" maxChars="4" restrict="0-9" textAlign="center" widthInChars="6"/>
+        <s:TextInput id="max" maxChars="7" restrict="0-9." textAlign="center" widthInChars="6"/>
         <s:Label paddingTop="1" text=" MiB"/>
       </s:HGroup>
     </s:FormItem>
@@ -93,7 +99,7 @@
   
   <fx:Declarations>
     <fx:Array id="vals">
-      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [4000])}" maxValue="4000"
+      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [agent.type=='desktop'? 4000:100])}" maxValue="{agent.type=='desktop'? 4000:100}" decimalSeparator="."
                           property="text" required="true" source="{min}" triggerEvent=""/>
       <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [4000])}" maxValue="4000"
                           property="text" required="true" source="{max}" triggerEvent=""/>

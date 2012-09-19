@@ -257,7 +257,9 @@
       private function editGlobals(event:MouseEvent):void
       {
         var popup:GlobalsForm = PopUpManager.createPopUp(root, GlobalsForm, true) as GlobalsForm;
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         popup.globals = configView.configAsObject.globals;
+        popup.agent=a;
         PopUpManager.centerPopUp(popup);
       }
       
@@ -307,8 +309,8 @@
         var newConfig:Object = DefaultConfigBuilder.getDefaultConfig(a);
         if (a._kind == 'agent')
           DefaultConfigBuilder.cleanPlatformConfig(a.platform, newConfig);
-        configView.basic.config = newConfig;
-        configView.basic.displayConfig();
+          configView.basic.config = newConfig;
+          configView.basic.displayConfig();
       }
       
       private function onTemplateLoad(e:Event):void

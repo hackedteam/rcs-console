@@ -5,14 +5,21 @@
           horizontalAlign="right">
     <fx:Script>
       <![CDATA[
+        import it.ht.rcs.console.agent.model.Agent;
         import it.ht.rcs.console.monitor.controller.LicenseManager;
         
         import locale.R;
 
         public var create:Function;
         
+        [Bindable]
+        private var isWindows:Boolean;
+        
+        
         public function set platforms(platforms:Array):void 
         {
+          scoutCh.selected=true;
+          isWindows=false;
           // reset the status
           createBtn.enabled = false;
           demo.enabled = false;
@@ -20,6 +27,8 @@
           
           // we need at least build or demo to create an agent
           platforms.forEach(function (element:*, index:int, arr:Array):void {
+           if(platforms.length==1 && element=="windows") 
+              isWindows=true;
             if (LicenseManager.instance.canBuild(element as String) || LicenseManager.instance.haveDemo(element as String))
               createBtn.enabled = true;
           });
@@ -53,7 +62,9 @@
         
       ]]>
     </fx:Script>
-  
+   <!-- <s:Label id="platformTxt" text="windows" visible="{isWindows}"/>-->
+    <s:CheckBox id="scoutCh" left="10" label="{R.get('SCOUT')}" fontWeight="bold" visible="{!LicenseManager.instance.scout &amp;&amp; isWindows}" enabled="{!LicenseManager.instance.scout &amp;&amp; isWindows}" selected="{!demo.selected}"/>
+    <s:Spacer width="100%"/>
     <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" />
     <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="create()" />    
   

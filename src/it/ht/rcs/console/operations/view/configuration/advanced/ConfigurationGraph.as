@@ -597,7 +597,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
     private function sortModules():void
     {
       head = new Vector.<ModuleRenderer>
-      middle = new Vector.<ModuleRenderer>
+      middle = new Vector.<ModuleRenderer> 
       tail = new Vector.<ModuleRenderer>
       for( var i:int=0;i<modules.length;i++)
       {

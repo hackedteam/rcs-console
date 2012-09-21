@@ -15,11 +15,14 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
+      [Bindable]
+      private var _platform:String;
+      
       protected function create():void
       {
         var params:Object = {platform: 'u3', generate: {platforms: [parentDocument.platform], 
                                                         binary: {demo: createBtn.demo.selected}, 
-                                                        melt: {admin: false} } }
+                                                        melt: {admin: false, scout:createBtn.scoutCh.selected} } }
           
         params['factory'] = {_id: parentDocument.factory._id};
         
@@ -42,7 +45,7 @@
       {
         if (platform == null)
           return;
-        
+        _platform=platform;
         createBtn.platforms = [platform];
       }
       

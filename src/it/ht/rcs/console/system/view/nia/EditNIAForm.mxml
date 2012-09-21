@@ -15,11 +15,16 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.rpc.Fault;
       
       public var mode:String = 'create';
       
       [Bindable]
       public var injector:it.ht.rcs.console.network.model.Injector;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/spinner30.swf")]
+      public var SpinnerAnimation:Class;
 
       private function init():void
       {
@@ -28,9 +33,17 @@
       
       private function getLogs():void
       {
-        InjectorManager.instance.getLogs(injector._id, function(logs:ArrayCollection):void {
-          logTable.dataProvider = logs;
-        });
+        InjectorManager.instance.getLogs(injector._id, logsResultCallback);
+      }
+      
+      private function logsResultCallback(logs:ArrayCollection):void
+      {
+        logTable.dataProvider = logs;
+      }
+      
+      private function logsFaultCallback(f:Fault):void
+      {
+        trace(f.faultString)
       }
       
       private function clearLogs():void

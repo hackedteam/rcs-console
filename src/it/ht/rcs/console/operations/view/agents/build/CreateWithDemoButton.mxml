@@ -15,10 +15,13 @@
         [Bindable]
         private var isWindows:Boolean;
         
+        private var scout:Boolean
+        
         
         public function set platforms(platforms:Array):void 
         {
           scoutCh.selected=true;
+          scout=true;
           isWindows=false;
           // reset the status
           createBtn.enabled = false;
@@ -59,13 +62,27 @@
           }
           
         }
+        private function onScoutSelection():void
+        {
+          scout=scoutCh.selected;
+        if(scoutCh.selected && demo.selected)
+          demo.selected=false;
+        }
+        
+        private function onDemoSelection():void
+        {
+          if(demo.selected)
+            scoutCh.selected=false;
+          if(!demo.selected)
+            scoutCh.selected=scout;
+        }
         
       ]]>
     </fx:Script>
    <!-- <s:Label id="platformTxt" text="windows" visible="{isWindows}"/>-->
-    <s:CheckBox id="scoutCh" left="10" label="{R.get('SCOUT')}" fontWeight="bold" visible="{!LicenseManager.instance.scout &amp;&amp; isWindows}" enabled="{!LicenseManager.instance.scout &amp;&amp; isWindows}" selected="{!demo.selected}"/>
+    <s:CheckBox id="scoutCh" left="10" label="{R.get('SCOUT')}" fontWeight="bold" visible="{!LicenseManager.instance.scout &amp;&amp; isWindows}" enabled="{!LicenseManager.instance.scout &amp;&amp; isWindows}" selected="true" change="onScoutSelection()"/>
     <s:Spacer width="100%"/>
-    <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" />
+    <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" change="onDemoSelection()"/>
     <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="create()" />    
   
 </s:HGroup>

@@ -20,6 +20,9 @@
 			import mx.rpc.events.ResultEvent;
 
 			private var dumpMask:String;
+      
+      [Bindable]
+      private var _platform:String;
 
 			protected function create():void
 			{
@@ -33,7 +36,7 @@
 				}
 				else
 				{
-					params={platform: 'usb', generate: {platforms: ['windows'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected, admin: false}, dump_mask: dumpMask, melt: {admin: false}}};
+					params={platform: 'usb', generate: {platforms: ['windows'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected, admin: false}, dump_mask: dumpMask, melt: {admin: false, scout:createBtn.scoutCh.selected}}};
 					filename=parentDocument.factory.name + '_usb.zip'
 				}
 
@@ -56,7 +59,7 @@
 			{
 				if (platform == null)
 					return;
-
+         _platform:platform;
 				createBtn.platforms=['windows', 'osx'];
 			}
 
@@ -158,6 +161,6 @@
 															left="10"
 															bottom="0"
 															right="10"
-															create="{create}"/>
+															create="{create}" />
 
 </s:Group>

@@ -15,12 +15,15 @@
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      private var _platform:String;
 
       protected function create():void
       {
         var params:Object = {platform: 'applet', generate: {platforms: [parentDocument.platform], 
                                                             binary: {demo: createBtn.demo.selected, admin: false}, 
-                                                            melt: {admin: false} },
+                                                            melt: {admin: false, scout:createBtn.scoutCh.selected} },
                              melt: {appname: appname.text} }
           
         params['factory'] = {_id: parentDocument.factory._id};
@@ -45,7 +48,9 @@
         if (platform == null)
           return;
         
-        createBtn.platforms = [parentDocument.platform];
+        _platform = platform;
+        
+        createBtn.platforms = [platform];
       }
     ]]>
   </fx:Script>
@@ -55,6 +60,6 @@
     <s:TextInput id="appname" text="installer"/>
   </s:HGroup>
   
-  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}" />
   
 </s:Group>

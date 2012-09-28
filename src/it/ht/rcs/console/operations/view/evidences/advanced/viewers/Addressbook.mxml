@@ -28,6 +28,9 @@
       
       [Bindable]
       public var idVisible:Boolean;
+      
+      [Embed('/img/NEW/target_16.png')]
+      private static const targetIcon:Class;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -114,15 +117,19 @@
                   visible="{evidence.data.program!=null}"
                   includeInLayout="{evidence.data.program!=null}"
                   />
-      
-			<s:RichText id="typeTxt"
-									width="100%"
-									textFlow="{TextConverter.importToFlow(' ('+evidence.data.type+')', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-									fontSize="12"
-									
+		</s:HGroup>
+    <s:HGroup verticalAlign="middle">
+      <s:Image width="16"
+               height="16"
+               source="{targetIcon}" visible="{evidence.data.type=='target'}" includeInLayout="{evidence.data.type=='target'}" toolTip="target"/>
+      <s:RichText id="typeTxt"
+                  width="100%"
+                  textFlow="{TextConverter.importToFlow(' ('+evidence.data.type+')', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+                  fontSize="12"
+                  
                   visible="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"
                   includeInLayout="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"/>
-		</s:HGroup>
+    </s:HGroup>
 
 		<s:RichText id="serviceTxt"
 								width="100%"

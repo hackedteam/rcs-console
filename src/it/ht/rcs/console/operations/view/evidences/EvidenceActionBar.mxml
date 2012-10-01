@@ -54,6 +54,9 @@
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}" width="100"/>
+  <actionbar:Separator width="40"/>
+  <s:Button label="{R.get('RESET_FILTERS')}" click="resetFilters()"
+            icon="@Embed('/img/NEW/resetFilters.png')"/>
 
 
 	<fx:Metadata> 
@@ -73,6 +76,7 @@
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.events.FilterEvent;
       
       import locale.R;
       
@@ -80,6 +84,7 @@
       import mx.controls.Alert;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.core.FlexGlobals;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
 
@@ -428,6 +433,14 @@
 				toggleReportButton(value);
 				// EvidenceManager.instance.updateReport([_id], true)
 			}
+      
+     
+        private function resetFilters():void
+        {
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+          EvidenceManager.instance.refresh();
+        }
+     
 		]]>
 	</fx:Script>
 

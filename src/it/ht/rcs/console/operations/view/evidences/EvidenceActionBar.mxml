@@ -55,6 +55,9 @@
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}" width="100"/>
   <actionbar:Separator width="40"/>
+  <s:Button label="{R.get('FILTER_PRESETS')}" click="openFilterPanel()"
+            icon="@Embed('/img/NEW/presetFilters.png')"/>
+  
   <s:Button label="{R.get('RESET_FILTERS')}" click="resetFilters()"
             icon="@Embed('/img/NEW/resetFilters.png')"/>
 
@@ -70,21 +73,21 @@
 
 	<fx:Script>
 		<![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.evidence.model.TypeCount;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
       import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.events.FilterEvent;
       
       import locale.R;
       
       import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
-      import mx.core.FlexGlobals;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
 
@@ -93,6 +96,9 @@
 
       [Bindable]
       public var section:OperationsSection;
+      
+      [Bindable]
+      public var evidenceView:EvidencesView;
       
 			private var _counts:ArrayCollection;
 
@@ -440,6 +446,13 @@
           FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
           EvidenceManager.instance.refresh();
         }
+      
+      private function openFilterPanel():void
+      {   
+        var popup:FilterView = PopUpManager.createPopUp(root, FilterView, true) as FilterView;
+        popup.evidenceView=evidenceView;
+        PopUpManager.centerPopUp(popup);
+      }
      
 		]]>
 	</fx:Script>

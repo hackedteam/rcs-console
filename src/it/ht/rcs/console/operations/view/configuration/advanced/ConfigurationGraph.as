@@ -546,7 +546,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       
       
       // Draw modules
-      if (modules != null && modules.length > 0) {
+      if (modules != null && modules.length > 0) { 
         sortModules();
         // Where to draw the first module?
         var moduleRenderer:ModuleRenderer = modules[0];

@@ -28,6 +28,9 @@
       [Bindable]
       private var item:DashboardItem;
       
+      [Embed(source='/img/NEW/device/compass.png')]
+      private static const compassIcon:Class;
+      
       private var tick:Timer = new Timer(1000);
       
       private function onAddedToStage():void
@@ -177,7 +180,11 @@
       
         <s:HGroup id="details" width="100%" gap="5" paddingLeft="10" verticalAlign="middle">
         <s:VGroup horizontalAlign="center">
-          <s:Image id="iconBig" buttonMode="true" click="onItemClick()" rollOut="onIconRoll(event)" rollOver="onIconRoll(event)"/>
+          <s:Group width="100%" horizontalCenter="0">
+            <s:Image id="iconBig" buttonMode="true" click="onItemClick()" rollOut="onIconRoll(event)" rollOver="onIconRoll(event)"/>
+            <s:Image source="{compassIcon}" x="25" y="25" visible="{item &amp;&amp; item.hasOwnProperty('scout') &amp;&amp; item.scout}"/>
+          </s:Group>
+         
           <s:Label id="iconBigText"/>          
         </s:VGroup>
         <actionbar:Separator/>

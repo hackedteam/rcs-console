@@ -22,6 +22,9 @@
       import mx.events.ToolTipEvent;
       import mx.managers.ToolTipManager;
       
+      [Embed(source='/img/NEW/device/compass.png')]
+      private static const compassIcon:Class;
+      
       override public function set data(value:Object):void
       {
         super.data = value;
@@ -58,11 +61,12 @@
   </fx:Script>
   
   <s:BorderContainer id="container" width="50" height="50" borderColor="#dddddd" cornerRadius="10" rollOver="onRoll(event)" rollOut="onRoll(event)">
-    
-    <s:BitmapImage id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
-                   verticalCenter="0"/>
-    
-    <renderer:CounterBaloon visible="{data.sync != 0}" right="-6" top="-8" style="red"
+    <s:Group width="100%" x="-6" y="-6" >
+    <s:Image id="icon" width="36" height="36" horizontalCenter="0" smooth="true"
+             verticalCenter="0"/>
+    <s:Image source="{compassIcon}" x="30" y="30" visible="{data &amp;&amp; data.hasOwnProperty('scout') &amp;&amp; data.scout}"/>
+    </s:Group>
+    <renderer:CounterBaloon visible="{data.sync != 0}" right="-6" top="-8" style="red" 
                             value="{data.sync}"/>
     <renderer:CounterBaloon visible="{data.tot != 0}" right="-6" bottom="-8" style="white"
                             value="{data.tot}"/>

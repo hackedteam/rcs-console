@@ -1,135 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
-          xmlns:basic="it.ht.rcs.console.operations.view.configuration.basic.*"
-          xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
-          width="100%" height="100%" creationComplete="init()" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:configuration="it.ht.rcs.console.operations.view.configuration.*"
+					xmlns:basic="it.ht.rcs.console.operations.view.configuration.basic.*"
+					xmlns:advanced="it.ht.rcs.console.operations.view.configuration.advanced.*"
+					width="100%"
+					height="100%"
+					creationComplete="init()"
+					addedToStage="onAddedToStage()"
+					removedFromStage="onRemovedFromStage()">
 
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.DefaultConfigBuilder;
-      import it.ht.rcs.console.agent.controller.AgentManager;
-      import it.ht.rcs.console.agent.model.Agent;
-      import it.ht.rcs.console.agent.model.Config;
-      import it.ht.rcs.console.events.SessionEvent;
-      import it.ht.rcs.console.operations.view.OperationsSection;
-      
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.ResultEvent;
-      import mx.utils.ObjectUtil;
-      
-      [Bindable]
-      public var section:OperationsSection;
-      
-      private var configAsConfig:Config; 
-      
-      [Bindable]
-      public var configAsObject:Object;
-      
-      public function getConfig():void
-      {
-        configAsConfig = section.stateManager.selectedConfig;
-        
-        if (configAsConfig == null) // Factory
-        {
-          var factory:Agent = section.stateManager.selectedFactory;
-          AgentManager.instance.show(factory._id, function(e:ResultEvent):void {
-            configAsConfig = (e.result as Agent).configs.getItemAt(0) as Config; //if configs length is 0  ??
-            configAsObject = JSON.parse(configAsConfig.config);
-            displayConfig(false);
-          });
-        }
-        else // An Agent's config
-        {
-          if (section.stateManager.selectedAgent == null) return;
-          
-          configAsObject = JSON.parse(configAsConfig.config);
-          cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
-          addMissingModules(section.stateManager.selectedAgent.platform, configAsObject)
-          displayConfig(false);
-        }
-      }
-      private function addMissingModules(platform:String, configAsObject:Object):void
-      {
-        DefaultConfigBuilder.addMissingModules(platform, configAsObject);
-      }
-      
-      private function cleanUnsupportedModules(platform:String, configAsObject:Object):void
-      {
-        DefaultConfigBuilder.cleanPlatformConfig(platform, configAsObject);
-      }
-      
-      private var originalConfigAsObject:Object;
-      
-      public function displayConfig(isImported:Boolean):void
-      {
-        if (configAsObject == null) return;
-        if(!isImported)
-        {
-          updateOriginalConfig(configAsObject)
-          //cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
-          //addMissingModules(section.stateManager.selectedAgent.platform, configAsObject)
-        }
-        
-        currentState = configAsObject.globals.advanced ? "advanced" : "basic";
-        switch (currentState) {
-          case "basic":
-            if (!basic) return;
-            basic.config = configAsObject;
-            basic.displayConfig();
-            break;
-          case "advanced":
-            if (!advanced) return;
-            advanced.config = configAsObject;
-            advanced.displayConfig();
-            break;
-        }
-      }
-      
-      private function init():void
-      {
-        displayConfig(false);
-      }
-      
-      public function updateOriginalConfig(config:Object):void
-      {
-        originalConfigAsObject = ObjectUtil.copy(config); // We save a copy to compare it when leaving section and detect changes
-      }
-      
-      public function getDirtyState():Boolean
-      {
-        var newConfig:Object = currentState == 'advanced' ? advanced.getConfig() : basic.getConfig();
-        return ObjectUtil.compare(newConfig, originalConfigAsObject) != 0;
-      }
-      
-      private function onAddedToStage():void
-      {
-        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.BEFORE_LOGOUT, onBeforeLogout);
-      }
-      private function onRemovedFromStage():void
-      {
-        FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.BEFORE_LOGOUT, onBeforeLogout);
-      }
-      private function onBeforeLogout(e:SessionEvent):void
-      {
-        if (getDirtyState())
-          e.preventDefault();
-      }
-    ]]>
-  </fx:Script>
-  
-  <s:states>
-    <s:State name="blank"/>
-    <s:State name="basic"/>
-    <s:State name="advanced"/>
-  </s:states>
-  
-  <configuration:ConfigurationActionBar section="{section}"/>
-  
-  <basic:BasicView id="basic" includeIn="basic"/>
-  
-  <advanced:AdvancedView id="advanced" includeIn="advanced" section="{section}"/>
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.DefaultConfigBuilder;
+			import it.ht.rcs.console.agent.controller.AgentManager;
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.agent.model.Config;
+			import it.ht.rcs.console.events.SessionEvent;
+			import it.ht.rcs.console.operations.view.OperationsSection;
+
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+
+			[Bindable]
+			public var section:OperationsSection;
+
+			private var configAsConfig:Config;
+
+			[Bindable]
+			public var configAsObject:Object;
+
+			[Bindable]
+			private var host:String="";
+
+			[Bindable]
+			private var isScout:Boolean;
+
+			public function getConfig():void
+			{
+				configAsConfig=section.stateManager.selectedConfig;
+
+				if (configAsConfig == null) // Factory
+				{
+					var factory:Agent=section.stateManager.selectedFactory;   
+          isScout=factory.type=="desktop" 
+					AgentManager.instance.show(factory._id, function(e:ResultEvent):void
+					{
+						configAsConfig=(e.result as Agent).configs.getItemAt(0) as Config; //if configs length is 0  ??
+						configAsObject=JSON.parse(configAsConfig.config);
+						displayConfig(false);
+					});
+				}
+				else // An Agent's config
+				{
+					if (section.stateManager.selectedAgent == null)
+						return;        
+          isScout=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.scout==true;
+					configAsObject=JSON.parse(configAsConfig.config);
+					cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
+					addMissingModules(section.stateManager.selectedAgent.platform, configAsObject);
+					displayConfig(false);
+				}
+			}
+
+			private function addMissingModules(platform:String, configAsObject:Object):void
+			{
+				DefaultConfigBuilder.addMissingModules(platform, configAsObject);
+			}
+
+			private function cleanUnsupportedModules(platform:String, configAsObject:Object):void
+			{
+				DefaultConfigBuilder.cleanPlatformConfig(platform, configAsObject);
+			}
+
+			private var originalConfigAsObject:Object;
+
+			public function displayConfig(isImported:Boolean):void
+			{      
+
+				if (configAsObject == null)
+					return;
+				host="";
+				if (configAsObject.actions)
+				{
+					primary: for (var a:int=0; a < configAsObject.actions.length; a++)
+					{
+						for (var sa:int=0; sa < configAsObject.actions[a].subactions.length; sa++)
+						{
+							if (configAsObject.actions[a].subactions[sa].action == "synchronize")
+							{
+								host=configAsObject.actions[a].subactions[sa].host;
+								break primary;
+							}
+						}
+					}
+				}
+				if (!isImported)
+				{
+					updateOriginalConfig(configAsObject)
+						//cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
+						//addMissingModules(section.stateManager.selectedAgent.platform, configAsObject)
+				}
+
+				currentState=configAsObject.globals.advanced ? "advanced" : "basic";
+				switch (currentState)
+				{
+					case "basic":
+						if (!basic)
+							return;
+						basic.config=configAsObject;
+						basic.displayConfig();
+						break;
+					case "advanced":
+						if (!advanced)
+							return;
+						advanced.config=configAsObject;
+						advanced.displayConfig();
+						break;
+				}
+			}
+
+			private function init():void
+			{
+				displayConfig(false);
+			}
+
+			public function updateOriginalConfig(config:Object):void
+			{
+				originalConfigAsObject=ObjectUtil.copy(config); // We save a copy to compare it when leaving section and detect changes
+			}
+
+			public function getDirtyState():Boolean
+			{
+				var newConfig:Object=currentState == 'advanced' ? advanced.getConfig() : basic.getConfig();
+				return ObjectUtil.compare(newConfig, originalConfigAsObject) != 0;
+			}
+
+			private function onAddedToStage():void
+			{
+				FlexGlobals.topLevelApplication.addEventListener(SessionEvent.BEFORE_LOGOUT, onBeforeLogout);
+			}
+
+			private function onRemovedFromStage():void
+			{
+				FlexGlobals.topLevelApplication.removeEventListener(SessionEvent.BEFORE_LOGOUT, onBeforeLogout);
+			}
+
+			private function onBeforeLogout(e:SessionEvent):void
+			{
+				if (getDirtyState())
+					e.preventDefault();
+			}
+		]]>
+	</fx:Script>
+
+	<s:states>
+		<s:State name="blank"/>
+		<s:State name="basic"/>
+		<s:State name="advanced"/>
+	</s:states>
+
+	<configuration:ConfigurationActionBar section="{section}"/>
+	<basic:BasicView id="basic"
+									 includeIn="basic"
+									 host="{host}"
+									 isScout="{isScout}"/>
+
+	<advanced:AdvancedView id="advanced"
+												 includeIn="advanced"
+												 section="{section}"
+												 host="{host}"
+												 isScout="{isScout}"/>
 
 </s:VGroup>

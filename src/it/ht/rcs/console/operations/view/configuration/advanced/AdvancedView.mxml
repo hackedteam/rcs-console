@@ -18,7 +18,16 @@
       [Bindable]
       public var section:OperationsSection;
       
-      public var config:Object;
+      [Embed(source='/img/NEW/device/compass.png')]
+      private static const compassIcon:Class;
+      
+      public var config:Object;   
+      
+      [Bindable]
+      public var isScout:Boolean;
+      
+      [Bindable]
+      public var host:String;
 
       public function displayConfig():void
       {
@@ -99,7 +108,7 @@
   
   <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true" id="bg"
                      borderWeight="2" cornerRadius="10">
-    
+   
     <s:Rect width="100%" height="100%" radiusX="10" radiusY="10">
       <s:fill>
         <s:LinearGradient rotation="90">
@@ -113,7 +122,10 @@
     <s:Scroller id="scroller" width="100%" height="100%">
       <advanced:ConfigurationGraph id="graph" removedFromStage="graphOnRemovedFromStage()" section="{section}"/>
     </s:Scroller>
-    
+    <s:HGroup verticalAlign="middle" visible="{isScout}" includeInLayout="{isScout}">
+      <s:Image source="{compassIcon}"/>
+      <s:Label text="host: {host}"/>
+    </s:HGroup>
   </s:BorderContainer>
   
 </s:VGroup>

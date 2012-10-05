@@ -80,8 +80,11 @@
       override public function set data(value:Object):void
       {
         super.data = value;
+
         if (!data) return;
         item = value as DashboardItem;
+        trace(item.scout)
+        trace(item.name)
         icon.source = Icons[item._kind + '16'];
         if (item._kind == 'agent')
           iconBig.source = Icons[item.type + '_' + item.platform];
@@ -99,6 +102,10 @@
           iconBig.filters = [glow_demo];
         } else {
           iconBig.filters = null;
+        }
+        if(item.scout)
+        {
+          scoutImg.visible=true;
         }
           
         currentState = item._kind;
@@ -182,7 +189,7 @@
         <s:VGroup horizontalAlign="center">
           <s:Group width="100%" horizontalCenter="0">
             <s:Image id="iconBig" buttonMode="true" click="onItemClick()" rollOut="onIconRoll(event)" rollOver="onIconRoll(event)"/>
-            <s:Image source="{compassIcon}" x="25" y="25" visible="{item &amp;&amp; item.hasOwnProperty('scout') &amp;&amp; item.scout}"/>
+            <s:Image source="{compassIcon}" x="25" y="25" id="scoutImg" visible="false"/>
           </s:Group>
          
           <s:Label id="iconBigText"/>          

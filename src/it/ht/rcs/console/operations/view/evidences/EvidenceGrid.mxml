@@ -13,7 +13,7 @@
 						gridItemEditorSessionSave="onItemEditingSave()"
 						doubleClickEnabled="true"
 						gridClick="onGridClick(event)"
-						gridDoubleClick="onGridDoubleClick(event)">
+						gridDoubleClick="onGridDoubleClick(event)" creationComplete="init()"> 
 	<fx:Metadata> 
     [Event(name="dataChange", type="flash.events.Event")]
     [Event(name="itemDoubleClick", type="spark.events.GridEvent")]
@@ -47,8 +47,14 @@
 			public var filter:Object=EvidenceManager.instance.evidenceFilter;
       
       [Bindable]
-      public var idVisible:Boolean
+      public var idVisible:Boolean=true;
 
+      private function init():void
+      {
+        //A trick to correctly add listeners to the id column (AddedToStage event)
+        idVisible=false;
+      }
+      
 			private function dateLabelFunction(item:Object, column:GridColumn):String
 			{
 				return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
@@ -145,11 +151,11 @@
 	</fx:Script>
 	<s:columns>
 		<s:ArrayList>
-      <s:GridColumn width="164"
+      <s:GridColumn 
                     dataField="_id"
                     headerText="Id"
-                    resizable="true"
-                    editable="false" visible="{idVisible}" id="idColumn">
+                    resizable="{idVisible}" visible="{idVisible}"
+                    editable="false" id="idColumn" width="164">
         <s:headerRenderer>
           <fx:Component>
             <filters:AbstractHeaderRenderer filter="{outerDocument.filter}"

@@ -194,12 +194,25 @@
       
       private function onDeleteClick(event:MouseEvent):void
       {
-        AlertPopUp.show(R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-          AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES)
-              AgentManager.instance.delAgent(selectedObject, event.shiftKey);
-          }, null, AlertPopUp.NO);
+        if(selectedObject._kind && selectedObject._kind=="factory"){
+          AlertPopUp.show(R.get('CONFIRM_FACTORY_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                AgentManager.instance.delFactory(selectedObject, event.shiftKey);
+            }, null, AlertPopUp.NO);
+        }
+        else
+        {
+          AlertPopUp.show(R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                AgentManager.instance.delAgent(selectedObject, event.shiftKey);
+            }, null, AlertPopUp.NO);
+        
+        }
+        
       }
       
       private function onRemovedFromStage():void

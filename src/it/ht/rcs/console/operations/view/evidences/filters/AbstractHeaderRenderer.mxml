@@ -3,7 +3,7 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              addedToStage="onAddedToStage()" click="clickHandler(event)"
-                             removedFromStage="onRemovedFromStage()">
+                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()">
   
   <fx:Script>
     <![CDATA[
@@ -45,13 +45,13 @@
         showFilter.selected = filter.hasOwnProperty(popup.property) || mandatory;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, popup.rebuild);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter); 
 
       }
       
       private function onRemovedFromStage():void {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.REBUILD, popup.rebuild);
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        //FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.REBUILD, popup.rebuild);
+        //FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
         PopUpManager.removePopUp(popup);
       }
       

@@ -3,20 +3,29 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          xmlns:users="it.ht.rcs.console.accounting.view.users.*"
-         width="325" height="100%" addedToStage="onAddedToStage()">
+         width="325" height="100%" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage(event)">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+      
       [Bindable]
       private var _selectedItem:*;
+      
+      [Bindable]
+      public var showDetails:Boolean;
       
       public var section:OperationsSection;
       
@@ -28,8 +37,28 @@
       
       private function onAddedToStage():void
       {
+        FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, onSectionChange);
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
         if (!_selectedItem && section.currentState == 'singleAgent')
           _selectedItem = section.stateManager.selectedAgent;
+      }
+      
+      private function onRefresh(e:Event):void
+      {
+        //selectedItem = section.stateManager.selectedAgent;
+        AgentManager.instance.show(_selectedItem._id, onResult)
+        
+      }
+      
+      private function onSectionChange(e:SectionEvent):void
+      {
+      
+        _selectedItem=e.item
+      }
+      
+      private function onResult(e:ResultEvent):void
+      {
+        _selectedItem=e.result;
       }
       
       private function sync_status(status:int):String
@@ -46,6 +75,12 @@
             break;
         }
         return '';
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        
       }
       
     ]]>
@@ -71,7 +106,7 @@
            text="{R.get('DETAILS')}" verticalAlign="middle"/>
 
   <s:Group left="6" top="35" width="100%" height="100%">
-    <s:Form visible="{_selectedItem != null}">
+    <s:Form visible="{_selectedItem!=null &amp;&amp; _selectedItem._kind == 'agent' &amp;&amp; showDetails}">
       <s:FormItem label="{R.get('NAME')}">
         <s:RichEditableText editable="false" text="{_selectedItem.name}"/>
       </s:FormItem>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="600"
+							 height="500"
+							 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+							 addedToStage="onAddedToStage()"
+							 title="{R.get('COMMANDS')}">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.agent.controller.AgentManager;
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.agent.model.Command;
+			import it.ht.rcs.console.operations.view.OperationsSection;
+			import it.ht.rcs.console.utils.AlertPopUp;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+
+			[Bindable]
+			public var commands:ArrayCollection;
+
+			public var agent:Agent;
+
+			override protected function partAdded(partName:String, instance:Object):void
+			{ 
+				super.partAdded(partName, instance);
+
+				if (instance == closeButton)
+				{
+					instance.addEventListener(MouseEvent.CLICK, close);
+				}
+			}
+
+			protected function close(event:Event=null):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			private function onAddedToStage():void
+			{
+
+
+			}
+
+			public function getCommands():void
+			{
+				AgentManager.instance.getCommands(agent, onCommandsResult, onCommandsFault)
+			}
+
+			private function onDelete():void
+			{
+				AlertPopUp.show(R.get('COMMANDS_DELETION_CONFIRM'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						AgentManager.instance.deleteCommand(agent, commandsDg.selectedItem as Command, onDeleteResult, onDeleteFault)
+
+				}, null, AlertPopUp.NO);
+
+			}
+
+			private function onDeleteResult(e:ResultEvent):void
+			{
+				AgentManager.instance.getCommands(agent, onCommandsResult, onCommandsFault)
+			}
+
+			private function onDeleteFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail)
+			}
+
+			private function onCommandsResult(e:ResultEvent):void
+			{
+				commands=e.result as ArrayCollection;
+				commands.refresh();
+			}
+
+			private function onCommandsFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail)
+			}
+
+
+			private function addCommand():void
+			{
+				var command:String;
+				command=commandTxt.text;
+				AgentManager.instance.createCommand(agent, command, onSaveResult, onSaveFault)
+
+			}
+
+			private function onCancel():void
+			{
+				dispatchEvent(new Event("close"))
+			}
+
+			private function onSaveResult(e:ResultEvent):void
+			{
+        commandTxt.text=""
+				AgentManager.instance.getCommands(agent, onCommandsResult, onCommandsFault)
+				AlertPopUp.show(R.get('COMMAND_SAVE_SUCCESS'), "", 0x4, null, function():void
+				{
+					dispatchEvent(new Event("close"))
+				})
+			}
+
+			private function onSaveFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail)
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+						height="100%"
+						paddingBottom="20"
+						paddingLeft="20"
+						paddingRight="20"
+						paddingTop="20">
+		<s:HGroup width="100%"
+							verticalAlign="middle">
+			<s:Label text="{R.get('COMMAND_SAVE')}"/>
+			<s:TextInput id="commandTxt"
+									 width="100%"/>
+			<s:Button label="{R.get('SAVE')}"
+								enabled="{commandTxt.text!=''}"
+								click="addCommand()"/>
+		</s:HGroup>
+		<s:Spacer height="5"/>
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Spacer height="5"/>
+		<s:Label text="{R.get('COMMANDS_SAVED')}"/>
+		<s:DataGrid dataProvider="{commands}"
+								width="100%"
+								height="100%"
+								id="commandsDg">
+			<s:columns>
+				<s:ArrayList>
+					
+					<s:GridColumn dataField="command"
+												headerText="{R.get('COMMAND')}"/>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:HGroup width="100%"
+							horizontalAlign="right">
+			<s:Button label="{R.get('DELETE')}"
+								enabled="{commandsDg.selectedItem!=null}"
+								click="onDelete()"/>
+		</s:HGroup>
+
+	</s:VGroup>
+</s:TitleWindow>

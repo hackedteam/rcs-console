@@ -63,7 +63,15 @@
       
       private function onDestroyFault(e:FaultEvent):void
       {
-        trace("destroyed fault")
+        trace("destroyed fault");
+        numItemsToDelete--
+        if(numItemsToDelete<=0)
+        {
+          AlertPopUp.show(R.get('FILE_DELETION_SUCCESS'))
+          CollectorManager.instance.get_public(onPublicResult, onPublicFault)
+        }
+        AlertPopUp.show(e.fault.faultDetail)
+        
       }
 
 

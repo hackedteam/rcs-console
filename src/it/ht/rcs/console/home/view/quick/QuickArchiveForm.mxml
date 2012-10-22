@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:modules="it.ht.rcs.console.operations.view.configuration.advanced.forms.modules.*"
+                             creationComplete="init()" save="save()" title="{R.get('QUICK_ARCHIVE')}" xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.events.CloseEvent;
+      
+      private function init():void
+      {
+        what.setFocus();
+        saveButton.label = "OK";
+      }
+      
+      private function save():void
+      {
+        if(!what.selectedItem || what.text != what.selectedItem.name)
+        {
+          AlertPopUp.show(R.get('MISSING_ITEM',["item"]));
+          return;
+        }
+        
+        if (actClean.selected || actClose.selected || actDelete.selected) {
+          AlertPopUp.show(R.get('QUICK_ARCHIVE_CONFIRM'), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES) 
+                doit();
+            }, null, AlertPopUp.NO);
+        } else {
+          doit();
+        }
+      }
+      
+      private function doit():void
+      {
+        DownloadManager.instance.createTask("archive", null, { _id: what.selectedItem._id, backup: actBackup.selected, clean: actClean.selected, close: actClose.selected, destroy: actDelete.selected});
+        close();
+      }
+      
+      
+    ]]>
+  </fx:Script>
+  
+  <s:VGroup horizontalAlign="center" paddingLeft="20" paddingRight="20" paddingTop="20">
+    
+    <s:Form defaultButton="{saveButton}">
+      
+      <s:FormItem label="{R.get('WHAT')}">
+        <s:HGroup>
+          <itemfield:ItemField id="what" right="5" top="0" width="250" kinds="{['operation', 'target']}"/>        
+        </s:HGroup>
+      </s:FormItem>
+      
+      <s:FormItem label="{R.get('ACTION')}">
+        <s:VGroup>
+          <s:CheckBox id="actBackup" label="Archive all data into a backup" selected="true"/>
+          <s:CheckBox id="actClean" label="Remove all data from the live system" />
+          <s:CheckBox id="actClose" label="Mark the item as closed" />
+          <s:CheckBox id="actDelete" label="Delete the item from the system" />
+        </s:VGroup>
+      </s:FormItem>
+      
+    </s:Form>
+    
+  </s:VGroup>
+  
+
+</utils:TitleWindowSaveCancel>

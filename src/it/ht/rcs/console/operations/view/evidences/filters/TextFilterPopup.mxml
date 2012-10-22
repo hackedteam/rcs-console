@@ -18,6 +18,7 @@
       {
         input.text = StringUtil.trim(input.text);
         hasFilter = input.text != '';
+        
         hasFilter ? filter[property] = input.text : delete(filter[property]) ;
         if(hasFilter && property=="_id")
           filter[property]=[input.text]//id as Array
@@ -37,6 +38,12 @@
         input.setFocus();
         input.text = filter[property];
       }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        hasFilter = filter[property] && filter[property] !="";
+      }
+      
     ]]>
   </fx:Script>
   

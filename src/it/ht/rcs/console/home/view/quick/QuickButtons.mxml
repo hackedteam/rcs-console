@@ -13,7 +13,10 @@
       
       [Bindable]
       private var enable_quick_agent:Boolean;
-      
+
+      [Bindable]
+      private var enable_archive:Boolean;
+
       private function onQuickAgent():void
       {
         var popup:QuickAgentForm = PopUpManager.createPopUp(root, QuickAgentForm, true) as QuickAgentForm;
@@ -23,17 +26,25 @@
       protected function onAdded(event:Event):void
       {
         enable_quick_agent = (Console.currentSession.user.is_admin() && Console.currentSession.user.is_tech());
+        enable_archive = (Console.currentSession.user.is_admin() && Console.currentSession.user.is_sys());
+      }
+      
+      protected function onQuickArchive():void
+      {
+        var popup:QuickArchiveForm = PopUpManager.createPopUp(root, QuickArchiveForm, true) as QuickArchiveForm;
+        PopUpManager.centerPopUp(popup);
       }
       
     ]]>
   </fx:Script>
   
-  <s:Button width="150" label="{R.get('QUICK_AGENT')}" visible="{enable_quick_agent}" includeInLayout="{enable_quick_agent}" click="onQuickAgent()"
+  <s:Button width="150" height="140" label="{R.get('QUICK_AGENT')}" visible="{enable_quick_agent}" includeInLayout="{enable_quick_agent}" click="onQuickAgent()"
             icon="@Embed('/img/NEW/home_agent.png')"/>
   
-  <s:Button width="150" enabled="false" icon="@Embed('/img/NEW/home_empty.png')"/>
+  <s:Button width="150" height="140" label="{R.get('QUICK_ARCHIVE')}" visible="{enable_archive}" includeInLayout="{enable_archive}" click="onQuickArchive()" 
+            icon="@Embed('/img/NEW/home_archive.png')"/>
   
-  <s:Button width="150" enabled="false" icon="@Embed('/img/NEW/home_empty.png')"/>
+  <s:Button width="150" height="140" enabled="false" icon="@Embed('/img/NEW/home_empty.png')"/>
 
   
 </s:HGroup>

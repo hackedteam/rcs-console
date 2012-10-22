@@ -8,7 +8,7 @@
 										 removedFromStage="onRemovedFromStage()"
 										 addedToStage="onAddedToStage()">
 
-	<s:Button label="{R.get('EVIDENCE_DOWNLOAD')}"
+	<s:Button label="{R.get('EVIDENCE_EXPORT')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
 						enabled="{selectedObjects.length>=1}"
@@ -33,7 +33,6 @@
 						id="reportBtn"
 						width="150"/>
 
-
 	<s:Button label="{R.get('EDIT_NOTE')}"
 						click="onEditNoteClick()"
 						enabled="{selectedObjects.length>0}"
@@ -54,6 +53,12 @@
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}" width="100"/>
+  <actionbar:Separator width="40"/>
+  <s:Button label="{R.get('FILTER_PRESETS')}" click="openFilterPanel()"
+            icon="@Embed('/img/NEW/presetFilters.png')"/>
+  
+  <s:Button label="{R.get('RESET_FILTERS')}" click="resetFilters()"
+            icon="@Embed('/img/NEW/resetFilters.png')"/>
 
 
 	<fx:Metadata> 
@@ -67,17 +72,19 @@
 
 	<fx:Script>
 		<![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.evidence.model.TypeCount;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
       
       import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
 
@@ -88,6 +95,9 @@
 
       [Bindable]
       public var section:OperationsSection;
+      
+      [Bindable]
+      public var evidenceView:EvidencesView;
       
 			private var _counts:ArrayCollection;
 
@@ -428,6 +438,21 @@
 				toggleReportButton(value);
 				// EvidenceManager.instance.updateReport([_id], true)
 			}
+      
+     
+        private function resetFilters():void
+        {
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+          EvidenceManager.instance.refresh();
+        }
+      
+      private function openFilterPanel():void
+      {   
+        var popup:FilterView = PopUpManager.createPopUp(root, FilterView, true) as FilterView;
+        popup.evidenceView=evidenceView;
+        PopUpManager.centerPopUp(popup);
+      }
+     
 		]]>
 	</fx:Script>
 

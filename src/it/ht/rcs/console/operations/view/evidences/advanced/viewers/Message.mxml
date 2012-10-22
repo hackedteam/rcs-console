@@ -8,7 +8,8 @@
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
-									 creationComplete="init()">
+									 creationComplete="init()"
+                   xmlns:utils="it.ht.rcs.console.utils.*">
 	<fx:Script>
 		<![CDATA[
       
@@ -63,6 +64,7 @@
           }
 					
 				}
+        html.reset()
 			}
       
 
@@ -142,7 +144,7 @@
 	</s:Line>
 	<s:RichText id="rcptTxt"
 							width="100%"
-							textFlow="{TextConverter.importToFlow('&lt;b&gt;Recipients: &lt;/b&gt;'+cleanHTMLText(evidence.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;To: &lt;/b&gt;'+cleanHTMLText(evidence.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"
 							visible="{evidence.data.rcpt!='local'}"
 							includeInLayout="{evidence.data.rcpt!='local'}"/>
@@ -212,10 +214,15 @@
 									 click="renderImages()"
 									 fontWeight="bold"/>
 	</s:BorderContainer>
-	<mx:HTML id="html"
+  <utils:SearchableHTML id="html"
+                        width="100%"
+                        height="100%"
+                        
+                        htmlText="{content}"/>
+<!--<mx:HTML id="html"
 					 width="100%"
 					 height="100%"
 					 verticalScrollPolicy="auto"
 					 paddingRight="10"
-					 htmlText="{content}"/>
+					 htmlText="{content}"/>-->
 </s:BorderContainer>

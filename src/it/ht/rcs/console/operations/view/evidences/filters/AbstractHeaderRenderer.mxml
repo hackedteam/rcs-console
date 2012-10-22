@@ -3,7 +3,7 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              addedToStage="onAddedToStage()" click="clickHandler(event)"
-                             removedFromStage="onRemovedFromStage()">
+                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()">
   
   <fx:Script>
     <![CDATA[
@@ -37,20 +37,21 @@
         
         popup = popupFactory.newInstance();
         popup.property = propertyName || column.dataField;
+        
         popup.filter = filter;
         
         PopUpManager.addPopUp(popup, this.owner, false);
         
-        showFilter.selected = filter.hasOwnProperty(column.dataField) || mandatory;
+        showFilter.selected = filter.hasOwnProperty(popup.property) || mandatory;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, popup.rebuild);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter); 
 
       }
       
       private function onRemovedFromStage():void {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.REBUILD, popup.rebuild);
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        //FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.REBUILD, popup.rebuild);
+        //FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
         PopUpManager.removePopUp(popup);
       }
       
@@ -100,12 +101,14 @@
         popup.visible = true;
         popup.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
         currentPopup = popup;
+        showFilter.selected=popup.hasFilter;
         
       }
       
       // Triggered only when a filter is set (ie. when switching from selected to deselected state)
       // because the checkbox is disabled when there's no filter
       private function changeHandler(fireEvent:Boolean=true):void {
+        //trace("change "+column.dataField+" "+popup.hasFilter)
         popup.reset(fireEvent);
         popup.visible = false;
       }

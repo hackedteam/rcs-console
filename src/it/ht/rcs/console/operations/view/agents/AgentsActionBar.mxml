@@ -79,13 +79,14 @@
   <s:HGroup visible="{section.currentState == 'singleAgent'}" gap="0"
             includeInLayout="{section.currentState == 'singleAgent'}">
     
-    
+
     <s:Button label="{R.get('EVIDENCE_EXPORT')}"
               icon="@Embed('/img/NEW/export.png')" click="exportEvidence(event)" enabled="{Console.currentSession.user.is_view()}"/>
     
     <actionbar:Separator visible="{Console.currentSession.user.is_tech()}"/>
 
     <s:Button label="{R.get('UPDATE_AGENT')}" click="updateAgent(event)" visible="{Console.currentSession.user.is_tech()}"
+              enabled="{section.stateManager.selectedAgent.status=='open'}"
               icon="@Embed('/img/NEW/update.png')"/>
     
     <actionbar:Separator visible="{Console.currentSession.user.is_tech()}"/>
@@ -193,12 +194,25 @@
       
       private function onDeleteClick(event:MouseEvent):void
       {
-        AlertPopUp.show(R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-          AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES)
-              AgentManager.instance.delAgent(selectedObject, event.shiftKey);
-          }, null, AlertPopUp.NO);
+        if(selectedObject._kind && selectedObject._kind=="factory"){
+          AlertPopUp.show(R.get('CONFIRM_FACTORY_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                AgentManager.instance.delFactory(selectedObject, event.shiftKey);
+            }, null, AlertPopUp.NO);
+        }
+        else
+        {
+          AlertPopUp.show(R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                AgentManager.instance.delAgent(selectedObject, event.shiftKey);
+            }, null, AlertPopUp.NO);
+        
+        }
+        
       }
       
       private function onRemovedFromStage():void

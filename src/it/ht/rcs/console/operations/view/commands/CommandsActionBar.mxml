@@ -8,10 +8,10 @@
 										 removedFromStage="onRemovedFromStage()"
 										 addedToStage="onAddedToStage()">
 
-	<s:Button label="{R.get('EVIDENCE_DOWNLOAD')}"
+	<s:Button label="{R.get('COMMANDS_EXPORT')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
-						enabled="{selectedObject != null}"
+						enabled="{selectedObject != null}" 
             />
 	<actionbar:Separator width="40"/>
 	
@@ -28,6 +28,16 @@
             icon="@Embed('/img/evidence/article32.png')"
             id="detailBtn"
             enabled="{selectedObject != null}"/>
+  
+  <actionbar:Separator width="40" visible="{LicenseManager.instance.deletion == true}"
+                       includeInLayout="{LicenseManager.instance.deletion == true}" />
+  
+  <s:Button label="{R.get('COMMAND_ADD')}"
+            click="onCommandClick()"
+            icon="@Embed('/img/NEW/commands_32.png')" enabled="{Console.currentSession.user.is_tech()}"
+            
+            />
+  
 	<fx:Metadata> 
     [Event(name="export", type="flash.events.Event")] 
     [Event(name="detail", type="flash.events.Event")]
@@ -42,9 +52,11 @@
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.operations.view.OperationsSection;
       
       import locale.R;
       
+      import mx.managers.PopUpManager;
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
       import mx.events.CloseEvent;
@@ -69,6 +81,9 @@
       
       [Bindable]
       public var target:Target;
+      
+      [Bindable]
+      public var section:OperationsSection;
 
 
 			public function onDetailClick():void
@@ -104,6 +119,15 @@
 			{
 
 			}
+      
+      private function onCommandClick():void
+      {
+        var popup:CommandsPopup=PopUpManager.createPopUp(root, CommandsPopup, true) as CommandsPopup;
+        //popup.target=section.stateManager.selectedTarget;
+        popup.agent=section.stateManager.selectedAgent;
+        popup.getCommands();
+        PopUpManager.centerPopUp(popup);
+      }
       
 			private function onRemovedFromStage():void
 			{

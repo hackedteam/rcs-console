@@ -29,7 +29,9 @@
       
       private function getLogs():void
       {
+        logsLoadingBox.visible=logsLoadingBox.includeInLayout=true;
         CollectorManager.instance.getLogs(collector._id, function(logs:ArrayCollection):void {
+          logsLoadingBox.visible=logsLoadingBox.includeInLayout=false;
           logTable.dataProvider = logs;
         });
       }
@@ -113,7 +115,10 @@
         </s:ArrayList>
       </s:columns>
     </s:DataGrid>
-    
+    <s:HGroup id="logsLoadingBox" verticalAlign="middle">
+      <s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+      <s:Label text="Loading logs..."/>
+    </s:HGroup>
   </s:VGroup>
   
   

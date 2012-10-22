@@ -29,6 +29,7 @@
   
   <s:Button label="{R.get('EXPORT')}" click="export(event)" icon="@Embed('/img/NEW/export.png')"/>
   <s:Button label="{R.get('IMPORT')}" click="importFile(event)" icon="@Embed('/img/NEW/import.png')"/>
+  <s:Button label="{R.get('TEMPLATES')}" click="openTemplatePanel(event)" icon="@Embed('/img/NEW/template.png')"/>
   
   <s:HGroup visible="{configView.currentState == 'basic'}" gap="0"
             includeInLayout="{configView.currentState == 'basic'}">
@@ -64,6 +65,7 @@
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleRenderer;
+      import it.ht.rcs.console.operations.view.configuration.template.TemplateView;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -72,7 +74,10 @@
       import mx.core.UIComponent;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
+      
+      import spark.primitives.Rect;
       
       [Embed('/img/NEW/expand_all.png')]
       private static const expandIcon:Class;
@@ -139,12 +144,25 @@
       
       private function saveConfig(callback:Function = null):Object
       {
+       if(configView.currentState=='basic')
+       {
+         if(configView.basic.sync.host.selectedItem==null)
+         {
+           AlertPopUp.show(R.get('MISSING_COLLECTOR'))
+           return null;
+         }
+       }
         var config:Object = getConfig();
         if (config == null) return null;
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
-        AgentManager.instance.addConfig(a, JSON.stringify(config), callback);
+        AgentManager.instance.addConfig(a, JSON.stringify(config), callback, faultCallback);
         configView.updateOriginalConfig(config);
         return config;
+      }
+      
+      private function faultCallback(e:FaultEvent):void
+      {
+      AlertPopUp.show(e.fault.faultDetail)
       }
       
       private function goBackToList(c:Config):void
@@ -239,7 +257,9 @@
       private function editGlobals(event:MouseEvent):void
       {
         var popup:GlobalsForm = PopUpManager.createPopUp(root, GlobalsForm, true) as GlobalsForm;
+        var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
         popup.globals = configView.configAsObject.globals;
+        popup.agent=a;
         PopUpManager.centerPopUp(popup);
       }
       
@@ -289,8 +309,24 @@
         var newConfig:Object = DefaultConfigBuilder.getDefaultConfig(a);
         if (a._kind == 'agent')
           DefaultConfigBuilder.cleanPlatformConfig(a.platform, newConfig);
-        configView.basic.config = newConfig;
-        configView.basic.displayConfig();
+          configView.basic.config = newConfig;
+          configView.basic.displayConfig();
+      }
+      
+      private function onTemplateLoad(e:Event):void
+      {
+        var loadedConfig:Object=e.currentTarget.config;
+        configView.configAsObject = loadedConfig;
+        configView.displayConfig(true);
+      }
+      
+      private function openTemplatePanel(event:MouseEvent):void
+      {
+        var config:Object=getConfig();
+        var popup:TemplateView = PopUpManager.createPopUp(root, TemplateView, true) as TemplateView;
+        popup.addEventListener(TemplateView.TEMPLATE_LOAD, onTemplateLoad)
+        popup.config=config;
+        PopUpManager.centerPopUp(popup);
       }
     ]]>
   </fx:Script>

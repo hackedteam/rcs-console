@@ -31,5 +31,11 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     
     [Embed(source='/img/evidence/social/chat_16.png')]
     public static const chat:Class;
+    
+    [Embed(source='/img/evidence/social/whatsapp_16.png')]
+    public static const whatsapp:Class;
+    
+    [Embed(source='/img/evidence/social/adium_16.png')]
+    public static const adium:Class;
   }
 }

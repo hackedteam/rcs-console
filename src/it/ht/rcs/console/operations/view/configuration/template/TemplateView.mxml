@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="600"
+							 height="500"
+							 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+							 addedToStage="onAddedToStage()" title="{R.get('TEMPLATES')}">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.build.controller.BuildManager;
+			import it.ht.rcs.console.build.model.Template;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+
+      public static const TEMPLATE_LOAD:String="templateLoad";
+      
+			[Bindable]
+			public var config:Object;
+
+			[Bindable]
+			public var templates:ArrayCollection;
+
+			override protected function partAdded(partName:String, instance:Object):void
+			{
+				super.partAdded(partName, instance);
+
+				if (instance == closeButton)
+				{
+					instance.addEventListener(MouseEvent.CLICK, close);
+				}
+			}
+
+			protected function close(event:Event=null):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			private function onAddedToStage():void
+			{
+				//view.currentIndex=0;
+				BuildManager.instance.getTemplates(onTemplateResult, onTemplateFault)
+			}
+      
+      private function filterByType(item:Object):Boolean
+      {
+        var isAdvanced:Boolean=config.globals.advanced;
+        var currentType:String=config.globals.type.toLowerCase();
+        var configAsObject:Object=JSON.parse(item.config);
+        if(configAsObject.globals.type.toLowerCase()==currentType && configAsObject.globals.advanced==isAdvanced)
+          return true;
+        return false;
+      }
+      
+     private function onDelete():void
+     {
+       AlertPopUp.show(R.get('TEMPLATE_DELETION_CONFIRM'), R.get('CONFIRM'),
+         AlertPopUp.YES|AlertPopUp.NO, null,
+         function(e:CloseEvent):void {
+           if (e.detail == AlertPopUp.YES)
+             BuildManager.instance.destroyTemplate(templatesDg.selectedItem as Template, onDeleteResult, onDeleteFault)
+         }, null, AlertPopUp.NO);
+       
+     }
+      private function onDeleteResult(e:ResultEvent):void
+      {
+        BuildManager.instance.getTemplates(onTemplateResult, onTemplateFault)
+      }
+      
+      private function onDeleteFault(e:FaultEvent):void
+      {
+        AlertPopUp.show(e.fault.faultDetail)
+      }
+      
+			private function onTemplateResult(e:ResultEvent):void
+			{
+				templates=e.result as ArrayCollection;
+        templates.filterFunction=filterByType;
+        templates.refresh();
+			}
+
+			private function onTemplateFault(e:FaultEvent):void
+			{
+        AlertPopUp.show(e.fault.faultDetail)
+			}
+      
+      private function onLoad():void
+      {
+        config=JSON.parse(templatesDg.selectedItem.config);
+        dispatchEvent(new Event(TEMPLATE_LOAD));
+        close();
+        
+      }
+      
+      private function addTemplate():void
+      {
+        var template:Template=new Template();
+        template.desc=descTxt.text;
+        template.config=JSON.stringify(config)
+        
+        BuildManager.instance.addTemplate(template, onSaveResult, onSaveFault)
+      }
+      
+      private function onCancel():void
+      {
+        dispatchEvent(new Event("close"))
+      }
+      
+      private function onSaveResult(e:ResultEvent):void
+      {
+        BuildManager.instance.getTemplates(onTemplateResult, onTemplateFault)
+        AlertPopUp.show(R.get('TEMPLATE_SAVE_SUCCESS'),"",0x4,null,function():void{dispatchEvent(new Event("close"))})
+      }
+      
+      private function onSaveFault(e:FaultEvent):void
+      {
+        AlertPopUp.show(e.fault.faultDetail)
+      }
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+            height="100%"
+						paddingBottom="20"
+						paddingLeft="20"
+						paddingRight="20"
+						paddingTop="20">
+    <s:HGroup width="100%" verticalAlign="middle">
+      <s:Label text="{R.get('TEMPLATE_SAVE_AS_DESC')}"/>
+      <s:TextInput id="descTxt" width="100%"/>
+      <s:Button label="{R.get('SAVE')}" enabled="{descTxt.text!=''}" click="addTemplate()"/>
+    </s:HGroup>
+    <s:Spacer height="5"/>
+    <s:Line width="100%" >
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:Spacer height="5"/>
+    <s:Label text="{R.get('TEMPLATE_LOAD_DESC')}"/>
+		<s:DataGrid dataProvider="{templates}"
+								width="100%" height="100%" id="templatesDg">
+			<s:columns>
+				<s:ArrayList>
+
+					<s:GridColumn dataField="user"
+												headerText="{R.get('USER')}" width="100"/>
+					<s:GridColumn dataField="desc"
+												headerText="{R.get('DESCRIPTION')}"/>
+
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+    <s:HGroup width="100%" horizontalAlign="right">
+      <s:Button label="{R.get('LOAD')}" enabled="{templatesDg.selectedItem!=null}" click="onLoad()"/>
+      <s:Button label="{R.get('DELETE')}" enabled="{templatesDg.selectedItem!=null}" click="onDelete()"/>
+    </s:HGroup>
+ 
+	</s:VGroup>
+</s:TitleWindow>

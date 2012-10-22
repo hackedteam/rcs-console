@@ -15,6 +15,9 @@
 
 			[Bindable]
 			private var ImageClass:Class;
+      
+      [Embed('/img/NEW/target_16.png')]
+      private static const targetIcon:Class;
 
 			[Bindable]
 			override public function set data(value:*):void
@@ -35,7 +38,6 @@
 				{
 					contactTxt.visible=contactTxt.includeInLayout=false;
 				}
-
 				infoLabelTxt.textFlow=TextConverter.importToFlow("<b>Info: </b>", TextConverter.TEXT_FIELD_HTML_FORMAT)
 				infoTxt.textFlow=TextConverter.importToFlow(lineBreak(data.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
@@ -53,16 +55,17 @@
 		<s:VGroup verticalAlign="top"
 							width="50%">
 			<s:HGroup verticalAlign="middle" width="100%">
-				<s:BitmapImage width="16"
+        <s:Image width="16"
+                       height="16"
+                       source="{ImageClass}" visible="{data.data.program!=null}" includeInLayout="{data.data.program!=null}" toolTip="{data.data.program}"/>
+				<s:Image width="16"
 											 height="16"
-											 source="{ImageClass}" visible="{data.data.program!=null}" includeInLayout="{data.data.program!=null}"/>
-        <s:RichText id="nameTxt"
-                    width="100%"/>
-
+											 source="{targetIcon}" visible="{data.data.type=='target'}" includeInLayout="{data.data.type=='target'}" toolTip="target"/>
 			</s:HGroup>
+      <s:RichText id="nameTxt"
+                  width="100%"/>
       <s:RichText id="contactTxt"
                   width="100%"/>
-		
 		</s:VGroup>
 		<s:Line height="100%">
 			<s:stroke>

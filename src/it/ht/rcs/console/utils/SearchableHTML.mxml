@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 addedToStage="onAddedToStage()" show="clear()">
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var htmlText:String;
+
+			[Bindable]
+			[Embed(source="/img/NEW/delete_16.png")]
+			public var CloseIcon:Class;
+
+			[Bindable]
+			private var numOccurences:uint=0;
+			private var anchorIndex:uint=0;
+			private var searchIndex:uint=0;
+
+			private var originalBody:String;
+			private var searchFocus:Boolean;
+
+			private function onAddedToStage():void
+			{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+			}
+
+			private function onKeyDown(e:KeyboardEvent):void
+			{
+				trace(e.keyCode == 70 && e.ctrlKey)
+				if (e.keyCode == 70 && e.ctrlKey)
+				{
+					searchBox.visible=true;
+					keyTxt.setFocus();
+				}
+				else if (e.keyCode == 13 && searchFocus)
+				{
+					searchText();
+				}
+			}
+
+			private function searchText():void
+			{
+				if (keyTxt.text.length < 3)
+					return;
+				numOccurences=0;
+				searchIndex=0;
+				anchorIndex=0;
+				highlightSearchTerms(keyTxt.text)
+        
+        //no results
+				if (numOccurences < 1)
+				{
+					nextBtn.visible=nextBtn.enabled=false;
+					prevBtn.visible=prevBtn.enabled=false;
+          resultTxt.text="Keyword not found."
+				}
+        //only one
+				else if (numOccurences == 1)
+				{
+          nextBtn.visible=nextBtn.enabled=false;
+          prevBtn.visible=prevBtn.enabled=false;
+					htmlView.htmlLoader.window.document.getElementById("occurrence" + searchIndex).scrollIntoView();
+          resultTxt.text=Number(searchIndex + 1) + "/" + numOccurences + " occurrences found"
+
+				}
+        //more results
+				else if (numOccurences > 1)
+				{
+					nextBtn.enabled=true;
+					nextBtn.visible=true;
+					prevBtn.visible=true;
+					htmlView.htmlLoader.window.document.getElementById("occurrence" + searchIndex).scrollIntoView()
+					resultTxt.text=Number(searchIndex + 1) + "/" + numOccurences + " occurrences found"
+				}
+
+
+			}
+
+			private function highlightSearchTerms(searchText:String, treatAsPhrase:Boolean=true, highlightStartTag:String=null, highlightEndTag:String=null):void
+			{
+				// if the treatAsPhrase parameter is true, then we should search for 
+				// the entire phrase that was entered; otherwise, we will split the
+				// search string so that each word is searched for and highlighted
+				// individually
+
+				var searchArray:Array=new Array()
+				if (treatAsPhrase)
+				{
+					searchArray=[searchText];
+				}
+				else
+				{
+					searchArray=searchText.split(" ");
+				}
+
+				//if no content return false
+				var body:Object=htmlView.htmlLoader.window.document.getElementsByTagName("body")[0];
+        
+				if (!originalBody)
+					originalBody=body.innerHTML;
+				var bodyText:String=originalBody;
+
+				for (var i:uint=0; i < searchArray.length; i++)
+				{
+					bodyText=doHighlight(bodyText, searchArray[i], highlightStartTag, highlightEndTag);
+				}
+				body.innerHTML=bodyText;
+
+			}
+
+			private function doHighlight(bodyText:String, searchTerm:String, highlightStartTag:String, highlightEndTag:String):String
+			{
+				trace("doHighlight")
+				// the highlightStartTag and highlightEndTag parameters are optional
+				if ((!highlightStartTag) || (!highlightEndTag))
+				{
+					highlightStartTag="<font style='color:white; background-color:red;'>";
+					highlightEndTag="</font>";
+				}
+
+				// find all occurences of the search term in the given text,
+				// and add some "highlight" tags to them (we're not using a
+				// regular expression search, because we want to filter out
+				// matches that occur within HTML tags and script blocks, so
+				// we have to do a little extra validation)
+
+				var newText:String="";
+				var i:int=-1;
+				var lcSearchTerm:String=searchTerm.toLowerCase();
+				var lcBodyText:String=bodyText.toLowerCase();
+
+				while (bodyText.length > 0)
+				{
+					i=lcBodyText.indexOf(lcSearchTerm, i + 1);
+					if (i < 0)
+					{
+						newText+=bodyText;
+						bodyText="";
+					}
+					else
+					{
+						// skip anything inside an HTML tag
+						if (bodyText.lastIndexOf(">", i) >= bodyText.lastIndexOf("<", i))
+						{
+							// skip anything inside a <script> block
+							if (lcBodyText.lastIndexOf("/script>", i) >= lcBodyText.lastIndexOf("<script", i))
+							{
+								numOccurences++
+								newText+=bodyText.substring(0, i) + "<font id='occurrence" + anchorIndex + "'>" + highlightStartTag + bodyText.substr(i, searchTerm.length) + highlightEndTag + "</font>";
+								bodyText=bodyText.substr(i + searchTerm.length);
+								lcBodyText=bodyText.toLowerCase();
+								i=-1;
+								anchorIndex++
+							}
+						}
+					}
+				}
+				return newText;
+			}
+
+			public function reset():void
+			{
+				keyTxt.text="";
+				originalBody=null;
+				searchBox.visible=false;
+				numOccurences=0;
+				resultTxt.text="";
+				anchorIndex=0;
+				searchIndex=0;
+				nextBtn.enabled=false;
+				prevBtn.enabled=false;
+
+			}
+
+			public function clear():void
+			{
+				keyTxt.text="";
+				//var body:Object=htmlView.htmlLoader.window.document.getElementsByTagName("body")[0];
+				//body.innerHtml=originalBody
+				numOccurences=0;
+				resultTxt.text="";
+				anchorIndex=0;
+				searchIndex=0;
+				nextBtn.enabled=nextBtn.visible=false;
+				prevBtn.enabled=prevBtn.visible=false;
+				
+
+			}
+
+			private function next():void
+			{
+
+				prevBtn.enabled=true;
+				//htmlView.htmlLoader.window.href=htmlView.htmlLoader.htmlHost+"#occurrence2"
+				//htmlView.htmlLoader.window.myFunction();
+
+				searchIndex++;
+				if (searchIndex < numOccurences - 1)
+				{
+					nextBtn.enabled=true;
+				}
+				else
+				{
+					nextBtn.enabled=false;
+				}
+        resultTxt.text=Number(searchIndex+1) + "/" + numOccurences + " occurrences found"
+        htmlView.htmlLoader.window.document.getElementById("occurrence" + searchIndex).scrollIntoView()
+			}
+
+			private function prev():void
+			{
+
+				nextBtn.enabled=true;
+				searchIndex--;
+				if (searchIndex > 0)
+				{
+					prevBtn.enabled=true;
+				}
+				else
+				{
+					prevBtn.enabled=false;
+				}
+        resultTxt.text=Number(searchIndex+1) + "/" + numOccurences + " occurrences found"
+        htmlView.htmlLoader.window.document.getElementById("occurrence" + searchIndex).scrollIntoView()
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Parallel id="showEff">
+			<s:Fade alphaFrom="0.0"
+							alphaTo="1.0"
+							duration="300"/>
+		</s:Parallel>
+
+		<s:Parallel id="hideEff">
+			<s:Fade alphaFrom="1.0"
+							alphaTo="0.0"
+							duration="100"/>
+		</s:Parallel>
+	</fx:Declarations>
+
+
+	<mx:HTML htmlText="{htmlText}"
+					 id="htmlView"
+					 width="100%"
+					 height="100%"
+					 verticalScrollPolicy="auto"
+					 paddingRight="10"/>
+	<s:BorderContainer backgroundAlpha="0.9"
+										 backgroundColor="0xCCCCCC"
+										 borderColor="0x333333"
+										 borderStyle="solid" borderAlpha="0"
+										 borderWeight="1"
+										 borderVisible="true"
+										 cornerRadius="10"
+										 visible="false"
+										 id="searchBox"
+										 showEffect="{showEff}"
+										 horizontalCenter="0">
+		<s:layout>
+
+
+			<s:VerticalLayout paddingBottom="10"
+												paddingLeft="10"
+												paddingRight="10"
+												paddingTop="10">
+
+			</s:VerticalLayout>
+		</s:layout>
+		<s:HGroup width="100%">
+
+			<s:Spacer width="100%"/>
+			<s:Image source="{CloseIcon}"
+							 y="10"
+							 x="160"
+							 width="10"
+							 height="10"
+							 useHandCursor="true"
+							 buttonMode="true"
+							 click="{searchBox.visible=false; clear()}"/>
+		</s:HGroup>
+		<s:HGroup verticalAlign="middle"
+							paddingBottom="0"
+							paddingLeft="0"
+							paddingRight="0"
+							paddingTop="10">
+			<s:Label text="Search for:"/>
+			<s:TextInput id="keyTxt"
+									 width="160"
+									 focusIn="{searchFocus=true}"
+									 focusOut="{searchFocus=false}"/>
+			<s:Button x="140"
+								click="searchText()"
+								label="Find"/>
+		</s:HGroup>
+		<s:HGroup paddingTop="8"
+							horizontalAlign="center"
+							width="100%">
+			<s:Label text=""
+							 id="resultTxt"
+							 fontWeight="bold"/>
+			<s:Spacer width="100%"/>
+			<s:Button label="&lt;"
+								click="prev()"
+								id="prevBtn"
+								enabled="false"
+								width="30"
+								toolTip="previous"
+								visible="false"/>
+			<s:Button label="&gt;"
+								click="next()"
+								id="nextBtn"
+								enabled="false"
+								width="30"
+								toolTip="next"
+								visible="false"/>
+		</s:HGroup>
+	</s:BorderContainer>
+</s:Group>
+

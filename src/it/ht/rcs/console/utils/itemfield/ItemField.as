@@ -19,6 +19,9 @@ package it.ht.rcs.console.utils.itemfield
   import mx.managers.PopUpManager;
   
   import spark.components.TextInput;
+  import mx.core.FlexGlobals;    
+    
+    
 
   [Event(name="itemSelected", type="it.ht.rcs.console.utils.itemfield.ItemFieldEvent")]
   public class ItemField extends TextInput
@@ -62,12 +65,14 @@ package it.ht.rcs.console.utils.itemfield
     
     private function onAddedToStage(event:Event):void
     {
-      PopUpManager.addPopUp(dropDown, this, false);
+      //PopUpManager.addPopUp(dropDown, this, false);
+      FlexGlobals.topLevelApplication.systemManager.addChild(dropDown)
     }
     
     private function onRemovedFromStage(event:Event):void
     {
-      PopUpManager.removePopUp(dropDown);
+      //PopUpManager.removePopUp(dropDown);
+      FlexGlobals.topLevelApplication.systemManager.removeChild(dropDown)
     }
     
     private function init(event:FlexEvent):void
@@ -102,7 +107,7 @@ package it.ht.rcs.console.utils.itemfield
       var distance:int = kindOrder.indexOf(a._kind) - kindOrder.indexOf(b._kind);
       return distance / Math.abs(distance);
     }
-    
+    [Bindable]
     public function set kinds(value:Array):void
     {
       _kinds = [];
@@ -111,6 +116,11 @@ package it.ht.rcs.console.utils.itemfield
       
       if (_dataProvider != null)
         _dataProvider.refresh();
+    }
+    
+    public function get kinds():Array
+    {
+    return _kinds;
     }
     
     public function set path(item:Object):void
@@ -124,6 +134,9 @@ package it.ht.rcs.console.utils.itemfield
     
     private function filter(item:Object):Boolean
     {
+      if(item.status=="closed")
+        return false;
+      
       if (!isVisibleType(item._kind)) return false;
       
       if (_path && _path.length > 0) {
@@ -226,15 +239,24 @@ package it.ht.rcs.console.utils.itemfield
     
     public function set selectedItemId(id:String):void
     {
-      if (id == null) selectItem(null, false);
+      if (id == null)   
+      {
+        selectItem(null, false);
+        return;
+      }
+
       for each (var item:SearchItem in _dataProvider)
+      {
         if (item._id == id)
+        {
           selectItem(item, false);
+        }
+      }
     }
     
     private function onTextChange(e:Event):void
     {
-      trace("changed "+this.text);
+     
       _selectedItem=null;
       
       for(var i:int=0;i<this.dataProvider.length;i++)

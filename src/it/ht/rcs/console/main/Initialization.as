@@ -20,7 +20,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.shard.controller.ShardManager;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.update.controller.CoreManager;
-  import it.ht.rcs.console.utils.Update;
+  import it.ht.rcs.console.utils.UpdateManager;
   
   import mx.collections.ArrayList;
   import mx.controls.ProgressBar;
@@ -60,7 +60,7 @@ package it.ht.rcs.console.main
       
 
       /* check for console update */
-      Update.check();
+      UpdateManager.instance.start();
       
       var managers:Array = [];
       

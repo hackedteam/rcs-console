@@ -41,17 +41,21 @@
         g.name = agentName.text + ' Group';
         GroupManager.instance.addGroup(g, function(g1:Group):void
         {
+          trace("addGroup")
           GroupManager.instance.addUser(g1, Console.currentSession.user);
+          trace("addUser")
           var o:Operation = new Operation(Operation.defaultOperation());
           o.name = agentName.text;
           o.group_ids.addItem(g1._id);
           OperationManager.instance.addOperation(o, function(o1:Operation):void
           {
+            trace("addOperation")
             UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(o1));
             var t:Target = new Target(Target.defaultTarget());
             t.name = agentName.text;
             TargetManager.instance.addTarget(t, o1, function(t1:Target):void
             {
+              trace("addTarget")
               UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(t1));
               DashboardController.instance.newDashboardItem(t1._id);
               var a:Agent = new Agent(Agent.defaultAgent());
@@ -60,6 +64,7 @@
               a.type = agentType.selectedItem.label.toLowerCase();
               AgentManager.instance.addFactory(a, o1, t1, function(a1:Agent):void
               {
+                trace("addFactory")
                 var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
                 sectionEvent.section = 'Operations';
                 sectionEvent.item = new SearchItem(a1);
@@ -81,7 +86,7 @@
       
       <s:FormItem label="{R.get('NAME')}">
         <s:HGroup>
-          <s:TextInput id="agentName" width="200" maxChars="20" restrict="A-Za-z0-9\-_ "/>
+          <s:TextInput id="agentName" width="200" maxChars="50" restrict="A-Za-z0-9\-_ "/>
         </s:HGroup>
       </s:FormItem>
       

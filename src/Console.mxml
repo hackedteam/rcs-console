@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:s="library://ns.adobe.com/flex/spark"
                        xmlns:mx="library://ns.adobe.com/flex/mx"
-                       xmlns:fx="http://ns.adobe.com/mxml/2009"
+                        xmlns:fx="http://ns.adobe.com/mxml/2009"
                        xmlns:main="it.ht.rcs.console.main.*"
                        applicationComplete="init()"
                        skinClass="it.ht.rcs.console.main.skins.chrome.RCSApplicationSkin">
@@ -22,16 +22,17 @@
       
       import mx.collections.ArrayList;
       
-      import spark.filters.ColorMatrixFilter;
+      import spark.filters.ColorMatrixFilter; 
       
       public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
+      
       public static var ns:Namespace = appDescriptor.namespace();
       
       /* This variable contains the version number, the value is taken dynamically from console-app.xml */ 
       [Bindable]
       public static var appVersion:String = appDescriptor.ns::versionLabel;
       [Bindable]
-      public static var rcsVersion:String = '8.1.0';
+      public static var rcsVersion:String = '8.2.0';
      
       /* supported locales for the application */
       [Bindable]
@@ -47,7 +48,7 @@
         nativeWindow.x = Screen.mainScreen.bounds.width / 2 - this.width / 2;
         nativeWindow.y = Screen.mainScreen.bounds.height / 2 - this.height / 2;
 
-        /* start maximized on small screen */
+        /* start maximized on small screen */ 
         if (Screen.mainScreen.bounds.width <= 1280) {
           stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
           gripper.visible = false;
@@ -76,7 +77,7 @@
           matrix = matrix.concat([0,     0,   0, 1,    0]); // alpha
           var contrastFilter:ColorMatrixFilter = new ColorMatrixFilter(matrix);
           filters = [contrastFilter];
-        } else {
+        } else { 
           filters = null;
         }
       }
@@ -86,10 +87,10 @@
 		<s:State enterState="{showStatusBar = false}" name="loggedOut"/>
 		<s:State enterState="{showStatusBar = true}" name="loggedIn"/>
 	</s:states>
-
   <!-- LoggedOut state -->
   <main:Login includeIn="loggedOut"/>
   
   <!-- LoggedIn state -->
   <s:Group id="mainContainer" includeIn="loggedIn" width="100%" height="100%"/>
 </s:WindowedApplication>
+   

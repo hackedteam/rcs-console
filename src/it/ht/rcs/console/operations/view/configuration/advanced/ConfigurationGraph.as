@@ -23,6 +23,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 	public class ConfigurationGraph extends ScrollableGraph
 	{
 
+    [Bindable]
+    public var host:String;
+    
     // The original config object
     public var config:Object;
     
@@ -395,6 +398,22 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         ar = new ActionRenderer(a, this);
         actions.push(ar);
         addElement(ar);
+        
+        
+      }
+      if (config.actions)
+      {
+        primary: for (var ac:int=0; ac < config.actions.length; ac++)
+        {
+          for (var sa:int=0; sa < config.actions[ac].subactions.length; sa++)
+          {
+            if (config.actions[ac].subactions[sa].action == "synchronize")
+            {
+              host=config.actions[ac].subactions[sa].host;
+              break primary;
+            }
+          }
+        }
       }
       
       // Adding connections from events to actions

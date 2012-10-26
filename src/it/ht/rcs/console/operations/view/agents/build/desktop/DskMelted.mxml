@@ -65,9 +65,9 @@
         PopUpManager.removePopUp(uploadPopup);
         
         var params:Object = {platform: parentDocument.platform, 
-                             binary: {demo: createBtn.demo.selected, admin: false, sign: sign.selected}, 
+                             binary: {demo: createBtn.demo.selected, admin: false}, 
                              melt: {admin: false, input: event.data, codec: codec.selected, bit64: bit64.selected, scout:createBtn.scoutCh.selected},
-                             sign: {sign: sign.selected}};
+                             sign: {}};
         
         params['factory'] = {_id: parentDocument.factory._id};
         
@@ -118,11 +118,13 @@
              maxDisplayedLines="1" width="140" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
   </s:HGroup>
   
-  <s:CheckBox left="10" top="110" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
-  <s:CheckBox left="10" top="130" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{_platform == 'windows'}"/>
-
+  <s:CheckBox left="10" top="110" id="bit64" label="{R.get('INCLUDE_64BIT')} (100 KiB)" fontWeight="bold" selected="true" visible="{false}"/>
+  <s:CheckBox left="10" top="130" id="codec" label="{R.get('INCLUDE_AUDIO')} (200 KiB)" fontWeight="bold" selected="true" visible="{false}"/>
+  
+  <!--
   <s:CheckBox left="10" top="160" id="sign" label="{R.get('SIGN_CODE')}" fontWeight="bold" selected="false" enabled="false" visible="{_platform == 'windows'}"/>
-
+  -->
+  
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}" />
   
 </s:Group>

@@ -21,6 +21,13 @@
       
       private function init():void
       {
+       if(globals.type=="mobile")
+       {
+         if(globals.quota.min>(1048576*5))
+          globals.quota.min=(1048576*5)// 5MB
+       }
+            
+            
         nohide.dataProvider = new ArrayList(globals.nohide);
         
         //min.text = String(Math.round(globals.quota.min / Size.MIB));
@@ -37,7 +44,7 @@
         
         //globals.quota.min = parseInt(min.text) * Size.MIB;
         globals.quota.min = Number(min.text) * Size.MIB;
-        globals.quota.max = parseInt(max.text) * Size.MIB;
+        globals.quota.max = Number(max.text) * Size.MIB;
         globals.wipe = wipe.selected;
         globals.remove_driver = driver.selected;
         globals.nohide = ArrayList(nohide.dataProvider).source;

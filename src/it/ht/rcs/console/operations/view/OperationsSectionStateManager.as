@@ -455,12 +455,16 @@ package it.ht.rcs.console.operations.view
     {
       if (item.hasOwnProperty('customType'))
         return searchFilterFunction(item);
-      if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
-        if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
-          return false;
-        else
-          return searchFilterFunction(item);
-      else return false;
+     if(selectedTarget && item.path && item.path.length>1)
+     {
+       if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
+         if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+           return false;
+         else
+           return searchFilterFunction(item);
+         else return false;
+     }
+     return false;
     }
     
   }

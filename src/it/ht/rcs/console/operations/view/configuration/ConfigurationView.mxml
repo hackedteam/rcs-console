@@ -44,31 +44,38 @@
 
 				if (configAsConfig == null) // Factory
 				{
+          
 					var factory:Agent=section.stateManager.selectedFactory;   
           isScout=factory.type=="desktop" 
 					AgentManager.instance.show(factory._id, function(e:ResultEvent):void
 					{
 						configAsConfig=(e.result as Agent).configs.getItemAt(0) as Config; //if configs length is 0  ??
 						configAsObject=JSON.parse(configAsConfig.config);
+            addFactoryMissingModules(factory.type, configAsObject);
 						displayConfig(false);
 					});
 				}
 				else // An Agent's config
 				{
+       
 					if (section.stateManager.selectedAgent == null)
 						return;        
           isScout=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.scout==true;
 					configAsObject=JSON.parse(configAsConfig.config);
 					cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
-					addMissingModules(section.stateManager.selectedAgent.platform, configAsObject);
+					addAgentMissingModules(section.stateManager.selectedAgent.platform, configAsObject);
 					displayConfig(false);
 				}
 			}
 
-			private function addMissingModules(platform:String, configAsObject:Object):void
+			private function addAgentMissingModules(platform:String, configAsObject:Object):void
 			{
-				DefaultConfigBuilder.addMissingModules(platform, configAsObject);
+				DefaultConfigBuilder.addAgentMissingModules(platform, configAsObject);
 			}
+      private function addFactoryMissingModules(type:String, configAsObject:Object):void
+      {
+        DefaultConfigBuilder.addFactoryMissingModules(type, configAsObject);
+      }
 
 			private function cleanUnsupportedModules(platform:String, configAsObject:Object):void
 			{

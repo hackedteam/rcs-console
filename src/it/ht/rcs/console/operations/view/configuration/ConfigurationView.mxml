@@ -55,7 +55,12 @@
             if(configAsObject.globals.type=="mobile")
             {
               if(configAsObject.globals.quota.min>(1048576*5))
+              {
                 configAsObject.globals.quota.min=(1048576*5)// 5MB
+                var a:Agent = section.stateManager.selectedFactory || section.stateManager.selectedAgent;
+                AgentManager.instance.addConfig(a, JSON.stringify(configAsObject), null, null);
+                updateOriginalConfig(configAsObject);
+              }
             }
             addFactoryMissingModules(factory.type, configAsObject);
 						displayConfig(false);
@@ -166,6 +171,11 @@
 				if (getDirtyState())
 					e.preventDefault();
 			}
+      
+   
+      
+   
+      
 		]]>
 	</fx:Script>
 

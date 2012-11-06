@@ -112,7 +112,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Agent && item._kind == 'factory')
+      else if (item is Agent && item._kind == 'factory' && Console.currentSession.user.is_tech_config())
       {
         selectedFactory = item;
         selectedConfig = null;
@@ -120,7 +120,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Config)
+      else if (item is Config && Console.currentSession.user.is_tech_config())
       {
         selectedConfig = item;
         setState('config');
@@ -320,7 +320,10 @@ package it.ht.rcs.console.operations.view
       if (list == null) return;
       if ((currentState == 'singleTarget' || currentState == 'singleAgent') && (Console.currentSession.user.is_view())) {
         list.addItemAt({name: R.get('EVIDENCE'),    customType: 'evidence',     order: 0}, 0);
+        if(Console.currentSession.user.is_view_filesystem())
+        {
         list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem',   order: 1}, 0);
+        }
       }
       if (currentState == 'singleAgent') {
         list.addItemAt({name: R.get('INFO'),        customType: 'info',         order: 3}, 0);

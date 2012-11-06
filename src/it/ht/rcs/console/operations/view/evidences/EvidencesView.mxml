@@ -174,15 +174,18 @@
 
 			private function onEditNote(e:Event):void
 			{
-				if (evidenceDg.visible)
-					evidenceDg.editNote();
-				else if (viewer.visible)
-					viewer.editNote();
+				if(Console.currentSession.user.is_view_edit())
+        {
+          if (evidenceDg.visible)
+            evidenceDg.editNote();
+          else if (viewer.visible)
+            viewer.editNote();
+        }
 			}
 
 			private function onGridDoubleClick(e:GridEvent):void
 			{
-				if (e.column === evidenceDg.noteColumn)
+				if (e.column === evidenceDg.noteColumn && Console.currentSession.user.is_view_edit())
 				{
 					evidenceDg.editNote();
 					return;
@@ -256,8 +259,6 @@
 
 			}
       
- 
-
 			private function onViewerClose():void
 			{
 				closeViewer();

@@ -53,7 +53,12 @@ package it.ht.rcs.console.main
       if (user.is_admin() || user.is_tech() || user.is_view()) mainSections.addItem({label: 'Operations', manager: null});
       if (user.is_view())                                      mainSections.addItem({label: 'Dashboard',  manager: null});
       if (user.is_view_alerts())                               mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
-      if (user.is_sys()   || user.is_tech())                   mainSections.addItem({label: 'System',     manager: null});
+      if (user.is_sys_backend() || 
+        user.is_sys_backup() || 
+        user.is_sys_connectors() || 
+        user.is_sys_frontend()  || 
+        user.is_sys_injectors() ||
+        user.is_tech_ni_rules())                               mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin_audit())                               mainSections.addItem({label: 'Audit',      manager: null});
       if (user.is_any())                                       mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
       //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
@@ -72,20 +77,30 @@ package it.ht.rcs.console.main
         managers.push(LicenseManager.instance);
       }
       
-      if (user.is_admin())
+      if (user.is_admin_users())
       {
         managers.push(UserManager.instance);
+      }
+      
+      if (user.is_admin_users() || user.is_admin_operations())
+      {
+
         managers.push(GroupManager.instance);
       }
      
-      if (user.is_sys())
+      if (user.is_sys_backend())
       {
         managers.push(ShardManager.instance);        
       }
 
-      if (user.is_sys() || user.is_tech())
+      if (user.is_sys_frontend() || user.is_tech_config())
       {
         managers.push(CollectorManager.instance);
+       
+      }
+      
+      if (user.is_sys_injectors() || user.is_tech_ni_rules())
+      {
         managers.push(InjectorManager.instance);
       }
       
@@ -106,10 +121,15 @@ package it.ht.rcs.console.main
         managers.push(CoreManager.instance);
       }
       
-      if (user.is_view())
+      if (user.is_view_alerts())
+      {
+
+        managers.push(AlertManager.instance);
+      }
+      
+      if(user.is_view())
       {
         DashboardController.instance;
-        managers.push(AlertManager.instance);
       }
       
       maxGreenLights = managers.length;

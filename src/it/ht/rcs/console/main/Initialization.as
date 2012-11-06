@@ -52,7 +52,7 @@ package it.ht.rcs.console.main
       if (user.is_admin_users())                               mainSections.addItem({label: 'Accounting', manager: null});
       if (user.is_admin() || user.is_tech() || user.is_view()) mainSections.addItem({label: 'Operations', manager: null});
       if (user.is_view())                                      mainSections.addItem({label: 'Dashboard',  manager: null});
-      if (user.is_view())                                      mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
+      if (user.is_view_alerts())                               mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
       if (user.is_sys()   || user.is_tech())                   mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin_audit())                               mainSections.addItem({label: 'Audit',      manager: null});
       if (user.is_any())                                       mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});

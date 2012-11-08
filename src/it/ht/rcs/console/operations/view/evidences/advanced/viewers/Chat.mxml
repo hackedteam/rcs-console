@@ -76,6 +76,9 @@
         //
         chatGrid.selectedItem=_evidence;
         chatGrid.ensureCellIsVisible(chatGrid.selectedIndex,0)
+          
+        translateBtn.label="Translate";
+        contentColumn.dataField="data.content";
          
 			}
 
@@ -99,8 +102,25 @@
       {
         trace(chatGrid.selectedItem.data.content);
         evidence=chatGrid.selectedItem;
-        dispatchEvent(new Event("change"))
+        dispatchEvent(new Event("change"));
       }
+      
+      private function translate():void
+      {
+        if(translateBtn.label=="Translate")
+        {
+          translateBtn.label="Show original";
+          contentColumn.dataField="data.tr";
+          //contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.tr), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
+        else
+        {
+          translateBtn.label="Translate";
+          contentColumn.dataField="data.content";
+          //contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
+      }
+      
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -136,7 +156,7 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-  <s:HGroup verticalAlign="middle">
+  <s:HGroup verticalAlign="middle" width="100%">
     <s:BitmapImage width="16"
                    height="16"
                    source="{ImageClass}"/>
@@ -144,6 +164,8 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
+    <s:Spacer width="100%"/>
+    <s:Button label="Translate" id="translateBtn" click="translate()" visible="{evidence.data.tr!=null &amp;&amp; evidence.data.tr!=''}"/>
     </s:HGroup>
 	<s:Line width="100%">
 		<s:stroke>
@@ -176,9 +198,11 @@
 											headerText="{R.get('DATE_ACQUIRED')}"
 											labelFunction="dateLabelFunction"/>-->
 				<s:GridColumn dataField="data.content"
-											headerText="peer"
+											headerText="peer" id="contentColumn"
 											resizable="false"
 											itemRenderer="it.ht.rcs.console.operations.view.evidences.advanced.viewers.chat.ChatEntryRenderer"/>
+        
+
 			</s:ArrayList>
 		</s:columns>
 	</s:DataGrid>

@@ -22,7 +22,8 @@
 			{
         _evidence=value;
 				//contentTxt.textFlow.columnCount=3;
-
+        translateBtn.label="Translate";
+        contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 
 			public function get evidence():Object
@@ -35,6 +36,20 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+      private function translate():void
+      {
+        if(translateBtn.label=="Translate")
+        {
+          translateBtn.label="Show original";
+          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.tr), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
+        else
+        {
+          translateBtn.label="Translate";
+          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
+      }
 		]]>
 	</fx:Script>
 <s:layout>
@@ -59,7 +74,12 @@
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
-  <s:RichText id="windowTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+  <s:HGroup width="100%" verticalAlign="middle">
+    <s:RichText id="windowTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+    <s:Spacer width="100%"/>
+    <s:Button label="Translate" id="translateBtn" click="translate()" visible="{evidence.data.tr!=null &amp;&amp; evidence.data.tr!=''}"/>
+  </s:HGroup>
+  
   <s:Line width="100%">
     <s:stroke>
       <s:SolidColorStroke color="0xCCCCCC"/>

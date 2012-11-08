@@ -3,17 +3,20 @@
 																xmlns:s="library://ns.adobe.com/flex/spark"
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                creationComplete="init()"
 																width="100%"
 																height="100%">
 
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
+      import spark.components.DataGrid;
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
 
 			import mx.collections.ArrayCollection;
+      
+      private var content:String
 
 			[Bindable]
 			private var renderMode:String;
@@ -63,11 +66,26 @@
 				{
 					renderMode=TextConverter.PLAIN_TEXT_FORMAT
 				}
-
+        content=data.data.content;
 				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + data.data.content,TextConverter.TEXT_FIELD_HTML_FORMAT)
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + content,TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
+      private function init():void
+      {
+        var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
+        var grid:DataGrid= renderer.owner as DataGrid;
+        grid.addEventListener("translate", onTranslate)
+      }
+      private function onTranslate(e:Event):void
+      {
+        if(content==data.data.content)
+          content=data.data.tr;
+        else
+          content=data.data.content;
+        
+        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+      }
 		]]>
 	</fx:Script>
 	<s:HGroup verticalAlign="top"

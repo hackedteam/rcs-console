@@ -14,6 +14,7 @@
       import it.ht.rcs.console.network.model.InjectorRule;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
@@ -133,6 +134,7 @@
         rule.ident_param = ident_param.text;
         rule.resource = resource.text;
         rule.action = action.selectedItem;
+        rule.scout = scoutCh.selected;
         
         if (mode == 'create' || target.selectedItem._id != rule.target_id[0])
           rule.target_id = [target.selectedItem._id];
@@ -318,6 +320,9 @@
       <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
                maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
                verticalAlign="middle"/>
+    </s:FormItem>
+    <s:FormItem visible="true" enabled="true" label="{R.get('SCOUT')}" includeInLayout="true">
+      <s:CheckBox id="scoutCh" visible="{!LicenseManager.instance.scout}" includeInLayout="{!LicenseManager.instance.scout}" enabled="{!LicenseManager.instance.scout}" selected="true"/>
     </s:FormItem>
     
   </s:Form>

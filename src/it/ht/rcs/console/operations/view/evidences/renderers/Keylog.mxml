@@ -11,10 +11,12 @@
       import flashx.textLayout.conversion.TextConverter;
       
       import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
       
       import spark.components.DataGrid;
       
       private var content:String
+      private var mainView:EvidencesView;
       
       [Bindable]
       override public function set data(value:*):void
@@ -22,28 +24,42 @@
         
         super.data=value;
         // content, program, window
-        content=data.data.content;
+       
+      /*   if(mainView.translation)
+        {
+          content=data.data.tr;
+        }
+        else
+        {
+          content=data.data.content;
+        } */
+        content=data.data.content
         processTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
         contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
         windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)
-
+        
+        onTranslate(null)
       }
       
       private function init():void
       {
         var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
         var grid:DataGrid= renderer.owner as DataGrid;
-        grid.addEventListener("translate", onTranslate)
+        mainView = grid.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
       }
       
       private function onTranslate(e:Event):void
       {
-        if(content==data.data.content)
-          content=data.data.tr;
-        else
-        content=data.data.content;
-        
-          contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+       if(data)
+       {
+         if(mainView.translation)
+           content=data.data.tr;
+         else
+           content=data.data.content;
+         
+       }
+          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
       }
       
     ]]>

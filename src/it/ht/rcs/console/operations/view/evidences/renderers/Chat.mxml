@@ -13,10 +13,12 @@
       import spark.components.DataGrid;
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
 
 			import mx.collections.ArrayCollection;
       
       private var content:String
+      private var mainView:EvidencesView;
 
 			[Bindable]
 			private var renderMode:String;
@@ -66,24 +68,31 @@
 				{
 					renderMode=TextConverter.PLAIN_TEXT_FORMAT
 				}
-        content=data.data.content;
+      
+        
+          content=data.data.content;
+        
 				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + content,TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        onTranslate(null)
 			}
       private function init():void
       {
         var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
         var grid:DataGrid= renderer.owner as DataGrid;
-        grid.addEventListener("translate", onTranslate)
+        mainView = grid.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
       }
       private function onTranslate(e:Event):void
       {
-        if(content==data.data.content)
-          content=data.data.tr;
-        else
-          content=data.data.content;
-        
+       if(data)
+       {
+         if(mainView.translation)
+           content=data.data.tr;
+         else
+           content=data.data.content;
+       }
         contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
       }
 		]]>

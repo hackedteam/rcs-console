@@ -7,24 +7,27 @@
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
-									 backgroundAlpha="1">
+									 backgroundAlpha="1" creationComplete="init()">
   <fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-			
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			
-			import spark.components.gridClasses.GridColumn;
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.FlexEvent;
+      
+      import spark.components.gridClasses.GridColumn;
 
 			[Bindable]
 			private var _evidence:Object;
@@ -40,6 +43,12 @@
       
       [Bindable]
       public var idVisible:Boolean;
+      
+      [Bindable]
+      private var content:String;
+      
+      [Bindable]
+      private var mainView:EvidencesView;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -77,8 +86,11 @@
         chatGrid.selectedItem=_evidence;
         chatGrid.ensureCellIsVisible(chatGrid.selectedIndex,0)
           
-        translateBtn.label="Translate";
+          
         contentColumn.dataField="data.content";
+        onTranslate(null)
+      
+        
          
 			}
 
@@ -105,23 +117,29 @@
         dispatchEvent(new Event("change"));
       }
       
-      private function translate():void
+      private function onTranslate(e:Event):void
       {
-        if(translateBtn.label=="Translate")
+       
+        if(mainView.translation)
         {
-          translateBtn.label="Show original";
           contentColumn.dataField="data.tr";
-          //contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.tr), TextConverter.TEXT_FIELD_HTML_FORMAT)
         }
         else
         {
-          translateBtn.label="Translate";
           contentColumn.dataField="data.content";
-          //contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+         
         }
       }
       
-		]]>
+      private function init():void
+      {
+        var container:HGroup=this.owner as HGroup;
+        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+        mainView = advancedViewer.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate); 
+      }
+      
+    ]]>
 	</fx:Script>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
@@ -165,7 +183,6 @@
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
     <s:Spacer width="100%"/>
-    <s:Button label="Translate" id="translateBtn" click="translate()" visible="{evidence.data.tr!=null &amp;&amp; evidence.data.tr!=''}"/>
     </s:HGroup>
 	<s:Line width="100%">
 		<s:stroke>

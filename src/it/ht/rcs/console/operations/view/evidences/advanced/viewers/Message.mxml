@@ -84,7 +84,8 @@
         if(content==null) content="";
 				content=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
 
-				html.htmlText=content;
+				html.htmlText=content || ("content not available");
+        onTranslate(null)
 				loader.removeEventListener(Event.COMPLETE, onContentLoaded);
 			}
 
@@ -126,11 +127,21 @@
         if(evidence)
         {
           if(mainView.translation)
-           content=evidence.data.tr;
-          else
-            content=evidence.data.content;
+          {
+            warningBox.visible=false;
+            html.htmlText=evidence.data.tr || "(TRANSLATION NOT AVAILABLE)";
           
-          html.htmlText=content
+          }
+          else
+          {
+            if(hasImages && content!=fullHtml )
+            {
+              warningBox.visible=true;
+            }
+            html.htmlText= content;
+            
+          }
+         
 
         }
       }
@@ -240,7 +251,7 @@
                         width="100%"
                         height="100%"
                         
-                        htmlText="{content}"/>
+                        htmlText=""/>
 <!--<mx:HTML id="html"
 					 width="100%"
 					 height="100%"

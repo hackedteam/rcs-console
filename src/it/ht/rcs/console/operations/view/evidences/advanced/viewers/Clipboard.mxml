@@ -6,22 +6,34 @@
 									 width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1">
+                   backgroundAlpha="1" creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
+      
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import spark.components.HGroup;
 
 			private var _evidence:Object;
       
+      private var mainView:EvidencesView;
+      
       [Bindable]
       public var idVisible:Boolean;
+      
+      [Bindable]
+      private var content:String;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
         _evidence=value;
 				//
+        content=evidence.data.content;
+        
+        contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        onTranslate(null)
 
 			}
 
@@ -35,6 +47,27 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+      private function init():void
+      {
+        var container:HGroup=this.owner as HGroup;
+        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+        mainView = advancedViewer.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
+      }
+      
+      private function onTranslate(e:Event):void
+      {
+        if(evidence)
+        {
+          if(mainView.translation)
+            content=evidence.data.tr || "(TRANSLATION NOT AVAILABLE)";
+          else
+            content=evidence.data.content || "";
+          
+          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
+      }
 		]]>
 	</fx:Script>
 <s:layout>

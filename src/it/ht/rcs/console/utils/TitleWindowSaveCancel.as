@@ -6,8 +6,8 @@ package it.ht.rcs.console.utils
   import it.ht.rcs.console.events.SaveEvent;
   import it.ht.rcs.console.events.SessionEvent;
   
-  import mx.managers.PopUpManager;
   import mx.core.FlexGlobals;
+  import mx.managers.PopUpManager;
   
   import spark.components.Button;
   import spark.components.TitleWindow;
@@ -61,6 +61,7 @@ package it.ht.rcs.console.utils
     
     protected function close(event:Event=null):void
     {
+     
       PopUpManager.removePopUp(this);
     }
     

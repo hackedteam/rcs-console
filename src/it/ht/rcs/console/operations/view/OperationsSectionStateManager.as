@@ -258,7 +258,8 @@ package it.ht.rcs.console.operations.view
             selectedFactory = null;
           }
           selectedOperation = OperationManager.instance.getItem(agent.path[0]);
-          selectedTarget = TargetManager.instance.getItem(agent.path[1]);
+          if(agent.path.length>1)
+            selectedTarget = TargetManager.instance.getItem(agent.path[1]);
           if(section.configView)
             section.configView.currentState = 'blank';
           section.currentState = 'config';
@@ -339,9 +340,33 @@ package it.ht.rcs.console.operations.view
     private function getView():ListCollectionView
     {
       var lcv:ListCollectionView;
-      if (CurrentManager != null) {
+      if(currentState == 'singleOperation')
+      {
+        trace("singleOperation")
+        lcv=new ListCollectionView()
+        var targets:ListCollectionView=TargetManager.instance.getView(customTypeSort, currentFilter)
+        var factories:ListCollectionView=AgentManager.instance.getFactoriesForOperation(selectedOperation._id);
+        var items:Array=new Array()
+        var i:int=0;
+          for(i=0;i<targets.length;i++)
+          {
+            items.push(targets.getItemAt(i))
+          }
+          for(i=0;i<factories.length;i++)
+          {
+            items.push(factories.getItemAt(i))
+          }
+        lcv.list=new ArrayList(items);
+      
+     
+      }
+      
+      else if (CurrentManager != null) {
         lcv = CurrentManager.instance.getView(customTypeSort, currentFilter);
-      } else if (currentState == 'singleAgent') {
+      } 
+     
+      
+      else if (currentState == 'singleAgent') {
         lcv = new ListCollectionView(new ArrayList());
         lcv.sort = customTypeSort;
         lcv.filterFunction = currentFilter;

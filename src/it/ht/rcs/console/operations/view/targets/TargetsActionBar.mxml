@@ -5,15 +5,21 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.operations.view.*">
   
-  <s:Button label="{R.get('NEW_TARGET')}" click="onNewClick()" enabled="{Console.currentSession.user.is_admin_targets() &amp;&amp; section.stateManager.selectedOperation.status=='open'}"
+  <s:Button label="{R.get('NEW_TARGET')}" click="onNewTargetClick()" enabled="{Console.currentSession.user.is_admin_targets() &amp;&amp; section.stateManager.selectedOperation.status=='open'}"
             icon="@Embed('/img/NEW/newTarget.png')" visible="{section.currentState == 'singleOperation'}"
             includeInLayout="{section.currentState == 'singleOperation'}"/>
+  
+  <s:Button label="{R.get('NEW_FACTORY')}" click="onNewFactoryClick()"
+            enabled="{Console.currentSession.user.is_tech_factories() &amp;&amp; section.stateManager.selectedOperation.status == 'open' &amp;&amp; LicenseManager.instance.archive == false}"
+            icon="@Embed('/img/NEW/newFactory.png')"
+            visible="{section.currentState == 'singleOperation'}"
+            includeInLayout="{section.currentState == 'singleOperation'}" />
   
   <s:Button label="{R.get('EDIT')}" click="onEditClick()"
             enabled="{Console.currentSession.user.is_admin_targets() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/edit.png')"/>
   
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_admin_targets() &amp;&amp; selectedObject != null}"
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick(event)" enabled="{Console.currentSession.user.is_admin_targets() &amp;&amp; selectedObject != null}"
             icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <actionbar:Separator/>
@@ -24,7 +30,7 @@
   
   <actionbar:Separator/>
   
-  <s:Button label="{R.get('MOVE_TARGET')}"
+  <s:Button label="{R.get('MOVE')}"
             icon="@Embed('/img/NEW/move.png')" click="moveTarget(event)"
             enabled="{Console.currentSession.user.is_admin_targets() &amp;&amp; selectedObject != null  &amp;&amp; selectedObject.status=='open' &amp;&amp; section.stateManager.selectedOperation.status=='open'}"/>
   
@@ -43,9 +49,13 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.agents.FactoriesForm;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -56,45 +66,104 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
+      
       [Bindable]
       public var section:OperationsSection;
       
-      private function onNewClick():void
+      private function onNewTargetClick():void
       {
         var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
         popup.operation = section.stateManager.selectedOperation;
         popup.target = new Target(Target.defaultTarget());
         popup.currentState = TargetsForm.CREATE;
+        popup.addEventListener(CloseEvent.CLOSE, function():void{section.stateManager.setState("singleOperation")})
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onNewFactoryClick():void
+      {
+       var popup:FactoriesForm = PopUpManager.createPopUp(root, FactoriesForm, true) as FactoriesForm;
+       popup.operation = section.stateManager.selectedOperation;
+       popup.target = null;
+       popup.factory = new Agent(Agent.defaultAgent());
+       popup.currentState = FactoriesForm.CREATE;
+       popup.addEventListener(CloseEvent.CLOSE, function():void{section.stateManager.setState("singleOperation")})
+       PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
-        var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
-        popup.operation = section.stateManager.selectedOperation;
-        popup.target = selectedObject as Target;
-        popup.currentState = TargetsForm.EDIT;
-        PopUpManager.centerPopUp(popup);
+        if(selectedObject is Target)
+        {
+          var popup:TargetsForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetsForm, true) as TargetsForm;
+          popup.operation = section.stateManager.selectedOperation;
+          popup.target = selectedObject as Target;
+          popup.currentState = TargetsForm.EDIT;
+          PopUpManager.centerPopUp(popup);
+        }
+        else if( selectedObject is Agent)
+        {
+          var popup2:FactoriesForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, FactoriesForm, true) as FactoriesForm;
+          popup2.operation = section.stateManager.selectedOperation;
+          popup2.target = section.stateManager.selectedTarget;
+          popup2.factory = selectedObject as Agent;
+          popup2.currentState = FactoriesForm.EDIT;
+          PopUpManager.centerPopUp(popup2);
+          
+        }
       }
       
-      private function onDeleteClick():void
+      private function onDeleteClick(event:MouseEvent):void
       {
-        AlertPopUp.show(R.get('CONFIRM_TARGET_DELETION', [selectedObject.name]), R.get('CONFIRM'),
-          AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES)
-              TargetManager.instance.removeItem(selectedObject);
-          }, null, AlertPopUp.NO);
+        if(selectedObject is Target)
+        {
+          AlertPopUp.show(R.get('CONFIRM_TARGET_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+              {
+                TargetManager.instance.removeItem(selectedObject);
+                section.stateManager.setState("singleOperation")
+              }
+            }, null, AlertPopUp.NO);
+        
+        }
+        else if( selectedObject is Agent)
+        {
+          AlertPopUp.show(R.get('CONFIRM_FACTORY_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                AgentManager.instance.delFactory(selectedObject, event.shiftKey);
+                section.stateManager.setState("singleOperation")
+            }, null, AlertPopUp.NO);
+        }
       }
       
       private function onClose():void
       {
+        if(selectedObject is Target)
+        {
         AlertPopUp.show(R.get('CONFIRM_TARGET_CLOSE', [selectedObject.name]), R.get('CONFIRM'),
           AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES)
+            {
               TargetManager.instance.closeTarget(selectedObject._id);
+              section.stateManager.setState("singleOperation")
+            }
           }, null, AlertPopUp.NO);
+        }
+        else if( selectedObject is Agent)
+        {
+          var message:String =  R.get('CONFIRM_FACTORY_CLOSE', [selectedObject.name]);
+          AlertPopUp.show(message, R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+                selectedObject.status = 'closed';
+            }, null, AlertPopUp.NO);
+        }
       }
       
       private function onRemovedFromStage():void
@@ -116,9 +185,12 @@
       
       private function moveTarget(event:MouseEvent):void
       {
-        var popup:MoveItemPopup = PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;
-        popup.itemToMove = selectedObject;
-        PopUpManager.centerPopUp(popup);
+        if(selectedObject is Target)
+        {
+          var popup:MoveItemPopup = PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;
+          popup.itemToMove = selectedObject;
+          PopUpManager.centerPopUp(popup);
+        }
       }
     ]]>
   </fx:Script>

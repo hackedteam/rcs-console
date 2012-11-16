@@ -49,7 +49,7 @@
             AlertPopUp.YES|AlertPopUp.NO, null,
             function(e:CloseEvent):void {
               if (e.detail == AlertPopUp.YES)
-                { doSave(); close(); }
+                { doSave(); close();  dispatchEvent(new Event("close"))}
             }, null, AlertPopUp.NO);
           return;
         }
@@ -57,7 +57,7 @@
         doSave();
         
         if (currentState == CREATE)
-          AgentManager.instance.addFactory(factory, operation, target, function(factory:Agent):void { close(); });
+          AgentManager.instance.addFactory(factory, operation, target, function(factory:Agent):void { close(); dispatchEvent(new Event("close")) });
         else
           close();
       }

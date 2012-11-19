@@ -14,6 +14,13 @@ package it.ht.rcs.console.monitor.view
     
     [Embed('/img/platforms/apple_mono.png')]
     public static const osxOff:Class;
+
+    [Embed('/img/platforms/linux.png')]
+    public static const linuxOn:Class;
+    
+    [Embed('/img/platforms/linux_mono.png')]
+    public static const linuxOff:Class;
+
     
     [Embed('/img/platforms/android.png')]
     public static const androidOn:Class;

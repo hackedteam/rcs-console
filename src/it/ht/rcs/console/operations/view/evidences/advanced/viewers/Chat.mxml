@@ -7,24 +7,27 @@
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
-									 backgroundAlpha="1">
+									 backgroundAlpha="1" creationComplete="init()">
   <fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-			
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			
-			import spark.components.gridClasses.GridColumn;
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.FlexEvent;
+      
+      import spark.components.gridClasses.GridColumn;
 
 			[Bindable]
 			private var _evidence:Object;
@@ -40,6 +43,12 @@
       
       [Bindable]
       public var idVisible:Boolean;
+      
+      [Bindable]
+      private var content:String;
+      
+      [Bindable]
+      private var mainView:EvidencesView;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -76,6 +85,12 @@
         //
         chatGrid.selectedItem=_evidence;
         chatGrid.ensureCellIsVisible(chatGrid.selectedIndex,0)
+          
+          
+        contentColumn.dataField="data.content";
+        onTranslate(null)
+      
+        
          
 			}
 
@@ -99,9 +114,32 @@
       {
         trace(chatGrid.selectedItem.data.content);
         evidence=chatGrid.selectedItem;
-        dispatchEvent(new Event("change"))
+        dispatchEvent(new Event("change"));
       }
-		]]>
+      
+      private function onTranslate(e:Event):void
+      {
+       
+        if(mainView.translation)
+        {
+          contentColumn.dataField="data.tr";
+        }
+        else
+        {
+          contentColumn.dataField="data.content";
+         
+        }
+      }
+      
+      private function init():void
+      {
+        var container:HGroup=this.owner as HGroup;
+        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+        mainView = advancedViewer.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate); 
+      }
+      
+    ]]>
 	</fx:Script>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
@@ -136,7 +174,7 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-  <s:HGroup verticalAlign="middle">
+  <s:HGroup verticalAlign="middle" width="100%">
     <s:BitmapImage width="16"
                    height="16"
                    source="{ImageClass}"/>
@@ -144,6 +182,7 @@
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 							fontSize="12"/>
+    <s:Spacer width="100%"/>
     </s:HGroup>
 	<s:Line width="100%">
 		<s:stroke>
@@ -176,9 +215,11 @@
 											headerText="{R.get('DATE_ACQUIRED')}"
 											labelFunction="dateLabelFunction"/>-->
 				<s:GridColumn dataField="data.content"
-											headerText="peer"
+											headerText="peer" id="contentColumn"
 											resizable="false"
 											itemRenderer="it.ht.rcs.console.operations.view.evidences.advanced.viewers.chat.ChatEntryRenderer"/>
+        
+
 			</s:ArrayList>
 		</s:columns>
 	</s:DataGrid>

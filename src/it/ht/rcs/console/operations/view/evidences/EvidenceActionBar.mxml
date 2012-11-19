@@ -11,36 +11,40 @@
 	<s:Button label="{R.get('EVIDENCE_EXPORT')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
-						enabled="{selectedObjects.length>=1 &amp;&amp; Console.currentSession.user.is_view_export()}"/>
-	<actionbar:Separator width="40"/>
+						enabled="{selectedObjects.length>0 &amp;&amp; Console.currentSession.user.is_view_export()}"/>
+	<actionbar:Separator width="20"/>
+
+	
 
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick(event)"
-						enabled="{Console.currentSession.user.is_view_delete() &amp;&amp; selectedObjects.length>0}"
+						enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.deletion == true}"
-						includeInLayout="{LicenseManager.instance.deletion == true}"/>
-	<actionbar:Separator width="40"
-											 visible="{LicenseManager.instance.deletion == true}"
-											 includeInLayout="{LicenseManager.instance.deletion == true}"/>
+						includeInLayout="{LicenseManager.instance.deletion == true}"
+						width="90" horizontalCenter="0"/>
+	<actionbar:Separator width="20"/>
+  
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 enabled="false"
 										 id="tagEditor"
-										 change="onRelevanceChange(event)"/>
+										 change="onRelevanceChange(event)"
+                     width="80"/>
 
 	<s:Button label="{R.get('REPORT_ADD')}"
 						click="onReportClick()"
 						enabled="false"
 						icon="@Embed('/img/evidence/paperplus32.png')"
 						id="reportBtn"
-						width="150"/>
+						width="90"/>
 
 	<s:Button label="{R.get('EDIT_NOTE')}"
 						click="onEditNoteClick()"
 						enabled="{selectedObjects.length>0  &amp;&amp; Console.currentSession.user.is_view_edit()}"
 						icon="@Embed('/img/evidence/notepencil32.png')"/>
 
-	<actionbar:Separator width="40"/>
+	<actionbar:Separator width="20"/>
+
 	<s:Button label="{R.get('ID_COLUMN_SHOW')}"
 						click="onIdClick()"
 						icon="@Embed('/img/evidence/paper32.png')"
@@ -50,22 +54,34 @@
 						click="onSummaryClick()"
 						icon="@Embed('/img/evidence/linedpaperplus32.png')"
 						id="summaryBtn"
-						width="130"/>
-	<actionbar:Separator width="40"/>
+						width="120"/>
+	<actionbar:Separator width="20"/>
+  
+
 	<s:Button label="{R.get('DETAIL_SHOW')}"
 						click="onDetailClick()"
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
 						enabled="{selectedObjects.length>0}"
 						width="100"/>
-	<actionbar:Separator width="40"/>
+
+	<actionbar:Separator width="20"/>
+	<s:Button label="Translate"
+						click="onTranslateClick()"
+						icon="@Embed('/img/evidence/globe32.png')"
+						id="translateBtn"
+						width="130"/>
+	<actionbar:Separator width="20"/>
 	<s:Button label="{R.get('FILTER_PRESETS')}"
 						click="openFilterPanel()"
-						icon="@Embed('/img/NEW/presetFilters.png')"/>
+						icon="@Embed('/img/NEW/presetFilters.png')"
+            width="100" />
 
 	<s:Button label="{R.get('RESET_FILTERS')}"
 						click="resetFilters()"
-						icon="@Embed('/img/NEW/resetFilters.png')"/>
+						icon="@Embed('/img/NEW/resetFilters.png')"
+            width="100" />
+
 
 
 	<fx:Metadata> 
@@ -74,7 +90,8 @@
     [Event(name="export",   type="flash.events.Event")] 
     [Event(name="detail",   type="flash.events.Event")]
     [Event(name="delete",   type="flash.events.Event")]
-    [Event(name="idcolumn", type="flash.events.Event")] 
+    [Event(name="idcolumn", type="flash.events.Event")]
+    [Event(name="translate", type="flash.events.Event")] 
   </fx:Metadata>
 
 	<fx:Script>
@@ -179,7 +196,9 @@
 					stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
 					stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
+
 				else if (selectedObjects.length == 1 && selectedObjects[0] != null && Console.currentSession.user.is_view_edit())
+
 				{
 					tagEditor.tag=selectedObjects[0].rel;
 					tagEditor.enabled=true;
@@ -209,6 +228,7 @@
 						stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 						stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 					}
+
 				}
 			}
 
@@ -258,7 +278,7 @@
 
 			private function init():void
 			{
-
+        translateBtn.label="Translate";
 			}
 
 			private function onKeyUp(e:KeyboardEvent):void
@@ -266,12 +286,17 @@
 
 			}
 
+
 			private function onKeyPress(e:KeyboardEvent):void
 			{
+				trace(e.ctrlKey)
+				trace(e.keyCode)
+
 
 
 				if (Console.currentSession.user.is_view_edit())
 				{
+
 					switch (e.keyCode)
 					{
 
@@ -318,18 +343,18 @@
 							}
 							break;
 					}
-
 				}
 			}
 
 			private function onRemovedFromStage():void
 			{
+        translateBtn.label="Translate";
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
 			}
 
 			private function onAddedToStage():void
 			{
-
+        
 			}
 
 			private function sameValue(selectedObjects:Vector.<Object>, property:String):Boolean
@@ -452,6 +477,17 @@
 			private function onEditNoteClick():void
 			{
 				dispatchEvent(new Event("editNote"));
+			}
+
+			private function onTranslateClick():void
+			{
+				dispatchEvent(new Event("translate"));
+        if(translateBtn.label=="Translate")
+          translateBtn.label="Original Language";
+        else
+        {
+          translateBtn.label="Translate";
+        }
 			}
 
 			private function onReportClick():void

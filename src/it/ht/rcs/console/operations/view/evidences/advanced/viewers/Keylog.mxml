@@ -6,13 +6,20 @@
 									 width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1">
+                   backgroundAlpha="1" creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
 
 			private var _evidence:Object;
+      
+      [Bindable]
+      private var content:String;
+      
+      private var mainView:EvidencesView;
       
       [Bindable]
       public var idVisible:Boolean;
@@ -22,8 +29,14 @@
 			{
         _evidence=value;
 				//contentTxt.textFlow.columnCount=3;
-
+        
+          content=evidence.data.content;
+     
+        contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+          onTranslate(null)
 			}
+      
+      
 
 			public function get evidence():Object
 			{
@@ -35,6 +48,28 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+     
+      private function init():void
+      {
+        var container:HGroup=this.owner as HGroup;
+        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+        mainView = advancedViewer.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
+      }
+      
+      private function onTranslate(e:Event):void
+      {
+      if(evidence)
+      {
+        if(mainView.translation)
+          content=evidence.data.tr || "(TRANSLATION NOT AVAILABLE)";
+        else
+          content=evidence.data.content || "";
+        
+        contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+      }
+      }
 		]]>
 	</fx:Script>
 <s:layout>
@@ -59,7 +94,12 @@
       <s:SolidColorStroke color="0xCCCCCC"/>
     </s:stroke>
   </s:Line>
-  <s:RichText id="windowTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+  <s:HGroup width="100%" verticalAlign="middle">
+    <s:RichText id="windowTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+    <s:Spacer width="100%"/>
+
+  </s:HGroup>
+  
   <s:Line width="100%">
     <s:stroke>
       <s:SolidColorStroke color="0xCCCCCC"/>
@@ -68,7 +108,7 @@
 		<s:Scroller height="100%"
 								width="100%">
 			<s:RichEditableText editable="false"
-													id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+													id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
 		</s:Scroller>
 
 </s:BorderContainer>

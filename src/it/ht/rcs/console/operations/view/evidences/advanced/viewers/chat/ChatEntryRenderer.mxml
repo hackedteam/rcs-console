@@ -57,10 +57,29 @@
 						{
 							if (data)
 							{
-								var content:String=data.data.content;
+                var content:String;
+                if(this.column.dataField=="data.tr")
+								  content=data.data.tr;
+                else
+                  content=data.data.content;
+                
 								var d:String=formatDate(data.da);
-								var nickname:String=content.split(":")[0];
-								var message:String=content.substring(nickname.length + 1, content.length);
+                var message:String
+                var nickname:String
+                
+              if(content)
+              {
+                  nickname=content.split(":")[0];
+                  message=content.substring(nickname.length + 1, content.length);
+              }
+              else
+              {
+                nickname="";
+                message="";
+              }
+              if(data.data.content!=null && data.data.tr==null && this.column.dataField=="data.tr")
+                
+                message="(TRANSLATION NOT AVAILABLE)";
 								var peers:Array=data.data.peer.split(" ");
                   
                   if(data.data.program.toLowerCase()=="skype")
@@ -82,7 +101,11 @@
                   
                 ImageClass=ChatIcons[data.data.program.toLowerCase()]
 								dateTxt.text=d;
-								messageTxt.textFlow=TextConverter.importToFlow('<b>' + nickname + ":</b> " + message, TextConverter.TEXT_FIELD_HTML_FORMAT)
+                if(nickname!="" && nickname!=null)
+                  messageTxt.textFlow=TextConverter.importToFlow('<b>' + nickname + ":</b> " + message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+                else
+                  messageTxt.textFlow=TextConverter.importToFlow( message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+               
 							}
 						}
 

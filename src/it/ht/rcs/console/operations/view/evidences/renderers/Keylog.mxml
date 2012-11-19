@@ -3,13 +3,20 @@
                                 xmlns:s="library://ns.adobe.com/flex/spark"
                                 xmlns:mx="library://ns.adobe.com/flex/mx"
                                 xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="100%" height="100%"
+                                width="100%" height="100%" addedToStage="init()"
                                 >
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.DB;
       import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      
+      import spark.components.DataGrid;
+      
+      private var content:String
+      private var mainView:EvidencesView;
       
       [Bindable]
       override public function set data(value:*):void
@@ -17,10 +24,42 @@
         
         super.data=value;
         // content, program, window
+       
+      /*   if(mainView.translation)
+        {
+          content=data.data.tr;
+        }
+        else
+        {
+          content=data.data.content;
+        } */
+        content=data.data.content
         processTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+data.data.content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
         windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)
-
+        
+        onTranslate(null)
+      }
+      
+      private function init():void
+      {
+        var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
+        var grid:DataGrid= renderer.owner as DataGrid;
+        mainView = grid.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
+      }
+      
+      private function onTranslate(e:Event):void
+      {
+       if(data)
+       {
+         if(mainView.translation)
+           content=data.data.tr || "(TRANSLATION NOT AVAILABLE)";
+         else
+           content=data.data.content;
+         
+       }
+          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
       }
       
     ]]>
@@ -30,7 +69,6 @@
             width="100%">
     <s:VGroup verticalAlign="top" width="100%">
       <s:RichText id="contentTxt" width="100%"/>
-      
     </s:VGroup>
     <s:Line height="100%">
       <s:stroke>

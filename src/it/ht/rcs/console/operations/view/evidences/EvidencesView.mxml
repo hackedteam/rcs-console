@@ -34,6 +34,10 @@
 
 			private var exporter:EvidenceFileExporter;
 			private var exportMonitor:ExportPopUp;
+      
+      public var translation:Boolean
+      
+      
 
 			private function init():void
 			{
@@ -306,6 +310,12 @@
 				//PopUpManager.centerPopUp(exportMonitor);
        
 			}
+      
+      private function translate():void
+      {
+        translation=!translation;
+        this.dispatchEvent(new Event("translate"))
+      }
 
 		]]>
 	</fx:Script>
@@ -324,6 +334,7 @@
 															 selectedObjects="{evidenceDg.selectedItems}"
 															 detail="toggleDetail()"
 															 export="export()"
+                               translate="translate()"
 															 delete="onDelete()" evidenceView="{this}"/>
   <!--<evidences:FilterBox width="100%" visible="{!viewer.visible}" includeInLayout="{!viewer.visible}" evidenceView="{this}"/>-->
 	<evidences:FilterNotice id="notice"

@@ -60,7 +60,7 @@ package it.ht.rcs.console.main
         user.is_sys_injectors() ||
         user.is_tech_ni_rules())                               mainSections.addItem({label: 'System',     manager: null});
       if (user.is_admin_audit())                               mainSections.addItem({label: 'Audit',      manager: null});
-      if (user.is_any())                                       mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
+      if (user.is_admin() || user.is_tech() || user.is_sys())  mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
       //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
 
@@ -73,6 +73,12 @@ package it.ht.rcs.console.main
       {
         SearchManager.instance.listenRefresh();
         managers.push(SearchManager.instance);
+       
+        
+      }
+      
+      if(user.is_admin() || user.is_tech() || user.is_sys())
+      {
         managers.push(MonitorManager.instance);
         managers.push(LicenseManager.instance);
       }

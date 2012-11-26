@@ -14,6 +14,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
+  import it.ht.rcs.console.monitor.controller.LicenseManager;
   
   import locale.R;
   
@@ -328,11 +329,15 @@ package it.ht.rcs.console.operations.view
       }
       if (currentState == 'singleAgent') {
         list.addItemAt({name: R.get('INFO'),        customType: 'info',         order: 3}, 0);
-        list.addItemAt({name: R.get('COMMANDS'),        customType: 'commands',         order: 4}, 0);
+        if(LicenseManager.instance.modify)
+        {
+          list.addItemAt({name: R.get('COMMANDS'),        customType: 'commands',         order: 4}, 0);
+        }
         list.addItemAt({name: R.get('IP_ADDRESS'),        customType: 'ipaddresses',         order: 5}, 0);
         if (Console.currentSession.user.is_tech()) {
           list.addItemAt({name: R.get('CONFIG'),        customType: 'configlist',   order: 2}, 0);
           list.addItemAt({name: R.get('FILE_TRANSFER'), customType: 'filetransfer', order: 6}, 0);
+         
         }
       }
     }

@@ -6,6 +6,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import mx.collections.ArrayList;
       import mx.core.mx_internal;
@@ -82,6 +83,10 @@
 
       private function actionFilterFunction(o:Object):Boolean
       {
+        if(o.label=="Execute" && (!LicenseManager.instance.modify || !Console.currentSession.user.is_tech_exec()))
+          {
+            return false;
+          }
         return o.type.indexOf(form.graph.config.globals.type.toLowerCase()) != -1;
       }
     ]]>

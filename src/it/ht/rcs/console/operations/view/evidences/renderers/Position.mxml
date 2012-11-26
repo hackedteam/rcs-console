@@ -9,6 +9,7 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
+			
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
 
@@ -80,9 +81,16 @@
         var street_number:String;
         var street:String;
         var postal_code:String;
+        var text:String;
         
         var formattedAddress:String;
         
+      if(address.text!=null && address.text!="")
+      {
+        formattedAddress="<br>"+address.text;
+      }
+      else
+      {
         if(address==null)
         {
           formattedAddress="<br>unknown"
@@ -101,6 +109,7 @@
           if (country != "") formattedAddress+= "<br>" + country;
         }
         
+      }
 				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formattedAddress, TextConverter.TEXT_FIELD_HTML_FORMAT);
 			}
 

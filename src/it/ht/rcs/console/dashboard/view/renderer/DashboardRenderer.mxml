@@ -85,16 +85,32 @@
         item = value as DashboardItem;
         icon.source = Icons[item._kind + '16'];
         if (item._kind == 'agent')
+        {
           iconBig.source = Icons[item.type + '_' + item.platform];
+        }
         else
+        {
           iconBig.source = Icons[item._kind + 'Big'];
+        }
         
-        if (item.status != 'open')
+        if (item.status != 'open')       
+        {
           iconBigText.text = item.status.toUpperCase();
+        }
+        else
+        {
+          iconBigText.text = ""
+        }
           
         if (item.status == 'closed')
+        {          
           iconBig.alpha = 0.5;
-
+        }
+        else
+        {
+          iconBig.alpha = 1;
+        }
+        
         if (item.demo) {
           iconBigText.text = 'DEMO';
           iconBig.filters = [glow_demo];
@@ -104,6 +120,10 @@
         if(item.scout)
         {
           scoutImg.visible=true;
+        }
+        else
+        {
+          scoutImg.visible=false;
         }
           
         currentState = item._kind;

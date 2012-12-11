@@ -73,7 +73,16 @@
         if(downloadBtn.label=="Download")
         {
           var target:String=EvidenceManager.instance.evidenceFilter.target;
-          var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+          var url:String
+          if(DB.instance.demo)
+          {
+           url="grid/"+data.data._grid
+          }
+          else
+          {
+            url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+          }
+          
           originalName=StringUtils.getFilename(data.data.path)
           extension=StringUtils.getExtension(data.data.path)
           var fileName:String=data.data._grid + encodeURIComponent(target) +"_"+originalName+ "." + extension;

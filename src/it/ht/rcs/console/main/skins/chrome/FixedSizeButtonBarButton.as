@@ -19,7 +19,7 @@ package it.ht.rcs.console.main.skins.chrome
     {
       super.label = value;
       var size:int = parseInt((labelDisplay as Label).getStyle('fontSize'));
-      width = measureText(value).width + (size * 3);
+      width = measureText(value).width + (size * 3.5);
     }
     
     override public function set data(value:Object):void

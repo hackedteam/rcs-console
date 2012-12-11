@@ -67,7 +67,16 @@
 				if(downloadBtn.label=="Download")
         {
           var target:String=EvidenceManager.instance.evidenceFilter.target;
-          var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+          var url:String
+          if(DB.instance.demo)
+          {
+          url="grid/"+evidence.data._grid
+          }
+          else
+          {
+             url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+          }
+         
           extension=StringUtils.getExtension(evidence.data.path)
           var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;// ?? get original filename? (StringUtils.getFilename)
           

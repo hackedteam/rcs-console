@@ -60,7 +60,14 @@
         img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
         if(data)
         {
-        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          if(DB.instance.demo)
+          {
+            url="grid/"+ data.data._grid;
+          }
+          else
+          {
+            url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          }
         img.source=url;
        // img.contentLoader.load(url)
         programTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);

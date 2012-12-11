@@ -63,7 +63,15 @@
         {
           if(data.data._grid!=null && data.type=="screenshot")
           {
-            url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+            if(DB.instance.demo)
+            {
+              url="grid/"+ data.data._grid;
+            }
+            else
+            {
+              url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+            }
+         
             imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
             imgLoader.load(new URLRequest(url))
           }
@@ -106,8 +114,8 @@
         spinner.visible=false;
         img.visible=true;
         fadeIn.play([img]);
-
   		}
+      
 		]]>
 	</fx:Script>
   

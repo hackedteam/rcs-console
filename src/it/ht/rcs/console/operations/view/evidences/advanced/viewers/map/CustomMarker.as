@@ -15,7 +15,7 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers.map
 		public function CustomMarker(evidence:Evidence)
 		{
       data=evidence;
-			var icon:Sprite=new Sprite()
+			var icon:Sprite=new Sprite();
 			icon.x=-18;
 			icon.y=-18;
 			icon.addChild(new TargetIcon())

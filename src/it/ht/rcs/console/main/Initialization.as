@@ -20,6 +20,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.shard.controller.ShardManager;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.update.controller.CoreManager;
+  import it.ht.rcs.console.entities.controller.EntityManager;
   import it.ht.rcs.console.utils.UpdateManager;
   
   import mx.collections.ArrayList;
@@ -137,6 +138,11 @@ package it.ht.rcs.console.main
       if(user.is_view())
       {
         DashboardController.instance;
+      }
+      
+      if(user.is_view_profiles())
+      {
+        managers.push(EntityManager.instance);
       }
       
       maxGreenLights = managers.length;

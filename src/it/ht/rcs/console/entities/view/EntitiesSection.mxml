@@ -3,11 +3,43 @@
               xmlns:s="library://ns.adobe.com/flex/spark"
               xmlns:mx="library://ns.adobe.com/flex/mx"
               xmlns:main="it.ht.rcs.console.main.*"
-              xmlns:entities="it.ht.rcs.console.entities.view.*">
+              xmlns:operations="it.ht.rcs.console.entities.view.operations.*"
+              creationComplete="init()" xmlns:view="it.ht.rcs.console.entities.view.*"
+              >
+  <fx:Script>
+    <![CDATA[
+      
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
+      
+      [Bindable]
+      public var stateManager:EntitiesSectionStateManager;
+      
+      private var eventToManage:SectionEvent = null;
+      
+      private function init():void
+      {
+        stateManager = new EntitiesSectionStateManager(this);
+        
+        if (eventToManage)
+          stateManager.manageItemSelection(null, eventToManage);
+        else
+          stateManager.setState('allOperations');
+      }
+    ]]>
+  </fx:Script>
+  <main:states>
+    <s:State name="none"/>
+    <s:State name="allOperations"/>
+    <s:State name="singleOperation"/>
+    <s:State name="allEntities"/>
+  </main:states>
+  
   <main:layout>
-    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" gap="2"/>
   </main:layout>
-
-  <entities:EntityActionBar id="actionBar"/>
-  <entities:EntitySheet width="100%" height="100%"/>
+  <view:Breadcrumb section="{this}"/>
+  <operations:OperationsEntityView includeIn="allOperations" section="{this}"/>
+  <view:EntitiesView includeIn="singleOperation, allEntities" section="{this}"/>
 </main:Section>

@@ -6,6 +6,8 @@ package it.ht.rcs.console.entities.view
   import it.ht.rcs.console.agent.controller.AgentManager;
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
+  import it.ht.rcs.console.entities.controller.EntityManager;
+  import it.ht.rcs.console.entities.model.Entity;
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
@@ -13,8 +15,6 @@ package it.ht.rcs.console.entities.view
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
-  import it.ht.rcs.console.entities.controller.EntityManager;
-  import it.ht.rcs.console.entities.model.Entity;
   
   import locale.R;
   
@@ -36,6 +36,7 @@ package it.ht.rcs.console.entities.view
     public var tableView:ListCollectionView;
 
     [Bindable] public var selectedOperation:Operation;
+    [Bindable] public var selectedEntity:Entity;
    
     
     private var section:EntitiesSection;
@@ -50,8 +51,7 @@ package it.ht.rcs.console.entities.view
     {
       this.section = section;
       currInstance = this;
-      
-      
+        
     }
     
     private function getItemFromEvent(event:SectionEvent):*
@@ -85,12 +85,20 @@ package it.ht.rcs.console.entities.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
+      if (item is Entity)
+      {
+        selectedEntity = item;
+        setState('singleEntity');
+       // UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item)); //TODO
+      }
+      
 
     }
     
     private function clearVars():void
     {
       selectedOperation = null; 
+      selectedEntity = null;
     }
     
     private var currentState:String;
@@ -111,8 +119,18 @@ package it.ht.rcs.console.entities.view
           update();
           break;
         case 'singleOperation':
+          selectedEntity=null;
           //selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
           section.currentState = 'singleOperation';
+          CurrentManager = EntityManager;
+          currentFilter = singleOperationFilterFunction;
+          update();
+          break;
+        
+        case 'singleEntity':
+          //selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
+          selectedOperation = OperationManager.instance.getItem(selectedEntity.path[0]);
+          section.currentState = 'singleEntity';
           CurrentManager = EntityManager;
           currentFilter = singleOperationFilterFunction;
           update();

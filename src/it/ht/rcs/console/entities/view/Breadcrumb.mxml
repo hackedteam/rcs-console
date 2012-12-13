@@ -29,17 +29,10 @@
       {
         switch (section.currentState) {
           
-          case 'singleAgent': return 'singleTarget';
-          case 'singleTarget': return 'singleOperation';
+
+          case 'singleEntity': return 'singleOperation';
           case 'singleOperation': return 'allOperations';
-          case 'evidence':
-        
-          case 'info':
-          case 'agentConfigList':
-          case 'filetransfer':
-          case 'commands':
-          case 'ipaddresses':
-            return 'singleAgent';
+         
         }
         return null;
       }
@@ -84,14 +77,14 @@
     <s:Image id="up" source="@Embed('/img/NEW/up.png')" buttonMode="true"
              click="onUpOneLevel(event)" rollOver="onRoll(event)" rollOut="onRoll(event)" toolTip="{R.get('UP_ONE_LEVEL')}"/>
     
-    <mx:LinkButton visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
+    <mx:LinkButton visible="{section.currentState != 'allEntities' }"
                    label="{R.get('ALL_OPERATIONS')}"
                    click="section.stateManager.setState('allOperations')"
-                   includeInLayout="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
+                   includeInLayout="{section.currentState != 'allEntities'}"
                    paddingLeft="0" paddingRight="0"/>
     
-    <mx:LinkButton visible="{section.currentState == 'allTargets'}" label="{R.get('ALL_TARGETS')}"
-                   includeInLayout="{section.currentState == 'allTargets'}" paddingLeft="0" 
+    <mx:LinkButton visible="{section.currentState == 'allEntities'}" label="{R.get('ALL_ENTITIES')}"
+                   includeInLayout="{section.currentState == 'allEntities'}" paddingLeft="0" 
                    paddingRight="0"/>
     
     <mx:LinkButton visible="{section.currentState == 'allAgents'}" label="{R.get('ALL_AGENTS')}"
@@ -110,15 +103,15 @@
     </s:HGroup>
     
     
-  <!--  <s:HGroup visible="{section.stateManager.selectedTarget != null}" gap="3"
-              includeInLayout="{section.stateManager.selectedTarget != null}" verticalAlign="middle">
+   <s:HGroup visible="{section.stateManager.selectedEntity != null}" gap="3"
+              includeInLayout="{section.stateManager.selectedEntity != null}" verticalAlign="middle">
       <s:BitmapImage source="{arrow}"/>
       <s:Spacer width="5"/>
-      <mx:LinkButton label="{section.stateManager.selectedTarget.name}"
-                     click="section.stateManager.setState('singleTarget')" paddingLeft="2"
-                     paddingRight="0" icon="@Embed('/img/NEW/target_16.png')"/>
+      <mx:LinkButton label="{section.stateManager.selectedEntity.name}"
+                     click="section.stateManager.setState('singleEntity')" paddingLeft="2"
+                     paddingRight="0" icon="@Embed('/img/NEW/entity_16.png')"/>
     </s:HGroup>
--->
+
     
    
     

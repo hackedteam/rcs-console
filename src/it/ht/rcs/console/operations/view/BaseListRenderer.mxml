@@ -45,6 +45,12 @@
       [Embed(source='/img/NEW/star_50.png')]
       private static const entityIcon:Class;
       
+      [Embed(source='/img/NEW/entity_people_50.png')]
+      private static const entityPeopleIcon:Class;
+      
+      [Embed(source='/img/NEW/entity_location_50.png')]
+      private static const entityLocationIcon:Class;
+      
       override public function set data(value:Object):void
       {
         super.data = value;
@@ -72,8 +78,10 @@
           return data.platform ? Icons[data.type + '_' + data.platform] : Icons['agent_' + data.type];
         else if (data is Agent && data._kind == 'factory')
           return Icons['agent_' + data.type];
-        else if (data is Entity)
-          return entityIcon;
+        else if (data is Entity && data.type=="person")
+          return entityPeopleIcon;
+        else if (data is Entity && data.type=="location")
+          return entityLocationIcon;
         // see addCustomTypes() in stateManager
         else if (data is Object && data.customType == 'evidence')
           return evidenceIcon;

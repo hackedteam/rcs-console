@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
-          xmlns:graph="it.ht.rcs.console.system.view.frontend.graph.*"
-          width="100%" height="100%" addedToStage="onAddedToStage(event)" creationComplete="init()"
-          removedFromStage="onRemovedFromStage(event)">
-  
-  <fx:Script>
-    <![CDATA[
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
+					xmlns:graph="it.ht.rcs.console.system.view.frontend.graph.*"
+					width="100%"
+					height="100%"
+					addedToStage="onAddedToStage(event)"
+					creationComplete="init()"
+					removedFromStage="onRemovedFromStage(event)">
+
+	<fx:Script>
+		<![CDATA[
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.monitor.controller.MonitorManager;
       import it.ht.rcs.console.network.controller.CollectorManager;
@@ -17,193 +20,232 @@
       import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
       import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
       
+      import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.managers.DragManager;
       import mx.managers.PopUpManager;
-      
-      [Bindable]
-      private var collectors:ListCollectionView;
-      
-      [Bindable]
-      private var anonymizers:ListCollectionView;
-      
-      private function init():void
-      {
-        refreshView();
-      }
-      
-      private function onAddedToStage(event:Event):void
-      {
-        MonitorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onMonitorRefresh);
-        CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
-        CollectorManager.instance.listenRefresh();
-      }
-      
-      private function onRemovedFromStage(event:Event):void
-      {
-        MonitorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onMonitorRefresh);
-        CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
-        CollectorManager.instance.unlistenRefresh();
-      }
-      
-      private function onMonitorRefresh(e:DataLoadedEvent):void
-      {
-        if(!DragManager.isDragging)
-          buildGraph();
-      }
-      
-      private function refreshView(event:DataLoadedEvent=null):void {
-        collectors = CollectorManager.instance.getView();
-        //anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
-        anonymizers = CollectorManager.instance.getView();
+
+			[Bindable]
+			private var collectors:ListCollectionView;
+
+			[Bindable]
+			private var anonymizers:ListCollectionView;
+
+			private function init():void
+			{
+				refreshView();
+			}
+
+			private function onAddedToStage(event:Event):void
+			{
+				MonitorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onMonitorRefresh);
+				CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
+				CollectorManager.instance.listenRefresh();
+			}
+
+			private function onRemovedFromStage(event:Event):void
+			{
+				MonitorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onMonitorRefresh);
+				CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
+				CollectorManager.instance.unlistenRefresh();
+			}
+
+			private function onMonitorRefresh(e:DataLoadedEvent):void
+			{
+				if (!DragManager.isDragging)
+					buildGraph();
+			}
+
+			private function refreshView(event:DataLoadedEvent=null):void
+			{
+				collectors=CollectorManager.instance.getView();
+				//anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
+				anonymizers=CollectorManager.instance.getView(); 
         
-        var item:Collector;
-        for(var i:int=0;i<anonymizers.length;i++)
-        {
-           item=anonymizers.getItemAt(i) as Collector;
-          
-    
-          if(item.type == 'remote' && item.prev[0]==null)
-          {
-            item.next[0]=null;
-          } 
-        }
-        //check previous recursive!!!
+        var i:int=0;
+        var roots:ArrayCollection=new ArrayCollection();
+        var toCheck:Dictionary=new Dictionary
         
         for(i=0;i<anonymizers.length;i++)
         {
-          item=anonymizers.getItemAt(i) as Collector;
-         
-          if(item.type == 'remote' && item.prev[0]!=null)
+          toCheck[anonymizers[i]]=false;
+        }
+        //collectors
+        for(i=0;i<collectors.length;i++)
+        {
+          var item:Collector=anonymizers[i] as Collector;
+          if(item.type=='local')
           {
+            roots.addItem(item)
+          }
+        }
         
-           var prev:Collector=getAnonymizerById(item.prev[0], anonymizers )
-           
-             if(prev.type=='remote' && (prev.prev[0]==null || prev.next[0]==null))//!= this._id
-             {
-              
-               item.prev[0]=null
-               item.next[0]=null
-             }
+       for(i=0;i<roots.length;i++)
+       {
+          var root:Collector=roots[i] as Collector;
+          var currentNode:Collector=root;
           
-          }
-         
-        } 
-        anonymizers.filterFunction=anonymizerFilterFunction;
-        anonymizers.refresh()
-          //clean
-        buildGraph();
-      }
-      
-      
-      private function anonymizerFilterFunction(item:Object):Boolean
-      {
-        
-        return item.type == 'remote' && item.prev[0] == null && item.next[0] == null;
-      }
-      
-      public function buildGraph():void
-      {
-        var nodes:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>(); //all
-        for each (var el:Collector in collectors) {
-          var cr:CollectorRenderer = new CollectorRenderer(el, graph);
-          nodes.push(cr);
-        }
-        
-        var renderers:Vector.<CollectorRenderer> = new Vector.<CollectorRenderer>(); //collectors
-        for each (var node:CollectorRenderer in nodes) {
-          if (node.collector.type == 'local')
+          trace("collector: "+currentNode.name);
+          toCheck[currentNode]=true;
+          while(currentNode.next[0]!=null)
           {
-            renderers.push(node);
+             currentNode=getCollectorById(currentNode.next[0], anonymizers);
+             var safe:Boolean=checkConnection(currentNode)
+             toCheck[currentNode]=safe;
+             trace ("linked anonymizer: "+currentNode.name);
+             trace(safe);
           }
-          var nextHop:CollectorRenderer = node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
-          node.nextHop = nextHop;
-        }
-        
-        var db:DBRenderer = new DBRenderer();
-        db.collectors = renderers;
-        graph.db = db;
-        graph.rebuildGraph();
-      }
-      
-      private function getRendererById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer
-      {
-        if (_id != null)
-        {
-          for each (var cr:CollectorRenderer in list)
-            if (cr.collector._id == _id)
-              return cr;
-        }
-        return null;
-      }
-      
-      private function getAnonymizerById(_id:String, list:ListCollectionView):Collector
-      {
-        if (_id != null)
-        {
-          for each (var c:Collector in list)
-          if (c._id == _id)
-            return c;
-        }
-        return null;
-      }
-      
+       }
+       
+       for(i=0;i<anonymizers.length;i++)
+       {
+         if(!toCheck[anonymizers[i]])
+         {
+           item=anonymizers[i] as Collector
+           item.prev=new ArrayCollection([null])
+           item.next=new ArrayCollection([null])
+         }
+       }
 
-      private function editCollector(collector:Collector):void
+				anonymizers.filterFunction=anonymizerFilterFunction;
+				anonymizers.refresh()
+				//clean
+				buildGraph();
+			}
+      
+      private function checkConnection(node:Collector):Boolean
       {
-        var popup:EditCollectorForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditCollectorForm, true) as EditCollectorForm;
-        popup.collector = collector;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function enter(event:KeyboardEvent):void
+      var prevNode:Collector=getCollectorById(node.prev[0], anonymizers)
+      if(node.prev[0]!=null && node.prev[0]==prevNode._id )
       {
-        if (event.keyCode == Keyboard.ENTER && list.selectedItem != null)
-          editCollector(list.selectedItem);
+        return true;
       }
-      
-      private function onListClick(event:MouseEvent):void
-      {
-        graph.removeSelection();
-        if (list.selectedItem)
-          actionBar.selectedObject = list.selectedItem;
+      return false;
       }
-      
-      private function onNodeSelection(event:NodeEvent):void
-      {
-        if (event.collector != null)
-          list.selectedItem = null;
-        actionBar.selectedObject = event.collector;
-      }
-    ]]>
-  </fx:Script>
-  
-  <frontend:FrontendActionBar id="actionBar"/>
-  
-  <s:BorderContainer width="100%" height="100%" borderColor="#dddddd" borderVisible="true"
-                     borderWeight="2" cornerRadius="10">
-    
-    <s:backgroundFill>
-      <s:LinearGradient rotation="90">
-        <s:GradientEntry color="#eeeeee"/>
-        <s:GradientEntry color="#ffffff"/>
-        <s:GradientEntry color="#ffffff"/>
-      </s:LinearGradient>
-    </s:backgroundFill>
-    
-    
-    <s:VGroup width="100%" height="100%" gap="0" horizontalAlign="center">
-      
-      <frontend:CollectorList id="list" click="onListClick(event)" dataProvider="{anonymizers}"
-                              keyDown="enter(event)"/>
-      
-      <frontend:Separator width="90%"/>
-      
-      <s:Scroller id="scroller" width="100%" height="100%">
-        <graph:FrontendGraph id="graph" nodeSelected="onNodeSelection(event)"/>
-      </s:Scroller>   
-    </s:VGroup>
-    
-  </s:BorderContainer>
-  
+
+
+			private function anonymizerFilterFunction(item:Object):Boolean
+			{
+
+				return item.type == 'remote' && item.prev[0] == null && item.next[0] == null;
+			}
+
+			public function buildGraph():void
+			{
+				var nodes:Vector.<CollectorRenderer>=new Vector.<CollectorRenderer>(); //all
+				for each (var el:Collector in collectors)
+				{
+					var cr:CollectorRenderer=new CollectorRenderer(el, graph);
+					nodes.push(cr);
+				}
+
+				var renderers:Vector.<CollectorRenderer>=new Vector.<CollectorRenderer>(); //collectors
+				for each (var node:CollectorRenderer in nodes)
+				{
+					if (node.collector.type == 'local')
+					{
+						renderers.push(node);
+					}
+					var nextHop:CollectorRenderer=node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
+					node.nextHop=nextHop;
+				}
+
+				var db:DBRenderer=new DBRenderer();
+				db.collectors=renderers;
+				graph.db=db;
+				graph.rebuildGraph();
+			}
+
+			private function getRendererById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer
+			{
+				if (_id != null)
+				{
+					for each (var cr:CollectorRenderer in list)
+						if (cr.collector._id == _id)
+							return cr;
+				}
+				return null;
+			}
+
+			private function getCollectorById(_id:String, list:ListCollectionView):Collector
+			{
+				if (_id != null)
+				{
+					for each (var c:Collector in list)
+						if (c._id == _id)
+							return c;
+				}
+				return null;
+			}
+
+
+			private function editCollector(collector:Collector):void
+			{
+				var popup:EditCollectorForm=PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditCollectorForm, true) as EditCollectorForm;
+				popup.collector=collector;
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function enter(event:KeyboardEvent):void
+			{
+				if (event.keyCode == Keyboard.ENTER && list.selectedItem != null)
+					editCollector(list.selectedItem);
+			}
+
+			private function onListClick(event:MouseEvent):void
+			{
+				graph.removeSelection();
+				if (list.selectedItem)
+					actionBar.selectedObject=list.selectedItem;
+			}
+
+			private function onNodeSelection(event:NodeEvent):void
+			{
+				if (event.collector != null)
+					list.selectedItem=null;
+				actionBar.selectedObject=event.collector;
+			}
+		]]>
+	</fx:Script>
+
+	<frontend:FrontendActionBar id="actionBar"/>
+
+	<s:BorderContainer width="100%"
+										 height="100%"
+										 borderColor="#dddddd"
+										 borderVisible="true"
+										 borderWeight="2"
+										 cornerRadius="10">
+
+		<s:backgroundFill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#eeeeee"/>
+				<s:GradientEntry color="#ffffff"/>
+				<s:GradientEntry color="#ffffff"/>
+			</s:LinearGradient>
+		</s:backgroundFill>
+
+
+		<s:VGroup width="100%"
+							height="100%"
+							gap="0"
+							horizontalAlign="center">
+
+			<frontend:CollectorList id="list"
+															click="onListClick(event)"
+															dataProvider="{anonymizers}"
+															keyDown="enter(event)"/>
+
+			<frontend:Separator width="90%"/>
+
+			<s:Scroller id="scroller"
+									width="100%"
+									height="100%">
+				<graph:FrontendGraph id="graph"
+														 nodeSelected="onNodeSelection(event)"/>
+			</s:Scroller>
+		</s:VGroup>
+
+	</s:BorderContainer>
+
 </s:VGroup>

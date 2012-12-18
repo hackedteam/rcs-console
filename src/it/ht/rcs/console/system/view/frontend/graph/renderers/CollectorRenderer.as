@@ -52,6 +52,9 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     private var icon:BitmapImage;
     private var status:BitmapImage;
     private var textLabel:Label;
+    
+    private var prevLabel:Label;
+    private var nextlabel:Label;
 		
 		public function CollectorRenderer(collector:Collector, graph:FrontendGraph)
 		{
@@ -111,6 +114,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
         textLabel.width = 80;
         textLabel.maxDisplayedLines = 2;
   			addElement(textLabel);
+  
       }
 		}
     

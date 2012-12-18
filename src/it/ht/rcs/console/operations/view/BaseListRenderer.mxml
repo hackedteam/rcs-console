@@ -51,6 +51,9 @@
       [Embed(source='/img/NEW/entity_location_50.png')]
       private static const entityLocationIcon:Class;
       
+      [Embed(source='/img/NEW/entity_target_50.png')]
+      private static const entityTargetIcon:Class;
+      
       override public function set data(value:Object):void
       {
         super.data = value;
@@ -78,6 +81,8 @@
           return data.platform ? Icons[data.type + '_' + data.platform] : Icons['agent_' + data.type];
         else if (data is Agent && data._kind == 'factory')
           return Icons['agent_' + data.type];
+        else if (data is Entity && data.type=="target")
+          return entityTargetIcon;
         else if (data is Entity && data.type=="person")
           return entityPeopleIcon;
         else if (data is Entity && data.type=="location")

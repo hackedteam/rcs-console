@@ -199,6 +199,7 @@ package it.ht.rcs.console.operations.view
           clearVars();
           section.currentState = 'allOperations';
           CurrentManager = OperationManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           update();
           break;
@@ -206,6 +207,7 @@ package it.ht.rcs.console.operations.view
           clearVars();
           section.currentState = 'allTargets';
           CurrentManager = TargetManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           update();
           break;
@@ -213,6 +215,7 @@ package it.ht.rcs.console.operations.view
           clearVars();
           section.currentState = 'allAgents';
           CurrentManager = AgentManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           prepareAgentsDictionary();
           update();
@@ -347,9 +350,9 @@ package it.ht.rcs.console.operations.view
       var lcv:ListCollectionView;
       if(currentState == 'singleOperation')
       {
-        trace("singleOperation")
+ 
         lcv=new ListCollectionView()
-        var targets:ListCollectionView=TargetManager.instance.getView(customTypeSort, currentFilter)
+        var targets:ListCollectionView=TargetManager.instance.getView(customTypeSort, currentFilter);
         var factories:ListCollectionView=AgentManager.instance.getFactoriesForOperation(selectedOperation._id);
         var items:Array=new Array()
         var i:int=0;
@@ -362,7 +365,8 @@ package it.ht.rcs.console.operations.view
             items.push(factories.getItemAt(i))
           }
         lcv.list=new ArrayList(items);
-      
+        lcv.filterFunction = currentFilter;
+        lcv.refresh();
      
       }
       
@@ -454,7 +458,7 @@ package it.ht.rcs.console.operations.view
     {
       if(item is Agent)// show factory to tech users only
       {
-        if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+        if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory')
           return false;
       }
       
@@ -477,9 +481,11 @@ package it.ht.rcs.console.operations.view
     
     private function singleOperationFilterFunction(item:Object):Boolean
     {
-      if (selectedOperation && item is Target && item.path[0] == selectedOperation._id)
+      if (selectedOperation && ((item is Target && item.path[0] == selectedOperation._id) || ( item is Agent && item._kind == 'factory' && item.path.length==1 && item.path[0] == selectedOperation._id)))
+      {
         return searchFilterFunction(item);
-      else return false;
+      }
+      return false;
     }
     
     
@@ -487,11 +493,11 @@ package it.ht.rcs.console.operations.view
     private function singleTargetFilterFunction(item:Object):Boolean
     {
       if (item.hasOwnProperty('customType'))
-        return searchFilterFunction(item);
+        return true;//return searchFilterFunction(item);
      if(selectedTarget && item.path && item.path.length>1)
      {
        if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
-         if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+         if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory')
            return false;
          else
            return searchFilterFunction(item);
@@ -499,6 +505,8 @@ package it.ht.rcs.console.operations.view
      }
      return false;
     }
+    
+  
     
   }
   

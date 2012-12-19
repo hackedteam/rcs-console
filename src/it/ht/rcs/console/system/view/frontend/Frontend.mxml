@@ -12,18 +12,18 @@
 
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.events.DataLoadedEvent;
-      import it.ht.rcs.console.monitor.controller.MonitorManager;
-      import it.ht.rcs.console.network.controller.CollectorManager;
-      import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
-      import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
-      import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.managers.DragManager;
-      import mx.managers.PopUpManager;
+			import it.ht.rcs.console.events.DataLoadedEvent;
+			import it.ht.rcs.console.monitor.controller.MonitorManager;
+			import it.ht.rcs.console.network.controller.CollectorManager;
+			import it.ht.rcs.console.network.model.Collector;
+			import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
+			import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
+			import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
 
 			[Bindable]
 			private var collectors:ListCollectionView;
@@ -60,68 +60,68 @@
 			{
 				collectors=CollectorManager.instance.getView();
 				//anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
-				anonymizers=CollectorManager.instance.getView(); 
-        
-        var i:int=0;
-        var roots:ArrayCollection=new ArrayCollection();
-        var toCheck:Dictionary=new Dictionary
-        
-        for(i=0;i<anonymizers.length;i++)
-        {
-          toCheck[anonymizers[i]]=false;
-        }
-        //collectors
-        for(i=0;i<collectors.length;i++)
-        {
-          var item:Collector=anonymizers[i] as Collector;
-          if(item.type=='local')
-          {
-            roots.addItem(item)
-          }
-        }
-        
-       for(i=0;i<roots.length;i++)
-       {
-          var root:Collector=roots[i] as Collector;
-          var currentNode:Collector=root;
-          
-          trace("collector: "+currentNode.name);
-          toCheck[currentNode]=true;
-          while(currentNode.next[0]!=null)
-          {
-             currentNode=getCollectorById(currentNode.next[0], anonymizers);
-             var safe:Boolean=checkConnection(currentNode)
-             toCheck[currentNode]=safe;
-             trace ("linked anonymizer: "+currentNode.name);
-             trace(safe);
-          }
-       }
-       
-       for(i=0;i<anonymizers.length;i++)
-       {
-         if(!toCheck[anonymizers[i]])
-         {
-           item=anonymizers[i] as Collector
-           item.prev=new ArrayCollection([null])
-           item.next=new ArrayCollection([null])
-         }
-       }
+				anonymizers=CollectorManager.instance.getView();
+
+				var i:int=0;
+				var roots:ArrayCollection=new ArrayCollection();
+				var toCheck:Dictionary=new Dictionary
+
+				for (i=0; i < anonymizers.length; i++)
+				{
+					toCheck[anonymizers[i]]=false;
+				}
+				//collectors
+				for (i=0; i < collectors.length; i++)
+				{
+					var item:Collector=anonymizers[i] as Collector;
+					if (item.type == 'local')
+					{
+						roots.addItem(item)
+					}
+				}
+
+				for (i=0; i < roots.length; i++)
+				{
+					var root:Collector=roots[i] as Collector;
+					var currentNode:Collector=root;
+
+					trace("collector: " + currentNode.name);
+					toCheck[currentNode]=true;
+					while (currentNode.next[0] != null)
+					{
+						currentNode=getCollectorById(currentNode.next[0], anonymizers);
+						var safe:Boolean=checkConnection(currentNode)
+						toCheck[currentNode]=safe;
+						trace("linked anonymizer: " + currentNode.name);
+						trace(safe);
+					}
+				}
+
+				for (i=0; i < anonymizers.length; i++)
+				{
+					if (!toCheck[anonymizers[i]])
+					{
+						item=anonymizers[i] as Collector
+						item.prev=new ArrayCollection([null])
+						item.next=new ArrayCollection([null])
+					}
+				}
 
 				anonymizers.filterFunction=anonymizerFilterFunction;
 				anonymizers.refresh()
 				//clean
 				buildGraph();
 			}
-      
-      private function checkConnection(node:Collector):Boolean
-      {
-      var prevNode:Collector=getCollectorById(node.prev[0], anonymizers)
-      if(node.prev[0]!=null && node.prev[0]==prevNode._id )
-      {
-        return true;
-      }
-      return false;
-      }
+
+			private function checkConnection(node:Collector):Boolean
+			{
+				var prevNode:Collector=getCollectorById(node.prev[0], anonymizers)
+				if (node.prev[0] != null && node.prev[0] == prevNode._id)
+				{
+					return true;
+				}
+				return false;
+			}
 
 
 			private function anonymizerFilterFunction(item:Object):Boolean

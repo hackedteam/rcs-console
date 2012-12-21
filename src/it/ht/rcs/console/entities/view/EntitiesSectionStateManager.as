@@ -92,9 +92,7 @@ package it.ht.rcs.console.entities.view
        // UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item)); //TODO
       }
       
-
     }
-    
     private function clearVars():void
     {
       selectedOperation = null; 
@@ -115,6 +113,7 @@ package it.ht.rcs.console.entities.view
           clearVars();
           section.currentState = 'allOperations';
           CurrentManager = OperationManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           update();
           break;
@@ -140,6 +139,7 @@ package it.ht.rcs.console.entities.view
           clearVars();
           section.currentState = 'allEntities';
           CurrentManager = EntityManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           update();
           break;

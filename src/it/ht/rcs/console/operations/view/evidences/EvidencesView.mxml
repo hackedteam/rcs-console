@@ -17,6 +17,8 @@
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.operations.view.OperationsSection;
+      
+      import it.ht.rcs.console.DB;
 			
 			import mx.collections.ArrayCollection;
 			import mx.collections.IList;
@@ -69,8 +71,18 @@
 			public function resetFilter():void
 			{
 				var filter:Object=EvidenceManager.instance.evidenceFilter;
-				filter.date='dr';
-        filter.from="24h"
+        if(DB.instance.demo)
+        {
+          delete filter.date;
+          delete filter.from;
+          delete filter.to;
+        }
+          else
+        {
+          filter.date='dr';
+          filter.from="24h"
+        }
+			
 				delete(filter._id);
 				//delete(filter.from);
 				delete(filter.to);
@@ -84,9 +96,10 @@
 			{
 				var filter:Object=EvidenceManager.instance.evidenceFilter;
 				filter.date='dr';
-				delete(filter._id);
+				
 				filter.from=0;
 				filter.to=0;
+        delete(filter._id);
 				delete(filter.rel);
 				delete(filter.info);
 				delete(filter.blo);

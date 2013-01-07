@@ -2,36 +2,45 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
-									 xmlns:maps="com.google.maps.*"
+									 xmlns:maps="com.google.maps.*" xmlns:components="it.ht.rcs.console.entities.view.components.*"
 									 height="100%"
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
-									 creationComplete="init()">
+									 creationComplete="init()" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapEvent;
-			import com.google.maps.MapMouseEvent;
-			import com.google.maps.MapType;
-			import com.google.maps.MapZoomEvent;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-
-			import it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.CustomMarker;
-
-			import mx.collections.ArrayCollection;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapEvent;
+      import com.google.maps.MapMouseEvent;
+      import com.google.maps.MapType;
+      import com.google.maps.MapZoomEvent;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      import com.hurlant.util.der.Set;
+      
+      import flash.events.DataEvent;
+      import flash.net.FileReference;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.CustomMarker;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.Request;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -45,6 +54,11 @@
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
 			private var FakeProfile:Class;
+      
+      public var fileReference:FileReference;
+      
+      [Bindable]
+      public var entity:Entity
 
 			private function init():void
 			{
@@ -84,7 +98,46 @@
 				map.addOverlay(marker);
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 			}
-		]]>
+      
+      private function onUpdate():void
+      {
+        EntityManager.instance.show(entity._id, onDetailResult)
+      }
+    
+
+      protected function onAddedToStage():void
+      {
+        EntityManager.instance.show(entity._id, onDetailResult)
+      }
+      
+      protected function onRemovedFromStage():void
+      {
+        photoViewer.currentPhoto=""
+      }
+      
+      private function onDetailResult(e:ResultEvent):void
+      {
+        var o:Object=JSON.parse(String(e.result));
+        entity.photos=o.photos;
+        photoViewer.currentIndex=0;
+        
+        if(entity.photos)
+        {
+          if(entity.photos.length>0)
+          {
+            photoViewer.currentPhoto=entity.photos[photoViewer.currentIndex];
+          }
+          else
+          {
+            photoViewer.currentPhoto="";
+          }
+        }
+        else
+        {
+          photoViewer.currentPhoto="";
+        }
+      }
+    ]]>
 	</fx:Script>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
@@ -99,7 +152,7 @@
 							 fontSize="20"
 							 fontWeight="bold"
 							 paddingTop="2"
-							 text="John Doe"/>
+							 text="{entity.name}"/>
 			<s:Spacer width="100%"/>
 			<s:HGroup verticalAlign="middle"
 								horizontalAlign="right"
@@ -128,17 +181,7 @@
 							height="100%">
 
 			<s:HGroup width="100%">
-				<s:BorderContainer width="200"
-													 height="200"
-													 borderAlpha="1"
-													 borderColor="0x666666"
-													 backgroundColor="0xCCCCCC"
-													 backgroundAlpha="0.3">
-					<s:Image source="{FakeProfile}" x="1" y="1"
-									 width="196"
-									 height="196"
-									 smooth="true"/>
-				</s:BorderContainer>
+			<components:PhotoViewer id="photoViewer" entity="{entity}" update="onUpdate()"/>
 				<s:VGroup width="100%">
 					<s:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tincidunt iaculis metus sed elementum. Curabitur et tortor vel sem dignissim ultricies a sit amet sem. Donec a cursus lorem. Curabitur quam purus, imperdiet non luctus et, laoreet eget dui."
 									 width="100%"/>

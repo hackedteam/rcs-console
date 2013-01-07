@@ -89,7 +89,7 @@ package it.ht.rcs.console.entities.view
       {
         selectedEntity = item;
         setState('singleEntity');
-       // UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item)); //TODO
+       //UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item)); //TODO
       }
       
     }

@@ -6,11 +6,17 @@
 					width="100%"
 					creationComplete="init()"
 					xmlns:utils="it.ht.rcs.console.utils.*">
+	<fx:Metadata>
+    [Event(name="photoAdd", type="flash.events.Event")]
+  </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
 			import flash.net.URLLoader;
-			
+
 			import it.ht.rcs.console.utils.BMPDecoder;
+
+			import locale.R;
+
 			import mx.skins.halo.BrokenImageBorderSkin;
 
 			[Bindable]
@@ -42,15 +48,22 @@
 			[Embed(source="/img/evidence/broken-link-image-gif.jpg")]
 			public var BrokenImage:Class;
 
+			[Bindable]
+			[Embed(source="/img/NEW/pictureAdd.png")]
+			public var AddToEntityImg:Class;
+
 			private var minZoom:Number=0.2;
 			private var maxZoom:Number=4;
 			private var zoomLevel:Number=1;
 
 			private var imgLoader:URLLoader=new URLLoader();
 
+			[Bindable]
+			public var type:String
+
 			//BMP 
 			private static const MAGIC_NUMBER:String="BM";
-		
+
 			private function init():void
 			{
 				img.smooth=false;
@@ -62,29 +75,29 @@
 			public function set url(value:String):void
 			{
 				_url=value;
-        if(_url.indexOf("/grid/null")==-1)
-        {
-  				//_rotation=0;
-  
-  				/* img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
-  				img.addEventListener(Event.COMPLETE, onImageLoaded);
-  				img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-  				img.source=_url; */
-          img.visible=false;
-  				imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
-  				imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
-  				imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
-  				imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-  				imgLoader.load(new URLRequest(_url));
-        }
-        /*
+				if (_url.indexOf("/grid/null") == -1)
+				{
+					//_rotation=0;
 
-				zoomLevel=1;
-				img.scaleX=img.scaleY=zoomLevel
+					/* img.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+					img.addEventListener(Event.COMPLETE, onImageLoaded);
+					img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+					img.source=_url; */
+					img.visible=false;
+					imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
+					imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+					imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
+					imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+					imgLoader.load(new URLRequest(_url));
+				}
+			/*
 
-				fit();
-        
-        */
+			zoomLevel=1;
+			img.scaleX=img.scaleY=zoomLevel
+
+			fit();
+
+			*/
 
 				//img.contentLoader=ImageCache.getInstance().cache;
 				//img.contentLoader.load(_url)
@@ -109,11 +122,11 @@
 				img.removeEventListener(Event.COMPLETE, onImageLoaded)
 				img.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
 				img.source=new BrokenImage(); */
-        img.visible=true;
+				img.visible=true;
 				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
 				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
 				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
-        img.source=new BrokenImage();
+				img.source=new BrokenImage();
 
 				toolBox.enabled=false;
 			}
@@ -128,16 +141,16 @@
 				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
 				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
 
-        if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
-        {
-          img.source=new BMPDecoder().decode(e.target.data as ByteArray)
-          return;
-        }
-        else
-        {
-         img.source=e.target.data
-        }
-        img.visible=true;
+				if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
+				{
+					img.source=new BMPDecoder().decode(e.target.data as ByteArray)
+					return;
+				}
+				else
+				{
+					img.source=e.target.data
+				}
+				img.visible=true;
 				toolBox.enabled=true;
 
 			}
@@ -188,16 +201,16 @@
 			{
 				img.smooth=e.currentTarget.selected;
 			}
-      
-      public function reset():void
-      {
-        img.smooth=false;
-        antialiasCh.selected=false;
-        _rotation=0;
-        zoomLevel=1;
-        img.scaleX=img.scaleY=zoomLevel
-        fit();
-      }
+
+			public function reset():void
+			{
+				img.smooth=false;
+				antialiasCh.selected=false;
+				_rotation=0;
+				zoomLevel=1;
+				img.scaleX=img.scaleY=zoomLevel
+				fit();
+			}
 		]]>
 	</fx:Script>
 	<s:HGroup paddingBottom="10"
@@ -314,6 +327,13 @@
 		<s:CheckBox label="Anti-alias"
 								change="onAntiAlias(event)"
 								id="antialiasCh"/>
-
+		<s:Spacer width="100%"/>
+		<s:Image id="addToSheetBtn"
+						 source="{AddToEntityImg}"
+						 buttonMode="true"
+						 useHandCursor="true"
+						 toolTip="{R.get('ADD_AS_ENTITY_PHOTO')}"
+						 visible="{type=='camera'}"
+						 click="{dispatchEvent(new Event('photoAdd'))}"/>
 	</s:HGroup>
 </s:VGroup>

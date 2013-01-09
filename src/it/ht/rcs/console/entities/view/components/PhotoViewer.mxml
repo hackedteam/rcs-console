@@ -10,21 +10,21 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.events.CloseEvent;
-      import mx.rpc.events.ResultEvent;
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.utils.AlertPopUp;
+
+			import locale.R;
+
+			import mx.events.CloseEvent;
+			import mx.rpc.events.ResultEvent;
 
 			private var fileReference:FileReference;
-      
-      [Embed(source="img/NEW/entityDeafult.jpg")]
-      [Bindable]
-      public var defaultImage:Class;
+
+			[Embed(source="img/NEW/entityDeafult.jpg")]
+			[Bindable]
+			public var defaultImage:Class;
 
 			[Bindable]
 			public var entity:Entity;
@@ -34,16 +34,16 @@
 
 			public function set currentPhoto(id:String):void
 			{
-        if(id=="")
-        {
-          picture.source=defaultImage;
-        }
-        else
-        {
-				var targetId:String=String(entity.path.getItemAt(entity.path.length - 1));
-				var pictureURL:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + targetId;
-				picture.source=pictureURL;
-        }
+				if (id == "")
+				{
+					picture.source=defaultImage;
+				}
+				else
+				{
+					var targetId:String=String(entity.path.getItemAt(entity.path.length - 1));
+					var pictureURL:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + targetId;
+					picture.source=pictureURL;
+				}
 			}
 
 			private function onAddPhoto():void
@@ -53,20 +53,20 @@
 				fileReference.addEventListener(Event.SELECT, fileSelection);
 				fileReference.browse([imagesFilter]);
 			}
-      
-      private function onRemovePhoto():void
-      {
-        AlertPopUp.show(R.get('CONFIRM_PHOTO_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
-        {
-          if (e.detail == AlertPopUp.YES)
-            EntityManager.instance.deletePhoto(entity._id, entity.photos[currentIndex], onPhotoDeleted)
-        }, null, AlertPopUp.NO);
-      }
 
-      private function onPhotoDeleted(e:ResultEvent):void
-      {
-        dispatchEvent(new Event('update'))
-      }
+			private function onRemovePhoto():void
+			{
+				AlertPopUp.show(R.get('CONFIRM_PHOTO_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						EntityManager.instance.deletePhoto(entity._id, entity.photos[currentIndex], onPhotoDeleted)
+				}, null, AlertPopUp.NO);
+			}
+
+			private function onPhotoDeleted(e:ResultEvent):void
+			{
+				dispatchEvent(new Event('update'))
+			}
 
 			private function fileSelection(event:Event):void
 			{
@@ -124,5 +124,6 @@
 														 currentIndex="{currentIndex}"
 														 previous="onPrevious()"
 														 next="onNext()"
-														 addPhoto="onAddPhoto()" removePhoto="onRemovePhoto()"/>
+														 addPhoto="onAddPhoto()"
+														 removePhoto="onRemovePhoto()"/>
 </s:VGroup>

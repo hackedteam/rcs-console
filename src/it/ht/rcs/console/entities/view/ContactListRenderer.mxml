@@ -3,7 +3,7 @@
 								xmlns:s="library://ns.adobe.com/flex/spark"
 								xmlns:mx="library://ns.adobe.com/flex/mx"
 								autoDrawBackground="true"
-								creationComplete="init()">
+								dataChange="init()">
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
@@ -11,9 +11,14 @@
 			[Bindable]
 			private var ImageClass:Class;
 
+    
 			private function init():void
 			{
-        ImageClass=ChatIcons[data.type.toLowerCase()]
+        if(data)
+        {
+          ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
+        }
+       
 			}
 		]]>
 	</fx:Script>

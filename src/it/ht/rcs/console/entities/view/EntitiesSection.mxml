@@ -28,6 +28,13 @@
           stateManager.setState('allOperations');
       }
       
+      private function onUpdate():void
+      {
+        entitySheet.entity.name=actionBar.entity.name;
+        entitySheet.entity.desc=actionBar.entity.desc;
+      }
+      
+      
     ]]>
   </fx:Script>
   <main:states>
@@ -44,5 +51,6 @@
   <view:Breadcrumb section="{this}"/>
   <operations:OperationsEntityView includeIn="allOperations" section="{this}"/>
   <view:EntitiesView includeIn="singleOperation, allEntities" section="{this}"/>
-  <view:EntitySheet includeIn="singleEntity" entity="{stateManager.selectedEntity}"/>
+  <view:EntityActionBar includeIn="singleEntity" entity="{stateManager.selectedEntity}" sheet="{entitySheet}" update="onUpdate()" id="actionBar"/>
+  <view:EntitySheet includeIn="singleEntity" entity="{stateManager.selectedEntity}" id="entitySheet" update="onUpdate()"/>
 </main:Section>

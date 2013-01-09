@@ -2,45 +2,53 @@
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
-									 xmlns:maps="com.google.maps.*" xmlns:components="it.ht.rcs.console.entities.view.components.*"
+									 xmlns:maps="com.google.maps.*"
+									 xmlns:components="it.ht.rcs.console.entities.view.components.*"
 									 height="100%"
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
-									 creationComplete="init()" addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+									 creationComplete="init()"
+									 addedToStage="onAddedToStage()"
+									 removedFromStage="onRemovedFromStage()">
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="150"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="150"/>
+    
+	</fx:Declarations>
+  <fx:Metadata>
+    [Event(name="update", type="flash.events.Event")]
+    
+  </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapEvent;
-      import com.google.maps.MapMouseEvent;
-      import com.google.maps.MapType;
-      import com.google.maps.MapZoomEvent;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      import com.hurlant.util.der.Set;
-      
-      import flash.events.DataEvent;
-      import flash.net.FileReference;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.CustomMarker;
-      
-      import mx.collections.ArrayCollection;
-      import mx.events.Request;
-      import mx.rpc.events.ResultEvent;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapType;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.overlays.Marker;
+			
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -54,11 +62,11 @@
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
 			private var FakeProfile:Class;
-      
-      public var fileReference:FileReference;
-      
-      [Bindable]
-      public var entity:Entity
+
+			public var fileReference:FileReference;
+
+			[Bindable]
+			public var entity:Entity
 
 			private function init():void
 			{
@@ -98,46 +106,71 @@
 				map.addOverlay(marker);
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 			}
-      
-      private function onUpdate():void
-      {
-        EntityManager.instance.show(entity._id, onDetailResult)
-      }
-    
 
-      protected function onAddedToStage():void
+			private function onUpdate(e:Event):void
+			{
+				EntityManager.instance.show(entity._id, onDetailResult)
+			}
+
+
+			protected function onAddedToStage():void
+			{
+				EntityManager.instance.show(entity._id, onDetailResult)
+			}
+
+			protected function onRemovedFromStage():void
+			{
+				photoViewer.currentPhoto=""
+			}
+
+			private function onDetailResult(e:ResultEvent):void
+			{
+        entity=e.result as Entity;
+        nameTxt.text=entity.name;
+        descTxt.text=entity.desc;
+				photoViewer.currentIndex=0;
+
+				if (entity.photos)
+				{
+					if (entity.photos.length > 0)
+					{
+						photoViewer.currentPhoto=entity.photos[photoViewer.currentIndex];
+					}
+					else
+					{
+						photoViewer.currentPhoto="";
+					}
+				}
+				else
+				{
+					photoViewer.currentPhoto="";
+				}
+        handlesList.dataProvider=entity.handles;
+        dispatchEvent(new Event("update"))
+			}
+      
+      private function addHandle():void
       {
-        EntityManager.instance.show(entity._id, onDetailResult)
+        var popup:HandleForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, HandleForm, true) as HandleForm;
+        popup.entity = entity;
+        popup.addEventListener("update", onUpdate) 
+        PopUpManager.centerPopUp(popup);
       }
       
-      protected function onRemovedFromStage():void
+      private function onRemoveHandle():void
       {
-        photoViewer.currentPhoto=""
+        AlertPopUp.show(R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+        {
+          if (e.detail == AlertPopUp.YES)
+            EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
+        }, null, AlertPopUp.NO);
       }
       
-      private function onDetailResult(e:ResultEvent):void
+      public function update():void
       {
-        var o:Object=JSON.parse(String(e.result));
-        entity.photos=o.photos;
-        photoViewer.currentIndex=0;
-        
-        if(entity.photos)
-        {
-          if(entity.photos.length>0)
-          {
-            photoViewer.currentPhoto=entity.photos[photoViewer.currentIndex];
-          }
-          else
-          {
-            photoViewer.currentPhoto="";
-          }
-        }
-        else
-        {
-          photoViewer.currentPhoto="";
-        }
+      onUpdate(null)
       }
-    ]]>
+		]]>
 	</fx:Script>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
@@ -148,11 +181,13 @@
 	</s:layout>
 	<s:VGroup width="100%">
 		<s:HGroup width="100%">
-			<s:Label fontFamily="Myriad"
-							 fontSize="20"
-							 fontWeight="bold"
-							 paddingTop="2"
-							 text="{entity.name}"/>
+			<s:RichText fontFamily="Myriad"
+													fontSize="20"
+													fontWeight="bold"
+													paddingTop="2"
+													text="{entity.name}"
+													id="nameTxt"/>
+
 			<s:Spacer width="100%"/>
 			<s:HGroup verticalAlign="middle"
 								horizontalAlign="right"
@@ -181,19 +216,39 @@
 							height="100%">
 
 			<s:HGroup width="100%">
-			<components:PhotoViewer id="photoViewer" entity="{entity}" update="onUpdate()"/>
+				<components:PhotoViewer id="photoViewer"
+																entity="{entity}"
+																update="onUpdate(event)"/>
 				<s:VGroup width="100%">
-					<s:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tincidunt iaculis metus sed elementum. Curabitur et tortor vel sem dignissim ultricies a sit amet sem. Donec a cursus lorem. Curabitur quam purus, imperdiet non luctus et, laoreet eget dui."
-									 width="100%"/>
+					<s:RichText id="descTxt"
+															text="{entity.desc}"
+															width="100%"/>
 				</s:VGroup>
 			</s:HGroup>
 			<s:Spacer height="12"/>
-			<s:Label text="Accounts:"
-							 fontWeight="bold"/>
-			<s:List width="100%"
-							height="100%"
-							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
-							dataProvider="{accounts}"/>
+      <s:VGroup gap="0" width="100%" height="100%">
+        <s:Label text="Accounts:"
+                 fontWeight="bold"/>
+        <s:List width="100%"
+                height="100%"
+                itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
+                dataProvider="{entity.handles}" id="handlesList"/>
+        <s:HGroup gap="-1"
+                  horizontalAlign="right" width="100%">
+          
+          <s:Button width="30"
+                    label="-"
+                    cornerRadius="0" enabled="{handlesList.selectedItem!=null}"
+                    visible="{entity.handles!=null &amp;&amp; entity.handles.length>0}"
+                    toolTip="{R.get('REMOVE_HANDLE')}" click="onRemoveHandle()"/>
+          <s:Button width="30"
+                    label="+"
+                    cornerRadius="0"
+                    toolTip="{R.get('ADD_HANDLE')}" click="addHandle()"/>
+        </s:HGroup>
+
+      </s:VGroup>
+			
 			<s:Spacer height="12"/>
 			<s:Label text="Most Contacted:"
 							 fontWeight="bold"/>
@@ -225,7 +280,7 @@
 					<s:CheckBox label="Last Positions"/>
 					<s:Spacer width="10"/>
 					<s:CheckBox label="Addresses"/>
-					<s:Spacer width="10"/>
+					<s:Spacer width="10"/>  
 					<s:CheckBox label="Visited Places"/>
 				</s:HGroup>
 				<s:VGroup paddingBottom="0"

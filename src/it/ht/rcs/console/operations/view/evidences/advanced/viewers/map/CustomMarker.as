@@ -7,8 +7,8 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers.map
 	public class CustomMarker extends Sprite
 	{
 
-		[Embed('img/NEW/target_36.png')]
-		private var TargetIcon:Class;
+		[Embed('img/evidence/mapMarker.png')]
+		private var MarkerIcon:Class;
 
     public var data:Evidence;
     
@@ -16,9 +16,9 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers.map
 		{
       data=evidence;
 			var icon:Sprite=new Sprite();
-			icon.x=-18;
-			icon.y=-18;
-			icon.addChild(new TargetIcon())
+			icon.x=-12;
+			icon.y=-12;
+			icon.addChild(new MarkerIcon())
 			addChild(icon);
 
 		}

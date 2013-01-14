@@ -70,7 +70,7 @@
 
 			private function onChildItemChange(e:Event):void
 			{
-
+        var allUnselected:Boolean=true;
 				for each (var element:* in permissionsXML)
 				{
 
@@ -78,9 +78,14 @@
 					{
 						if (node.@selected == "1")
 						{
+              allUnselected=false;
 							element.@selected="1"
 						}
 					}
+          if(allUnselected)
+          {
+            element.@selected="0"
+          }
 				}
 			}
       private function save():void

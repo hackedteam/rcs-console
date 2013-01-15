@@ -96,23 +96,26 @@
 						trace(safe);
 					}
 				}
-
-				for (i=0; i < anonymizers.length; i++)
-				{
+      //FIX unconsistent data
+			if(Console.currentSession.user.is_sys())
+      {
+        for (i=0; i < anonymizers.length; i++)
+        {
           var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
           if (anonymizers[i].next[0] != null && nextNode.prev[0]!=anonymizers[i]._id)
           {
             anonymizers[i].next[0]=null
           }
-         
-            
-					if (!toCheck[anonymizers[i]])
-					{
-						item=anonymizers[i] as Collector
-						item.prev=new ArrayCollection([null])
-						item.next=new ArrayCollection([null])
-					}
-				}
+          
+          
+          if (!toCheck[anonymizers[i]])
+          {
+            item=anonymizers[i] as Collector
+            item.prev=new ArrayCollection([null])
+            item.next=new ArrayCollection([null])
+          }
+        }
+      }
 
 				anonymizers.filterFunction=anonymizerFilterFunction;
 				anonymizers.refresh()

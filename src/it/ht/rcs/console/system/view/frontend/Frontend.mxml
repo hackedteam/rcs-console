@@ -59,18 +59,19 @@
 			private function refreshView(event:DataLoadedEvent=null):void
 			{
 				collectors=CollectorManager.instance.getView();
-				//anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
 				anonymizers=CollectorManager.instance.getView();
 
 				var i:int=0;
+				//Chain root - collectors
 				var roots:ArrayCollection=new ArrayCollection();
-				var toCheck:Dictionary=new Dictionary
-
+				//Hash with anonimyzer and their check value
+				var toCheck:Dictionary=new Dictionary;
+				//By deafult every anonymizer check value is false
 				for (i=0; i < anonymizers.length; i++)
 				{
 					toCheck[anonymizers[i]]=false;
 				}
-				//collectors
+				//get collectors
 				for (i=0; i < collectors.length; i++)
 				{
 					var item:Collector=anonymizers[i] as Collector;
@@ -79,47 +80,42 @@
 						roots.addItem(item)
 					}
 				}
-
+				//Starting with collectors check every connected node
 				for (i=0; i < roots.length; i++)
 				{
 					var root:Collector=roots[i] as Collector;
 					var currentNode:Collector=root;
-
-					trace("collector: " + currentNode.name);
+					//collector 
 					toCheck[currentNode]=true;
+					//loop connected nodes
 					while (currentNode.next[0] != null)
 					{
 						currentNode=getCollectorById(currentNode.next[0], anonymizers);
 						var safe:Boolean=checkConnection(currentNode)
 						toCheck[currentNode]=safe;
-						trace("linked anonymizer: " + currentNode.name);
-						trace(safe);
 					}
 				}
-      //FIX unconsistent data
-			if(Console.currentSession.user.is_sys())
-      {
-        for (i=0; i < anonymizers.length; i++)
-        {
-          var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
-          if (anonymizers[i].next[0] != null && nextNode.prev[0]!=anonymizers[i]._id)
-          {
-            anonymizers[i].next[0]=null
-          }
-          
-          
-          if (!toCheck[anonymizers[i]])
-          {
-            item=anonymizers[i] as Collector
-            item.prev=new ArrayCollection([null])
-            item.next=new ArrayCollection([null])
-          }
-        }
-      }
-
+				//If user has permissions update data to fix unconsistency
+				if (Console.currentSession.user.is_sys_frontend())
+				{
+					for (i=0; i < anonymizers.length; i++)
+					{
+						var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
+						if (anonymizers[i].next[0] != null && nextNode.prev[0] != anonymizers[i]._id)
+						{
+							anonymizers[i].next[0]=null
+						}
+						if (!toCheck[anonymizers[i]])
+						{
+							item=anonymizers[i] as Collector
+							item.prev=new ArrayCollection([null])
+							item.next=new ArrayCollection([null])
+						}
+					}
+				}
+				//Finally Render the view
 				anonymizers.filterFunction=anonymizerFilterFunction;
-				anonymizers.refresh()
-				//clean
+				anonymizers.refresh();
 				buildGraph();
 			}
 

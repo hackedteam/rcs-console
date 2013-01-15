@@ -4,8 +4,6 @@ package it.ht.rcs.console.events
   
   public class TreeEvent extends Event
   {
-
-
     public var data:Object;
     
     public function TreeEvent(type:String, data:Object, bubbles:Boolean=false, cancelable:Boolean=false)
@@ -15,5 +13,4 @@ package it.ht.rcs.console.events
     }
     
   }
-  
 }

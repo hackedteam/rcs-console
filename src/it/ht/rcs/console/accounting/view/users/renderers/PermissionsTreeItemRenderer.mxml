@@ -4,17 +4,26 @@
                       xmlns:mx="library://ns.adobe.com/flex/mx">
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.accounting.view.users.PrivsPreferencePanel;
+      import it.ht.rcs.console.accounting.view.users.PrivsTree;
+      import it.ht.rcs.console.events.TreeEvent;
+      
       private function onClick():void
       {
         data.@selected=selectedCh.selected?"1":"0";
         if(treeListData.hasChildren)
         {
-          owner.dispatchEvent(new Event("itemChange"));
+          owner.dispatchEvent(new TreeEvent("itemChange", data));
         }
         else
         {
-          owner.dispatchEvent(new Event("childItemChange"));
+          owner.dispatchEvent(new TreeEvent("childItemChange", data));
         }
+      }
+
+      private function get tree():PrivsTree
+      {
+        return owner as PrivsTree;
       }
     ]]>
   </fx:Script>
@@ -34,7 +43,7 @@
       <s:BitmapImage source="{treeListData.disclosureIcon}" visible="{treeListData.hasChildren}" />
     </s:Group>
     <s:BitmapImage source="{treeListData.icon}" />
-    <s:CheckBox id="selectedCh" selected="{data.@selected=='1'}" click="onClick()"/>
+    <s:CheckBox id="selectedCh" selected="{data.@selected=='1'}" click="onClick()" enabled="{tree.user._id!=Console.currentSession.user._id}"/>
     <s:Label id="labelField" text="{treeListData.label}" paddingTop="2" fontWeight="{treeListData.hasChildren?'bold':'normal'}"/>
   </s:HGroup>
 </s:MXTreeItemRenderer>

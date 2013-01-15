@@ -4,6 +4,7 @@
 														 xmlns:mx="library://ns.adobe.com/flex/mx"
 														 xmlns:utils="it.ht.rcs.console.utils.*"
 														 xmlns:renderers="it.ht.rcs.console.accounting.view.users.renderers.*"
+                             xmlns:users="it.ht.rcs.console.accounting.view.users.*"
 														 creationComplete="init()" save="save()"
 														 width="400"
 														 height="720"
@@ -15,6 +16,7 @@
       
       import it.ht.rcs.console.accounting.model.User;
       import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.events.TreeEvent;
       
       import locale.R;
       
@@ -44,36 +46,41 @@
         trPermissions.expandChildrenOf(permissionsXML[2], true);
         trPermissions.expandChildrenOf(permissionsXML[3], true);
       }
-			private function onItemChange(e:Event):void
+			private function onItemChange(e:TreeEvent):void
 			{
 				for each (var element:* in permissionsXML)
 				{
-					for each (var node:* in element..permission)
-					{
-						if(element.@selected=="0")
-            {
-              node.@selected="0"
-            }
-            else if(element.@selected=="1")
-            {
-            if(node.@default=="1")
-            {
-              node.@selected="1"}
-            else
-            {
-              node.@selected="0"}
-            
-            }
-					}
+         if(String(element.@id)==String(e.data.@id))
+         {
+
+           for each (var node:* in element..permission)
+           {
+             
+             if(element.@selected=="0")
+             {
+               node.@selected="0"
+             }
+             else if(element.@selected=="1")
+             {
+               if(node.@default=="1")
+               {
+                 node.@selected="1"}
+                 else
+                 {
+                   node.@selected="0"}
+                 
+                 }
+           }
+         }
 				}
 			}
 
-			private function onChildItemChange(e:Event):void
+			private function onChildItemChange(e:TreeEvent):void
 			{
         var allUnselected:Boolean=true;
 				for each (var element:* in permissionsXML)
 				{
-
+          allUnselected=true;
 					for each (var node:* in element..permission)
 					{
 						if (node.@selected == "1")
@@ -87,6 +94,7 @@
             element.@selected="0"
           }
 				}
+       
 			}
       private function save():void
       {
@@ -99,12 +107,12 @@
 	</fx:Script>
 
 
-	<mx:Tree id="trPermissions"
+	<users:PrivsTree id="trPermissions"
 					 left="10"
 					 top="10"
 					 bottom="10"
 					 width="380"
-					 itemRenderer="it.ht.rcs.console.accounting.view.users.renderers.PermissionsTreeItemRenderer"
+					 itemRenderer="it.ht.rcs.console.accounting.view.users.renderers.PermissionsTreeItemRenderer"  
 					 showRoot="false"
 					 paddingTop="1"
 					 labelField="@desc"
@@ -114,6 +122,6 @@
 					 mouseEnabled="false" 				 
 					 verticalScrollPolicy="auto"
 					 height="100%"
-					 dataProvider="{permissionsXML}"/>
+					 dataProvider="{permissionsXML}" user="{user}"/>
 
 </utils:TitleWindowSaveCancel>

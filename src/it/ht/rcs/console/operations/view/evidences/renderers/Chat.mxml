@@ -51,14 +51,16 @@
         
 				// topic, peer, content, program
         
-				if (data.data.topic != "")
+				if (data.data.from != "" && data.data.from !=null)
 				{
-					topicTxt.visible=topicTxt.includeInLayout=true;
-					topicTxt.textFlow=TextConverter.importToFlow("<b>Topic: </b>" + data.data.topic, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          fromTxt.visible=true;
+          fromTxt.includeInLayout=true;
+					fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				}
 				else
 				{
-					topicTxt.visible=topicTxt.includeInLayout=false;
+          fromTxt.visible=false;
+          fromTxt.includeInLayout=false;
 				}
 				if (data.data.program == "Facebook")
 				{
@@ -69,10 +71,20 @@
 					renderMode=TextConverter.PLAIN_TEXT_FORMAT
 				}
       
+        content=data.data.content;
         
-          content=data.data.content;
+        //new format
+        if(data.data.rcpt!=null)
+        {
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
         
-				peerTxt.textFlow=TextConverter.importToFlow("<b>Peer: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        //old format
+        else
+        {
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
+        
 				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + content,TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
         onTranslate(null)
@@ -103,7 +115,9 @@
     
     <s:VGroup verticalAlign="middle"
               width="50%">
-      <s:RichText id="peerTxt"
+      <s:RichText id="fromTxt"
+                  width="100%"/>
+      <s:RichText id="toTxt"
                   width="100%"/>
       <s:HGroup verticalAlign="middle">
         <s:BitmapImage width="16"
@@ -122,8 +136,7 @@
 		</s:Line>
     <s:VGroup verticalAlign="middle"
               width="50%">
-      <s:RichText id="topicTxt"
-                  width="100%"/>
+      
       <s:RichText id="contentTxt"
                   width="100%"/>
     </s:VGroup>

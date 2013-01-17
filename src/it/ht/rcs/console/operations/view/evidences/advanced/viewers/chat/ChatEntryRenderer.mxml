@@ -29,9 +29,8 @@
 					<![CDATA[
 						import flashx.textLayout.conversion.TextConverter;
 
+						import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
 						import it.ht.rcs.console.utils.TimeUtils;
-            
-            import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
 
 						[Bindable]
 						private var isPeer:Boolean;
@@ -44,9 +43,9 @@
 
 						[Bindable]
 						private var selectedColor:uint=0xFF0000;
-            
-            [Bindable]
-            private var ImageClass:Class;
+
+						[Bindable]
+						private var ImageClass:Class;
 
 						private function formatDate(value:Number):String
 						{
@@ -57,62 +56,124 @@
 						{
 							if (data)
 							{
-                var content:String;
-                if(this.column.dataField=="data.tr")
-								  content=data.data.tr;
-                else
-                  content=data.data.content;
-                
+								var content:String;
+
+								if (this.column.dataField == "data.tr")
+								{
+									content=data.data.tr;
+								}
+								else
+								{
+									content=data.data.content;
+								}
+
 								var d:String=formatDate(data.da);
-                var message:String
-                var nickname:String
+								var message:String
+								var nickname:String
+
+								if (content)
+								{
+									var splitted:Array=content.split(":")
+									if (splitted.length > 1)
+									{
+										//nickname
+										nickname=splitted[0];
+										message=content.substring(nickname.length + 1, content.length);
+									}
+									else
+									{
+										//no nickname
+										nickname="";
+										if (data.data.from != null && data.data.from != "")
+										{
+											nickname=data.data.from;
+										}
+										message=content;
+									}
+
+								}
+								else
+								{
+									nickname="";
+									message="";
+								}
+								if (data.data.content != null && data.data.tr == null && this.column.dataField == "data.tr")
+								{
+									message="(TRANSLATION NOT AVAILABLE)";
+								}
+								var peers:Array
+								if (data.data.rcpt != null && data.data.rcpt != "")
+								{
+									peers=data.data.rcpt.split(" ");
+								}
+								else
+								{
+									peers=data.data.peer.split(" ");
+								}
+                //SKYPE
+								if (data.data.program.toLowerCase() == "skype")
+								{
+									isPeer=isInArray(peers, nickname);
+									targetColor=0xCCCCCC;
+								}
+                //FACEBOOK
+								else if (data.data.program.toLowerCase() == "facebook")
+								{
+									isPeer=data.data.peer == nickname;
+									targetColor=0xCCCCCC;
+								}
+                //TWITTER
+								else if (data.data.program.toLowerCase() == "twitter")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										data.data.rcpt == nickname
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+                //WHATSAPP
+								else if (data.data.program.toLowerCase() == "whatsapp")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
                 
-              if(content)
-              {
-                  nickname=content.split(":")[0];
-                  message=content.substring(nickname.length + 1, content.length);
-              }
-              else
-              {
-                nickname="";
-                message="";
-              }
-              if(data.data.content!=null && data.data.tr==null && this.column.dataField=="data.tr")
-                
-                message="(TRANSLATION NOT AVAILABLE)";
-              
-								var peers:Array=data.data.peer.split(" ");
-                  
-                  if(data.data.program.toLowerCase()=="skype")
+                else if (data.data.program.toLowerCase() == "google talk")
+                {
+                  if (data.data.rcpt != null && data.data.rcpt != "")
                   {
-                    isPeer=isInArray(peers,nickname);
-                    targetColor=0xCCCCCC;
+                    //isPeer=data.data.rcpt==nickname;
+                    isPeer=data.data.incoming;
+                   
                   }
-                  
-                  else if(data.data.program.toLowerCase()=="facebook")
+                  else
                   {
-                    isPeer=data.data.peer==nickname;
-                    targetColor=0xCCCCCC;
+                    isPeer=data.data.peer == nickname;
                   }
-                  else if(data.data.program.toLowerCase()=="twitter")
-                  {
-                    isPeer=data.data.peer==nickname;
-                    targetColor=0x99FFFF;
-                  }
-                  
-                  else if(data.data.program.toLowerCase()=="whatsapp")
-                  {
-                    isPeer=data.data.peer==nickname;
-                    targetColor=0x99FFFF;
-                  }
-                  
-                ImageClass=ChatIcons[data.data.program.toLowerCase()]
+                  targetColor=0x99FFFF;
+                }
+
+								
+
+								ImageClass=ChatIcons[data.data.program.toLowerCase()]
 								dateTxt.text=d;
-                if(nickname!="" && nickname!=null)
-                  messageTxt.textFlow=TextConverter.importToFlow('<b>' + nickname + ":</b> " + message, TextConverter.TEXT_FIELD_HTML_FORMAT);
-                else
-                  messageTxt.textFlow=TextConverter.importToFlow( message, TextConverter.TEXT_FIELD_HTML_FORMAT);
-               
+								if (nickname != "" && nickname != null)
+									messageTxt.textFlow=TextConverter.importToFlow('<b>' + nickname + ":</b> " + message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+								else
+									messageTxt.textFlow=TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+
 							}
 						}
 
@@ -126,17 +187,17 @@
 							}
 							return result;
 						}
-            
-            
 					]]>
 				</fx:Script>
-      <s:HGroup width="100%">
-        <s:BitmapImage width="16" height="16" source="{ImageClass}"/>
-        <s:Label textAlign="right"
-                 id="dateTxt"
-                 width="100%"
-                 fontWeight="bold"/>
-      </s:HGroup>
+				<s:HGroup width="100%">
+					<s:BitmapImage width="16"
+												 height="16"
+												 source="{ImageClass}"/>
+					<s:Label textAlign="right"
+									 id="dateTxt"
+									 width="100%"
+									 fontWeight="bold"/>
+				</s:HGroup>
 				<s:RichText id="messageTxt"
 										width="100%"/>
 			</s:VGroup>

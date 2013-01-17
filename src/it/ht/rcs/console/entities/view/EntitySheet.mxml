@@ -21,9 +21,9 @@
 						alphaFrom="1"
 						alphaTo="0"
 						duration="150"/>
-    
+
 	</fx:Declarations>
-  <fx:Metadata>
+	<fx:Metadata>
     [Event(name="update", type="flash.events.Event")]
     
   </fx:Metadata>
@@ -37,18 +37,22 @@
 			import com.google.maps.controls.PositionControl;
 			import com.google.maps.controls.ZoomControl;
 			import com.google.maps.overlays.Marker;
-			
+
 			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Contact;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.utils.AlertPopUp;
-			
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.Fault;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -58,6 +62,9 @@
 
 			[Bindable]
 			private var locations:ArrayCollection;
+
+			[Bindable]
+			private var mostContacted:ArrayCollection;
 
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
@@ -115,7 +122,8 @@
 
 			protected function onAddedToStage():void
 			{
-				EntityManager.instance.show(entity._id, onDetailResult)
+				EntityManager.instance.show(entity._id, onDetailResult);
+				EntityManager.instance.mostContacted(entity._id, "20130109", "20130109", "3", onContactResult, onContactFault)
 			}
 
 			protected function onRemovedFromStage():void
@@ -123,11 +131,33 @@
 				photoViewer.currentPhoto=""
 			}
 
+			private function onContactResult(e:ResultEvent):void
+			{
+				mostContacted=new ArrayCollection();
+				var temp:ArrayCollection=e.result as ArrayCollection;
+				for (var i:int=0; i < temp.length; i++)
+				{
+					var arr:Array=temp.getItemAt(i) as Array;
+					for (var k:int=0; k < arr.length; k++)
+					{
+						var item:Contact=arr[k] as Contact;
+						mostContacted.addItem(item);
+					}
+
+				}
+				//mostContacted=e.result as ArrayCollection;
+			}
+
+			private function onContactFault(e:FaultEvent):void
+			{
+
+			}
+
 			private function onDetailResult(e:ResultEvent):void
 			{
-        entity=e.result as Entity;
-        nameTxt.text=entity.name;
-        descTxt.text=entity.desc;
+				entity=e.result as Entity;
+				nameTxt.text=entity.name;
+				descTxt.text=entity.desc;
 				photoViewer.currentIndex=0;
 
 				if (entity.photos)
@@ -145,30 +175,46 @@
 				{
 					photoViewer.currentPhoto="";
 				}
-        handlesList.dataProvider=entity.handles;
-        dispatchEvent(new Event("update"))
+				handlesList.dataProvider=entity.handles;
+				dispatchEvent(new Event("update"))
+			}
+
+			private function addHandle():void
+			{
+				var popup:HandleForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, HandleForm, true) as HandleForm;
+				popup.entity=entity;
+				popup.addEventListener("update", onUpdate)
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function onRemoveHandle():void
+			{
+				AlertPopUp.show(R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
+				}, null, AlertPopUp.NO);
+			}
+
+			public function update():void
+			{
+				onUpdate(null)
+			}
+
+			private function formatPerc(item:Object, column:AdvancedDataGridColumn):String
+			{
+
+				if (item[column.dataField] == null || item[column.dataField] == "")
+					return "";
+				return String(item[column.dataField]) + "%";
 			}
       
-      private function addHandle():void
+      private function formatType(item:Object, column:AdvancedDataGridColumn):String
       {
-        var popup:HandleForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, HandleForm, true) as HandleForm;
-        popup.entity = entity;
-        popup.addEventListener("update", onUpdate) 
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function onRemoveHandle():void
-      {
-        AlertPopUp.show(R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
-        {
-          if (e.detail == AlertPopUp.YES)
-            EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
-        }, null, AlertPopUp.NO);
-      }
-      
-      public function update():void
-      {
-      onUpdate(null)
+        
+        if (item[column.dataField] != null || item[column.dataField] != "")
+          return "";
+        return String("Type:")
       }
 		]]>
 	</fx:Script>
@@ -182,11 +228,11 @@
 	<s:VGroup width="100%">
 		<s:HGroup width="100%">
 			<s:RichText fontFamily="Myriad"
-													fontSize="20"
-													fontWeight="bold"
-													paddingTop="2"
-													text="{entity.name}"
-													id="nameTxt"/>
+									fontSize="20"
+									fontWeight="bold"
+									paddingTop="2"
+									text="{entity.name}"
+									id="nameTxt"/>
 
 			<s:Spacer width="100%"/>
 			<s:HGroup verticalAlign="middle"
@@ -221,41 +267,79 @@
 																update="onUpdate(event)"/>
 				<s:VGroup width="100%">
 					<s:RichText id="descTxt"
-															text="{entity.desc}"
-															width="100%"/>
+											text="{entity.desc}"
+											width="100%"/>
 				</s:VGroup>
 			</s:HGroup>
 			<s:Spacer height="12"/>
-      <s:VGroup gap="0" width="100%" height="100%">
-        <s:Label text="Accounts:"
-                 fontWeight="bold"/>
-        <s:List width="100%"
-                height="100%"
-                itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
-                dataProvider="{entity.handles}" id="handlesList"/>
-        <s:HGroup gap="-1"
-                  horizontalAlign="right" width="100%">
-          
-          <s:Button width="30"
-                    label="-"
-                    cornerRadius="0" enabled="{handlesList.selectedItem!=null}"
-                    visible="{entity.handles!=null &amp;&amp; entity.handles.length>0}"
-                    toolTip="{R.get('REMOVE_HANDLE')}" click="onRemoveHandle()"/>
-          <s:Button width="30"
-                    label="+"
-                    cornerRadius="0"
-                    toolTip="{R.get('ADD_HANDLE')}" click="addHandle()"/>
-        </s:HGroup>
+			<s:VGroup gap="0"
+								width="100%"
+								height="100%">
+				<s:Label text="Accounts:"
+								 fontWeight="bold"/>
+				<s:List width="100%"
+								height="100%"
+								itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
+								dataProvider="{entity.handles}"
+								id="handlesList"/>
+				<s:HGroup gap="-1"
+									horizontalAlign="right"
+									width="100%">
 
-      </s:VGroup>
-			
+					<s:Button width="30"
+										label="-"
+										cornerRadius="0"
+										enabled="{handlesList.selectedItem!=null}"
+										visible="{entity.handles!=null &amp;&amp; entity.handles.length>0}"
+										toolTip="{R.get('REMOVE_HANDLE')}"
+										click="onRemoveHandle()"/>
+					<s:Button width="30"
+										label="+"
+										cornerRadius="0"
+										toolTip="{R.get('ADD_HANDLE')}"
+										click="addHandle()"/>
+				</s:HGroup>
+
+			</s:VGroup>
+
 			<s:Spacer height="12"/>
 			<s:Label text="Most Contacted:"
 							 fontWeight="bold"/>
-			<s:List width="100%"
-							height="100%"
-							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
-							dataProvider="{contacts}"/>
+			<mx:AdvancedDataGrid width="100%"
+													 height="100%"
+													 headerHeight="0"
+													 horizontalGridLines="true"
+													 verticalGridLines="false"
+													 alternatingItemColors="[0xFFFFFF,0xFFFFFF]" indentation="0" >
+				<mx:dataProvider>
+					<mx:GroupingCollection2 id="gc"
+																	source="{mostContacted}">
+						<mx:grouping>
+							<mx:Grouping>
+								<mx:GroupingField name="type"/>
+							</mx:Grouping>
+						</mx:grouping>
+					</mx:GroupingCollection2>
+				</mx:dataProvider>
+				<mx:columns>
+					<mx:AdvancedDataGridColumn dataField="type"
+																		 headerText=""
+																		 width="80"
+                                     labelFunction="formatType"/>
+					<mx:AdvancedDataGridColumn dataField="peer"
+																		 headerText=""/>
+					<mx:AdvancedDataGridColumn dataField="size"
+																		 headerText=""
+																		 width="30"/>
+					<mx:AdvancedDataGridColumn dataField="count"
+																		 headerText=""
+																		 width="30"/>
+					<mx:AdvancedDataGridColumn dataField="percent"
+																		 headerText=""
+																		 width="50"
+																		 labelFunction="formatPerc"/>
+				</mx:columns>
+			</mx:AdvancedDataGrid>
 		</s:VGroup>
 		<s:Spacer width="6"/>
 		<s:VGroup width="60%"
@@ -280,7 +364,7 @@
 					<s:CheckBox label="Last Positions"/>
 					<s:Spacer width="10"/>
 					<s:CheckBox label="Addresses"/>
-					<s:Spacer width="10"/>  
+					<s:Spacer width="10"/>
 					<s:CheckBox label="Visited Places"/>
 				</s:HGroup>
 				<s:VGroup paddingBottom="0"

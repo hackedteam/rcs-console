@@ -29,30 +29,33 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapType;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.overlays.Marker;
-
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Contact;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.utils.AlertPopUp;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.Fault;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapType;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.overlays.Marker;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Contact;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.Grouping;
+      import mx.collections.GroupingCollection2;
+      import mx.collections.GroupingField;
+      import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.Fault;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -123,7 +126,7 @@
 			protected function onAddedToStage():void
 			{
 				EntityManager.instance.show(entity._id, onDetailResult);
-				EntityManager.instance.mostContacted(entity._id, "20130109", "20130109", "3", onContactResult, onContactFault)
+				EntityManager.instance.mostContacted(entity._id, "20130101", "20130121", "5", onContactResult, onContactFault)
 			}
 
 			protected function onRemovedFromStage():void
@@ -145,12 +148,17 @@
 					}
 
 				}
+      /*   var gc:GroupingCollection2=new GroupingCollection2();
+        gc.grouping=new Grouping()
+        gc.grouping.fields=[new GroupingField("type")]
+        gc.source=mostContacted;
+        contactsDg.dataProvider=gc; */
 				//mostContacted=e.result as ArrayCollection;
 			}
 
 			private function onContactFault(e:FaultEvent):void
 			{
-
+        trace("fault callback most contacted call")
 			}
 
 			private function onDetailResult(e:ResultEvent):void
@@ -209,13 +217,13 @@
 				return String(item[column.dataField]) + "%";
 			}
       
-      private function formatType(item:Object, column:AdvancedDataGridColumn):String
+     /*  private function formatType(item:Object, column:AdvancedDataGridColumn):String
       {
         
         if (item[column.dataField] != null || item[column.dataField] != "")
           return "";
         return String("Type:")
-      }
+      } */
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -310,22 +318,13 @@
 													 headerHeight="0"
 													 horizontalGridLines="true"
 													 verticalGridLines="false"
-													 alternatingItemColors="[0xFFFFFF,0xFFFFFF]" indentation="0" >
-				<mx:dataProvider>
-					<mx:GroupingCollection2 id="gc"
-																	source="{mostContacted}">
-						<mx:grouping>
-							<mx:Grouping>
-								<mx:GroupingField name="type"/>
-							</mx:Grouping>
-						</mx:grouping>
-					</mx:GroupingCollection2>
-				</mx:dataProvider>
+													 alternatingItemColors="[0xFFFFFF,0xFFFFFF]" indentation="0" id="contactsDg" dataProvider="{mostContacted}">
+			
 				<mx:columns>
 					<mx:AdvancedDataGridColumn dataField="type"
 																		 headerText=""
 																		 width="80"
-                                     labelFunction="formatType"/>
+                                     />
 					<mx:AdvancedDataGridColumn dataField="peer"
 																		 headerText=""/>
 					<mx:AdvancedDataGridColumn dataField="size"

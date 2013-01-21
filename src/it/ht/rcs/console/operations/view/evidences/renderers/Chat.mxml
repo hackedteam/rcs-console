@@ -51,12 +51,18 @@
         
 				// topic, peer, content, program
         
-				if (data.data.from != "" && data.data.from !=null)
+				if (data.data.from_display != "" && data.data.from_display !=null)
 				{
           fromTxt.visible=true;
           fromTxt.includeInLayout=true;
-					fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				}
+        else if(data.data.from != "" && data.data.from !=null)
+        {
+          fromTxt.visible=true;
+          fromTxt.includeInLayout=true;
+          fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)   
+        }
 				else
 				{
           fromTxt.visible=false;
@@ -74,11 +80,15 @@
         content=data.data.content;
         
         //new format
-        if(data.data.rcpt!=null)
+        if(data.data.rcpt_display!=null && data.data.rcpt_display!="")
         {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
         }
-        
+        else  if(data.data.rcpt!=null && data.data.rcpt!="")
+        {
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)      
+        }
+
         //old format
         else
         {
@@ -87,6 +97,7 @@
         
 				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + content,TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        incomingTxt.textFlow= TextConverter.importToFlow("<b>Incoming: </b>"+data.data.incoming, TextConverter.TEXT_FIELD_HTML_FORMAT)
         onTranslate(null)
 			}
       private function init():void
@@ -106,6 +117,7 @@
            content=data.data.content;
        }
         contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        
       }
 		]]>
 	</fx:Script>
@@ -136,7 +148,8 @@
 		</s:Line>
     <s:VGroup verticalAlign="middle"
               width="50%">
-      
+      <s:RichText id="incomingTxt"
+                  width="100%"/>
       <s:RichText id="contentTxt"
                   width="100%"/>
     </s:VGroup>

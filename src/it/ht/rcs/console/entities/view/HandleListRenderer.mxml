@@ -7,7 +7,6 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-      import it.ht.rcs.console.entities.model.Contact;
       
       [Bindable]
       private var ImageClass:Class;
@@ -21,23 +20,6 @@
         }
         
       }
-      
-      private function formatPerc(perc:String):String
-      {
-        if(perc!="" && perc!=null)
-        {
-          return perc+" %";
-        }
-        return "";
-      }
-      
-      private function formatPeer(data:Object):String
-      {
-        var contact:Contact = data as Contact;
-        
-        return contact.peer_name+ " ("+contact.peer+")";
-      }
-      
     ]]>
   </fx:Script>
   <s:VGroup paddingBottom="0" paddingTop="0" gap="0" width="100%">
@@ -45,17 +27,8 @@
     
     <s:HGroup paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle" width="100%">
       <s:Image source="{ImageClass}" width="16" height="16" smooth="true"/>
-      <s:Label text="{formatPeer(data)}"/>
-      <s:Spacer width="100%"/>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30">
-        <s:Label text="{data.size}"/>
-      </s:HGroup>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30">
-        <s:Label text="{data.count}"/>
-      </s:HGroup>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="50">
-        <s:Label text="{formatPerc(data.percent) || ''}" fontWeight="bold"/>
-      </s:HGroup>
+      <s:Label text="{data.handle} ({data.name})"/>
+      
     </s:HGroup>
     <s:Line width="100%">
       <s:stroke>
@@ -64,3 +37,4 @@
     </s:Line>
   </s:VGroup>
 </s:ItemRenderer>
+

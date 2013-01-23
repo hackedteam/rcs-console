@@ -29,33 +29,33 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapType;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.overlays.Marker;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Contact;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.Grouping;
-      import mx.collections.GroupingCollection2;
-      import mx.collections.GroupingField;
-      import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.Fault;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapType;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.overlays.Marker;
+			
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Contact;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Grouping;
+			import mx.collections.GroupingCollection2;
+			import mx.collections.GroupingField;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.Fault;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -74,17 +74,32 @@
 			private var FakeProfile:Class;
 
 			public var fileReference:FileReference;
+      
+      private const MILLISECONDS_PER_DAY:int=86400000;
+      private const MONTH:int=MILLISECONDS_PER_DAY*30;
 
 			[Bindable]
-			public var entity:Entity
+			public var entity:Entity;
+      
+      [Bindable]
+      private var fromDate:Date;
+      
+      [Bindable]
+      private var toDate:Date;
 
 			private function init():void
 			{
-       
-        EntityManager.instance.show(entity._id, onDetailResult);
-        EntityManager.instance.mostContacted(entity._id, "20130101", "20130121", "5", onContactResult, onContactFault);
+        fromDate=new Date();
+        fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
+        toDate=new Date();
         
-        mostContacted=new ArrayCollection();
+        if(fromDf)
+        fromDf.selectedDate=fromDate;
+
+				EntityManager.instance.show(entity._id, onDetailResult);
+				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+
+				mostContacted=new ArrayCollection();
 
 				locations=new ArrayCollection();
 				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
@@ -92,6 +107,23 @@
 				locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
 				locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
 			}
+      
+      private function filter():void
+      {
+        fromDate=fromDf.selectedDate;
+        toDate=toDf.selectedDate;
+        EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+      }
+      
+      private function doubleDigits(n:Number):String
+      {
+      if(n<10) return "0"+String(n);
+        return String(n);
+      }
+      private function formatDate(d:Date):String
+      {
+        return String(d.fullYear)+doubleDigits(d.month+1)+doubleDigits(d.date);
+      }
 
 			private function onMapReady(event:Event):void
 			{
@@ -139,18 +171,19 @@
 					}
 
 				}
-    
+
 			}
 
 			private function onContactFault(e:FaultEvent):void
 			{
-        trace("fault callback most contacted call")
+				trace("fault callback most contacted call")
+			}
+
+			private function onDetailFault(e:FaultEvent):void
+			{
+				trace("fault callback entity show call")
 			}
       
-      private function onDetailFault(e:FaultEvent):void
-      {
-        trace("fault callback entity show call")
-      }
 
 			private function onDetailResult(e:ResultEvent):void
 			{
@@ -175,7 +208,7 @@
 					photoViewer.currentPhoto="";
 				}
 				handlesList.dataProvider=entity.handles;
-        trace("description: "+entity.desc)
+				trace("description: " + entity.desc)
 				//dispatchEvent(new Event("update"))
 			}
 
@@ -200,8 +233,6 @@
 			{
 				onUpdate(null)
 			}
-
-		
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -228,10 +259,10 @@
 								 fontWeight="bold"/>
 				<s:Label text="from:"
 								 fontWeight="bold"/>
-				<mx:DateField/>
+				<mx:DateField id="fromDf" selectedDate="{fromDate}" change="filter()"/>
 				<s:Label text="to:"
 								 fontWeight="bold"/>
-				<mx:DateField/>
+				<mx:DateField id="toDf" selectedDate="{toDate}" change="filter()"/>
 			</s:HGroup>
 		</s:HGroup>
 
@@ -244,62 +275,66 @@
 	<s:HGroup width="100%"
 						height="100%">
 		<s:VGroup width="50%"
-							height="100%" >
-      <s:VGroup width="100%" visible="{entity.desc!='' &amp;&amp; entity.desc!=null}" >
-  
-        <s:RichText id="descTxt"
-                    text="{entity.desc}"
-                    width="100%"/>
-        <s:Line width="100%">
-          <s:stroke>
-            <s:SolidColorStroke color="0xCCCCCC" alpha="0"/>
-          </s:stroke>
-        </s:Line>
-      </s:VGroup>
+							height="100%">
+			<s:VGroup width="100%"
+								visible="{entity.desc!='' &amp;&amp; entity.desc!=null}"
+								includeInLayout="{entity.desc!='' &amp;&amp; entity.desc!=null}">
+
+				<s:RichText id="descTxt"
+										text="{entity.desc}"
+										width="100%"/>
+				<s:Line width="100%">
+					<s:stroke>
+						<s:SolidColorStroke color="0xCCCCCC"
+																alpha="0"/>
+					</s:stroke>
+				</s:Line>
+			</s:VGroup>
 			<s:HGroup width="100%">
 				<components:PhotoViewer id="photoViewer"
 																entity="{entity}"
 																update="onUpdate(event)"/>
-        <s:VGroup gap="0"
-                  width="100%"
-                  height="100%">
-         <!-- <s:Label text="Accounts:"
-                   fontWeight="bold"/>-->
-          <s:List width="100%"
-                  height="100%"
-                  itemRenderer="it.ht.rcs.console.entities.view.HandleListRenderer"
-                  dataProvider="{entity.handles}"
-                  id="handlesList"/>
-          <s:HGroup gap="-1"
-                    horizontalAlign="right"
-                    width="100%">
-            
-            <s:Button width="30"
-                      label="-"
-                      cornerRadius="0"
-                      enabled="{handlesList.selectedItem!=null}"
-                      visible="{entity.handles!=null &amp;&amp; entity.handles.length>0}"
-                      toolTip="{R.get('REMOVE_HANDLE')}"
-                      click="onRemoveHandle()"/>
-            <s:Button width="30"
-                      label="+"
-                      cornerRadius="0"
-                      toolTip="{R.get('ADD_HANDLE')}"
-                      click="addHandle()"/>
-          </s:HGroup>
-        
-        </s:VGroup>
+				<s:VGroup gap="0"
+									width="100%"
+									height="100%">
+					<!-- <s:Label text="Accounts:"
+										fontWeight="bold"/>-->
+					<s:List width="100%"
+									height="100%"
+									itemRenderer="it.ht.rcs.console.entities.view.HandleListRenderer"
+									dataProvider="{entity.handles}"
+									id="handlesList"/>
+					<s:HGroup gap="-1"
+										horizontalAlign="right"
+										width="100%">
 
-			
+						<s:Button width="30"
+											label="-"
+											cornerRadius="0"
+											enabled="{handlesList.selectedItem!=null}"
+											visible="{entity.handles!=null &amp;&amp; entity.handles.length>0}"
+											toolTip="{R.get('REMOVE_HANDLE')}"
+											click="onRemoveHandle()"/>
+						<s:Button width="30"
+											label="+"
+											cornerRadius="0"
+											toolTip="{R.get('ADD_HANDLE')}"
+											click="addHandle()"/>
+					</s:HGroup>
+
+				</s:VGroup>
+
+
 			</s:HGroup>
-     
+
 			<s:Label text="Most Contacted:"
 							 fontWeight="bold"/>
-      <s:List width="100%" height="100%"
-								  id="contactsList"
-                  itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
-                  dataProvider="{mostContacted}"/>
-			
+			<s:List width="100%"
+							height="100%"
+							id="contactsList"
+							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
+							dataProvider="{mostContacted}"/>
+
 		</s:VGroup>
 		<s:Spacer width="6"/>
 		<s:VGroup width="60%"

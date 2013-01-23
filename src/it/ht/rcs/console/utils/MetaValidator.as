@@ -2,6 +2,8 @@ package it.ht.rcs.console.utils
 {
   import mx.events.ValidationResultEvent;
   import mx.validators.Validator;
+  
+  import spark.validators.NumberValidator;
 
   public class MetaValidator
   {
@@ -15,9 +17,12 @@ package it.ht.rcs.console.utils
     
     public function isValid():Boolean
     {
-      for each (var val:Validator in validators)
-        if (val.validate().type == ValidationResultEvent.INVALID)
-          return false;
+      for each (var val:* in validators)
+       if(val is Validator || val is NumberValidator)
+       {
+         if (val.validate().type == ValidationResultEvent.INVALID)
+           return false;
+       }
       return true;
     }
     

@@ -11,6 +11,12 @@
   
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_sys_injectors() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
+  <actionbar:Separator width="40"/>
+
+  <s:Button label="{R.get('UPGRADE')}" click="upgradeNI(event)"
+            icon="@Embed('/img/NEW/update.png')"
+            enabled="{selectedObject != null &amp;&amp; (selectedObject as Injector).poll &amp;&amp; Console.currentSession.user.is_sys_injectors()}"/>
+  
   <s:Spacer width="100%"/>
   
   <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
@@ -56,6 +62,13 @@
       private function onKeyUp(event:KeyboardEvent):void
       {
         if (view != null) view.refresh();
+      }
+      
+      protected function upgradeNI(event:MouseEvent):void
+      {
+        var popup:NIAUpgrade = PopUpManager.createPopUp(root, NIAUpgrade, true) as NIAUpgrade;
+        popup.nia = selectedObject as Injector;
+        PopUpManager.centerPopUp(popup);
       }
       
     ]]>

@@ -34,6 +34,8 @@
       private function formatPeer(data:Object):String
       {
         var contact:Contact = data as Contact;
+        if(contact.peer_name==null || contact.peer_name=="")
+          return contact.peer;
         
         return contact.peer_name+ " ("+contact.peer+")";
       }
@@ -44,17 +46,17 @@
     
     
     <s:HGroup paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle" width="100%">
-      <s:Image source="{ImageClass}" width="16" height="16" smooth="true"/>
+      <s:Image source="{ImageClass}" width="16" height="16" smooth="true" toolTip="{data.type}"/>
       <s:Label text="{formatPeer(data)}"/>
       <s:Spacer width="100%"/>
       <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30">
-        <s:Label text="{data.size}"/>
+        <s:Label text="{data.size}" visible="false"/>
       </s:HGroup>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30">
-        <s:Label text="{data.count}"/>
+      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30" horizontalAlign="right" toolTip="count">
+        <s:Label text="{data.count}" textAlign="right"/>
       </s:HGroup>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="50">
-        <s:Label text="{formatPerc(data.percent) || ''}" fontWeight="bold"/>
+      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="50" horizontalAlign="right" toolTip="percent">
+        <s:Label text="{formatPerc(data.percent) || ''}" fontWeight="bold" textAlign="right"/>
       </s:HGroup>
     </s:HGroup>
     <s:Line width="100%">

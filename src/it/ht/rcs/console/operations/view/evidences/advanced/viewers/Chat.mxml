@@ -55,20 +55,20 @@
 			public function set evidence(value:Evidence):void
 			{
 				_evidence=value;
+        
         if(value)
         {
-        callLater(init)
-        callLater(update)
+          callLater(init)
+          callLater(update)
         }
-      
-         
+ 
 			}
       
       private function update():void
       {
         if(evidence.data.rcpt!=null && evidence.data.rcpt!="")
         {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.rcpt_display || evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
         else
         {
@@ -77,7 +77,7 @@
         
         if(evidence.data.from!=null && evidence.data.from!="")
         {
-          fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>"+evidence.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>"+evidence.data.from_display || evidence.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
         else
         {
@@ -151,8 +151,8 @@
 			}
       
       private function onSelectionChange():void
-      {
-        trace(chatGrid.selectedItem.data.content);
+      {   
+        //trace(chatGrid.selectedItem.data.content);
         evidence=chatGrid.selectedItem as Evidence;
         dispatchEvent(new Event("change"));
       }
@@ -256,9 +256,7 @@
 							variableRowHeight="true" rollOverColor="0xFFFFFF" selectionColor="0xFFFFFF" id="chatGrid" selectionChange="onSelectionChange()">
 		<s:columns>
 			<s:ArrayList>
-			<!--	<s:GridColumn dataField="da"
-											headerText="{R.get('DATE_ACQUIRED')}"
-											labelFunction="dateLabelFunction"/>-->
+		
 				<s:GridColumn dataField="data.content"
 											headerText="peer" id="contentColumn"
 											resizable="false"

@@ -1,68 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                xmlns:s="library://ns.adobe.com/flex/spark"
-                xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true"
-                dataChange="init()">
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-      import it.ht.rcs.console.entities.model.Contact;
-      
-      [Bindable]
-      private var ImageClass:Class;
-      
-      
-      private function init():void
-      {
-        if(data)
-        {
-          ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
-        }
-        
-      }
-      
-      private function formatPerc(perc:String):String
-      {
-        if(perc!="" && perc!=null)
-        {
-          return perc+" %";
-        }
-        return "";
-      }
-      
-      private function formatPeer(data:Object):String
-      {
-        var contact:Contact = data as Contact;
-        if(contact.peer_name==null || contact.peer_name=="")
-          return contact.peer;
-        
-        return contact.peer_name+ " ("+contact.peer+")";
-      }
-      
-    ]]>
-  </fx:Script>
-  <s:VGroup paddingBottom="0" paddingTop="0" gap="0" width="100%">
-    
-    
-    <s:HGroup paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle" width="100%">
-      <s:Image source="{ImageClass}" width="16" height="16" smooth="true" toolTip="{data.type}"/>
-      <s:Label text="{formatPeer(data)}"/>
-      <s:Spacer width="100%"/>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30">
-        <s:Label text="{data.size}" visible="false"/>
-      </s:HGroup>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="30" horizontalAlign="right" toolTip="count">
-        <s:Label text="{data.count}" textAlign="right"/>
-      </s:HGroup>
-      <s:HGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="50" horizontalAlign="right" toolTip="percent">
-        <s:Label text="{formatPerc(data.percent) || ''}" fontWeight="bold" textAlign="right"/>
-      </s:HGroup>
-    </s:HGroup>
-    <s:Line width="100%">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-  </s:VGroup>
+								xmlns:s="library://ns.adobe.com/flex/spark"
+								xmlns:mx="library://ns.adobe.com/flex/mx"
+								autoDrawBackground="true"
+								dataChange="init()">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.entities.model.Contact;
+			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+
+			[Bindable]
+			private var ImageClass:Class;
+
+			[Bindable]
+			private var bgColor:uint;
+
+
+			private function init():void
+			{
+				if (data)
+				{
+					ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
+					switch (data.type)
+					{
+						case "facebook":
+							bgColor=0x00CCFF;
+							break;
+						case "whatsapp":
+							bgColor=0x66FF99;
+							break;
+						case "twitter":
+							bgColor=0x66FF99;
+							break;
+						case "call":
+							bgColor=0x66FF99;
+							break;
+						case "skype":
+							bgColor=0x66FF99;
+							break;
+						case "sms":
+							bgColor=0x66FF99;
+							break;
+            case "phone":
+              bgColor=0x66FF99;
+              break;
+						default:
+							bgColor=0xCCCCCC;
+							break;
+					}
+				}
+
+			}
+
+
+			private function formatPerc(perc:String):String
+			{
+				if (perc != "" && perc != null)
+				{
+					return perc + " %";
+				}
+				return "";
+			}
+
+			private function formatPeer(data:Object):String
+			{
+				var contact:Contact=data as Contact;
+				if (contact.peer_name == null || contact.peer_name == "")
+					return contact.peer;
+
+				return contact.peer_name + " (" + contact.peer + ")";
+			}
+		]]>
+	</fx:Script>
+
+	<s:VGroup paddingBottom="0"
+						paddingTop="0"
+						gap="0"
+						width="100%">
+
+
+		<s:BorderContainer width="100%"
+											 height="100%"
+											 backgroundColor="{bgColor}"
+											 backgroundAlpha="0.1"
+											 borderVisible="false"
+											 id="bg">
+
+			<s:HGroup paddingBottom="5"
+								paddingLeft="5"
+								paddingRight="5"
+								paddingTop="5"
+								verticalAlign="middle"
+								width="100%">
+				<s:Image source="{ImageClass}"
+								 width="16"
+								 height="16"
+								 smooth="true"
+								 toolTip="{data.type}"/>
+				<s:Label text="{formatPeer(data)}"/>
+				<s:Spacer width="100%"/>
+				<s:HGroup paddingBottom="0"
+									paddingLeft="0"
+									paddingRight="0"
+									paddingTop="0"
+									width="30">
+					<s:Label text="{data.size}"
+									 visible="false"/>
+				</s:HGroup>
+				<s:HGroup paddingBottom="0"
+									paddingLeft="0"
+									paddingRight="0"
+									paddingTop="0"
+									width="30"
+									horizontalAlign="right"
+									toolTip="count">
+					<s:Label text="{data.count}"
+									 textAlign="right"/>
+				</s:HGroup>
+				<s:HGroup paddingBottom="0"
+									paddingLeft="0"
+									paddingRight="0"
+									paddingTop="0"
+									width="50"
+									horizontalAlign="right"
+									toolTip="percent">
+					<s:Label text="{formatPerc(data.percent) || ''}"
+									 fontWeight="bold"
+									 textAlign="right"/>
+				</s:HGroup>
+			</s:HGroup>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+		</s:BorderContainer>
+	</s:VGroup>
 </s:ItemRenderer>

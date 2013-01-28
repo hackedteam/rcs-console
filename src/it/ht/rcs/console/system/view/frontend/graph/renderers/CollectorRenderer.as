@@ -8,6 +8,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   import it.ht.rcs.console.monitor.model.Status;
   import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
+  import it.ht.rcs.console.system.view.frontend.CollectorProxy;
   import it.ht.rcs.console.system.view.frontend.Frontend;
   import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
   import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
@@ -55,6 +56,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private var prevLabel:Label;
     private var nextlabel:Label;
+    
+    public var proxy:CollectorProxy
 		
 		public function CollectorRenderer(collector:Collector, graph:FrontendGraph)
 		{
@@ -64,6 +67,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
 			
 			this.collector = collector;
       this.graph = graph;
+      
+      proxy=new CollectorProxy(collector);
 
       doubleClickEnabled = true;
       
@@ -162,7 +167,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private function onDoubleClick(me:MouseEvent):void
     {
-      if (Console.currentSession.user.is_sys())
+      if (Console.currentSession.user.is_sys_frontend())
         (this.parentDocument as Frontend).list.edit(collector);
       selected = true;
     }
@@ -178,7 +183,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     private function onMouseDown(me:MouseEvent):void
     {
       me.stopPropagation();
-      if (collector.type == 'remote' && Console.currentSession.user.is_sys())
+      if (collector.type == 'remote' && Console.currentSession.user.is_sys_frontend())
       {
         var dragSource:DragSource = new DragSource();
         DragManager.doDrag(this, dragSource, me, getProxy(this));

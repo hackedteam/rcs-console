@@ -8,8 +8,7 @@
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
-									 backgroundAlpha="1"
-									 creationComplete="init()"
+									 backgroundAlpha="1"							 
 									 addedToStage="onAddedToStage()"
 									 removedFromStage="onRemovedFromStage()">
 	<fx:Declarations>
@@ -39,6 +38,7 @@
 			import com.google.maps.overlays.Marker;
 			
 			import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.entities.model.Contact;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.utils.AlertPopUp;
@@ -46,14 +46,9 @@
 			import locale.R;
 			
 			import mx.collections.ArrayCollection;
-			import mx.collections.Grouping;
-			import mx.collections.GroupingCollection2;
-			import mx.collections.GroupingField;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.Fault;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 
@@ -97,8 +92,19 @@
         fromDf.selectedDate=fromDate;
 
 				EntityManager.instance.show(entity._id, onDetailResult);
-				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
-
+        if(loadingBox)
+          loadingBox.visible=loadingBox.includeInLayout=false;
+        if(LicenseManager.instance.correlation)
+        {
+          if(loadingBox)
+          loadingBox.visible=loadingBox.includeInLayout=true;
+				  EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+        }
+        else
+        {
+          contactsList.enabled=false; //TODO ADD A MESSAGE
+        }
+        
 				mostContacted=new ArrayCollection();
 
 				locations=new ArrayCollection();
@@ -112,6 +118,7 @@
       {
         fromDate=fromDf.selectedDate;
         toDate=toDf.selectedDate;
+        loadingBox.visible=loadingBox.includeInLayout=true;
         EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
       }
       
@@ -171,12 +178,14 @@
 					}
 
 				}
+        loadingBox.visible=loadingBox.includeInLayout=false;
 
 			}
 
 			private function onContactFault(e:FaultEvent):void
 			{
 				trace("fault callback most contacted call")
+        loadingBox.visible=loadingBox.includeInLayout=false;
 			}
 
 			private function onDetailFault(e:FaultEvent):void
@@ -327,8 +336,17 @@
 
 			</s:HGroup>
 
-			<s:Label text="Most Contacted:"
-							 fontWeight="bold"/>
+			<s:HGroup width="100%" verticalAlign="middle">
+        <s:Label text="Most Contacted:"
+                 fontWeight="bold"/>
+        <s:Spacer width="100%"/>
+        <s:HGroup verticalAlign="middle" id="loadingBox">
+          
+        <s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+        <s:Label text="Retrieving data..."
+                 fontWeight="bold"/>
+        </s:HGroup>
+      </s:HGroup>
 			<s:List width="100%"
 							height="100%"
 							id="contactsList"

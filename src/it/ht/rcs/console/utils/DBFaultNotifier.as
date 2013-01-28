@@ -48,7 +48,7 @@ package it.ht.rcs.console.utils
       /* server error (cannot connect) */
       if (e.statusCode == 0) {
         AlertPopUp.show(ResourceManager.getInstance().getString('localized_db_messages', 'SERVER_ERROR'), ResourceManager.getInstance().getString('localized_main', 'ERROR'));
-        SessionManager.instance.forceLogout();
+        //SessionManager.instance.forceLogout();
         return;
       }
       

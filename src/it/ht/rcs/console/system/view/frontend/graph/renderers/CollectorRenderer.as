@@ -8,7 +8,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   import it.ht.rcs.console.monitor.model.Status;
   import it.ht.rcs.console.network.model.Collector;
   import it.ht.rcs.console.system.view.frontend.CollectorListRenderer;
-  import it.ht.rcs.console.system.view.frontend.CollectorProxy;
   import it.ht.rcs.console.system.view.frontend.Frontend;
   import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
   import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
@@ -56,8 +55,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private var prevLabel:Label;
     private var nextlabel:Label;
-    
-    public var proxy:CollectorProxy
 		
 		public function CollectorRenderer(collector:Collector, graph:FrontendGraph)
 		{
@@ -67,8 +64,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
 			
 			this.collector = collector;
       this.graph = graph;
-      
-      proxy=new CollectorProxy(collector);
 
       doubleClickEnabled = true;
       
@@ -230,7 +225,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       }
       
       container.setStyle('backgroundColor', NORMAL_COLOR);
-      
+      graph.dirty=true;
       graph.rebuildGraph();
     }
 
@@ -278,6 +273,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     public function detach():void
     {
+      graph.dirty=true;
       if (_prevHop != null) {
         if (_nextHop != null) {
           _prevHop.nextHop = _nextHop;

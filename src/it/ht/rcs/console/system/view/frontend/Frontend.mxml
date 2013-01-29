@@ -26,7 +26,7 @@
 			import mx.managers.PopUpManager;
 
 			[Bindable]
-			private var collectors:ListCollectionView;
+			public var collectors:ListCollectionView;
 
 			[Bindable]
 			private var anonymizers:ListCollectionView;
@@ -152,14 +152,14 @@
 					{
 						renderers.push(node);
 					}
-					//var nextHop:CollectorRenderer=node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
-          var nextHop:CollectorRenderer=node.proxy.next ? getRendererById(node.proxy.next[0], nodes) : null;
+					var nextHop:CollectorRenderer=node.collector.next ? getRendererById(node.collector.next[0], nodes) : null;
 					node.nextHop=nextHop;
 				}
 
 				var db:DBRenderer=new DBRenderer();
 				db.collectors=renderers;
 				graph.db=db;
+        graph.dirty=false;
 				graph.rebuildGraph();
 			}
 
@@ -215,7 +215,7 @@
 		]]>
 	</fx:Script>
 
-	<frontend:FrontendActionBar id="actionBar"/>
+	<frontend:FrontendActionBar id="actionBar" graph="{graph}" collectors="{collectors}"/>
 
 	<s:BorderContainer width="100%"
 										 height="100%"

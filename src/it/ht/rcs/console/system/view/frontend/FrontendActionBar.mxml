@@ -15,8 +15,6 @@
 						icon="@Embed('/img/NEW/edit.png')"
 						enabled="{selectedObject != null &amp;&amp; Console.currentSession.user.is_sys_frontend()}"/>
 
-
-
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick()"
 						icon="@Embed('/img/NEW/delete_32.png')"
@@ -35,18 +33,18 @@
 						enabled="{selectedObject != null &amp;&amp; (selectedObject as Collector).poll &amp;&amp; Console.currentSession.user.is_sys_frontend()}"/>
 
 	<actionbar:Separator width="40"/>
-	<s:Button label="{R.get('SAVE')}"
+	<!--<s:Button label="{R.get('SAVE')}"
 						icon="@Embed('/img/NEW/save.png')"
 						enabled="{graph.dirty &amp;&amp; Console.currentSession.user.is_sys_frontend()}"
-						click="saveTopology()"/>
+						click="saveTopology()"/>-->
 	<s:Button label="{R.get('HEALTH_CHECK')}"
 						click="healthCheck()"
 						icon="@Embed('/img/NEW/check.png')"
 						enabled="{Console.currentSession.user.is_sys_frontend() &amp;&amp; !graph.dirty}"/>
 	<s:Button label="{R.get('APPLY_TOPOLOGY')}"
-						click="applyTopology()"
+						click="saveTopology()"
 						icon="@Embed('/img/NEW/confirm.png')"
-						enabled="{Console.currentSession.user.is_sys_frontend() &amp;&amp; !graph.dirty}"/>
+						enabled="{Console.currentSession.user.is_sys_frontend() &amp;&amp; graph.dirty}"/>
 
 	<actionbar:Separator width="40"/>
 
@@ -56,26 +54,29 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.network.controller.CollectorManager;
-			import it.ht.rcs.console.network.model.Collector;
-			import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
-			import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
-			import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
-			import it.ht.rcs.console.task.controller.DownloadManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.collections.ListCollectionView;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
+      import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
+      import it.ht.rcs.console.system.view.frontend.healthCheck.HealthCheckWindow;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			public var graph:FrontendGraph;
 
 			[Bindable]
 			public var collectors:ListCollectionView;
+      
+      private var numCollectorsToUpdate:int=0;
 
 			private function onNewClick():void
 			{
@@ -92,13 +93,23 @@
 
 			private function saveTopology():void
 			{
+        numCollectorsToUpdate=collectors.length;
 				for (var i:int=0; i < collectors.length; i++)
 				{
 					var c:Collector=collectors.getItemAt(i) as Collector;
-					CollectorManager.instance.update(c);
+					CollectorManager.instance.update(c, onCollectorUpdated);
 				}
 				graph.dirty=false;
 			}
+      
+      private function onCollectorUpdated(e:ResultEvent):void
+      {
+        numCollectorsToUpdate--;
+          if(numCollectorsToUpdate==0)
+          {
+          applyTopology();
+          }
+      }
 
 			private function onDeleteClick():void
 			{

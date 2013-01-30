@@ -398,8 +398,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         ar = new ActionRenderer(a, this);
         actions.push(ar);
         addElement(ar);
-        
-        
       }
       if (config.actions)
       {

@@ -40,16 +40,14 @@ package it.ht.rcs.console.system.view.frontend.graph
 			trace('NetworkGraph: NodeEvent');
       //dispatchEvent(e.clone());
 		}
-    
-    
-    
-    
+
     
     // ----- RENDERING -----
     
     private var bg:Rect;
     private var ips:Vector.<IPRenderer>;
     private var map:Dictionary;
+    
     [Bindable]
     public var dirty:Boolean=false;
     

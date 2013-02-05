@@ -41,6 +41,7 @@
       import it.ht.rcs.console.entities.model.Contact;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -86,6 +87,7 @@
 
 			private function init():void
 			{
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
         fromDate=new Date();
         fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
         toDate=new Date();
@@ -164,6 +166,7 @@
 			protected function onRemovedFromStage():void
 			{
 				photoViewer.currentPhoto=""
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 			}
 
 			private function onContactResult(e:ResultEvent):void
@@ -194,6 +197,32 @@
 			{
 				trace("fault callback entity show call")
 			}
+      
+      private function onRefresh(e:Event=null):void
+      {
+        //  TODO REDUNDANT
+        EntityManager.instance.show(entity._id, onDetailResult);
+        if(loadingBox)
+          loadingBox.visible=loadingBox.includeInLayout=false;
+        if(LicenseManager.instance.correlation)
+        {
+          if(loadingBox)
+            loadingBox.visible=loadingBox.includeInLayout=true;
+          EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+        }
+        else
+        {
+          contactsList.enabled=false; //TODO ADD A MESSAGE
+        }
+        
+        mostContacted=new ArrayCollection();
+        
+        locations=new ArrayCollection();
+        locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
+        locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
+        locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
+        locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
+      }
       
 
 			private function onDetailResult(e:ResultEvent):void
@@ -251,6 +280,8 @@
         var targetId:String=entity.path[entity.path.length-1];
         event.item = SearchManager.instance.getItem(targetId);
         event.evidenceTypes = ["call", "chat", "message"];
+        event.info=String(item.peer+" "+item.type);
+        event.from=1;
         FlexGlobals.topLevelApplication.dispatchEvent(event);
        
       }

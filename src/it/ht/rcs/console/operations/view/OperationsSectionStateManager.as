@@ -176,6 +176,26 @@ package it.ht.rcs.console.operations.view
         }
         else delete(EvidenceManager.instance.evidenceFilter._id);
         
+        if(event.info)
+        {
+          EvidenceManager.instance.evidenceFilter.info=event.info;
+        }
+        else
+        {
+          delete(EvidenceManager.instance.evidenceFilter.info);
+        }
+        if(event.from)
+        {
+          EvidenceManager.instance.evidenceFilter.date = 'da';
+          EvidenceManager.instance.evidenceFilter.from = 0;
+          EvidenceManager.instance.evidenceFilter.to = 0;
+        }
+        else
+        {
+          delete (EvidenceManager.instance.evidenceFilter.date);
+          delete (EvidenceManager.instance.evidenceFilter.from);
+          delete (EvidenceManager.instance.evidenceFilter.to);
+        }
         section.evidenceView.refreshData();
       }
     }

@@ -28,29 +28,31 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapType;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.overlays.Marker;
-			
-			import it.ht.rcs.console.entities.controller.EntityManager;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapType;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.overlays.Marker;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Contact;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.entities.model.Contact;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -237,6 +239,21 @@
 						EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
 				}, null, AlertPopUp.NO);
 			}
+      
+      private function jumpToEvidence(e:Event):void
+      {
+        var item:Contact = contactsList.selectedItem as Contact;
+        
+        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section = SectionEvent.OPERATIONS;
+        event.subsection = 'evidence';
+        
+        var targetId:String=entity.path[entity.path.length-1];
+        event.item = SearchManager.instance.getItem(targetId);
+        event.evidenceTypes = ["call", "chat", "message"];
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
+       
+      }
 
 			public function update():void
 			{
@@ -351,7 +368,7 @@
 							height="100%"
 							id="contactsList"
 							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
-							dataProvider="{mostContacted}"/>
+							dataProvider="{mostContacted}" doubleClickEnabled="true" doubleClick="jumpToEvidence(event)"/>
 
 		</s:VGroup>
 		<s:Spacer width="6"/>

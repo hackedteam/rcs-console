@@ -14,6 +14,8 @@
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      
+      import locale.R;
 
 			import mx.collections.ArrayCollection;
       
@@ -112,9 +114,30 @@
        if(data)
        { 
          if(mainView.translation)
-           content=data.data.tr || "(TRANSLATION NOT AVAILABLE)";
+         {
+           switch(data.data.tr)
+           {
+             
+             case 'TRANS_QUEUED':
+               content='('+R.get('TRANS_QUEUED')+')';
+               break;
+             case 'TRANS_IN_PROGRESS':
+               content='('+R.get('TRANS_IN_PROGRESS')+')';
+               break;
+             case 'TRANS_ERROR':
+               content='('+R.get('TRANS_ERROR ')+')';
+               break;
+             case null:
+               content= '<br>('+R.get('TRANSLATION_UNAVAILABLE')+')';
+               break;
+             default:
+               content=data.data.tr
+           }
+         } 
          else
+         {
            content=data.data.content;
+         }
        }
         contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
         

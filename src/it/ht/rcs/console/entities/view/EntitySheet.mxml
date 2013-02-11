@@ -37,6 +37,7 @@
       import com.google.maps.controls.ZoomControl;
       import com.google.maps.overlays.Marker;
       
+      import it.ht.rcs.console.DB;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Contact;
       import it.ht.rcs.console.entities.model.Entity;
@@ -88,14 +89,17 @@
 			private function init():void
 			{
         FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        
+        mostContacted=new ArrayCollection();
+        
         fromDate=new Date();
         fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
         toDate=new Date();
-        
         if(fromDf)
         fromDf.selectedDate=fromDate;
-
+    
 				EntityManager.instance.show(entity._id, onDetailResult);
+       
         if(loadingBox)
           loadingBox.visible=loadingBox.includeInLayout=false;
         if(LicenseManager.instance.correlation)
@@ -109,13 +113,18 @@
           contactsList.enabled=false; //TODO ADD A MESSAGE
         }
         
-				mostContacted=new ArrayCollection();
+			  
 
 				locations=new ArrayCollection();
 				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
 				locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
 				locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
 				locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
+          
+        if(DB.instance.demo)
+        {
+          callLater(onRefresh,[null])
+        }
 			}
       
       private function filter():void
@@ -171,6 +180,7 @@
 
 			private function onContactResult(e:ResultEvent):void
 			{
+        
 				mostContacted=new ArrayCollection();
 				var temp:ArrayCollection=e.result as ArrayCollection;
 				for (var i:int=0; i < temp.length; i++)
@@ -183,8 +193,8 @@
 					}
 
 				}
-        loadingBox.visible=loadingBox.includeInLayout=false;
-
+        if(loadingBox) loadingBox.visible=loadingBox.includeInLayout=false;
+        if(contactsList) contactsList.dataProvider=mostContacted;
 			}
 
 			private function onContactFault(e:FaultEvent):void
@@ -201,6 +211,7 @@
       private function onRefresh(e:Event=null):void
       {
         //  TODO REDUNDANT
+        mostContacted=new ArrayCollection();
         EntityManager.instance.show(entity._id, onDetailResult);
         if(loadingBox)
           loadingBox.visible=loadingBox.includeInLayout=false;
@@ -215,7 +226,7 @@
           contactsList.enabled=false; //TODO ADD A MESSAGE
         }
         
-        mostContacted=new ArrayCollection();
+       
         
         locations=new ArrayCollection();
         locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
@@ -228,27 +239,27 @@
 			private function onDetailResult(e:ResultEvent):void
 			{
 				entity=e.result as Entity;
-				nameTxt.text=entity.name;
-				descTxt.text=entity.desc;
-				photoViewer.currentIndex=0;
+				if(nameTxt) nameTxt.text=entity.name;
+        if(descTxt) descTxt.text=entity.desc;
+				if(photoViewer) photoViewer.currentIndex=0;
 
 				if (entity.photos)
 				{
 					if (entity.photos.length > 0)
 					{
-						photoViewer.currentPhoto=entity.photos[photoViewer.currentIndex];
+						if(photoViewer) photoViewer.currentPhoto=entity.photos[photoViewer.currentIndex];
 					}
 					else
 					{
-						photoViewer.currentPhoto="";
+            if(photoViewer) photoViewer.currentPhoto="";
 					}
 				}
 				else
 				{
-					photoViewer.currentPhoto="";
+          if(photoViewer) photoViewer.currentPhoto="";
 				}
-				handlesList.dataProvider=entity.handles;
-				trace("description: " + entity.desc)
+				if(handlesList) handlesList.dataProvider=entity.handles;
+				
 				//dispatchEvent(new Event("update"))
 			}
 

@@ -12,11 +12,26 @@
       import flashx.textLayout.conversion.TextConverter;
       
       import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.utils.Size;
-      import spark.components.DataGrid;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
       
-      private var content:String="";
+      import mx.rpc.Fault;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+
+      
+      import locale.R;
+      
+      import spark.components.DataGrid;
+      
+      [Bindable]
+      private var originalContent:String="";
+      
+      [Bindable]
+      private var translatedContent:String="";
+      
+      
       private var mainView:EvidencesView;
       
       [Bindable]
@@ -24,29 +39,43 @@
       {
         super.data=value;
         
+          originalContent=data.data.content;
+          translatedContent=data.data.tr;
+          
+ 
+        //By deafult hide the translate button
+        if(translateLink) translateLink.visible=translateLink.includeInLayout=false;
+
         
         typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" +data.data.type , TextConverter.TEXT_FIELD_HTML_FORMAT);
+        
         if(value.data.type=="mail")
         {
+          //start mail   
+         
           fromTxt.visible=fromTxt.includeInLayout=true;
-          subjectTxt.visible=subjectTxt.includeInLayout=true;
+          contentTxt.visible=contentTxt.includeInLayout=true;
           recipientsTxt.visible=recipientsTxt.includeInLayout=true;
           
           fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + cleanHTMLText(data.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT);
           recipientsTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + cleanHTMLText(data.data.rcpt), TextConverter.TEXT_FIELD_HTML_FORMAT);
           
+          
           if(data.data.subject!=null && data.data.subject!="")
           {
-            subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
+            contentTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
           }
           else
           {
-            subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + "[No subject]", TextConverter.TEXT_FIELD_HTML_FORMAT);
+            contentTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + "[No subject]", TextConverter.TEXT_FIELD_HTML_FORMAT);
           }
           sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          //end mail
         }
         else if(value.data.type=="sms")
         {
+         //start sms
+
           if(data.data.from!="local")
           {
             fromTxt.visible=fromTxt.includeInLayout=true;
@@ -66,21 +95,18 @@
           {
             recipientsTxt.visible=recipientsTxt.includeInLayout=false;
           }
-          var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
-          var grid:DataGrid= renderer.owner as DataGrid;
-          mainView = grid.owner as EvidencesView;
-          mainView.addEventListener("translate", onTranslate);
+         
           
-            content=data.data.content;
-          
-          subjectTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + cleanHTMLText(content), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + cleanHTMLText(originalContent), TextConverter.TEXT_FIELD_HTML_FORMAT);
           sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
           
-          onTranslate(null)
+          //end sms
         }
         
         else if(value.data.type=="mms")
         {
+          //start mms
+         
           if(data.data.from!="local")
           {
             fromTxt.visible=fromTxt.includeInLayout=true;
@@ -100,16 +126,71 @@
           {
             recipientsTxt.visible=recipientsTxt.includeInLayout=false;
           }
+          //mms subject
           if(data.data.subject!=null && data.data.subject!="")
           {
-            subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
+            contentTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + cleanHTMLText(data.data.subject), TextConverter.TEXT_FIELD_HTML_FORMAT);
           }
           else
           {
-            subjectTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + "[No subject]", TextConverter.TEXT_FIELD_HTML_FORMAT);
+            contentTxt.textFlow=TextConverter.importToFlow("<b>Subject: </b>" + "[No subject]", TextConverter.TEXT_FIELD_HTML_FORMAT);
           }
           
           sizeTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT);
+          //end sms
+        }
+        switch(translatedContent)
+        {
+          
+          case 'TRANS_QUEUED':
+            translatedContent='('+R.get('TRANS_QUEUED')+')';
+            break;
+          case 'TRANS_IN_PROGRESS':
+            translatedContent='('+R.get('TRANS_IN_PROGRESS')+')';
+            break;
+          case 'TRANS_ERROR':
+            translatedContent='('+R.get('TRANS_ERROR')+')';
+            break;
+          case null:
+            translatedContent='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+            break;
+          default:
+            translatedContent=translatedContent;
+        }
+        
+        translationTxt.setStyle("color", 0x666666)
+        translationTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><i>" + translatedContent+"</i>", TextConverter.TEXT_FIELD_HTML_FORMAT);
+        
+        var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
+        var grid:DataGrid= renderer.owner as DataGrid;
+        mainView = grid.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
+        
+        contentTxt.visible=contentTxt.includeInLayout=false;
+        translationTxt.visible=translationTxt.includeInLayout=false;
+        
+        //onTranslate(null)
+        if(!mainView.translation)
+        {
+          contentTxt.visible=true;
+          contentTxt.includeInLayout=true;
+          
+          translationTxt.visible=false;
+          translationTxt.includeInLayout=false;
+          
+        }
+        else
+        {
+          contentTxt.visible=false;
+          contentTxt.includeInLayout=false;
+          
+          translationTxt.visible=true;
+          translationTxt.includeInLayout=true;
+          
+          if(translateLink)
+          {
+            translateLink.visible=translateLink.includeInLayout=false;
+          }
         }
       }
       
@@ -123,24 +204,74 @@
       
       private function init():void
       {
-       
+        translateLink.setStyle("color",0x0000FF)
+        translateLink.addEventListener(TextEvent.LINK, doTranslate);
+        translateLink.htmlText="<u><b><a href='event:doTranslate'>Translate now!</a></b></u>"
       }
-      private function onTranslate(e:Event):void
+      private function doTranslate(e:TextEvent):void
       {
-        if(data)
-        {
-          if(mainView.translation)
-            content=data.data.tr;
-          else
-            content=data.data.content;
-        }          
-        
-        if(data.data.type=="sms")
-        {
-          subjectTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + cleanHTMLText(content), TextConverter.TEXT_FIELD_HTML_FORMAT);
-        }
+        var id:String=encodeURIComponent(data._id);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault) 
       }
       
+      private function onTranslate(e:Event):void
+      {
+      
+       
+          if(!mainView.translation)
+          {
+            contentTxt.visible=true;
+            contentTxt.includeInLayout=true;
+            
+            translationTxt.visible=false;
+            translationTxt.includeInLayout=false;
+           
+          }
+          else
+          {
+            if(data.data.type!="mail")
+            {
+              contentTxt.visible=false;
+              contentTxt.includeInLayout=false;
+              
+              translationTxt.visible=true;
+              translationTxt.includeInLayout=true;
+              
+              if(translateLink)
+              {
+                translateLink.visible=translateLink.includeInLayout=false;
+              }
+            }
+            else
+            {
+              contentTxt.visible=true;
+              contentTxt.includeInLayout=false;
+              
+              translationTxt.visible=true;
+              translationTxt.includeInLayout=true;
+              
+              if(translateLink)
+              {
+                translateLink.visible=translateLink.includeInLayout=false;
+              }
+            }
+          }
+         
+              
+
+      }
+      
+      private function onTranslateResult(e:ResultEvent):void
+      {
+        data.data.tr=e.result.data.tr;
+      
+      }
+      
+      private function onTranslateFault(e:FaultEvent):void
+      {
+        trace("translation fault")
+      }
     ]]>
   </fx:Script>
   
@@ -163,8 +294,13 @@
     </s:Line>
     <s:VGroup verticalAlign="top"
               width="50%">
-      <s:RichText id="subjectTxt"
+      <s:RichText id="contentTxt"
                   width="100%" maxDisplayedLines="4"/>
+      
+      <s:RichText id="translationTxt"
+                  width="100%" maxDisplayedLines="4"  visible="false" includeInLayout="false"/>
+      
+      <mx:Text id="translateLink" visible="false" includeInLayout="false"/>
       <s:RichText id="sizeTxt"
                   width="100%"/>
     </s:VGroup>

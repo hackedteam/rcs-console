@@ -10,14 +10,15 @@
     
   </fx:Metadata>
   <s:Button label="{R.get('EDIT')}" 
-            icon="@Embed('/img/NEW/edit.png')" click="onEditClick()"/>
+            icon="@Embed('/img/NEW/edit.png')" click="onEditClick()" enabled="{Console.currentSession.user.is_admin_profiles()}"/>
 <!--  
   <s:Button label="{R.get('DELETE')}" 
             icon="@Embed('/img/NEW/delete_32.png')"/>-->
   
   
   <actionbar:Separator/>
-
+  <s:Button label="{R.get('JUMP_TO_TARGET')}" click="onJumpClick()"
+            enabled="{Console.currentSession.user.is_admin_profiles()}" icon="@Embed('/img/NEW/jumpToTarget.png')"/>
   <s:Spacer width="100%"/>
 
   <fx:Script>
@@ -54,6 +55,11 @@
         popup.entity = entity
         popup.entity.desc = sheet.entity.desc;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function onJumpClick():void
+      {
+       
       }
       
       private function onUpdate(e:Event):void

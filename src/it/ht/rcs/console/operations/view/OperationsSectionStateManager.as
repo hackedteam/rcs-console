@@ -56,6 +56,7 @@ package it.ht.rcs.console.operations.view
       
       collator = new SortingCollator();
       collator.ignoreCase = true;
+      collator.numericComparison=true;
       
       customTypeSort = new Sort();
       customTypeSort.compareFunction = customTypeCompareFunction;
@@ -428,7 +429,7 @@ package it.ht.rcs.console.operations.view
       
       var aIsAgent:Boolean = a is Agent;
       var bIsAgent:Boolean = b is Agent;
-      
+      //agent
       if (aIsAgent && bIsAgent) {
         
         var aIsFactory:Boolean = a._kind == 'factory';
@@ -454,7 +455,7 @@ package it.ht.rcs.console.operations.view
         }
         
       }
-      
+      //end agent
       return collator.compare(a.name, b.name);
       
     }

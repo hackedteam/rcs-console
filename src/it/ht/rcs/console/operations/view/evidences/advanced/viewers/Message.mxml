@@ -9,16 +9,22 @@
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
 									 creationComplete="init()"
-                   xmlns:utils="it.ht.rcs.console.utils.*">
+									 xmlns:utils="it.ht.rcs.console.utils.*">
 	<fx:Script>
 		<![CDATA[
-      
 			import flashx.textLayout.conversion.TextConverter;
-			
+
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
-      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+
+			import mx.rpc.Fault;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+      
+      import locale.R;
 
 			[Bindable]
 			[Embed(source="/img/evidence/attachment16.png")]
@@ -33,11 +39,11 @@
 			private var hasImages:Boolean;
 
 			private var loader:URLLoader=new URLLoader();
-      
-      [Bindable]
-      public var idVisible:Boolean;
-      
-      private var mainView:EvidencesView;
+
+			[Bindable]
+			public var idVisible:Boolean;
+
+			private var mainView:EvidencesView;
 
 			[Bindable]
 			public function set evidence(value:Object):void
@@ -45,33 +51,32 @@
 				_evidence=value;
 				if (value.type == "message")
 				{
-          switch (value.data.type)
-          {
-          case "mail":
-            var id:String=encodeURIComponent(value._id);
-            var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-            var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; 
-            loader.addEventListener(Event.COMPLETE, onContentLoaded);
-            loader.load(new URLRequest(url));
-            break;
-          
-          case "sms":
-            content=value.data.content || "";
-            break;
-          
-          case "mms":
-            content=value.data.content || "";
-            break
-          
-          default:
-            content=value.data.content || "";
-          }
-					
+					switch (value.data.type)
+					{
+						case "mail":
+							var id:String=encodeURIComponent(value._id);
+							var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+							var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target;
+							loader.addEventListener(Event.COMPLETE, onContentLoaded);
+							loader.load(new URLRequest(url));
+							break;
+
+						case "sms":
+							content=value.data.content || "";
+							break;
+
+						case "mms":
+							content=value.data.content || "";
+							break
+
+						default:
+							content=value.data.content || "";
+					}
 				}
-        html.reset()
-          onTranslate(null)
+				html.reset()
+				onTranslate(null)
 			}
-      
+
 
 			private function onContentLoaded(e:Event):void
 			{
@@ -81,17 +86,18 @@
 				{
 					hasImages=true;
 				}
-        if(content==null) content="";
+				if (content == null)
+					content="";
 				content=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
 
 				html.htmlText=content || ("content not available");
-        onTranslate(null)
+				onTranslate(null)
 				loader.removeEventListener(Event.COMPLETE, onContentLoaded);
 			}
 
 			public function get evidence():Object
 			{
-				return _evidence; //from, rcpt,subject, size, content
+				return _evidence; //from, rcpt, subject, size, content
 			}
 
 			private function lineBreak(s:String):String
@@ -102,10 +108,10 @@
 
 			private function init():void
 			{
-        var container:HGroup=this.owner as HGroup;
-        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
-        mainView = advancedViewer.owner as EvidencesView;
-        mainView.addEventListener("translate", onTranslate);
+				var container:HGroup=this.owner as HGroup;
+				var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+				mainView=advancedViewer.owner as EvidencesView;
+				mainView.addEventListener("translate", onTranslate);
 			}
 
 			private function renderImages():void
@@ -121,30 +127,74 @@
 				clean=clean.replace(">", "&gt;");
 				return clean;
 			}
-      
-      private function onTranslate(e:Event):void
-      {
-        if(evidence)
-        {
-          if(mainView.translation)
-          {
-            warningBox.visible=false;
-            html.htmlText=evidence.data.tr || "(TRANSLATION NOT AVAILABLE)";
-          
-          }
-          else
-          {
-            if(hasImages && content!=fullHtml )
-            {
-              warningBox.visible=true;
-            }
-            html.htmlText= content;
-            
-          }
-         
 
-        }
-      }
+			private function onTranslate(e:Event):void
+			{
+				if (evidence)
+				{
+					if (mainView.translation)
+					{
+						warningBox.visible=false;
+						if (evidence.data.tr == null || evidence.data.tr == "")
+						{
+							var id:String=encodeURIComponent(evidence._id);
+							var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+							EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault)
+						}
+            switch(evidence.data.tr)
+            {
+              
+              case 'TRANS_QUEUED':
+                html.htmlText='('+R.get('TRANS_QUEUED')+')';
+                break;
+              case 'TRANS_IN_PROGRESS':
+                html.htmlText='('+R.get('TRANS_IN_PROGRESS')+')';
+                break;
+              case 'TRANS_ERROR':
+                html.htmlText='('+R.get('TRANS_ERROR')+')';
+                break;
+              case null:
+                html.htmlText='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+                break;
+              default:
+                html.htmlText=evidence.data.tr;
+            }
+						
+					}
+					else
+					{ 
+            //tranlation off - show original content
+						if (hasImages && content != fullHtml)
+						{
+							warningBox.visible=true;
+						}
+						html.htmlText=content;
+					}
+				}
+			}
+
+			private function onTranslateResult(e:ResultEvent):void
+			{
+				evidence.data.tr=e.result.data.tr;
+				for (var i:int=0; i < mainView.evidenceDg.dataProvider.length; i++)
+				{
+					var item:Evidence=mainView.evidenceDg.dataProvider.getItemAt(i) as Evidence;
+					if (item)
+					{
+						if (item._id == evidence._id)
+						{
+							item.data.tr=evidence.data.tr;
+						}
+					}
+				}
+        mainView.dispatchEvent(new Event("translate"))
+				//onTranslate(null)
+			}
+
+			private function onTranslateFault(e:FaultEvent):void
+			{
+				trace("translation fault")
+			}
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -153,15 +203,19 @@
 											paddingRight="10"
 											paddingTop="10"/>
 	</s:layout>
-  <s:RichText id="idTxt"
-              width="100%"
-              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
-  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
+	<s:RichText id="idTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{idVisible}"
+							includeInLayout="{idVisible}"/>
+	<s:Line width="100%"
+					visible="{idVisible}"
+					includeInLayout="{idVisible}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
 	<s:RichText id="fromTxt"
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+cleanHTMLText(evidence.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
@@ -247,16 +301,15 @@
 									 click="renderImages()"
 									 fontWeight="bold"/>
 	</s:BorderContainer>
-  <utils:SearchableHTML id="html"
-                        width="100%"
-                        height="100%"
-                        
-                        htmlText=""/>
-<!--<mx:HTML id="html"
-					 width="100%"
-					 height="100%"
-					 verticalScrollPolicy="auto"
-					 paddingRight="10"
-					 htmlText="{content}"/>-->
-  
+	<utils:SearchableHTML id="html"
+												width="100%"
+												height="100%"
+												htmlText=""/>
+	<!--<mx:HTML id="html"
+						 width="100%"
+						 height="100%"
+						 verticalScrollPolicy="auto"
+						 paddingRight="10"
+						 htmlText="{content}"/>-->
+
 </s:BorderContainer>

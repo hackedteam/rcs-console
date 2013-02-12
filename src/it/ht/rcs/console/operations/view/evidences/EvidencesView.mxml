@@ -46,6 +46,7 @@
 
 			private function onAddedToStage():void
 			{
+        translation=false;
 				resetFilter();
 
 				EvidenceManager.instance.evidenceFilter.target=section.stateManager.selectedTarget._id;
@@ -141,11 +142,12 @@
 
 			private function onRemovedFromStage():void
 			{
-      
+        translation=false;
 				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, refreshData);
 				EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
 				EvidenceManager.instance.unlistenRefresh();
 				trace("evidence view removed from stage");
+        
 				evidenceDg.selectedItems=new Vector.<Object>
 				actionBar.selectedObjects=evidenceDg.selectedItems;
 				currentState="default";

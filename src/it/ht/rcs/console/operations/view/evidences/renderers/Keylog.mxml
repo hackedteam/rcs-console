@@ -10,12 +10,26 @@
     <![CDATA[
       import flashx.textLayout.conversion.TextConverter;
       
-      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      
+      import locale.R;
+      
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
       
       import spark.components.DataGrid;
       
-      private var content:String
+      [Bindable]
+      private var originalContent:String="";
+      
+      [Bindable]
+      private var translatedContent:String="";
+      
+      [Bindable]
+      private var translation:Boolean;
+      
       private var mainView:EvidencesView;
       
       [Bindable]
@@ -23,19 +37,33 @@
       {
         
         super.data=value;
-        // content, program, window
-       
-      /*   if(mainView.translation)
+      
+        originalContent=data.data.content
+        translatedContent=data.data.tr;
+        switch (translatedContent)
         {
-          content=data.data.tr;
+          
+          case 'TRANS_QUEUED':
+            translatedContent='(' + R.get('TRANS_QUEUED') + ')';
+            break;
+          case 'TRANS_IN_PROGRESS':
+            translatedContent='(' + R.get('TRANS_IN_PROGRESS') + ')';
+            break;
+          case 'TRANS_ERROR':
+            translatedContent='(' + R.get('TRANS_ERROR') + ')';
+            break;
+          case null:
+            translatedContent='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
+            break;
+          default:
+            translatedContent=translatedContent;
         }
-        else
-        {
-          content=data.data.content;
-        } */
-        content=data.data.content
+        
         processTxt.textFlow= TextConverter.importToFlow("<b>Program: </b>"+data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        translationTxt.setStyle("color", 0x666666)
+        translationTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><i>" + translatedContent+"</i>", TextConverter.TEXT_FIELD_HTML_FORMAT)
+        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+originalContent, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          
         windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)
         
         onTranslate(null)
@@ -43,23 +71,69 @@
       
       private function init():void
       {
-        var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
-        var grid:DataGrid= renderer.owner as DataGrid;
-        mainView = grid.owner as EvidencesView;
+        var renderer:EvidenceRenderer=this.owner as EvidenceRenderer
+        var grid:DataGrid=renderer.owner as DataGrid;
+        mainView=grid.owner as EvidencesView;
         mainView.addEventListener("translate", onTranslate);
+        translation=mainView.translation;
+        translateLink.setStyle("color", 0x0000FF)
+        translateLink.addEventListener(TextEvent.LINK, doTranslate);
+        translateLink.htmlText="<u><b><a href='event:doTranslate'>" + R.get('TRANSLATE_NOW') + "</a></b></u>"
+        onTranslate(null)
       }
       
       private function onTranslate(e:Event):void
       {
-       if(data)
-       {
-         if(mainView.translation)
-           content=data.data.tr || "(TRANSLATION NOT AVAILABLE)";
-         else
-           content=data.data.content;
-         
-       }
-          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        if (data)
+        {
+          
+          if (!mainView.translation)
+          {
+            contentTxt.visible=contentTxt.includeInLayout=true;
+            translationTxt.visible=translationTxt.includeInLayout=false;
+            translateLink.visible=translateLink.includeInLayout=false;
+          }
+          else
+          {
+            contentTxt.visible=contentTxt.includeInLayout=false;
+            translationTxt.visible=translationTxt.includeInLayout=true;
+            
+            if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+              translateLink.visible=translateLink.includeInLayout=true;
+            else
+              translateLink.visible=translateLink.includeInLayout=false;
+            
+          }
+        }
+      }
+      
+      private function onTranslateResult(e:ResultEvent):void
+      {
+        data=e.result;
+        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+        {
+          var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+          if (evidence)
+          {
+            if (evidence._id == e.result._id)
+            {
+              evidence.data.tr=e.result.data.tr;
+            }
+          }
+        }
+      }
+      
+      private function onTranslateFault(e:FaultEvent):void
+      {
+        trace("translation fault");
+      }
+
+      
+      private function doTranslate(e:TextEvent):void
+      {
+        var id:String=encodeURIComponent(data._id);
+        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
       }
       
     ]]>
@@ -69,6 +143,10 @@
             width="100%">
     <s:VGroup verticalAlign="top" width="100%">
       <s:RichText id="contentTxt" width="100%"/>
+      <s:RichText id="translationTxt" width="100%"/>
+      <mx:Text id="translateLink"
+               visible="false"
+               includeInLayout="false"/>
     </s:VGroup>
     <s:Line height="100%">
       <s:stroke>

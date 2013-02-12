@@ -3,72 +3,90 @@
 																xmlns:s="library://ns.adobe.com/flex/spark"
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                addedToStage="init()"
+																addedToStage="init()"
 																width="100%"
 																height="100%">
 
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-      import spark.components.DataGrid;
+			import spark.components.DataGrid;
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       
-      import locale.R;
+			import locale.R;
 
 			import mx.collections.ArrayCollection;
-      
-      private var content:String
-      private var mainView:EvidencesView;
+      import mx.rpc.events.ResultEvent;
+      import mx.rpc.events.FaultEvent;
+
+			private var content:String
+			private var mainView:EvidencesView;
 
 			[Bindable]
 			private var renderMode:String;
-      
+
 			[Bindable]
 			private var ImageClass:Class;
+
+			[Bindable]
+			private var translation:Boolean;
+
+			[Bindable]
+			private var originalContent:String="";
+
+			[Bindable]
+			private var translatedContent:String="";
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
 				super.data=value;
-        if(data.data.program.toLowerCase()=="" || data.data.program.toLowerCase()==null)
-        {
-          ImageClass=ChatIcons["chat"]
-        }
-          
-        else if(data.data.program.toLowerCase()=="google talk")
-        {
-          ImageClass=ChatIcons["gtalk"]
-        }
-          
-        else if(data.data.program.toLowerCase()=="messenger")
-        {
-          ImageClass=ChatIcons["bbm"]
-        }    
-        else
-        {
-          ImageClass=ChatIcons[data.data.program.toLowerCase()]
-        }
-        
-				// topic, peer, content, program
-        
-				if (data.data.from_display != "" && data.data.from_display !=null)
+
+				originalContent=data.data.content;
+				translatedContent=data.data.tr;
+
+
+				if (data.data.program.toLowerCase() == "" || data.data.program.toLowerCase() == null)
 				{
-          fromTxt.visible=true;
-          fromTxt.includeInLayout=true;
-					fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					ImageClass=ChatIcons["chat"]
 				}
-        else if(data.data.from != "" && data.data.from !=null)
-        {
-          fromTxt.visible=true;
-          fromTxt.includeInLayout=true;
-          fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)   
-        }
+
+				else if (data.data.program.toLowerCase() == "google talk")
+				{
+					ImageClass=ChatIcons["gtalk"]
+				}
+
+				else if (data.data.program.toLowerCase() == "messenger")
+				{
+					ImageClass=ChatIcons["bbm"]
+				}
 				else
 				{
-          fromTxt.visible=false;
-          fromTxt.includeInLayout=false;
+					ImageClass=ChatIcons[data.data.program.toLowerCase()]
+				}
+
+				// topic, peer, content, program
+
+				if (data.data.from_display != "" && data.data.from_display != null)
+				{
+					fromTxt.visible=true;
+					fromTxt.includeInLayout=true;
+					fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+				else if (data.data.from != "" && data.data.from != null)
+				{
+					fromTxt.visible=true;
+					fromTxt.includeInLayout=true;
+					fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+				else
+				{
+					fromTxt.visible=false;
+					fromTxt.includeInLayout=false;
 				}
 				if (data.data.program == "Facebook")
 				{
@@ -78,104 +96,159 @@
 				{
 					renderMode=TextConverter.PLAIN_TEXT_FORMAT
 				}
-      
-        content=data.data.content;
-        
-        //new format
-        if(data.data.rcpt_display!=null && data.data.rcpt_display!="")
+
+				content=data.data.content;
+
+				//new format
+				if (data.data.rcpt_display != null && data.data.rcpt_display != "")
+				{
+					toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+				else if (data.data.rcpt != null && data.data.rcpt != "")
+				{
+					toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+
+				//old format
+				else
+				{
+					toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+        switch (translatedContent)
         {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        }
-        else  if(data.data.rcpt!=null && data.data.rcpt!="")
-        {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)      
+          
+          case 'TRANS_QUEUED':
+            translatedContent='(' + R.get('TRANS_QUEUED') + ')';
+            break;
+          case 'TRANS_IN_PROGRESS':
+            translatedContent='(' + R.get('TRANS_IN_PROGRESS') + ')';
+            break;
+          case 'TRANS_ERROR':
+            translatedContent='(' + R.get('TRANS_ERROR') + ')';
+            break;
+          case null:
+            translatedContent='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
+            break;
+          default:
+            translatedContent=translatedContent;
         }
 
-        //old format
-        else
-        {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        }
-        
-				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + content,TextConverter.TEXT_FIELD_HTML_FORMAT)
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + originalContent, TextConverter.TEXT_FIELD_HTML_FORMAT)
+        translationTxt.setStyle("color", 0x666666)
+				translationTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><i>" + translatedContent+"</i>", TextConverter.TEXT_FIELD_HTML_FORMAT)
 				programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        incomingTxt.textFlow= TextConverter.importToFlow("<b>Incoming: </b>"+data.data.incoming, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        onTranslate(null)
+				incomingTxt.textFlow=TextConverter.importToFlow("<b>Incoming: </b>" + data.data.incoming, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				onTranslate(null)
 			}
-      private function init():void
+
+			private function init():void
+			{
+				var renderer:EvidenceRenderer=this.owner as EvidenceRenderer
+				var grid:DataGrid=renderer.owner as DataGrid;
+				mainView=grid.owner as EvidencesView;
+				mainView.addEventListener("translate", onTranslate);
+				translation=mainView.translation;
+				translateLink.setStyle("color", 0x0000FF)
+				translateLink.addEventListener(TextEvent.LINK, doTranslate);
+				translateLink.htmlText="<u><b><a href='event:doTranslate'>" + R.get('TRANSLATE_NOW') + "</a></b></u>"
+				onTranslate(null)
+			}
+
+			private function doTranslate(e:TextEvent):void
+			{
+			var id:String=encodeURIComponent(data._id);
+			var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+			EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+			}
+      
+      private function onTranslateResult(e:ResultEvent):void
       {
-        var renderer:EvidenceRenderer = this.owner as EvidenceRenderer
-        var grid:DataGrid= renderer.owner as DataGrid;
-        mainView = grid.owner as EvidencesView;
-        mainView.addEventListener("translate", onTranslate);
+        data=e.result;
+        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+        {
+          var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+          if (evidence)
+          {
+            if (evidence._id == e.result._id)
+            {
+              evidence.data.tr=e.result.data.tr;
+            }
+          }
+        }
       }
-      private function onTranslate(e:Event):void
+      
+      private function onTranslateFault(e:FaultEvent):void
       {
-       if(data)
-       { 
-         if(mainView.translation)
-         {
-           switch(data.data.tr)
-           {
-             
-             case 'TRANS_QUEUED':
-               content='('+R.get('TRANS_QUEUED')+')';
-               break;
-             case 'TRANS_IN_PROGRESS':
-               content='('+R.get('TRANS_IN_PROGRESS')+')';
-               break;
-             case 'TRANS_ERROR':
-               content='('+R.get('TRANS_ERROR ')+')';
-               break;
-             case null:
-               content= '<br>('+R.get('TRANSLATION_UNAVAILABLE')+')';
-               break;
-             default:
-               content=data.data.tr
-           }
-         } 
-         else
-         {
-           content=data.data.content;
-         }
-       }
-        contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
-        
+        trace("translation fault");
       }
+
+
+			private function onTranslate(e:Event):void
+			{
+				if (data)
+				{
+
+					if (!mainView.translation)
+					{
+						contentTxt.visible=contentTxt.includeInLayout=true;
+						translationTxt.visible=translationTxt.includeInLayout=false;
+						translateLink.visible=translateLink.includeInLayout=false;
+					}
+					else
+					{
+						contentTxt.visible=contentTxt.includeInLayout=false;
+						translationTxt.visible=translationTxt.includeInLayout=true;
+
+						if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+							translateLink.visible=translateLink.includeInLayout=true;
+						else
+							translateLink.visible=translateLink.includeInLayout=false;
+
+					}
+				}
+
+			}
 		]]>
 	</fx:Script>
 	<s:HGroup verticalAlign="top"
 						height="100%"
 						width="100%">
-    
-    <s:VGroup verticalAlign="middle"
-              width="50%">
-      <s:RichText id="fromTxt"
-                  width="100%"/>
-      <s:RichText id="toTxt"
-                  width="100%"/>
-      <s:HGroup verticalAlign="middle">
-        <s:BitmapImage width="16"
-                       height="16"
-                       source="{ImageClass}"/>
-        <s:RichText id="programTxt"
-                    width="100%"/>
-      </s:HGroup>
-    </s:VGroup>
-    
-		
+
+		<s:VGroup verticalAlign="middle"
+							width="50%">
+			<s:RichText id="fromTxt"
+									width="100%"/>
+			<s:RichText id="toTxt"
+									width="100%"/>
+			<s:HGroup verticalAlign="middle">
+				<s:BitmapImage width="16"
+											 height="16"
+											 source="{ImageClass}"/>
+				<s:RichText id="programTxt"
+										width="100%"/>
+			</s:HGroup>
+		</s:VGroup>
+
+
 		<s:Line height="100%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-    <s:VGroup verticalAlign="middle"
-              width="50%">
-      <s:RichText id="incomingTxt"
-                  width="100%" includeInLayout="false" visible="false"/>
-      <s:RichText id="contentTxt"
-                  width="100%"/>
-    </s:VGroup>
+		<s:VGroup verticalAlign="middle"
+							width="50%">
+			<s:RichText id="incomingTxt"
+									width="100%"
+									includeInLayout="false"
+									visible="false"/>
+			<s:RichText id="contentTxt"
+									width="100%"/>
+			<s:RichText id="translationTxt"
+									width="100%"/>
+			<mx:Text id="translateLink"
+							 visible="false"
+							 includeInLayout="false"/>
+		</s:VGroup>
 	</s:HGroup>
 
 </renderers:EvidenceDataRenderer>

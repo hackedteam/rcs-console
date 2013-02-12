@@ -13,8 +13,15 @@
       
       import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       import spark.components.HGroup;
-
+      import locale.R;
+      
+      import mx.rpc.events.ResultEvent;
+      import mx.rpc.events.FaultEvent;
+      
+      
 			private var _evidence:Object;
       
       private var mainView:EvidencesView;
@@ -31,11 +38,12 @@
         _evidence=value;
 				//
         content=evidence.data.content;
-        
         contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
         onTranslate(null)
 
 			}
+      
+      
 
 			public function get evidence():Object
 			{
@@ -52,21 +60,76 @@
       {
         var container:HGroup=this.owner as HGroup;
         var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
-        mainView = advancedViewer.owner as EvidencesView;
+        mainView=advancedViewer.owner as EvidencesView;
         mainView.addEventListener("translate", onTranslate);
       }
       
       private function onTranslate(e:Event):void
       {
-        if(evidence)
+        if (evidence)
         {
-          if(mainView.translation)
-            content=evidence.data.tr || "(TRANSLATION NOT AVAILABLE)";
+          if (mainView.translation)
+          {
+           
+            if (evidence.data.tr == null || evidence.data.tr == "")
+            {
+              var id:String=encodeURIComponent(evidence._id);
+              var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+              EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault)
+            }
+            switch(evidence.data.tr)
+            {
+              
+              case 'TRANS_QUEUED':
+                content='('+R.get('TRANS_QUEUED')+')';
+                break;
+              case 'TRANS_IN_PROGRESS':
+                content='('+R.get('TRANS_IN_PROGRESS')+')';
+                break;
+              case 'TRANS_ERROR':
+                content='('+R.get('TRANS_ERROR')+')';
+                break;
+              case null:
+                content='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+                break;
+              default:
+                content=evidence.data.tr;
+            }
+            
+          }
           else
-            content=evidence.data.content || "";
-          
+          { 
+            //tranlation off - show original content
+           
+            content=evidence.data.content;
+           
+          }
           contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
         }
+        
+      }
+      
+      private function onTranslateResult(e:ResultEvent):void
+      {
+        
+        evidence=e.result;
+        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+        {
+          var current:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+          if (current)
+          {
+            if (current._id == e.result._id)
+            {
+              current.data.tr=e.result.data.tr;
+            }
+          }
+        }
+       
+      }
+      
+      private function onTranslateFault(e:FaultEvent):void
+      {
+        trace("translation fault")
       }
 		]]>
 	</fx:Script>
@@ -101,7 +164,7 @@
 		<s:Scroller height="100%"
 								width="100%">
 			<s:RichEditableText editable="false"
-													id="contentTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;&lt;br&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
+													id="contentTxt" fontSize="12"/>
 		</s:Scroller>
 
 </s:BorderContainer>

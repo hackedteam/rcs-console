@@ -13,18 +13,18 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
+			
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
 			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-
+			
+			import locale.R;
+			
 			import mx.rpc.Fault;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-      
-      import locale.R;
 
 			[Bindable]
 			[Embed(source="/img/evidence/attachment16.png")]
@@ -175,20 +175,31 @@
 
 			private function onTranslateResult(e:ResultEvent):void
 			{
-				evidence.data.tr=e.result.data.tr;
-				for (var i:int=0; i < mainView.evidenceDg.dataProvider.length; i++)
-				{
-					var item:Evidence=mainView.evidenceDg.dataProvider.getItemAt(i) as Evidence;
-					if (item)
-					{
-						if (item._id == evidence._id)
-						{
-							item.data.tr=evidence.data.tr;
-						}
-					}
-				}
-        mainView.dispatchEvent(new Event("translate"))
-				//onTranslate(null)
+
+     
+        evidence=e.result;
+        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+        {
+          var current:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+          if (current)
+          {
+            if (current._id == e.result._id)
+            {
+              current.data.tr=e.result.data.tr;
+            }
+          }
+        }
+       /*  for(var i:int=0;i<mainView.evidenceDg.dataProvider.length;i++)
+        {
+         current=mainView.evidenceDg.dataProvider.getItemAt(i) as Evidence;
+         if (current)
+         {
+           if (current._id == e.result._id)
+           {
+             current.data.tr=e.result.data.tr;
+           }
+         }
+        } */
 			}
 
 			private function onTranslateFault(e:FaultEvent):void

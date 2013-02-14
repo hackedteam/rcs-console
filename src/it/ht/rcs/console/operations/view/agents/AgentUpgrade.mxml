@@ -81,19 +81,17 @@
         }
         
         // dangerous warning for scout
-        if (agent.version < 2) {
+        if (agent.version < 3) {
           this.height = 330;
           scout_warning = true;
-          scout_ok.selected = false;
+          upBtn.enabled = false;
         }
         
       }
       
       protected function upgradeAgent(event:MouseEvent):void
       {
-        if (scout_ok.selected)
-          AgentManager.instance.upgrade(agent);
-        
+        AgentManager.instance.upgrade(agent);        
         closeMe(event);
       }
       
@@ -114,7 +112,6 @@
 
     <s:TextArea id="warning" fontWeight="bold" editable="false" borderVisible="false" text="{R.get('SCOUT_UPGRADE_WARNING')}"
                 width="100%" height="65" contentBackgroundAlpha="0" visible="{scout_warning}" includeInLayout="{scout_warning}" />
-    <s:CheckBox id="scout_ok" selected="true" label="{R.get('AGREE')}" visible="{scout_warning}" includeInLayout="{scout_warning}" />
     
   </s:VGroup>
   

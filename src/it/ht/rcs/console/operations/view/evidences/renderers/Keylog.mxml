@@ -13,6 +13,7 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
@@ -95,13 +96,16 @@
           }
           else
           {
-            contentTxt.visible=contentTxt.includeInLayout=false;
-            translationTxt.visible=translationTxt.includeInLayout=true;
-            
-            if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
-              translateLink.visible=translateLink.includeInLayout=true;
-            else
-              translateLink.visible=translateLink.includeInLayout=false;
+            if(LicenseManager.instance.translation)
+           {
+             contentTxt.visible=contentTxt.includeInLayout=false;
+             translationTxt.visible=translationTxt.includeInLayout=true;
+             
+             if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+               translateLink.visible=translateLink.includeInLayout=true;
+             else
+               translateLink.visible=translateLink.includeInLayout=false;
+           }
             
           }
         }
@@ -131,9 +135,12 @@
       
       private function doTranslate(e:TextEvent):void
       {
-        var id:String=encodeURIComponent(data._id);
-        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+        if(LicenseManager.instance.translation)
+        {
+          var id:String=encodeURIComponent(data._id);
+          var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+        }
       }
       
     ]]>

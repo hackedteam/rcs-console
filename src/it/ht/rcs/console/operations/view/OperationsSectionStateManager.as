@@ -495,6 +495,9 @@ package it.ht.rcs.console.operations.view
       
       if (item && item.hasOwnProperty('desc') && item.desc)
         result = result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
+      
+      if (item && item.hasOwnProperty('ident') && item.ident)
+        result = result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
       //
      
       return result;

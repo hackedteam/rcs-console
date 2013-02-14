@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-																xmlns:s="library://ns.adobe.com/flex/spark"
-																xmlns:mx="library://ns.adobe.com/flex/mx"
-																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-																addedToStage="init()"
-																width="100%"
-																height="100%">
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%" addedToStage="init()">
 
 	<fx:Script>
 		<![CDATA[
@@ -15,6 +13,7 @@
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
 			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       
 			import locale.R;
@@ -156,9 +155,12 @@
 
 			private function doTranslate(e:TextEvent):void
 			{
-			var id:String=encodeURIComponent(data._id);
-			var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-			EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+        if(LicenseManager.instance.translation)
+        {
+    			var id:String=encodeURIComponent(data._id);
+    			var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+    			EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+        }
 			}
       
       private function onTranslateResult(e:ResultEvent):void
@@ -187,7 +189,6 @@
 			{
 				if (data)
 				{
-
 					if (!mainView.translation)
 					{
 						contentTxt.visible=contentTxt.includeInLayout=true;
@@ -196,13 +197,16 @@
 					}
 					else
 					{
-						contentTxt.visible=contentTxt.includeInLayout=false;
-						translationTxt.visible=translationTxt.includeInLayout=true;
-
-						if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
-							translateLink.visible=translateLink.includeInLayout=true;
-						else
-							translateLink.visible=translateLink.includeInLayout=false;
+  					if(LicenseManager.instance.translation)
+            {
+              contentTxt.visible=contentTxt.includeInLayout=false;
+              translationTxt.visible=translationTxt.includeInLayout=true;
+              
+              if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+                translateLink.visible=translateLink.includeInLayout=true;
+              else
+                translateLink.visible=translateLink.includeInLayout=false;
+            }
 
 					}
 				}
@@ -210,22 +214,14 @@
 			}
 		]]>
 	</fx:Script>
-	<s:HGroup verticalAlign="top"
-						height="100%"
-						width="100%">
+	<s:HGroup width="100%" height="100%" verticalAlign="top">
 
-		<s:VGroup verticalAlign="middle"
-							width="50%">
-			<s:RichText id="fromTxt"
-									width="100%"/>
-			<s:RichText id="toTxt"
-									width="100%"/>
+		<s:VGroup width="50%" verticalAlign="middle">
+			<s:RichText id="fromTxt" width="100%"/>
+			<s:RichText id="toTxt" width="100%"/>
 			<s:HGroup verticalAlign="middle">
-				<s:BitmapImage width="16"
-											 height="16"
-											 source="{ImageClass}"/>
-				<s:RichText id="programTxt"
-										width="100%"/>
+				<s:BitmapImage width="16" height="16" source="{ImageClass}"/>
+				<s:RichText id="programTxt" width="100%"/>
 			</s:HGroup>
 		</s:VGroup>
 
@@ -235,19 +231,11 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<s:VGroup verticalAlign="middle"
-							width="50%">
-			<s:RichText id="incomingTxt"
-									width="100%"
-									includeInLayout="false"
-									visible="false"/>
-			<s:RichText id="contentTxt"
-									width="100%"/>
-			<s:RichText id="translationTxt"
-									width="100%"/>
-			<mx:Text id="translateLink"
-							 visible="false"
-							 includeInLayout="false"/>
+		<s:VGroup width="50%" verticalAlign="middle">
+			<s:RichText id="incomingTxt" visible="false" width="100%" includeInLayout="false"/>
+			<s:RichText id="contentTxt" width="100%"/>
+			<s:RichText id="translationTxt" width="100%"/>
+			<mx:Text id="translateLink" visible="false" includeInLayout="false"/>
 		</s:VGroup>
 	</s:HGroup>
 

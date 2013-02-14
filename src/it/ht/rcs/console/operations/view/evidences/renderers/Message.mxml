@@ -10,19 +10,18 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-
-			import it.ht.rcs.console.DB;
+			
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
 			import it.ht.rcs.console.utils.Size;
-
+			
 			import locale.R;
-
-			import mx.rpc.Fault;
+			
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import spark.components.DataGrid;
 
 			[Bindable]
@@ -200,16 +199,18 @@
 
 			private function doTranslate(e:TextEvent):void
 			{
-				var id:String=encodeURIComponent(data._id);
-				var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-				EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
+				if(LicenseManager.instance.translation)
+        {
+          var id:String=encodeURIComponent(data._id);
+          var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
+        }
 			}
 
 			private function onTranslate(e:Event):void
 			{
 				if (data)
 				{
-
 					if (!mainView.translation)
 					{
 						contentTxt.visible=contentTxt.includeInLayout=true;
@@ -218,7 +219,7 @@
 					}
 					else
 					{
-						if (data.data.type != "mail")
+						if (data.data.type != "mail" && LicenseManager.instance.translation)
 						{
 							contentTxt.visible=contentTxt.includeInLayout=false;
 							translationTxt.visible=translationTxt.includeInLayout=true;

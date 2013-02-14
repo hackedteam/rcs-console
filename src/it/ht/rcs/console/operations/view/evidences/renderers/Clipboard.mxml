@@ -13,6 +13,7 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import spark.components.DataGrid;
       
       import locale.R;
@@ -56,9 +57,7 @@
           default:
             translatedContent=translatedContent;
         }
-        
-          
-          
+
         contentTxt.textFlow= TextConverter.importToFlow("<b>Content: </b>"+originalContent, TextConverter.TEXT_FIELD_HTML_FORMAT)
         translationTxt.setStyle("color", 0x666666)
         translationTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><i>" + translatedContent+"</i>", TextConverter.TEXT_FIELD_HTML_FORMAT)
@@ -66,6 +65,7 @@
         windowTxt.textFlow= TextConverter.importToFlow("<b>Window: </b>"+data.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)
         onTranslate(null)
       }
+      
       private function init():void
       {
         var renderer:EvidenceRenderer=this.owner as EvidenceRenderer
@@ -92,14 +92,17 @@
           }
           else
           {
-            contentTxt.visible=contentTxt.includeInLayout=false;
-            translationTxt.visible=translationTxt.includeInLayout=true;
-            
-            if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
-              translateLink.visible=translateLink.includeInLayout=true;
-            else
-              translateLink.visible=translateLink.includeInLayout=false;
-            
+           if(LicenseManager.instance.translation)
+           {
+             contentTxt.visible=contentTxt.includeInLayout=false;
+             translationTxt.visible=translationTxt.includeInLayout=true;
+             
+             if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+               translateLink.visible=translateLink.includeInLayout=true;
+             else
+               translateLink.visible=translateLink.includeInLayout=false;
+             
+           }
           }
         }
       }
@@ -128,9 +131,12 @@
       
       private function doTranslate(e:TextEvent):void
       {
-        var id:String=encodeURIComponent(data._id);
-        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+        if(LicenseManager.instance.translation)
+        {
+          var id:String=encodeURIComponent(data._id);
+          var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
+        }
       }
        
     ]]>

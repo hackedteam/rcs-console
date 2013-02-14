@@ -100,15 +100,39 @@
 									nickname="";
 									message="";
 								}
-								if (data.data.content != null && data.data.tr == null && this.column.dataField == "data.tr")
+								if (data.data.content != null && this.column.dataField == "data.tr")
 								{
-									  message='('+R.get('TRANSLATION_UNAVAILABLE')+')'
+                  messageTxt.setStyle("color",0x666666)
+                  switch (data.data.tr)
+                  {
+                    
+                    case 'TRANS_QUEUED':
+                      message='<i>(' + R.get('TRANS_QUEUED') + ')</i>';
+                      break;
+                    case 'TRANS_IN_PROGRESS':
+                      message='<i>(' + R.get('TRANS_IN_PROGRESS') + ')</i>';
+                      break;
+                    case 'TRANS_ERROR':
+                      message='<i>(' + R.get('TRANS_ERROR') + ')</i>';
+                      break;
+                    case null:
+                      message='<i>(' + R.get('TRANSLATION_UNAVAILABLE') + ')</i>';
+                      break;
+                    default:
+                      message='<i>'+data.data.tr+'</i>';
+                  }
+
                  
                     var id:String=encodeURIComponent(data._id);
                     var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);  
                     //EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
               
 								}
+                else
+                {
+                  messageTxt.setStyle("color",0x000000)
+                
+                }
 								var peers:Array
 								if (data.data.rcpt != null && data.data.rcpt != "")
 								{

@@ -13,7 +13,15 @@
       
       import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
       import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
 
+      import locale.R;
+      
+      import mx.rpc.events.ResultEvent;
+      import mx.rpc.events.FaultEvent;
+      
 			private var _evidence:Object;
       
       [Bindable]
@@ -28,16 +36,14 @@
 			public function set evidence(value:Object):void
 			{
         _evidence=value;
-				//contentTxt.textFlow.columnCount=3;
-        
-          content=evidence.data.content;
-     
+        if(evidence.data.content)
+        {
+        content=evidence.data.content;
         contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
-          onTranslate(null)
+        onTranslate(null)
+        } 
 			}
       
-      
-
 			public function get evidence():Object
 			{
 				return _evidence;
@@ -54,21 +60,71 @@
       {
         var container:HGroup=this.owner as HGroup;
         var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
-        mainView = advancedViewer.owner as EvidencesView;
+        mainView=advancedViewer.owner as EvidencesView;
         mainView.addEventListener("translate", onTranslate);
       }
       
       private function onTranslate(e:Event):void
       {
-      if(evidence)
-      {
-        if(mainView.translation)
-          content=evidence.data.tr || "(TRANSLATION NOT AVAILABLE)";
-        else
-          content=evidence.data.content || "";
-        
-        contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        if (evidence)
+        {
+          if (mainView.translation && LicenseManager.instance.translation)
+          {
+            
+            if (evidence.data.tr == null || evidence.data.tr == "")
+            {
+              var id:String=encodeURIComponent(evidence._id);
+              var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+              EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault)
+            }
+            switch(evidence.data.tr)
+            {
+              
+              case 'TRANS_QUEUED':
+                content='('+R.get('TRANS_QUEUED')+')';
+                break;
+              case 'TRANS_IN_PROGRESS':
+                content='('+R.get('TRANS_IN_PROGRESS')+')';
+                break;
+              case 'TRANS_ERROR':
+                content='('+R.get('TRANS_ERROR')+')';
+                break;
+              case null:
+                content='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+                break;
+              default:
+                content=evidence.data.tr;
+            }
+          }
+          else
+          { 
+            //tranlation off - show original content        
+            content=evidence.data.content;
+            
+          }
+          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+        }
       }
+      
+      private function onTranslateResult(e:ResultEvent):void
+      {      
+        evidence=e.result;
+        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+        {
+          var current:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+          if (current)
+          {
+            if (current._id == e.result._id)
+            {
+              current.data.tr=e.result.data.tr;
+            }
+          }
+        }
+      }
+      
+      private function onTranslateFault(e:FaultEvent):void
+      {
+        trace("translation fault")
       }
 		]]>
 	</fx:Script>

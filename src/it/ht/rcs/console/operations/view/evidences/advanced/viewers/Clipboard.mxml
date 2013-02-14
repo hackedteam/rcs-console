@@ -4,46 +4,48 @@
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
 									 height="100%"
 									 width="100%"
-                   borderColor="0xCCCCCC"
-                   backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1" creationComplete="init()">
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1"
+									 creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-      
-      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
-      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      import spark.components.HGroup;
-      import locale.R;
-      
-      import mx.rpc.events.ResultEvent;
-      import mx.rpc.events.FaultEvent;
-      
-      
+
+			import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import spark.components.HGroup;
+			import locale.R;
+
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.events.FaultEvent;
+
+
 			private var _evidence:Object;
-      
-      private var mainView:EvidencesView;
-      
-      [Bindable]
-      public var idVisible:Boolean;
-      
-      [Bindable]
-      private var content:String;
+
+			private var mainView:EvidencesView;
+
+			[Bindable]
+			public var idVisible:Boolean;
+
+			[Bindable]
+			private var content:String;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
-        _evidence=value;
+				_evidence=value;
 				//
-        content=evidence.data.content;
-        contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
-        onTranslate(null)
+				content=evidence.data.content;
+				contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><br>" + lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+				onTranslate(null)
 
 			}
-      
-      
+
+
 
 			public function get evidence():Object
 			{
@@ -55,116 +57,124 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
-      
-      private function init():void
-      {
-        var container:HGroup=this.owner as HGroup;
-        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
-        mainView=advancedViewer.owner as EvidencesView;
-        mainView.addEventListener("translate", onTranslate);
-      }
-      
-      private function onTranslate(e:Event):void
-      {
-        if (evidence)
-        {
-          if (mainView.translation)
-          {
-           
-            if (evidence.data.tr == null || evidence.data.tr == "")
-            {
-              var id:String=encodeURIComponent(evidence._id);
-              var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-              EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault)
-            }
-            switch(evidence.data.tr)
-            {
-              
-              case 'TRANS_QUEUED':
-                content='('+R.get('TRANS_QUEUED')+')';
-                break;
-              case 'TRANS_IN_PROGRESS':
-                content='('+R.get('TRANS_IN_PROGRESS')+')';
-                break;
-              case 'TRANS_ERROR':
-                content='('+R.get('TRANS_ERROR')+')';
-                break;
-              case null:
-                content='('+R.get('TRANSLATION_UNAVAILABLE')+')';
-                break;
-              default:
-                content=evidence.data.tr;
-            }
-            
-          }
-          else
-          { 
-            //tranlation off - show original content
-           
-            content=evidence.data.content;
-           
-          }
-          contentTxt.textFlow = TextConverter.importToFlow("<b>Content: </b><br>"+lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
-        }
-        
-      }
-      
-      private function onTranslateResult(e:ResultEvent):void
-      {
-        
-        evidence=e.result;
-        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
-        {
-          var current:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
-          if (current)
-          {
-            if (current._id == e.result._id)
-            {
-              current.data.tr=e.result.data.tr;
-            }
-          }
-        }
-       
-      }
-      
-      private function onTranslateFault(e:FaultEvent):void
-      {
-        trace("translation fault")
-      }
+
+			private function init():void
+			{
+				var container:HGroup=this.owner as HGroup;
+				var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+				mainView=advancedViewer.owner as EvidencesView;
+				mainView.addEventListener("translate", onTranslate);
+			}
+
+			private function onTranslate(e:Event):void
+			{
+				if (evidence)
+				{
+					if (mainView.translation && LicenseManager.instance.translation)
+					{
+
+						if (evidence.data.tr == null || evidence.data.tr == "")
+						{
+							var id:String=encodeURIComponent(evidence._id);
+							var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+							EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault)
+						}
+						switch (evidence.data.tr)
+						{
+
+							case 'TRANS_QUEUED':
+								content='(' + R.get('TRANS_QUEUED') + ')';
+								break;
+							case 'TRANS_IN_PROGRESS':
+								content='(' + R.get('TRANS_IN_PROGRESS') + ')';
+								break;
+							case 'TRANS_ERROR':
+								content='(' + R.get('TRANS_ERROR') + ')';
+								break;
+							case null:
+								content='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
+								break;
+							default:
+								content=evidence.data.tr;
+						}
+
+					}
+					else
+					{
+						//tranlation off - show original content
+
+						content=evidence.data.content;
+
+					}
+					contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><br>" + lineBreak(content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+				}
+
+			}
+
+			private function onTranslateResult(e:ResultEvent):void
+			{
+				evidence=e.result;
+				for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+				{
+					var current:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+					if (current)
+					{
+						if (current._id == e.result._id)
+						{
+							current.data.tr=e.result.data.tr;
+						}
+					}
+				}
+			}
+
+			private function onTranslateFault(e:FaultEvent):void
+			{
+				trace("translation fault")
+			}
 		]]>
 	</fx:Script>
-<s:layout>
-  <s:VerticalLayout paddingBottom="10"
-                      paddingLeft="10"
-                      paddingRight="10"
-                      paddingTop="10"
-                      />
-</s:layout>
-  <s:RichText id="idTxt"
-              width="100%"
-              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
-  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="programTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:RichText id="windowTxt" width="100%" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12"/>
-  <s:Line width="100%">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-		<s:Scroller height="100%"
-								width="100%">
-			<s:RichEditableText editable="false"
-													id="contentTxt" fontSize="12"/>
-		</s:Scroller>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<s:RichText id="idTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{idVisible}"
+							includeInLayout="{idVisible}"/>
+	<s:Line width="100%"
+					visible="{idVisible}"
+					includeInLayout="{idVisible}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="programTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Program: &lt;/b&gt;'+evidence.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:RichText id="windowTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"/>
+	<s:Line width="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+	<s:Scroller height="100%"
+							width="100%">
+		<s:RichEditableText editable="false"
+												id="contentTxt"
+												fontSize="12"/>
+	</s:Scroller>
 
 </s:BorderContainer>

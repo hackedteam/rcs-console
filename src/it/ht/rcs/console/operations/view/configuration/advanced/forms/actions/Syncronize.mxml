@@ -7,6 +7,7 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
       
@@ -19,12 +20,17 @@
       
       override public function fillFields():void
       {
+        var form:Form=this.owner as Form;
+        var actionForm:ActionForm = form.owner as ActionForm;
+        
+        var currentAgent:Agent = actionForm.graph.currentAgent;
         // The very first call of init is from addedToStage. Nothing is created and we wait creation complete. Subsequent addedToStage will be ok
         if (!bandwidth) return;
         
         currentState = mobile ? 'mobile' : 'desktop';
         
         var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
+        entryPoints.filterFunction=isGood;
         host.dataProvider = entryPoints;
         setEntryPoint(entryPoints);
         bandwidth.text = String(action.bandwidth / 1000);
@@ -93,6 +99,11 @@
         if (currentState == 'mobile')
           return type.selectedIndex == 1 ? apnVal.isValid() : true;
         else return desktopVal.isValid();
+      }
+      
+      private function isGood(item:Object):Boolean
+      {
+        return true;
       }
     ]]>
   </fx:Script>

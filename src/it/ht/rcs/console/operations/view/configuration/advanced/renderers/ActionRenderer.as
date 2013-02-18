@@ -126,6 +126,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     
     public function onDoubleClick(me:MouseEvent):void
     {
+      //this.owner is configurationGraph
       var popup:ActionForm = PopUpManager.createPopUp(root, ActionForm, true) as ActionForm;
       popup.action = action;
       popup.graph = graph;

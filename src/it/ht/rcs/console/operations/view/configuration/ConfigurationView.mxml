@@ -19,7 +19,7 @@
 			import it.ht.rcs.console.agent.model.Config;
 			import it.ht.rcs.console.events.SessionEvent;
 			import it.ht.rcs.console.operations.view.OperationsSection;
-
+			
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
@@ -37,6 +37,12 @@
 
 			[Bindable]
 			private var isScout:Boolean;
+      
+      [Bindable]
+      private var currentVersion:uint=2013031101;
+      
+      [Bindable]
+      private var currentAgent:Agent;
 
 			public function getConfig():void
 			{
@@ -45,7 +51,8 @@
 				if (configAsConfig == null) // Factory
 				{
           
-					var factory:Agent=section.stateManager.selectedFactory;   
+					var factory:Agent=section.stateManager.selectedFactory;
+          currentAgent=factory;
           isScout=factory.type=="desktop" 
 					AgentManager.instance.show(factory._id, function(e:ResultEvent):void
 					{
@@ -68,7 +75,7 @@
 				}
 				else // An Agent's config
 				{
-       
+          currentAgent=section.stateManager.selectedAgent;
 					if (section.stateManager.selectedAgent == null)
 						return;        
           isScout=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.scout==true;
@@ -185,12 +192,14 @@
 	<basic:BasicView id="basic"
 									 includeIn="basic"
 									 host="{host}"
-									 isScout="{isScout}"/>
+									 isScout="{isScout}"
+                   currentAgent="{currentAgent}"/>
 
 	<advanced:AdvancedView id="advanced"
 												 includeIn="advanced"
 												 section="{section}"
 												 host="{host}"
-												 isScout="{isScout}"/>
+												 isScout="{isScout}"
+                         currentAgent="{currentAgent}"/>
 
 </s:VGroup>

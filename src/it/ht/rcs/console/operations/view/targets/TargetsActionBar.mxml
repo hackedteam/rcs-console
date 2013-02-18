@@ -42,7 +42,7 @@
   <actionbar:Separator/>
   <s:Button label="{R.get('JUMP_TO_ENTITY')}"
             icon="@Embed('/img/NEW/jumpToEntity.png')" 
-            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status == 'open' &amp;&amp; selectedObject is Target}" />
+            enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.status == 'open' &amp;&amp; selectedObject is Target}" click="onJump()" />
   <s:Spacer width="100%"/>
   
   <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
@@ -55,6 +55,8 @@
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
@@ -197,6 +199,17 @@
           PopUpManager.centerPopUp(popup);
 
       }
+      
+      protected function onJump():void
+      {
+        var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section=SectionEvent.INTELLIGENCE;
+        event.subsection='entity';
+        var target:Target=selectedObject as Target;
+        event.item=SearchManager.instance.getItem(target._id);
+        FlexGlobals.topLevelApplication.dispatchEvent(event); 
+      }
+      
     ]]>
   </fx:Script>
 

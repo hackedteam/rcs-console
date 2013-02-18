@@ -117,9 +117,9 @@
 
 				locations=new ArrayCollection();
 				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
-				locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
-				locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
-				locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
+				//locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
+				//locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
+				//locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
 
 				if (DB.instance.demo)
 				{
@@ -269,13 +269,11 @@
 					contactsList.enabled=false; //TODO ADD A MESSAGE
 				}
 
-
-
 				locations=new ArrayCollection();
-				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
-				locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
-				locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
-				locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
+				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"});
+				//locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
+				//locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
+				//locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
 			}
 
 
@@ -288,7 +286,7 @@
 					descTxt.text=entity.desc;
 				if (photoViewer)
 					photoViewer.currentIndex=0;
-
+        
 				if (entity.photos)
 				{
 					if (entity.photos.length > 0)
@@ -310,14 +308,14 @@
 				if (handlesList)
 					handlesList.dataProvider=entity.handles;
 
-				//dispatchEvent(new Event("update"))
+				//dispatchEvent(new Event("update"));
 			}
 
 			private function addHandle():void
 			{
 				var popup:HandleForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, HandleForm, true) as HandleForm;
 				popup.entity=entity;
-				popup.addEventListener("update", onUpdate)
+				popup.addEventListener("update", onUpdate);
 				PopUpManager.centerPopUp(popup);
 			}
 
@@ -332,18 +330,21 @@
 
 			private function jumpToEvidence(e:Event):void
 			{
-				var item:Contact=contactsList.selectedItem as Contact;
-
-				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
-				event.section=SectionEvent.OPERATIONS;
-				event.subsection='evidence';
-
-				var targetId:String=entity.path[entity.path.length - 1];
-				event.item=SearchManager.instance.getItem(targetId);
-				event.evidenceTypes=["call", "chat", "message"];
-				event.info=String(item.peer + " " + item.type);
-				event.from=1;
-				FlexGlobals.topLevelApplication.dispatchEvent(event);
+				if(contactsList.selectedItem)
+        {
+          var item:Contact=contactsList.selectedItem as Contact;
+          
+          var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+          event.section=SectionEvent.OPERATIONS;
+          event.subsection='evidence';
+          
+          var targetId:String=entity.path[entity.path.length - 1];
+          event.item=SearchManager.instance.getItem(targetId);
+          event.evidenceTypes=["call", "chat", "message"];
+          event.info=String(item.peer + " " + item.type);
+          event.from=1;
+          FlexGlobals.topLevelApplication.dispatchEvent(event);
+        }
 
 			}
 

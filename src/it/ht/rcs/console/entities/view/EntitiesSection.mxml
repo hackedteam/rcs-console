@@ -34,6 +34,23 @@
         entitySheet.entity.desc=actionBar.entity.desc;
       }
       
+      public function changeSection(event:SectionEvent):void
+      {
+        if (!event.item) return;
+        
+        if (stateManager) {
+          currentState = 'none';
+          stateManager.setState('none');
+        }
+        
+        // This method is called before init if we never entered the operation section,
+        // so we check if stateManager is present, otherwise we delay the item selection
+        if (stateManager)
+          stateManager.manageItemSelection(null, event);
+        else
+          eventToManage = event;
+      }
+      
       
     ]]>
   </fx:Script>

@@ -26,6 +26,8 @@
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -59,7 +61,13 @@
       
       private function onJumpClick():void
       {
-       
+        var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section=SectionEvent.OPERATIONS;
+        event.subsection='target';
+        
+        var targetId:String=entity.path[entity.path.length - 1];
+        event.item=SearchManager.instance.getItem(targetId);
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
       
       private function onUpdate(e:Event):void

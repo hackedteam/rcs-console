@@ -62,6 +62,9 @@ package it.ht.rcs.console.entities.view
       switch (item._kind) {
         case 'operation':
           return OperationManager.instance.getItem(item._id);
+          
+        case 'target':
+          return EntityManager.instance.getEntityByTarget(item._id);
        
         default:
           return null;

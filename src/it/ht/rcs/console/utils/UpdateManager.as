@@ -63,7 +63,7 @@ package it.ht.rcs.console.utils
         if (update_version != "-1" && current_version != update_version) {
           AlertPopUp.show(R.get('UPDATE_CONSOLE', [current_version, update_version]), 
                           R.get('NEW_VERSION'), 
-                          AlertPopUp.YES|AlertPopUp.NO, 
+                          AlertPopUp.YES, 
                           null, 
                           function (event:CloseEvent):void {
                             if (event.detail == AlertPopUp.YES) {

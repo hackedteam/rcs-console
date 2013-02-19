@@ -61,6 +61,8 @@
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.agent.model.Config;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
@@ -70,6 +72,8 @@
       
       import locale.R;
       
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.controls.Alert;
       import mx.core.UIComponent;
       import mx.events.CloseEvent;
@@ -139,7 +143,7 @@
       private function onSave():void
       {
         saveConfig(goBackToList);
-        Alert.show(R.get('CONFIG_SAVED'));
+       
       }
       
       private function saveConfig(callback:Function = null):Object
@@ -154,15 +158,67 @@
        }
         var config:Object = getConfig();
         if (config == null) return null;
+        
+    
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        
+        //get the host provided from the first sync action
+        var host:String="";
+        if (config.actions)
+        {
+          primary: for (var ac:int=0; ac < config.actions.length; ac++)
+          {
+            for (var sa:int=0; sa < config.actions[ac].subactions.length; sa++)
+            {
+              if (config.actions[ac].subactions[sa].action == "synchronize")
+              {
+                host=config.actions[ac].subactions[sa].host;
+                break primary;
+              }
+            }
+          }
+        }
+        
+        //get the matching collector from the collector list
+        var collectors:ListCollectionView=CollectorManager.instance.getView();
+        var collector:Collector;
+        for(var i:int=0;i<collectors.length;i++)
+        {
+          collector=collectors.getItemAt(i) as Collector;
+          if(collector.name==host || collector.address==host)
+            break;
+        }
+        //the provided host string doesn't match any collector
+        if(!collector)
+        {
+          AlertPopUp.show(R.get('MISSING_COLLECTOR')) //Custom message??
+          return null
+        }
+        
+        //if collector is found check if good or bad according to Agent
+        
+        //must be bad
+        if(a._kind=="agent" && a.version<2013031101 && collector.good)
+        {
+         AlertPopUp.show(R.get('INVALID_COLLECTOR'))
+          return null;
+        }
+        //must be good
+        if(((a._kind=="agent" && a.version>=2013031101) || a._kind=="factory") && !collector.good)
+        {
+          AlertPopUp.show(R.get('INVALID_COLLECTOR'))
+          return null;
+        }
+        
         AgentManager.instance.addConfig(a, JSON.stringify(config), callback, faultCallback);
         configView.updateOriginalConfig(config);
+        Alert.show(R.get('CONFIG_SAVED'));
         return config;
       }
       
       private function faultCallback(e:FaultEvent):void
       {
-      AlertPopUp.show(e.fault.faultDetail)
+        AlertPopUp.show(e.fault.faultDetail)
       }
       
       private function goBackToList(c:Config):void

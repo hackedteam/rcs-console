@@ -72,7 +72,20 @@
         else
           position.minutes.text = "15"; // Default value
         
-        var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
+        //var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
+        
+        var entryPoints:ListCollectionView;
+        if(currentAgent.version<2013031101 && currentAgent._kind=="agent")
+        {
+          trace("Show only non-good collectors");
+          entryPoints = CollectorManager.instance.getNonGoodEntryPoints();
+        }
+        else
+        {
+          trace("Show only good collectors");
+          entryPoints = CollectorManager.instance.getGoodEntryPoints();
+        }
+        
         sync.host.dataProvider = entryPoints;
         sync.selected = hasLoop('SYNC');
         if (sync.selected) {

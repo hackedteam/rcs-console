@@ -142,7 +142,10 @@
       
       private function onSave():void
       {
-        saveConfig(goBackToList);
+        if(saveConfig(goBackToList) !=null)
+        {
+          Alert.show(R.get('CONFIG_SAVED'));
+        }
        
       }
       
@@ -212,7 +215,7 @@
         
         AgentManager.instance.addConfig(a, JSON.stringify(config), callback, faultCallback);
         configView.updateOriginalConfig(config);
-        Alert.show(R.get('CONFIG_SAVED'));
+      
         return config;
       }
       

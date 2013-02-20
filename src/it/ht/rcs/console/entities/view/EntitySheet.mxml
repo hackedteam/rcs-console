@@ -46,6 +46,7 @@
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.Clock;
 
 			import locale.R;
 
@@ -135,29 +136,29 @@
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
 			}
       
-    /*   private function adjust():void
+     /*  private function adjust():void
       {
         var fromTS:int = getFromTimestamp();
         var toTS:int = getToTimestamp();
         
         if (fromTS > toTS)
           setToTimestamp(fromTS);
-      }
+      } */
       
       private function getFromTimestamp():int
       {
-        from.selectedDate.hours = fromH.value;
-        from.selectedDate.minutes = fromM.value;
-        return Clock.instance.toUTCTime(from.selectedDate) / 1000;
+        fromDf.selectedDate.hours = 0;
+        fromDf.selectedDate.minutes = 0;
+        return Clock.instance.toUTCTime(fromDf.selectedDate) / 1000;
       }
       private function getToTimestamp():int
       {
-        to.selectedDate.hours = toH.value;
-        to.selectedDate.minutes = toM.value;
-        return Clock.instance.toUTCTime(to.selectedDate) / 1000;
+        toDf.selectedDate.hours = 0;
+        toDf.selectedDate.minutes = 0;
+        return Clock.instance.toUTCTime(toDf.selectedDate) / 1000;
       }
       
-      private function setFromTimestamp(ts:int):void
+    /*   private function setFromTimestamp(ts:int):void
       {
         var fromDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
         from.selectedDate = fromDate;
@@ -171,8 +172,8 @@
         to.selectedDate = toDate;
         toH.value = toDate.hours;
         toM.value = toDate.minutes;
-      }
-       */
+      } */
+
 
 			private function doubleDigits(n:Number):String
 			{
@@ -342,7 +343,8 @@
           event.item=SearchManager.instance.getItem(targetId);
           event.evidenceTypes=["call", "chat", "message"];
           event.info=String(item.peer + " " + item.type);
-          event.from=1;
+          event.from = getFromTimestamp();
+          event.to = getToTimestamp();
           FlexGlobals.topLevelApplication.dispatchEvent(event);
         }
 

@@ -15,18 +15,18 @@
 
 			[Bindable]
 			private var ImageClass:Class;
-      
-      [Embed('/img/NEW/target_16.png')]
-      private static const targetIcon:Class;
+
+			[Embed('/img/NEW/target_16.png')]
+			private static const targetIcon:Class;
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
 
 				super.data=value;
-        if(data.data.program!=null)
-				ImageClass=ChatIcons[data.data.program.toLowerCase()]
-          
+				if (data.data.program != null)
+					ImageClass=ChatIcons[data.data.program.toLowerCase()]
+
 				// name, contact, info
 				nameTxt.textFlow=TextConverter.importToFlow("<b>Name: </b>" + data.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				if (data.data.contact != "")
@@ -54,25 +54,34 @@
 						width="100%">
 		<s:VGroup verticalAlign="top"
 							width="50%">
-			<s:HGroup verticalAlign="middle" width="100%">
-        <s:Image width="16"
-                       height="16"
-                       source="{ImageClass}" visible="{data.data.program!=null}" includeInLayout="{data.data.program!=null}" toolTip="{data.data.program}"/>
+			<s:HGroup verticalAlign="middle"
+								width="100%">
 				<s:Image width="16"
-											 height="16"
-											 source="{targetIcon}" visible="{data.data.type=='target'}" includeInLayout="{data.data.type=='target'}" toolTip="target"/>
+								 height="16"
+								 source="{ImageClass}"
+								 visible="{data.data.program!=null}"
+								 includeInLayout="{data.data.program!=null}"
+								 toolTip="{data.data.program}"/>
+				<s:Image width="16"
+								 height="16"
+								 source="{targetIcon}"
+								 visible="{data.data.type=='target'}"
+								 includeInLayout="{data.data.type=='target'}"
+								 toolTip="target"/>
 			</s:HGroup>
-      <s:RichText id="nameTxt"
-                  width="100%"/>
-      <s:RichText id="contactTxt"
-                  width="100%"/>
+			<s:RichText id="nameTxt"
+									width="100%"/>
+			<s:RichText id="contactTxt"
+									width="100%"
+									visible="{data.data.contact!='' &amp;&amp; data.data.contact!=null}"
+									includeInLayout="{data.data.contact!='' &amp;&amp; data.data.contact!=null}"/>
 		</s:VGroup>
 		<s:Line height="100%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		
+
 		<s:HGroup verticalAlign="top"
 							width="50%">
 			<s:RichText id="infoLabelTxt"/>

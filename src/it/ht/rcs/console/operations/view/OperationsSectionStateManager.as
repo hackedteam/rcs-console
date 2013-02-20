@@ -171,8 +171,8 @@ package it.ht.rcs.console.operations.view
         
         if (event.evidenceIds) {
           EvidenceManager.instance.evidenceFilter.date = 'dr';
-          EvidenceManager.instance.evidenceFilter.from = 0;
-          EvidenceManager.instance.evidenceFilter.to = 0;
+          EvidenceManager.instance.evidenceFilter.from = event.from; //0
+          EvidenceManager.instance.evidenceFilter.to = event.to; //0
           EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
         }
         else delete(EvidenceManager.instance.evidenceFilter._id);
@@ -188,8 +188,8 @@ package it.ht.rcs.console.operations.view
         if(event.from)
         {
           EvidenceManager.instance.evidenceFilter.date = 'da';
-          EvidenceManager.instance.evidenceFilter.from = 0;
-          EvidenceManager.instance.evidenceFilter.to = 0;
+          EvidenceManager.instance.evidenceFilter.from = event.from;
+          EvidenceManager.instance.evidenceFilter.to = event.to;
         }
         else
         {

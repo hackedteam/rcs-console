@@ -99,7 +99,6 @@
       {
         var userId:String=Console.currentSession.user._id;
         var appMajorVersion:String=Console.rcsVersion.substr(0,3);
-        
         try
         {
           securitySettings = SharedObject.getLocal("securitySettings_"+appMajorVersion);
@@ -187,14 +186,18 @@
         //get the matching collector from the collector list
         var collectors:ListCollectionView=CollectorManager.instance.getView();
         var collector:Collector;
+        var found:Boolean;
         for(var i:int=0;i<collectors.length;i++)
         {
           collector=collectors.getItemAt(i) as Collector;
           if(collector.name==host || collector.address==host)
+          {
+            found=true;
             break;
+          }
         }
         //the provided host string doesn't match any collector
-        if(!collector)
+        if(!found)
         {
           AlertPopUp.show(R.get('MISSING_COLLECTOR')) //Custom message??
           return null

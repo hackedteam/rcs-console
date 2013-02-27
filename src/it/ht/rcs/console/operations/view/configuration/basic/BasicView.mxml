@@ -175,15 +175,26 @@
         return event == null ? 0 : event.iter as int;
       }
       
+      
+      private function getFirstValidEntryPoint(ep:ListCollectionView):Object
+      {
+        for(var i:int=0;i<ep.length;i++)
+        {
+        if(CollectorManager.instance.isValidEntryPoint(ep.getItemAt(i)))
+          return ep.getItemAt(i)
+        }
+        return null
+      }
       private function setEntryPoint(ep:ListCollectionView):void
       {
         var host:String = null;
+        //agents has sync action to a specific host
         for each (var a:Object in config.actions)
           if (a.desc == 'SYNC')
             host = a.subactions[0].host;
-
+         //agents has no sync action and host is unknown
         if (host == null || host == '') {
-          sync.host.selectedItem = ep.length > 0 ? ep.getItemAt(0) : null;
+          sync.host.selectedItem = ep.length > 0 ? getFirstValidEntryPoint(ep) : null;
           return;
         }
         

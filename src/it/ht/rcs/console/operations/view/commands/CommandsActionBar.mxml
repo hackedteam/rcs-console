@@ -11,33 +11,35 @@
 	<s:Button label="{R.get('COMMANDS_EXPORT')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
-						enabled="{selectedObject != null}" 
-            />
+						enabled="{selectedObject != null}"/>
 	<actionbar:Separator width="40"/>
-	
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
-            enabled="{Console.currentSession.user.is_view_delete() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"
-            visible="{LicenseManager.instance.deletion == true}"
-            includeInLayout="{LicenseManager.instance.deletion == true}"/>
-  
-  <actionbar:Separator width="40" visible="{LicenseManager.instance.deletion == true}"
-                       includeInLayout="{LicenseManager.instance.deletion == true}" />
-  
-  <s:Button label="{R.get('DETAIL_SHOW')}"
-            click="onDetailClick()"
-            icon="@Embed('/img/evidence/article32.png')"
-            id="detailBtn"
-            enabled="{selectedObject != null}"/>
-  
-  <actionbar:Separator width="40" visible="{LicenseManager.instance.deletion == true}"
-                       includeInLayout="{LicenseManager.instance.deletion == true}" />
-  
-  <s:Button label="{R.get('COMMAND_ADD')}"
-            click="onCommandClick()"
-            icon="@Embed('/img/NEW/commands_32.png')" enabled="{Console.currentSession.user.is_tech()}"
-            
-            />
-  
+
+	<s:Button label="{R.get('DELETE')}"
+						click="onDeleteClick()"
+						enabled="{Console.currentSession.user.is_view_delete() &amp;&amp; selectedObject != null}"
+						icon="@Embed('/img/NEW/delete_32.png')"
+						visible="{LicenseManager.instance.deletion == true}"
+						includeInLayout="{LicenseManager.instance.deletion == true}"/>
+
+	<actionbar:Separator width="40"
+											 visible="{LicenseManager.instance.deletion == true}"
+											 includeInLayout="{LicenseManager.instance.deletion == true}"/>
+
+	<s:Button label="{R.get('DETAIL_SHOW')}"
+						click="onDetailClick()"
+						icon="@Embed('/img/evidence/article32.png')"
+						id="detailBtn"
+						enabled="{selectedObject != null}"/>
+
+	<actionbar:Separator width="40"
+											 visible="{LicenseManager.instance.deletion == true}"
+											 includeInLayout="{LicenseManager.instance.deletion == true}"/>
+
+	<s:Button label="{R.get('COMMAND_ADD')}"
+						click="onCommandClick()"
+						icon="@Embed('/img/NEW/commands_32.png')"
+						enabled="{Console.currentSession.user.is_tech_exec() &amp;&amp; LicenseManager.instance.modify}"/>
+
 	<fx:Metadata> 
     [Event(name="export", type="flash.events.Event")] 
     [Event(name="detail", type="flash.events.Event")]
@@ -46,20 +48,20 @@
 
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      import it.ht.rcs.console.evidence.model.TypeCount;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.target.model.Target;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.operations.view.OperationsSection;
-      
-      import locale.R;
-      
-      import mx.managers.PopUpManager;
-      import mx.collections.ArrayCollection;
-      import mx.controls.Alert;
-      import mx.events.CloseEvent;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.evidence.model.TypeCount;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.target.model.Target;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.operations.view.OperationsSection;
+
+			import locale.R;
+
+			import mx.managers.PopUpManager;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 
 			[Embed(source="/img/evidence/paperplus32.png")]
 			public var ReportAddIcon:Class;
@@ -78,67 +80,66 @@
 
 			[Embed(source="/img/evidence/stop32.png")]
 			public var DetailHideIcon:Class;
-      
-      [Bindable]
-      public var target:Target;
-      
-      [Bindable]
-      public var section:OperationsSection;
+
+			[Bindable]
+			public var target:Target;
+
+			[Bindable]
+			public var section:OperationsSection;
 
 
 			public function onDetailClick():void
 			{
 				dispatchEvent(new Event("detail"))
 			}
-      
-      public function onExportClick():void
-      {
-        dispatchEvent(new Event("export"));
-      }
-      
-      private function onDeleteClick():void
-      {
-        dispatchEvent(new Event("delete"));
-      }
-      
-      public function toggleDetailButton():void
-      {
-        if (detailBtn.label == R.get('DETAIL_SHOW'))
-        {
-          detailBtn.setStyle("icon", DetailHideIcon);
-          detailBtn.label=R.get('DETAIL_HIDE');
-        }
-        else
-        {
-          detailBtn.setStyle("icon", DetailShowIcon);
-          detailBtn.label=R.get('DETAIL_SHOW');
-        }
-      }
+
+			public function onExportClick():void
+			{
+				dispatchEvent(new Event("export"));
+			}
+
+			private function onDeleteClick():void
+			{
+				dispatchEvent(new Event("delete"));
+			}
+
+			public function toggleDetailButton():void
+			{
+				if (detailBtn.label == R.get('DETAIL_SHOW'))
+				{
+					detailBtn.setStyle("icon", DetailHideIcon);
+					detailBtn.label=R.get('DETAIL_HIDE');
+				}
+				else
+				{
+					detailBtn.setStyle("icon", DetailShowIcon);
+					detailBtn.label=R.get('DETAIL_SHOW');
+				}
+			}
 
 			private function init():void
 			{
 
 			}
-      
-      private function onCommandClick():void
-      {
-        var popup:CommandsPopup=PopUpManager.createPopUp(root, CommandsPopup, true) as CommandsPopup;
-        //popup.target=section.stateManager.selectedTarget;
-        popup.agent=section.stateManager.selectedAgent;
-        popup.getCommands();
-        PopUpManager.centerPopUp(popup);
-      }
-      
+
+			private function onCommandClick():void
+			{
+				var popup:CommandsPopup=PopUpManager.createPopUp(root, CommandsPopup, true) as CommandsPopup;
+				//popup.target=section.stateManager.selectedTarget;
+				popup.agent=section.stateManager.selectedAgent;
+				popup.getCommands();
+				PopUpManager.centerPopUp(popup);
+			}
+
 			private function onRemovedFromStage():void
 			{
-				
+
 			}
 
 			private function onAddedToStage():void
 			{
 
 			}
-		
 		]]>
 	</fx:Script>
 

@@ -109,6 +109,7 @@
 
 			private function init():void
 			{
+       
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
@@ -117,17 +118,22 @@
 				fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
 				toDate=new Date();
 				if (fromDf)
+        {
 					fromDf.selectedDate=fromDate;
-
-				EntityManager.instance.show(entity._id, onDetailResult);
+        }
+      
+				//EntityManager.instance.show(entity._id, onDetailResult);
 
 				if (loadingBox)
 					loadingBox.visible=loadingBox.includeInLayout=false;
 				if (LicenseManager.instance.correlation)
 				{
 					if (loadingBox)
-						loadingBox.visible=loadingBox.includeInLayout=true;
-					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+          {
+					loadingBox.visible=loadingBox.includeInLayout=true;
+          }
+
+					//EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
 				}
 				else
 				{
@@ -136,10 +142,9 @@
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=false;
 				}
-				if (DB.instance.demo)
-				{
+				
 					callLater(onRefresh, [null])
-				}
+			
 			}
 
 			private function filter():void
@@ -150,15 +155,7 @@
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
 			}
 
-			/*  private function adjust():void
-			 {
-				 var fromTS:int = getFromTimestamp();
-				 var toTS:int = getToTimestamp();
-
-				 if (fromTS > toTS)
-					 setToTimestamp(fromTS);
-			 } */
-
+		
 			private function getFromTimestamp():int
 			{
 				fromDf.selectedDate.hours=0;
@@ -288,8 +285,9 @@
 						map.addOverlay(marker);
 						overlays.push(marker);
 						map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-						lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + "( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
+						lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
 						trace(TimeUtils.timestampFormatter(entity.position_attr.time * 1000));
+            map.setZoom(12)
 					}
 					else
 					{
@@ -314,6 +312,7 @@
 			{
 				photoViewer.currentPhoto="";
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        trace("Entity sheet removed from stage")
 			}
 
 			private function onContactResult(e:ResultEvent):void
@@ -363,7 +362,7 @@
 				}
 				else
 				{
-					contactsList.enabled=false; //TODO ADD A MESSAGE
+					contactsList.enabled=false;
 				}
 
 
@@ -372,6 +371,8 @@
 
 			private function onDetailResult(e:ResultEvent):void
 			{
+        trace("detail result >"+entity._id)
+        trace("detail result >"+entity.name)
 				entity=e.result as Entity;
 				if (nameTxt)
 					nameTxt.text=entity.name;

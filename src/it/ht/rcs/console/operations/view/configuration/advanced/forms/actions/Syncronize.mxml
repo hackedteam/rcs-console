@@ -18,6 +18,8 @@
       [Bindable]
       public var mobile:Boolean;
       
+      private var goodVersion:int=2013031101;
+      
       override public function fillFields():void
       {
         var form:Form=this.owner as Form;
@@ -34,7 +36,7 @@
         currentState = mobile ? 'mobile' : 'desktop';
         
         var entryPoints:ListCollectionView;
-        if(currentAgent.version<2013031101 && currentAgent._kind=="agent")
+        if(currentAgent.version<goodVersion && currentAgent._kind=="agent")
         {
           trace("Show only non-good collectors");
           entryPoints = CollectorManager.instance.getNonGoodEntryPoints();

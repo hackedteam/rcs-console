@@ -38,12 +38,12 @@
 
       private function doSave():void
       {
-       EntityManager.instance.addHandle(entity._id, handleName.text, typeCb.selectedItem, function(e:ResultEvent):void { close(); dispatchEvent(new Event("update"))});
+       EntityManager.instance.addHandle(entity._id, handle.text, handleName.text, typeCb.selectedItem, function(e:ResultEvent):void { close(); dispatchEvent(new Event("update"))});
       }
       
-      private function onNameChange():void
+      private function onChange():void
       {
-        if(handleName.text=="")
+        if(handle.text=="")
         {
           saveButton.enabled=false;
         }
@@ -57,9 +57,11 @@
   </fx:Script>
 
   <s:Form width="100%" defaultButton="{saveButton}">
-
+    <s:FormItem label="Account: *">
+      <s:TextInput id="handle" width="250"  change="onChange()"/>
+    </s:FormItem>
     <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="handleName" width="250"  change="onNameChange()"/>
+      <s:TextInput id="handleName" width="250"/>
     </s:FormItem>
     <s:FormItem label="{R.get('TYPE')}">
       <s:ComboBox selectedIndex="4" id="typeCb">

@@ -272,28 +272,32 @@
 					{
 						map.removeOverlay(overlays[i] as IOverlay);
 					}
-					if (entity.position.latitude && entity.position.longitude)
-					{
-						var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-						var bounds:LatLngBounds=new LatLngBounds();
-						var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
-						map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-						bounds.extend(coordinates);
-						var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
-						bounds.union(circleBounds)
-						var marker:Marker=new Marker(coordinates);
-						map.addOverlay(marker);
-						overlays.push(marker);
-						map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-						lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
-						trace(TimeUtils.timestampFormatter(entity.position_attr.time * 1000));
+				if(entity.position)
+        {
+          if (entity.position.latitude && entity.position.longitude)
+          {
+            var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+            var bounds:LatLngBounds=new LatLngBounds();
+            var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
+            map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+            bounds.extend(coordinates);
+            var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+            bounds.union(circleBounds)
+            var marker:Marker=new Marker(coordinates);
+            map.addOverlay(marker);
+            overlays.push(marker);
+            map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+            lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
+            trace(TimeUtils.timestampFormatter(entity.position_attr.time * 1000));
             map.setZoom(12)
-					}
-					else
-					{
-						lastPositionTxt.text="Last position unkown"
-						map.setZoom(1)
-					}
+          }
+          else
+          {
+            lastPositionTxt.text="Last position unkown"
+            map.setZoom(1)
+          }
+        }
+					
 				}
 			}
 

@@ -13,17 +13,22 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
   
   import mx.binding.utils.BindingUtils;
+  import mx.core.BitmapAsset;
   import mx.core.DragSource;
   import mx.core.UIComponent;
   import mx.events.DragEvent;
   import mx.managers.DragManager;
   
   import spark.components.BorderContainer;
+  import spark.components.Image;
   import spark.components.Label;
+  import spark.layouts.supportClasses.DropLocation;
   import spark.primitives.BitmapImage;
 
   public class CollectorRenderer extends NetworkObject
 	{
+    
+    
     
     private static const WIDTH:Number  = 90; // 5*2 (padding) + 80 (width of label)
     private static const HEIGHT:Number = 66 + 26; // 5*2 (padding) + 50 (height of container) + 6 (gap) + 26 (height of label)
@@ -48,6 +53,9 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     [Embed(source='/img/NEW/unknown.png')]
     private const unknownIcon:Class;
     
+    [Embed(source='/img/system/deny.png')]
+    private var DenyIcon:Class;
+    
     private var container:BorderContainer;
     private var icon:BitmapImage;
     private var status:BitmapImage;
@@ -55,6 +63,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private var prevLabel:Label;
     private var nextlabel:Label;
+    
+    private var denyIcon:Image
 		
 		public function CollectorRenderer(collector:Collector, graph:FrontendGraph)
 		{
@@ -73,6 +83,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       
       addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			addEventListener(DragEvent.DRAG_ENTER, dragEnter);
+      addEventListener(DragEvent.DRAG_OVER, dragOver);
 			addEventListener(DragEvent.DRAG_EXIT, dragExit);
 			addEventListener(DragEvent.DRAG_DROP, dragDrop);
 		}
@@ -103,7 +114,15 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
         status.source = getStatusIcon();
         container.addElement(status);
         
+        
+        var img:BitmapAsset = new DenyIcon() as BitmapAsset;
+        denyIcon=new Image()
+        denyIcon.source=img;
+        container.addElement(denyIcon)
+          
+        denyIcon.visible=false;
         addElement(container);
+        
       }
       
       if (textLabel == null)
@@ -116,6 +135,9 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   			addElement(textLabel);
   
       }
+      
+      if(!collector.good)
+        this.alpha=0.3;
 		}
     
     private function getStatusIcon():Class
@@ -187,28 +209,72 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
 
     private function dragEnter(event:DragEvent):void
     {
+     
       var accept:Boolean = false;
       if (collector.address && collector.address.length > 0) {
         if (event.dragInitiator is CollectorRenderer) {
           var cr:CollectorRenderer = event.dragInitiator as CollectorRenderer;
           accept = cr !== _nextHop && cr !== this;
         } else if (event.dragInitiator is CollectorListRenderer) {
-          accept = true;
+          var clr:CollectorListRenderer=event.dragInitiator as CollectorListRenderer
+          accept = (clr.data.good && this.collector.good) || (!clr.data.good && !this.collector.good);
         }
       }
-      
+      var dropTarget:UIComponent = UIComponent(event.currentTarget);		
       if (accept)
       {
-        var dropTarget:UIComponent = UIComponent(event.currentTarget);					
+        denyIcon.visible=false;
         DragManager.acceptDragDrop(dropTarget);
         DragManager.showFeedback(DragManager.COPY);
         container.setStyle('backgroundColor', DRAG_COLOR)
       }
+      else
+      {
+        //DragManager.acceptDragDrop(dropTarget);
+        denyIcon.visible=true;
+        //denyIcon.x=container.mouseX;
+        //denyIcon.y=container.mouseY;
+        DragManager.showFeedback(DragManager.NONE)
+      }
     }
+    
+    private function dragOver(event:DragEvent):void
+    {
+      trace("drag over");
+      var accept:Boolean = false;
+      if (collector.address && collector.address.length > 0) {
+        if (event.dragInitiator is CollectorRenderer) {
+          var cr:CollectorRenderer = event.dragInitiator as CollectorRenderer;
+          accept = cr !== _nextHop && cr !== this;
+        } else if (event.dragInitiator is CollectorListRenderer) {
+          var clr:CollectorListRenderer=event.dragInitiator as CollectorListRenderer
+          accept = (clr.data.good && this.collector.good) || (!clr.data.good && !this.collector.good);
+        }
+      }
+      var dropTarget:UIComponent = UIComponent(event.currentTarget);		
+      if (accept)
+      {
+        denyIcon.visible=false;
+        DragManager.acceptDragDrop(dropTarget);
+        DragManager.showFeedback(DragManager.COPY);
+        container.setStyle('backgroundColor', DRAG_COLOR)
+      }
+      else
+      {
+       
+        //DragManager.acceptDragDrop(dropTarget);
+        denyIcon.visible=true;
+        //denyIcon.x=container.mouseX;
+        //denyIcon.y=container.mouseY;
+        DragManager.showFeedback(DragManager.NONE)
+      }
+    }
+    
     
     private function dragExit(event:DragEvent):void
     {
       container.setStyle('backgroundColor', NORMAL_COLOR);
+      denyIcon.visible=false;
     }
 
     private function dragDrop(event:DragEvent):void
@@ -217,11 +283,22 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       var source:CollectorRenderer;
       if (event.dragInitiator is CollectorRenderer) {
         source = event.dragInitiator as CollectorRenderer;
-        source.moveAfter(dest);
+        
+       
+        
+        if((source.collector.good && dest.collector.good) ||  (!source.collector.good && !dest.collector.good))
+        {
+           source.moveAfter(dest);
+        }
       } else if (event.dragInitiator is CollectorListRenderer) {
         var collector:Collector = (event.dragInitiator as CollectorListRenderer).data as Collector;
+        
+    
+        if((collector.good && dest.collector.good) ||  (!collector.good && !dest.collector.good))
+        {
         source = new CollectorRenderer(collector, graph);
         source.moveAfter(dest);
+        }
       }
       
       container.setStyle('backgroundColor', NORMAL_COLOR);

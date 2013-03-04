@@ -165,6 +165,7 @@ package it.ht.rcs.console.operations.view
       if (event && event.subsection == 'evidence')
       {
         section.currentState = 'evidence';
+       
         if (event.evidenceTypes)
           EvidenceManager.instance.evidenceFilter.type = event.evidenceTypes;
         else delete(EvidenceManager.instance.evidenceFilter.type);

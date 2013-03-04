@@ -74,6 +74,12 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/database.png')]
     public static const db32:Class;
     
+    [Embed(source='/img/NEW/aggregator32.png')]
+    public static const aggregator32:Class;
+    
+    [Embed(source='/img/NEW/intelligence32.png')]
+    public static const intelligence32:Class;
+    
     [Embed(source='/img/NEW/injector_32.png')]
     public static const injector32:Class;
     

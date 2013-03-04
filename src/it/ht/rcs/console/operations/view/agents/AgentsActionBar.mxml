@@ -42,8 +42,8 @@
 							icon="@Embed('/img/NEW/newDashboard.png')"
 							click="addToDashboard(event)"
 							enabled="{Console.currentSession.user.is_view() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; (selectedObject as Agent)._kind == 'agent' &amp;&amp; selectedObject.status == 'open'}"
-							visible="{LicenseManager.instance.archive == false}"
-							includeInLayout="{LicenseManager.instance.archive == false}"/>
+							visible="{Console.currentSession.user.is_view()}"
+							includeInLayout="{Console.currentSession.user.is_view()}"/>
 
 		<s:Button label="{R.get('ADD_TO_ALERT')}"
 							icon="@Embed('/img/NEW/alert.png')"
@@ -120,26 +120,26 @@
 							icon="@Embed('/img/NEW/trash.png')"/>
 
 		<actionbar:Separator visible="{Console.currentSession.user.is_tech()}"/>
-    
-    <s:Button label="{R.get('ADD_TO_DASHBOARD')}"
-              icon="@Embed('/img/NEW/newDashboard.png')"
-              click="addToDashboard(event)"
-              enabled="{Console.currentSession.user.is_view() &amp;&amp; section.stateManager.selectedAgent.status=='open'}"
-              visible="{LicenseManager.instance.archive == false}"
-              includeInLayout="{LicenseManager.instance.archive == false}"/>
-    
-    <s:Button label="{R.get('ADD_TO_ALERT')}"
-              icon="@Embed('/img/NEW/alert.png')"
-              click="addToAlert(event)"
-              enabled="{Console.currentSession.user.is_view_alerts() &amp;&amp; section.stateManager.selectedAgent.status=='open'}"
-              visible="{LicenseManager.instance.archive == false}"
-              includeInLayout="{LicenseManager.instance.archive == false}"/>
 
-	<!--	<s:Button label="{R.get('GHOST_ACTIVATE')}"
-							click="activateGhost(event)"
-							visible="{Console.currentSession.user.is_tech_build() &amp;&amp; section.stateManager.selectedAgent.platform=='windows'}"
-							icon="@Embed('/img/NEW/ghost.png')"
-							enabled="{!section.stateManager.selectedAgent.scout}"/>-->
+		<s:Button label="{R.get('ADD_TO_DASHBOARD')}"
+							icon="@Embed('/img/NEW/newDashboard.png')"
+							click="addToDashboard(event)"
+							enabled="{Console.currentSession.user.is_view() &amp;&amp; section.stateManager.selectedAgent.status=='open'}"
+							visible="{LicenseManager.instance.archive == false}"
+							includeInLayout="{LicenseManager.instance.archive == false}"/>
+
+		<s:Button label="{R.get('ADD_TO_ALERT')}"
+							icon="@Embed('/img/NEW/alert.png')"
+							click="addToAlert(event)"
+							enabled="{Console.currentSession.user.is_view_alerts() &amp;&amp; section.stateManager.selectedAgent.status=='open'}"
+							visible="{LicenseManager.instance.archive == false}"
+							includeInLayout="{LicenseManager.instance.archive == false}"/>
+
+		<!--	<s:Button label="{R.get('GHOST_ACTIVATE')}"
+								click="activateGhost(event)"
+								visible="{Console.currentSession.user.is_tech_build() &amp;&amp; section.stateManager.selectedAgent.platform=='windows'}"
+								icon="@Embed('/img/NEW/ghost.png')"
+								enabled="{!section.stateManager.selectedAgent.scout}"/>-->
 
 	</s:HGroup>
 
@@ -261,18 +261,18 @@
 			private function onRemovedFromStage():void
 			{
 				searchInput.text='';
-        section.stateManager.searchField=searchInput;
-        if(section.stateManager.view)
-          section.stateManager.view.refresh();
-        if(section.stateManager.tableView)
-          section.stateManager.tableView.refresh();
+				section.stateManager.searchField=searchInput;
+				if (section.stateManager.view)
+					section.stateManager.view.refresh();
+				if (section.stateManager.tableView)
+					section.stateManager.tableView.refresh();
 			}
 
 			private function onKeyUp(event:KeyboardEvent):void
 			{
 				section.stateManager.searchField=searchInput;
 				section.stateManager.view.refresh();
-        section.stateManager.tableView.refresh()
+				section.stateManager.tableView.refresh()
 			}
 
 			private function importEvidence(event:MouseEvent):void
@@ -307,49 +307,50 @@
 			{
 				var a:Alert=new Alert(Alert.defaultAlert());
 				a.type='LOG';
-        if(section.currentState == 'singleAgent')
-        {
-          a.action= 'SYNC';
-          a.evidence= '*';
-          a.path=new ArrayCollection();
-          a.path.addAll(section.stateManager.selectedAgent.path);
-          a.path.addItem(section.stateManager.selectedAgent._id);
-          
-          AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void
-          {
-            AlertPopUp.show(R.get('ADDED_TO_ALERT', [section.stateManager.selectedAgent.name]));
-          });
-        }
-        else
-        {
-  				a.action=selectedObject._kind == 'factory' ? 'INSTANCE' : 'SYNC';
-  				a.evidence=selectedObject._kind == 'factory' ? '' : '*';
-  				a.path=new ArrayCollection();
-  				a.path.addAll(selectedObject.path);
-  				a.path.addItem(selectedObject._id);
-          
-          AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void
-          {
-            AlertPopUp.show(R.get('ADDED_TO_ALERT', [selectedObject.name]));
-          });
-        }
-				
+				if (section.currentState == 'singleAgent')
+				{
+					a.action='SYNC';
+					a.evidence='*';
+					a.path=new ArrayCollection();
+					a.path.addAll(section.stateManager.selectedAgent.path);
+					a.path.addItem(section.stateManager.selectedAgent._id);
+
+					AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void
+					{
+						AlertPopUp.show(R.get('ADDED_TO_ALERT', [section.stateManager.selectedAgent.name]));
+					});
+				}
+				else
+				{
+					a.action=selectedObject._kind == 'factory' ? 'INSTANCE' : 'SYNC';
+					a.evidence=selectedObject._kind == 'factory' ? '' : '*';
+					a.path=new ArrayCollection();
+					a.path.addAll(selectedObject.path);
+					a.path.addItem(selectedObject._id);
+
+					AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void
+					{
+						AlertPopUp.show(R.get('ADDED_TO_ALERT', [selectedObject.name]));
+					});
+				}
+
 			}
 
 			private function addToDashboard(event:MouseEvent):void
 			{
-        if(section.currentState == 'singleAgent')
-        {
-          DashboardController.instance.newDashboardItem(section.stateManager.selectedAgent._id);
-          AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [section.stateManager.selectedAgent.name]));
-        }
-        else
-        {
-          DashboardController.instance.newDashboardItem(selectedObject._id);
-          AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
-        }
-			
+				if (section.currentState == 'singleAgent')
+				{
+					DashboardController.instance.newDashboardItem(section.stateManager.selectedAgent._id);
+					AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [section.stateManager.selectedAgent.name]));
+				}
+				else
+				{
+					DashboardController.instance.newDashboardItem(selectedObject._id);
+					AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
+				}
+
 			}
+
 			private function moveAgent(event:MouseEvent):void
 			{
 				var popup:MoveItemPopup=PopUpManager.createPopUp(root, MoveItemPopup, true) as MoveItemPopup;

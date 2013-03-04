@@ -19,6 +19,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   import mx.events.DragEvent;
   import mx.managers.DragManager;
   
+  
   import spark.components.BorderContainer;
   import spark.components.Image;
   import spark.components.Label;
@@ -122,6 +123,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
           
         denyIcon.visible=false;
         addElement(container);
+        
+        
         
       }
       
@@ -230,11 +233,9 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       }
       else
       {
-        //DragManager.acceptDragDrop(dropTarget);
+        if (event.dragInitiator !== this && event.dragInitiator !== _nextHop)
         denyIcon.visible=true;
-        //denyIcon.x=container.mouseX;
-        //denyIcon.y=container.mouseY;
-        DragManager.showFeedback(DragManager.NONE)
+      
       }
     }
     
@@ -261,12 +262,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       }
       else
       {
-       
-        //DragManager.acceptDragDrop(dropTarget);
-        denyIcon.visible=true;
-        //denyIcon.x=container.mouseX;
-        //denyIcon.y=container.mouseY;
-        DragManager.showFeedback(DragManager.NONE)
+        if (event.dragInitiator !== this && event.dragInitiator !== _nextHop)
+          denyIcon.visible=true;
       }
     }
     
@@ -283,9 +280,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       var source:CollectorRenderer;
       if (event.dragInitiator is CollectorRenderer) {
         source = event.dragInitiator as CollectorRenderer;
-        
-       
-        
         if((source.collector.good && dest.collector.good) ||  (!source.collector.good && !dest.collector.good))
         {
            source.moveAfter(dest);

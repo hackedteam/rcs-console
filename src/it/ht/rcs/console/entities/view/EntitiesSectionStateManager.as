@@ -181,11 +181,7 @@ package it.ht.rcs.console.entities.view
         return currentFilter(item);
       else return true;
     }
-    
  
-    
-   
-    
     private function getView():ListCollectionView
     {
       var lcv:ListCollectionView;
@@ -225,10 +221,7 @@ package it.ht.rcs.console.entities.view
     private var CurrentManager:Class;
     private var currentSort:Sort;
     private var currentFilter:Function;
-    
-
    
-    
     // This reference is injected by the action bars, when they are displayed
     public var searchField:TextInput;
     private function searchFilterFunction(item:Object):Boolean

@@ -7,7 +7,7 @@
 
   <s:HGroup visible="{section.stateManager.selectedFactory != null}" gap="0"
             includeInLayout="{section.stateManager.selectedFactory != null}">
-    <s:Button label="{R.get('BUILD')}" click="build(event)" icon="@Embed('/img/NEW/build.png')" enabled="{LicenseManager.instance.archive == false &amp;&amp; Console.currentSession.user.is_tech_build()}"/>
+    <s:Button label="{R.get('BUILD')}" click="build(event)" icon="@Embed('/img/NEW/build.png')" enabled="{LicenseManager.instance.archive == false &amp;&amp; Console.currentSession.user.is_tech_build() &amp;&amp; section.stateManager.selectedFactory.good}"/>
     <actionbar:Separator/>
   </s:HGroup>
   
@@ -206,13 +206,13 @@
         //if collector is found check if good or bad according to Agent
         
         //must be bad
-        if(a._kind=="agent" && a.version<2013031101 && collector.good)
+        if(!a.good && collector.good)
         {
          AlertPopUp.show(R.get('INVALID_COLLECTOR'))
           return null;
         }
         //must be good
-        if(((a._kind=="agent" && a.version>=2013031101) || a._kind=="factory") && !collector.good)
+        if(a.good && !collector.good)
         {
           AlertPopUp.show(R.get('INVALID_COLLECTOR'))
           return null;

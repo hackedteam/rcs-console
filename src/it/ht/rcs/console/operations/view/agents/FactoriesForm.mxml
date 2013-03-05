@@ -57,7 +57,9 @@
         doSave();
         
         if (currentState == CREATE)
-          AgentManager.instance.addFactory(factory, operation, target, function(factory:Agent):void { close(); dispatchEvent(new Event("close")) });
+          AgentManager.instance.addFactory(factory, operation, target, function(factory:Agent):void { 
+            close(); 
+            dispatchEvent(new Event("close")) });
         else
           close();
       }
@@ -73,6 +75,8 @@
         factory.desc = desc.text;
         factory.type = type.selectedItem.label.toLowerCase();
         factory.status = (currentState == CREATE) ? 'open' : getStatus();
+        if(currentState == CREATE)
+          factory.good=true;
       }
     ]]>
   </fx:Script>

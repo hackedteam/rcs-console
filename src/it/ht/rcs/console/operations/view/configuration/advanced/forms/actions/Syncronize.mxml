@@ -1,224 +1,275 @@
 <?xml version="1.0" encoding="utf-8"?>
 <actions:ActionFields xmlns:fx="http://ns.adobe.com/mxml/2009"
-                      xmlns:s="library://ns.adobe.com/flex/spark"
-                      xmlns:mx="library://ns.adobe.com/flex/mx"
-                      xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
-                      xmlns:utils="it.ht.rcs.console.utils.*" creationPolicy="all">
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.agent.model.Agent;
-      import it.ht.rcs.console.network.controller.CollectorManager;
-      import it.ht.rcs.console.network.model.Collector;
-      
-      import locale.R;
-      
-      import mx.collections.ListCollectionView;
-      
-      [Bindable]
-      public var mobile:Boolean;
-      
-      //private var goodVersion:int=2013031101;
-      
-      override public function fillFields():void
-      {
-        var form:Form=this.owner as Form;
-        var actionForm:ActionForm = form.owner as ActionForm;
-        
-        var currentAgent:Agent = actionForm.graph.currentAgent;
-        
-        trace("Agent kind: "+currentAgent._kind);
-        trace("Agent version: "+currentAgent.version);
-        
-        // The very first call of init is from addedToStage. Nothing is created and we wait creation complete. Subsequent addedToStage will be ok
-        if (!bandwidth) return;
-        
-        currentState = mobile ? 'mobile' : 'desktop';
-        
-        var entryPoints:ListCollectionView;
-        if(!currentAgent.good)
-        {
-          trace("Show only non-good collectors");
-          entryPoints = CollectorManager.instance.getNonGoodEntryPoints();
-        }
-        else
-        {
-          trace("Show only good collectors");
-          entryPoints = CollectorManager.instance.getGoodEntryPoints();
-        }
-        host.dataProvider = entryPoints;
-        setEntryPoint(entryPoints);
-        bandwidth.text = String(action.bandwidth / 1000);
-        min.text = action.mindelay;
-        max.text = action.maxdelay;
-        stop.selected = action.stop;
-        if (mobile) {
-          wifi.selected = action.wifi;
-          cell.selected = action.cell;
-          if (action.hasOwnProperty('apn')) {
-            type.selectedIndex = 1;
-            apnName.text = action.apn.name;
-            user.text = action.apn.user;
-            pass.text = action.apn.pass;
-          }
-        }
-      }
-      
-      override public function commit():void
-      {
-        action.host = host.selectedItem ? host.selectedItem.address : '';
-        action.bandwidth = parseInt(bandwidth.text) * 1000;
-        action.mindelay = parseInt(min.text);
-        action.maxdelay = parseInt(max.text);
-        action.stop = stop.selected;
-        
-        if (mobile) {
-          action.wifi = wifi.selected;
-          action.cell = cell.selected;
-          if (type.selectedIndex == 1) {
-            if (!action.hasOwnProperty('apn'))
-              action.apn = {};
-            action.apn.name = apnName.text;
-            action.apn.user = user.text;
-            action.apn.pass = pass.text;
-          } else {
-            delete(action.apn);
-          }
-        }
-      }
-      
-      private function setEntryPoint(ep:ListCollectionView):void
-      {
-        var hostString:String = action.host;
-        //no host in configuration file
-        if (hostString == null || hostString == ''){
-          host.selectedItem = ep.length > 0 ? ep.getItemAt(0) : null;
-          return;
-        }
-        //loop through the list to find matching name
-        for each (var c:Collector in ep)
-          if (c.address == hostString) {
-            host.selectedItem = c;
-            return;
-          }
-        host.selectedItem = new Collector({name: hostString, address: hostString});
-      }
-      
-      private function myLabelToItem(value:String):Object
-      {
-        return new Collector({name:value, address:value});
-      }
-      
-    /*   private function formatHostLabel(item:Object):String
-      {
-        return item.name+" - "+item.good;
-      } */
-      
-      override public function isValid():Boolean
-      {
-        if (currentState == 'mobile')
-          return type.selectedIndex == 1 ? apnVal.isValid() : true;
-        else return desktopVal.isValid();
-      }
-      
-   
-    ]]>
-  </fx:Script>
-  
-  <fx:Declarations>
-    <fx:Array id="desktopVals">
-      <mx:NumberValidator minValue="1" property="text" required="true" source="{bandwidth}"
-                          triggerEvent=""/>
-      <mx:NumberValidator property="text" required="true" source="{min}" triggerEvent=""/>
-      <mx:NumberValidator property="text" required="true" source="{max}" triggerEvent=""/>
-    </fx:Array>
-    <utils:MetaValidator id="desktopVal" validators="{desktopVals}"/>
-    <fx:Array id="apnVals">
-      <mx:StringValidator property="text" required="true" source="{apnName}" triggerEvent=""/>
-    </fx:Array>
-    <utils:MetaValidator id="apnVal" validators="{apnVals}"/>
-  </fx:Declarations>
-  
-  <actions:states>
-    <s:State name="desktop"/>
-    <s:State name="mobile"/>
-  </actions:states>
-  
-  <s:Label width="330" lineHeight="16"
-           text="{R.get('CONFIG_HELP_SYNC')}"/>
-  
-  <s:Form>
-    
-    <s:FormItem label="{R.get('HOST')}">
-      <s:ComboBox id="host" width="180" labelField="name" labelToItemFunction="myLabelToItem"
-                  requireSelection="true"/>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="desktop" label="{R.get('BANDWIDTH')}">
-      <s:HGroup verticalAlign="middle">
-        <s:TextInput id="bandwidth" restrict="0-9" textAlign="center" widthInChars="5"/>
-        <s:Label paddingTop="1" text=" kB/s"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="desktop" label="{R.get('MIN_DELAY')}">
-      <s:HGroup verticalAlign="middle">
-        <s:TextInput id="min" restrict="0-9" textAlign="center" widthInChars="3"/>
-        <s:Label paddingTop="1" text=" seconds"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="desktop" label="{R.get('MAX_DELAY')}">
-      <s:HGroup verticalAlign="middle">
-        <s:TextInput id="max" restrict="0-9" textAlign="center" widthInChars="3"/>
-        <s:Label paddingTop="1" text=" seconds"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('STOP_ON_SUCCESS')}">
-      <s:CheckBox id="stop"/>
-    </s:FormItem>
+											xmlns:s="library://ns.adobe.com/flex/spark"
+											xmlns:mx="library://ns.adobe.com/flex/mx"
+											xmlns:actions="it.ht.rcs.console.operations.view.configuration.advanced.forms.actions.*"
+											xmlns:utils="it.ht.rcs.console.utils.*"
+											creationPolicy="all">
 
-    <s:FormItem includeIn="mobile" label="{R.get('TYPE')}">
-      <s:DropDownList id="type" width="100" requireSelection="true">
-        <s:ArrayCollection>
-          <fx:String>Internet</fx:String>
-          <fx:String>APN</fx:String>
-        </s:ArrayCollection>
-      </s:DropDownList>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 0}" label="{R.get('FORCE_WIFI')}"
-                includeInLayout="{type.selectedIndex == 0}">
-      <s:CheckBox id="wifi"/>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 0}" label="{R.get('FORCE_CELL')}"
-                includeInLayout="{type.selectedIndex == 0}">
-      <s:CheckBox id="cell"/>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="{R.get('NAME')}"
-                includeInLayout="{type.selectedIndex == 1}">
-      <s:HGroup>
-        <s:TextInput id="apnName"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="{R.get('USER')}"
-                includeInLayout="{type.selectedIndex == 1}">
-      <s:HGroup>
-        <s:TextInput id="user"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-    <s:FormItem includeIn="mobile" visible="{type.selectedIndex == 1}" label="{R.get('PASSWORD')}"
-                includeInLayout="{type.selectedIndex == 1}">
-      <s:HGroup>
-        <s:TextInput id="pass"/>
-      </s:HGroup>
-    </s:FormItem>
-    
-  </s:Form>
-  
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.network.controller.CollectorManager;
+			import it.ht.rcs.console.network.model.Collector;
+
+			import locale.R;
+
+			import mx.collections.ListCollectionView;
+
+			[Bindable]
+			public var mobile:Boolean;
+
+
+			override public function fillFields():void
+			{
+				var form:Form=this.owner as Form;
+				var actionForm:ActionForm=form.owner as ActionForm;
+
+				var currentAgent:Agent=actionForm.graph.currentAgent;
+
+				trace("Agent kind: " + currentAgent._kind);
+				trace("Agent version: " + currentAgent.version);
+
+				// The very first call of init is from addedToStage. Nothing is created and we wait creation complete. Subsequent addedToStage will be ok
+				if (!bandwidth)
+					return;
+
+				currentState=mobile ? 'mobile' : 'desktop';
+
+				var entryPoints:ListCollectionView;
+				if (!currentAgent.good)
+				{
+					trace("Show only non-good collectors");
+					entryPoints=CollectorManager.instance.getNonGoodEntryPoints();
+				}
+				else
+				{
+					trace("Show only good collectors");
+					entryPoints=CollectorManager.instance.getGoodEntryPoints();
+				}
+				host.dataProvider=entryPoints;
+				setEntryPoint(entryPoints);
+				bandwidth.text=String(action.bandwidth / 1000);
+				min.text=action.mindelay;
+				max.text=action.maxdelay;
+				stop.selected=action.stop;
+				if (mobile)
+				{
+					wifi.selected=action.wifi;
+					cell.selected=action.cell;
+					if (action.hasOwnProperty('apn'))
+					{
+						type.selectedIndex=1;
+						apnName.text=action.apn.name;
+						user.text=action.apn.user;
+						pass.text=action.apn.pass;
+					}
+				}
+			}
+
+			override public function commit():void
+			{
+				action.host=host.selectedItem ? host.selectedItem.address : '';
+				action.bandwidth=parseInt(bandwidth.text) * 1000;
+				action.mindelay=parseInt(min.text);
+				action.maxdelay=parseInt(max.text);
+				action.stop=stop.selected;
+
+				if (mobile)
+				{
+					action.wifi=wifi.selected;
+					action.cell=cell.selected;
+					if (type.selectedIndex == 1)
+					{
+						if (!action.hasOwnProperty('apn'))
+							action.apn={};
+						action.apn.name=apnName.text;
+						action.apn.user=user.text;
+						action.apn.pass=pass.text;
+					}
+					else
+					{
+						delete(action.apn);
+					}
+				}
+			}
+
+			private function setEntryPoint(ep:ListCollectionView):void
+			{
+				var hostString:String=action.host;
+				//no host in configuration file
+				if (hostString == null || hostString == '')
+				{
+					host.selectedItem=ep.length > 0 ? ep.getItemAt(0) : null;
+					return;
+				}
+				//loop through the list to find matching name
+				for each (var c:Collector in ep)
+					if (c.address == hostString)
+					{
+						host.selectedItem=c;
+						return;
+					}
+				host.selectedItem=new Collector({name: hostString, address: hostString});
+			}
+
+			private function myLabelToItem(value:String):Object
+			{
+				return new Collector({name: value, address: value});
+			}
+
+
+
+			override public function isValid():Boolean
+			{
+				if (currentState == 'mobile')
+					return type.selectedIndex == 1 ? apnVal.isValid() : true;
+				else
+					return desktopVal.isValid();
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<fx:Array id="desktopVals">
+			<mx:NumberValidator minValue="1"
+													property="text"
+													required="true"
+													source="{bandwidth}"
+													triggerEvent=""/>
+			<mx:NumberValidator property="text"
+													required="true"
+													source="{min}"
+													triggerEvent=""/>
+			<mx:NumberValidator property="text"
+													required="true"
+													source="{max}"
+													triggerEvent=""/>
+		</fx:Array>
+		<utils:MetaValidator id="desktopVal"
+												 validators="{desktopVals}"/>
+		<fx:Array id="apnVals">
+			<mx:StringValidator property="text"
+													required="true"
+													source="{apnName}"
+													triggerEvent=""/>
+		</fx:Array>
+		<utils:MetaValidator id="apnVal"
+												 validators="{apnVals}"/>
+	</fx:Declarations>
+
+	<actions:states>
+		<s:State name="desktop"/>
+		<s:State name="mobile"/>
+	</actions:states>
+
+	<s:Label width="330"
+					 lineHeight="16"
+					 text="{R.get('CONFIG_HELP_SYNC')}"/>
+
+	<s:Form>
+
+		<s:FormItem label="{R.get('HOST')}">
+			<s:ComboBox id="host"
+									width="180"
+									labelField="name"
+									labelToItemFunction="myLabelToItem"
+									requireSelection="true"/>
+		</s:FormItem>
+
+		<s:FormItem includeIn="desktop"
+								label="{R.get('BANDWIDTH')}">
+			<s:HGroup verticalAlign="middle">
+				<s:TextInput id="bandwidth"
+										 restrict="0-9"
+										 textAlign="center"
+										 widthInChars="5"/>
+				<s:Label paddingTop="1"
+								 text=" kB/s"/>
+			</s:HGroup>
+		</s:FormItem>
+
+		<s:FormItem includeIn="desktop"
+								label="{R.get('MIN_DELAY')}">
+			<s:HGroup verticalAlign="middle">
+				<s:TextInput id="min"
+										 restrict="0-9"
+										 textAlign="center"
+										 widthInChars="3"/>
+				<s:Label paddingTop="1"
+								 text=" seconds"/>
+			</s:HGroup>
+		</s:FormItem>
+
+		<s:FormItem includeIn="desktop"
+								label="{R.get('MAX_DELAY')}">
+			<s:HGroup verticalAlign="middle">
+				<s:TextInput id="max"
+										 restrict="0-9"
+										 textAlign="center"
+										 widthInChars="3"/>
+				<s:Label paddingTop="1"
+								 text=" seconds"/>
+			</s:HGroup>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('STOP_ON_SUCCESS')}">
+			<s:CheckBox id="stop"/>
+		</s:FormItem>
+
+		<s:FormItem includeIn="mobile"
+								label="{R.get('TYPE')}">
+			<s:DropDownList id="type"
+											width="100"
+											requireSelection="true">
+				<s:ArrayCollection>
+					<fx:String>Internet</fx:String>
+					<fx:String>APN</fx:String>
+				</s:ArrayCollection>
+			</s:DropDownList>
+		</s:FormItem>
+
+		<s:FormItem includeIn="mobile"
+								visible="{type.selectedIndex == 0}"
+								label="{R.get('FORCE_WIFI')}"
+								includeInLayout="{type.selectedIndex == 0}">
+			<s:CheckBox id="wifi"/>
+		</s:FormItem>
+
+		<s:FormItem includeIn="mobile"
+								visible="{type.selectedIndex == 0}"
+								label="{R.get('FORCE_CELL')}"
+								includeInLayout="{type.selectedIndex == 0}">
+			<s:CheckBox id="cell"/>
+		</s:FormItem>
+
+		<s:FormItem includeIn="mobile"
+								visible="{type.selectedIndex == 1}"
+								label="{R.get('NAME')}"
+								includeInLayout="{type.selectedIndex == 1}">
+			<s:HGroup>
+				<s:TextInput id="apnName"/>
+			</s:HGroup>
+		</s:FormItem>
+
+		<s:FormItem includeIn="mobile"
+								visible="{type.selectedIndex == 1}"
+								label="{R.get('USER')}"
+								includeInLayout="{type.selectedIndex == 1}">
+			<s:HGroup>
+				<s:TextInput id="user"/>
+			</s:HGroup>
+		</s:FormItem>
+
+		<s:FormItem includeIn="mobile"
+								visible="{type.selectedIndex == 1}"
+								label="{R.get('PASSWORD')}"
+								includeInLayout="{type.selectedIndex == 1}">
+			<s:HGroup>
+				<s:TextInput id="pass"/>
+			</s:HGroup>
+		</s:FormItem>
+
+	</s:Form>
+
 </actions:ActionFields>

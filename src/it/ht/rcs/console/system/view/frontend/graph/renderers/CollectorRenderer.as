@@ -119,6 +119,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
         var img:BitmapAsset = new DenyIcon() as BitmapAsset;
         denyIcon=new Image()
         denyIcon.source=img;
+        denyIcon.top=-6
+        denyIcon.left=-6
         container.addElement(denyIcon)
           
         denyIcon.visible=false;
@@ -241,7 +243,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
     
     private function dragOver(event:DragEvent):void
     {
-      trace("drag over");
       var accept:Boolean = false;
       if (collector.address && collector.address.length > 0) {
         if (event.dragInitiator is CollectorRenderer) {

@@ -96,6 +96,7 @@
 
 	<fx:Script>
 		<![CDATA[
+			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.events.FilterEvent;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
@@ -104,9 +105,9 @@
 			import it.ht.rcs.console.operations.view.OperationsSection;
 			import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
 			import it.ht.rcs.console.utils.AlertPopUp;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -502,8 +503,11 @@
 
 			private function resetFilters():void
 			{
+ 
 				FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+        evidenceView.resetFilter();
 				EvidenceManager.instance.refresh();
+        
 			}
 
 			private function openFilterPanel():void

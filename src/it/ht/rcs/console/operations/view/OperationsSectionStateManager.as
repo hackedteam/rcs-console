@@ -9,12 +9,14 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
+  import it.ht.rcs.console.monitor.controller.LicenseManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
-  import it.ht.rcs.console.monitor.controller.LicenseManager;
+  import it.ht.rcs.console.events.FilterEvent;
+  import mx.core.FlexGlobals;
   
   import locale.R;
   
@@ -165,6 +167,7 @@ package it.ht.rcs.console.operations.view
       if (event && event.subsection == 'evidence')
       {
         section.currentState = 'evidence';
+        
        
         if (event.evidenceTypes)
           EvidenceManager.instance.evidenceFilter.type = event.evidenceTypes;
@@ -191,6 +194,11 @@ package it.ht.rcs.console.operations.view
           EvidenceManager.instance.evidenceFilter.date = 'da';
           EvidenceManager.instance.evidenceFilter.from = event.from;
           EvidenceManager.instance.evidenceFilter.to = event.to;
+          if(event.from==-1)//trick
+          {
+            EvidenceManager.instance.evidenceFilter.date = 'dr';
+            EvidenceManager.instance.evidenceFilter.from = "24h";
+          }
         }
         else
         {
@@ -198,6 +206,9 @@ package it.ht.rcs.console.operations.view
           delete (EvidenceManager.instance.evidenceFilter.from);
           delete (EvidenceManager.instance.evidenceFilter.to);
         }
+        
+        var f:Object=EvidenceManager.instance.evidenceFilter;
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         section.evidenceView.refreshData();
       }
     }

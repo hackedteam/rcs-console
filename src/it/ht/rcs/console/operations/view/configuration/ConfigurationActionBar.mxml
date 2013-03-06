@@ -155,7 +155,7 @@
       {
        if(configView.currentState=='basic')
        {
-         if(configView.basic.sync.host.selectedItem==null)
+         if(configView.basic.sync.host.selectedItem==null && configView.basic.sync.selected)
          {
            AlertPopUp.show(R.get('MISSING_COLLECTOR'))
            return null;
@@ -198,7 +198,7 @@
           }
         }
         //the provided host string doesn't match any collector
-        if(!found)
+        if(!found && host!="")
         {
           AlertPopUp.show(R.get('MISSING_COLLECTOR')) //Custom message??
           return null
@@ -207,13 +207,13 @@
         //if collector is found check if good or bad according to Agent
         
         //must be bad
-        if(!a.good && collector.good)
+        if(!a.good && collector.good && host!="")
         {
          AlertPopUp.show(R.get('INVALID_COLLECTOR'))
           return null;
         }
         //must be good
-        if(a.good && !collector.good)
+        if(a.good && !collector.good && host!="")
         {
           AlertPopUp.show(R.get('INVALID_COLLECTOR'))
           return null;

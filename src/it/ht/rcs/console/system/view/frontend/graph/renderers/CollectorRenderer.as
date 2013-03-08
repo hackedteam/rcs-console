@@ -141,8 +141,6 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
   
       }
       
-      if(!collector.good)
-        this.alpha=0.3;
 		}
     
     private function getStatusIcon():Class

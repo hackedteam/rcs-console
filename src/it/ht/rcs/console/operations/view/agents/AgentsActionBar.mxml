@@ -28,13 +28,20 @@
               || (Console.currentSession.user.is_tech_factories() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject._kind=='factory')}"
 							icon="@Embed('/img/NEW/delete_32.png')"/>
 
-		<actionbar:Separator/>
 
 		<s:Button label="{R.get('CLOSE')}"
 							click="onClose()"
 							enabled="{(Console.currentSession.user.is_tech() &amp;&amp; selectedObject &amp;&amp; selectedObject.status == 'open' &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject._kind=='agent')
               || (Console.currentSession.user.is_tech_factories () &amp;&amp; selectedObject &amp;&amp; selectedObject.status == 'open' &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject._kind=='factory')}"
 							icon="@Embed('/img/NEW/lock32.png')"/>
+    
+    <s:Button label="{R.get('MOVE')}"
+              icon="@Embed('/img/NEW/move.png')"
+              click="moveAgent(event)"
+              enabled="{(Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject is Agent
+              &amp;&amp; selectedObject.status == 'open' &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; selectedObject._kind=='agent')
+              
+              }"/>
 
 		<actionbar:Separator/>
 
@@ -52,15 +59,9 @@
 							visible="{LicenseManager.instance.archive == false}"
 							includeInLayout="{LicenseManager.instance.archive == false}"/>
 
-		<actionbar:Separator/>
+	
 
-		<s:Button label="{R.get('MOVE')}"
-							icon="@Embed('/img/NEW/move.png')"
-							click="moveAgent(event)"
-							enabled="{(Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject is Agent
-                        &amp;&amp; selectedObject.status == 'open' &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; selectedObject._kind=='agent')
-             
-              }"/>
+		
 
 		<actionbar:Separator/>
 
@@ -91,6 +92,11 @@
 							icon="@Embed('/img/NEW/export.png')"
 							click="exportEvidence(event)"
 							enabled="{Console.currentSession.user.is_view_export()}"/>
+    
+    <actionbar:Separator visible="{Console.currentSession.user.is_view()}" includeInLayout="{Console.currentSession.user.is_view()}"/>
+    <s:Button label="{R.get('JUMP_TO_ENTITY')}"
+              icon="@Embed('/img/NEW/jumpToEntity.png')" 
+              enabled="{Console.currentSession.user.is_view_profiles()  &amp;&amp; section.stateManager.selectedTarget.status=='open'}" click="onJump()" />
 
 	</s:HGroup>
 
@@ -164,22 +170,24 @@
 			import it.ht.rcs.console.alert.controller.AlertManager;
 			import it.ht.rcs.console.alert.model.Alert;
 			import it.ht.rcs.console.dashboard.controller.DashboardController;
+			import it.ht.rcs.console.events.SectionEvent;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.network.controller.CollectorManager;
 			import it.ht.rcs.console.operations.view.MoveItemPopup;
 			import it.ht.rcs.console.operations.view.OperationsSection;
 			import it.ht.rcs.console.operations.view.evidences.EvidenceExport;
 			import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.target.model.Target;
 			import it.ht.rcs.console.utils.AlertPopUp;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
+			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			public var section:OperationsSection;
@@ -357,6 +365,16 @@
 				popup.itemToMove=selectedObject;
 				PopUpManager.centerPopUp(popup);
 			}
+      
+      protected function onJump():void
+      {
+        var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section=SectionEvent.INTELLIGENCE;
+        event.subsection='entity';
+        var target:Target=section.stateManager.selectedTarget
+        event.item=SearchManager.instance.getItem(target._id);
+        FlexGlobals.topLevelApplication.dispatchEvent(event); 
+      }
 		]]>
 	</fx:Script>
 

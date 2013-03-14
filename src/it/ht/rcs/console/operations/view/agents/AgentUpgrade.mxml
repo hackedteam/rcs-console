@@ -81,6 +81,12 @@
           upBtn.enabled = false;          
         }
         
+        if (agent.scout && agent.version >=3 ) {
+          currentVersionTxt.text=agent.version+" (scout)";
+          desc.text = R.get('UPDATE_AGENT_DESC_SCOUT');
+          upBtn.enabled = true;
+        }
+        
         // dangerous warning for scout
         if (agent.version < 3) {
           this.height = 330;
@@ -96,6 +102,9 @@
         closeMe(event);
       }
       
+      // SCOUT_UPGRADE
+      
+      
     ]]>
   </fx:Script>
   <s:VGroup top="10" left="10" right="10" horizontalAlign="center" >
@@ -104,7 +113,7 @@
 
     <s:Form>
       <s:FormItem label="{R.get('CURRENT_VERSION')}">
-        <s:Label text="{agent.version}" />
+        <s:Label text="{agent.version}" id="currentVersionTxt"/>
       </s:FormItem>
       <s:FormItem label="{R.get('UPGRADE_TO')}" visible="{upgradable}">
         <s:Label text="{CoreManager.instance.getLatestVersion(agent.platform)}" />

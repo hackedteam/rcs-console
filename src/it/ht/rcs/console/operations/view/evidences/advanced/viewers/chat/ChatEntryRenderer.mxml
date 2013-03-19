@@ -28,10 +28,15 @@
 				<fx:Script>
 					<![CDATA[
 						import flashx.textLayout.conversion.TextConverter;
-
+						
+						import it.ht.rcs.console.evidence.controller.EvidenceManager;
+						import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
 						import it.ht.rcs.console.utils.TimeUtils;
+						
+						import mx.rpc.events.FaultEvent;
+						import mx.rpc.events.ResultEvent;
             
-            import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+            import locale.R;
 
 						[Bindable]
 						private var isPeer:Boolean;
@@ -44,9 +49,9 @@
 
 						[Bindable]
 						private var selectedColor:uint=0xFF0000;
-            
-            [Bindable]
-            private var ImageClass:Class;
+
+						[Bindable]
+						private var ImageClass:Class;
 
 						private function formatDate(value:Number):String
 						{
@@ -57,62 +62,195 @@
 						{
 							if (data)
 							{
-								var content:String=data.data.content;
-								var d:String=formatDate(data.da);
-								var nickname:String=content.split(":")[0];
-								var message:String=content.substring(nickname.length + 1, content.length);
-								var peers:Array=data.data.peer.split(" ");
-                  
-                  if(data.data.program.toLowerCase()=="skype")
-                  {
-                    isPeer=isInArray(peers,nickname);
-                    targetColor=0xCCCCCC;
-                  }
-                  
-                  else if(data.data.program.toLowerCase()=="facebook")
-                  {
-                    isPeer=data.data.peer==nickname;
-                    targetColor=0xCCCCCC;
-                  }
-                  else if(data.data.program.toLowerCase()=="twitter")
-                  {
-                    isPeer=data.data.peer==nickname;
-                    targetColor=0x99FFFF;
-                  }
-                  
-                  else if(data.data.program.toLowerCase()=="whatsapp")
-                  {
-                    isPeer=data.data.peer==nickname;
-                    targetColor=0x99FFFF;
-                  }
-                  
-                ImageClass=ChatIcons[data.data.program.toLowerCase()]
-								dateTxt.text=d;
-								messageTxt.textFlow=TextConverter.importToFlow('<b>' + nickname + ":</b> " + message, TextConverter.TEXT_FIELD_HTML_FORMAT)
-							}
-						}
+								var content:String;
 
-						private function isInArray(arr:Array, value:*):Boolean
-						{
-							var result:Boolean;
-							for (var i:int=1; i < arr.length; i++) // count starts at 1 - the first one is the target???
-							{
-								if (arr[i] == value)
-									result=true;
+								if (this.column.dataField == "data.tr")
+								{
+									content=data.data.tr;
+								}
+								else
+								{
+									content=data.data.content;
+								}
+
+								var d:String=formatDate(data.da);
+								var message:String
+								var nickname:String
+
+								if (content)
+								{
+									var splitted:Array=content.split(":")
+									/* if (splitted.length > 1)
+									{
+										//nickname
+										nickname=splitted[0];
+										message=content.substring(nickname.length + 1, content.length);
+									} */
+									
+										//no nickname
+										nickname="";
+										if (data.data.from != null && data.data.from != "")
+										{
+											nickname=data.data.from_display || data.data.from;
+										}
+										message=content;
+								}
+								else
+								{
+									nickname="";
+									message="";
+								}
+								if (data.data.content != null && this.column.dataField == "data.tr")
+								{
+                  messageTxt.setStyle("color",0x666666)
+                  switch (data.data.tr)
+                  {
+                    
+                    case 'TRANS_QUEUED':
+                      message='<i>(' + R.get('TRANS_QUEUED') + ')</i>';
+                      break;
+                    case 'TRANS_IN_PROGRESS':
+                      message='<i>(' + R.get('TRANS_IN_PROGRESS') + ')</i>';
+                      break;
+                    case 'TRANS_ERROR':
+                      message='<i>(' + R.get('TRANS_ERROR') + ')</i>';
+                      break;
+                    case null:
+                      message='<i>(' + R.get('TRANSLATION_UNAVAILABLE') + ')</i>';
+                      break;
+                    default:
+                      message='<i>'+data.data.tr+'</i>';
+                  }
+
+                 
+                    var id:String=encodeURIComponent(data._id);
+                    var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);  
+                    //EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
+              
+								}
+                else
+                {
+                  messageTxt.setStyle("color",0x000000)
+                
+                }
+								var peers:Array
+								if (data.data.rcpt != null && data.data.rcpt != "")
+								{
+									peers=data.data.rcpt.split(",");
+								}
+								else
+								{
+									if(data.data.peer) peers=data.data.peer.split(" ");
+                  else peers=[];
+								}
+                //SKYPE
+								if (data.data.program.toLowerCase() == "skype")
+								{ 
+                  if(data.data.incoming!=null )
+                  {
+                    isPeer=data.data.incoming
+                  }
+                  else
+                  {
+									  isPeer=(peers.indexOf(nickname)!=-1);
+                  }
+									targetColor=0xCCCCCC;
+								}
+                //FACEBOOK
+								else if (data.data.program.toLowerCase() == "facebook")
+								{
+                  if(data.data.incoming!=null && data.data.rcpt!=null)
+                  {
+                    isPeer=data.data.incoming
+                  }
+                  else
+                  {
+                    isPeer=data.data.peer == nickname;
+                  }
+									
+									targetColor=0xCCCCCC;
+								}
+                //TWITTER
+								else if (data.data.program.toLowerCase() == "twitter")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										data.data.rcpt == nickname
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+                //WHATSAPP
+								else if (data.data.program.toLowerCase() == "whatsapp")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+                
+                else if (data.data.program.toLowerCase() == "google talk")
+                {
+                  if (data.data.rcpt != null && data.data.rcpt != "")
+                  {
+                    //isPeer=data.data.rcpt==nickname;
+                    isPeer=data.data.incoming;
+                   
+                  }
+                  else
+                  {
+                    isPeer=data.data.peer == nickname;
+                  }
+                  targetColor=0x99FFFF;
+                }
+
+								ImageClass=ChatIcons[data.data.program.toLowerCase()]
+
+								dateTxt.text=d;
+								if (nickname != "" && nickname != null)
+									messageTxt.textFlow=TextConverter.importToFlow('<b>' + nickname + ":</b> " + message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+								else
+									messageTxt.textFlow=TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
+
 							}
-							return result;
 						}
             
+            private function onTranslateResult(e:ResultEvent):void
+            {
+              trace("translation result");
+              
+              
+              //data=e.result;
+              //this.prepare(false);
+              //evidence.data.tr=e.result.data.tr;
+             
+            }
             
+            private function onTranslateFault(e:FaultEvent):void
+            {
+              trace("translation fault");      
+            }
+
 					]]>
 				</fx:Script>
-      <s:HGroup width="100%">
-        <s:BitmapImage width="16" height="16" source="{ImageClass}"/>
-        <s:Label textAlign="right"
-                 id="dateTxt"
-                 width="100%"
-                 fontWeight="bold"/>
-      </s:HGroup>
+				<s:HGroup width="100%">
+					<s:BitmapImage width="16"
+												 height="16"
+												 source="{ImageClass}"/>
+					<s:Label textAlign="right"
+									 id="dateTxt"
+									 width="100%"
+									 fontWeight="bold"/>
+				</s:HGroup>
 				<s:RichText id="messageTxt"
 										width="100%"/>
 			</s:VGroup>

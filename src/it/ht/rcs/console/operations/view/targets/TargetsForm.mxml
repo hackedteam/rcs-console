@@ -44,7 +44,7 @@
             AlertPopUp.YES|AlertPopUp.NO, null,
             function(e:CloseEvent):void {
               if (e.detail == AlertPopUp.YES)
-                { doSave(); close(); }
+                { doSave(); close(); dispatchEvent(new Event("close"))}
             }, null, AlertPopUp.NO);
           return;
         }
@@ -52,7 +52,7 @@
         doSave();
         
         if (currentState == CREATE)
-          TargetManager.instance.addTarget(target, operation, function(target:Target):void { close(); });
+          TargetManager.instance.addTarget(target, operation, function(target:Target):void { close(); dispatchEvent(new Event("close"))});
         else
           close();
         

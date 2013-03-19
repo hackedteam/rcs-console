@@ -24,6 +24,7 @@ package it.ht.rcs.console.utils
   import mx.events.CloseEvent;
   import mx.managers.PopUpManager;
   import mx.rpc.events.ResultEvent;
+  import mx.controls.Alert;
 
   public class UpdateManager
   {
@@ -61,9 +62,10 @@ package it.ht.rcs.console.utils
         trace("UpdateCheck -- current: " + current_version + " update: " + update_version);
         
         if (update_version != "-1" && current_version != update_version) {
+          Alert.yesLabel="OK"
           AlertPopUp.show(R.get('UPDATE_CONSOLE', [current_version, update_version]), 
                           R.get('NEW_VERSION'), 
-                          AlertPopUp.YES|AlertPopUp.NO, 
+                          AlertPopUp.YES, 
                           null, 
                           function (event:CloseEvent):void {
                             if (event.detail == AlertPopUp.YES) {

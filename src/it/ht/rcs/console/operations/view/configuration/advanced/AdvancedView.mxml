@@ -10,6 +10,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.EventRenderer;
       
@@ -28,12 +29,16 @@
       
       [Bindable]
       public var host:String;
+      
+      [Bindable]
+      public var currentAgent:Agent;
 
       public function displayConfig():void
       {
 //        if (section.stateManager.selectedAgent != null)
 //          DefaultConfigBuilder.cleanPlatformConfig(section.stateManager.selectedAgent.platform, config);
         graph.config = config;
+        graph.currentAgent=currentAgent;
         graph.rebuildGraph();
       }
       
@@ -124,7 +129,9 @@
     </s:Scroller>
     <s:HGroup verticalAlign="middle" visible="{isScout}" includeInLayout="{isScout}">
       <s:Image source="{compassIcon}"/>
+
       <s:Label text="{graph.host}"/>
+
     </s:HGroup>
   </s:BorderContainer>
   

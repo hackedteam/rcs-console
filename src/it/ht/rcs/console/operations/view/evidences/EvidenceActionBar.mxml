@@ -11,54 +11,77 @@
 	<s:Button label="{R.get('EVIDENCE_EXPORT')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
-						enabled="{selectedObjects.length>=1}"
-            />
-	<actionbar:Separator width="40"/>
+						enabled="{selectedObjects.length>0 &amp;&amp; Console.currentSession.user.is_view_export()}"/>
+	<actionbar:Separator width="20"/>
 
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick(event)"
-            enabled="{Console.currentSession.user.is_admin() &amp;&amp; selectedObjects.length>0}" icon="@Embed('/img/NEW/delete_32.png')"
-            visible="{LicenseManager.instance.deletion == true}"
-            includeInLayout="{LicenseManager.instance.deletion == true}"/>
-  <actionbar:Separator width="40" visible="{LicenseManager.instance.deletion == true}"
-                       includeInLayout="{LicenseManager.instance.deletion == true}"/>
+	
+
+	<s:Button label="{R.get('DELETE')}"
+						click="onDeleteClick(event)"
+						enabled="{Console.currentSession.user.is_view_delete() &amp;&amp; selectedObjects.length>0}"
+						icon="@Embed('/img/NEW/delete_32.png')"
+						visible="{LicenseManager.instance.deletion == true}"
+						includeInLayout="{LicenseManager.instance.deletion == true}"
+						width="90" horizontalCenter="0"/>
+	<actionbar:Separator width="20"/>
+  
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 enabled="false"
 										 id="tagEditor"
-										 change="onRelevanceChange(event)"/>
+										 change="onRelevanceChange(event)"
+                     width="80"/>
 
 	<s:Button label="{R.get('REPORT_ADD')}"
 						click="onReportClick()"
 						enabled="false"
 						icon="@Embed('/img/evidence/paperplus32.png')"
 						id="reportBtn"
-						width="150"/>
+						width="90"/>
 
 	<s:Button label="{R.get('EDIT_NOTE')}"
 						click="onEditNoteClick()"
-						enabled="{selectedObjects.length>0}"
+						enabled="{selectedObjects.length>0  &amp;&amp; Console.currentSession.user.is_view_edit()}"
 						icon="@Embed('/img/evidence/notepencil32.png')"/>
 
-	<actionbar:Separator width="40"/>
-  <s:Button label="{R.get('ID_COLUMN_SHOW')}"
-            click="onIdClick()"
-            icon="@Embed('/img/evidence/paper32.png')"
-            id="idBtn" width="80"/>
+	<actionbar:Separator width="20"/>
+
+	<s:Button label="{R.get('ID_COLUMN_SHOW')}"
+						click="onIdClick()"
+						icon="@Embed('/img/evidence/paper32.png')"
+						id="idBtn"
+						width="80"/>
 	<s:Button label="{R.get('SUMMARY_SHOW')}"
 						click="onSummaryClick()"
 						icon="@Embed('/img/evidence/linedpaperplus32.png')"
-						id="summaryBtn" width="130"/>
-	<actionbar:Separator width="40"/>
+						id="summaryBtn"
+						width="120"/>
+	<actionbar:Separator width="20"/>
+  
+
 	<s:Button label="{R.get('DETAIL_SHOW')}"
 						click="onDetailClick()"
 						icon="@Embed('/img/evidence/article32.png')"
 						id="detailBtn"
-						enabled="{selectedObjects.length>0}" width="100"/>
-  <actionbar:Separator width="40"/>
-  <s:Button label="{R.get('FILTER_PRESETS')}" click="openFilterPanel()"
-            icon="@Embed('/img/NEW/presetFilters.png')"/>
-  
-  <s:Button label="{R.get('RESET_FILTERS')}" click="resetFilters()"
-            icon="@Embed('/img/NEW/resetFilters.png')"/>
+						enabled="{selectedObjects.length>0}"
+						width="100"/>
+
+	<actionbar:Separator width="20" visible="{LicenseManager.instance.translation}" includeInLayout="{LicenseManager.instance.translation}"/>
+	<s:Button label="Translate"
+						click="onTranslateClick()"
+						icon="@Embed('/img/evidence/globe32.png')"
+						id="translateBtn"
+						width="130" visible="{LicenseManager.instance.translation}" includeInLayout="{LicenseManager.instance.translation}"/>
+	<actionbar:Separator width="20"/>
+	<s:Button label="{R.get('FILTER_PRESETS')}"
+						click="openFilterPanel()"
+						icon="@Embed('/img/NEW/presetFilters.png')"
+            width="100" />
+
+	<s:Button label="{R.get('RESET_FILTERS')}"
+						click="resetFilters()"
+						icon="@Embed('/img/NEW/resetFilters.png')"
+            width="100" />
+
 
 
 	<fx:Metadata> 
@@ -67,38 +90,40 @@
     [Event(name="export",   type="flash.events.Event")] 
     [Event(name="detail",   type="flash.events.Event")]
     [Event(name="delete",   type="flash.events.Event")]
-    [Event(name="idcolumn", type="flash.events.Event")] 
+    [Event(name="idcolumn", type="flash.events.Event")]
+    [Event(name="translate", type="flash.events.Event")] 
   </fx:Metadata>
 
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.events.FilterEvent;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      import it.ht.rcs.console.evidence.model.TypeCount;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.operations.view.OperationsSection;
-      import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.events.FilterEvent;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.evidence.model.TypeCount;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.operations.view.OperationsSection;
+			import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
 
 			[Bindable]
 			private var _total:int;
 
-      [Bindable]
-      public var section:OperationsSection;
-      
-      [Bindable]
-      public var evidenceView:EvidencesView;
-      
+			[Bindable]
+			public var section:OperationsSection;
+
+			[Bindable]
+			public var evidenceView:EvidencesView;
+
 			private var _counts:ArrayCollection;
 
 			[Embed(source="/img/evidence/paperplus32.png")]
@@ -118,14 +143,14 @@
 
 			[Embed(source="/img/evidence/stop32.png")]
 			public var DetailHideIcon:Class;
-      
-      [Embed(source="/img/evidence/papercheck32.png")]
-      public var IdHideIcon:Class;
-      
-      [Embed(source="/img/evidence/paper32.png")]
-      public var IdShowIcon:Class;
 
-			[Bindable] 
+			[Embed(source="/img/evidence/papercheck32.png")]
+			public var IdHideIcon:Class;
+
+			[Embed(source="/img/evidence/paper32.png")]
+			public var IdShowIcon:Class;
+
+			[Bindable]
 			public function set counts(value:ArrayCollection):void
 			{
 				_counts=value;
@@ -154,48 +179,57 @@
 
 				if (!selectedObjects)
 				{
-					tagEditor.tag=0
-					tagEditor.enabled=false;
-					reportBtn.enabled=false;
-					toggleReportButton(true)
+					if(Console.currentSession.user.is_view_edit())
+          {
+            tagEditor.tag=0
+            tagEditor.enabled=false;
+            reportBtn.enabled=false;
+            toggleReportButton(true);
+          }
 					return;
 				}
 
-				if (selectedObjects.length < 1)
+				if (selectedObjects.length < 1 && Console.currentSession.user.is_view_edit())
 				{
 					tagEditor.tag=0;
 					tagEditor.enabled=false;
 					reportBtn.enabled=false;
 					stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
-          stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp)
+					stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
-				else if (selectedObjects.length == 1 && selectedObjects[0]!=null)
+
+				else if (selectedObjects.length == 1 && selectedObjects[0] != null && Console.currentSession.user.is_view_edit())
+
 				{
 					tagEditor.tag=selectedObjects[0].rel;
 					tagEditor.enabled=true;
 					reportBtn.enabled=true;
 					toggleReportButton(selectedObjects[0].blo);
 					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
-          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp)
+					stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp)
 				}
 				else
 				{
-					tagEditor.tag=0;
-					tagEditor.enabled=true;
-					var blotterValue:Boolean;
-					if (sameValue(selectedObjects, "blo"))
+					if (Console.currentSession.user.is_view_edit())
 					{
-						blotterValue=selectedObjects[0].blo;
-					}
-					if (sameValue(selectedObjects, "rel"))
-					{
-						tagEditor.tag=selectedObjects[0].rel;
+						tagEditor.tag=0;
+						tagEditor.enabled=true;
+						var blotterValue:Boolean;
+						if (sameValue(selectedObjects, "blo"))
+						{
+							blotterValue=selectedObjects[0].blo;
+						}
+						if (sameValue(selectedObjects, "rel"))
+						{
+							tagEditor.tag=selectedObjects[0].rel;
 
+						}
+						reportBtn.enabled=true;
+						toggleReportButton(blotterValue);
+						stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
+						stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 					}
-					reportBtn.enabled=true;
-					toggleReportButton(blotterValue);
-					stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
-          stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+
 				}
 			}
 
@@ -209,104 +243,119 @@
 			{
 				dispatchEvent(new Event("summary"));
 			}
-      
-      public function onIdClick():void
-      {
-        dispatchEvent(new Event("idcolumn"));
-      }
+
+			public function onIdClick():void
+			{
+				dispatchEvent(new Event("idcolumn"));
+			}
 
 			public function onDetailClick():void
 			{
 				dispatchEvent(new Event("detail"));
 			}
-      
-      private function onDeleteClick(event:MouseEvent):void
-      {
-        if (event.altKey) {
-          var ed:EvidenceDeletion = PopUpManager.createPopUp(root, EvidenceDeletion, true) as EvidenceDeletion;
-          ed.target = section.stateManager.selectedTarget;
-          ed.agent = section.stateManager.selectedAgent;
-          PopUpManager.centerPopUp(ed);  
-          return;   
-        }
-        
-        AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'),
-          AlertPopUp.YES|AlertPopUp.NO, null,
-          function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES)
-            for(var i:int=0;i<selectedObjects.length;i++)
-            {
-              EvidenceManager.instance.removeItem(selectedObjects[i]);
-            }
-            dispatchEvent(new Event("delete"));
-          
-          }, null, AlertPopUp.NO);
-      }
+
+			private function onDeleteClick(event:MouseEvent):void
+			{
+				if (event.altKey)
+				{
+					var ed:EvidenceDeletion=PopUpManager.createPopUp(root, EvidenceDeletion, true) as EvidenceDeletion;
+					ed.target=section.stateManager.selectedTarget;
+					ed.agent=section.stateManager.selectedAgent;
+					PopUpManager.centerPopUp(ed);
+					return;
+				}
+
+				AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						for (var i:int=0; i < selectedObjects.length; i++)
+						{
+							EvidenceManager.instance.removeItem(selectedObjects[i]);
+						}
+					dispatchEvent(new Event("delete"));
+
+				}, null, AlertPopUp.NO);
+			}
 
 			private function init():void
 			{
+        translateBtn.label="Translate";
+			}
+
+			private function onKeyUp(e:KeyboardEvent):void
+			{
 
 			}
-      
-      private function onKeyUp(e:KeyboardEvent):void
-      {
-        
-      }
+
+
 			private function onKeyPress(e:KeyboardEvent):void
 			{
-       trace(e.ctrlKey)
-       trace(e.keyCode)
+				trace(e.ctrlKey)
+				trace(e.keyCode)
 
-				switch (e.keyCode)
+
+
+				if (Console.currentSession.user.is_view_edit())
 				{
-         
-					//0 key
-					case 48:
-						if(e.ctrlKey) updateRelevance(0);
-						break;
-					//1 key
-					case 49:
-            if(e.ctrlKey) updateRelevance(1);
-						break;
-					//2 key
-					case 50:
-            if(e.ctrlKey) updateRelevance(2);
-						break;
-					//3 key
-					case 51:
-            if(e.ctrlKey) updateRelevance(3);
-						break;
-					//4 key
-					case 52:
-            if(e.ctrlKey) updateRelevance(4);
-						break;
-					//n key
-					case 78:
-            if(e.ctrlKey){
-  						e.stopPropagation()
-  						e.preventDefault()
-  						onEditNoteClick()
-            }
-						break;
-					//r key
-					case 82:
-            if(e.ctrlKey){
-  						updateReport(reportBtn.getStyle("icon") == ReportAddIcon);
-  						toggleReportButton(reportBtn.getStyle("icon") == ReportAddIcon)
-            }
-						break;
-				}
 
+					switch (e.keyCode)
+					{
+
+						//0 key
+						case 48:
+							if (e.ctrlKey)
+								updateRelevance(0);
+							break;
+						//1 key
+						case 49:
+							if (e.ctrlKey)
+								updateRelevance(1);
+							break;
+						//2 key
+						case 50:
+							if (e.ctrlKey)
+								updateRelevance(2);
+							break;
+						//3 key
+						case 51:
+							if (e.ctrlKey)
+								updateRelevance(3);
+							break;
+						//4 key
+						case 52:
+							if (e.ctrlKey)
+								updateRelevance(4);
+							break;
+						//n key
+						case 78:
+							if (e.ctrlKey)
+							{
+								e.stopPropagation()
+								e.preventDefault()
+								onEditNoteClick()
+							}
+							break;
+						//r key
+						case 82:
+							if (e.ctrlKey)
+							{
+								updateReport(reportBtn.getStyle("icon") == ReportAddIcon);
+								toggleReportButton(reportBtn.getStyle("icon") == ReportAddIcon)
+							}
+							break;
+					}
+				}
 			}
 
 			private function onRemovedFromStage():void
 			{
+        translateBtn.label="Translate";
 				stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress)
 			}
 
 			private function onAddedToStage():void
 			{
-
+        
 			}
 
 			private function sameValue(selectedObjects:Vector.<Object>, property:String):Boolean
@@ -314,7 +363,7 @@
 
 				var result:Boolean=true;
 				var value:*=selectedObjects[0][property];
-        
+
 				for (var i:int=0; i < selectedObjects.length; i++)
 				{
 
@@ -340,20 +389,20 @@
 					detailBtn.label=R.get('DETAIL_SHOW');
 				}
 			}
-      
-      public function toggleIdButton():void
-      {
-        if (idBtn.label == R.get('ID_COLUMN_SHOW'))
-        {
-          idBtn.setStyle("icon", IdHideIcon);
-          idBtn.label=R.get('ID_COLUMN_HIDE');
-        }
-        else
-        {
-          idBtn.setStyle("icon", IdShowIcon);
-          idBtn.label=R.get('ID_COLUMN_SHOW');
-        }
-      }
+
+			public function toggleIdButton():void
+			{
+				if (idBtn.label == R.get('ID_COLUMN_SHOW'))
+				{
+					idBtn.setStyle("icon", IdHideIcon);
+					idBtn.label=R.get('ID_COLUMN_HIDE');
+				}
+				else
+				{
+					idBtn.setStyle("icon", IdShowIcon);
+					idBtn.label=R.get('ID_COLUMN_SHOW');
+				}
+			}
 
 			public function toggleSummaryButton(state:String):void
 			{
@@ -389,34 +438,34 @@
 
 			private function onExportClick():void
 			{
-        dispatchEvent(new Event("export"));
+				dispatchEvent(new Event("export"));
 			}
 
 			private function updateRelevance(value:int):void
 			{
-				if(selectedObjects!=null)
-        {
-          for (var i:int=0; i < selectedObjects.length; i++)
-          {
-            var evidence:Evidence=selectedObjects[i] as Evidence;
-            evidence.rel=value
-            
-          }
-          tagEditor.tag=value;
-        }
+				if (selectedObjects != null)
+				{
+					for (var i:int=0; i < selectedObjects.length; i++)
+					{
+						var evidence:Evidence=selectedObjects[i] as Evidence;
+						evidence.rel=value
+
+					}
+					tagEditor.tag=value;
+				}
 
 			}
 
 			private function updateReport(value:Boolean):void
 			{
-				if(selectedObjects!=null)
-        {
-          for (var i:int=0; i < selectedObjects.length; i++)
-          {
-            var evidence:Evidence=selectedObjects[i] as Evidence;
-            evidence.blo=value;
-          }
-        }
+				if (selectedObjects != null)
+				{
+					for (var i:int=0; i < selectedObjects.length; i++)
+					{
+						var evidence:Evidence=selectedObjects[i] as Evidence;
+						evidence.blo=value;
+					}
+				}
 
 			}
 
@@ -431,6 +480,18 @@
 				dispatchEvent(new Event("editNote"));
 			}
 
+			private function onTranslateClick():void
+			{
+        dispatchEvent(new Event("translate"));
+        if(translateBtn.label=="Translate")
+          translateBtn.label="Original Language";
+        else
+        {
+          translateBtn.label="Translate";
+        }
+       
+			}
+
 			private function onReportClick():void
 			{
 				var value:Boolean=(reportBtn.getStyle("icon") == ReportAddIcon);
@@ -438,21 +499,23 @@
 				toggleReportButton(value);
 				// EvidenceManager.instance.updateReport([_id], true)
 			}
-      
-     
-        private function resetFilters():void
-        {
-          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
-          EvidenceManager.instance.refresh();
-        }
-      
-      private function openFilterPanel():void
-      {   
-        var popup:FilterView = PopUpManager.createPopUp(root, FilterView, true) as FilterView;
-        popup.evidenceView=evidenceView;
-        PopUpManager.centerPopUp(popup);
-      }
-     
+
+
+			private function resetFilters():void
+			{
+ 
+				FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+        evidenceView.resetFilter();
+				EvidenceManager.instance.refresh();
+        
+			}
+
+			private function openFilterPanel():void
+			{
+				var popup:FilterView=PopUpManager.createPopUp(root, FilterView, true) as FilterView;
+				popup.evidenceView=evidenceView;
+				PopUpManager.centerPopUp(popup);
+			}
 		]]>
 	</fx:Script>
 

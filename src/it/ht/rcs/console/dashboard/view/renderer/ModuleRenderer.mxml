@@ -16,11 +16,14 @@
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ModuleIcons;
       import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.events.FilterEvent;
       
       import mx.controls.ToolTip;
       import mx.core.FlexGlobals;
       import mx.events.ToolTipEvent;
       import mx.managers.ToolTipManager;
+      
       
       [Embed(source='/img/NEW/device/compass.png')]
       private static const compassIcon:Class;
@@ -44,12 +47,29 @@
       
       private function onClick(e:MouseEvent):void
       {
+        
+       /*  FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.RESET_FILTER));
+        var filter:Object = EvidenceManager.instance.evidenceFilter;
+        filter.date = 'dr';
+        delete(filter._id);
+        filter.from = "24h";
+        filter.to = 0;
+        delete(filter.rel);
+        delete(filter.info);
+        delete(filter.blo);
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));  */
+
+        
         var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
         event.section = SectionEvent.OPERATIONS;
         event.subsection = 'evidence';
         event.item = SearchManager.instance.getItem(this.parentDocument.hostComponent.itemId);
         event.evidenceTypes = [data.type];
+        event.from=-1//trick  (value -1 is handled as 24h)
+        event.to=0
         FlexGlobals.topLevelApplication.dispatchEvent(event);
+      
       }
       
       private function onRoll(event:MouseEvent):void
@@ -70,8 +90,7 @@
                             value="{data.sync}"/>
     <renderer:CounterBaloon visible="{data.tot != 0}" right="-4" bottom="-3" style="white"
                             value="{data.tot}"/>
-  
-    
+
   </s:BorderContainer>
   
 </s:ItemRenderer>

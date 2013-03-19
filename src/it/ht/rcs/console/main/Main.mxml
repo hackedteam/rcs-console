@@ -21,12 +21,14 @@
       
       private function init():void
       {
-        if (Console.currentSession.user.is_view())
+        if (Console.currentSession.user.is_view_alerts())
+        {
           AlertManager.instance.startCounters();
-
-        if (Console.currentSession.user.is_any())
+        }
+        if (Console.currentSession.user.is_admin() || Console.currentSession.user.is_tech() || Console.currentSession.user.is_sys())
+        {
           MonitorManager.instance.startCounters();
-        
+        }
         // if we are in "archve" mode, dashboard and alerting don't make any sense
         if (LicenseManager.instance.archive) {
           // move backward to avoid problems with index after remove
@@ -81,6 +83,7 @@
   
   <main:MenuSubSection subSections="{sections.selectedItem.subSections}"/>
   
+
   <main:Sections id="sections"/>
 
 </s:Group>

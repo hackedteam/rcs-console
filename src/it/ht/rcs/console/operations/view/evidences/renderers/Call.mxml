@@ -9,10 +9,11 @@
 
 	<fx:Script>
 		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+			
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import flashx.textLayout.conversion.TextConverter;
-			import it.ht.rcs.console.utils.TimeUtils
+			import it.ht.rcs.console.utils.TimeUtils;
 
 			private var _sound:Sound;
 			private var _channel:SoundChannel;
@@ -38,9 +39,22 @@
         miniPlayer.reset();
         var id:String=encodeURIComponent(data.data._grid);
         var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
-        //properties program and peer 
-        dataTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program + " | <b>Peer: </b>" + data.data.peer + " | <b>Duration: </b>" + TimeUtils.formatTime(data.data.duration * 1000), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        if(DB.instance.demo)
+        {
+          url="grid/"+data.data._grid
+        }
+        else
+        {
+          url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        }
+        var peer:String="";
+        //properties program and peer
+        if(data.data.peer)
+          peer=data.data.peer;
+        else if(data.data.from)
+          peer=data.data.from;
+        
+        dataTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program + " | <b>Peer: </b>" + peer + " | <b>Duration: </b>" + TimeUtils.formatTime(data.data.duration * 1000), TextConverter.TEXT_FIELD_HTML_FORMAT);
         recordingBox.visible=false;
         
         if (data.data.status == "recording")
@@ -50,6 +64,7 @@
         
 			}
 
+      
 			private function onFocusOut():void
 			{
 				miniPlayer.hasFocus=false;
@@ -63,7 +78,14 @@
       {
         var id:String=encodeURIComponent(data.data._grid);
         var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        if(DB.instance.demo)
+        {
+          url="grid/"+data.data._grid
+        }
+        else
+        {
+          url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
+        }
         miniPlayer.loadSound(url)
       }
 

@@ -15,28 +15,30 @@
 
   <fx:Script>
     <![CDATA[
-      
+     
       import it.ht.rcs.console.accounting.model.Session;
       import it.ht.rcs.console.main.Main;
       import it.ht.rcs.console.utils.NativeCursor;
       
       import mx.collections.ArrayList;
       
-      import spark.filters.ColorMatrixFilter; 
+      import spark.filters.ColorMatrixFilter;
       
       public static var appDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
       
       public static var ns:Namespace = appDescriptor.namespace();
       
       /* This variable contains the version number, the value is taken dynamically from console-app.xml */ 
+      
       [Bindable]
       public static var appVersion:String = appDescriptor.ns::versionLabel;
+      
       [Bindable]
-      public static var rcsVersion:String = '8.2.0';
+      public static var rcsVersion:String = '8.3.0';
      
       /* supported locales for the application */
       [Bindable]
-      public static var locales:ArrayList = new ArrayList(['en_US', 'es_ES', 'fr_FR', 'it_IT']);
+      public static var locales:ArrayList = new ArrayList(['en_US', 'es_ES', 'fr_FR', 'it_IT', 'ru_RU']);
 
       /* current session once logged in */
       [Bindable]
@@ -49,14 +51,15 @@
         nativeWindow.y = Screen.mainScreen.bounds.height / 2 - this.height / 2;
 
         /* start maximized on small screen */ 
-        if (Screen.mainScreen.bounds.width <= 1280) {
+        if (Screen.mainScreen.bounds.width <= 1280)
+        {
           stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
-          gripper.visible = false;
+          gripper.visible = false; 
         }
         NativeCursor.registerCursors();
       }
       
-      public function goLoggedIn():void {
+      public function goLoggedIn():void {      
         currentState = 'loggedIn';
         mainContainer.addElement(new Main());
       }
@@ -67,9 +70,11 @@
           mainContainer.removeAllElements();
       }
       
+      
       public function toggleContrast():void
       {
-        if (filters == null || filters.length == 0) {
+        if (filters == null || filters.length == 0)
+        {
           var matrix:Array = new Array();
           matrix = matrix.concat([1.5,   0,   0, 0, -200]); // red
           matrix = matrix.concat([0,   1.5,   0, 0, -200]); // green
@@ -77,10 +82,11 @@
           matrix = matrix.concat([0,     0,   0, 1,    0]); // alpha
           var contrastFilter:ColorMatrixFilter = new ColorMatrixFilter(matrix);
           filters = [contrastFilter];
-        } else { 
+        } else {
           filters = null;
         }
       }
+      
     ]]>
   </fx:Script>
   <s:states>
@@ -89,7 +95,7 @@
 	</s:states>
   <!-- LoggedOut state -->
   <main:Login includeIn="loggedOut"/>
-  
+ 
   <!-- LoggedIn state -->
   <s:Group id="mainContainer" includeIn="loggedIn" width="100%" height="100%"/>
 </s:WindowedApplication>

@@ -113,6 +113,10 @@
 				{
 					address='(unknown)';
 				}
+        else if(evidence.data.address.text!='' && evidence.data.address.text!=null)
+        {
+          address=evidence.data.address.text;
+        }
 				else
 				{
 					city=evidence.data.address.city || "";
@@ -122,13 +126,13 @@
 					postal_code=evidence.data.address.postal_code || "";
 
 					address=city;
-					if (country != "")
+					if (country != "" && country !=null)
 						address+=" (" + country + ") ";
-					if (street_number != "")
+					if (street_number != "" && street_number!=null)
 						address+=street_number + " ";
-					if (street != "")
+					if (street != "" && street!=null)
 						address+=street + " ";
-					if (postal_code != "")
+					if (postal_code != "" && postal_code!=null)
 						address+=postal_code;
 				}
 
@@ -143,7 +147,24 @@
 				{
 					for (var k:int=0; k < evidence.data.wifi.length; k++)
 					{
-						details+="<b>WIFI: </b>" + "bssid: " + evidence.data.wifi.getItemAt(k).bssid + ", mac: " + evidence.data.wifi.getItemAt(k).mac + ", sig: " + evidence.data.wifi.getItemAt(k).sig + "<BR>";
+            var ssid:String="-";
+            var mac:String="-";
+            var sig:String="-";
+            
+           if(evidence.data.wifi.getItemAt(k).ssid !=null)
+            {
+              ssid=evidence.data.wifi.getItemAt(k).ssid;
+            } 
+            if(evidence.data.wifi.getItemAt(k).mac !=null)
+            {
+              mac=evidence.data.wifi.getItemAt(k).mac;
+            }
+            if(evidence.data.wifi.getItemAt(k).sig !=null)
+            {
+              sig=evidence.data.wifi.getItemAt(k).sig;
+            }
+            
+						details+="<b>WIFI: </b>" + "ssid: " + ssid + ", mac: " + mac + ", sig: " + sig + "<BR>";
 					}
 				}
         if(evidence.data.ip != null)
@@ -153,6 +174,15 @@
         detailPanel.visible=details!="";
         if(detailPanel.visible)
           detailPanel.currentState="expanded";
+        
+        _positions=new Array();
+        
+          var pos:Object={lat: evidence.data.latitude, lng: evidence.data.longitude, range: evidence.data.accuracy, evidence: evidence};
+          _positions.push(pos);
+      
+        
+        if( mapViewer.ready) mapViewer.positions=_positions;
+        
 			}
 
 			public function get evidence():Evidence

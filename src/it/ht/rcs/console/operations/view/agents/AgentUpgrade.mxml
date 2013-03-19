@@ -23,6 +23,9 @@
 
       [Bindable]
       private var upgradable:Boolean;
+
+      [Bindable]
+      private var scout_warning:Boolean = false;
       
       protected function closeMe(event:*):void
       {
@@ -39,8 +42,10 @@
           case 'windows':
           case 'osx':
           case 'ios':
+          case 'linux':
           case 'winmo':
           //case 'blackberry':
+          //case 'symbian':
             upgradable = true;
             break;
             
@@ -62,6 +67,7 @@
         } else {
           desc.text = R.get('UPDATE_AGENT_DESC_NOUPDATE', [agent.platform]);
           upBtn.enabled = false;
+          return;
         }
         
         // there is a pending request
@@ -75,13 +81,30 @@
           upBtn.enabled = false;          
         }
         
+        if (agent.scout && agent.version >=3 ) {
+          currentVersionTxt.text=agent.version+" (scout)";
+          desc.text = R.get('UPDATE_AGENT_DESC_SCOUT');
+          upBtn.enabled = true;
+        }
+        
+        // dangerous warning for scout
+        if (agent.version < 3) {
+          desc.text=""; //?
+          this.height = 330;
+          scout_warning = true;
+          upBtn.enabled = false;
+        }
+        
       }
       
       protected function upgradeAgent(event:MouseEvent):void
       {
-        AgentManager.instance.upgrade(agent);
+        AgentManager.instance.upgrade(agent);        
         closeMe(event);
       }
+      
+      // SCOUT_UPGRADE
+      
       
     ]]>
   </fx:Script>
@@ -91,12 +114,16 @@
 
     <s:Form>
       <s:FormItem label="{R.get('CURRENT_VERSION')}">
-        <s:Label text="{agent.version}" />
+        <s:Label text="{agent.version}" id="currentVersionTxt"/>
       </s:FormItem>
       <s:FormItem label="{R.get('UPGRADE_TO')}" visible="{upgradable}">
         <s:Label text="{CoreManager.instance.getLatestVersion(agent.platform)}" />
       </s:FormItem>
-    </s:Form>    
+    </s:Form>   
+
+    <s:TextArea id="warning" fontWeight="bold" editable="false" borderVisible="false" text="{R.get('SCOUT_UPGRADE_WARNING')}"
+                width="100%" height="65" contentBackgroundAlpha="0" visible="{scout_warning}" includeInLayout="{scout_warning}" />
+    
   </s:VGroup>
   
   <s:HGroup bottom="10" width="100%" horizontalAlign="center">

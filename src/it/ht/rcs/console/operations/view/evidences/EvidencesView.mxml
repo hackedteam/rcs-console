@@ -17,13 +17,15 @@
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.operations.view.OperationsSection;
-			
+
+			import it.ht.rcs.console.DB;
+
 			import mx.collections.ArrayCollection;
 			import mx.collections.IList;
 			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
-			
+
 			import spark.events.GridEvent;
 
 			[Bindable]
@@ -35,6 +37,9 @@
 			private var exporter:EvidenceFileExporter;
 			private var exportMonitor:ExportPopUp;
 
+			[Bindable]
+			public var translation:Boolean;
+
 			private function init():void
 			{
 				exporter=new EvidenceFileExporter();
@@ -42,6 +47,7 @@
 
 			private function onAddedToStage():void
 			{
+				translation=false;
 				resetFilter();
 
 				EvidenceManager.instance.evidenceFilter.target=section.stateManager.selectedTarget._id;
@@ -65,8 +71,18 @@
 			public function resetFilter():void
 			{
 				var filter:Object=EvidenceManager.instance.evidenceFilter;
-				filter.date='dr';
-        filter.from="24h"
+				if (DB.instance.demo)
+				{
+					delete filter.date;
+					delete filter.from;
+					delete filter.to;
+				}
+				else
+				{
+					filter.date='dr';
+					filter.from="24h"
+				}
+
 				delete(filter._id);
 				//delete(filter.from);
 				delete(filter.to);
@@ -74,15 +90,19 @@
 				delete(filter.type);
 				delete(filter.info);
 				delete(filter.blo);
+        
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
+
 			}
 
 			public function resetFilterKeepType():void
 			{
 				var filter:Object=EvidenceManager.instance.evidenceFilter;
 				filter.date='dr';
-				delete(filter._id);
+
 				filter.from=0;
 				filter.to=0;
+				delete(filter._id);
 				delete(filter.rel);
 				delete(filter.info);
 				delete(filter.blo);
@@ -90,26 +110,26 @@
 
 			private function onDataLoaded(e:DataLoadedEvent):void
 			{
-				
-          evidenceDg.dataProvider=null;
-          evidenceDg.invalidateDisplayList();
-          evidenceDg.invalidateSize();
-          evidenceDg.dataProvider=EvidenceManager.instance._view;
-          evidenceDg.visible=true;
-          if (viewer.visible)
-          {
-            viewer.visible=viewer.includeInLayout=false;
-            evidenceDg.visible=evidenceDg.includeInLayout=true;
-            counter.visible=true;
-            actionBar.toggleDetailButton();
-          }
-          
-          evidenceDg.validateDisplayList();
-          evidenceDg.validateSize();
-          evidenceDg.validateNow();
-          evidenceDg.scrollDown();
-          notice.visible=notice.includeInLayout=isNoticeVisible();
-       
+
+				evidenceDg.dataProvider=null;
+				evidenceDg.invalidateDisplayList();
+				evidenceDg.invalidateSize();
+				evidenceDg.dataProvider=EvidenceManager.instance._view;
+				evidenceDg.visible=true;
+				if (viewer.visible)
+				{
+					viewer.visible=viewer.includeInLayout=false;
+					evidenceDg.visible=evidenceDg.includeInLayout=true;
+					counter.visible=true;
+					actionBar.toggleDetailButton();
+				}
+
+				evidenceDg.validateDisplayList();
+				evidenceDg.validateSize();
+				evidenceDg.validateNow();
+				evidenceDg.scrollDown();
+				notice.visible=notice.includeInLayout=isNoticeVisible();
+
 			}
 
 			private function isNoticeVisible():Boolean
@@ -126,11 +146,12 @@
 
 			private function onRemovedFromStage():void
 			{
-      
+				translation=false;
 				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, refreshData);
 				EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
 				EvidenceManager.instance.unlistenRefresh();
 				trace("evidence view removed from stage");
+
 				evidenceDg.selectedItems=new Vector.<Object>
 				actionBar.selectedObjects=evidenceDg.selectedItems;
 				currentState="default";
@@ -162,27 +183,30 @@
 				}
 				actionBar.toggleSummaryButton(currentState);
 			}
-      
-      private function showIdColumn():void
-      {
-        
-        evidenceDg.idVisible=!evidenceDg.idVisible;
-        viewer.idVisible=evidenceDg.idVisible;
-        actionBar.toggleIdButton();
-        
-      }
+
+			private function showIdColumn():void
+			{
+
+				evidenceDg.idVisible=!evidenceDg.idVisible;
+				viewer.idVisible=evidenceDg.idVisible;
+				actionBar.toggleIdButton();
+
+			}
 
 			private function onEditNote(e:Event):void
 			{
-				if (evidenceDg.visible)
-					evidenceDg.editNote();
-				else if (viewer.visible)
-					viewer.editNote();
+				if (Console.currentSession.user.is_view_edit())
+				{
+					if (evidenceDg.visible)
+						evidenceDg.editNote();
+					else if (viewer.visible)
+						viewer.editNote();
+				}
 			}
 
 			private function onGridDoubleClick(e:GridEvent):void
 			{
-				if (e.column === evidenceDg.noteColumn)
+				if (e.column === evidenceDg.noteColumn && Console.currentSession.user.is_view_edit())
 				{
 					evidenceDg.editNote();
 					return;
@@ -231,32 +255,27 @@
 			private function onViewerUpdate():void //TODO
 			{
 				trace("viewer update")
-        for(var i:int=0;i<EvidenceManager.instance._view.length;i++)
-        {
-          var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
-         if(evidence!=null)
-         {
-           if(evidence._id==viewer.currentItem._id)
-           {
-             trace("match")
-             evidence.data.latitude=viewer.currentItem.data.latitude;
-             evidence.data.longitude=viewer.currentItem.data.longitude;
-             evidence.data.accuracy=viewer.currentItem.data.accuracy;
-             evidence.data.address=viewer.currentItem.data.address;
-             evidenceDg.dataProvider=null
-             evidenceDg.dataProvider=EvidenceManager.instance._view;
-             evidenceDg.selectedIndex=i;
-             viewer.currentItems=evidenceDg.selectedItems;
-             viewer.currentIndex=evidenceDg.selectedIndices[0];
-             break;
-           }
-         }
-        }
-
-
+				for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+				{
+					var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+					if (evidence != null)
+					{
+						if (evidence._id == viewer.currentItem._id)
+						{
+							evidence.data.latitude=viewer.currentItem.data.latitude;
+							evidence.data.longitude=viewer.currentItem.data.longitude;
+							evidence.data.accuracy=viewer.currentItem.data.accuracy;
+							evidence.data.address=viewer.currentItem.data.address;
+							evidenceDg.dataProvider=null
+							evidenceDg.dataProvider=EvidenceManager.instance._view;
+							evidenceDg.selectedIndex=i;
+							viewer.currentItems=evidenceDg.selectedItems;
+							viewer.currentIndex=evidenceDg.selectedIndices[0];
+							break;
+						}
+					}
+				}
 			}
-      
- 
 
 			private function onViewerClose():void
 			{
@@ -292,20 +311,25 @@
 
 			private function export():void
 			{
-        exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart);
+				exporter.addEventListener(EvidenceFileExporter.EXPORT_START, onExportStart);
 				exporter.export(evidenceDg.selectedItems);
-				
+
 			}
 
 			private function onExportStart(e:Event):void
 			{
 				exportMonitor=PopUpManager.createPopUp(this as DisplayObject, ExportPopUp, false) as ExportPopUp;
-        
+
 				exportMonitor.exporter=exporter;
 				//PopUpManager.centerPopUp(exportMonitor);
-       
+
 			}
 
+			private function translate():void
+			{
+				translation=!translation;
+				this.dispatchEvent(new Event("translate"))
+			}
 		]]>
 	</fx:Script>
 
@@ -317,14 +341,16 @@
 	<evidences:EvidenceActionBar id="actionBar"
 															 editNote="onEditNote(event)"
 															 summary="toggleState()"
-                               section="{section}"
-                               idcolumn="showIdColumn()"
+															 section="{section}"
+															 idcolumn="showIdColumn()"
 															 counts="{EvidenceManager.instance.counts}"
 															 selectedObjects="{evidenceDg.selectedItems}"
 															 detail="toggleDetail()"
 															 export="export()"
-															 delete="onDelete()" evidenceView="{this}"/>
-  <!--<evidences:FilterBox width="100%" visible="{!viewer.visible}" includeInLayout="{!viewer.visible}" evidenceView="{this}"/>-->
+															 translate="translate()"
+															 delete="onDelete()"
+															 evidenceView="{this}"/>
+	<!--<evidences:FilterBox width="100%" visible="{!viewer.visible}" includeInLayout="{!viewer.visible}" evidenceView="{this}"/>-->
 	<evidences:FilterNotice id="notice"
 													visible="{filteredById}"
 													includeInLayout="{filteredById}"

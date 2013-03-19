@@ -12,21 +12,21 @@
 
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.events.DataLoadedEvent;
-      import it.ht.rcs.console.monitor.controller.MonitorManager;
-      import it.ht.rcs.console.network.controller.CollectorManager;
-      import it.ht.rcs.console.network.model.Collector;
-      import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
-      import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
-      import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.managers.DragManager;
-      import mx.managers.PopUpManager;
+			import it.ht.rcs.console.events.DataLoadedEvent;
+			import it.ht.rcs.console.monitor.controller.MonitorManager;
+			import it.ht.rcs.console.network.controller.CollectorManager;
+			import it.ht.rcs.console.network.model.Collector;
+			import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
+			import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
+			import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
 
 			[Bindable]
-			private var collectors:ListCollectionView;
+			public var collectors:ListCollectionView;
 
 			[Bindable]
 			private var anonymizers:ListCollectionView;
@@ -59,69 +59,75 @@
 			private function refreshView(event:DataLoadedEvent=null):void
 			{
 				collectors=CollectorManager.instance.getView();
-				//anonymizers = CollectorManager.instance.getView(null, anonymizerFilterFunction);
-				anonymizers=CollectorManager.instance.getView(); 
-        
-        var i:int=0;
-        var roots:ArrayCollection=new ArrayCollection();
-        var toCheck:Dictionary=new Dictionary
-        
-        for(i=0;i<anonymizers.length;i++)
-        {
-          toCheck[anonymizers[i]]=false;
-        }
-        //collectors
-        for(i=0;i<collectors.length;i++)
-        {
-          var item:Collector=anonymizers[i] as Collector;
-          if(item.type=='local')
-          {
-            roots.addItem(item)
-          }
-        }
-        
-       for(i=0;i<roots.length;i++)
-       {
-          var root:Collector=roots[i] as Collector;
-          var currentNode:Collector=root;
-          
-          trace("collector: "+currentNode.name);
-          toCheck[currentNode]=true;
-          while(currentNode.next[0]!=null)
-          {
-             currentNode=getCollectorById(currentNode.next[0], anonymizers);
-             var safe:Boolean=checkConnection(currentNode)
-             toCheck[currentNode]=safe;
-             trace ("linked anonymizer: "+currentNode.name);
-             trace(safe);
-          }
-       }
-       
-       for(i=0;i<anonymizers.length;i++)
-       {
-         if(!toCheck[anonymizers[i]])
-         {
-           item=anonymizers[i] as Collector
-           item.prev=new ArrayCollection([null])
-           item.next=new ArrayCollection([null])
-         }
-       }
+				anonymizers=CollectorManager.instance.getView();
 
+				var i:int=0;
+				//Chain root - collectors
+				var roots:ArrayCollection=new ArrayCollection();
+				//Hash with anonimyzer and their check value
+				var toCheck:Dictionary=new Dictionary;
+				//By deafult every anonymizer check value is false
+				for (i=0; i < anonymizers.length; i++)
+				{
+					toCheck[anonymizers[i]]=false;
+				}
+				//get collectors
+				for (i=0; i < collectors.length; i++)
+				{
+					var item:Collector=anonymizers[i] as Collector;
+					if (item.type == 'local')
+					{
+						roots.addItem(item)
+					}
+				}
+				//Starting with collectors check every connected node
+				for (i=0; i < roots.length; i++)
+				{
+					var root:Collector=roots[i] as Collector;
+					var currentNode:Collector=root;
+					//collector 
+					toCheck[currentNode]=true;
+					//loop connected nodes
+					while (currentNode.next[0] != null)
+					{
+						currentNode=getCollectorById(currentNode.next[0], anonymizers);
+						var safe:Boolean=checkConnection(currentNode)
+						toCheck[currentNode]=safe;
+					}
+				}
+				//If user has permissions update data to fix unconsistency
+				if (Console.currentSession.user.is_sys_frontend())
+				{
+					for (i=0; i < anonymizers.length; i++)
+					{
+						var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
+						if (anonymizers[i].next[0] != null && nextNode.prev[0] != anonymizers[i]._id)
+						{
+							anonymizers[i].next[0]=null
+						}
+						if (!toCheck[anonymizers[i]])
+						{
+							item=anonymizers[i] as Collector
+							item.prev=new ArrayCollection([null])
+							item.next=new ArrayCollection([null])
+						}
+					}
+				}
+				//Finally Render the view
 				anonymizers.filterFunction=anonymizerFilterFunction;
-				anonymizers.refresh()
-				//clean
+				anonymizers.refresh();
 				buildGraph();
 			}
-      
-      private function checkConnection(node:Collector):Boolean
-      {
-      var prevNode:Collector=getCollectorById(node.prev[0], anonymizers)
-      if(node.prev[0]!=null && node.prev[0]==prevNode._id )
-      {
-        return true;
-      }
-      return false;
-      }
+
+			private function checkConnection(node:Collector):Boolean
+			{
+				var prevNode:Collector=getCollectorById(node.prev[0], anonymizers)
+				if (node.prev[0] != null && node.prev[0] == prevNode._id)
+				{
+					return true;
+				}
+				return false;
+			}
 
 
 			private function anonymizerFilterFunction(item:Object):Boolean
@@ -153,6 +159,7 @@
 				var db:DBRenderer=new DBRenderer();
 				db.collectors=renderers;
 				graph.db=db;
+        graph.dirty=false;
 				graph.rebuildGraph();
 			}
 
@@ -177,7 +184,6 @@
 				}
 				return null;
 			}
-
 
 			private function editCollector(collector:Collector):void
 			{
@@ -208,7 +214,7 @@
 		]]>
 	</fx:Script>
 
-	<frontend:FrontendActionBar id="actionBar"/>
+	<frontend:FrontendActionBar id="actionBar" graph="{graph}" collectors="{collectors}"/>
 
 	<s:BorderContainer width="100%"
 										 height="100%"

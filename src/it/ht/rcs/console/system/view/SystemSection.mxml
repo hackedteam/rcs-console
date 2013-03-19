@@ -22,12 +22,51 @@
       
       private function init():void
       {
-
-        currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
+        //0 FRONTEND
+        //1 BACKEND
+        //2 BACKUP
+        //3 NETWORK_INJECTORS
+        //4 CONNECTORS
+        
+        //Keep the remove order from higher to lower index to prevent runtime errors
+        
+        if(!Console.currentSession.user.is_sys_connectors() || !LicenseManager.instance.connectors)
+        {
+          subSections.removeElementAt(4); // Connectors section 
+        }
+        if(!Console.currentSession.user.is_sys_injectors() && !Console.currentSession.user.is_tech_ni_rules())
+        {
+          subSections.removeElementAt(3)
+        }
+        if(!Console.currentSession.user.is_sys_backup())
+        {
+          subSections.removeElementAt(2)
+        }
+        if(!Console.currentSession.user.is_sys_backend())
+        {
+          subSections.removeElementAt(1)
+        }
+        if(!Console.currentSession.user.is_sys_frontend())
+        {
+          subSections.removeElementAt(0)
+        }
+        
+        if (LicenseManager.instance.archive) {
+          // move backward to avoid problems with index after remove
+          for (var i:int = subSections.length - 1; i >= 0; i--) {
+            var e:Object = subSections.getItemAt(i);
+            if (e.label == R.get('FRONTEND') || e.label == R.get('NETWORK_INJECTORS') || e.label == R.get('CONNECTORS'))
+              subSections.removeItemAt(i);
+          }
+        }
+        //OLD BODY
+     /*    currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
 
         if (currentState == 'sys' && LicenseManager.instance.connectors == false)
-          subSections.removeElementAt(4); // Connectors section
-
+          subSections.removeElementAt(4); // Connectors section 
+        
+       
+        
         // Bestiality: using "includeIn" on NavigationContent elements will cause the menu to be out of sync with the view
         if (currentState == 'tech') {
           subSections.removeElementAt(4);
@@ -44,7 +83,7 @@
             if (e.label == R.get('FRONTEND') || e.label == R.get('NETWORK_INJECTORS') || e.label == R.get('CONNECTORS'))
               subSections.removeItemAt(i);
           }
-        }
+        } */
         
       }
       
@@ -64,23 +103,23 @@
 
   <mx:ViewStack id="subSections" width="100%" height="100%" selectedIndex="0">
     
-    <s:NavigatorContent label="{R.get('FRONTEND')}">
+    <s:NavigatorContent label="{R.get('FRONTEND')}" >
       <frontend:Frontend/>
     </s:NavigatorContent>
     
-    <s:NavigatorContent label="{R.get('BACKEND')}">
+    <s:NavigatorContent label="{R.get('BACKEND')}" >
       <backend:Backend/>
     </s:NavigatorContent>
 
-    <s:NavigatorContent label="{R.get('BACKUP')}">
+    <s:NavigatorContent label="{R.get('BACKUP')}" >
       <backup:Backup/>
     </s:NavigatorContent>
     
-    <s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}" id="nia">
+    <s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}" id="nia" >
       <nia:NIA/>
     </s:NavigatorContent>
 
-    <s:NavigatorContent label="{R.get('CONNECTORS')}">
+    <s:NavigatorContent label="{R.get('CONNECTORS')}" >
       <connectors:Connectors/>
     </s:NavigatorContent>
 

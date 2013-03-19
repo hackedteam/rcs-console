@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:components="it.ht.rcs.console.entities.view.components.*"
+					gap="0">
+	<fx:Metadata>
+    [Event(name="update", type="flash.events.Event")]
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.utils.AlertPopUp;
+
+			import locale.R;
+
+			import mx.events.CloseEvent;
+			import mx.rpc.events.ResultEvent;
+
+			private var fileReference:FileReference;
+
+			[Embed(source="img/NEW/entityDeafult.jpg")]
+			[Bindable]
+			public var defaultImage:Class;
+
+			[Embed(source='/img/stub/fakeprofile.jpg')]
+			[Bindable]
+			private var fakePic:Class;
+
+			[Bindable]
+			public var entity:Entity;
+
+			[Bindable]
+			public var currentIndex:int=0;
+
+			public function set currentPhoto(id:String):void
+			{
+				if (DB.instance.demo)
+				{
+					picture.source=fakePic;
+				}
+
+				else if (id == "")
+				{
+					picture.source=defaultImage;
+				}
+				else
+				{
+					var targetId:String=String(entity.path.getItemAt(entity.path.length - 1));
+					var pictureURL:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + targetId;
+					picture.source=pictureURL;
+				}
+			}
+
+			private function onAddPhoto():void
+			{
+				var imagesFilter:FileFilter=new FileFilter("Images", "*.jpg;*.gif;*.png");
+				fileReference=new FileReference();
+				fileReference.addEventListener(Event.SELECT, fileSelection);
+				fileReference.browse([imagesFilter]);
+			}
+
+			private function onRemovePhoto():void
+			{
+				AlertPopUp.show(R.get('CONFIRM_PHOTO_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+						EntityManager.instance.deletePhoto(entity._id, entity.photos[currentIndex], onPhotoDeleted)
+				}, null, AlertPopUp.NO);
+			}
+
+			private function onPhotoDeleted(e:ResultEvent):void
+			{
+				dispatchEvent(new Event('update'))
+			}
+
+			private function fileSelection(event:Event):void
+			{
+
+				EntityManager.instance.addPhoto(fileReference, entity._id, onUploadSuccess, onUploadFail)
+			}
+
+			private function onUploadFail(e:*):void
+			{
+				trace("file upload failed")
+			}
+
+			private function onUploadSuccess(e:DataEvent):void
+			{
+				var _grid:String=JSON.parse(e.data).$oid;
+				dispatchEvent(new Event('update'));
+			}
+
+			private function onPrevious():void
+			{
+				if (currentIndex > 0)
+				{
+					currentIndex--;
+				}
+				currentPhoto=entity.photos[currentIndex]
+			}
+
+			private function onNext():void
+			{
+				if (currentIndex < entity.photos.length - 1)
+				{
+					currentIndex++;
+				}
+				currentPhoto=entity.photos[currentIndex]
+			}
+		]]>
+	</fx:Script>
+	<s:BorderContainer width="200"
+										 height="200"
+										 borderAlpha="1"
+										 borderColor="0x666666"
+										 backgroundColor="0xCCCCCC"
+										 backgroundAlpha="0.3">
+		<s:Image id="picture"
+						 x="1"
+						 y="1"
+						 width="196"
+						 height="196"
+						 smooth="true"
+						 scaleMode="zoom"/>
+	</s:BorderContainer>
+	<components:PhotoNavigator id="navigator"
+														 entity="{entity}"
+														 currentIndex="{currentIndex}"
+														 previous="onPrevious()"
+														 next="onNext()"
+														 addPhoto="onAddPhoto()"
+														 removePhoto="onRemovePhoto()"/>
+</s:VGroup>

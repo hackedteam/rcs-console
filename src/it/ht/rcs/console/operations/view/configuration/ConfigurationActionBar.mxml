@@ -7,7 +7,7 @@
 
   <s:HGroup visible="{section.stateManager.selectedFactory != null}" gap="0"
             includeInLayout="{section.stateManager.selectedFactory != null}">
-    <s:Button label="{R.get('BUILD')}" click="build(event)" icon="@Embed('/img/NEW/build.png')" enabled="{LicenseManager.instance.archive == false}"/>
+    <s:Button label="{R.get('BUILD')}" click="build(event)" icon="@Embed('/img/NEW/build.png')" enabled="{LicenseManager.instance.archive == false &amp;&amp; Console.currentSession.user.is_tech_build() &amp;&amp; section.stateManager.selectedFactory.good}"/>
     <actionbar:Separator/>
   </s:HGroup>
   
@@ -61,6 +61,8 @@
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.agent.model.Config;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
@@ -70,6 +72,8 @@
       
       import locale.R;
       
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.controls.Alert;
       import mx.core.UIComponent;
       import mx.events.CloseEvent;
@@ -94,9 +98,10 @@
       private function build(event:MouseEvent):void
       {
         var userId:String=Console.currentSession.user._id;
+        var appMajorVersion:String=Console.rcsVersion.substr(0,3);
         try
         {
-          securitySettings = SharedObject.getLocal("securitySettings");
+          securitySettings = SharedObject.getLocal("securitySettings_"+appMajorVersion);
         }
         catch (error:Error)
         {
@@ -124,11 +129,12 @@
       
       private function doBuild():void
       {
-        saveConfig();
-        
-        var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
-        b.factory = section.stateManager.selectedFactory;
-        PopUpManager.centerPopUp(b);
+        if(saveConfig() !=null)
+        {
+          var b:BuildForm = PopUpManager.createPopUp(root, BuildForm, true) as BuildForm;
+          b.factory = section.stateManager.selectedFactory;
+          PopUpManager.centerPopUp(b);
+        }
       }
       
       private function onAddedToStage(event:Event):void
@@ -138,15 +144,18 @@
       
       private function onSave():void
       {
-        saveConfig(goBackToList);
-        Alert.show(R.get('CONFIG_SAVED'));
+        if(saveConfig(goBackToList) !=null)
+        {
+          Alert.show(R.get('CONFIG_SAVED'));
+        }
+       
       }
       
       private function saveConfig(callback:Function = null):Object
       {
        if(configView.currentState=='basic')
        {
-         if(configView.basic.sync.host.selectedItem==null)
+         if(configView.basic.sync.host.selectedItem==null && configView.basic.sync.selected)
          {
            AlertPopUp.show(R.get('MISSING_COLLECTOR'))
            return null;
@@ -154,15 +163,71 @@
        }
         var config:Object = getConfig();
         if (config == null) return null;
+        
+    
         var a:Agent = configView.section.stateManager.selectedFactory || configView.section.stateManager.selectedAgent;
+        
+        //get the host provided from the first sync action
+        var host:String="";
+        if (config.actions)
+        {
+          primary: for (var ac:int=0; ac < config.actions.length; ac++)
+          {
+            for (var sa:int=0; sa < config.actions[ac].subactions.length; sa++)
+            {
+              if (config.actions[ac].subactions[sa].action == "synchronize")
+              {
+                host=config.actions[ac].subactions[sa].host;
+                break primary;
+              }
+            }
+          }
+        }
+        
+        //get the matching collector from the collector list
+        var collectors:ListCollectionView=CollectorManager.instance.getView();
+        var collector:Collector;
+        var found:Boolean;
+        for(var i:int=0;i<collectors.length;i++)
+        {
+          collector=collectors.getItemAt(i) as Collector;
+          if(collector.name==host || collector.address==host)
+          {
+            found=true;
+            break;
+          }
+        }
+        //the provided host string doesn't match any collector
+        if(!found && host!="")
+        {
+          AlertPopUp.show(R.get('MISSING_COLLECTOR')) //Custom message??
+          return null
+        }
+        
+        //if collector is found check if good or bad according to Agent
+        
+        //must be bad
+        if(!a.good && collector.good && host!="")
+        {
+         AlertPopUp.show(R.get('INVALID_COLLECTOR'))
+          return null;
+        }
+        //must be good
+        if(a.good && !collector.good && host!="")
+        {
+          AlertPopUp.show(R.get('INVALID_COLLECTOR'))
+          return null;
+        }
+        
         AgentManager.instance.addConfig(a, JSON.stringify(config), callback, faultCallback);
         configView.updateOriginalConfig(config);
+      
         return config;
       }
       
       private function faultCallback(e:FaultEvent):void
       {
-      AlertPopUp.show(e.fault.faultDetail)
+        AlertPopUp.show(e.fault.faultDetail)
       }
       
       private function goBackToList(c:Config):void

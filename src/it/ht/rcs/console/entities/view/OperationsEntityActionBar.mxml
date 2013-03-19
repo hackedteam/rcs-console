@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     xmlns:view="it.ht.rcs.console.operations.view.*">
+  
+  
+<s:Spacer width="100%"/>
+  <s:ButtonBar dataProvider="{viewStack}" requireSelection="true"/>
+  
+  <s:TextInput id="searchInput" keyUp="onKeyUp(event)" removedFromStage="onRemovedFromStage()"/>
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.operation.controller.OperationManager;
+      import it.ht.rcs.console.operation.model.Operation;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var section:EntitiesSection;
+      
+     
+      
+      private function onRemovedFromStage():void
+      {
+        searchInput.text = '';
+        section.stateManager.searchField = searchInput;
+        section.stateManager.view.refresh();
+        section.stateManager.tableView.refresh();
+      }
+      
+      private function onKeyUp(event:KeyboardEvent):void
+      {
+        section.stateManager.searchField = searchInput;
+        section.stateManager.view.refresh();
+        section.stateManager.tableView.refresh();
+      }
+      
+      private function addToDashboard(event:MouseEvent):void
+      {
+        DashboardController.instance.newDashboardItem(selectedObject._id);
+        AlertPopUp.show(R.get('ADDED'));
+      }
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

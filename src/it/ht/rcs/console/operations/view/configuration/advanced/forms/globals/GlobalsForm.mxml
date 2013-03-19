@@ -9,6 +9,7 @@
     <![CDATA[
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.utils.Size;
+      import flash.globalization.LocaleID;
       
       import locale.R;
       
@@ -23,8 +24,10 @@
       {
        if(globals.type=="mobile")
        {
-         if(globals.quota.min>(1048576*5))
-          globals.quota.min=(1048576*5)// 5MB
+         if(globals.quota.min>(1048576*0.1))
+          globals.quota.min=(1048576*0.1)// 5MB
+            
+         minValidator.setStyle("locale", "en-US");
        }
             
             
@@ -101,14 +104,14 @@
         <s:Button width="40" label="+" click="addNoHide(event)" enabled="{nohideMask.text != ''}"/>
       </s:HGroup>
     </s:FormItem>
-    
   </s:Form>
   <fx:Declarations>
     <fx:Array id="vals">
-      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [agent.type=='desktop'? 4000:100])}" maxValue="{agent.type=='desktop'? 4000:100}" decimalSeparator="."
+      <s:NumberValidator greaterThanMaxError="{R.get('VALIDATION_MAX', [agent.type=='desktop'? 4000:0])}" maxValue="{agent.type=='desktop'? 4000:0}" decimalSeparator="." id="minValidator" locale="en-US" 
                           property="text" required="true" source="{min}" triggerEvent=""/>
-      <mx:NumberValidator exceedsMaxError="{R.get('VALIDATION_MAX', [4000])}" maxValue="4000"
+      <s:NumberValidator greaterThanMaxError="{R.get('VALIDATION_MAX', [4000])}" maxValue="4000"
                           property="text" required="true" source="{max}" triggerEvent=""/>
+      
     </fx:Array>
     <utils:MetaValidator id="val" validators="{vals}"/>
   </fx:Declarations>

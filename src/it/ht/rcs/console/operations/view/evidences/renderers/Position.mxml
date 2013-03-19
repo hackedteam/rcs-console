@@ -37,9 +37,27 @@
         
         if(data.data.wifi != null)
         {
+         
+          
           for(var k:int=0;k<data.data.wifi.length;k++)
           {
-            details+="<b>WIFI: </b>"+"bssid: " +data.data.wifi.getItemAt(k).bssid+", mac: "+data.data.wifi.getItemAt(k).mac+", sig: "+data.data.wifi.getItemAt(k).sig;
+            var ssid:String="-";
+            var mac:String="-";
+            var sig:String="-";
+            
+            if(data.data.wifi.getItemAt(k).ssid !=null)
+            {
+             ssid=data.data.wifi.getItemAt(k).ssid;
+            }
+            if(data.data.wifi.getItemAt(k).mac !=null)
+            {
+              mac=data.data.wifi.getItemAt(k).mac;
+            }
+            if(data.data.wifi.getItemAt(k).sig !=null)
+            {
+              sig=data.data.wifi.getItemAt(k).sig;
+            }
+            details+="<b>WIFI: </b>"+"ssid: " +ssid+", mac: "+mac+", sig: "+sig;
             // take only the first one
             break;
           }
@@ -63,6 +81,7 @@
 				else
 				{
 					latitude=String(data.data.latitude);
+          latitude=latitude.substr(0,6)
 				}
         if ( isNaN(data.data.longitude))
         {
@@ -71,10 +90,12 @@
         else
         {
           longitude=String(data.data.longitude);
+          longitude=longitude.substr(0,6)
         }
         
 				coordsTxt.textFlow=TextConverter.importToFlow("<b>Lat: </b>" + latitude + " | <b>Long: </b>" + longitude, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
+        
+				//var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
         
         var city:String;
         var country:String;
@@ -83,33 +104,34 @@
         var postal_code:String;
         var text:String;
         
-        var formattedAddress:String;
+        var formattedAddress:String="";
         
-      if(address.text!=null && address.text!="")
-      {
-        formattedAddress="<br>"+address.text;
-      }
-      else
-      {
-        if(address==null)
+        if(data.data.address==null)
         {
-          formattedAddress="<br>unknown"
+          formattedAddress="<br>"
         }
+        
         else
         {
-          city=address.city || "";
-          country=address.country || "";
-          street_number=address.street_number || "";
-          street=address.street || "";
-          postal_code=address.postal_code || "";
-          
-          formattedAddress = ""
-          if (street != "") formattedAddress += "<br>" + street + " " + street_number; 
-          if (city != "") formattedAddress += "<br>" + postal_code + " " + city;
-          if (country != "") formattedAddress+= "<br>" + country;
+          if(data.data.address.text!=null && data.data.address.text!="")
+          {
+            formattedAddress="<br>"+data.data.address.text;
+          }
+          else
+          {
+            city=data.data.address.city || "";
+            country=data.data.address.country || "";
+            street_number=data.data.address.street_number || "";
+            street=data.data.address.street || "";
+            postal_code=data.data.address.postal_code || "";
+            
+            formattedAddress = ""
+            if (street != "") formattedAddress += "<br>" + street + " " + street_number; 
+            if (city != "") formattedAddress += "<br>" + postal_code + " " + city;
+            if (country != "") formattedAddress+= "<br>" + country;
+          }   
         }
-        
-      }
+
 				addressTxt.textFlow=TextConverter.importToFlow("<b>Address: </b>" + formattedAddress, TextConverter.TEXT_FIELD_HTML_FORMAT);
 			}
 

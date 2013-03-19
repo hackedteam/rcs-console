@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+               xmlns:s="library://ns.adobe.com/flex/spark" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" width="330" height="200" close="closeMe(event)" 
+               title="{R.get('UPGRADE')}" >
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.update.controller.CoreManager;
+      
+      import locale.R;
+      
+      import mx.events.FlexEvent;
+      import mx.managers.PopUpManager;
+      
+      [Bindable]
+      public var nia:Injector;
+      
+      protected function closeMe(event:*):void
+      {
+        PopUpManager.removePopUp(this);
+      }
+      
+      protected function upgradeAgent(event:MouseEvent):void
+      {
+        DB.instance.injector.upgrade(nia._id);
+        closeMe(event);
+      }
+      
+    ]]>
+  </fx:Script>
+  <s:VGroup top="10" left="10" right="10" horizontalAlign="center" >
+    <s:TextArea id="desc" editable="false" borderVisible="false" 
+                width="100%" height="40" contentBackgroundAlpha="0" text="{R.get('UPGRADE_INJECTOR_DESC')}" />
+
+    <s:Form>
+      <s:FormItem label="{R.get('CURRENT_VERSION')}">
+        <s:Label text="{nia.version}" />
+      </s:FormItem>
+      <s:FormItem label="{R.get('UPGRADE_TO')}">
+        <s:Label text="{CoreManager.instance.getLatestVersion('injector')}" />
+      </s:FormItem>
+    </s:Form>    
+  </s:VGroup>
+  
+  <s:HGroup bottom="10" width="100%" horizontalAlign="center">
+    <s:Button id="upBtn" label="{R.get('UPGRADE')}" click="upgradeAgent(event)" />
+    <s:Button label="{R.get('CANCEL')}" click="closeMe(event)" />
+  </s:HGroup>
+
+</s:TitleWindow>

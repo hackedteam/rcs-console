@@ -37,5 +37,21 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     
     [Embed(source='/img/evidence/social/adium_16.png')]
     public static const adium:Class;
+    
+    [Embed(source='/img/evidence/social/email_16.png')]
+    public static const mail:Class;
+    
+    [Embed(source='/img/evidence/social/phone_16.png')]
+    public static const phone:Class;
+    
+    [Embed(source='/img/evidence/social/linkedin_16.png')]
+    public static const linkedin:Class;
+    
+    [Embed(source='/img/evidence/social/sms_16.png')]
+    public static const sms:Class;
+    
+    [Embed(source='/img/evidence/social/default_16.png')]
+    public static const defaultIcon:Class;
+    
   }
 }

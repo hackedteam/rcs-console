@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:view="it.ht.rcs.console.entities.view.*"
+         width="100%" creationComplete="init()">
+  
+  <fx:Script>
+    <![CDATA[
+      import locale.R;
+      
+      import mx.controls.Alert;
+      import mx.core.UIComponent;
+      import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
+      
+      [Bindable]
+      public var section:EntitiesSection;
+      
+      [Embed('/img/NEW/breadcrumb.png')]
+      private static const arrow:Class;
+      
+      private function onUpOneLevel(event:MouseEvent):void
+      {
+        section.stateManager.setState(getUpState());
+      }
+      
+      private function getUpState():String
+      {
+        switch (section.currentState) {
+          
+
+          case 'singleEntity': return 'singleOperation';
+          case 'singleOperation': return 'allOperations';
+         
+        }
+        return null;
+      }
+      
+      private function onRoll(event:MouseEvent):void
+      {
+        up.filters = event.type == MouseEvent.ROLL_OVER ? [glow] : null;
+      }
+      
+      private function init():void
+      {
+        addEventListener(MouseEvent.CLICK, onClick, true, 0, true); // needed! we use capture to check if the current view is dirty and prevent switch
+      }
+      
+      private var lastClicked:UIComponent;
+      private function onClick(e:MouseEvent):void
+      {
+        
+      }
+      
+      private function confirm(event:CloseEvent):void
+      {
+        if (event.detail == Alert.OK)
+          lastClicked.dispatchEvent(new MouseEvent(MouseEvent.CLICK, false));
+      }
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+    <s:GlowFilter id="glow" color="0xffffff" blurX="12" blurY="12" strength="3"/>
+  </fx:Declarations>
+  
+  <s:Rect width="100%" height="100%" bottomLeftRadiusX="5" bottomLeftRadiusY="-5"
+          bottomRightRadiusX="5" bottomRightRadiusY="-5" topLeftRadiusX="5" topLeftRadiusY="5"
+          topRightRadiusX="5" topRightRadiusY="5">
+    <s:fill><s:SolidColor color="#dddddd"/></s:fill>
+  </s:Rect>
+  
+  <s:HGroup width="100%" gap="7" paddingBottom="4" paddingLeft="6" paddingTop="4"
+            verticalAlign="middle">
+    
+    <s:Image id="up" source="@Embed('/img/NEW/up.png')" buttonMode="true"
+             click="onUpOneLevel(event)" rollOver="onRoll(event)" rollOut="onRoll(event)" toolTip="{R.get('UP_ONE_LEVEL')}"/>
+    
+    <mx:LinkButton visible="{section.currentState != 'allEntities' }"
+                   label="{R.get('ALL_OPERATIONS')}"
+                   click="section.stateManager.setState('allOperations')"
+                   includeInLayout="{section.currentState != 'allEntities'}"
+                   paddingLeft="0" paddingRight="0"/>
+    
+    <mx:LinkButton visible="{section.currentState == 'allEntities'}" label="{R.get('ALL_ENTITIES')}"
+                   includeInLayout="{section.currentState == 'allEntities'}" paddingLeft="0" 
+                   paddingRight="0"/>
+    
+    <mx:LinkButton visible="{section.currentState == 'allAgents'}" label="{R.get('ALL_AGENTS')}"
+                   includeInLayout="{section.currentState == 'allAgents'}" paddingLeft="0"
+                   paddingRight="0"/>
+    
+    
+    <s:HGroup visible="{section.stateManager.selectedOperation != null}" gap="3"
+              includeInLayout="{section.stateManager.selectedOperation != null}"
+              verticalAlign="middle">
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="6"/>
+      <mx:LinkButton label="{section.stateManager.selectedOperation.name}"
+                     click="section.stateManager.setState('singleOperation')" paddingLeft="3"
+                     paddingRight="0" icon="@Embed('/img/NEW/operation_16.png')"/>
+    </s:HGroup>
+    
+    
+   <s:HGroup visible="{section.stateManager.selectedEntity != null}" gap="3"
+              includeInLayout="{section.stateManager.selectedEntity != null}" verticalAlign="middle">
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
+      <mx:LinkButton label="{section.stateManager.selectedEntity.name}"
+                     click="section.stateManager.setState('singleEntity')" paddingLeft="2"
+                     paddingRight="0" icon="@Embed('/img/NEW/entity_16.png')"/>
+    </s:HGroup>
+
+    
+   
+    
+    <s:Spacer width="100%"/>
+    
+  <view:Shortcuts section="{section}"/>
+    
+    
+  </s:HGroup>
+  
+</s:Group>

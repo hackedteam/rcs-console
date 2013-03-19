@@ -7,7 +7,7 @@
                    width="100%"
                    borderColor="0xCCCCCC"
                    backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1">
+                   backgroundAlpha="1" creationComplete="init()">
   <s:layout>
     <s:VerticalLayout paddingBottom="10"
                       paddingLeft="10"
@@ -26,14 +26,24 @@
       
       import flashx.textLayout.conversion.TextConverter;
       
-      import locale.R;
-      
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      
+      import locale.R;
+      
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
       private var _evidence:Evidence;
+      
       private var _ocrLoaded:Boolean;
+      
+      private var mainView:EvidencesView;
       
       private var loader:URLLoader=new URLLoader();
       
@@ -45,30 +55,65 @@
       [Bindable]
       public var idVisible:Boolean;
       
+      [Bindable]
+      private var ocrContent:String;
+      
       [Embed(source="/img/NEW/eyeIcon.png")]
       [Bindable]
       public var eyeIcon:Class;
-      
       
       [Embed(source="/img/NEW/ocrIcon.png")]
       [Bindable]
       public var ocrIcon:Class;
       
       [Bindable]
+      private var translation:String;
+
+      [Bindable]
       public function set evidence(value:Evidence):void
       {
         _evidence=value;
         target=EvidenceManager.instance.evidenceFilter.target;
+        
         if(evidence.data._grid!=null)
         {
-          _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
-          init();
+          if(DB.instance.demo)
+          {
+            _url="grid/" + evidence.data._grid;
+          }
+          else
+          {
+            _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+          }
+         
+       init()
         }
+        
         _ocrLoaded=false;
-        currentState="image"
-        switchBtn.toolTip="OCR"
+        currentState="image";
+        switchBtn.toolTip="OCR";
         switchBtn.source=ocrIcon;
         
+        translation=evidence.data.tr;
+        
+        switch(evidence.data.tr)
+        {  
+          case 'TRANS_QUEUED':
+            translation='('+R.get('TRANS_QUEUED')+')';
+            break;
+          case 'TRANS_IN_PROGRESS':
+            translation='('+R.get('TRANS_IN_PROGRESS')+')';
+            break;
+          case 'TRANS_ERROR':
+            translation='('+R.get('TRANS_ERROR')+')';
+            break;
+          case null:
+            translation='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+            break;
+          default:
+            translation=evidence.data.tr;
+        }
+        //onTranslate(null)
       }
       
       private function loadOcrContent():void
@@ -83,9 +128,10 @@
       
       private function onContentLoaded(e:Event):void
       {
-        var ocrContent:String=e.currentTarget.data;
-        if(ocrContent=="")
-          ocrContent=R.get('OCR_NO_DATA');
+        loader.removeEventListener(Event.COMPLETE, onContentLoaded);
+        ocrContent=e.currentTarget.data;
+        if(ocrContent=="" || ocrContent==null )
+          ocrContent = R.get('OCR_NO_DATA');
         ocrTxt.textFlow=TextConverter.importToFlow(ocrContent, TextConverter.PLAIN_TEXT_FORMAT);
         _ocrLoaded=true;
       }
@@ -99,7 +145,59 @@
       {
         target=EvidenceManager.instance.evidenceFilter.target;
         imageViewer.url=_url;
+        
+        var container:HGroup=this.owner as HGroup;
+        var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
+        mainView=advancedViewer.owner as EvidencesView;
+        mainView.addEventListener("translate", onTranslate);
       }
+      
+      private function onTranslate(e:Event):void
+      {
+        if(currentState=="ocr" && LicenseManager.instance.translation)
+        {
+          trace("ocr mode");
+          
+          if (evidence)
+          {
+            if (mainView.translation)
+            {        
+              //Show translated OCR content
+              switch(evidence.data.tr)
+              {
+                case 'TRANS_QUEUED':
+                  translation='('+R.get('TRANS_QUEUED')+')';
+                  break;
+                case 'TRANS_IN_PROGRESS':
+                  translation='('+R.get('TRANS_IN_PROGRESS')+')';
+                  break;
+                case 'TRANS_ERROR':
+                  translation='('+R.get('TRANS_ERROR')+')';
+                  break;
+                case null:
+                  translation='('+R.get('TRANSLATION_UNAVAILABLE')+')';
+                  break;
+                default:
+                  translation=evidence.data.tr;
+              }
+              ocrTxt.text=translation;
+            }
+            else
+            { 
+              //Show original OCR content
+              if(!_ocrLoaded) loadOcrContent()
+              else  ocrTxt.text=ocrContent
+            }
+           
+          }
+        }
+        else
+        {
+        //image state - do nothing
+          trace("image state")
+        }
+      }
+      
       
       public function reset():void
       {
@@ -113,8 +211,14 @@
           currentState="ocr"
           switchBtn.toolTip="Image"
           switchBtn.source=eyeIcon;
-            if(!_ocrLoaded)
-              loadOcrContent();
+          if(mainView.translation)
+          {
+            ocrTxt.text=translation
+          }
+          else
+          {
+            if(!_ocrLoaded) loadOcrContent();
+          }    
         }
         else
         {
@@ -123,7 +227,7 @@
           switchBtn.source=ocrIcon;
         }
       }
-   
+      
     ]]>
   </fx:Script>
   <s:RichText id="idTxt"
@@ -143,7 +247,7 @@
   </s:Line>
   <s:HGroup width="100%" verticalAlign="middle">
   <s:RichText id="windowTxt" textFlow="{TextConverter.importToFlow('&lt;b&gt;Window: &lt;/b&gt;'+evidence.data.window, TextConverter.TEXT_FIELD_HTML_FORMAT)}" fontSize="12" width="100%"/>
-  <s:Image source="{ocrIcon}" toolTip="OCR" click="switchView()" id="switchBtn" useHandCursor="true" buttonMode="true"/>
+  <s:Image source="{ocrIcon}" toolTip="OCR" click="switchView()" id="switchBtn" useHandCursor="true" buttonMode="true" visible="{LicenseManager.instance.ocr}"/>
   </s:HGroup>
   <s:Line width="100%" >
     <s:stroke>

@@ -4,6 +4,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	
+	import it.ht.rcs.console.agent.model.Agent;
 	import it.ht.rcs.console.operations.view.OperationsSection;
 	import it.ht.rcs.console.operations.view.configuration.advanced.forms.events.RepeatForm;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.ActionRenderer;
@@ -25,6 +26,9 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 
     [Bindable]
     public var host:String;
+    
+    [Bindable]
+    public var currentAgent:Agent;
     
     // The original config object
     public var config:Object;
@@ -398,8 +402,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced
         ar = new ActionRenderer(a, this);
         actions.push(ar);
         addElement(ar);
-        
-        
       }
       if (config.actions)
       {

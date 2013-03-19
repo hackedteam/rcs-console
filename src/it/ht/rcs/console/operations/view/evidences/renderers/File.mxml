@@ -5,149 +5,160 @@
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																width="100%"
 																height="100%"
-                                creationComplete="init()">
+																creationComplete="init()">
 
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.DB;
 			import flashx.textLayout.conversion.TextConverter;
-      import it.ht.rcs.console.utils.Size;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.utils.StringUtils;
-      import it.ht.rcs.console.utils.FileUtils;
-      import it.ht.rcs.console.agent.controller.AgentManager
-      import mx.rpc.events.ResultEvent;
-      import mx.controls.Alert;
-      
-      import locale.R;
-      
-      private var file:flash.filesystem.File;
-      private var stream:URLStream;
-      private var extension:String;
-      private var originalName:String;
-      private var request:URLRequest
-      
+			import it.ht.rcs.console.utils.Size;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.utils.StringUtils;
+			import it.ht.rcs.console.utils.FileUtils;
+			import it.ht.rcs.console.agent.controller.AgentManager
+			import mx.rpc.events.ResultEvent;
+			import mx.controls.Alert;
+
+			import locale.R;
+
+			private var file:flash.filesystem.File;
+			private var stream:URLStream;
+			private var extension:String;
+			private var originalName:String;
+			private var request:URLRequest
+
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
-				
+
 				super.data=value;
-         init()
-				
+				init()
+
 			}
-      
-      private function init():void
-      {
-        if(data)
-        {
-          if(data.data.type=="open")
-          {
-            programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-            programTxt.visible=programTxt.includeInLayout=true;
-          }
-          else
-          {
-            programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
-            programTxt.visible=programTxt.includeInLayout=false;
-          }
-          
-          pathTxt.textFlow=TextConverter.importToFlow("<b>Path: </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
-          if(isNaN(data.data.size))
-          {
-            sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
-          }
-          else
-          {
-            sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
-          }
-          accessTxt.textFlow=TextConverter.importToFlow("<b>Access Mask: </b>" + FileUtils.getAccessMask(data.data.access), TextConverter.TEXT_FIELD_HTML_FORMAT);
-        }
-        downloadStatusTxt.text=""
-        downloadBtn.label="Download"
-      }
-      
-      private function getFile():void
-      {
-        if(downloadBtn.label=="Download")
-        {
-          var target:String=EvidenceManager.instance.evidenceFilter.target;
-          var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
-          originalName=StringUtils.getFilename(data.data.path)
-          extension=StringUtils.getExtension(data.data.path)
-          var fileName:String=data.data._grid + encodeURIComponent(target) +"_"+originalName+ "." + extension;
-          
-          request=new URLRequest(url);
-          stream=new URLStream();
-          file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
-          file.browseForSave("Download " + fileName);
-          file.addEventListener(Event.SELECT, onSelect);
-        }
-        else if(downloadBtn.label=="Open")
-        {
-          try
-          {
-            file.openWithDefaultApplication()
-          }
-          catch (e:Error)
-          {
-            downloadStatusTxt.text="Unable to open the file with default application."
-          }
-          
-        }
-      }
-      
-      private function onSelect(e:Event):void
-      {
-        downloadBtn.enabled=false;
-        if (file.extension != extension)
-        {
-          file=new flash.filesystem.File(file.nativePath + "." + extension);
-        }
-        stream.addEventListener(Event.COMPLETE, onFileDownloaded);
-        stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
-        stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
-        stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
-        stream.load(request);
-      }
-      
-      private function onDownloadProgress(e:ProgressEvent):void
-      {
-        var perc:int=int((e.bytesLoaded/e.bytesTotal)*100)
-        downloadStatusTxt.text="Downloading file..."+perc+" % completed."
-      }
-      
-      private function onDownloadError(e:*):void
-      {
-        downloadBtn.enabled=true;
-        downloadStatusTxt.text="Error downloading file. Try again"
-      }
-      
-      private function onFileDownloaded(e:Event):void
-      {
-        downloadBtn.label="Open"
-        downloadStatusTxt.text="File downloaded successfully."
-        downloadBtn.enabled=true;
-        var fileData:ByteArray=new ByteArray();
-        stream.readBytes(fileData, 0, stream.bytesAvailable);
-        var fileStream:FileStream=new FileStream();
-        fileStream.open(file, FileMode.WRITE);
-        fileStream.writeBytes(fileData, 0, fileData.length);
-        fileStream.close();
-        
-      }
-      
-      private function schedule():void
-      {
-        AgentManager.instance.createDownload(data.aid, data.data.path, onSchedule);
-      }
-      
-      private function onSchedule(e:ResultEvent):void
-      {
-          Alert.show('Item scheduled for download');
-      }
-      
+
+			private function init():void
+			{
+				if (data)
+				{
+					if (data.data.type == "open")
+					{
+						programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+						programTxt.visible=programTxt.includeInLayout=true;
+					}
+					else
+					{
+						programTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
+						programTxt.visible=programTxt.includeInLayout=false;
+					}
+
+					pathTxt.textFlow=TextConverter.importToFlow("<b>Path: </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
+					if (isNaN(data.data.size))
+					{
+						sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
+					}
+					else
+					{
+						sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+					}
+					accessTxt.textFlow=TextConverter.importToFlow("<b>Access Mask: </b>" + FileUtils.getAccessMask(data.data.access), TextConverter.TEXT_FIELD_HTML_FORMAT);
+				}
+				downloadStatusTxt.text="";
+				downloadBtn.label="Download";
+			}
+
+			private function getFile():void
+			{
+				if (downloadBtn.label == "Download")
+				{
+					var target:String=EvidenceManager.instance.evidenceFilter.target;
+					var url:String
+					if (DB.instance.demo)
+					{
+						url="grid/" + data.data.path
+					}
+					else
+					{
+						url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+					}
+
+					originalName=StringUtils.getFilename(data.data.path)
+					extension=StringUtils.getExtension(data.data.path)
+					var fileName:String=data.data._grid + encodeURIComponent(target) + "_" + originalName + "." + extension;
+					if (DB.instance.demo)
+					{
+						fileName=data.data.path
+					}
+					request=new URLRequest(url);
+					stream=new URLStream();
+					file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+					file.browseForSave("Download " + fileName);
+					file.addEventListener(Event.SELECT, onSelect);
+				}
+				else if (downloadBtn.label == "Open")
+				{
+					try
+					{
+						file.openWithDefaultApplication()
+					}
+					catch (e:Error)
+					{
+						downloadStatusTxt.text="Unable to open the file with default application."
+					}
+
+				}
+			}
+
+			private function onSelect(e:Event):void
+			{
+				downloadBtn.enabled=false;
+				if (file.extension != extension)
+				{
+					file=new flash.filesystem.File(file.nativePath + "." + extension);
+				}
+				stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+				stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+				stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);
+				stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onDownloadError)
+				stream.load(request);
+			}
+
+			private function onDownloadProgress(e:ProgressEvent):void
+			{
+				var perc:int=int((e.bytesLoaded / e.bytesTotal) * 100)
+				downloadStatusTxt.text="Downloading file..." + perc + " % completed."
+			}
+
+			private function onDownloadError(e:*):void
+			{
+				downloadBtn.enabled=true;
+				downloadStatusTxt.text="Error downloading file. Try again"
+			}
+
+			private function onFileDownloaded(e:Event):void
+			{
+				downloadBtn.label="Open"
+				downloadStatusTxt.text="File downloaded successfully."
+				downloadBtn.enabled=true;
+				var fileData:ByteArray=new ByteArray();
+				stream.readBytes(fileData, 0, stream.bytesAvailable);
+				var fileStream:FileStream=new FileStream();
+				fileStream.open(file, FileMode.WRITE);
+				fileStream.writeBytes(fileData, 0, fileData.length);
+				fileStream.close();
+
+			}
+
+			private function schedule():void
+			{
+				AgentManager.instance.createDownload(data.aid, data.data.path, onSchedule);
+			}
+
+			private function onSchedule(e:ResultEvent):void
+			{
+				Alert.show('Item scheduled for download');
+			}
 		]]>
 	</fx:Script>
 
@@ -158,11 +169,16 @@
 							width="100%">
 			<s:RichText id="programTxt"
 									width="75%"/>
-  
-        <s:RichText id="accessTxt" visible="{data.data.type=='open'}" includeInLayout="{data.data.type=='open'}" width="25%"/>
+
+			<s:RichText id="accessTxt"
+									visible="{data.data.type=='open'}"
+									includeInLayout="{data.data.type=='open'}"
+									width="25%"/>
 
 		</s:HGroup>
-		<s:Line width="100%" visible="{data.data.type=='open'}" includeInLayout="{data.data.type=='open'}">
+		<s:Line width="100%"
+						visible="{data.data.type=='open'}"
+						includeInLayout="{data.data.type=='open'}">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
@@ -171,26 +187,33 @@
 							width="100%">
 			<s:RichText id="pathTxt"
 									width="75%"/>
-      
-			<s:RichText id="sizeTxt" width="25%"/>
+
+			<s:RichText id="sizeTxt"
+									width="25%"/>
 		</s:HGroup>
-    <s:Line width="100%" visible="{data.data.type=='capture'}" includeInLayout="{data.data.type=='capture'}">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-    <s:HGroup visible="{data.data.type=='capture'}" includeInLayout="{data.data.type=='capture'}" verticalAlign="middle">
-      <s:Button id="downloadBtn"
-                label="Download"
-                click="getFile()"/>
-      <s:Label id="downloadStatusTxt"/>
-    </s:HGroup>
-    
-    <s:HGroup visible="{data.data.type=='open'}" includeInLayout="{data.data.type=='open'}" verticalAlign="middle">
-      <s:Button id="retrieveBtn"
-                label="Retrieve"
-                click="schedule()"/>
-    </s:HGroup>
-    
+		<s:Line width="100%"
+						visible="{data.data.type=='capture'}"
+						includeInLayout="{data.data.type=='capture'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:HGroup visible="{data.data.type=='capture' &amp;&amp; Console.currentSession.user.is_view_export()}"
+							includeInLayout="{data.data.type=='capture' &amp;&amp; Console.currentSession.user.is_view_export()}"
+							verticalAlign="middle">
+			<s:Button id="downloadBtn"
+								label="Download"
+								click="getFile()"/>
+			<s:Label id="downloadStatusTxt"/>
+		</s:HGroup>
+
+		<s:HGroup visible="{data.data.type=='open'}"
+							includeInLayout="{data.data.type=='open'}"
+							verticalAlign="middle">
+			<s:Button id="retrieveBtn"
+								label="Retrieve"
+								click="schedule()"/>
+		</s:HGroup>
+
 	</s:VGroup>
 </renderers:EvidenceDataRenderer>

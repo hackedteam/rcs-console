@@ -47,6 +47,16 @@
 			private function onAddedToStage():void
 			{
 				//view.currentIndex=0;
+        if(templateLabel)
+        {
+          templateLabel.visible=false;
+          templateLabel.includeInLayout=false;
+        }
+        if(loadingBox)
+        {
+          loadingBox.visible=true;
+          loadingBox.includeInLayout=true;
+        }
 				BuildManager.instance.getTemplates(onTemplateResult, onTemplateFault)
 			}
       
@@ -82,6 +92,11 @@
       
 			private function onTemplateResult(e:ResultEvent):void
 			{
+        templateLabel.visible=true;
+        templateLabel.includeInLayout=true;
+        loadingBox.visible=false;
+        loadingBox.includeInLayout=false;
+        
 				templates=e.result as ArrayCollection;
         templates.filterFunction=filterByType;
         templates.refresh();
@@ -89,6 +104,10 @@
 
 			private function onTemplateFault(e:FaultEvent):void
 			{
+        templateLabel.visible=true;
+        templateLabel.includeInLayout=true;
+        loadingBox.visible=false;
+        loadingBox.includeInLayout=false;
         AlertPopUp.show(e.fault.faultDetail)
 			}
       
@@ -144,7 +163,15 @@
       </s:stroke>
     </s:Line>
     <s:Spacer height="5"/>
-    <s:Label text="{R.get('TEMPLATE_LOAD_DESC')}"/>
+    <s:HGroup verticalAlign="middle"
+              id="loadingBox" visible="true"
+              >
+      
+      <s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+      <s:Label text="Loading template list..."
+               fontWeight="bold"/>
+    </s:HGroup>
+    <s:Label text="{R.get('TEMPLATE_LOAD_DESC')}" id="templateLabel" visible="false"/>
 		<s:DataGrid dataProvider="{templates}"
 								width="100%" height="100%" id="templatesDg">
 			<s:columns>

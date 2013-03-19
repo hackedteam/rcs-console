@@ -9,11 +9,14 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.events.DataLoadedEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
+  import it.ht.rcs.console.monitor.controller.LicenseManager;
   import it.ht.rcs.console.operation.controller.OperationManager;
   import it.ht.rcs.console.operation.model.Operation;
   import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
+  import it.ht.rcs.console.events.FilterEvent;
+  import mx.core.FlexGlobals;
   
   import locale.R;
   
@@ -55,6 +58,7 @@ package it.ht.rcs.console.operations.view
       
       collator = new SortingCollator();
       collator.ignoreCase = true;
+      collator.numericComparison=true;
       
       customTypeSort = new Sort();
       customTypeSort.compareFunction = customTypeCompareFunction;
@@ -112,7 +116,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Agent && item._kind == 'factory')
+      else if (item is Agent && item._kind == 'factory' && Console.currentSession.user.is_tech_config())
       {
         selectedFactory = item;
         selectedConfig = null;
@@ -120,7 +124,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Config)
+      else if (item is Config && Console.currentSession.user.is_tech_config())
       {
         selectedConfig = item;
         setState('config');
@@ -163,18 +167,48 @@ package it.ht.rcs.console.operations.view
       if (event && event.subsection == 'evidence')
       {
         section.currentState = 'evidence';
+        
+       
         if (event.evidenceTypes)
           EvidenceManager.instance.evidenceFilter.type = event.evidenceTypes;
         else delete(EvidenceManager.instance.evidenceFilter.type);
         
         if (event.evidenceIds) {
           EvidenceManager.instance.evidenceFilter.date = 'dr';
-          EvidenceManager.instance.evidenceFilter.from = 0;
-          EvidenceManager.instance.evidenceFilter.to = 0;
+          EvidenceManager.instance.evidenceFilter.from = event.from; //0
+          EvidenceManager.instance.evidenceFilter.to = event.to; //0
           EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
         }
         else delete(EvidenceManager.instance.evidenceFilter._id);
         
+        if(event.info)
+        {
+          EvidenceManager.instance.evidenceFilter.info=event.info;
+        }
+        else
+        {
+          delete(EvidenceManager.instance.evidenceFilter.info);
+        }
+        if(event.from)
+        {
+          EvidenceManager.instance.evidenceFilter.date = 'da';
+          EvidenceManager.instance.evidenceFilter.from = event.from;
+          EvidenceManager.instance.evidenceFilter.to = event.to;
+          if(event.from==-1)//trick
+          {
+            EvidenceManager.instance.evidenceFilter.date = 'dr';
+            EvidenceManager.instance.evidenceFilter.from = "24h";
+          }
+        }
+        else
+        {
+          delete (EvidenceManager.instance.evidenceFilter.date);
+          delete (EvidenceManager.instance.evidenceFilter.from);
+          delete (EvidenceManager.instance.evidenceFilter.to);
+        }
+        
+        var f:Object=EvidenceManager.instance.evidenceFilter;
+        FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         section.evidenceView.refreshData();
       }
     }
@@ -198,6 +232,7 @@ package it.ht.rcs.console.operations.view
           clearVars();
           section.currentState = 'allOperations';
           CurrentManager = OperationManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           update();
           break;
@@ -205,6 +240,7 @@ package it.ht.rcs.console.operations.view
           clearVars();
           section.currentState = 'allTargets';
           CurrentManager = TargetManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           update();
           break;
@@ -212,6 +248,7 @@ package it.ht.rcs.console.operations.view
           clearVars();
           section.currentState = 'allAgents';
           CurrentManager = AgentManager;
+          if(searchField) searchField.text='';
           currentFilter = searchFilterFunction;
           prepareAgentsDictionary();
           update();
@@ -258,7 +295,8 @@ package it.ht.rcs.console.operations.view
             selectedFactory = null;
           }
           selectedOperation = OperationManager.instance.getItem(agent.path[0]);
-          selectedTarget = TargetManager.instance.getItem(agent.path[1]);
+          if(agent.path.length>1)
+            selectedTarget = TargetManager.instance.getItem(agent.path[1]);
           if(section.configView)
             section.configView.currentState = 'blank';
           section.currentState = 'config';
@@ -320,15 +358,22 @@ package it.ht.rcs.console.operations.view
       if (list == null) return;
       if ((currentState == 'singleTarget' || currentState == 'singleAgent') && (Console.currentSession.user.is_view())) {
         list.addItemAt({name: R.get('EVIDENCE'),    customType: 'evidence',     order: 0}, 0);
+        if(Console.currentSession.user.is_view_filesystem())
+        {
         list.addItemAt({name: R.get('FILE_SYSTEM'), customType: 'filesystem',   order: 1}, 0);
+        }
       }
       if (currentState == 'singleAgent') {
         list.addItemAt({name: R.get('INFO'),        customType: 'info',         order: 3}, 0);
-        list.addItemAt({name: R.get('COMMANDS'),        customType: 'commands',         order: 4}, 0);
+        if(LicenseManager.instance.modify)
+        {
+          list.addItemAt({name: R.get('COMMANDS'),        customType: 'commands',         order: 4}, 0);
+        }
         list.addItemAt({name: R.get('IP_ADDRESS'),        customType: 'ipaddresses',         order: 5}, 0);
         if (Console.currentSession.user.is_tech()) {
           list.addItemAt({name: R.get('CONFIG'),        customType: 'configlist',   order: 2}, 0);
           list.addItemAt({name: R.get('FILE_TRANSFER'), customType: 'filetransfer', order: 6}, 0);
+         
         }
       }
     }
@@ -336,9 +381,34 @@ package it.ht.rcs.console.operations.view
     private function getView():ListCollectionView
     {
       var lcv:ListCollectionView;
-      if (CurrentManager != null) {
+      if(currentState == 'singleOperation')
+      {
+ 
+        lcv=new ListCollectionView()
+        var targets:ListCollectionView=TargetManager.instance.getView(customTypeSort, currentFilter);
+        var factories:ListCollectionView=AgentManager.instance.getFactoriesForOperation(selectedOperation._id);
+        var items:Array=new Array()
+        var i:int=0;
+          for(i=0;i<targets.length;i++)
+          {
+            items.push(targets.getItemAt(i))
+          }
+          for(i=0;i<factories.length;i++)
+          {
+            items.push(factories.getItemAt(i))
+          }
+        lcv.list=new ArrayList(items);
+        lcv.filterFunction = currentFilter;
+        lcv.refresh();
+     
+      }
+      
+      else if (CurrentManager != null) {
         lcv = CurrentManager.instance.getView(customTypeSort, currentFilter);
-      } else if (currentState == 'singleAgent') {
+      } 
+     
+      
+      else if (currentState == 'singleAgent') {
         lcv = new ListCollectionView(new ArrayList());
         lcv.sort = customTypeSort;
         lcv.filterFunction = currentFilter;
@@ -371,7 +441,7 @@ package it.ht.rcs.console.operations.view
       
       var aIsAgent:Boolean = a is Agent;
       var bIsAgent:Boolean = b is Agent;
-      
+      //agent
       if (aIsAgent && bIsAgent) {
         
         var aIsFactory:Boolean = a._kind == 'factory';
@@ -397,7 +467,7 @@ package it.ht.rcs.console.operations.view
         }
         
       }
-      
+      //end agent
       return collator.compare(a.name, b.name);
       
     }
@@ -421,7 +491,7 @@ package it.ht.rcs.console.operations.view
     {
       if(item is Agent)// show factory to tech users only
       {
-        if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+        if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory')
           return false;
       }
       
@@ -437,6 +507,9 @@ package it.ht.rcs.console.operations.view
       
       if (item && item.hasOwnProperty('desc') && item.desc)
         result = result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
+      
+      if (item && item.hasOwnProperty('ident') && item.ident)
+        result = result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
       //
      
       return result;
@@ -444,9 +517,11 @@ package it.ht.rcs.console.operations.view
     
     private function singleOperationFilterFunction(item:Object):Boolean
     {
-      if (selectedOperation && item is Target && item.path[0] == selectedOperation._id)
+      if (selectedOperation && ((item is Target && item.path[0] == selectedOperation._id) || ( item is Agent && item._kind == 'factory' && item.path.length==1 && item.path[0] == selectedOperation._id)))
+      {
         return searchFilterFunction(item);
-      else return false;
+      }
+      return false;
     }
     
     
@@ -454,11 +529,11 @@ package it.ht.rcs.console.operations.view
     private function singleTargetFilterFunction(item:Object):Boolean
     {
       if (item.hasOwnProperty('customType'))
-        return searchFilterFunction(item);
+        return true;//return searchFilterFunction(item);
      if(selectedTarget && item.path && item.path.length>1)
      {
        if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
-         if (!(Console.currentSession.user.is_tech()) && item._kind == 'factory')
+         if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory')
            return false;
          else
            return searchFilterFunction(item);
@@ -466,6 +541,8 @@ package it.ht.rcs.console.operations.view
      }
      return false;
     }
+    
+  
     
   }
   

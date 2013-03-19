@@ -20,6 +20,7 @@ package it.ht.rcs.console.main
   import it.ht.rcs.console.shard.controller.ShardManager;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.update.controller.CoreManager;
+  import it.ht.rcs.console.entities.controller.EntityManager;
   import it.ht.rcs.console.utils.UpdateManager;
   
   import mx.collections.ArrayList;
@@ -49,13 +50,19 @@ package it.ht.rcs.console.main
       var user:User = Console.currentSession.user;
 
       if (user.is_any())                                       mainSections.addItem({label: 'Home',       manager: null});
-      if (user.is_admin())                                     mainSections.addItem({label: 'Accounting', manager: null});
+      if (user.is_admin_users())                               mainSections.addItem({label: 'Accounting', manager: null});
       if (user.is_admin() || user.is_tech() || user.is_view()) mainSections.addItem({label: 'Operations', manager: null});
+      if (user.is_view_profiles())                             mainSections.addItem({label: 'Intelligence',   manager: null});
       if (user.is_view())                                      mainSections.addItem({label: 'Dashboard',  manager: null});
-      if (user.is_view())                                      mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
-      if (user.is_sys()   || user.is_tech())                   mainSections.addItem({label: 'System',     manager: null});
-      if (user.is_admin())                                     mainSections.addItem({label: 'Audit',      manager: null});
-      if (user.is_any())                                       mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
+      if (user.is_view_alerts())                               mainSections.addItem({label: 'Alerting',   manager: AlertManager, property: 'alertCounter'});
+      if (user.is_sys_backend() || 
+        user.is_sys_backup() || 
+        user.is_sys_connectors() || 
+        user.is_sys_frontend()  || 
+        user.is_sys_injectors() ||
+        user.is_tech_ni_rules())                               mainSections.addItem({label: 'System',     manager: null});
+      if (user.is_admin_audit())                               mainSections.addItem({label: 'Audit',      manager: null});
+      if (user.is_admin() || user.is_tech() || user.is_sys())  mainSections.addItem({label: 'Monitor',    manager: MonitorManager, property: 'monitorCounter'});
       //if (user.is_any())                                       mainSections.addItem({label: 'Playground', manager: null});
       
 
@@ -68,24 +75,40 @@ package it.ht.rcs.console.main
       {
         SearchManager.instance.listenRefresh();
         managers.push(SearchManager.instance);
+       
+        
+      }
+      
+      if(user.is_admin() || user.is_tech() || user.is_sys())
+      {
         managers.push(MonitorManager.instance);
         managers.push(LicenseManager.instance);
       }
       
-      if (user.is_admin())
+      if (user.is_admin_users())
       {
         managers.push(UserManager.instance);
+      }
+      
+      if (user.is_admin_users() || user.is_admin_operations())
+      {
+
         managers.push(GroupManager.instance);
       }
      
-      if (user.is_sys())
+      if (user.is_sys_backend())
       {
         managers.push(ShardManager.instance);        
       }
 
-      if (user.is_sys() || user.is_tech())
+      if (user.is_sys_frontend() || user.is_tech_config())
       {
         managers.push(CollectorManager.instance);
+       
+      }
+      
+      if (user.is_sys_injectors() || user.is_tech_ni_rules())
+      {
         managers.push(InjectorManager.instance);
       }
       
@@ -106,10 +129,20 @@ package it.ht.rcs.console.main
         managers.push(CoreManager.instance);
       }
       
-      if (user.is_view())
+      if (user.is_view_alerts())
+      {
+
+        managers.push(AlertManager.instance);
+      }
+      
+      if(user.is_view())
       {
         DashboardController.instance;
-        managers.push(AlertManager.instance);
+      }
+      
+      if(user.is_view_profiles())
+      {
+        managers.push(EntityManager.instance);
       }
       
       maxGreenLights = managers.length;
@@ -120,7 +153,6 @@ package it.ht.rcs.console.main
           manager.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
           manager.refresh();
         }
-      
     }
     
     private function onDataLoaded(event:DataLoadedEvent):void

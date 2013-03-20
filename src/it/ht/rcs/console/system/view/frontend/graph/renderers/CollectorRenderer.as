@@ -220,7 +220,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
           accept = cr !== _nextHop && cr !== this;
         } else if (event.dragInitiator is CollectorListRenderer) {
           var clr:CollectorListRenderer=event.dragInitiator as CollectorListRenderer
-          accept = (clr.data.good && this.collector.good) || (!clr.data.good && !this.collector.good);
+          accept = (clr.data.good && this.collector.good) || (!clr.data.good && !this.collector.good) || (clr.data.good && this.collector.next[0]==null);
         }
       }
       var dropTarget:UIComponent = UIComponent(event.currentTarget);		
@@ -248,7 +248,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
           accept = cr !== _nextHop && cr !== this;
         } else if (event.dragInitiator is CollectorListRenderer) {
           var clr:CollectorListRenderer=event.dragInitiator as CollectorListRenderer
-          accept = (clr.data.good && this.collector.good) || (!clr.data.good && !this.collector.good);
+          accept = (clr.data.good && this.collector.good) || (!clr.data.good && !this.collector.good) || (clr.data.good  && this.collector.next[0]==null);
         }
       }
       var dropTarget:UIComponent = UIComponent(event.currentTarget);		
@@ -279,7 +279,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       var source:CollectorRenderer;
       if (event.dragInitiator is CollectorRenderer) {
         source = event.dragInitiator as CollectorRenderer;
-        if((source.collector.good && dest.collector.good) ||  (!source.collector.good && !dest.collector.good))
+        if((source.collector.good && dest.collector.good) ||  (!source.collector.good && !dest.collector.good) || (source.collector.good  && dest.collector.next[0]==null))
         {
            source.moveAfter(dest);
         }
@@ -287,7 +287,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
         var collector:Collector = (event.dragInitiator as CollectorListRenderer).data as Collector;
         
     
-        if((collector.good && dest.collector.good) ||  (!collector.good && !dest.collector.good))
+        if((collector.good && dest.collector.good) ||  (!collector.good && !dest.collector.good) || (collector.good  && dest.collector.next[0]==null))
         {
         source = new CollectorRenderer(collector, graph);
         source.moveAfter(dest);

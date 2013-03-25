@@ -10,16 +10,18 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.ObjectUtils;
-			import it.ht.rcs.console.accounting.controller.UserManager;
-			import it.ht.rcs.console.accounting.model.User;
-			import it.ht.rcs.console.events.SaveEvent;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.managers.PopUpManager;
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.accounting.controller.GroupManager;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.Group;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.events.SaveEvent;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.managers.PopUpManager;
 
 			[Bindable]
 			public var user:User;
@@ -187,16 +189,32 @@
 				if (privs.toString() != user.privs.toString())
 					user.privs=privs;
 
-				user.group_ids=groups.dataProvider.toArray();
+        //
+			 //	user.group_ids=groups.dataProvider.toArray();
+       
 
 				if (currentState == 'create')
 					UserManager.instance.addUser(user, function(u:User):void
 					{
+            updateGroups(u)
 						close();
 					});
 				else
-					close();
+        {
+          updateGroups(user)
+					close();     
+        }
 			}
+      
+      private function updateGroups(u:User):void
+      {
+        var i:int;
+        for(i=0;i<groups.groupsToAdd.length;i++)
+          GroupManager.instance.addUser(groups.groupsToAdd.getItemAt(i) as Group, u, null)
+        
+        for(i=0;i<groups.groupsToRemove.length;i++)
+          GroupManager.instance.removeUser(groups.groupsToRemove.getItemAt(i) as Group, u, null)
+      }
 
 			private function changePass():void
 			{

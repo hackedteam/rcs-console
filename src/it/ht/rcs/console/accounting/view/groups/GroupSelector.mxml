@@ -20,8 +20,14 @@
       [Bindable] private var selectedDP:ArrayCollection;
       [Bindable] private var availableDP:ListCollectionView;
       
+      
+      public var groupsToAdd:ArrayCollection;
+      public var groupsToRemove:ArrayCollection;
+      
       private function init():void
       {
+        groupsToAdd=new ArrayCollection;
+        groupsToRemove=new ArrayCollection;
         availableDP = GroupManager.instance.getView(null, listFilterFunction);
         if (selectedDP == null)
           selectedDP = new ArrayCollection();
@@ -35,16 +41,48 @@
         var _id:String = availableGroups.selectedItem ? availableGroups.selectedItem._id : null;
         if (_id == null) return;
         selectedDP.addItem(_id);
+        //add the selected group to the new groups list
+        groupsToAdd.addItem(availableGroups.selectedItem)
         availableDP.refresh();
+        //dump()
       }
       
       private function removeGroup(event:MouseEvent=null):void
       {
         var idx:int = selectedDP.getItemIndex(selectedGroups.selectedItem);
+        
+        var groupToRemove:Group= GroupManager.instance.getItem(selectedGroups.selectedItem as String);
+          
+        //add the selected group to the list of groups to remove
+        if(groupsToAdd.getItemIndex(groupToRemove)==-1)
+        //is not in the list to add - put in the list to remove
+        {
+          groupsToRemove.addItem(groupToRemove)
+        }
+        else
+        {
+          //is in the list to add - remove from that list
+          var index:int=groupsToAdd.getItemIndex(groupToRemove)
+          groupsToAdd.removeItemAt(index)
+        }
         selectedDP.removeItemAt(idx);
         selectedGroups.selectedIndex = idx < selectedDP.length ? idx : idx - 1;
+       
         availableDP.refresh();
+        //dump()
       }
+      
+     /*  private function dump():void
+      {
+      var i:int;
+       trace("=================")
+       trace("TO ADD")
+       for(var i=0;i<groupsToAdd.length;i++)
+         trace(groupsToAdd.getItemAt(i).name)
+       trace("TO REMOVE")
+       for(var i=0;i<groupsToRemove.length;i++)
+         trace(groupsToRemove.getItemAt(i).name)
+      } */
       
       private function listFilterFunction(item:Object):Boolean
       {

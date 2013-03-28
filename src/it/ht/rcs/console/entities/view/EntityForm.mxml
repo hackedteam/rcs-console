@@ -3,11 +3,14 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
+                             xmlns:components="it.ht.rcs.console.entities.view.components.*"
                              creationComplete="init()" save="onSave(event)"
-                             title="{R.get('EDIT_ENTITY')}">
+                             title="{currentState == CREATE ? R.get('NEW_ENTITY') : R.get('EDIT_ENTITY')}">
 
   <fx:Script>
     <![CDATA[
+    
+      
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.events.SaveEvent;
@@ -17,9 +20,14 @@
       import locale.R;
       
       import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
       
-      
+      [Bindable] public var operation:Operation;
       [Bindable] public var entity:Entity;
+      
+      public static const CREATE:String = 'create';
+      public static const EDIT:String = 'edit';
+      
       
       private function init():void
       {
@@ -27,24 +35,56 @@
         entityName.setFocus();
         entityName.text=entity.name;
         desc.text=entity.desc;
+        
       }
+      
+    
       
       private function onSave(event:SaveEvent):void
       {
         doSave();
-        dispatchEvent(new Event("update"))
-        close();  
+        //dispatchEvent(new Event("update"))
+        if (currentState == CREATE)
+          EntityManager.instance.addEntity(entity, operation, function(entity:Entity):void { close(); dispatchEvent(new Event("close"))});
+        else
+          close();
+        //close();  
       }
 
       private function doSave():void
       {
         entity.name = entityName.text;
         entity.desc = desc.text;
+        if(currentState==CREATE)
+          entity.type=type.selectedItem.label.toLowerCase();
       }
+      
+      private function onTypeChange():void
+      {
+        if(type.selectedItem.label=="POSITION")
+        {
+          positionEditor.visible=positionEditor.includeInLayout=true;
+        }
+        else
+        {
+          positionEditor.visible=positionEditor.includeInLayout=false;
+        }
+        PopUpManager.centerPopUp(this)
+      }
+      
+     
       
     ]]>
   </fx:Script>
   
+  <utils:states>
+    <s:State name="create"/>
+    <s:State name="edit"/>
+  </utils:states>
+    
+ <s:VGroup horizontalAlign="center">
+   
+
   <s:Form width="100%" defaultButton="{saveButton}">
 
     <s:FormItem label="{R.get('NAME')}">
@@ -55,7 +95,19 @@
       <s:TextArea id="desc" width="250" heightInLines="3" text="{entity.desc}"/>
     </s:FormItem>
     
+    <s:FormItem label="{R.get('TYPE')}" visible="{currentState==CREATE}" includeInLayout="{currentState==CREATE}">
+      <s:DropDownList id="type" width="150" requireSelection="true" change="onTypeChange()">
+        <s:ArrayCollection id="types">
+          <fx:Object label="PERSON"/>
+          <fx:Object label="POSITION"/>
+        </s:ArrayCollection>
+      </s:DropDownList>
+    </s:FormItem>
+</s:Form>
+
  
-  </s:Form>
   
+ <components:PositionEditor id="positionEditor" visible="false" includeInLayout="false" horizontalAlign="center"/>
+ 
+ </s:VGroup>
 </utils:TitleWindowSaveCancel>

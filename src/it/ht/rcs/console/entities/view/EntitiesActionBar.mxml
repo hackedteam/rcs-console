@@ -5,14 +5,14 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
                      xmlns:view="it.ht.rcs.console.entities.view.*">
   
- <!-- <s:Button label="{R.get('NEW_ENTITY')}" click="onNewClick()" enabled="{Console.currentSession.user.is_view_profiles()}"
-            icon="@Embed('/img/NEW/newEntity.png')"/>
-  -->
-  <s:Button label="{R.get('EDIT')}" click="onEditClick()"
+ <s:Button label="{R.get('NEW_ENTITY')}" click="onNewClick()" enabled="{Console.currentSession.user.is_view_profiles() }"
+            icon="@Embed('/img/NEW/newEntity.png')" visible="{LicenseManager.instance.intelligence}" includeInLayout="{LicenseManager.instance.intelligence}"/>
+
+ <s:Button label="{R.get('EDIT')}" click="onEditClick()"
             enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/edit.png')"/>
   
-  <!--<s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>-->
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.type!='target'}" icon="@Embed('/img/NEW/delete_32.png')" visible="{LicenseManager.instance.intelligence}" includeInLayout="{LicenseManager.instance.intelligence}"/>
   
   
   <actionbar:Separator/>
@@ -31,10 +31,11 @@
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
@@ -47,15 +48,20 @@
       
       private function onNewClick():void
       {
-        
+        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+        popup.operation = section.stateManager.selectedOperation;
+        popup.entity = new Entity(Entity.defaultEntity());
+        popup.currentState=EntityForm.CREATE;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onEditClick():void
       {
         var popup:EntityForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
         //popup.addEventListener("update", onUpdate) 
-        popup.entity = selectedObject as Entity
-        popup.entity.desc = selectedObject.desc
+        popup.entity = selectedObject as Entity;
+        popup.entity.desc = selectedObject.desc;
+        popup.currentState=EntityForm.EDIT
         PopUpManager.centerPopUp(popup);
       }
       
@@ -72,7 +78,15 @@
      
       private function onDeleteClick():void
       {
-        
+        AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [selectedObject.name]), R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+            {
+              EntityManager.instance.removeItem(selectedObject);
+              section.stateManager.setState("singleOperation")
+            }
+          }, null, AlertPopUp.NO);
       }
       
       private function onClose():void

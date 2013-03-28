@@ -77,13 +77,17 @@
         var entryPoints:ListCollectionView;
         if(!currentAgent.good)
         {
-          trace("Show only non-good collectors");
-          entryPoints = CollectorManager.instance.getNonGoodEntryPoints();
+          trace("Show only non-good anon");
+          entryPoints=CollectorManager.instance.getNonGoodAnon()
+          if(entryPoints.length<=0)
+            entryPoints=CollectorManager.instance.getNonGoodCollectors();
         }
         else
         {
-          trace("Show only good collectors");
-          entryPoints = CollectorManager.instance.getGoodEntryPoints();
+          trace("Show only good anon");
+          entryPoints=CollectorManager.instance.getGoodAnon()
+          if(entryPoints.length<=0)
+            entryPoints=CollectorManager.instance.getGoodCollectors()
         }
         
         sync.host.dataProvider = entryPoints;

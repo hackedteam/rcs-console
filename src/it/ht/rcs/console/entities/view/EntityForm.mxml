@@ -9,10 +9,10 @@
 
   <fx:Script>
     <![CDATA[
-    
-      
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Position;
+      import it.ht.rcs.console.entities.model.Position_attr;
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.operation.model.Operation;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -42,6 +42,7 @@
       
       private function onSave(event:SaveEvent):void
       {
+        //postion ={latitude, longitude, accuracy}
         doSave();
         //dispatchEvent(new Event("update"))
         if (currentState == CREATE)
@@ -56,14 +57,26 @@
         entity.name = entityName.text;
         entity.desc = desc.text;
         if(currentState==CREATE)
+        {
           entity.type=type.selectedItem.label.toLowerCase();
+          if(entity.type=="position")
+          {
+            entity.position=new Position()
+            entity.position.latitude=String(positionEditor.position.latitude);
+            entity.position.longitude=String(positionEditor.position.longitude);
+            entity.position_attr=new Position_attr();
+            entity.position_attr.accuracy=String(positionEditor.position.accuracy)
+          }
+        }
+        
       }
       
       private function onTypeChange():void
       {
         if(type.selectedItem.label=="POSITION")
         {
-          positionEditor.visible=positionEditor.includeInLayout=true;
+          positionEditor.visible=positionEditor.includeInLayout=true;    
+          positionEditor.reset();
         }
         else
         {

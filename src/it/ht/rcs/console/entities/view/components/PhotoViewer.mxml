@@ -24,6 +24,10 @@
 			[Embed(source="img/NEW/entityDeafult.jpg")]
 			[Bindable]
 			public var defaultImage:Class;
+      
+      [Embed(source="img/NEW/entityPositionDeafult.jpg")]
+      [Bindable]
+      public var defaultPositionImage:Class;
 
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
@@ -37,6 +41,8 @@
 
 			public function set currentPhoto(id:String):void
 			{
+        if(!entity)
+          return;
 				if (DB.instance.demo)
 				{
 					picture.source=fakePic;
@@ -44,7 +50,7 @@
 
 				else if (id == "")
 				{
-					picture.source=defaultImage;
+					picture.source = entity.type=='position' ? defaultPositionImage : defaultImage;
 				}
 				else
 				{

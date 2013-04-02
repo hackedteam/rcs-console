@@ -109,7 +109,7 @@
 
 			private function init():void
 			{
-       
+
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
@@ -118,10 +118,10 @@
 				fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
 				toDate=new Date();
 				if (fromDf)
-        {
+				{
 					fromDf.selectedDate=fromDate;
-        }
-      
+				}
+
 				EntityManager.instance.show(entity._id, onDetailResult);
 
 				if (loadingBox)
@@ -129,9 +129,9 @@
 				if (LicenseManager.instance.correlation)
 				{
 					if (loadingBox)
-          {
-					loadingBox.visible=loadingBox.includeInLayout=true;
-          }
+					{
+						loadingBox.visible=loadingBox.includeInLayout=true;
+					}
 
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
 				}
@@ -142,9 +142,9 @@
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=false;
 				}
-				
-					callLater(onRefresh, [null])
-			
+
+				callLater(onRefresh, [null])
+
 			}
 
 			private function filter():void
@@ -155,7 +155,7 @@
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
 			}
 
-		
+
 			private function getFromTimestamp():int
 			{
 				fromDf.selectedDate.hours=0;
@@ -202,12 +202,12 @@
 
 					dispatchEvent(new Event("ready"));
 					if (entity)
-						drawPosition()
+						drawPosition();
 
 				}
 				else
 				{
-					lastPositionTxt.text="Last known Position  (Feature not included in current License)"
+					lastPositionTxt.text="Last known Position  \n(Feature not included in current License)"
 				}
 			}
 
@@ -272,37 +272,43 @@
 					{
 						map.removeOverlay(overlays[i] as IOverlay);
 					}
-				if(entity.position)
-        {
-          if (entity.position.latitude && entity.position.longitude)
-          {
-            var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-            var bounds:LatLngBounds=new LatLngBounds();
-            var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
-            map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-            bounds.extend(coordinates);
-            var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
-            bounds.union(circleBounds)
-            var marker:Marker=new Marker(coordinates);
-            map.addOverlay(marker);
-            overlays.push(marker);
-            map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-            lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): Latitude: " + entity.position.latitude + ", Longitude: " + entity.position.longitude + ", Accuracy: " + entity.position_attr.accuracy + " mt";
-            trace(TimeUtils.timestampFormatter(entity.position_attr.time * 1000));
-            map.setZoom(12)
-          }
-          else
-          {
-            lastPositionTxt.text="Last position unkown"
-            map.setZoom(1)
-          }
-        }
-        else
-        {
-          lastPositionTxt.text="Last position unkown"
-          map.setZoom(1)
-        }
-					
+					if (entity.position)
+					{
+						if (entity.position.latitude && entity.position.longitude)
+						{
+							var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+							var bounds:LatLngBounds=new LatLngBounds();
+							var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
+							map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+							bounds.extend(coordinates);
+							var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+							bounds.union(circleBounds)
+							var marker:Marker=new Marker(coordinates);
+							map.addOverlay(marker);
+							overlays.push(marker);
+							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+              if(entity.type=='target')
+							  lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): \nLatitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
+              else if(entity.type=='position')
+                lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + ",\nAccuracy: " + entity.position_attr.accuracy + " mt";
+							map.setZoom(12)
+						}
+						else
+						{
+              if(entity.type=='target')
+							lastPositionTxt.text="";
+							map.setZoom(1)
+						}
+					}
+					else
+					{
+            if(entity.type=='target')
+						  lastPositionTxt.text="Last position unkown";
+            else
+              lastPositionTxt.text="";
+						map.setZoom(1)
+					}
+
 				}
 			}
 
@@ -321,7 +327,7 @@
 			{
 				photoViewer.currentPhoto="";
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
-        trace("Entity sheet removed from stage")
+				trace("Entity sheet removed from stage")
 			}
 
 			private function onContactResult(e:ResultEvent):void
@@ -363,7 +369,7 @@
 				EntityManager.instance.show(entity._id, onDetailResult);
 				if (loadingBox)
 					loadingBox.visible=loadingBox.includeInLayout=false;
-				if (LicenseManager.instance.correlation)
+				if (LicenseManager.instance.correlation && entity.type == 'target')
 				{
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=true;
@@ -380,7 +386,7 @@
 
 			private function onDetailResult(e:ResultEvent):void
 			{
-    
+
 				entity=e.result as Entity;
 				if (nameTxt)
 					nameTxt.text=entity.name;
@@ -478,7 +484,8 @@
 			<s:Spacer width="100%"/>
 			<s:HGroup verticalAlign="middle"
 								horizontalAlign="right"
-								width="100%">
+								width="100%"
+								visible="{entity.type=='target'}">
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
@@ -509,7 +516,7 @@
 	</s:VGroup>
 	<s:HGroup width="100%"
 						height="100%">
-		<s:VGroup width="50%"
+		<s:VGroup 
 							height="100%">
 			<s:VGroup width="100%"
 								visible="{entity.desc!='' &amp;&amp; entity.desc!=null}"
@@ -531,10 +538,12 @@
 																update="onUpdate(event)"/>
 				<s:VGroup gap="0"
 									width="100%"
-									height="100%">
+									height="100%"
+									visible="{entity.type!='position'}"
+									includeInLayout="{entity.type!='position'}">
 					<!-- <s:Label text="Accounts:"
 										fontWeight="bold"/>-->
-					<s:List width="100%"
+					<s:List width="380"
 									height="100%"
 									itemRenderer="it.ht.rcs.console.entities.view.HandleListRenderer"
 									dataProvider="{entity.handles}"
@@ -561,9 +570,11 @@
 
 
 			</s:HGroup>
-<s:Spacer height="20"/>
+			<s:Spacer height="20"/>
 			<s:HGroup width="100%"
-								verticalAlign="middle">
+								verticalAlign="middle"
+								visible="{entity.type=='target'}"
+								includeInLayout="{entity.type=='target'}">
 				<s:Label text="{R.get('MOST_CONTACTED')}"
 								 fontWeight="bold"
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
@@ -586,15 +597,17 @@
 			<s:List width="100%"
 							height="100%"
 							id="contactsList"
-							enabled="{LicenseManager.instance.correlation}"
+							enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
 							itemRenderer="it.ht.rcs.console.entities.view.ContactListRenderer"
 							dataProvider="{mostContacted}"
 							doubleClickEnabled="true"
-							doubleClick="jumpToEvidence(event)"/>
+							doubleClick="jumpToEvidence(event)"
+							visible="{entity.type=='target'}"
+							includeInLayout="{entity.type=='target'}"/>
 
 		</s:VGroup>
 		<s:Spacer width="6"/>
-		<s:VGroup width="60%"
+		<s:VGroup width="100%"
 							horizontalAlign="center"
 							height="100%">
 
@@ -614,7 +627,7 @@
 				<s:HGroup width="100%"
 									horizontalAlign="left">
 					<s:Label id="lastPositionTxt"
-									 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+									 alpha="{LicenseManager.instance.correlation? 1:0.5}" fontWeight="bold" width="300"/>
 					<!--	<s:CheckBox label="Last Positions"/>
 						<s:Spacer width="10"/>
 						<s:CheckBox label="Addresses"/>

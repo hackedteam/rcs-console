@@ -146,6 +146,13 @@ package it.ht.rcs.console.entities.view
           currentFilter = searchFilterFunction;
           update();
           break;
+      
+        case 'links':
+          section.currentState = 'links';
+          break;
+        case 'map':
+          section.currentState = 'map';
+          break;
         default:
           break;
       }

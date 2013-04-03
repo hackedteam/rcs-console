@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                xmlns:mx="library://ns.adobe.com/flex/mx"
+                autoDrawBackground="true"
+                dataChange="init()">
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      
+      [Bindable]
+      private var ImageClass:Class;
+      
+      
+      private function init():void
+      {
+        if(data)
+        {
+          ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
+        }
+        
+      }
+    ]]>
+  </fx:Script>
+  <s:VGroup paddingBottom="0" paddingTop="0" gap="0" width="100%">
+    <s:HGroup paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle" width="100%">
+      <s:Image source="{ImageClass}" width="16" height="16" smooth="true"/>
+      <s:Label text="{data.name? data.name+ ' ('+data.handle+')':data.handle}"/>   
+    </s:HGroup>
+    <s:Line width="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+  </s:VGroup>
+</s:ItemRenderer>
+

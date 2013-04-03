@@ -109,7 +109,7 @@
 
 			private function init():void
 			{
-
+        this.visible=false;
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
@@ -290,7 +290,7 @@
               if(entity.type=='target')
 							  lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): \nLatitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
               else if(entity.type=='position')
-                lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + ",\nAccuracy: " + entity.position_attr.accuracy + " mt";
+                lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
 							map.setZoom(12)
 						}
 						else
@@ -326,6 +326,7 @@
 			protected function onRemovedFromStage():void
 			{
 				photoViewer.currentPhoto="";
+        entity=null;
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 				trace("Entity sheet removed from stage")
 			}
@@ -418,6 +419,7 @@
 
 				if (mapReady)
 					drawPosition();
+        this.visible=true;
 				//dispatchEvent(new Event("update"));
 			}
 

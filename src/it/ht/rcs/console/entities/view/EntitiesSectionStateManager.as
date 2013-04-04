@@ -18,6 +18,7 @@ package it.ht.rcs.console.entities.view
   
   import locale.R;
   
+  import mx.collections.ArrayCollection;
   import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
   
@@ -37,6 +38,8 @@ package it.ht.rcs.console.entities.view
 
     [Bindable] public var selectedOperation:Operation;
     [Bindable] public var selectedEntity:Entity;
+    //multiple selection
+    [Bindable] public var selectedEntities:ArrayCollection;
    
     
     private var section:EntitiesSection;

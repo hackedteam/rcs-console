@@ -37,25 +37,20 @@ package it.ht.rcs.console.entities.view.renderers
     [Embed(source='/img/NEW/entity_target_50.png')]
     private var entityTargetIcon:Class;
     
+    private var mainBox:BorderContainer;
     private var container:BorderContainer;
     private var icon:BitmapImage;
     private var nameTxt:Label;
     
     public var entity:Entity
     
+   
+    
     public function EntityRenderer(entity:Entity)
     {
       super();
       this.entity=entity;
-      var layout:VerticalLayout = new VerticalLayout();
-      layout.horizontalAlign = 'center';
-      layout.verticalAlign = 'top';
-      layout.paddingTop = 5;
-      layout.paddingBottom = 5;
-      layout.paddingLeft = 5;
-      layout.paddingRight = 5;
-      layout.gap = 6;
-      this.layout = layout;
+      
       
       this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver)
       
@@ -74,11 +69,30 @@ package it.ht.rcs.console.entities.view.renderers
       
       toolTip = entity.desc
       
+      if (mainBox == null)
+      {
+        mainBox=new BorderContainer();
+        mainBox.width=90;
+        mainBox.height=92;
+        mainBox.setStyle('borderColor', 0x000000);
+        var layout:VerticalLayout = new VerticalLayout();
+        layout.horizontalAlign = 'center';
+        layout.verticalAlign = 'top';
+        layout.paddingTop = 5;
+        layout.paddingBottom = 5;
+        layout.paddingLeft = 5;
+        layout.paddingRight = 5;
+        layout.gap = 6;
+        mainBox.layout = layout;
+        
+      }
       if (container == null)
       {
         container = new BorderContainer();
         container.width = 50;
         container.height = 50;
+        container.x=-25;
+        container.y=-25;
         container.setStyle('backgroundColor', NORMAL_COLOR);
         container.setStyle('borderColor', 0xdddddd);
         container.setStyle('cornerRadius', 10);
@@ -100,7 +114,7 @@ package it.ht.rcs.console.entities.view.renderers
         
         container.addElement(icon);
         
-        addElement(container);
+        mainBox.addElement(container);
         
         if (nameTxt == null)
         {
@@ -109,10 +123,10 @@ package it.ht.rcs.console.entities.view.renderers
           nameTxt.setStyle('textAlign', 'center');
           nameTxt.width = 80;
           nameTxt.maxDisplayedLines=2;
-          addElement(nameTxt);
+          mainBox.addElement(nameTxt);
           
         }
-        
+        this.addElement(mainBox)
         
       }
   }

@@ -1,11 +1,21 @@
 package it.ht.rcs.console.entities.view.renderers
 {
 
+  import flash.events.MouseEvent;
+  import flash.ui.Mouse;
+  import flash.ui.MouseCursor;
+  
+  import it.ht.rcs.console.entities.model.Entity;
+  
+  import mx.binding.utils.BindingUtils;
   import mx.core.UIComponent;
   
+  import spark.components.BorderContainer;
   import spark.components.Group;
   import spark.components.Image;
+  import spark.components.Label;
   import spark.layouts.VerticalLayout;
+  import spark.primitives.BitmapImage;
   
   public class EntityRenderer extends Group
   {
@@ -27,9 +37,16 @@ package it.ht.rcs.console.entities.view.renderers
     [Embed(source='/img/NEW/entity_target_50.png')]
     private var entityTargetIcon:Class;
     
-    public function EntityRenderer()
+    private var container:BorderContainer;
+    private var icon:BitmapImage;
+    private var nameTxt:Label;
+    
+    public var entity:Entity
+    
+    public function EntityRenderer(entity:Entity)
     {
       super();
+      this.entity=entity;
       var layout:VerticalLayout = new VerticalLayout();
       layout.horizontalAlign = 'center';
       layout.verticalAlign = 'top';
@@ -40,6 +57,63 @@ package it.ht.rcs.console.entities.view.renderers
       layout.gap = 6;
       this.layout = layout;
       
+      this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver)
+      
     }
+    
+    private function onMouseOver(e:MouseEvent):void
+    {
+        e.stopPropagation();
+        Mouse.cursor = MouseCursor.AUTO;
+
+    }
+    
+    override protected function createChildren():void
+    {
+      super.createChildren();
+      
+      toolTip = entity.desc
+      
+      if (container == null)
+      {
+        container = new BorderContainer();
+        container.width = 50;
+        container.height = 50;
+        container.setStyle('backgroundColor', NORMAL_COLOR);
+        container.setStyle('borderColor', 0xdddddd);
+        container.setStyle('cornerRadius', 10);
+        
+        icon = new BitmapImage();
+        icon.horizontalCenter = icon.verticalCenter = 0;
+        switch(entity.type)
+        {
+        case "target": icon.source=entityTargetIcon;
+          break;
+        case "person": icon.source=entityPeopleIcon;
+          break;
+        case "position": icon.source=entityLocationIcon;
+          break;
+        default :
+          icon.source=entityPeopleIcon;
+        }
+      }
+        
+        container.addElement(icon);
+        
+        addElement(container);
+        
+        if (nameTxt == null)
+        {
+          nameTxt = new Label();
+          BindingUtils.bindProperty(nameTxt, 'text', entity, 'name');
+          nameTxt.setStyle('textAlign', 'center');
+          nameTxt.width = 80;
+          nameTxt.maxDisplayedLines=2;
+          addElement(nameTxt);
+          
+        }
+        
+        
+      }
   }
 }

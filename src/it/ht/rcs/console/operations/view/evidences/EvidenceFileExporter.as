@@ -460,7 +460,7 @@ package it.ht.rcs.console.operations.view.evidences
           {
             for (var k:int=0; k < evidence.data.wifi.length; k++)
             {
-              details+="WIFI: " + "bssid: " + evidence.data.wifi.getItemAt(k).bssid + ", mac: " + evidence.data.wifi.getItemAt(k).mac + ", sig: " + evidence.data.wifi.getItemAt(k).sig + "\n";
+              details+="WIFI: " + "bssid: " + evidence.data.wifi.getItemAt(k).ssid + ", mac: " + evidence.data.wifi.getItemAt(k).mac + ", sig: " + evidence.data.wifi.getItemAt(k).sig + "\n";
             }
           }
           if(evidence.data.ip != null)

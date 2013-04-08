@@ -67,14 +67,19 @@
       
       private function fileSelection(event:Event):void
       {
-        currentState = 'fileSelected';
+        if (currentState == 'symbian') {
+          currentState = 'fileSelectedSymbian';
+        } else {
+          currentState = 'fileSelected';
+        }
+        
         fileName.text = event.target.name;
       }
       
       private var uploadPopup:UploadPopup;
       private function create():void
       {
-        if (currentState != 'fileSelected') {
+        if (currentState == 'all' || currentState == 'symbian') {
           AlertPopUp.show(R.get('SELECT_FILE'));
           return;
         }
@@ -100,7 +105,7 @@
           params['melt'] = {input: event.data, filename: fileName.text}
         }
         
-        if (currentState == 'symbian')
+        if (currentState == 'fileSelectedSymbian')
           params['sign']['edition'] = edition.selectedItem;
         
         params['factory'] = {_id: parentDocument.factory._id};
@@ -203,17 +208,18 @@
   <s:states>
     <s:State name="all"/>
     <s:State name="fileSelected"/>
+    <s:State name="fileSelectedSymbian"/>
     <s:State name='symbian'/>
   </s:states>
   
   <s:HGroup left="10" top="10" verticalAlign="middle">
     <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
-    <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
-    <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"
+    <s:Button excludeFrom="fileSelected,fileSelectedSymbian" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
+    <s:Label id="fileName" includeIn="fileSelected,fileSelectedSymbian" buttonMode="true" click="browse()"
              maxDisplayedLines="1" width="140" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
   </s:HGroup>
   
-  <s:Form includeIn="symbian"
+  <s:Form includeIn="symbian,fileSelectedSymbian"
           left="10"
           top="105"
           visible="{BuildManager.instance.symbianConf.uids.length==6}">
@@ -243,7 +249,7 @@
   
   <!-- Symbian configuration is OK-->
   
-  <s:HGroup includeIn="symbian" 
+  <s:HGroup includeIn="symbian,fileSelectedSymbian" 
             left="10"
             top="290"
             verticalAlign="middle" 
@@ -258,7 +264,7 @@
   
   <!-- You have no Symbian configuration yet, please provide the data: -->
   
-  <s:HGroup includeIn="symbian" 
+  <s:HGroup includeIn="symbian,fileSelectedSymbian" 
             left="10"
             top="190"
             verticalAlign="middle"
@@ -270,6 +276,6 @@
     <s:Button label="{R.get('CONFIGURATION_SET')}" click="editSymbianConf()"/>
   </s:HGroup>
   
-  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}"/>
+  <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}" enabled="{currentState == 'fileSelected' || currentState == 'fileSelectedSymbian'}"/>
   
 </s:Group>

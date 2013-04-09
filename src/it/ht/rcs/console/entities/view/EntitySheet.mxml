@@ -32,6 +32,7 @@
 			import com.google.maps.LatLngBounds;
 			import com.google.maps.Map;
 			import com.google.maps.MapType;
+			import com.google.maps.PaneId;
 			import com.google.maps.controls.MapTypeControl;
 			import com.google.maps.controls.PositionControl;
 			import com.google.maps.controls.ZoomControl;
@@ -40,8 +41,7 @@
 			import com.google.maps.overlays.GroundOverlay;
 			import com.google.maps.overlays.GroundOverlayOptions;
 			import com.google.maps.overlays.Marker;
-			import com.google.maps.PaneId;
-
+			
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Contact;
@@ -53,9 +53,9 @@
 			import it.ht.rcs.console.utils.AlertPopUp;
 			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.TimeUtils;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -74,6 +74,9 @@
 
 			[Bindable]
 			private var mostContacted:ArrayCollection;
+      
+      
+      
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -103,6 +106,10 @@
 
 			[Bindable]
 			private var fromDate:Date;
+      
+      
+      [Bindable]
+      private var limit:String="5";
 
 			[Bindable]
 			private var toDate:Date;
@@ -133,8 +140,10 @@
 					{
 						loadingBox.visible=loadingBox.includeInLayout=true;
 					}
-
-					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+          limit="5";
+          if(limitTxt) limitTxt.text="5";
+            
+					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 				}
 				else
 				{
@@ -150,10 +159,11 @@
 
 			private function filter():void
 			{
+        limit=limitTxt.text;
 				fromDate=fromDf.selectedDate;
 				toDate=toDf.selectedDate;
 				loadingBox.visible=loadingBox.includeInLayout=true;
-				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 			}
 
 
@@ -379,7 +389,7 @@
 				{
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=true;
-					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), "10", onContactResult, onContactFault);
+					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 				}
 				else
 				{
@@ -582,6 +592,8 @@
 								verticalAlign="middle"
 								visible="{entity.type=='target'}"
 								includeInLayout="{entity.type=='target'}">
+        <s:TextInput id="limitTxt" text="{limit}" restrict="[0-9]" width="30" enter="filter()"/>
+          
 				<s:Label text="{R.get('MOST_CONTACTED')}"
 								 fontWeight="bold"
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>

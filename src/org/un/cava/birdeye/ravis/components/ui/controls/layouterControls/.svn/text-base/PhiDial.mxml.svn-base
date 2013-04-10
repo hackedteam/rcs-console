@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Label
+		id="phidiallabel"
+		toolTip="This control changes the geometric angle of ParentCentered and PhylloTree Layouts"
+		text="Layout Angle"
+		fontSize="9"
+		textAlign="center" />
+		
+	<mx:HSlider
+		tickInterval="30"
+		width="95%"
+		id="phidial"
+		value="160"
+		minimum="-360"
+		maximum="360"
+		liveDragging="true"
+		change="updatePhi()" />
+
+
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.IAngularLayouter;
+	
+		  private static const _LOG:String = "components.ui.controls.layouterControls.PhiDial";
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+		
+			/**
+			 * When enabling or disabling this component, we also
+			 * perform some specific tasks.
+			 * Attention do completely disable interaction
+			 * there is also the mouseEnabled property.
+			 * 
+			 * @inheritDoc
+			 * */
+			override public function set enabled(e:Boolean):void {
+				
+				/* call superclass (VBox) */
+				super.enabled = e;
+				/* if disabled remove from view and vice versa */
+				this.visible = e;
+				this.includeInLayout = e;
+				
+				/* check if children are already initialized */
+				if(phidiallabel == null || phidial == null) {
+					return;
+				}
+				
+				if(e == true) {
+					phidiallabel.setStyle("color",0x000000);
+					phidial.alpha=1;
+					refreshSlider();
+				} else {
+					phidiallabel.setStyle("color",0xCCCCCC);
+					phidial.alpha=0.3;
+				}
+			}
+											
+			/**
+			 * Event handler to be triggered in case the
+			 * layouter in VGraph has changed.
+			 * En/Disables the control and applies the values.
+			 * */
+			public function layouterChanged(e:VGraphEvent = null):void {
+				
+				var alayouter:IAngularLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot apply PhiDial to missing vgraph or null layouter");
+					return;
+				}
+				
+				/* enable and apply if we have an angular layouter */
+				if(_vgraph.layouter is IAngularLayouter) {
+					this.enabled = true;
+					
+					alayouter = _vgraph.layouter as IAngularLayouter;
+					alayouter.phi = phidial.value;
+					alayouter.layoutChanged = true;
+				} else {
+					this.enabled = false;
+				}
+			}
+	
+			/**
+			 * update the layouter with the selected value
+			 * The 'phi' angular value is support by selected
+			 * layouters, currently ParentCentered and PhylloTree.
+			 * */
+			public function updatePhi():void {
+				
+				var alayouter:IAngularLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot apply Phi without vgraph or to null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter */
+				if(!(_vgraph.layouter is IAngularLayouter)) {
+					LogUtil.warn(_LOG, "Phi is only available in IAngularLayouters");
+					return;
+				}
+				
+				alayouter = _vgraph.layouter as IAngularLayouter;
+				alayouter.phi = phidial.value;
+				alayouter.layoutChanged = true;
+
+				/* consider removing this from all these controls */
+				_vgraph.draw();				
+			}
+			
+			/**
+			 * This refreshes the current slider setting to
+			 * the value from the current layouter.
+			 * */
+			public function refreshSlider(e:VGraphEvent = null):void {
+				var alayouter:IAngularLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot update Phi without vgraph or from null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter */
+				if(!(_vgraph.layouter is IAngularLayouter)) {
+					LogUtil.warn(_LOG, "Phi is only available in IAngularLayouters");
+					return;
+				}
+				
+				/* refresh the value */
+				alayouter = _vgraph.layouter as IAngularLayouter;
+				phidial.value = alayouter.phi;
+			}
+			
+			
+			/**
+			 * Adds the listeners to update on changes in the VGraph
+			 * */
+			private function registerListeners():void {
+				_vgraph.addEventListener(VGraphEvent.VGRAPH_CHANGED,refreshSlider);
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_CHANGED,layouterChanged);
+			}		
+		]]>
+	</mx:Script>
+
+</mx:VBox>

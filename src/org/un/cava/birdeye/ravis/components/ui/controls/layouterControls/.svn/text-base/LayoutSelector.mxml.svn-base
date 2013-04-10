@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	height="20"
+	width="95%"
+	color="#CCCCCC"
+	prompt="Select layout algorithm."
+	toolTip="Some layouters may not be fully stable."
+	initialize="initData()"
+	change="changeLayouter()" >
+	
+	<mx:ArrayCollection id="layouts">
+		<mx:String>---Radial---</mx:String>
+		<mx:String>ConcentricRadial</mx:String>
+		<mx:String>ParentCenteredRadial</mx:String>
+		<mx:String>SingleCycleCircle</mx:String>
+		<mx:String>Hyperbolic</mx:String>
+		<mx:String>---Tree---</mx:String>
+		<mx:String>Hierarchical</mx:String>
+		<mx:String>---Physics---</mx:String>
+		<mx:String>ForceDirected</mx:String>
+		<mx:String>ISOM</mx:String>
+		<mx:String>---Coordinates---</mx:String>
+		<mx:String>DirectPlacement</mx:String>
+		<mx:String>---Experimental---</mx:String>
+		<mx:String>Phyllotactic</mx:String>
+	</mx:ArrayCollection>
+
+	<mx:Script>	
+		<![CDATA[
+			import mx.utils.ObjectUtil;
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ILayoutAlgorithm;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.CircularLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.DirectPlacementLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.Hyperbolic2DLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ISOMLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ParentCenteredRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.PhylloTreeLayouter;
+			
+		  private static const _LOG:String = "components.ui.controls.layouterControls.LayoutSelector";
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+			
+			/**
+			 * When enabling or disabling this component, we also
+			 * perform some specific tasks.
+			 * Attention do completely disable interaction
+			 * there is also the mouseEnabled property.
+			 * 
+			 * @inheritDoc
+			 * */
+			override public function set enabled(e:Boolean):void {
+				if(e == true) {
+					this.setStyle("color",0x000000);
+					this.alpha=1;
+				} else {
+					this.setStyle("color",0xCCCCCC);
+					this.alpha=0.3;
+				}
+				/* call superclass (ComboBox) */
+				super.enabled = e;
+			}
+	
+			/**
+			 * Set the selected Layouter.
+			 * */
+			public function changeLayouter():void {	
+				/* check if we have a vgraph at all */
+				if(_vgraph == null) {
+					LogUtil.warn(_LOG, "Cannot change Layouter without vgraph.");
+					return;
+				}
+				setLayouter();
+				_vgraph.draw(); // run the layout
+			}
+
+			/**
+			 * Set/Activate the layouter set in the selector.
+			 * */
+			public function setLayouter():void {
+				
+				var layouter:ILayoutAlgorithm;
+				var layouterName:String = (this.selectedItem as String);
+								
+				/* check if we have a vgraph at all */
+				if(_vgraph == null) {
+					LogUtil.warn(_LOG, "Cannot change Layouter without vgraph.");
+					return;
+				}
+	
+				/* kill off animation in old layouter if present */
+				if(_vgraph.layouter != null) {
+					_vgraph.layouter.resetAll();
+					/* remove also existing references thus
+					 * destroying the object (maybe this is not needed?) */
+					_vgraph.layouter = null;
+				}
+	
+				/* now choose the selected layouter */
+				switch(layouterName) {
+					case "ConcentricRadial":
+						layouter = new ConcentricRadialLayouter(_vgraph);
+						break;
+					case "ParentCenteredRadial":
+						layouter = new ParentCenteredRadialLayouter(_vgraph);
+						break;
+					case "SingleCycleCircle":
+						layouter = new CircularLayouter(_vgraph);
+						
+						/* set the hyperbolic edge renderer type *
+						_vgraph.edgeRenderer = new CircularEdgeRenderer();
+						_vgraph.scrollBackgroundInDrag = false;
+						_vgraph.moveNodeInDrag = false;
+						absoluteScaling = true;
+						updateScale();
+						*/
+						break;
+					case "Hyperbolic":
+						layouter = new Hyperbolic2DLayouter(_vgraph);
+						
+						/* set some layouter specific defaults:
+						_vgraph.edgeRenderer = new HyperbolicEdgeRenderer((layouter as Hyperbolic2DLayouter).projector);
+						_vgraph.scrollBackgroundInDrag = false;
+						_vgraph.moveNodeInDrag = false;
+						absoluteScaling = false;
+						*/
+						break;
+					case "Hierarchical":
+						layouter = new HierarchicalLayouter(_vgraph);
+						break;
+					case "ForceDirected":
+						layouter = new ForceDirectedLayouter(_vgraph);
+						break;
+					case "ISOM":
+						layouter = new ISOMLayouter(_vgraph);
+						break;
+					case "DirectPlacement":
+						layouter = new DirectPlacementLayouter(_vgraph);
+						/* set some layouter specific values, i.e. create a control
+						 * for these first, also they could be prepopulated from
+						 * XML data
+						(layouter as DirectPlacementLayouter).relativeHeight = 400;
+						(layouter as DirectPlacementLayouter).relativeWidth = 400;
+						 */
+						/*
+						/* set the orthogonal edge renderer type *
+						_vgraph.edgeRenderer = new OrthogonalEdgeRenderer();
+						_vgraph.scrollBackgroundInDrag = true;
+						_vgraph.moveNodeInDrag = true;
+						absoluteScaling = true;
+						updateScale();
+						*/
+						break;
+					case "Phyllotactic":
+						layouter = new PhylloTreeLayouter(_vgraph);
+						break;
+					default:
+						LogUtil.warn(_LOG, "Illegal Layouter selected, defaulting to ConcentricRadial"+
+							layouterName);
+						layouter = new ConcentricRadialLayouter(_vgraph);
+						break;
+				}
+				_vgraph.layouter = layouter;
+			}
+
+			/**
+			 * Refresh the selector if an external event changes the layouter.
+			 * */
+			public function refreshSelector(e:VGraphEvent = null):void {
+				
+				var layouterClassName:String;
+				var layouterName:String;
+								
+				/* check if we have a vgraph/layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot refresh the LayoutSelector without vgraph or Layouter.");
+					return;
+				}
+	
+				layouterClassName = ObjectUtil.getClassInfo(_vgraph.layouter).name;
+				layouterClassName = layouterClassName.replace(/org.un.cava.birdeye.ravis.graphLayout.layout::/,"");
+	
+				/* now choose the selected layouter */
+				switch(layouterClassName) {
+					case "ConcentricRadialLayouter":
+						layouterName = "ConcentricRadial";
+						break;
+					case "ParentCenteredRadialLayouter":
+						layouterName = "ParentCenteredRadial";
+						break;
+					case "CircularLayouter":
+						layouterName = "SingleCycleCircle";
+						break;
+					case "Hyperbolic2DLayouter":
+						layouterName = "Hyperbolic";
+						break;
+					case "HierarchicalLayouter":
+						layouterName = "Hierarchical";
+						break;
+					case "ForceDirectedLayouter":
+						layouterName = "ForceDirected";
+						break;
+					case "ISOMLayouter":
+						layouterName = "ISOM";
+						break;
+					case "DirectPlacementLayouter":
+						layouterName = "DirectPlacement";
+						break;
+					case "PhylloTreeLayouter":
+						layouterName = "Phyllotactic";
+						break;
+					default:
+						layouterName = "Unknown";
+						LogUtil.warn(_LOG, "Unknown Layouter found:"+layouterClassName);
+						break;
+				}
+				/* make the selection */
+				
+				/* XXX THIS MAY CAUSE A LOOP POSSIBLY */
+				this.selectedItem = layouterName;
+			}
+
+			/**
+			 * initialise the selection data.
+			 * It is a bit unclear, why this seems to be necessary.
+			 * */
+			private function initData():void {
+				this.dataProvider = layouts;
+			}
+			
+			/**
+			 * Adds the listeners to update on changes in the VGraph
+			 * */
+			private function registerListeners():void {
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_CHANGED,refreshSelector);
+			}
+		]]>
+	</mx:Script>
+</mx:ComboBox>

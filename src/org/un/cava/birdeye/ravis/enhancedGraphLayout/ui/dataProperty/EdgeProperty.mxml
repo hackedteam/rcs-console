@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" width="300" height="160" title="Line Property">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.IDataRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.data.IEdge;
+			import org.un.cava.birdeye.ravis.enhancedGraphLayout.visual.EnhancedVisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
+			import mx.managers.PopUpManager;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualNode;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualEdge;
+			public override function set data(edge:Object):void
+			{
+				super.data = edge;
+				var vo:Object = data.data;
+				if (vo is XML)
+				{
+					txtLabel.text = vo.@edgeLabel.toString();
+					clrColor.selectedColor = Number(vo.@color.toString());
+				}
+				else
+				{
+					if (vo.edgeLabel)
+						txtLabel.text = vo.edgeLabel.toString();
+					if (vo.color)
+						clrColor.selectedColor = Number(vo.color.toString());
+				}
+			}
+			
+			private function okClickHandler(value:Object):void
+			{
+				var edge:IEdge = data as IEdge;
+				var vgraph:IVisualGraph = edge.vedge.vgraph;
+				
+				if (edge.data is XML)
+				{
+					edge.data.@edgeLabel = txtLabel.text;
+					edge.data.@color = clrColor.selectedColor;
+				}
+				else
+				{
+					edge.data.edgeLabel = txtLabel.text;
+					edge.data.color = clrColor.selectedColor;
+				
+				}
+				if (edge.vedge.labelView)
+				{
+					IDataRenderer(edge.vedge.labelView).data = edge.vedge;
+				}
+				vgraph.redrawEdges();
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function cancelClickHandler(value:Object):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form height="100%" width="100%">
+		<mx:FormItem label="Name:">
+			<mx:TextInput id="txtLabel" width="100%"/>
+		</mx:FormItem>
+		<mx:FormItem label="Color:">
+			<mx:ColorPicker id="clrColor"/>
+		</mx:FormItem>
+	</mx:Form>
+	
+	<mx:ApplicationControlBar width="100%" horizontalAlign="center" verticalAlign="middle">
+		<mx:Button label="Ok" click="okClickHandler(event);"/>
+		<mx:Button label="Cancel" click="cancelClickHandler(event);"/>
+	</mx:ApplicationControlBar>
+</mx:Panel>

@@ -5,32 +5,73 @@
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
 									 xmlns:maps="com.google.maps.*"
 									 xmlns:components="it.ht.rcs.console.entities.view.components.*"
-									 xmlns:graph="it.ht.rcs.console.entities.view.graph.*"
+                   xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 									 height="100%"
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
-									 addedToStage="init()"
 									 creationComplete="init()">
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			
-			import mx.collections.ArrayCollection;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      
+      import mx.collections.ArrayCollection;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BaseEdgeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 
 			[Bindable]
 			public var entities:ArrayCollection;
       
       private var entitiesToShow:ArrayCollection;
-
 			private var numEntitiesToShow:int=0;
+      
+      private var g:Graph;
+      private var currentIndex:int=0;
+      private var roots:ArrayCollection;
+      
+      //temp
+      private var xmlData:XML=
+        <Graph>
+          <Node id="1" name="Target 1" desc="This is a description" nodeColor="0x333333" nodeSize="32" nodeClass="tree" nodeIcon="target" x="10" y="10" />
+          <Node id="2" name="Person 1" desc="This is a description" nodeColor="0x8F8FFF" nodeSize="12" nodeClass="tree" nodeIcon="person" x="10" y="15" />
+          <Node id="3" name="Person 2" desc="This is a description" nodeColor="0xF00000" nodeSize="36" nodeClass="tree" nodeIcon="person" x="10" y="20" />
+          <Node id="4" name="Person 3" desc="This is a description" nodeColor="0x00FF00" nodeSize="10" nodeClass="tree" nodeIcon="person" x="10" y="25" />
+          <Node id="5" name="Target 2" desc="This is a description" nodeColor="0xFFA500" nodeSize="14" nodeClass="tree" nodeIcon="target" x="10" y="30" />
+          <Node id="6" name="Position 1" desc="This is a description" nodeColor="0x191970" nodeSize="10" nodeClass="tree" nodeIcon="position" x="10" y="35" />
+          <Node id="7" name="Position 2" desc="This is a description" nodeColor="0x4682b4" nodeSize="18" nodeClass="tree" nodeIcon="position" x="10" y="40" />
+          <Node id="8" name="Position 3" desc="This is a description" nodeColor="0x4682b4" nodeSize="18" nodeClass="tree" nodeIcon="position" x="10" y="40" />
+          <Node id="9" name="Person 4" desc="This is a description" nodeColor="0x00FF00" nodeSize="10" nodeClass="tree" nodeIcon="person" x="10" y="25" />
+          <Node id="10" name="Person 5" desc="This is a description" nodeColor="0x00FF00" nodeSize="10" nodeClass="leaf" nodeIcon="person" x="10" y="25" />
+          <Node id="11" name="Target 3" desc="This is a description" nodeColor="0x333333" nodeSize="32" nodeClass="tree" nodeIcon="target" x="10" y="10" />
+          <Node id="12" name="Target 4" desc="This is a description" nodeColor="0x333333" nodeSize="32" nodeClass="tree" nodeIcon="target" x="10" y="10" />
+          <Node id="13" name="Position 4" desc="This is a description" nodeColor="0x4682b4" nodeSize="18" nodeClass="leaf" nodeIcon="position" x="10" y="40" />
+          
+          <Edge fromID="1" toID="2" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          <Edge fromID="2" toID="3" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          <Edge fromID="5" toID="3" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          
+          <Edge fromID="1" toID="4" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="identity"/>
+          <Edge fromID="7" toID="1" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+        
+          <Edge fromID="8" toID="9" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          
+          <Edge fromID="10" toID="11" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" versus="both" type="identity"/>
+          <Edge fromID="10" toID="13" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad"  type="connection"/>
+      </Graph>
 
 			private function init():void
 			{
-				if (graph)
+			/* 	if (graph)
 				{
 					numEntitiesToShow=entities.length;
           entitiesToShow=new ArrayCollection();
@@ -40,8 +81,35 @@
 						EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
 					}
 
-				}
+				} */
+        
+        analyzeData()
 			}
+      
+      private function analyzeData():void
+      {
+        g=new Graph("XMLAsDocsGraph", false, xmlData);
+        var i:int=0;
+        var node:Node;
+        
+        //all roots by default
+        roots=new ArrayCollection()
+        //backword
+        for (i=g.nodes.length; i > 0; i--)
+        {
+          node=g.nodes[i-1] as Node;
+          roots.addItem(node);
+        }
+        
+        while(currentIndex<roots.length)
+        {
+          var currentNode:Node =roots.getItemAt(currentIndex) as Node  
+          getConnections(currentNode)
+          currentIndex++
+        }
+        trace("number of roots: "+roots.length)
+        manipulateData()
+      }
 
 			private function getEntityById(id:String):Entity
 			{
@@ -55,15 +123,90 @@
 				}
 				return null;
 			}
+      
+      private function getConnections(node:INode, examined:Array=null):void
+      {
+        if (!examined)
+          examined=new Array
+        if (node)
+        {
+          
+          for (var i:int=0; i < node.successors.length; i++)
+          {
+            var child:INode=node.successors[i] as INode;
+            examined.push(node);
+            if (examined.indexOf(child) == -1)
+            {
+              trace("Connection: "+child.data.@name);
+              var index:int=roots.getItemIndex(child);
+              roots.removeItemAt(index)
+              getConnections(child, examined);
+            }
+          }
+        }
+      }
+      private function manipulateData():void
+      {
+        
+        trace("roots: " + roots.length);
+        if(roots.length==1)
+        {
+          trace("no need to add a fake common root")
+        }
+        else
+        {
+          trace("more than 1 root - add a fake root and attach real roots")
+          var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />")
+          var fakeRoot:INode=g.createNode("0", xnode);
+          
+          for(var i:int=0;i<roots.length;i++)
+          {
+            var root:Node=roots[i] as Node;
+            //var edge:Edge=new Edge(g, null,10000+i, fakeRoot, root, null)// TODO Id generation!
+            //fakeRoot.addOutEdge(edge);
+            //root.addInEdge(edge);
+            var xedge:XML=new XML("<Edge edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' versus='fake'/>")
+            g.link(fakeRoot, root, xedge) //add data
+          }
+        }
+        
+        initData(g) 
+      }
+      
+      private function initData(g:Graph):void
+      {
+        
+        /* init a graph object with the XML data */
+        //vgraph.graph=new Graph("XMLAsDocsGraph", false, xmldata);
+        vgraph.graph=g
+        
+        //vgraph.graph.
+        /* assign start root */
+        vgraph.currentRootVNode=vgraph.graph.nodeByStringId("0").vnode;
+        
+        /* provide the control components with some initial settings */
+        var layouter:ConcentricRadialLayouter= new ConcentricRadialLayouter(vgraph);
+        vgraph.itemRenderer = new ClassFactory(IconNodeRenderer);
+        vgraph.edgeRendererFactory= new ClassFactory(BidirectedArrowEdgeRenderer);
+        vgraph.edgeLabelRenderer = new ClassFactory(WFBEdgeLabelRenderer);
+        vgraph.maxVisibleDistance=20;
+        
+     
+
+        //vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
+        //vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick)
+        //vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick)
+        //vgraph.draw();
+      }
 
 			private function onDetailResult(e:ResultEvent):void
 			{
-				numEntitiesToShow--
+				/* numEntitiesToShow--
         entitiesToShow.addItem(e.result)
 				if (numEntitiesToShow == 0)
 				{
 					graph.draw(entitiesToShow)
-				}
+				} */
 			}
 		]]>
 	</fx:Script>
@@ -74,9 +217,33 @@
 											paddingTop="10"
 											gap="6"/>
 	</s:layout>
-	<s:Scroller id="scroller"
+  <!-- Graph Panel -->
+  
+  <mx:Canvas id="graphCnvs"
+             borderStyle="solid"
+             borderColor="#CCCCCC"
+             backgroundColor="#FFFFFF"
+             width="100%"
+             height="100%"
+             verticalScrollPolicy="off">
+    
+    <ravis:VisualGraph id="vgraph"
+                       width="100%"
+                       height="100%"
+                       left="0"
+                       right="0"
+                       top="0"
+                       bottom="5"
+                       backgroundColor="#FFFFFF"
+                       alpha="1"
+                       resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
+                       visibilityLimitActive="true">
+    </ravis:VisualGraph>
+  </mx:Canvas>
+  <!-- End of Graph Panel -->
+	<!--<s:Scroller id="scroller"
 							width="100%"
 							height="100%">
 		<graph:LinkGraph id="graph"/>
-	</s:Scroller>
+	</s:Scroller>-->
 </s:BorderContainer>

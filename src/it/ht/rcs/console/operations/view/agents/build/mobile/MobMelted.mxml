@@ -104,6 +104,8 @@
         
         if (currentState == 'fileSelectedSymbian')
           params['sign']['edition'] = edition.selectedItem;
+        else
+          params['binary']['admin'] = admin.selected;
         
         params['melt'] = {input: event.data, filename: fileName.text};
         params['factory'] = {_id: parentDocument.factory._id};
@@ -217,6 +219,13 @@
     <s:Label id="fileName" includeIn="fileSelected,fileSelectedSymbian" buttonMode="true" click="browse()"
              maxDisplayedLines="1" width="140" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
   </s:HGroup>
+  
+  <s:VGroup excludeFrom="symbian,fileSelectedSymbian" left="10" top="190">
+  <s:CheckBox left="10" id="admin" label="{R.get('REQUIRE_ADMIN')}" fontWeight="bold" selected="false"/>
+  <s:TextArea left="25" width="280" height="55" borderVisible="false"
+              contentBackgroundAlpha="0.0" editable="false"
+              text="{R.get('REQUIRE_ADMIN_DESC')}"/>   
+  </s:VGroup>
   
   <s:Form includeIn="symbian,fileSelectedSymbian"
           left="10"

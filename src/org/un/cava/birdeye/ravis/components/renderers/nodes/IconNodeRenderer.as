@@ -53,6 +53,7 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
     
 		public function IconNodeRenderer() {
 			super();
+      this.setStyle("verticalGap", 0)
 			//initZoom();
 		}
 	

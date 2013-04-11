@@ -156,7 +156,8 @@ package org.un.cava.birdeye.ravis.components.renderers {
 			/* create and add a spacer */
 			sp = new Spacer();
 			sp.height = 18;
-			this.addChild(sp);
+      
+			//this.addChild(sp);
 		}
 
 		/**
@@ -166,7 +167,6 @@ package org.un.cava.birdeye.ravis.components.renderers {
 		protected function initLinkButton():LinkButton {
 
 			lb = new LinkButton();
-			
 			//lb.width = 100;
 
 			lb.toolTip = "Click to View Details";

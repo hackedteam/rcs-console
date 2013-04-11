@@ -9,7 +9,7 @@
                    xmlns:entities="it.ht.rcs.console.entities.view.*"
 									 height="100%"
 									 width="100%"
-									 creationComplete="init()">
+									 creationComplete="init()" addedToStage="init()">
 	<fx:Script>
 		<![CDATA[
       import it.ht.rcs.console.entities.controller.EntityManager;
@@ -25,13 +25,18 @@
       import org.un.cava.birdeye.ravis.graphLayout.data.INode;
       import org.un.cava.birdeye.ravis.graphLayout.data.Node;
       import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+      import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
       import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BaseEdgeRenderer;
       import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
 
 			[Bindable]
 			public var entities:ArrayCollection;
       
       private var entitiesToShow:ArrayCollection;
+      
 			private var numEntitiesToShow:int=0;
       
       private var g:Graph;
@@ -61,9 +66,8 @@
           
           <Edge fromID="1" toID="4" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="identity"/>
           <Edge fromID="7" toID="1" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
-        
+
           <Edge fromID="8" toID="9" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
-          
           <Edge fromID="10" toID="11" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" versus="both" type="identity"/>
           <Edge fromID="10" toID="13" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad"  type="connection"/>
       </Graph>
@@ -172,15 +176,19 @@
         vgraph.currentRootVNode=vgraph.graph.nodeByStringId("0").vnode;
         
         var layouter:ConcentricRadialLayouter= new ConcentricRadialLayouter(vgraph);
+       
         vgraph.layouter=layouter;
+
+        layouter.linkLength=75
+
         vgraph.itemRenderer = new ClassFactory(IconNodeRenderer);
         vgraph.edgeRendererFactory= new ClassFactory(BidirectedArrowEdgeRenderer);
         vgraph.edgeLabelRenderer = new ClassFactory(WFBEdgeLabelRenderer);
         vgraph.maxVisibleDistance=20;
 
-        //vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
-        //vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
-        //vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick)
+        vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);x
+        vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
+        vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick)
         vgraph.draw();
       }
 
@@ -193,6 +201,37 @@
 					parseItems()
 				} 
 			}
+      private function onEdgeClick(e:VisualEdgeEvent):void
+      {
+        trace(e.edge.data)
+      }
+      
+      private function onBgClick(e:VisualGraphEvent):void
+      {
+        
+        for(var i:int=0;i<g.nodes.length;i++)
+        {
+          var currentNode:Node=g.nodes[i] as Node;
+          var currentRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
+          currentRenderer.selected=false;
+        }
+      }
+      private function onNodeClick(e:VisualNodeEvent):void
+      {
+        trace(e.node.data.@name)
+        if(!e.ctrlKey)
+        {
+          for(var i:int=0;i<g.nodes.length;i++)
+          {
+            var currentNode:Node=g.nodes[i] as Node;
+            var currentRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
+            currentRenderer.selected=false;
+          }
+        }
+        //icon renderer
+        var renderer:IconNodeRenderer=e.node.vnode.view as IconNodeRenderer;
+        renderer.selected=true;
+      }
       
       private function parseItems():void
       {
@@ -204,17 +243,17 @@
         xmlStr+="<Node   id='"+e._id+"'  name='"+e.name+"'   desc='"+e.desc+"'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='"+e.type+"'   x='10'  y='10' />"
           if(e.links)
           {
-            for(var j:int=0;i<e.links.length;j++)
+            for(var j:int=0;j<e.links.length;j++)
             {
               var link:Link=e.links.getItemAt(j) as Link;
               trace("link: "+link._id);
-              xmlStr+= "<Edge fromID='8' toID='9' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='connection'/>"
+              xmlStr+= "<Edge fromID='"+link.le+"' toID='"+e._id+"' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='connection'/>"
             }
           }
         }
         xmlStr+="</Graph>";
-        
-        //xmlData=xml(xmlStr);
+        trace(xmlStr)
+        //xmlData=XML(xmlStr);
         analyzeData();
       }
 		]]>

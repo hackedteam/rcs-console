@@ -9,10 +9,12 @@
     [Event(name="update", type="flash.events.Event")]
     
   </fx:Metadata>
- 
-<!--  
-  <s:Button label="{R.get('DELETE')}" 
-            icon="@Embed('/img/NEW/delete_32.png')"/>-->
+  <s:Button label="{R.get('LINK_ADD')}"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; 1!=1}"
+            icon="@Embed('/img/NEW/linkAdd.png')"
+            />
   
  
   <s:Spacer width="100%"/>
@@ -20,7 +22,7 @@
 
   <fx:Script>
     <![CDATA[
-
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.events.SectionEvent;
@@ -40,16 +42,13 @@
       public var entity:Entity;
       
 
-     
       
       private function onRemovedFromStage():void
       { 
         //section.stateManager.view.refresh();
         //section.stateManager.tableView.refresh();
       }
-      
-     
-      
+
     ]]>
   </fx:Script>
 

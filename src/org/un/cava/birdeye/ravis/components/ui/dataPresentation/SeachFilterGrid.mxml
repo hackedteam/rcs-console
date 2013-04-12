@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	height="100%"
+	width="100%"
+	label="Search/Filter Nodes"
+	 >
+	
+	<mx:VBox width="100%" height="100%" paddingLeft="5" paddingRight="5">
+		<mx:HBox width="100%" verticalAlign="middle" >
+			<mx:Image source="{EmbeddedIcons.searchIcon}" />
+			<mx:Label text="Enter Search Criteria:" />
+		</mx:HBox>
+		
+		<mx:TextInput 
+			id="txtFilter" 
+			width="100%"
+			change="filterNodes.refresh()" />
+		<mx:HRule width="95%" />
+				
+		<!-- Use DataGrid Click to call graph dataprovider() function to center node -->
+		<mx:DataGrid
+			id="dgSearch"
+			width="100%"
+			height="100%" 
+			dataProvider="{filterNodes}"
+			doubleClickEnabled="true"
+			toolTip="Please double click to center"
+			>
+			<mx:columns>
+				<mx:DataGridColumn id="nodeTitle" headerText="Node" dataField="@name" />
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
+
+	
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import mx.collections.ArrayCollection;
+			import org.un.cava.birdeye.ravis.assets.icons.EmbeddedIcons;
+			
+			[Bindable]
+			public var filterNodes:ArrayCollection;
+
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				bindValues();
+			}
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+			
+			/**
+			 * When enabling or disabling this component, we also
+			 * perform some specific tasks.
+			 * Attention do completely disable interaction
+			 * there is also the mouseEnabled property.
+			 * 
+			 * @inheritDoc
+			 * */
+			override public function set enabled(e:Boolean):void {
+				
+				/* do it for the super class */
+				super.enabled = e;
+				
+				/* if disabled remove from view and vice versa */
+				this.visible = e;
+				this.includeInLayout = e;
+			}
+			
+			/**
+			 * initialises the 'filterNodes' array collection in order 
+			 * to allow filtering and sorting etc.
+			 * @param result the XMLList to populate the array collection with
+			 * */
+ 			public function initDataGrid(result:XMLList):void {
+ 				
+ 				var arr:Array = new Array();
+				for (var i:uint = 0; i < result.length(); ++i) {
+				    arr[i] = result[i];
+				}
+				filterNodes = new ArrayCollection(arr);
+				filterNodes.filterFunction = processFilter;
+ 			}
+ 			
+ 			/**
+ 			 * function to implement a filter function on the
+ 			 * "filterNodes" ArrayCollection that holds our XML data
+ 			 * locally
+ 			 * */
+ 			private function processFilter(item:Object):Boolean {
+
+				var name:String;
+				name = item.@name;
+
+				// If no filter text, or a match, then true 
+				if(!name.length || 
+					name.toUpperCase().indexOf(txtFilter.text.toUpperCase()) >= 0) {
+					return true;
+				} 
+				return false;
+			}
+			
+			private function bindValues():void {
+				dgSearch.addEventListener(MouseEvent.DOUBLE_CLICK,doubleClickListener);	
+			}
+			
+			private function doubleClickListener(e:MouseEvent = null):void {
+				if(_vgraph == null) {
+					return;
+				}
+				_vgraph.centerNodeByStringId(dgSearch.selectedItem.@id);
+			}
+		]]>
+	</mx:Script>
+</mx:Canvas>

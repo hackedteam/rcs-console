@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" width="294" height="216" title="Tranmission Property">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.core.IDataRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.data.IEdge;
+			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+			import org.un.cava.birdeye.ravis.enhancedGraphLayout.visual.EnhancedVisualGraph;
+			import mx.managers.PopUpManager;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualNode;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualEdge;
+			public override function set data(node:Object):void
+			{
+				super.data = node;
+				var vo:Object = data.data;
+				if (vo is XML)
+				{
+					txtLabel.text = vo.@name.toString();
+					txtNote.htmlText = vo.@desc.toString();
+					clrColor.selectedColor = Number(vo.@nodeColor.toString());
+				}
+				else
+				{
+					if (vo.name)
+						txtLabel.text = vo.name.toString();
+					if (vo.desc)
+						txtNote.htmlText = vo.desc.toString();
+					if (vo.nodeColor)
+						clrColor.selectedColor = Number(vo.nodeColor.toString());
+				}
+			}
+			
+			public override function get data():Object
+			{
+				return super.data;
+			}
+			private function okClickHandler(value:Object):void
+			{
+				var node:INode = data as INode;
+				var vgraph:IVisualGraph = node.vnode.vgraph;
+				if (node.data is XML)
+				{
+					node.data.@name = txtLabel.text;
+					node.data.@nodeColor = clrColor.selectedColor;
+					
+					var tmpStr:String = txtNote.text; 
+					node.data.@desc = tmpStr;
+				}
+				else
+				{
+					node.data.name = txtLabel.text;
+					node.data.nodeColor = clrColor.selectedColor;
+					
+					var tmpStr2:String = txtNote.text; 
+					node.data.desc = tmpStr2;
+				
+				}
+				if (node.vnode.view)
+				{
+					IDataRenderer(node.vnode.view).data = node.vnode;
+				}
+
+				//EnhancedVisualGraph(vgraph).refresh();
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function cancelClickHandler(value:Object):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form height="100%" width="100%">
+		<mx:FormItem label="Name:">
+			<mx:TextInput id="txtLabel"/>
+		</mx:FormItem>
+		<mx:FormItem label="Description:">
+			<mx:TextArea id="txtNote"  width="100%" height="50"/>
+		</mx:FormItem>
+		<mx:FormItem label="Color:">
+			<mx:ColorPicker id="clrColor"/>
+		</mx:FormItem>
+	</mx:Form>
+	
+	<mx:ApplicationControlBar width="100%" verticalAlign="middle" horizontalAlign="center">
+		<mx:Button label="Ok" click="okClickHandler(event);"/>
+		<mx:Button label="Cancel" click="cancelClickHandler(event);"/>
+	</mx:ApplicationControlBar>
+</mx:Panel>

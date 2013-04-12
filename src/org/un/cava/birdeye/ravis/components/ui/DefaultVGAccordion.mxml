@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<ui:VGAccordion
+	xmlns:ui="org.un.cava.birdeye.ravis.components.ui.*"
+	xmlns:lc="org.un.cava.birdeye.ravis.components.ui.controls.layouterControls.*"
+	xmlns:vc="org.un.cava.birdeye.ravis.components.ui.controls.vgraphControls.*"
+	xmlns:dp="org.un.cava.birdeye.ravis.components.ui.dataPresentation.*"
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:flexlib="http://code.google.com/p/flexlib/"
+	creationComplete="assignContainers()"
+	>
+	
+	<mx:VBox
+		id="visLayoutContainer"
+		label="Visibility/Layout"
+		height="100%"
+		width="100%"
+		paddingBottom="5"
+		horizontalAlign="center"
+		>
+		
+		<mx:Spacer height="3" />
+			
+		<!-- Graph and Layout Parameters -->
+		<flexlib:WindowShade
+			id="layoutContainer"
+			styleName="linkButtonWindowShade" 
+  			label="Layout"
+  			width="100%"
+  			opened="true"
+  			horizontalAlign="center"
+  			paddingBottom="5"
+  			>
+			<mx:VBox
+				width="97%"
+				horizontalAlign="center"
+				paddingLeft="5"
+				paddingRight="5"
+				paddingBottom="5"
+				paddingTop="5"
+				borderColor="#666666"
+				borderThickness="1"
+				cornerRadius="5"
+				borderStyle="solid"
+				backgroundColor="#CCCCCC"
+				backgroundAlpha=".2" >
+				<lc:LayoutSelector id="myLayoutSelector" />
+				<lc:HierLayoutControls id="myHierLC" />
+				<lc:PhiDial id="myPhiDial" />
+				<lc:ToggleDamping id="myDamping" />
+				<lc:CommonLayoutControls id="myCommonLC" />
+				<dp:CenteredNodeLabel id="myCenteredNodeLabel" />
+				<dp:NoVisNodesLabel id="myNoVisNodeLabel" />
+			</mx:VBox>
+		</flexlib:WindowShade>
+		
+		<!-- Node Styles -->
+		<flexlib:WindowShade
+			id="nodeRenderContainer"
+			styleName="linkButtonWindowShade" 
+  			label="Node Styles"
+  			width="100%"
+  			opened="true"
+  			horizontalAlign="center"
+  			paddingBottom="5"
+  			>
+			<vc:NodeRendererSelector id="myNodeRendererSelector" />
+		</flexlib:WindowShade>
+		
+		<!-- Edge Styles -->
+		<flexlib:WindowShade
+			id="edgeRenderContainer"
+			styleName="linkButtonWindowShade" 
+  			label="Edge Styles"
+  			width="100%"
+  			opened="true"
+  			horizontalAlign="center"
+  			paddingBottom="5"
+  			>
+			<vc:EdgeRendererSelector id="myEdgeRendererSelector" />
+		</flexlib:WindowShade>
+		
+		<!-- Edge Labels -->
+		<flexlib:WindowShade
+			id="edgeLabelRenderContainer"
+			styleName="linkButtonWindowShade" 
+  			label="Edge Label Styles"
+  			width="100%"
+  			opened="true"
+  			horizontalAlign="center"
+  			paddingBottom="5"
+  			>
+			<vc:EdgeLabelControls id="myELCs" />
+		</flexlib:WindowShade>
+		
+		<vc:DegreesOfSeparation id="myDegreeOS" />
+		
+		<vc:ScaleControls id="mySCs" />
+		
+		<vc:FullRefreshButton id="myFRB" />
+		
+		<vc:DrawButton id="myDB" />
+	</mx:VBox>		
+
+	
+	<dp:SeachFilterGrid id="mySFGrid" />
+	
+	<mx:VBox
+		width="100%"
+		height="100%"
+		label="Details"
+		id="myDetailCont"
+		>
+		<mx:Spacer height="5" width="100%" />
+		<dp:NodeDetailLabel id="myNodeDetails" />
+		<!--
+		<mx:Button label="Remove Node from View" icon="@Embed('/imgs/detailclose2.gif')" width="100%" toolTip="Will remove node from graph.  Will not be deleted from database." click="removeNode(selectedNodeID)" />
+		-->
+	</mx:VBox>
+	
+	<mx:Script>
+		<![CDATA[
+			/* seems this can only be done in AS
+			 */
+			private function assignContainers():void {
+				visLayoutComp = visLayoutContainer;
+				searchFilterComp = mySFGrid;
+				dataDetailComp = myDetailCont;
+			}
+		]]>
+	</mx:Script>
+</ui:VGAccordion>

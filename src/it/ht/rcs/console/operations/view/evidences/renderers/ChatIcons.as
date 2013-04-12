@@ -50,8 +50,11 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     [Embed(source='/img/evidence/social/sms_16.png')]
     public static const sms:Class;
     
+    [Embed(source='/img/evidence/social/viber_16.png')]
+    public static const viber:Class;
+    
     [Embed(source='/img/evidence/social/default_16.png')]
     public static const defaultIcon:Class;
-    
+
   }
 }

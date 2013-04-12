@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	height="20"
+	width="95%"
+	color="#CCCCCC"
+	prompt="Select the orientation"
+	toolTip="Select the orientation of the layout"
+	initialize="initData()"
+	change="changeOrientation()" >
+	
+	<mx:ArrayCollection id="orvalues">
+		<mx:String>Top Down</mx:String>
+		<mx:String>Bottom Up</mx:String>
+		<mx:String>Left-Right</mx:String>
+		<mx:String>Right-Left</mx:String>
+	</mx:ArrayCollection>
+	
+	<mx:Script>	
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ILayoutAlgorithm;
+			
+		  private static const _LOG:String = "components.ui.controls.layouterControls.OrientationSelector";
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+			
+			/**
+			 * When enabling or disabling this component, we also
+			 * perform some specific tasks.
+			 * Attention do completely disable interaction
+			 * there is also the mouseEnabled property.
+			 * 
+			 * @inheritDoc
+			 * */
+			override public function set enabled(e:Boolean):void {
+				if(e == true) {
+					this.setStyle("color",0x000000);
+					this.alpha=1;
+				} else {
+					this.setStyle("color",0xCCCCCC);
+					this.alpha=0.3;
+				}
+				/* call superclass (ComboBox) */
+				super.enabled = e;
+				/* if disabled remove from view and vice versa */
+				this.visible = e;
+				this.includeInLayout = e;
+			}
+			
+			/**
+			 * Event handler to be triggered in case the
+			 * layouter in VGraph has changed.
+			 * Since this control is valid for Hierarchical Layouter only,
+			 * it will only be enabled in this case.
+			 * */
+			public function layouterChanged(e:VGraphEvent = null):void {
+				
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot apply NodeSpacing without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					/* no, so disable */
+					this.enabled = false;
+				} else {
+					/* yes, enable */
+					this.enabled = true;
+					
+					/* and apply value */
+					setOrientation();
+				}
+			}
+			
+			
+			/**
+			 * set the selected orientation and calls vgraph.draw()
+			 * */
+			public function changeOrientation():void {
+				
+				setOrientation();
+				
+				if(_vgraph != null) {
+					_vgraph.draw();
+				} else {
+					LogUtil.warn(_LOG, "vgraph not set in OrientationSelector");
+				}
+			}
+			
+			
+			/**
+			 * Set the orientation value in the layouter
+			 * according to the current selected value
+			 * */
+			public function setOrientation():void {
+				
+				var or:String;
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot apply new orientation without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					LogUtil.warn(_LOG, "Orientation selection is only available in HierarchicalLayouter");
+					return;
+				}
+				
+				/* set the local layouter reference */
+				hlayouter = _vgraph.layouter as HierarchicalLayouter;
+				
+				/* get the currently selected orientation */
+				or = this.selectedItem as String;
+					
+				switch(or) {
+					case "Top Down":
+						hlayouter.orientation = HierarchicalLayouter.ORIENT_TOP_DOWN;
+						break;
+					case "Bottom Up":
+						hlayouter.orientation = HierarchicalLayouter.ORIENT_BOTTOM_UP;
+						break;
+					case "Left-Right":
+						hlayouter.orientation = HierarchicalLayouter.ORIENT_LEFT_RIGHT;
+						break;
+					case "Right-Left":
+						hlayouter.orientation = HierarchicalLayouter.ORIENT_RIGHT_LEFT;
+						break;
+					default:
+						LogUtil.warn(_LOG, "Illegal orientation selected:"+or);
+						return;
+						break;
+				}
+				hlayouter.layoutChanged = true;
+			}
+			
+			/**
+			 * refresh the current selection with the actual
+			 * setting of the layouter
+			 * */
+			public function refreshSelection(e:VGraphEvent = null):void {
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot refresh orientation without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					LogUtil.warn(_LOG, "Orientation selection is only available in HierarchicalLayouter");
+					return;
+				}
+				
+				/* set the local layouter reference */
+				hlayouter = _vgraph.layouter as HierarchicalLayouter;
+				
+				/* not 100% sure if the index values are correct, i.e.
+				 * count from 0 upwards (or if they rather start at 1)
+				 * the Flex 3 docs are inconclusive here.
+				 */
+				switch(hlayouter.orientation) {
+					case HierarchicalLayouter.ORIENT_TOP_DOWN:
+						this.selectedIndex = 0;
+						break;
+					case HierarchicalLayouter.ORIENT_BOTTOM_UP:
+						this.selectedIndex = 1;
+						break;
+					case HierarchicalLayouter.ORIENT_LEFT_RIGHT:
+						this.selectedIndex = 2;
+						break;
+					case HierarchicalLayouter.ORIENT_RIGHT_LEFT:
+						this.selectedIndex = 3;
+						break;
+					default:
+						LogUtil.warn(_LOG, "Illegal orientation value received from hlayouter:"+
+							hlayouter.orientation);
+						return;
+						break;
+				}
+			}
+			
+			
+			/**
+			 * initialise the selection data.
+			 * It is a bit unclear, why this seems to be necessary.
+			 * */
+			private function initData():void {
+				this.dataProvider = orvalues;
+			}
+			
+			/**
+			 * Adds the listeners to update on changes in the VGraph
+			 * */
+			private function registerListeners():void {
+				_vgraph.addEventListener(VGraphEvent.VGRAPH_CHANGED,refreshSelection);
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_CHANGED,layouterChanged);
+			}
+		]]>
+	</mx:Script>
+</mx:ComboBox>

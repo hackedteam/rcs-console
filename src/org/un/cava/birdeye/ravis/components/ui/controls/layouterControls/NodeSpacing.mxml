@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Label
+		id="bsliderlabel"
+		toolTip="Change the node spacing in Hierarchical"
+		text="Hierarchical Node Spacing"
+		fontSize="9" 
+		textAlign="center"
+		/>
+		
+	<mx:HSlider
+		tickInterval="20"
+		width="95%"
+		id="bslider"
+		value="160"
+		minimum="0"
+		maximum="200"
+		liveDragging="true"
+		change="updateNodeSpacing()"
+		/>
+	
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ILayoutAlgorithm;
+			
+		  private static const _LOG:String = "components.ui.controls.layouterControls.NodeSpacing";
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+			
+			/**
+			 * When enabling or disabling this component, we also
+			 * perform some specific tasks.
+			 * Attention do completely disable interaction
+			 * there is also the mouseEnabled property.
+			 * 
+			 * @inheritDoc
+			 * */
+			override public function set enabled(e:Boolean):void {
+				if(bslider != null) {
+					if(e == true) {
+						bsliderlabel.setStyle("color",0x000000);
+						bslider.alpha=1;
+					} else {
+						bsliderlabel.setStyle("color",0xCCCCCC);
+						bslider.alpha=0.3;
+					}
+				}
+				/* call superclass (VBox) */
+				super.enabled = e;
+				/* if disabled remove from view and vice versa */
+				this.visible = e;
+				this.includeInLayout = e;
+			}
+			
+			/**
+			 * Event handler to be triggered in case the
+			 * layouter in VGraph has changed.
+			 * Since this control is valid for Hierarchical Layouter only,
+			 * it will only be enabled in this case.
+			 * */
+			public function layouterChanged(e:VGraphEvent = null):void {
+				
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot apply NodeSpacing without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(_vgraph.layouter is HierarchicalLayouter) {
+					/* set the local layouter reference */
+					hlayouter = _vgraph.layouter as HierarchicalLayouter;
+					if(bslider != null) {
+						hlayouter.breadth = bslider.value;
+					}
+					hlayouter.layoutChanged = true;
+					/* yes, enable */
+					this.enabled = true;
+				} else {
+					/* no, so disable */
+					this.enabled = false;
+				}
+			}
+				
+			
+			/**
+			 * updates the node spacing distance in the hierarchical
+			 * layouter.
+			 * */ 
+			public function updateNodeSpacing():void {
+				
+				var hlayouter:HierarchicalLayouter;
+				
+				if(bslider == null) {
+					return;
+				}
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot apply NodeSpacing without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					LogUtil.warn(_LOG, "NodeSpacing is only available in HierarchicalLayouter");
+					return;
+				}
+				
+				/* set the local layouter reference */
+				hlayouter = _vgraph.layouter as HierarchicalLayouter;
+				hlayouter.breadth = bslider.value;
+				hlayouter.layoutChanged = true;
+				
+				_vgraph.draw();
+			}
+			
+			/**
+			 * This refreshes the current slider setting to
+			 * the value from the current layouter.
+			 * */
+			public function refreshSlider(e:VGraphEvent = null):void {
+				var hlayouter:HierarchicalLayouter;
+				
+				if(bslider == null) {
+					return;
+				}
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot update NodeSpacing without vgraph or from null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					LogUtil.warn(_LOG, "NodeSpacing is only available in HierarchicalLayouter");
+					return;
+				}
+				
+				/* refresh the bslider */
+				hlayouter = _vgraph.layouter as HierarchicalLayouter;
+				bslider.value = hlayouter.breadth;
+			}
+			
+			/**
+			 * Adds the listeners to update on changes in the VGraph
+			 * */
+			private function registerListeners():void {
+				_vgraph.addEventListener(VGraphEvent.VGRAPH_CHANGED,refreshSlider);
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_CHANGED,layouterChanged);
+			}
+		]]>
+	</mx:Script>
+	
+	
+</mx:VBox>

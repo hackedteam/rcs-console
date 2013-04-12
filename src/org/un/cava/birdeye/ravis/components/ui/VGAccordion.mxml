@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:Accordion
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	paddingBottom="5"
+	paddingRight="5"
+	paddingTop="5" paddingLeft="5"
+	width="100%"
+	height="100%"
+	creationPolicy="all"
+	>
+	
+	<mx:Script>	
+		<![CDATA[
+			import mx.core.Container;
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			
+			public static const INDEX_VIS_LAYOUT:uint = 0;
+			public static const INDEX_SEARCHFILTER:uint = 1;
+			public static const INDEX_DATADETAIL:uint = 2;
+			
+		  private static const _LOG:String = "components.ui.VGAccordion";
+			
+			/**
+			 * This property holds the child component
+			 * with the Visibility and Layout controls
+			 * */
+			public var visLayoutComp:Container;
+			
+			/**
+			 * This property holds the child component
+			 * with the Visibility and Layout controls
+			 * */
+			public var searchFilterComp:Container;
+			
+			/**
+			 * This property holds the child component
+			 * with the Visibility and Layout controls
+			 * */
+			public var dataDetailComp:Container;
+			
+			
+			/**
+			 * Use this method to always select the correct
+			 * pane of the accordion from the three predefined
+			 * ones:
+			 * INDEX_VIS_LAYOUT
+			 * INDEX_SEARCHFILTER
+			 * INDEX_DATADETAIL
+			 * @param sp The selected pane, i.e. one of the constant values.
+			 * */
+			public function selectPane(sp:uint):void {
+				
+				/* make sure all three containers are valid */
+				if((visLayoutComp != null) &&
+					(searchFilterComp != null) &&
+					(dataDetailComp != null)) {
+				
+					switch(sp) {
+						case INDEX_VIS_LAYOUT:
+							this.selectedChild = visLayoutComp;
+							break;
+						case INDEX_SEARCHFILTER:
+							this.selectedChild = searchFilterComp;
+							break;
+						case INDEX_DATADETAIL:
+							this.selectedChild = dataDetailComp;
+							break;
+						default:
+							LogUtil.warn(_LOG, "Unknown index selected");
+					}
+				} else {
+					LogUtil.warn(_LOG, "not all subcontainers properly registered");
+				}
+			}
+		]]>
+	</mx:Script>
+</mx:Accordion>

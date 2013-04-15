@@ -24,9 +24,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.un.cava.birdeye.ravis.components.renderers.nodes {
 	
 	import flash.events.Event;
+	import flash.filters.GlowFilter;
 	
 	import mx.core.UIComponent;
 	
@@ -50,10 +52,14 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
     
    private var _selected:Boolean;
    private var border:BorderContainer;
+   private var _glow:GlowFilter;
+   private var img:UIComponent;
+   
     
 		public function IconNodeRenderer() {
 			super();
       this.setStyle("verticalGap", 0)
+      _glow=new GlowFilter(0x00CCFF,1,10,10,2,1)
 			//initZoom();
 		}
 	
@@ -62,9 +68,6 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
 		 * */
 		override protected function initComponent(e:Event):void {
 			
-			var img:UIComponent;
-      
-
 			/* initialize the upper part of the renderer */
 			initTopPart();
 			
@@ -75,9 +78,10 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
       
 
       border = new BorderContainer();
+      
       border.width = 50;
       border.height = 50;
-      
+      border.visible=false;
       border.setStyle('backgroundAlpha', 0);
       border.setStyle("borderAlpha",0)
       border.setStyle("borderWeight",1)
@@ -86,8 +90,8 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
       border.setStyle('cornerRadius', 0);
       img.x=0;
       img.y=0;
-      border.addElement(img);
-      this.addElement(border)
+      this.addElement(img);
+      //this.addElement(border)
 			/* now add the filters to the circle */
 			reffects.addDSFilters(img);
 			 
@@ -101,14 +105,15 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
       _selected=value;
       if(selected)
       {
-        border.setStyle('backgroundAlpha', 0.2);
-        border.setStyle('borderAlpha', 1);
-
+        //border.setStyle('backgroundAlpha', 0.2);
+        //border.setStyle('borderAlpha', 1);
+         img.filters=[_glow]
       }
       else
       {
-        border.setStyle('backgroundAlpha', 0);
-        border.setStyle('borderAlpha', 0);
+        //border.setStyle('backgroundAlpha', 0);
+        //border.setStyle('borderAlpha', 0);
+        img.filters=null
       }
     }
     

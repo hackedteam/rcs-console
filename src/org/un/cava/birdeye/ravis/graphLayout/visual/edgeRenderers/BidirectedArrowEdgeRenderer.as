@@ -28,7 +28,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 	import flash.display.Graphics;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-
+	
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualEdge;
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualNode;
@@ -49,7 +49,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * The size of the arrowhead in pixel. The distance of the
 		 * two points defining the base of the arrowhead.
 		 * */
-		public var arrowBaseSize:Number=16;
+		public var arrowBaseSize:Number=8;
 
 		/**
 		 * The distance of the arrowbase from the tip in pixel.
@@ -62,8 +62,16 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * */
 
 		private static const CONNECTION_COLOR:uint=0xCC0000; //red
+		private static const CONNECTION_ALPHA:Number=1;
+
 		private static const IDENTITY_COLOR:uint=0x00FF00; //green
+		private static const IDENTITY_ALPHA:Number=1;
+
 		private static const GHOST_COLOR:uint=0xCCCCCC; //grey
+		private static const GHOST_ALPHA:Number=0.3;
+    
+    
+    private var _selected:Boolean;
 
 
 		public function BidirectedArrowEdgeRenderer()
@@ -81,7 +89,6 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * */
 		override public function draw():void
 		{
-
 			/* first get the corresponding visual object */
 			var fromNode:IVisualNode=vedge.edge.node1.vnode;
 			var toNode:IVisualNode=vedge.edge.node2.vnode;
@@ -143,27 +150,31 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
 			/* now we actually draw */
 			var color:int;
+			var a:Number;
 			switch (String(this.data.data.@type))
 			{
 				case "connection":
 					color=CONNECTION_COLOR;
+					a=CONNECTION_ALPHA;
 					break;
-        case "identity":
-          color=IDENTITY_COLOR;
-          break;
-        default:
-          color=GHOST_COLOR;
-        
+				case "identity":
+					color=IDENTITY_COLOR;
+					a=IDENTITY_ALPHA;
+					break;
+				default:
+					color=GHOST_COLOR;
+					a=GHOST_ALPHA;
 			}
 
 			//fake bold line
 			g.lineStyle(10, color, 0.1);
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
+      
+   
 
-
-			g.lineStyle(2, color, 1);
-			g.beginFill(color);
+			g.lineStyle(2, color, a);
+			g.beginFill(color, a);
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
 
@@ -174,12 +185,20 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			{
 				g.moveTo(fP.x, fP.y);
 				g.lineTo(lArrowEnd.x, lArrowEnd.y);
-				g.lineTo(rArrowEnd.x, rArrowEnd.y)
+				g.lineTo(rArrowEnd.x, rArrowEnd.y);
 			}
 			g.endFill();
 
 			if (this.data.data.@versus != null && this.data.data.@versus == "fake")
 				this.visible=false;
+      
+      if(this.selected)
+      {
+        g.lineStyle(12, 0x00CCFF, 0.3);
+        g.beginFill(0x00CCFF, 0.3);
+        g.moveTo(fP.x, fP.y);
+        g.lineTo(tP.x, tP.y);
+      }
 
 			/* if the vgraph currently displays edgeLabels, then
 			* we need to update their coordinates */
@@ -189,6 +208,17 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			}
 
 		}
+    public function set selected(value:Boolean):void
+    {
+      _selected=value;
+      g.clear();
+      draw()
+    }
+    
+    public function get selected():Boolean
+    {
+      return _selected;
+    }
 
 	}
 }

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
+                     xmlns:s="library://ns.adobe.com/flex/spark"
+                     xmlns:mx="library://ns.adobe.com/flex/mx"
+                     xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+                     xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
+                     xmlns:view="it.ht.rcs.console.entities.view.*">
+  
+  <fx:Metadata>
+    [Event(name="update", type="flash.events.Event")]
+    
+  </fx:Metadata>
+  <s:Button label="{R.get('LINK_ADD')}"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==2}" click="addLink()"
+            icon="@Embed('/img/NEW/linkAdd.png')"
+            />
+  <actionbar:Separator/>
+  
+  <editors:TagEditor label="{R.get('RELEVANCE')}"
+                     enabled="false"
+                     id="tagEditor"
+                     width="80"/>
+ 
+  <s:Spacer width="100%"/>
+  <s:Spacer height="50"/>
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+
+      [Bindable]
+      public var section:EntitiesSection;
+      
+      [Bindable]
+      public var entity:Entity;
+      
+      [Bindable]
+      public var selectedNodes:ArrayCollection;
+      
+      private function addLink():void
+      {
+       
+        var popup:LinkForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+        popup.currentState = LinkForm.CREATE;
+        PopUpManager.centerPopUp(popup);
+
+      }
+      private function onRemovedFromStage():void
+      { 
+        //section.stateManager.view.refresh();
+        //section.stateManager.tableView.refresh();
+        
+      }
+
+    ]]>
+  </fx:Script>
+
+</actionbar:ActionBar>

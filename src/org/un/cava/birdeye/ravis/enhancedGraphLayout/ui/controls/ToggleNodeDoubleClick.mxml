@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2009
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:CheckBox
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	selected="true"
+	label="Node Double Click"
+	click="toggleNodeDoubleClick()" >
+	
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.enhancedGraphLayout.visual.EnhancedVisualGraph;
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;	
+			
+		  private static const _LOG:String = "components.ui.controls.layouterControls.ToggleAutoFit";
+			private var _vgraph:EnhancedVisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:EnhancedVisualGraph):void {
+				_vgraph = v;
+				refreshCheckbox();
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():EnhancedVisualGraph {
+				return _vgraph;
+			}
+			
+			/**
+			 * toggles the double click on node capability.
+			 * */
+			public function toggleNodeDoubleClick():void {
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null) {
+					return;
+				}
+				
+				_vgraph.enableDefaultDoubleClick = selected;
+			}				
+			
+			/**
+			 * This refreshes the current value of the
+			 * checkbox with the value in the enhanced VGraph.
+			 * */
+			public function refreshCheckbox():void {
+				/* check if we have a layouter at all */
+				if(_vgraph == null) {
+					LogUtil.warn(_LOG, "Cannot refresh AutoFit from missing vgraph or null layouter");
+					return;
+				}
+				/* refresh the value */
+				this.selected = _vgraph.enableDefaultDoubleClick;
+			}
+			
+			/**
+			 * Adds the listeners to update on changes in the VGraph
+			 * */
+			private function registerListeners():void {
+			}	
+		]]>
+	</mx:Script>
+</mx:CheckBox>

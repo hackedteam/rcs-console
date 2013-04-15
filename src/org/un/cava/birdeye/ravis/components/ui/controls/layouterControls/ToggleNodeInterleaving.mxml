@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:CheckBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	selected="true"
+	label="Interleave nodes"
+	toolTip="Enable/Disable Node Interleaving (only when spread enabled)"
+	click="toggleNodeInterleaving()">
+	
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
+		
+		  private static const _LOG:String = "components.ui.controls.layouterControls.ToggleNodeInterleaving";
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+		
+			
+			/**
+			 * When enabling or disabling this component, we also
+			 * perform some specific tasks.
+			 * Attention do completely disable interaction
+			 * there is also the mouseEnabled property.
+			 * 
+			 * @inheritDoc
+			 * */
+			override public function set enabled(e:Boolean):void {
+				if(e == true) {
+					this.setStyle("color",0x000000);
+					this.alpha=1;
+				} else {
+					this.setStyle("color",0xCCCCCC);
+					this.alpha=0.3;
+				}
+				/* call superclass (Checkbox) */
+				super.enabled = e;
+				/* if disabled remove from view and vice versa */
+				this.visible = e;
+				this.includeInLayout = e;
+			}
+			
+			/**
+			 * Event handler to be triggered in case the
+			 * layouter in VGraph has changed.
+			 * Since this control is valid for Hierarchical Layouter only,
+			 * it will only be enabled in this case.
+			 * */
+			public function layouterChanged(e:VGraphEvent = null):void {
+				
+				LogUtil.debug(_LOG, "NODEINTERLEAVE: received event about layouter changed");
+				
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot toggle NodeInterleaving without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only)
+				 * further it can only be enabled if also sibling spread is
+				 * enabled */
+				if(_vgraph.layouter is HierarchicalLayouter &&
+					(_vgraph.layouter as HierarchicalLayouter).enableSiblingSpread == true) {
+					
+					/* yes, enable */
+					this.enabled = true;
+					hlayouter = _vgraph.layouter as HierarchicalLayouter;
+					hlayouter.interleaveSiblings = this.selected;
+					hlayouter.layoutChanged = true;
+				} else {
+					this.enabled = false;
+				}
+			}
+			
+			/**
+			 * toggles the sibling spread feature in the
+			 * hierarchical layouter
+			 * */
+			public function toggleNodeInterleaving():void {
+				
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot toggle NodeInterleaving without vgraph or on null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					LogUtil.warn(_LOG, "ToggleNodeInterleaving is only available in HierarchicalLayouter");
+					return;
+				}
+				
+				hlayouter = _vgraph.layouter as HierarchicalLayouter;
+				hlayouter.interleaveSiblings = this.selected;
+				hlayouter.layoutChanged = true;
+				
+				_vgraph.draw();
+			}
+			
+			/**
+			 * This refreshes the current value of the
+			 * checkbox with the value in the layouter.
+			 * */
+			public function refreshCheckbox(e:VGraphEvent = null):void {
+				
+				var hlayouter:HierarchicalLayouter;
+				
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot refresh NodeInterleaving without vgraph or from null layouter");
+					return;
+				}
+				
+				/* check if it is a supported layouter (currently Hierarchical only) */
+				if(!(_vgraph.layouter is HierarchicalLayouter)) {
+					LogUtil.warn(_LOG, "ToggleNodeInterleaving is only available in HierarchicalLayouter");
+					return;
+				}
+				
+				hlayouter = _vgraph.layouter as HierarchicalLayouter;
+				this.selected = hlayouter.interleaveSiblings;
+			}
+			
+			/**
+			 * Adds the listeners to update on changes in the _vgraph
+			 * */
+			private function registerListeners():void {
+				if(_vgraph == null) {
+					LogUtil.warn(_LOG, "VGraph invalid in ToggleNodeInterleave, cannot register eventlisteners");
+					return;
+				}
+				_vgraph.addEventListener(VGraphEvent.VGRAPH_CHANGED,refreshCheckbox);
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_CHANGED,layouterChanged);
+				/* we can use the same method here */
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_HIER_SIBLINGSPREAD,layouterChanged);
+			}
+		]]>
+	</mx:Script>
+</mx:CheckBox>

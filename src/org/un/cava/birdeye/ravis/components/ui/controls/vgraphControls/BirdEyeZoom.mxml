@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml">
+	
+	<mx:Label
+		toolTip="Use this control to height of birdeye view."
+		text="Birdeye Zoom"
+		fontSize="9" 
+		textAlign="center"
+		/>
+		
+	<mx:HBox width="95%">
+		<mx:Button
+			id="minusZoom"
+			icon="{EmbeddedIcons.zoomoutIcon}"
+			cornerRadius="5"
+			width="25"
+			height="25"
+			click="bzoom.value=bzoom.value-.10;updateVScale(null);"
+			/>		
+		<mx:HSlider
+			tickInterval=".25"
+			width="95%"
+			id="bzoom"
+			value="1"
+			minimum=".25"
+			maximum="2"
+			liveDragging="true"
+			change="updateVScale(null)"
+			/>
+		<mx:Button
+			id="plusZoom"
+			icon="{EmbeddedIcons.zoominIcon}"
+			cornerRadius="5"
+			width="25"
+			height="25"
+			click="bzoom.value=bzoom.value+.10;updateVScale(null);"
+			/>	
+	</mx:HBox>
+
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.assets.icons.EmbeddedIcons;
+			
+			private static const _LOG:String = "components.ui.controls.vgraphControls.BirdEyeZoom";
+			
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+			
+			/** 
+			 * update the scale of the VGraph, thus creating a BirdEye zoom effect
+			 * this function can be passed a MouseEvent to handle scrollwheel zooming
+			 * @param event A MouseEvent.MOUSE_WHEEL
+			 * */		
+			public function updateVScale(event:MouseEvent):void {
+				
+				if(bzoom == null) {
+					return;
+				}
+				
+				if(_vgraph == null) {
+					LogUtil.warn(_LOG, "BirdEyeZoom NOT changed, no valid vgraph!");
+					return;
+				}
+				//_vgraph.scale = bzoom.value;
+
+				// Handle the update for mousewheel events outside the component
+				if(event != null) {
+					if(event.delta != 0) {
+						if(bzoom.value == bzoom.minimum) {
+							if(event.delta > 0) {
+								bzoom.value = bzoom.value+(event.delta*0.01);
+								_vgraph.scale = bzoom.value;
+							}
+						}
+						else if(bzoom.value == bzoom.maximum) {
+							if(event.delta < 0) {
+								bzoom.value = bzoom.value+(event.delta*0.01);
+								_vgraph.scale = bzoom.value;
+							}
+						} else {
+							bzoom.value = bzoom.value+(event.delta*0.01);
+							_vgraph.scale = bzoom.value;
+						}
+					}
+				}
+				// Handle the update for the zoom buttons
+				else {
+					if(bzoom.value <= bzoom.minimum) {
+						bzoom.value = bzoom.minimum;
+						return;
+					} else {
+						_vgraph.scale = bzoom.value;
+					}
+					
+					if(bzoom.value >= bzoom.maximum) {
+						bzoom.value = bzoom.maximum;
+						return;
+					} else {
+						_vgraph.scale = bzoom.value;
+					}
+				}
+			}
+			
+			/* refresh the slider from the scaleX value */
+			public function refreshVScale(e:VGraphEvent = null):void {
+				if(bzoom == null) {
+					return;
+				}
+				if(_vgraph == null) {
+					LogUtil.warn(_LOG, "BirdEyeZoom NOT refreshed, no valid vgraph!");
+					return;
+				}
+				bzoom.value = _vgraph.scale;
+			}
+			
+			/**
+			 * register listeners
+			 * */
+			private function registerListeners():void {
+				_vgraph.addEventListener(VGraphEvent.VGRAPH_CHANGED,refreshVScale);
+				/* testing*/
+				this.addEventListener(MouseEvent.MOUSE_WHEEL,updateVScale);
+			}
+		]]>
+	</mx:Script>
+</mx:VBox>

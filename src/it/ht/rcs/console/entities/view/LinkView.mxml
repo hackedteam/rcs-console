@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 xmlns:maps="com.google.maps.*"
+									 xmlns:components="it.ht.rcs.console.entities.view.components.*"
+                   xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
+                   xmlns:entities="it.ht.rcs.console.entities.view.*"
+									 height="100%"
+									 width="100%"
+									 creationComplete="init()" addedToStage="init()">
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      
+      import mx.collections.ArrayCollection;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+      import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BaseEdgeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
+
+			[Bindable]
+			public var entities:ArrayCollection;
+      
+      private var entitiesToShow:ArrayCollection;
+      
+			private var numEntitiesToShow:int=0;
+      
+      private var g:Graph;
+      private var currentIndex:int=0;
+      
+      private var roots:ArrayCollection;
+      
+      [Bindable]
+      public var selectedNodes:ArrayCollection;
+      
+      private var _selectedEdges:ArrayCollection;
+      
+  
+      
+      
+      
+      //temp
+      private var xmlData:XML=
+        <Graph>
+          <Node   id="1"  name="Target 1"   desc="This is a description"  nodeColor="0x333333"  nodeSize="32"   nodeClass="tree"  nodeIcon="target"   x="10"  y="10" />
+          <Node   id="2"  name="Person 1"   desc="This is a description"  nodeColor="0x8F8FFF"  nodeSize="12"   nodeClass="tree"  nodeIcon="person"   x="10"  y="15" />
+          <Node   id="3"  name="Person 2"   desc="This is a description"  nodeColor="0xF00000"  nodeSize="36"   nodeClass="tree"  nodeIcon="person"   x="10"  y="20" />
+          <Node   id="4"  name="Person 3"   desc="This is a description"  nodeColor="0x00FF00"  nodeSize="10"   nodeClass="tree"  nodeIcon="person"   x="10"  y="25" />
+          <Node   id="5"  name="Target 2"   desc="This is a description"  nodeColor="0xFFA500"  nodeSize="14"   nodeClass="tree"  nodeIcon="target"   x="10"  y="30" />
+          <Node   id="6"  name="Position 1" desc="This is a description"  nodeColor="0x191970"  nodeSize="10"   nodeClass="tree"  nodeIcon="position" x="10"  y="35" />
+          <Node   id="7"  name="Position 2" desc="This is a description"  nodeColor="0x4682b4"  nodeSize="18"   nodeClass="tree"  nodeIcon="position" x="10"  y="40" />
+          <Node   id="8"  name="Position 3" desc="This is a description"  nodeColor="0x4682b4"  nodeSize="18"   nodeClass="tree"  nodeIcon="position" x="10"  y="40" />
+          <Node   id="9"  name="Person 4"   desc="This is a description"  nodeColor="0x00FF00"  nodeSize="10"   nodeClass="tree"  nodeIcon="person"   x="10"  y="25" />
+          <Node   id="10" name="Person 5"   desc="This is a description"  nodeColor="0x00FF00"  nodeSize="10"   nodeClass="leaf"  nodeIcon="person"   x="10"  y="25" />
+          <Node   id="11" name="Target 3"   desc="This is a description"  nodeColor="0x333333"  nodeSize="32"   nodeClass="tree"  nodeIcon="target"   x="10"  y="10" />
+          <Node   id="12" name="Target 4"   desc="This is a description"  nodeColor="0x333333"  nodeSize="32"   nodeClass="tree"  nodeIcon="target"   x="10"  y="10" />
+          <Node   id="13" name="Position 4" desc="This is a description"  nodeColor="0x4682b4"  nodeSize="18"   nodeClass="leaf"  nodeIcon="position" x="10"  y="40" />
+          
+          <Edge fromID="1" toID="2" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          <Edge fromID="2" toID="3" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          <Edge fromID="5" toID="3" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          
+          <Edge fromID="1" toID="4" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="identity"/>
+          <Edge fromID="7" toID="1" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+
+          <Edge fromID="8" toID="9" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+          <Edge fromID="10" toID="11" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" versus="both" type="identity"/>
+          <Edge fromID="10" toID="13" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad"  type="connection"/>
+      </Graph>
+
+			private function init():void
+			{
+					numEntitiesToShow=entities.length;
+          entitiesToShow=new ArrayCollection();
+          selectedNodes=new ArrayCollection();
+          
+          _selectedEdges=new ArrayCollection();
+
+   
+          if(vgraph)
+          {
+            vgraph.graph=new Graph("XMLAsDocsGraph", false, null);
+            vgraph.visible=false;
+          }
+          if(g) 
+            g.purgeGraph();
+					for (var i:int=0; i < entities.length; i++)
+					{
+						EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
+					}
+			}  
+      
+      private function analyzeData():void
+      {
+    
+        g=new Graph("XMLAsDocsGraph", false, xmlData);
+        vgraph.visible=true;
+        var i:int=0;
+        var node:Node;
+        
+        //all roots by default
+        currentIndex=0;
+        roots=new ArrayCollection();
+        //backword
+        for (i=g.nodes.length; i > 0; i--)
+        {
+          node=g.nodes[i-1] as Node;
+          roots.addItem(node);
+        }
+        
+        while(currentIndex<roots.length)
+        {
+          var currentNode:Node = roots.getItemAt(currentIndex) as Node;  
+          getConnections(currentNode);
+          currentIndex++;
+        }
+        
+        manipulateData();
+      }
+
+			private function getEntityById(id:String):Entity
+			{
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var entity:Entity=entities.getItemAt(i) as Entity;
+					if (entity._id == id)
+					{
+						return entity;
+					}
+				}
+				return null;
+			}
+      
+      private function getConnections(node:INode, examined:Array=null):void
+      {
+        if (!examined)
+          examined=new Array
+        if (node)
+        {
+          
+          for (var i:int=0; i < node.successors.length; i++)
+          {
+            var child:INode=node.successors[i] as INode;
+            examined.push(node);
+            if (examined.indexOf(child) == -1)
+            {
+              var index:int=roots.getItemIndex(child);
+              roots.removeItemAt(index);
+              getConnections(child, examined);
+            }
+          }
+        }
+      }
+      private function manipulateData():void
+      {
+        
+        if(roots.length==1)
+        {
+          trace("no need to add a fake root")
+        }
+        else
+        {
+          trace("more than 1 root - add a fake root and attach real roots")
+          var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />")
+          var fakeRoot:INode=g.createNode("0", xnode);
+          
+          for(var i:int=0;i<roots.length;i++)
+          {
+            var root:Node=roots[i] as Node;
+            var xedge:XML=new XML("<Edge edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' versus='fake'/>")
+            g.link(fakeRoot, root, xedge); //add data
+          }
+        }
+        
+        initData(g) 
+      }
+      
+      private function initData(g:Graph):void
+      {
+        vgraph.graph=g
+        vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
+        
+        var layouter:ConcentricRadialLayouter= new ConcentricRadialLayouter(vgraph); 
+        vgraph.layouter=layouter;
+        layouter.linkLength=75; //
+
+        vgraph.itemRenderer = new ClassFactory(IconNodeRenderer);
+        vgraph.edgeRendererFactory= new ClassFactory(BidirectedArrowEdgeRenderer);
+        vgraph.edgeLabelRenderer = new ClassFactory(WFBEdgeLabelRenderer);
+        vgraph.maxVisibleDistance=20;
+
+        vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
+        vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
+        vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
+        vgraph.draw();
+      }
+
+			private function onDetailResult(e:ResultEvent):void
+			{
+				numEntitiesToShow--
+        entitiesToShow.addItem(e.result)
+				if (numEntitiesToShow == 0)
+				{
+					parseItems()
+				} 
+			}
+      private function onEdgeClick(e:VisualEdgeEvent):void
+      {
+        trace(e.edge.data)
+        var renderer:BidirectedArrowEdgeRenderer = e.edge.edgeView as BidirectedArrowEdgeRenderer;
+        renderer.selected=!renderer.selected;
+      }
+      
+      private function onBgClick(e:VisualGraphEvent):void
+      {
+        var index:int;
+        for(var i:int=0;i<g.nodes.length;i++)
+        {
+          var currentNode:Node=g.nodes[i] as Node;
+          var currentRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
+          currentRenderer.selected=false;
+          index=selectedNodes.getItemIndex(currentNode)
+          if(index!=-1)
+            selectedNodes.removeItemAt(index)
+        }
+      }
+      private function onNodeClick(e:VisualNodeEvent):void
+      {
+        var index:int;
+        var currentNode:Node;
+        var clickedNode:INode=e.node;
+        var currentRenderer:IconNodeRenderer;
+        
+        if(e.ctrlKey)//multiple selection
+        {
+          currentRenderer=clickedNode.vnode.view as IconNodeRenderer;
+          currentRenderer.selected=!currentRenderer.selected
+          if(currentRenderer.selected)
+          {
+            selectedNodes.addItem(e.node);
+          }
+          else
+          {
+            index=selectedNodes.getItemIndex(clickedNode);
+            if(index!=-1)
+              selectedNodes.removeItemAt(index)
+          }
+        }
+        
+        
+        else //single selection
+        {
+          for(var i:int=0;i<g.nodes.length;i++)
+          {
+            currentNode=g.nodes[i] as Node;
+            currentRenderer=currentNode.vnode.view as IconNodeRenderer;
+            currentRenderer.selected=false;
+            index=selectedNodes.getItemIndex(currentNode)
+            if(index!=-1)
+              selectedNodes.removeItemAt(index)
+            
+          }
+          currentRenderer=clickedNode.vnode.view as IconNodeRenderer;
+          currentRenderer.selected=!currentRenderer.selected;
+          if(currentRenderer.selected)
+          {
+            selectedNodes.addItem(e.node);
+          }
+          else
+          {
+            index=selectedNodes.getItemIndex(clickedNode);
+            if(index!=-1)
+              selectedNodes.removeItemAt(index)
+          }
+        }
+    
+          trace("selected nodes: "+selectedNodes.length);
+      }
+      
+      private function parseItems():void
+      {
+        var xmlStr:String= "<Graph>"
+        for(var i:int=0;i<entitiesToShow.length;i++)
+        {
+        var e:Entity=entitiesToShow.getItemAt(i) as Entity;
+   
+        //xmlStr+="<Node   id='1'  name='Target 1'   desc='This is a description'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='target'   x='10'  y='10' />"
+        xmlStr+="<Node   id='"+e._id+"'  name='"+e.name+"'   desc='"+e.desc+"'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='"+e.type+"'   x='10'  y='10' />"
+          if(e.links)
+          {
+            for(var j:int=0;j<e.links.length;j++)
+            {
+    
+              var link:Link=e.links.getItemAt(j) as Link;
+          
+             if(link.versus=="out")
+              xmlStr+= "<Edge fromID='"+link.le+"' toID='"+e._id+"' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='connection'";
+             else if(link.versus=="in")
+               xmlStr+= "<Edge fromID='"+e._id+"' toID='"+link.le+"' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='connection'";
+             else if(link.versus=="both")
+               xmlStr+= "<Edge fromID='"+e._id+"' toID='"+link.le+"' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='connection' versus='both'";
+             else 
+               xmlStr+= "<Edge fromID='"+e._id+"' toID='"+link.le+"' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='connection' versus='both'";
+                xmlStr+= "/>"
+            }
+          }
+        }
+        xmlStr+="</Graph>";
+        trace(xmlStr)
+        xmlData=XML(xmlStr);
+        analyzeData();
+      }
+		]]>
+	</fx:Script>
+	
+  <!-- Graph Panel -->
+  <entities:LinkActionBar selectedNodes="{selectedNodes}"/>
+  <s:HGroup width="100%" height="100%" gap="5">
+    <mx:Canvas id="graphCnvs"
+               borderStyle="none"
+               borderColor="#CCCCCC"
+               backgroundColor="#FFFFFF"
+               width="100%"
+               height="100%"
+               verticalScrollPolicy="off">
+      
+      <ravis:VisualGraph id="vgraph"
+                         width="100%"
+                         height="100%"
+                         left="0"
+                         right="0"
+                         top="0"
+                         bottom="5"
+                         backgroundColor="#FFFFFF"
+                         alpha="1"
+                         resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
+                         visibilityLimitActive="true">
+      </ravis:VisualGraph>
+    </mx:Canvas>
+    <entities:EntityInfoPanel />
+  </s:HGroup>
+
+</s:VGroup>

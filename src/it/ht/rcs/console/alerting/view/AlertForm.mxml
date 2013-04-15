@@ -23,7 +23,7 @@
       [Bindable]
       private var types:ArrayCollection = new ArrayCollection(['LOG', 'MAIL', 'NONE']);
       [Bindable]
-      private var actions:ArrayCollection = new ArrayCollection(['EVIDENCE', 'SYNC', 'INSTANCE']);
+      private var actions:ArrayCollection = new ArrayCollection(['EVIDENCE', 'SYNC', 'INSTANCE', 'ENTITY', 'LINK']);
       [Bindable]
       private var evidence:ArrayCollection = new ArrayCollection(['*', 'ADDRESSBOOK', 'APPLICATION', 'CALENDAR', 'CALL', 'CAMERA', 'CHAT', 'CLIPBOARD', 'DEVICE', 
                                                                   'FILE', 'FILESYSTEM', 'INFO', 'KEYLOG', 'POSITION', 'MESSAGE', 'MIC', 
@@ -62,7 +62,11 @@
         } else {
           alert.evidence = '';
           alert.keywords = '';
-          alert.tag = 0;
+          if (alert.action == 'LINK') {
+            alert.tag = formTag.value;
+          } else {
+            alert.tag = 0;
+          }
         }
         alert.suppression = parseInt(formSuppression.text);
         
@@ -92,7 +96,8 @@
 
     <s:FormItem label="{R.get('PATH')}">
       <itemfield:ItemField id="formPath" right="5" top="0"
-                           kinds="{(formAction.selectedItem == 'INSTANCE') ? ['operation', 'target', 'factory'] : ['operation', 'target', 'agent'] }"/>
+                           kinds="{(formAction.selectedItem == 'INSTANCE') ? ['operation', 'target', 'factory'] : 
+                           (formAction.selectedItem == 'EVIDENCE' || formAction.selectedItem == 'SYNC') ? ['operation', 'target', 'agent'] : ['operation'] }"/>
     </s:FormItem>
     
     <s:FormItem label="Evidence" enabled="{formAction.selectedItem == 'EVIDENCE'}">
@@ -104,7 +109,7 @@
       <s:TextInput id="formKeyword" width="200" text="{alert.keywords}"/>
     </s:FormItem>
     
-    <s:FormItem label="{R.get('RELEVANCE')}" enabled="{formAction.selectedItem == 'EVIDENCE'}">
+    <s:FormItem label="{R.get('RELEVANCE')}" enabled="{formAction.selectedItem == 'EVIDENCE' || formAction.selectedItem == 'LINK'}">
       <s:HGroup verticalAlign="middle">
         <s:HSlider id="formTag" width="30" maximum="4" minimum="0" value="{alert.tag}" showDataTip="false"/>
         <utils:TagImage value="{formTag.value}"/>        

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2008
+ * United Nations Office at Geneva
+ * Center for Advanced Visual Analytics
+ * http://cava.unog.ch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<mx:CheckBox
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	selected="false"
+	label="Disable Animations"
+	toolTip="If checked, animations are bypassed."
+	click="toggleAnimation()" >
+	
+	<mx:Script>
+		<![CDATA[
+			import org.un.cava.birdeye.ravis.utils.LogUtil;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.VisualGraph;
+			import org.un.cava.birdeye.ravis.utils.events.VGraphEvent;
+			
+		  private static const _LOG:String = "components.ui.controls.layouterControls.ToggleAnimation";
+			private var _vgraph:VisualGraph;
+
+			/**
+			 * Provides access to the registered vgraph object.
+			 * */
+			public function set vgraph(v:VisualGraph):void {
+				_vgraph = v;
+				registerListeners();
+			}
+
+
+			/**
+			 * @private
+			 * */
+			public function get vgraph():VisualGraph {
+				return _vgraph;
+			}
+
+			/**
+			 * toggles if we want smooth animation (enabled per default)
+			 * or not, as a feature of most layouters.
+			 * */
+			public function toggleAnimation(e:VGraphEvent = null):void {
+			
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot toggle Animation on missing vgraph or null layouter");
+					return;
+				}
+				_vgraph.layouter.resetAll(); // to kill any timers
+				_vgraph.layouter.disableAnimation = this.selected;
+			}
+			
+			/**
+			 * This refreshes the current value of the
+			 * checkbox with the value in the layouter.
+			 * */
+			public function refreshCheckbox(e:VGraphEvent = null):void {
+				/* check if we have a layouter at all */
+				if(_vgraph == null || _vgraph.layouter == null) {
+					LogUtil.warn(_LOG, "Cannot toggle Animation on missing vgraph or null layouter");
+					return;
+				}
+				/* refresh the value */
+				this.selected = _vgraph.layouter.disableAnimation;
+			}
+			
+			/**
+			 * Adds the listeners to update on changes in the VGraph
+			 * */
+			private function registerListeners():void {
+				_vgraph.addEventListener(VGraphEvent.VGRAPH_CHANGED,refreshCheckbox);
+				
+				/* we can call toggleAnimation directly here, because this control
+				 * is always enabled and toggleAnimation() does not call draw()
+				 */
+				_vgraph.addEventListener(VGraphEvent.LAYOUTER_CHANGED,toggleAnimation);
+			}
+		]]>
+	</mx:Script>
+</mx:CheckBox>

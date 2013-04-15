@@ -9,6 +9,7 @@
   <fx:Script>
     <![CDATA[
       
+      import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.operation.controller.OperationManager;
       import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
@@ -21,11 +22,17 @@
       private function init():void
       {
         stateManager = new EntitiesSectionStateManager(this);
+        EntityManager.instance.addEventListener("destroy", onDestroy);
         
         if (eventToManage)
           stateManager.manageItemSelection(null, eventToManage);
         else
           stateManager.setState('allOperations');
+      }
+      
+      private function onDestroy(e:Event):void
+      {
+        stateManager.setState('singleOperation');
       }
       
       private function onUpdate():void
@@ -60,6 +67,8 @@
     <s:State name="singleOperation"/>
     <s:State name="allEntities"/>
     <s:State name="singleEntity"/>
+    <s:State name="links"/>
+    <s:State name="map"/>
   </main:states>
   
   <main:layout>
@@ -70,4 +79,9 @@
   <view:EntitiesView includeIn="singleOperation, allEntities" section="{this}"/>
   <view:EntityActionBar includeIn="singleEntity" entity="{stateManager.selectedEntity}" sheet="{entitySheet}" update="onUpdate()" id="actionBar"/>
   <view:EntitySheet includeIn="singleEntity" entity="{stateManager.selectedEntity}" id="entitySheet" update="onUpdate()"/>
+  
+
+  <view:LinkView includeIn="links" entities="{stateManager.selectedEntities}"/>
+  <view:MapActionBar includeIn="map"/>
+  <view:MapView includeIn="map"/>
 </main:Section>

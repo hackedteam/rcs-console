@@ -48,7 +48,6 @@
 				originalContent=data.data.content;
 				translatedContent=data.data.tr;
 
-
 				if (data.data.program.toLowerCase() == "" || data.data.program.toLowerCase() == null)
 				{
 					ImageClass=ChatIcons["chat"]
@@ -102,16 +101,19 @@
 				if (data.data.rcpt_display != null && data.data.rcpt_display != "")
 				{
 					toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          toTxt.visible=toTxt.includeInLayout=true;
 				}
 				else if (data.data.rcpt != null && data.data.rcpt != "")
 				{
 					toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          toTxt.visible=toTxt.includeInLayout=true;
 				}
 
 				//old format
 				else if (data.data.peer != null && data.data.peer != "")
 				{
 					toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          toTxt.visible=toTxt.includeInLayout=true;
 				}
         
         else
@@ -148,12 +150,12 @@
 
 			private function init():void
 			{
-				var renderer:EvidenceRenderer=this.owner as EvidenceRenderer
+				var renderer:EvidenceRenderer=this.owner as EvidenceRenderer;
 				var grid:DataGrid=renderer.owner as DataGrid;
 				mainView=grid.owner as EvidencesView;
 				mainView.addEventListener("translate", onTranslate);
 				translation=mainView.translation;
-				translateLink.setStyle("color", 0x0000FF)
+				translateLink.setStyle("color", 0x0000FF);
 				translateLink.addEventListener(TextEvent.LINK, doTranslate);
 				translateLink.htmlText="<u><b><a href='event:doTranslate'>" + R.get('TRANSLATE_NOW') + "</a></b></u>"
 				onTranslate(null)

@@ -7,6 +7,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.alert.model.AlertLog;
+      import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.TimeUtils;
@@ -23,13 +24,36 @@
 
       private function formatEvidence(item:Object, column:GridColumn):String
       {
-        var evidence:ArrayCollection = item[column.dataField];
         
-        // don't display anything if its not an evidence log
-        if (evidence.length == 0)
-          return '';
-        
-        return evidence.length.toString() + " evidence" 
+        // it's evidence
+        if (item.evidence.length != 0) {
+          return item.evidence.length.toString() + " evidence"  
+        }
+
+        // it's entity
+        if (item.entities.length != 0) {
+          var ent:*;
+          var entities:String = "";
+          
+          if (item.entities.length == 1) {
+            ent = EntityManager.instance.getItem(item.entities[0]);
+            if (ent != null)
+              return ent.name;
+          } else {
+            ent = EntityManager.instance.getItem(item.entities[0]);
+            if (ent != null)
+              entities = "'" + ent.name + "'"
+            ent = EntityManager.instance.getItem(item.entities[1]);
+            if (ent != null)
+              entities += " -> '" + ent.name + "'"
+            
+            return entities
+          }
+                      
+          return entities;  
+        }
+          
+        return '';
       }
       
       private function onDoubleClick(event:MouseEvent):void
@@ -43,8 +67,14 @@
         se.subsection = 'evidence';
         se.item = SearchManager.instance.getItem(log.path.getItemAt(log.path.length-1) as String);
         
-        if (log.evidence.length > 0)
+        if (log.evidence.length > 0) {
           se.evidenceIds = log.evidence.source;
+        }
+
+        if (log.entities.length > 0) {
+          // TODO: jump to entitiy
+          return;  
+        }
         
         FlexGlobals.topLevelApplication.dispatchEvent(se);
       }
@@ -60,7 +90,7 @@
       <s:GridColumn width="300" dataField="path" headerText="{R.get('PATH')}"
                     itemRenderer="it.ht.rcs.console.utils.PathRenderer"/>
       
-      <s:GridColumn dataField="evidence" headerText="Evidence" labelFunction="formatEvidence"/>
+      <s:GridColumn headerText="Info" labelFunction="formatEvidence"/>
       
     </s:ArrayList>
   </s:columns>

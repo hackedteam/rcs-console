@@ -8,23 +8,23 @@
 														 creationComplete="init()"
 														 save="onSave(event)"
 														 title="{currentState == CREATE ? R.get('LINK_ADD') : R.get('LINK_EDIT')}">
-  <fx:Metadata>
+	<fx:Metadata>
     [Event(name="linkAdded", type="flash.events.Event")]
   </fx:Metadata>
-  
+
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.events.SaveEvent;
-      import it.ht.rcs.console.target.model.Target;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.events.CloseEvent;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.events.SaveEvent;
+			import it.ht.rcs.console.target.model.Target;
+			import it.ht.rcs.console.utils.AlertPopUp;
+
+			import locale.R;
+
+			import mx.events.CloseEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
 			[Embed(source='/img/NEW/direction_right.png')]
 			[Bindable]
@@ -43,30 +43,42 @@
 
 			public static const CREATE:String='create';
 			public static const EDIT:String='edit';
-      public static const LINK_ADDED:String='linkAdded';
+			public static const LINK_ADDED:String='linkAdded';
 
 			[Bindable]
-			public var entity1:Entity; 
+			public var entity1:Entity;
 			[Bindable]
-			public var entity2:Entity; 
-
+			public var entity2:Entity;
+			[Bindable]
+			public var versusSelectionEnabled:Boolean;
 
 			private function init():void
 			{
 				entity1Icon.init()
 				entity2Icon.init()
-        tagEditor.labelDisplay.visible=false;
-        tagEditor.labelDisplay.includeInLayout=false;
+				tagEditor.labelDisplay.visible=false;
+				tagEditor.labelDisplay.includeInLayout=false;
 				versusIndex=0;
 				arrow.source=versusArray[versusIndex].img;
+				if (versusSelectionEnabled)
+				{
+					arrow.toolTip="Click the arrow to change link direction"
+				}
+				else
+				{
+					arrow.toolTip=""
+				}
 			}
 
 			private function changeVersus():void
 			{
-				versusIndex++
-				if (versusIndex > 2)
-					versusIndex=0;
-				arrow.source=versusArray[versusIndex].img
+				if (versusSelectionEnabled)
+				{
+					versusIndex++
+					if (versusIndex > 2)
+						versusIndex=0;
+					arrow.source=versusArray[versusIndex].img
+				}
 			}
 
 			private function onSave(event:SaveEvent):void
@@ -78,23 +90,22 @@
 				}
 
 				if (currentState == CREATE)
-        {
-          EntityManager.instance.addLink(entity1._id, entity2._id, type.selectedItem, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
-        }
+				{
+					EntityManager.instance.addLink(entity1._id, entity2._id, type.selectedItem, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
+				}
 
 			}
-      
-      private function onResult(e:ResultEvent):void
-      {
-        dispatchEvent(new Event(LINK_ADDED))
-        close();
-      }
-      
-      private function onFault(e:FaultEvent):void
-      {
-        AlertPopUp.show(e.fault.faultDetail, e.fault.name);
-      }
 
+			private function onResult(e:ResultEvent):void
+			{
+				dispatchEvent(new Event(LINK_ADDED))
+				close();
+			}
+
+			private function onFault(e:FaultEvent):void
+			{
+				AlertPopUp.show(e.fault.faultDetail, e.fault.name);
+			}
 		]]>
 	</fx:Script>
 
@@ -113,28 +124,31 @@
 			<renderers:EntityRenderer entity="{entity1}"
 																id="entity1Icon"/>
 			<s:Image source="{directionOut}"
-							 buttonMode="true"
-							 useHandCursor="true"
-							 click="changeVersus()" toolTip="Click the arrow to change link direction"
+							 buttonMode="{versusSelectionEnabled}"
+							 useHandCursor="{versusSelectionEnabled}"
+							 click="changeVersus()"
+							 toolTip=""
 							 id="arrow"/>
 			<renderers:EntityRenderer entity="{entity2}"
 																id="entity2Icon"/>
 		</s:HGroup>
-    <s:FormItem label="{R.get('TYPE')}">
-      <s:DropDownList id="type"
-                      width="150"
-                      requireSelection="true">
-        <s:ArrayCollection id="types">
-          <fx:Object label="PEER"/>
-          <fx:Object label="KNOW"/>
-        </s:ArrayCollection>
-      </s:DropDownList>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('RELEVANCE')}">
-      <editors:TagEditor id="tagEditor"
-                         width="80"/>
-    </s:FormItem>
+		<s:FormItem label="{R.get('TYPE')}"
+								visible="{entity1.type!='position' &amp;&amp; entity2.type!='position'}"
+								includeInLayout="{entity1.type!='position' &amp;&amp; entity2.type!='position'}">
+			<s:DropDownList id="type"
+											width="150"
+											requireSelection="true">
+				<s:ArrayCollection id="types">
+					<fx:Object label="PEER"/>
+					<fx:Object label="KNOW"/>
+				</s:ArrayCollection>
+			</s:DropDownList>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('RELEVANCE')}">
+			<editors:TagEditor id="tagEditor"
+												 width="80"/>
+		</s:FormItem>
 	</s:Form>
 
 </utils:TitleWindowSaveCancel>

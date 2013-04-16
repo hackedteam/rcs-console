@@ -15,7 +15,7 @@
   <s:Button label="{R.get('LINK_ADD')}"
             visible="{LicenseManager.instance.intelligence}"
             includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==2}" click="addLink()"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mainView.linkEnabled}" click="addLink()"
             icon="@Embed('/img/NEW/linkAdd.png')"
             />
   <s:Button label="{R.get('LINK_REMOVE')}"
@@ -58,6 +58,10 @@
       public var section:EntitiesSection;
       
       [Bindable]
+      public var mainView:LinkView;
+      
+      
+      [Bindable]
       public var entity:Entity;
       
       [Bindable]
@@ -70,19 +74,38 @@
       {
        
         var popup:LinkForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+        
         var entity1:Entity=EntityManager.instance.getItem(selectedNodes[0].data.@id);
         var entity2:Entity=EntityManager.instance.getItem(selectedNodes[1].data.@id);
-        popup.entity1=entity1;
-        popup.entity2=entity2;
+        
+        if(entity1.type == "position"  && (entity2.type=="target" || entity2.type=="person"))
+          {
+            popup.entity1=entity2;
+            popup.entity2=entity1;
+            popup.versusSelectionEnabled=false;
+          }
+          else if(entity2.type == "position"  && (entity1.type=="target" || entity1.type=="person"))
+          {
+            popup.entity1=entity1;
+            popup.entity2=entity2;
+            popup.versusSelectionEnabled=false;
+          }
+          else
+          {
+            popup.entity1=entity1;
+            popup.entity2=entity2;
+            popup.versusSelectionEnabled=true;
+          }
         popup.currentState = LinkForm.CREATE;
         popup.addEventListener(LinkForm.LINK_ADDED, onLinkAdded)
         PopUpManager.centerPopUp(popup);
 
       }
+  
       
       private function onLinkAdded(e:Event):void
       {
-       dispatchEvent(new Event("linkAdded"))
+       dispatchEvent(new Event("linkAdded"));
       }
       
       private function onDeleteClick():void

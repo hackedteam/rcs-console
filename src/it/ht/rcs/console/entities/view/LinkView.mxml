@@ -52,6 +52,8 @@
 			[Bindable]
 			private var selectedEdge:Edge;
 
+      [Bindable]
+      public var linkEnabled:Boolean
 
 			//temp
 			private var xmlData:XML=<Graph>
@@ -253,7 +255,7 @@
 
 				}
 				info.selectedItem=null;
-
+        linkEnabled=false;
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -280,6 +282,7 @@
 				}
 				selectedEdge=null;
 				info.selectedItem=null;
+        linkEnabled=false;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -330,6 +333,14 @@
 						if (index != -1)
 							selectedNodes.removeItemAt(index)
 					}
+          if(selectedNodes.length==2 && (!selectedNodes[0].data.@type=="position" && selectedNodes[1].data.@type=="position"))
+          {
+            linkEnabled=true;
+          }
+            else
+          {
+              linkEnabled=false;
+          }
 				}
 
 				trace("selected nodes: " + selectedNodes.length);
@@ -347,6 +358,15 @@
 					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
 				else
 					info.selectedItem=null;
+        
+        if(selectedNodes.length==2 && !(selectedNodes[0].data.@nodeIcon=="position" && selectedNodes[1].data.@nodeIcon=="position"))
+        {
+          linkEnabled=true;
+        }
+        else
+        {
+          linkEnabled=false;
+        }
 			}
 
 			private function parseItems():void
@@ -387,7 +407,7 @@
 	<entities:LinkActionBar selectedNodes="{selectedNodes}"
 													selectedEdge="{selectedEdge}"
 													linkAdded="onAddedToStage()"
-													linkRemoved="onAddedToStage()"/>
+													linkRemoved="onAddedToStage()" mainView="{this}"/>
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">

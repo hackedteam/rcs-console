@@ -17,7 +17,7 @@ package it.ht.rcs.console.entities.view.renderers
   import spark.layouts.VerticalLayout;
   import spark.primitives.BitmapImage;
   
-  public class EntityRenderer extends Group
+  public class EntityRenderer2 extends Group
   {
     private static const WIDTH:Number  = 90; // 5*2 (padding) + 80 (width of label)
     private static const HEIGHT:Number = 66 + 26; // 5*2 (padding) + 50 (height of container) + 6 (gap) + 26 (height of label)
@@ -42,14 +42,14 @@ package it.ht.rcs.console.entities.view.renderers
     private var icon:BitmapImage;
     private var nameTxt:Label;
     
+    [Bindable]
     public var entity:Entity
     
    
     
-    public function EntityRenderer(entity:Entity)
+    public function EntityRenderer2()
     {
       super();
-      this.entity=entity;
       
       
       this.addEventListener(MouseEvent.MOUSE_OVER, onMouseOver)
@@ -124,7 +124,6 @@ package it.ht.rcs.console.entities.view.renderers
           nameTxt.width = 80;
           nameTxt.maxDisplayedLines=2;
           mainBox.addElement(nameTxt);
-          
         }
         this.addElement(mainBox)
         

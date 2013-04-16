@@ -1,95 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             creationComplete="init()" save="onSave(event)"
-                             title="{currentState == CREATE ? R.get('LINK_ADD') : R.get('LINK_EDIT')}">
-
-  <fx:Script>
-    <![CDATA[
+														 xmlns:s="library://ns.adobe.com/flex/spark"
+														 xmlns:mx="library://ns.adobe.com/flex/mx"
+														 xmlns:utils="it.ht.rcs.console.utils.*"
+														 xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+														 xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
+														 creationComplete="init()"
+														 save="onSave(event)"
+														 title="{currentState == CREATE ? R.get('LINK_ADD') : R.get('LINK_EDIT')}">
+  <fx:Metadata>
+    [Event(name="linkAdded", type="flash.events.event")]
+  </fx:Metadata>
+  
+	<fx:Script>
+		<![CDATA[
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.events.SaveEvent;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.AlertPopUp;
       
-      
       import locale.R;
       
       import mx.events.CloseEvent;
-      
-      public static const CREATE:String = 'create';
-      public static const EDIT:String = 'edit';
-      
-      [Bindable] public var entity:Entity;
-      
-      private function init():void
-      {
-        if (currentState == EDIT)
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+
+			[Embed(source='/img/NEW/direction_right.png')]
+			[Bindable]
+			private var directionOut:Class;
+
+			[Embed(source='/img/NEW/direction_left.png')]
+			[Bindable]
+			private var directionIn:Class;
+
+			[Embed(source='/img/NEW/direction_both.png')]
+			[Bindable]
+			private var directionBoth:Class;
+
+			private var versusIndex:int=0;
+			private var versusArray:Array=[{versus: "out", img: directionOut}, {versus: "in", img: directionIn}, {versus: "both", img: directionBoth}]
+
+			public static const CREATE:String='create';
+			public static const EDIT:String='edit';
+      public static const LINK_ADDED:String='linkAdded';
+
+			[Bindable]
+			public var entity1:Entity; 
+			[Bindable]
+			public var entity2:Entity; 
+
+
+			private function init():void
+			{
+				entity1Icon.init()
+				entity2Icon.init()
+        tagEditor.labelDisplay.visible=false;
+        tagEditor.labelDisplay.includeInLayout=false;
+				versusIndex=0;
+				arrow.source=versusArray[versusIndex].img;
+			}
+
+			private function changeVersus():void
+			{
+				versusIndex++
+				if (versusIndex > 2)
+					versusIndex=0;
+				arrow.source=versusArray[versusIndex].img
+			}
+
+			private function onSave(event:SaveEvent):void
+			{
+
+				if (currentState == EDIT)
+				{
+					return;
+				}
+
+				if (currentState == CREATE)
         {
-         
+          EntityManager.instance.addLink(entity1._id, entity2._id, type.selectedItem, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
         }
-        
-       
-      }
-      
-      private function onSave(event:SaveEvent):void
-      {
 
-        if(currentState == EDIT )
-        {
-          AlertPopUp.show(R.get('CONFIRM_TARGET_CLOSE'), R.get('CONFIRM'),
-            AlertPopUp.YES|AlertPopUp.NO, null,
-            function(e:CloseEvent):void {
-              if (e.detail == AlertPopUp.YES)
-                { doSave(); close(); dispatchEvent(new Event("close"))}
-            }, null, AlertPopUp.NO);
-          return;
-        }         
-        doSave();
-        
-        if (currentState == CREATE)
-          trace("")//TargetManager.instance.addTarget(target, operation, function(target:Target):void { close(); dispatchEvent(new Event("close"))});
-        else
-          close();
-        
-      }
+			}
       
-     
-      
-      private function doSave():void
+      private function onResult(e:ResultEvent):void
       {
-        
+        dispatchEvent(new Event(LINK_ADDED))
+        close();
       }
-    ]]>
-  </fx:Script>
-  
-  <utils:states>
-    <s:State name="create"/>
-    <s:State name="edit"/>
-  </utils:states>
-  
-  <s:Form width="100%" defaultButton="{saveButton}">
+      
+      private function onFault(e:FaultEvent):void
+      {
+        AlertPopUp.show(e.fault.faultDetail, e.fault.name);
+      }
 
-  <!--  <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="targetName" width="250" text="{target.name}" restrict="A-Za-z0-9'\-_ " maxChars="20"/>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('DESCRIPTION')}">
-      <s:TextArea id="desc" width="250" heightInLines="3" text="{target.desc}"/>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('STATUS')}"
-                enabled="{currentState == EDIT &amp;&amp; target.status == 'open'}">
-      <s:DropDownList id="status" width="150" requireSelection="true">
-        <s:ArrayCollection id="statuses">
-          <fx:Object label="OPEN"/>
-          <fx:Object label="CLOSED"/>
+		]]>
+	</fx:Script>
+
+	<utils:states>
+		<s:State name="create"/>
+		<s:State name="edit"/>
+	</utils:states>
+
+	<s:Form width="100%"
+					defaultButton="{saveButton}">
+
+
+		<s:HGroup width="90%"
+							horizontalAlign="center"
+							verticalAlign="middle">
+			<renderers:EntityRenderer entity="{entity1}"
+																id="entity1Icon"/>
+			<s:Image source="{directionOut}"
+							 buttonMode="true"
+							 useHandCursor="true"
+							 click="changeVersus()" toolTip="Click the arrow to change link direction"
+							 id="arrow"/>
+			<renderers:EntityRenderer entity="{entity2}"
+																id="entity2Icon"/>
+		</s:HGroup>
+    <s:FormItem label="{R.get('TYPE')}">
+      <s:DropDownList id="type"
+                      width="150"
+                      requireSelection="true">
+        <s:ArrayCollection id="types">
+          <fx:Object label="PEER"/>
+          <fx:Object label="KNOW"/>
         </s:ArrayCollection>
       </s:DropDownList>
-    </s:FormItem>-->
+    </s:FormItem>
     
-  </s:Form>
-  
+    <s:FormItem label="{R.get('RELEVANCE')}">
+      <editors:TagEditor id="tagEditor"
+                         width="80"/>
+    </s:FormItem>
+	</s:Form>
+
 </utils:TitleWindowSaveCancel>

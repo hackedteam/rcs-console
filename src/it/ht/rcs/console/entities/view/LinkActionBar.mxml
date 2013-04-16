@@ -16,6 +16,12 @@
             enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==2}" click="addLink()"
             icon="@Embed('/img/NEW/linkAdd.png')"
             />
+  <s:Button label="{R.get('LINK_REMOVE')}"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedEdge!=null}"
+            icon="@Embed('/img/NEW/linkRemove.png')" click="onDeleteClick()"
+            />
   <actionbar:Separator/>
   
   <editors:TagEditor label="{R.get('RELEVANCE')}"
@@ -41,6 +47,10 @@
       import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 
       [Bindable]
       public var section:EntitiesSection;
@@ -51,14 +61,46 @@
       [Bindable]
       public var selectedNodes:ArrayCollection;
       
+      [Bindable]
+      public var selectedEdge:Edge;
+      
       private function addLink():void
       {
        
         var popup:LinkForm = PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+        var entity1:Entity=EntityManager.instance.getItem(selectedNodes[0].data.@id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedNodes[1].data.@id);
+        popup.entity1=entity1;
+        popup.entity2=entity2;
         popup.currentState = LinkForm.CREATE;
         PopUpManager.centerPopUp(popup);
 
       }
+      
+      private function onDeleteClick():void
+      {
+     
+          AlertPopUp.show('Do you want to remove link beetween ', R.get('CONFIRM'),
+            AlertPopUp.YES|AlertPopUp.NO, null,
+            function(e:CloseEvent):void {
+              if (e.detail == AlertPopUp.YES)
+              {
+               EntityManager.instance.deleteLink(selectedEdge.data.@fromID, selectedEdge.data.@toID, onDelResult, onDelFault)
+                
+              }
+            }, null, AlertPopUp.NO);
+      }
+    private function onDelResult(e:ResultEvent):void
+    {
+        trace("del result")
+     }
+    
+    private function onDelFault(e:FaultEvent):void
+    {
+      trace("del fault")
+    }
+        
+        
       private function onRemovedFromStage():void
       { 
         //section.stateManager.view.refresh();

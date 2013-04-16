@@ -10,7 +10,7 @@ package it.ht.rcs.console.entities.view.graph
 	
 	import it.ht.rcs.console.entities.model.Entity;
 	import it.ht.rcs.console.entities.model.Link;
-	import it.ht.rcs.console.entities.view.renderers.EntityRenderer;
+	import it.ht.rcs.console.entities.view.renderers.EntityRenderer2;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.utils.ArrowStyle;
 	import it.ht.rcs.console.operations.view.configuration.advanced.renderers.utils.GraphicsUtil;
 	import it.ht.rcs.console.utils.ScrollableGraph;
@@ -76,7 +76,7 @@ package it.ht.rcs.console.entities.view.graph
 			for (i=0; i < entities.length; i++)
 			{
 				entity=entities.getItemAt(i) as Entity;
-				var renderer:EntityRenderer=new EntityRenderer(entity);
+				var renderer:EntityRenderer2=new EntityRenderer2(entity);
 
 				renderer.x=centerX + ((radius * 1.5) * Math.cos((angleIncrement * i) * (Math.PI / 180))) - 80;
 
@@ -101,8 +101,8 @@ package it.ht.rcs.console.entities.view.graph
 						var link:Link=entity.links.getItemAt(l) as Link;
 						//draw link
 
-						var from:EntityRenderer=getRenderer(entity._id)
-						var to:EntityRenderer=getRenderer(link.le);
+						var from:EntityRenderer2=getRenderer(entity._id)
+						var to:EntityRenderer2=getRenderer(link.le);
 
 						//function to draw the arrow===========================
 						var centerFrom:Point=new Point();
@@ -199,7 +199,7 @@ package it.ht.rcs.console.entities.view.graph
 			for (var i:int=0; i < entities.length; i++)
 			{
 				var entity:Entity=entities.getItemAt(i) as Entity;
-				var renderer:EntityRenderer=new EntityRenderer(entity);
+				var renderer:EntityRenderer2=new EntityRenderer2(entity);
 
 				renderer.x=centerX + ((radius * 1.5) * Math.cos((angleIncrement * i) * (Math.PI / 180))) - 80;
 				renderer.y=centerY + (radius * Math.sin((angleIncrement * i) * (Math.PI / 180))) - 50;
@@ -222,8 +222,8 @@ package it.ht.rcs.console.entities.view.graph
 					{
 						var link:Link=entity.links.getItemAt(l) as Link;
 						//draw link
-						var from:EntityRenderer=getRenderer(entity._id);
-						var to:EntityRenderer=getRenderer(link.le);
+						var from:EntityRenderer2=getRenderer(entity._id);
+						var to:EntityRenderer2=getRenderer(link.le);
 						var startPoint:Point=new Point(from.x + 40, from.y + 40);
 						var endPoint:Point=new Point(to.x + 40, to.y + 40)
 						//lines.graphics.moveTo(startPoint.x,startPoint.y)
@@ -237,11 +237,11 @@ package it.ht.rcs.console.entities.view.graph
 			//this.swapElements(lines, this.getElementAt(0))
 		}
 
-		private function getRenderer(entityId:String):EntityRenderer
+		private function getRenderer(entityId:String):EntityRenderer2
 		{
 			for (var i:int=0; i < renderers.length; i++)
 			{
-				var renderer:EntityRenderer=renderers.getItemAt(i) as EntityRenderer;
+				var renderer:EntityRenderer2=renderers.getItemAt(i) as EntityRenderer2;
 				if (renderer.entity._id == entityId)
 				{
 					return renderer;
@@ -253,7 +253,7 @@ package it.ht.rcs.console.entities.view.graph
 		private function onRendererClick(e:MouseEvent):void
 		{
 			e.stopPropagation()
-			var renderer:EntityRenderer=e.currentTarget as EntityRenderer;
+			var renderer:EntityRenderer2=e.currentTarget as EntityRenderer2;
 			var entity:Entity=renderer.entity;
 			trace(entity.name);
 		}

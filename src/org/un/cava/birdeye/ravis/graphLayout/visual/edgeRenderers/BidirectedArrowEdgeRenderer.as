@@ -77,6 +77,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		public function BidirectedArrowEdgeRenderer()
 		{
 			super();
+    
 		}
 
 		/**
@@ -153,7 +154,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var a:Number;
 			switch (String(this.data.data.@type))
 			{
-				case "connection":
+				case "peer":
 					color=CONNECTION_COLOR;
 					a=CONNECTION_ALPHA;
 					break;
@@ -206,6 +207,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			{
 				vedge.setEdgeLabelCoordinates(labelCoordinates());
 			}
+      this.toolTip=this.vedge.edge.data.@type;
 
 		}
     public function set selected(value:Boolean):void

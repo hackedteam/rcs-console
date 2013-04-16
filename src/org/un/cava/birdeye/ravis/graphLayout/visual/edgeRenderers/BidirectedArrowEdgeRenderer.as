@@ -68,7 +68,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		private static const IDENTITY_ALPHA:Number=1;
 
 		private static const GHOST_COLOR:uint=0xCCCCCC; //grey
-		private static const GHOST_ALPHA:Number=0.3;
+		private static const GHOST_ALPHA:Number=1;
     
     
     private var _selected:Boolean;

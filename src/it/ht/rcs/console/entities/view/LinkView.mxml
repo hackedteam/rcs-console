@@ -16,10 +16,12 @@
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
-
+			import it.ht.rcs.console.events.RefreshEvent;
+			
 			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
 			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
@@ -27,8 +29,6 @@
 			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
 			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-			import org.un.cava.birdeye.ravis.graphLayout.layout.HierarchicalLayouter;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BaseEdgeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
@@ -84,11 +84,12 @@
 
 			private function init():void
 			{
-
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
 			}
 
-			private function onAddedToStage():void
+			private function onAddedToStage(e:Event=null):void
 			{
+				info.selectedItem=null;
 				numEntitiesToShow=entities.length;
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
@@ -178,13 +179,13 @@
 				else
 				{
 					trace("more than 1 root - add a fake root and attach real roots")
-					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />")
+					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />");
 					var fakeRoot:INode=g.createNode("0", xnode);
 
 					for (var i:int=0; i < roots.length; i++)
 					{
 						var root:Node=roots[i] as Node;
-						var xedge:XML=new XML("<Edge edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' versus='fake'/>")
+						var xedge:XML=new XML("<Edge edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' versus='fake'/>");
 						g.link(fakeRoot, root, xedge); //add data
 					}
 				}
@@ -199,7 +200,9 @@
 
 				var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
 				vgraph.layouter=layouter;
-				layouter.linkLength=75; //
+				layouter.linkLength=80; //
+				//layouter.autoFitEnabled=true;
+				//layouter.defaultRadius=50;
 
 				vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
 				vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
@@ -231,7 +234,7 @@
 				for (var i:int=0; i < g.edges.length; i++)
 				{
 					currentEdge=g.edges[i] as Edge;
-					currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer
+					currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
 					currentRenderer.selected=false;
 				}
 
@@ -249,6 +252,7 @@
 						selectedNodes.removeItemAt(index)
 
 				}
+				info.selectedItem=null;
 
 			}
 
@@ -270,11 +274,12 @@
 				{
 					var currentEdge:Edge=g.edges[i] as Edge;
 					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer
+					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
 					currentEdgeRenderer.selected=false;
 
 				}
 				selectedEdge=null;
+				info.selectedItem=null;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -287,7 +292,7 @@
 				if (e.ctrlKey) //multiple selection
 				{
 					currentRenderer=clickedNode.vnode.view as IconNodeRenderer;
-					currentRenderer.selected=!currentRenderer.selected
+					currentRenderer.selected=!currentRenderer.selected;
 					if (currentRenderer.selected)
 					{
 						selectedNodes.addItem(e.node);
@@ -296,7 +301,7 @@
 					{
 						index=selectedNodes.getItemIndex(clickedNode);
 						if (index != -1)
-							selectedNodes.removeItemAt(index)
+							selectedNodes.removeItemAt(index);
 					}
 				}
 
@@ -338,6 +343,10 @@
 
 				}
 				selectedEdge=null;
+				if (selectedNodes.length == 1)
+					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
+				else
+					info.selectedItem=null;
 			}
 
 			private function parseItems():void
@@ -355,13 +364,13 @@
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='"+link.type+"'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "'";
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='"+link.type+"'";
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "'";
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='"+link.type+"' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "' versus='both'";
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='"+link.type+"' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "' versus='both'";
 							xmlStr+="/>"
 						}
 					}
@@ -376,7 +385,9 @@
 
 	<!-- Graph Panel -->
 	<entities:LinkActionBar selectedNodes="{selectedNodes}"
-													selectedEdge="{selectedEdge}"/>
+													selectedEdge="{selectedEdge}"
+													linkAdded="onAddedToStage()"
+													linkRemoved="onAddedToStage()"/>
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">

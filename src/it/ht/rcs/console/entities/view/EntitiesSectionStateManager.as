@@ -44,9 +44,7 @@ package it.ht.rcs.console.entities.view
     
     private var section:EntitiesSection;
     
-    private var customTypeSort:Sort;
-    private var tableSort:Sort;
-    private var collator:SortingCollator;
+    private var sort:Sort;
     
     public static var currInstance:EntitiesSectionStateManager;
     
@@ -54,6 +52,9 @@ package it.ht.rcs.console.entities.view
     {
       this.section = section;
       currInstance = this;
+      
+      sort=new Sort();
+      sort.fields=[new SortField("type",true), new SortField("name",false)]
         
     }
     
@@ -214,17 +215,15 @@ package it.ht.rcs.console.entities.view
       }
       
       else if (CurrentManager != null) {
-        lcv = CurrentManager.instance.getView(customTypeSort, currentFilter);
+        lcv = CurrentManager.instance.getView(sort, currentFilter);
         
       } 
      
       
-      else if (currentState == 'singleAgent') {
-        lcv = new ListCollectionView(new ArrayList());
-        lcv.sort = customTypeSort;
-        lcv.filterFunction = currentFilter;
-      }
+     
       lcv.filterFunction = currentFilter;
+      lcv.sort=sort;
+      lcv.refresh()
       return lcv;
     }
     

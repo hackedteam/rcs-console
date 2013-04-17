@@ -101,7 +101,10 @@ package it.ht.rcs.console.operations.view.evidences
           break;
         
         case "call":
-          exportSound(evidence);
+          if(evidence.data._grid)
+           exportSound(evidence);
+          else
+            exportText(evidence);
           break;
         
         case "file":
@@ -399,6 +402,17 @@ package it.ht.rcs.console.operations.view.evidences
           info+="To: "+evidence.data.rcpt+"\n";
           info+="Subject: "+evidence.data.subject+"\n";
           info+="Content: "+evidence.data.content+"\n";
+          break;
+        
+        case "call":
+          info="Call: "+"\n\n";
+          if(evidence.data.peer)
+            info+="Peer: "+evidence.data.peer+"\n";
+          else if(evidence.data.from)
+            info+="Peer: "+evidence.data.from+"\n";
+          
+          info+="Program: "+evidence.data.program+"\n";
+          info+="Duration: "+TimeUtils.formatTime(evidence.data.duration * 1000)+"\n";
           break;
         
         case "position":

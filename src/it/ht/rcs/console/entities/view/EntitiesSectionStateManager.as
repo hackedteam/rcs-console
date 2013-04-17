@@ -211,16 +211,13 @@ package it.ht.rcs.console.entities.view
        
         lcv.list=new ArrayList(items);
         
-        
       }
       
       else if (CurrentManager != null) {
         lcv = CurrentManager.instance.getView(sort, currentFilter);
         
       } 
-     
-      
-     
+
       lcv.filterFunction = currentFilter;
       lcv.sort=sort;
       lcv.refresh()

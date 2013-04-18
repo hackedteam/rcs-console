@@ -19,9 +19,9 @@
 			import it.ht.rcs.console.events.SaveEvent;
 			import it.ht.rcs.console.target.model.Target;
 			import it.ht.rcs.console.utils.AlertPopUp;
-
+			
 			import locale.R;
-
+			
 			import mx.events.CloseEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -91,7 +91,12 @@
 
 				if (currentState == CREATE)
 				{
-					EntityManager.instance.addLink(entity1._id, entity2._id, type.selectedItem, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
+          var t:String=String(type.selectedItem).toLowerCase();
+          if(entity1.type=="position" || entity2.type=="position")
+          {
+            t="position"
+          }
+					EntityManager.instance.addLink(entity1._id, entity2._id, t, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
 				}
 
 			}
@@ -139,8 +144,8 @@
 											width="150"
 											requireSelection="true">
 				<s:ArrayCollection id="types">
-					<fx:Object label="PEER"/>
-					<fx:Object label="KNOW"/>
+					<fx:String>Peer</fx:String>
+          <fx:String>Know</fx:String>
 				</s:ArrayCollection>
 			</s:DropDownList>
 		</s:FormItem>

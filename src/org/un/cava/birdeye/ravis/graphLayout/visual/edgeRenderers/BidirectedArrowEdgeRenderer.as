@@ -63,14 +63,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * @param g The graphics object to be used.
 		 * */
 
-		private static const CONNECTION_COLOR:uint=0xCC0000; //red
-		private static const CONNECTION_ALPHA:Number=1;
-
-		private static const IDENTITY_COLOR:uint=0x00FF00; //green
-		private static const IDENTITY_ALPHA:Number=1;
-
-		private static const GHOST_COLOR:uint=0xCCCCCC; //grey
-		private static const GHOST_ALPHA:Number=1;
+	
     
     private var dashed:DashedLine;
     private var dotted:DashedLine;
@@ -171,6 +164,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var color:int;
 			var a:Number=1;
 			color=relevanceColors[this.data.data.@rel]
+        g.clear()
 
 			//fake bold line
 			g.lineStyle(10, color, 0);

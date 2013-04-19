@@ -152,12 +152,14 @@ package org.un.cava.birdeye.ravis.graphLayout.data {
 		 * @see Object
 		 * @see XML 
 		 * */
+
 		public function set data(o:Object):void {
 			_dataObject = o;
 		}
 		/**
 		 * @private
 		 * */
+    [Bindable]
 		public function get data():Object	{
 			return _dataObject;
 		}

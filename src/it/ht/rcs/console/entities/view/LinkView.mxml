@@ -99,6 +99,7 @@
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
+        selectedEdge=null;
 				numEntitiesToShow=entities.length;
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
@@ -356,7 +357,7 @@
 				{
 					var currentEdge:Edge=g.edges[i] as Edge;
 					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer
+					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
 					currentEdgeRenderer.selected=false;
 
 				}
@@ -397,13 +398,13 @@
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='out'";
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='"+link.rel+"' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "'";
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='"+link.rel+"' type='" + link.type + "' versus='in'";
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='both'";
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='both'";
 							xmlStr+="/>"
 						}
 					}

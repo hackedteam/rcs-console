@@ -13,13 +13,13 @@
     [Event(name="entityDeleted", type="flash.events.Event")]
 
   </fx:Metadata>
-  <s:Button label="{R.get('DELETE')+' Entity'}"
-            click="onDeleteEntityClick()"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==1  &amp;&amp; selectedNodes.getItemAt(0).data.@nodeIcon!='target'}"
-            icon="@Embed('/img/NEW/delete_32.png')"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"/>
-  <actionbar:Separator/>
+	<s:Button label="{R.get('DELETE')+' Entity'}"
+						click="onDeleteEntityClick()"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==1  &amp;&amp; selectedNodes.getItemAt(0).data.@nodeIcon!='target'}"
+						icon="@Embed('/img/NEW/delete_32.png')"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"/>
+	<actionbar:Separator/>
 	<s:Button label="{R.get('LINK_ADD')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
@@ -35,32 +35,35 @@
 	<actionbar:Separator/>
 
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
-										 enabled="false"
 										 id="tagEditor"
-										 width="80"/>
+										 width="80"
+										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedEdge!=null}"
+										 tag="{selectedEdge? selectedEdge.data.@rel: 0}"
+										 change="updateRelevance(tagEditor.tag)"/>
 
 	<s:Spacer width="100%"/>
 	<s:Spacer height="50"/>
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			
-			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -79,7 +82,6 @@
 
 			private function addLink():void
 			{
-
 				var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
 
 				var entity1:Entity=EntityManager.instance.getItem(selectedNodes[0].data.@id);
@@ -103,7 +105,7 @@
 					popup.entity2=entity2;
 					popup.versusSelectionEnabled=true;
 				}
-        
+
 				popup.currentState=LinkForm.CREATE;
 				popup.addEventListener(LinkForm.LINK_ADDED, onLinkAdded)
 				PopUpManager.centerPopUp(popup);
@@ -114,20 +116,20 @@
 			{
 				dispatchEvent(new Event("linkAdded"));
 			}
-      
-      private function onDeleteEntityClick():void
-      {
-        var entity:Entity = EntityManager.instance.getItem(selectedNodes.getItemAt(0).data.@id) as Entity;
-        AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [entity.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
-        {
-          if (e.detail == AlertPopUp.YES)
-          {
-            EntityManager.instance.removeItem(entity);
-            dispatchEvent(new Event("entityDeleted"));
 
-          }
-        }, null, AlertPopUp.NO);
-      }
+			private function onDeleteEntityClick():void
+			{
+				var entity:Entity=EntityManager.instance.getItem(selectedNodes.getItemAt(0).data.@id) as Entity;
+				AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [entity.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+					{
+						EntityManager.instance.removeItem(entity);
+						dispatchEvent(new Event("entityDeleted"));
+
+					}
+				}, null, AlertPopUp.NO);
+			}
 
 			private function onDeleteLinkClick():void
 			{
@@ -157,6 +159,36 @@
 				// section.stateManager.view.refresh();
 				// section.stateManager.tableView.refresh();
 			}
+
+			private function updateRelevance(value:int):void
+			{
+				if (selectedEdge != null)
+				{
+          selectedEdge.data.@rel=value;
+          var currentRenderer:BidirectedArrowEdgeRenderer = selectedEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+          currentRenderer.draw();
+          
+          //get right direction 
+          
+          var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+          var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+          trace("1: "+entity1.name);
+          trace("2: "+entity2.name);
+          //
+          var versus:String=selectedEdge.data.@versus=="both"? "both": "out";
+
+          EntityManager.instance.editLink(entity1._id, entity2._id,selectedEdge.data.@type, versus, value, onEditResult, onEditFault)
+				}
+			}
+      private function onEditResult(e:ResultEvent):void
+      {
+        trace("result")
+      } 
+      
+      private function onEditFault(e:FaultEvent):void
+      {
+        trace("fault")
+      } 
 		]]>
 	</fx:Script>
 

@@ -27,6 +27,7 @@
       [Bindable] public var symbianVersion:String;
       [Bindable] public var iosVersion:String;
       [Bindable] public var winmoVersion:String;
+      [Bindable] public var winphoneVersion:String;
       
       private function onAddedToStage():void
       {
@@ -36,7 +37,7 @@
       
       private function updateVersions():void
       {
-        var platforms:Array = ['android', 'blackberry', 'symbian', 'linux', 'ios', 'winmo', 'windows', 'osx'];
+        var platforms:Array = ['android', 'blackberry', 'symbian', 'linux', 'ios', 'winmo', 'windows', 'osx', 'winphone'];
         for each (var plat:String in platforms)
           setVersionFor(plat);
       }
@@ -44,6 +45,7 @@
       private function setVersionFor(platform:String):void
       {
         for each (var core:Core in cores)
+        trace(core.name)
           if (core.name == platform)
             this[platform + 'Version'] = core.version;
       }
@@ -100,6 +102,11 @@
         <s:FormItem visible="{LicenseManager.instance.agent_winmo}" label="WinMo"
                     includeInLayout="{LicenseManager.instance.agent_winmo}">
           <s:Label width="100%" styleName="monitor" text="{winmoVersion}"/>
+        </s:FormItem>
+        
+        <s:FormItem visible="{LicenseManager.instance.agent_winphone}" label="WinPhone"
+                    includeInLayout="{LicenseManager.instance.agent_winphone}">
+          <s:Label width="100%" styleName="monitor" text="{winphoneVersion}"/>
         </s:FormItem>
         
       </s:Form>

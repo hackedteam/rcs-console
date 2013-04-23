@@ -35,6 +35,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/ios16.png')]
     public static const ios16:Class;
     
+    [Embed(source='/img/NEW/winphone16.png')]
+    public static const winphone16:Class;
+    
     [Embed(source='/img/NEW/os_blackberry.png')]
     public static const blackberry16:Class;
    

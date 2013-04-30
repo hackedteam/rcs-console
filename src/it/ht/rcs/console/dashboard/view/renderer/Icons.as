@@ -35,6 +35,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/ios16.png')]
     public static const ios16:Class;
     
+    [Embed(source='/img/NEW/winphone16.png')]
+    public static const winphone16:Class;
+    
     [Embed(source='/img/NEW/os_blackberry.png')]
     public static const blackberry16:Class;
    
@@ -104,6 +107,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/NEW/device/mobile_winmo.png')]
     public static const mobile_winmo:Class;
+    
+    [Embed(source='/img/NEW/device/mobile_winphone.png')]
+    public static const mobile_winphone:Class;
     
     [Embed(source='/img/NEW/device/desktop_osx.png')]
     public static const desktop_osx:Class;

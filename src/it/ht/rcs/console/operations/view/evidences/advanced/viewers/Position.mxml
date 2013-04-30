@@ -9,22 +9,23 @@
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
 									 creationComplete="init()"
-									 creationPolicy="all" xmlns:map="it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.*">
+									 creationPolicy="all"
+									 xmlns:map="it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.*">
 	<fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
     [Event(name="update", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import flashx.textLayout.conversion.TextConverter;
-      
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
-      
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
+			import flashx.textLayout.conversion.TextConverter;
+
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
+
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
 			[Bindable]
 			private var _evidence:Evidence;
 			[Bindable]
@@ -41,31 +42,31 @@
 			private var address:String;
 			[Bindable]
 			private var details:String;
-      [Bindable]
-      public var isUpdated:Boolean;    
-      [Bindable]
-      public var idVisible:Boolean;
-      
+			[Bindable]
+			public var isUpdated:Boolean;
+			[Bindable]
+			public var idVisible:Boolean;
+
 			[Bindable]
 			public function set evidence(value:Evidence):void
 			{
 				_evidence=value;
-        
-        if(isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude))
-        {
-          if(!isUpdated)
-          {
-            var id:String=encodeURIComponent(value._id);
-            var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-            EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
-            isUpdated=true;
-          }
-            
-        }
-        else
-        {
-          isUpdated=true;
-        }
+
+				if (isNaN(evidence.data.latitude) || isNaN(evidence.data.longitude))
+				{
+					if (!isUpdated)
+					{
+						var id:String=encodeURIComponent(value._id);
+						var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+						EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+						isUpdated=true;
+					}
+
+				}
+				else
+				{
+					isUpdated=true;
+				}
 
 				if (evidence.data.type == null)
 				{
@@ -100,7 +101,7 @@
 				}
 				else
 				{
-					accuracy=String(evidence.data.accuracy+" mt");
+					accuracy=String(evidence.data.accuracy + " mt");
 				}
 
 				var city:String;
@@ -113,10 +114,10 @@
 				{
 					address='(unknown)';
 				}
-        else if(evidence.data.address.text!='' && evidence.data.address.text!=null)
-        {
-          address=evidence.data.address.text;
-        }
+				else if (evidence.data.address.text != '' && evidence.data.address.text != null)
+				{
+					address=evidence.data.address.text;
+				}
 				else
 				{
 					city=evidence.data.address.city || "";
@@ -126,13 +127,13 @@
 					postal_code=evidence.data.address.postal_code || "";
 
 					address=city;
-					if (country != "" && country !=null)
+					if (country != "" && country != null)
 						address+=" (" + country + ") ";
-					if (street_number != "" && street_number!=null)
+					if (street_number != "" && street_number != null)
 						address+=street_number + " ";
-					if (street != "" && street!=null)
+					if (street != "" && street != null)
 						address+=street + " ";
-					if (postal_code != "" && postal_code!=null)
+					if (postal_code != "" && postal_code != null)
 						address+=postal_code;
 				}
 
@@ -147,42 +148,42 @@
 				{
 					for (var k:int=0; k < evidence.data.wifi.length; k++)
 					{
-            var ssid:String="-";
-            var mac:String="-";
-            var sig:String="-";
-            
-           if(evidence.data.wifi.getItemAt(k).ssid !=null)
-            {
-              ssid=evidence.data.wifi.getItemAt(k).ssid;
-            } 
-            if(evidence.data.wifi.getItemAt(k).mac !=null)
-            {
-              mac=evidence.data.wifi.getItemAt(k).mac;
-            }
-            if(evidence.data.wifi.getItemAt(k).sig !=null)
-            {
-              sig=evidence.data.wifi.getItemAt(k).sig;
-            }
-            
+						var ssid:String="-";
+						var mac:String="-";
+						var sig:String="-";
+
+						if (evidence.data.wifi.getItemAt(k).ssid != null)
+						{
+							ssid=evidence.data.wifi.getItemAt(k).ssid;
+						}
+						if (evidence.data.wifi.getItemAt(k).mac != null)
+						{
+							mac=evidence.data.wifi.getItemAt(k).mac;
+						}
+						if (evidence.data.wifi.getItemAt(k).sig != null)
+						{
+							sig=evidence.data.wifi.getItemAt(k).sig;
+						}
+
 						details+="<b>WIFI: </b>" + "ssid: " + ssid + ", mac: " + mac + ", sig: " + sig + "<BR>";
 					}
 				}
-        if(evidence.data.ip != null)
-        {
-          details+="<b>IP: </b> "+ evidence.data.ip;
-        }
-        detailPanel.visible=details!="";
-        if(detailPanel.visible)
-          detailPanel.currentState="expanded";
-        
-        _positions=new Array();
-        
-          var pos:Object={lat: evidence.data.latitude, lng: evidence.data.longitude, range: evidence.data.accuracy, evidence: evidence};
-          _positions.push(pos);
-      
-        
-        if( mapViewer.ready) mapViewer.positions=_positions;
-        
+				if (evidence.data.ip != null)
+				{
+					details+="<b>IP: </b> " + evidence.data.ip;
+				}
+				detailPanel.visible=details != "";
+				if (detailPanel.visible)
+					detailPanel.currentState="expanded";
+
+				_positions=new Array();
+
+				var pos:Object={lat: evidence.data.latitude, lng: evidence.data.longitude, range: evidence.data.accuracy, evidence: evidence};
+				_positions.push(pos);
+
+
+				//if( mapViewer.ready) mapViewer.positions=_positions;
+
 			}
 
 			public function get evidence():Evidence
@@ -201,8 +202,9 @@
 					var pos:Object={lat: value[i].data.latitude, lng: value[i].data.longitude, range: value[i].data.accuracy, evidence: value[i]};
 					_positions.push(pos);
 				}
-        
-				if( mapViewer.ready) mapViewer.positions=_positions;
+
+				if (mapViewer.ready)
+					mapViewer.positions=_positions;
 
 			}
 
@@ -214,7 +216,7 @@
 
 			private function init():void
 			{
-        mapViewer.addEventListener("ready", onMapReady)
+				mapViewer.addEventListener("ready", onMapReady)
 			}
 
 			private function onMapChange():void
@@ -225,32 +227,31 @@
 
 			private function onMapReady(e:Event):void
 			{
-        mapViewer.removeEventListener("ready", onMapReady)
+				mapViewer.removeEventListener("ready", onMapReady)
 				mapViewer.positions=_positions;
 			}
-      
-      private function onShowResult(e:ResultEvent):void
-      {
-          isUpdated=true;
-          var updated:Vector.<Object>=new Vector.<Object>()
-          updated.push(e.result as Evidence)
-          evidences=updated;
-          dispatchEvent(new Event("update"));
-      }
-      
-      private function onShowFault(e:FaultEvent):void
-      {
-        isUpdated=true;
-      }
-      
-      private function checkForPositionUpdate():void
-      {
-        isUpdated=false;
-        var id:String=encodeURIComponent(evidence._id);
-        var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
-      }
-      
+
+			private function onShowResult(e:ResultEvent):void
+			{
+				isUpdated=true;
+				var updated:Vector.<Object>=new Vector.<Object>()
+				updated.push(e.result as Evidence)
+				evidences=updated;
+				dispatchEvent(new Event("update"));
+			}
+
+			private function onShowFault(e:FaultEvent):void
+			{
+				isUpdated=true;
+			}
+
+			private function checkForPositionUpdate():void
+			{
+				isUpdated=false;
+				var id:String=encodeURIComponent(evidence._id);
+				var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+				EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
+			}
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -259,15 +260,19 @@
 											paddingRight="10"
 											paddingTop="10"/>
 	</s:layout>
-  <s:RichText id="idTxt"
-              width="100%"
-              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
-  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
+	<s:RichText id="idTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{idVisible}"
+							includeInLayout="{idVisible}"/>
+	<s:Line width="100%"
+					visible="{idVisible}"
+					includeInLayout="{idVisible}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
 	<s:RichText id="typeTxt"
 							width="100%"
 							textFlow="{TextConverter.importToFlow('&lt;b&gt;Type: &lt;/b&gt;'+type, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
@@ -286,7 +291,8 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	<s:HGroup verticalAlign="middle" width="100%">
+	<s:HGroup verticalAlign="middle"
+						width="100%">
 		<s:RichText id="latTxt"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Latitude: &lt;/b&gt;'+latitude, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 								fontSize="12"/>
@@ -296,8 +302,11 @@
 		<s:RichText id="accTxt"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Accuracy: &lt;/b&gt;'+accuracy, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 								fontSize="12"/>
-    <s:Spacer width="100%"/>
-    <mx:LinkButton id="refreshBtn" label="Update position" click="checkForPositionUpdate()" fontWeight="bold"/>
+		<s:Spacer width="100%"/>
+		<mx:LinkButton id="refreshBtn"
+									 label="Update position"
+									 click="checkForPositionUpdate()"
+									 fontWeight="bold"/>
 	</s:HGroup>
 
 	<s:Group width="100%"
@@ -305,6 +314,7 @@
 		<viewers:MapViewer id="mapViewer"
 											 change="onMapChange()"
 											 ready="onMapReady(event)"/>
-    <map:DetailPanel details="{details}" id="detailPanel"/>
-</s:Group>
+		<map:DetailPanel details="{details}"
+										 id="detailPanel"/>
+	</s:Group>
 </s:BorderContainer>

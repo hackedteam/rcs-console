@@ -47,9 +47,15 @@ package it.ht.rcs.console.monitor.view
     public static const s60Off:Class;
     
     [Embed('/img/platforms/windowsPhone.png')]
-    public static const windowsPhoneOn:Class;
+    public static const windowsMobileOn:Class;
     
     [Embed('/img/platforms/windowsPhone_mono.png')]
+    public static const windowsMobileOff:Class;
+    
+    [Embed('/img/platforms/windowsPhoneNew.png')]
+    public static const windowsPhoneOn:Class;
+    
+    [Embed('/img/platforms/windowsPhoneNew_mono.png')]
     public static const windowsPhoneOff:Class;
     
   }

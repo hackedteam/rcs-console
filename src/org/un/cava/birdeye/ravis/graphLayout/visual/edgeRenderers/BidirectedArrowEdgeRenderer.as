@@ -29,6 +29,8 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	
+	import it.ht.rcs.console.utils.DashedLine;
+	
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualEdge;
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualNode;
@@ -49,7 +51,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * The size of the arrowhead in pixel. The distance of the
 		 * two points defining the base of the arrowhead.
 		 * */
-		public var arrowBaseSize:Number=8;
+		public var arrowBaseSize:Number=12;
 
 		/**
 		 * The distance of the arrowbase from the tip in pixel.
@@ -61,15 +63,17 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * @param g The graphics object to be used.
 		 * */
 
-		private static const CONNECTION_COLOR:uint=0xCC0000; //red
-		private static const CONNECTION_ALPHA:Number=1;
-
-		private static const IDENTITY_COLOR:uint=0x00FF00; //green
-		private static const IDENTITY_ALPHA:Number=1;
-
-		private static const GHOST_COLOR:uint=0xCCCCCC; //grey
-		private static const GHOST_ALPHA:Number=0.3;
+	
     
+    private var dashed:DashedLine;
+    private var dotted:DashedLine;
+    
+    private var relevence0:uint=0x333333;
+    private var relevence1:uint=0x999999;
+    private var relevence2:uint=0x5DE35F;
+    private var relevence3:uint=0xFFDC42;
+    private var relevence4:uint=0xFF4034;
+    private var relevanceColors:Array;
     
     private var _selected:Boolean;
 
@@ -77,6 +81,14 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		public function BidirectedArrowEdgeRenderer()
 		{
 			super();
+      relevanceColors=[relevence0, relevence1, relevence2, relevence3, relevence4]
+        
+      dashed=new DashedLine(3,0x000000,new Array(10,3,10,3));
+      dotted=new DashedLine(3,0x000000,new Array(2,2,2,2));
+
+      this.addChild(dashed)
+      this.addChild(dotted)
+
 		}
 
 		/**
@@ -150,38 +162,63 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
 			/* now we actually draw */
 			var color:int;
-			var a:Number;
-			switch (String(this.data.data.@type))
-			{
-				case "connection":
-					color=CONNECTION_COLOR;
-					a=CONNECTION_ALPHA;
-					break;
-				case "identity":
-					color=IDENTITY_COLOR;
-					a=IDENTITY_ALPHA;
-					break;
-				default:
-					color=GHOST_COLOR;
-					a=GHOST_ALPHA;
-			}
+			var a:Number=1;
+			color=relevanceColors[this.data.data.@rel]
+        g.clear()
 
 			//fake bold line
-			g.lineStyle(10, color, 0.1);
+			g.lineStyle(10, color, 0);
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
       
-   
-
-			g.lineStyle(2, color, a);
-			g.beginFill(color, a);
-			g.moveTo(fP.x, fP.y);
-			g.lineTo(tP.x, tP.y);
-
-			g.lineTo(lArrowBase.x, lArrowBase.y);
-			g.lineTo(rArrowBase.x, rArrowBase.y);
-			g.lineTo(tP.x, tP.y);
-			if (this.data.data.@versus != null && this.data.data.@versus == "both")
+      //dashed line
+      
+      if (this.data.data.@type=="identity")
+      { dashed.clear()
+        dashed.lineStyle(2,color, 1)
+        dashed.beginFill(color, 1)
+        dashed.moveTo(fP.x, fP.y);
+        dashed.lineTo(tP.x, tP.y);
+        
+        //
+        g.lineStyle(2, color, 0); //
+        g.beginFill(color, 1);
+        g.moveTo(fP.x, fP.y);
+        g.lineTo(tP.x, tP.y);
+      }
+      //dotted line
+      
+      else if (this.data.data.@type=="know")
+      { 
+        dotted.clear()
+        dotted.lineStyle(2,color, 1)
+        dotted.beginFill(color, 1)
+        dotted.moveTo(fP.x, fP.y);
+        dotted.lineTo(tP.x, tP.y);
+        
+        //
+        g.lineStyle(2, color, 0); //
+        g.beginFill(color, 1);
+        g.moveTo(fP.x, fP.y);
+        g.lineTo(tP.x, tP.y);
+      }
+      //regular line
+      else
+      {
+  			g.lineStyle(2, color, a); //
+  			g.beginFill(color, a);
+  			g.moveTo(fP.x, fP.y);
+  			g.lineTo(tP.x, tP.y);
+      }
+      
+      if(this.data.data.@type!="identity")
+      {
+  			g.lineTo(lArrowBase.x, lArrowBase.y);
+  			g.lineTo(rArrowBase.x, rArrowBase.y);
+  			g.lineTo(tP.x, tP.y);
+      }
+      
+			if (this.data.data.@versus != null && this.data.data.@versus == "both" && this.data.data.@type!="identity")
 			{
 				g.moveTo(fP.x, fP.y);
 				g.lineTo(lArrowEnd.x, lArrowEnd.y);
@@ -202,17 +239,20 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
 			/* if the vgraph currently displays edgeLabels, then
 			* we need to update their coordinates */
+      
 			if (vedge.vgraph.displayEdgeLabels)
 			{
 				vedge.setEdgeLabelCoordinates(labelCoordinates());
 			}
+      
+      this.toolTip=this.vedge.edge.data.@type +" - "+this.vedge.edge.data.@rel;
 
 		}
     public function set selected(value:Boolean):void
     {
       _selected=value;
       g.clear();
-      draw()
+      draw();
     }
     
     public function get selected():Boolean

@@ -541,9 +541,7 @@ package it.ht.rcs.console.operations.view
      }
      return false;
     }
-    
-  
-    
+
   }
   
 }

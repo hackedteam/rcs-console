@@ -122,7 +122,6 @@
                       message='<i>'+data.data.tr+'</i>';
                   }
 
-                 
                     var id:String=encodeURIComponent(data._id);
                     var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);  
                     //EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
@@ -156,6 +155,19 @@
                   }
 									targetColor=0xCCCCCC;
 								}
+                //VIBER
+                if (data.data.program.toLowerCase() == "viber")
+                { 
+                  if(data.data.incoming!=null )
+                  {
+                    isPeer=data.data.incoming
+                  }
+                  else
+                  {
+                    isPeer=(peers.indexOf(nickname)!=-1);
+                  }
+                  targetColor=0xCCCCCC;
+                }
                 //FACEBOOK
 								else if (data.data.program.toLowerCase() == "facebook")
 								{
@@ -212,6 +224,20 @@
                   }
                   targetColor=0x99FFFF;
                 }
+                
+                //BBM
+                if (data.data.program.toLowerCase() == "messenger")
+                { 
+                  if(data.data.incoming!=null )
+                  {
+                    isPeer=data.data.incoming
+                  }
+                  else
+                  {
+                    isPeer=(peers.indexOf(nickname)!=-1);
+                  }
+                  targetColor=0xCCCCCC;
+                }
 
 								ImageClass=ChatIcons[data.data.program.toLowerCase()]
 
@@ -228,7 +254,6 @@
             {
               trace("translation result");
               
-              
               //data=e.result;
               //this.prepare(false);
               //evidence.data.tr=e.result.data.tr;
@@ -244,7 +269,7 @@
 				</fx:Script>
 				<s:HGroup width="100%">
 					<s:BitmapImage width="16"
-												 height="16"
+												 height="16" 
 												 source="{ImageClass}"/>
 					<s:Label textAlign="right"
 									 id="dateTxt"

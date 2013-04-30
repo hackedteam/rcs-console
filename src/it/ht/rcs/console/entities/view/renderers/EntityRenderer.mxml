@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+         xmlns:s="library://ns.adobe.com/flex/spark" 
+         xmlns:mx="library://ns.adobe.com/flex/mx">
+ <fx:Script>
+   <![CDATA[
+     import flash.events.MouseEvent;
+     import flash.ui.Mouse;
+     import flash.ui.MouseCursor;
+     
+     import it.ht.rcs.console.entities.model.Entity;
+     
+     import mx.binding.utils.BindingUtils;
+     import mx.core.UIComponent;
+     
+     import spark.components.BorderContainer;
+     import spark.components.Group;
+     import spark.components.Image;
+     import spark.components.Label;
+     import spark.layouts.VerticalLayout;
+     import spark.primitives.BitmapImage;
+     
+     private static const WIDTH:Number  = 90; // 5*2 (padding) + 80 (width of label)
+     private static const HEIGHT:Number = 66 + 26; // 5*2 (padding) + 50 (height of container) + 6 (gap) + 26 (height of label)
+     
+     private static const NORMAL_COLOR:Number = 0xffffff;
+     private static const SELECTED_COLOR:Number = 0xa8c6ee;
+     
+     [Embed(source='/img/NEW/star_50.png')]
+     private var entityIcon:Class;
+     
+     [Embed(source='/img/NEW/entity_people_50.png')]
+     private var entityPeopleIcon:Class;
+     
+     [Embed(source='/img/NEW/entity_location_50.png')]
+     private var entityLocationIcon:Class;
+     
+     [Embed(source='/img/NEW/entity_target_50.png')]
+     private var entityTargetIcon:Class;
+     
+     [Bindable]
+     public var entity:Entity;
+     
+     public function init():void
+     {
+       switch(entity.type)
+       {
+         case "target": icon.source=entityTargetIcon;
+           break;
+         case "person": icon.source=entityPeopleIcon;
+           break;
+         case "position": icon.source=entityLocationIcon;
+           break;
+         default :
+           icon.source=entityPeopleIcon;
+       }
+     }
+
+   ]]>
+ </fx:Script>
+  <s:layout>
+    <s:VerticalLayout gap="6" horizontalAlign="center" paddingBottom="5" paddingLeft="5" 
+                      paddingRight="5" paddingTop="5" verticalAlign="top"/>
+  </s:layout>
+  <s:BorderContainer width="50" height="50" backgroundAlpha="0" borderAlpha="0">
+    <s:BitmapImage id="icon" horizontalCenter="0" verticalCenter="0" />
+  </s:BorderContainer>
+  
+  <s:Label width="80" maxDisplayedLines="2" text="{entity.name}" textAlign="center"/>
+</s:Group>

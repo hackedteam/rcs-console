@@ -19,30 +19,30 @@
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"/>
-  
+
 	<actionbar:Separator/>
-  
+
 	<s:Button label="{R.get('LINK_ADD')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mainView.linkEnabled}"
 						click="addLink()"
 						icon="@Embed('/img/NEW/linkAdd.png')"/>
-  
-  <s:Button label="{R.get('LINK_EDIT')}"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedEdge!=null}"
-            click="editLink()"
-            icon="@Embed('/img/NEW/linkEdit.png')"/>
-  
+
+	<s:Button label="{R.get('LINK_EDIT')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedEdge!=null &amp;&amp; selectedEdge.data.@type!='identity'}"
+						click="editLink()"
+						icon="@Embed('/img/NEW/linkEdit.png')"/>
+
 	<s:Button label="{R.get('LINK_REMOVE')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedEdge!=null}"
 						icon="@Embed('/img/NEW/linkRemove.png')"
 						click="onDeleteLinkClick()"/>
-  
+
 	<actionbar:Separator/>
 
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
@@ -57,24 +57,24 @@
 
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -121,38 +121,46 @@
 				PopUpManager.centerPopUp(popup);
 
 			}
-      
-      private function editLink():void
-      {
-       // var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
-        
-      /*   var entity1:Entity=EntityManager.instance.getItem(selectedNodes[0].data.@id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedNodes[1].data.@id);
-        
-        if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
-        {
-          popup.entity1=entity2;
-          popup.entity2=entity1;
-          popup.versusSelectionEnabled=false;
-        }
-        else if (entity2.type == "position" && (entity1.type == "target" || entity1.type == "person"))
-        {
-          popup.entity1=entity1;
-          popup.entity2=entity2;
-          popup.versusSelectionEnabled=false;
-        }
-        else
-        {
-          popup.entity1=entity1;
-          popup.entity2=entity2;
-          popup.versusSelectionEnabled=true;
-        }
-         */
-        //popup.currentState=LinkForm.EDIT;
-        //popup.addEventListener(LinkForm.LINK_ADDED, onLinkAdded)
-        //PopUpManager.centerPopUp(popup);
-        
-      }
+
+			private function editLink():void
+			{
+				var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+
+				var versus:String=selectedEdge.data.@versus == "both" ? "both" : "out";
+				var type:String=selectedEdge.data.@type;
+				var relevance:int=selectedEdge.data.@rel;
+
+
+				popup.entity1=entity1;
+				popup.entity2=entity2;
+				popup.versus=versus;
+				popup.type=type;
+				popup.rel=relevance;
+				if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
+				{
+					//popup.entity1=entity2;
+					//popup.entity2=entity1;
+					popup.versusSelectionEnabled=false;
+				}
+				else if (entity2.type == "position" && (entity1.type == "target" || entity1.type == "person"))
+				{
+					//popup.entity1=entity1;
+					//popup.entity2=entity2;
+					popup.versusSelectionEnabled=false;
+				}
+				else
+				{
+					// popup.entity1=entity1;
+					//popup.entity2=entity2;
+					popup.versusSelectionEnabled=true;
+				}
+				popup.currentState=LinkForm.EDIT;
+				popup.addEventListener(LinkForm.LINK_ADDED, onLinkAdded)
+				PopUpManager.centerPopUp(popup);
+
+			}
 
 			private function onLinkAdded(e:Event):void
 			{
@@ -206,32 +214,33 @@
 			{
 				if (selectedEdge != null)
 				{
-          selectedEdge.data.@rel=value;
-          var currentRenderer:BidirectedArrowEdgeRenderer = selectedEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-          currentRenderer.draw();
-          
-          //get right direction 
-          
-          var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
-          var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-          
-          trace("1: "+entity1.name);
-          trace("2: "+entity2.name);
-          //
-          var versus:String=selectedEdge.data.@versus=="both"? "both": "out";
+					selectedEdge.data.@rel=value;
+					var currentRenderer:BidirectedArrowEdgeRenderer=selectedEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+					currentRenderer.draw();
 
-          EntityManager.instance.editLink(entity1._id, entity2._id,selectedEdge.data.@type, versus, value, onEditResult, onEditFault);
+					//get right direction 
+
+					var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+					var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+
+					trace("1: " + entity1.name);
+					trace("2: " + entity2.name);
+					//
+					var versus:String=selectedEdge.data.@versus == "both" ? "both" : "out";
+
+					EntityManager.instance.editLink(entity1._id, entity2._id, selectedEdge.data.@type, versus, value, onEditResult, onEditFault);
 				}
 			}
-      private function onEditResult(e:ResultEvent):void
-      {
-        trace("result");
-      } 
-      
-      private function onEditFault(e:FaultEvent):void
-      {
-        trace("fault");
-      } 
+
+			private function onEditResult(e:ResultEvent):void
+			{
+				trace("result");
+			}
+
+			private function onEditFault(e:FaultEvent):void
+			{
+				trace("fault");
+			}
 		]]>
 	</fx:Script>
 

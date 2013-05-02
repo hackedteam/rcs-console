@@ -312,7 +312,7 @@ package org.un.cava.birdeye.ravis.assets.icons {
 	 		var img:Image = new Image();
 	 		img.width = size;
 	 		img.height = size;
-	 		
+	 		img.smoothBitmapContent=true;
 			switch(type) {
         
         case "target":

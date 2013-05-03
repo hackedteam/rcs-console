@@ -19,9 +19,9 @@
 			import it.ht.rcs.console.events.SaveEvent;
 			import it.ht.rcs.console.target.model.Target;
 			import it.ht.rcs.console.utils.AlertPopUp;
-			
+
 			import locale.R;
-			
+
 			import mx.events.CloseEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -51,6 +51,12 @@
 			public var entity2:Entity;
 			[Bindable]
 			public var versusSelectionEnabled:Boolean;
+			[Bindable]
+			public var versus:String;
+      [Bindable]
+      public var rel:int;
+      [Bindable]
+      public var type:String;
 
 			private function init():void
 			{
@@ -58,7 +64,44 @@
 				entity2Icon.init()
 				tagEditor.labelDisplay.visible=false;
 				tagEditor.labelDisplay.includeInLayout=false;
-				versusIndex=0;
+
+				if (currentState==EDIT)
+				{
+					// versusIndex=selectedEdge
+
+					switch (versus)
+					{
+						case "out":
+							versusIndex=0;
+							break;
+            
+            case "in":
+              versusIndex=1;
+              break;
+            
+            case "both":
+              versusIndex=2;
+              break;
+					}
+          switch (type)
+          {
+            case "peer":
+              typeCb.selectedIndex=0;
+              break;
+            
+            case "know":
+              typeCb.selectedIndex=1;
+              break;
+
+          }
+          
+          tagEditor.tag=rel;
+				}
+				else
+				{
+					versusIndex=0;
+				}
+
 				arrow.source=versusArray[versusIndex].img;
 				if (versusSelectionEnabled)
 				{
@@ -83,19 +126,19 @@
 
 			private function onSave(event:SaveEvent):void
 			{
-
+        var t:String=String(typeCb.selectedItem).toLowerCase();
+        if (entity1.type == "position" || entity2.type == "position")
+        {
+          t="position"
+        }
 				if (currentState == EDIT)
 				{
-					return;
+          EntityManager.instance.editLink(entity1._id,entity2._id,t,versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
 				}
 
 				if (currentState == CREATE)
 				{
-          var t:String=String(type.selectedItem).toLowerCase();
-          if(entity1.type=="position" || entity2.type=="position")
-          {
-            t="position"
-          }
+				
 					EntityManager.instance.addLink(entity1._id, entity2._id, t, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
 				}
 
@@ -113,7 +156,7 @@
 			}
 		]]>
 	</fx:Script>
- 
+
 	<utils:states>
 		<s:State name="create"/>
 		<s:State name="edit"/>
@@ -140,12 +183,12 @@
 		<s:FormItem label="{R.get('TYPE')}"
 								visible="{entity1.type!='position' &amp;&amp; entity2.type!='position'}"
 								includeInLayout="{entity1.type!='position' &amp;&amp; entity2.type!='position'}">
-			<s:DropDownList id="type"
+			<s:DropDownList id="typeCb"
 											width="150"
 											requireSelection="true">
 				<s:ArrayCollection id="types">
 					<fx:String>Peer</fx:String>
-          <fx:String>Know</fx:String>
+					<fx:String>Know</fx:String>
 				</s:ArrayCollection>
 			</s:DropDownList>
 		</s:FormItem>

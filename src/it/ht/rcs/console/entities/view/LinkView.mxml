@@ -58,6 +58,7 @@
       [Bindable]
       public var linkEnabled:Boolean;
       
+      
       private var sort:Sort;
 
 			//temp
@@ -122,6 +123,7 @@
 
 				g=new Graph("XMLAsDocsGraph", false, xmlData);
 				vgraph.visible=true;
+       
 				var i:int=0;
 				var node:Node;
 
@@ -184,11 +186,11 @@
 
 				if (roots.length == 1)
 				{
-					trace("no need to add a fake root")
+					//trace("no need to add a fake root")
 				}
 				else
 				{
-					trace("more than 1 root - add a fake root and attach real roots")
+					//trace("more than 1 root - add a fake root and attach real roots")
 					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />");
 					var fakeRoot:INode=g.createNode("0", xnode);
 
@@ -222,11 +224,13 @@
 				vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
 				vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
 				vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
+        vgraph.scale=1;
 				vgraph.draw();
 			}
 
 			private function onDetailResult(e:ResultEvent):void
 			{
+        
 				numEntitiesToShow--
 				entitiesToShow.addItem(e.result)
 				if (numEntitiesToShow == 0)
@@ -351,7 +355,7 @@
           }
 				}
 
-				trace("selected nodes: " + selectedNodes.length);
+				//trace("selected nodes: " + selectedNodes.length);
 				// unselect links
 				for (i=0; i < g.edges.length; i++)
 				{
@@ -383,8 +387,6 @@
         entitiesToShow.sort=sort;
         entitiesToShow.refresh();
         
-        
-        
 				var xmlStr:String="<Graph>"
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
@@ -410,10 +412,19 @@
 					}
 				}
 				xmlStr+="</Graph>";
-				trace(xmlStr)
 				xmlData=XML(xmlStr);
 				analyzeData();
 			}
+      
+      private function zoomIn():void
+      {
+        vgraph.scale+=.1
+      }
+      
+      private function zoomOut():void
+      {
+        vgraph.scale-=.1  
+      }
 		]]>
 	</fx:Script>
 
@@ -423,7 +434,6 @@
 													linkAdded="onAddedToStage()"
 													linkRemoved="onAddedToStage()"
                           entityDeleted="onAddedToStage()"
-                          
                           mainView="{this}"/>
 	<s:HGroup width="100%"
 						height="100%"
@@ -448,6 +458,12 @@
 												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
 												 visibilityLimitActive="true">
 			</ravis:VisualGraph>
+      <s:HGroup x="6" y="6" verticalAlign="middle">
+        <s:Label text="Zoom:" fontWeight="bold"/>
+        <s:Button label="+"  width="30"  click="zoomIn()"/>
+        <s:Button label="-"  width="30"  click="zoomOut()"/>
+      </s:HGroup>
+     
 		</mx:Canvas>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>

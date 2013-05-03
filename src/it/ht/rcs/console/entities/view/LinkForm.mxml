@@ -60,25 +60,23 @@
 
 			private function init():void
 			{
-				entity1Icon.init()
-				entity2Icon.init()
+				entity1Icon.init();
+				entity2Icon.init();
+        
 				tagEditor.labelDisplay.visible=false;
 				tagEditor.labelDisplay.includeInLayout=false;
 
 				if (currentState==EDIT)
 				{
-					// versusIndex=selectedEdge
-
+          tagEditor.tag=rel;
 					switch (versus)
 					{
 						case "out":
 							versusIndex=0;
-							break;
-            
+							break;     
             case "in":
               versusIndex=1;
-              break;
-            
+              break;   
             case "both":
               versusIndex=2;
               break;
@@ -87,15 +85,12 @@
           {
             case "peer":
               typeCb.selectedIndex=0;
-              break;
-            
+              break;           
             case "know":
               typeCb.selectedIndex=1;
               break;
-
           }
           
-          tagEditor.tag=rel;
 				}
 				else
 				{
@@ -109,7 +104,7 @@
 				}
 				else
 				{
-					arrow.toolTip=""
+					arrow.toolTip="";
 				}
 			}
 
@@ -117,7 +112,7 @@
 			{
 				if (versusSelectionEnabled)
 				{
-					versusIndex++
+					versusIndex++;
 					if (versusIndex > 2)
 						versusIndex=0;
 					arrow.source=versusArray[versusIndex].img
@@ -137,8 +132,7 @@
 				}
 
 				if (currentState == CREATE)
-				{
-				
+				{	
 					EntityManager.instance.addLink(entity1._id, entity2._id, t, versusArray[versusIndex].versus, tagEditor.tag, onResult, onFault);
 				}
 

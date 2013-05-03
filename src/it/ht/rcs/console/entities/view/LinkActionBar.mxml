@@ -11,14 +11,22 @@
     [Event(name="linkAdded", type="flash.events.Event")]
     [Event(name="linkRemoved", type="flash.events.Event")]
     [Event(name="entityDeleted", type="flash.events.Event")]
+    [Event(name="merge", type="flash.events.Event")]
 
   </fx:Metadata>
-	<s:Button label="{R.get('DELETE')+' Entity'}"
+	<s:Button label="{R.get('DELETE')+ ' '+R.get('ENTITY')}"
 						click="onDeleteEntityClick()"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==1  &amp;&amp; selectedNodes.getItemAt(0).data.@nodeIcon!='target'}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"/>
+  
+  <s:Button label="{R.get('MERGE')+ ' '+R.get('ENTITY')}"
+            click="onMergeClick()"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mainView.mergeEnabled}"
+            icon="@Embed('/img/NEW/merge32.png')"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"/>
 
 	<actionbar:Separator/>
 
@@ -63,16 +71,16 @@
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.utils.AlertPopUp;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 
@@ -100,7 +108,7 @@
 				if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
 				{
 					popup.entity1=entity2;
-					popup.entity2=entity1;
+					popup.entity2=entity1; 
 					popup.versusSelectionEnabled=false;
 				}
 				else if (entity2.type == "position" && (entity1.type == "target" || entity1.type == "person"))
@@ -121,7 +129,26 @@
 				PopUpManager.centerPopUp(popup);
 
 			}
+      
+      private function merge():void
+      {
+        var entity1:Entity=EntityManager.instance.getItem(selectedNodes[0].data.@id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedNodes[1].data.@id);
+        
+        if (entity1.type == "person" && entity2.type == "target")
+        {
+          EntityManager.instance.merge(entity2, entity1, onMergeResult, onFault)
+        }
+        else
+        {
+          EntityManager.instance.merge(entity1, entity2, onMergeResult, onFault)
+        }      
+      }
 
+      private function onMergeResult(e:ResultEvent):void
+      {
+        dispatchEvent(new Event("merge"));
+      }
 			private function editLink():void
 			{
 				var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
@@ -180,6 +207,30 @@
 					}
 				}, null, AlertPopUp.NO);
 			}
+      
+      private function onMergeClick():void
+      {
+        var entity1:Entity=EntityManager.instance.getItem(selectedNodes[0].data.@id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedNodes[1].data.@id);
+        var msg:String;
+        
+        if (entity1.type == "person" && entity2.type == "target")
+        {
+          msg='Merge '+entity2.name+' with '+entity1.name+'?'
+        }
+        else
+        {
+          msg='Merge '+entity1.name+' with '+entity2.name+'?'
+        }   
+        
+        AlertPopUp.show(msg, R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+        {
+          if (e.detail == AlertPopUp.YES)
+          {
+            merge()
+          }
+        }, null, AlertPopUp.NO);
+      }
 
 			private function onDeleteLinkClick():void
 			{

@@ -13,35 +13,35 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.events.RefreshEvent;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
-      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
-      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
-      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.events.RefreshEvent;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ArrayCollection;
-      
-      [Bindable]
-      public var section:EntitiesSection;
+
+			[Bindable]
+			public var section:EntitiesSection;
 
 			private var entitiesToShow:ArrayCollection;
 
@@ -58,30 +58,31 @@
 			[Bindable]
 			private var selectedEdge:Edge;
 
-      [Bindable]
-      public var linkEnabled:Boolean;
-      
-      [Bindable]
-      public var mergeEnabled:Boolean;
-      
-      
-      private var sort:Sort;
+			[Bindable]
+			public var linkEnabled:Boolean;
+
+			[Bindable]
+			public var mergeEnabled:Boolean;
+
+
+			private var sort:Sort;
 
 			private var xmlData:XML;
 
 
 			private function init():void
 			{
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
-        sort=new Sort();
-        sort.fields=[new SortField("type",true), new SortField("name",false)]
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+				sort=new Sort();
+				sort.fields=[new SortField("type", true), new SortField("name", false)]
 			}
 
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
-        selectedEdge=null;
+				selectedEdge=null;
 				numEntitiesToShow=entities.length;
+        trace("entities: "+entities.length)
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
@@ -96,6 +97,8 @@
 				{
 					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
 				}
+        mergeEnabled=false;
+        linkEnabled=false;
 			}
 
 			private function analyzeData():void
@@ -103,7 +106,7 @@
 
 				g=new Graph("XMLAsDocsGraph", false, xmlData);
 				vgraph.visible=true;
-       
+
 				var i:int=0;
 				var node:Node;
 
@@ -138,7 +141,7 @@
 					}
 				}
 				return null;
-			} 
+			}
 
 			private function getConnections(node:INode, examined:Array=null):void
 			{
@@ -204,13 +207,13 @@
 				vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
 				vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
 				vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
-        vgraph.scale=1;
+				vgraph.scale=1;
 				vgraph.draw();
 			}
 
 			private function onDetailResult(e:ResultEvent):void
 			{
-        
+
 				numEntitiesToShow--
 				entitiesToShow.addItem(e.result)
 				if (numEntitiesToShow == 0)
@@ -247,8 +250,8 @@
 
 				}
 				info.selectedItem=null;
-        linkEnabled=false;
-        mergeEnabled=false;
+				linkEnabled=false;
+				mergeEnabled=false;
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -275,8 +278,8 @@
 				}
 				selectedEdge=null;
 				info.selectedItem=null;
-        linkEnabled=false;
-        mergeEnabled=false;
+				linkEnabled=false;
+				mergeEnabled=false;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -328,31 +331,31 @@
 							selectedNodes.removeItemAt(index)
 					}
 
-          if(selectedNodes.length==2 && (!selectedNodes[0].data.@nodeIcon=="position" && selectedNodes[1].data.@nodeIcon=="position"))
-          {
-            linkEnabled=true;
-          }
-            else
-          {
-              linkEnabled=false;
-          }
-          
-          if(selectedNodes.length==2 && (selectedNodes[0].data.@nodeIcon=="person" && selectedNodes[1].data.@nodeIcon=="person"))
-          {
-            mergeEnabled=true;
-          }
-          else if(selectedNodes.length==2 && (selectedNodes[0].data.@nodeIcon=="target" && selectedNodes[1].data.@nodeIcon=="person"))
-          {
-            mergeEnabled=true;
-          }
-          else if(selectedNodes.length==2 && (selectedNodes[0].data.@nodeIcon=="person" && selectedNodes[1].data.@nodeIcon=="target"))
-          {
-            mergeEnabled=true;
-          }
-          else
-          {
-            mergeEnabled=false;
-          }
+					if (selectedNodes.length == 2 && (!selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
+					{
+						linkEnabled=true;
+					}
+					else
+					{
+						linkEnabled=false;
+					}
+
+					if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
+					{
+						mergeEnabled=true;
+					}
+					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
+					{
+						mergeEnabled=true;
+					}
+					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
+					{
+						mergeEnabled=true;
+					}
+					else
+					{
+						mergeEnabled=false;
+					}
 				}
 
 				//trace("selected nodes: " + selectedNodes.length);
@@ -370,39 +373,39 @@
 					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
 				else
 					info.selectedItem=null;
-        
-        if(selectedNodes.length==2 && !(selectedNodes[0].data.@nodeIcon=="position" && selectedNodes[1].data.@nodeIcon=="position"))
-        {
-          linkEnabled=true;
-        }
-        else
-        {
-          linkEnabled=false;
-        }
-        
-        if(selectedNodes.length==2 && (selectedNodes[0].data.@nodeIcon=="person" && selectedNodes[1].data.@nodeIcon=="person"))
-        {
-          mergeEnabled=true;
-        }
-        else if(selectedNodes.length==2 && (selectedNodes[0].data.@nodeIcon=="target" && selectedNodes[1].data.@nodeIcon=="person"))
-        {
-          mergeEnabled=true;
-        }
-        else if(selectedNodes.length==2 && (selectedNodes[0].data.@nodeIcon=="person" && selectedNodes[1].data.@nodeIcon=="target"))
-        {
-          mergeEnabled=true;
-        }
-        else
-        {
-          mergeEnabled=false;
-        }
+
+				if (selectedNodes.length == 2 && !(selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
+				{
+					linkEnabled=true;
+				}
+				else
+				{
+					linkEnabled=false;
+				}
+
+				if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
+				{
+					mergeEnabled=true;
+				}
+				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
+				{
+					mergeEnabled=true;
+				}
+				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
+				{
+					mergeEnabled=true;
+				}
+				else
+				{
+					mergeEnabled=false;
+				}
 			}
 
 			private function parseItems():void
 			{
-        entitiesToShow.sort=sort;
-        entitiesToShow.refresh();
-        
+				entitiesToShow.sort=sort;
+				entitiesToShow.refresh();
+
 				var xmlStr:String="<Graph>"
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
@@ -415,13 +418,13 @@
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='out'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='out'";
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='"+link.rel+"' type='" + link.type + "' versus='in'";
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "' versus='in'";
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
 							xmlStr+="/>"
 						}
 					}
@@ -430,32 +433,30 @@
 				xmlData=XML(xmlStr);
 				analyzeData();
 			}
-      
-      private function zoomIn():void
-      {
-        vgraph.scale+=.1
-      }
-      
-      private function zoomOut():void
-      {
-        vgraph.scale-=.1  
-      }
-      
-      private function refresh():void
-      {
-        var selectedEntities:ArrayCollection=new ArrayCollection()
-        
-        //temp - all entities
-        for(var i:int=0;i<section.stateManager.view.length;i++)
-        {
-          var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
-          selectedEntities.addItem(entity);
-        }
-        section.stateManager.selectedEntities=selectedEntities;
-        onAddedToStage();
-      }
-      
-      
+
+			private function zoomIn():void
+			{
+				vgraph.scale+=.1
+			}
+
+			private function zoomOut():void
+			{
+				vgraph.scale-=.1
+			}
+
+			private function refresh():void
+			{
+				var selectedEntities:ArrayCollection=new ArrayCollection()
+
+				//temp - all entities
+				for (var i:int=0; i < section.stateManager.view.length; i++)
+				{
+					var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
+					selectedEntities.addItem(entity);
+				}
+				section.stateManager.selectedEntities=selectedEntities;
+				onAddedToStage();
+			}
 		]]>
 	</fx:Script>
 
@@ -464,9 +465,11 @@
 													selectedEdge="{selectedEdge}"
 													linkAdded="onAddedToStage()"
 													linkRemoved="onAddedToStage()"
-                          entityDeleted="refresh()"
-                          merge="refresh()"
-                          mainView="{this}"/>
+													entityDeleted="refresh()"
+                          entityCreated="refresh()"
+													merge="refresh()"
+													mainView="{this}"
+													section="{section}"/>
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
@@ -490,12 +493,19 @@
 												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
 												 visibilityLimitActive="true">
 			</ravis:VisualGraph>
-      <s:HGroup x="6" y="6" verticalAlign="middle">
-        <s:Label text="Zoom:" fontWeight="bold"/>
-        <s:Button label="+"  width="30"  click="zoomIn()"/>
-        <s:Button label="-"  width="30"  click="zoomOut()"/>
-      </s:HGroup>
-     
+			<s:HGroup x="6"
+								y="6"
+								verticalAlign="middle">
+				<s:Label text="Zoom:"
+								 fontWeight="bold"/>
+				<s:Button label="+"
+									width="30"
+									click="zoomIn()"/>
+				<s:Button label="-"
+									width="30"
+									click="zoomOut()"/>
+			</s:HGroup>
+
 		</mx:Canvas>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>

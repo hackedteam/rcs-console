@@ -153,9 +153,13 @@ package it.ht.rcs.console.entities.view
       
         case 'links':
           section.currentState = 'links';
+          CurrentManager = EntityManager;
+          update();
           break;
         case 'map':
           section.currentState = 'map';
+          CurrentManager = EntityManager;
+          update();
           break;
         default:
           break;
@@ -248,7 +252,7 @@ package it.ht.rcs.console.entities.view
       
       if (item && item.hasOwnProperty('desc') && item.desc)
         result = result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
-      //
+
      
       return result;
     }

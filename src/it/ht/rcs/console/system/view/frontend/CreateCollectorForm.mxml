@@ -12,6 +12,7 @@
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
@@ -30,7 +31,7 @@
         }
         
         var validIP:RegExp= /^((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))*$/;
-        if(!validIP.test(StringUtil.trim(address.text) ))
+        if(!validIP.test(StringUtil.trim(address.text) ) && !LicenseManager.instance.hostname_sync)
         {
           AlertPopUp.show(R.get('COLLECTOR_INVALID_ADDRESS'));
           return;

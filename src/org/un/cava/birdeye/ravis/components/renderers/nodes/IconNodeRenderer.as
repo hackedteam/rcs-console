@@ -75,7 +75,6 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
 			 * be checked */
 			img = RendererIconFactory.createIcon(this.data.data.@nodeIcon,50);
 			img.toolTip = this.data.data.@name; // needs check
-      
 
       border = new BorderContainer();
       

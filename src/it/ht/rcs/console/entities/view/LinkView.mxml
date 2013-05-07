@@ -13,32 +13,35 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.events.RefreshEvent;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
-      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
-      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
-      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.events.RefreshEvent;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ArrayCollection;
+
+			[Bindable]
+			public var section:EntitiesSection;
 
 			private var entitiesToShow:ArrayCollection;
 
@@ -55,52 +58,31 @@
 			[Bindable]
 			private var selectedEdge:Edge;
 
-      [Bindable]
-      public var linkEnabled:Boolean;
-      
-      private var sort:Sort;
+			[Bindable]
+			public var linkEnabled:Boolean;
 
-			//temp
-			private var xmlData:XML=<Graph>
-					<Node   id="1"  name="Target 1"   desc="This is a description"  nodeColor="0x333333"  nodeSize="32"   nodeClass="tree"  nodeIcon="target"   x="10"  y="10" />
-					<Node   id="2"  name="Person 1"   desc="This is a description"  nodeColor="0x8F8FFF"  nodeSize="12"   nodeClass="tree"  nodeIcon="person"   x="10"  y="15" />
-					<Node   id="3"  name="Person 2"   desc="This is a description"  nodeColor="0xF00000"  nodeSize="36"   nodeClass="tree"  nodeIcon="person"   x="10"  y="20" />
-					<Node   id="4"  name="Person 3"   desc="This is a description"  nodeColor="0x00FF00"  nodeSize="10"   nodeClass="tree"  nodeIcon="person"   x="10"  y="25" />
-					<Node   id="5"  name="Target 2"   desc="This is a description"  nodeColor="0xFFA500"  nodeSize="14"   nodeClass="tree"  nodeIcon="target"   x="10"  y="30" />
-					<Node   id="6"  name="Position 1" desc="This is a description"  nodeColor="0x191970"  nodeSize="10"   nodeClass="tree"  nodeIcon="position" x="10"  y="35" />
-					<Node   id="7"  name="Position 2" desc="This is a description"  nodeColor="0x4682b4"  nodeSize="18"   nodeClass="tree"  nodeIcon="position" x="10"  y="40" />
-					<Node   id="8"  name="Position 3" desc="This is a description"  nodeColor="0x4682b4"  nodeSize="18"   nodeClass="tree"  nodeIcon="position" x="10"  y="40" />
-					<Node   id="9"  name="Person 4"   desc="This is a description"  nodeColor="0x00FF00"  nodeSize="10"   nodeClass="tree"  nodeIcon="person"   x="10"  y="25" />
-					<Node   id="10" name="Person 5"   desc="This is a description"  nodeColor="0x00FF00"  nodeSize="10"   nodeClass="leaf"  nodeIcon="person"   x="10"  y="25" />
-					<Node   id="11" name="Target 3"   desc="This is a description"  nodeColor="0x333333"  nodeSize="32"   nodeClass="tree"  nodeIcon="target"   x="10"  y="10" />
-					<Node   id="12" name="Target 4"   desc="This is a description"  nodeColor="0x333333"  nodeSize="32"   nodeClass="tree"  nodeIcon="target"   x="10"  y="10" />
-					<Node   id="13" name="Position 4" desc="This is a description"  nodeColor="0x4682b4"  nodeSize="18"   nodeClass="leaf"  nodeIcon="position" x="10"  y="40" />
+			[Bindable]
+			public var mergeEnabled:Boolean;
 
-					<Edge fromID="1" toID="2" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
-					<Edge fromID="2" toID="3" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
-					<Edge fromID="5" toID="3" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
 
-					<Edge fromID="1" toID="4" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="identity"/>
-					<Edge fromID="7" toID="1" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
+			private var sort:Sort;
 
-					<Edge fromID="8" toID="9" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" type="connection"/>
-					<Edge fromID="10" toID="11" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad" versus="both" type="identity"/>
-					<Edge fromID="10" toID="13" edgeLabel="Bad" flow="400" color="0xcd5c5c" edgeClass="sun" edgeIcon="Bad"  type="connection"/>
-				</Graph>
+			private var xmlData:XML;
 
 
 			private function init():void
 			{
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
-        sort=new Sort();
-        sort.fields=[new SortField("type",true), new SortField("name",false)]
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+				sort=new Sort();
+				sort.fields=[new SortField("type", true), new SortField("name", false)]
 			}
 
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
-        selectedEdge=null;
+				selectedEdge=null;
 				numEntitiesToShow=entities.length;
+        trace("entities: "+entities.length)
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
@@ -115,6 +97,8 @@
 				{
 					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
 				}
+        mergeEnabled=false;
+        linkEnabled=false;
 			}
 
 			private function analyzeData():void
@@ -122,6 +106,7 @@
 
 				g=new Graph("XMLAsDocsGraph", false, xmlData);
 				vgraph.visible=true;
+
 				var i:int=0;
 				var node:Node;
 
@@ -156,7 +141,7 @@
 					}
 				}
 				return null;
-			} 
+			}
 
 			private function getConnections(node:INode, examined:Array=null):void
 			{
@@ -184,11 +169,11 @@
 
 				if (roots.length == 1)
 				{
-					trace("no need to add a fake root")
+					//trace("no need to add a fake root")
 				}
 				else
 				{
-					trace("more than 1 root - add a fake root and attach real roots")
+					//trace("more than 1 root - add a fake root and attach real roots")
 					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />");
 					var fakeRoot:INode=g.createNode("0", xnode);
 
@@ -222,11 +207,13 @@
 				vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
 				vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
 				vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
+				vgraph.scale=1;
 				vgraph.draw();
 			}
 
 			private function onDetailResult(e:ResultEvent):void
 			{
+
 				numEntitiesToShow--
 				entitiesToShow.addItem(e.result)
 				if (numEntitiesToShow == 0)
@@ -263,7 +250,8 @@
 
 				}
 				info.selectedItem=null;
-        linkEnabled=false;
+				linkEnabled=false;
+				mergeEnabled=false;
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -290,7 +278,8 @@
 				}
 				selectedEdge=null;
 				info.selectedItem=null;
-        linkEnabled=false;
+				linkEnabled=false;
+				mergeEnabled=false;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -341,17 +330,35 @@
 						if (index != -1)
 							selectedNodes.removeItemAt(index)
 					}
-          if(selectedNodes.length==2 && (!selectedNodes[0].data.@type=="position" && selectedNodes[1].data.@type=="position"))
-          {
-            linkEnabled=true;
-          }
-            else
-          {
-              linkEnabled=false;
-          }
+
+					if (selectedNodes.length == 2 && (!selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
+					{
+						linkEnabled=true;
+					}
+					else
+					{
+						linkEnabled=false;
+					}
+
+					if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
+					{
+						mergeEnabled=true;
+					}
+					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
+					{
+						mergeEnabled=true;
+					}
+					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
+					{
+						mergeEnabled=true;
+					}
+					else
+					{
+						mergeEnabled=false;
+					}
 				}
 
-				trace("selected nodes: " + selectedNodes.length);
+				//trace("selected nodes: " + selectedNodes.length);
 				// unselect links
 				for (i=0; i < g.edges.length; i++)
 				{
@@ -366,31 +373,44 @@
 					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
 				else
 					info.selectedItem=null;
-        
-        if(selectedNodes.length==2 && !(selectedNodes[0].data.@nodeIcon=="position" && selectedNodes[1].data.@nodeIcon=="position"))
-        {
-          linkEnabled=true;
-        }
-        else
-        {
-          linkEnabled=false;
-        }
+
+				if (selectedNodes.length == 2 && !(selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
+				{
+					linkEnabled=true;
+				}
+				else
+				{
+					linkEnabled=false;
+				}
+
+				if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
+				{
+					mergeEnabled=true;
+				}
+				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
+				{
+					mergeEnabled=true;
+				}
+				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
+				{
+					mergeEnabled=true;
+				}
+				else
+				{
+					mergeEnabled=false;
+				}
 			}
 
 			private function parseItems():void
 			{
-        //sort entities
-        entitiesToShow.sort=sort;
-        entitiesToShow.refresh();
-        
-        
-        
+				entitiesToShow.sort=sort;
+				entitiesToShow.refresh();
+
 				var xmlStr:String="<Graph>"
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
 					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-          trace(e.name+" "+e.type)
-					//xmlStr+="<Node   id='1'  name='Target 1'   desc='This is a description'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='target'   x='10'  y='10' />"
+
 					xmlStr+="<Node   id='" + e._id + "'  name='" + e.name + "'   desc='" + e.desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
 					if (e.links)
 					{
@@ -398,21 +418,44 @@
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='out'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='out'";
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='"+link.rel+"' type='" + link.type + "' versus='in'";
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "' versus='in'";
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='"+link.rel+"' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
 							xmlStr+="/>"
 						}
 					}
 				}
 				xmlStr+="</Graph>";
-				trace(xmlStr)
 				xmlData=XML(xmlStr);
 				analyzeData();
+			}
+
+			private function zoomIn():void
+			{
+				vgraph.scale+=.1
+			}
+
+			private function zoomOut():void
+			{
+				vgraph.scale-=.1
+			}
+
+			private function refresh():void
+			{
+				var selectedEntities:ArrayCollection=new ArrayCollection()
+
+				//temp - all entities
+				for (var i:int=0; i < section.stateManager.view.length; i++)
+				{
+					var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
+					selectedEntities.addItem(entity);
+				}
+				section.stateManager.selectedEntities=selectedEntities;
+				onAddedToStage();
 			}
 		]]>
 	</fx:Script>
@@ -422,9 +465,11 @@
 													selectedEdge="{selectedEdge}"
 													linkAdded="onAddedToStage()"
 													linkRemoved="onAddedToStage()"
-                          entityDeleted="onAddedToStage()"
-                          
-                          mainView="{this}"/>
+													entityDeleted="refresh()"
+                          entityCreated="refresh()"
+													merge="refresh()"
+													mainView="{this}"
+													section="{section}"/>
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
@@ -448,6 +493,19 @@
 												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
 												 visibilityLimitActive="true">
 			</ravis:VisualGraph>
+			<s:HGroup x="6"
+								y="6"
+								verticalAlign="middle">
+				<s:Label text="Zoom:"
+								 fontWeight="bold"/>
+				<s:Button label="+"
+									width="30"
+									click="zoomIn()"/>
+				<s:Button label="-"
+									width="30"
+									click="zoomOut()"/>
+			</s:HGroup>
+
 		</mx:Canvas>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>

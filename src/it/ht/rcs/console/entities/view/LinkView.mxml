@@ -64,10 +64,17 @@
 			[Bindable]
 			public var mergeEnabled:Boolean;
 
-
 			private var sort:Sort;
-
 			private var xmlData:XML;
+
+			[Embed(source='/img/NEW/dottedLine.png')]
+			public static const dottedLine:Class;
+
+			[Embed(source='/img/NEW/dashedLine.png')]
+			public static const dashedLine:Class;
+
+			[Embed(source='/img/NEW/fullLine.png')]
+			public static const fullLine:Class;
 
 
 			private function init():void
@@ -82,7 +89,7 @@
 				info.selectedItem=null;
 				selectedEdge=null;
 				numEntitiesToShow=entities.length;
-        trace("entities: "+entities.length)
+				trace("entities: " + entities.length)
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
@@ -97,8 +104,8 @@
 				{
 					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
 				}
-        mergeEnabled=false;
-        linkEnabled=false;
+				mergeEnabled=false;
+				linkEnabled=false;
 			}
 
 			private function analyzeData():void
@@ -196,6 +203,7 @@
 				var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
 				vgraph.layouter=layouter;
 				layouter.linkLength=80; //
+
 				//layouter.autoFitEnabled=true;
 				//layouter.defaultRadius=50;
 
@@ -208,6 +216,7 @@
 				vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
 				vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
 				vgraph.scale=1;
+				bzoom.value=1;
 				vgraph.draw();
 			}
 
@@ -244,7 +253,7 @@
 					var currentNode:Node=g.nodes[i] as Node;
 					var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
 					currentNodeRenderer.selected=false;
-					var index:int=selectedNodes.getItemIndex(currentNode)
+					var index:int=selectedNodes.getItemIndex(currentNode);
 					if (index != -1)
 						selectedNodes.removeItemAt(index)
 
@@ -436,12 +445,80 @@
 
 			private function zoomIn():void
 			{
-				vgraph.scale+=.1
+				bzoom.value=bzoom.value - .10;
+				updateVScale(null);
 			}
 
 			private function zoomOut():void
 			{
-				vgraph.scale-=.1
+				bzoom.value=bzoom.value - .10;
+				updateVScale(null);
+			}
+
+			private function updateVScale(e:MouseEvent):void
+			{
+				if (bzoom == null)
+				{
+					return;
+				}
+
+				if (vgraph == null)
+				{
+					return;
+				}
+				//_vgraph.scale = bzoom.value;
+
+				// Handle the update for mousewheel events outside the component
+				if (e != null)
+				{
+					if (e.delta != 0)
+					{
+						if (bzoom.value == bzoom.minimum)
+						{
+							if (e.delta > 0)
+							{
+								bzoom.value=bzoom.value + (e.delta * 0.01);
+								vgraph.scale=bzoom.value;
+							}
+						}
+						else if (bzoom.value == bzoom.maximum)
+						{
+							if (e.delta < 0)
+							{
+								bzoom.value=bzoom.value + (e.delta * 0.01);
+								vgraph.scale=bzoom.value;
+							}
+						}
+						else
+						{
+							bzoom.value=bzoom.value + (e.delta * 0.01);
+							vgraph.scale=bzoom.value;
+						}
+					}
+				}
+				// Handle the update for the zoom buttons
+				else
+				{
+					if (bzoom.value <= bzoom.minimum)
+					{
+						bzoom.value=bzoom.minimum;
+						return;
+					}
+					else
+					{
+						vgraph.scale=bzoom.value;
+					}
+
+					if (bzoom.value >= bzoom.maximum)
+					{
+						bzoom.value=bzoom.maximum;
+						return;
+					}
+					else
+					{
+						vgraph.scale=bzoom.value;
+					}
+				}
 			}
 
 			private function refresh():void
@@ -466,7 +543,7 @@
 													linkAdded="onAddedToStage()"
 													linkRemoved="onAddedToStage()"
 													entityDeleted="refresh()"
-                          entityCreated="refresh()"
+													entityCreated="refresh()"
 													merge="refresh()"
 													mainView="{this}"
 													section="{section}"/>
@@ -493,19 +570,51 @@
 												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
 												 visibilityLimitActive="true">
 			</ravis:VisualGraph>
-			<s:HGroup x="6"
+			<s:VGroup x="6"
 								y="6"
-								verticalAlign="middle">
-				<s:Label text="Zoom:"
-								 fontWeight="bold"/>
-				<s:Button label="+"
-									width="30"
-									click="zoomIn()"/>
-				<s:Button label="-"
-									width="30"
-									click="zoomOut()"/>
-			</s:HGroup>
+								verticalAlign="middle"
+								horizontalAlign="center">
+				<s:Label text="+"/>
+				<s:VSlider stepSize=".25"
+									 x="6"
+									 y="6"
+									 id="bzoom"
+									 value="1"
+									 minimum=".25"
+									 maximum="2"
+									 liveDragging="true"
+									 change="updateVScale(null)"/>
+				<s:Label text="-"/>
 
+			</s:VGroup>
+
+			<s:HGroup y="6"
+								right="6"
+								verticalAlign="middle">
+				<s:VGroup horizontalAlign="center"
+									gap="0">
+					<s:Image source="{fullLine}"/>
+					<s:Label text="Peer"
+									 fontWeight="normal"
+									 fontSize="10"/>
+				</s:VGroup>
+				<s:Spacer width="10"/>
+				<s:VGroup horizontalAlign="center"
+									gap="0">
+					<s:Image source="{dashedLine}"/>
+					<s:Label text="Identity"
+									 fontWeight="normal"
+									 fontSize="10"/>
+				</s:VGroup>
+				<s:Spacer width="10"/>
+				<s:VGroup horizontalAlign="center"
+									gap="0">
+					<s:Image source="{dottedLine}"/>
+					<s:Label text="Know"
+									 fontWeight="normal"
+									 fontSize="10"/>
+				</s:VGroup>
+			</s:HGroup>
 		</mx:Canvas>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>

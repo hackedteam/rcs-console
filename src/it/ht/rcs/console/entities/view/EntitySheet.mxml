@@ -41,7 +41,7 @@
 			import com.google.maps.overlays.GroundOverlay;
 			import com.google.maps.overlays.GroundOverlayOptions;
 			import com.google.maps.overlays.Marker;
-			
+
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Contact;
@@ -53,9 +53,9 @@
 			import it.ht.rcs.console.utils.AlertPopUp;
 			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.TimeUtils;
-			
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -103,18 +103,18 @@
 
 			[Bindable]
 			private var fromDate:Date;
-      
-      
-      [Bindable]
-      private var limit:String="5";
+
+
+			[Bindable]
+			private var limit:String="5";
 
 			[Bindable]
 			private var toDate:Date;
 
 			private function init():void
 			{
-       
-        this.visible=false;
+
+				this.visible=false;
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
@@ -137,9 +137,10 @@
 					{
 						loadingBox.visible=loadingBox.includeInLayout=true;
 					}
-          limit="5";
-          if(limitTxt) limitTxt.text="5";
-            
+					limit="5";
+					if (limitTxt)
+						limitTxt.text="5";
+
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 				}
 				else
@@ -156,7 +157,7 @@
 
 			private function filter():void
 			{
-        limit=limitTxt.text;
+				limit=limitTxt.text;
 				fromDate=fromDf.selectedDate;
 				toDate=toDf.selectedDate;
 				loadingBox.visible=loadingBox.includeInLayout=true;
@@ -175,7 +176,7 @@
 			{
 				toDf.selectedDate.hours=23;
 				toDf.selectedDate.minutes=59;
-        toDf.selectedDate.seconds=59;
+				toDf.selectedDate.seconds=59;
 				return Clock.instance.toUTCTime(toDf.selectedDate) / 1000;
 			}
 
@@ -292,28 +293,28 @@
 							map.addOverlay(marker);
 							overlays.push(marker);
 							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-              if(entity.type=='target')
-							  lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): \nLatitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
-              else if(entity.type=='position')
-                lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
-              else
-                lastPositionTxt.text="";
-              
+							if (entity.type == 'target')
+								lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): \nLatitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
+							else if (entity.type == 'position')
+								lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
+							else
+								lastPositionTxt.text="";
+
 							map.setZoom(12)
 						}
 						else
 						{
-              if(entity.type=='target')
-							lastPositionTxt.text="";
+							if (entity.type == 'target')
+								lastPositionTxt.text="";
 							map.setZoom(1);
 						}
 					}
 					else
 					{
-            if(entity.type=='target')
-						  lastPositionTxt.text="Last position unkown";
-            else
-              lastPositionTxt.text="";
+						if (entity.type == 'target')
+							lastPositionTxt.text="Last position unkown";
+						else
+							lastPositionTxt.text="";
 						map.setZoom(1)
 					}
 
@@ -334,9 +335,9 @@
 			protected function onRemovedFromStage():void
 			{
 				//photoViewer.currentPhoto="";
-        //entity=null;
+				//entity=null;
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
-			
+
 			}
 
 			private function onContactResult(e:ResultEvent):void
@@ -425,7 +426,7 @@
 
 				if (mapReady)
 					drawPosition();
-        this.visible=true;
+				this.visible=true;
 				//dispatchEvent(new Event("update"));
 			}
 
@@ -524,8 +525,7 @@
 	</s:VGroup>
 	<s:HGroup width="100%"
 						height="100%">
-		<s:VGroup 
-							height="100%">
+		<s:VGroup height="100%">
 			<s:VGroup width="100%"
 								visible="{entity.desc!='' &amp;&amp; entity.desc!=null}"
 								includeInLayout="{entity.desc!='' &amp;&amp; entity.desc!=null}">
@@ -583,8 +583,13 @@
 								verticalAlign="middle"
 								visible="{entity.type=='target'}"
 								includeInLayout="{entity.type=='target'}">
-        <s:TextInput id="limitTxt" text="{limit}" restrict="[0-9]" width="30" enter="filter()"/>
-          
+				<s:TextInput id="limitTxt"
+										 text="{limit}"
+										 restrict="[0-9]"
+										 width="24"
+										 enter="filter()"
+										 borderAlpha="0" fontWeight="bold"/>
+
 				<s:Label text="{R.get('MOST_CONTACTED')}"
 								 fontWeight="bold"
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
@@ -637,7 +642,9 @@
 				<s:HGroup width="100%"
 									horizontalAlign="left">
 					<s:Label id="lastPositionTxt"
-									 alpha="{LicenseManager.instance.correlation? 1:0.5}" fontWeight="bold" width="300"/>
+									 alpha="{LicenseManager.instance.correlation? 1:0.5}"
+									 fontWeight="bold"
+									 width="300"/>
 					<!--	<s:CheckBox label="Last Positions"/>
 						<s:Spacer width="10"/>
 						<s:CheckBox label="Addresses"/>

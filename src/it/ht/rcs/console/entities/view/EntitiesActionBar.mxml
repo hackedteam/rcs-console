@@ -24,7 +24,6 @@
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"/>
 
-
 	<actionbar:Separator/>
 
 	<s:Button label="{R.get('JUMP_TO_TARGET')}"
@@ -137,6 +136,15 @@
       
       private function onMapClick():void
       {
+        selectedEntities=new ArrayCollection()
+        
+        //temp - all entities
+        for(var i:int=0;i<section.stateManager.view.length;i++)
+        {
+          var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
+          selectedEntities.addItem(entity);
+        }
+        section.stateManager.selectedEntities=selectedEntities;
         section.stateManager.setState("map");
       }
 

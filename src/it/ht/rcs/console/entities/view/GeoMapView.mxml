@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:maps="com.google.maps.*"
+					xmlns:components="it.ht.rcs.console.entities.view.components.*"
+					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
+					xmlns:entities="it.ht.rcs.console.entities.view.*"
+					height="100%"
+					width="100%"
+					creationComplete="init()"
+					addedToStage="onAddedToStage()">
+	<fx:Script>
+		<![CDATA[
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapEvent;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.view.map.CustomMarker;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
+
+      private var _mapPane:IPane;
+			private var _markers:Array;
+			private var _circles:Array;
+			private var _overlays:Array=new Array();
+			private var _centre:LatLng;
+      private var _scale:Number;
+      private var _circleOverlay:IOverlay;
+
+			[Bindable]
+			public var section:EntitiesSection;
+			[Bindable]
+			public var entities:ArrayCollection;
+			[Bindable]
+			public var positions:ArrayCollection;
+      
+      //Styling
+      private var circleFillColor:uint=0xFF0000;
+      private var circleFillAlpha:Number=0.2;
+      private var circleBorderTickness:int=0.2;
+      private var circleBorderFillColor:uint=0xFF0000;
+      private var circleBorderFillAlpha:Number=0.5;
+
+			private var ready:Boolean;
+
+			private function init():void
+			{
+        map.addEventListener(MapEvent.MAP_READY, onMapReady)
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+			}
+
+			private function isPosition(entity:Entity):Boolean
+			{
+				if (entity.type == "person")
+					return false;
+				else if (entity.type == "position")
+					return true;
+				else if (entity.type == "target")
+				{
+					if (entity.position != null)
+						return true
+				}
+				return false;
+			}
+
+			private function onAddedToStage(e:Event=null):void
+			{
+
+				positions=new ArrayCollection();
+				var entity:Entity;
+				for (var i:int=0; i < entities.length; i++)
+				{
+					entity=entities.getItemAt(i) as Entity;
+					if (isPosition(entity))
+						positions.addItem(entity);
+				}
+				if (ready)
+				{
+					drawMap(positions)
+				}
+				
+			}
+
+			private function drawMap(entities:ArrayCollection):void
+			{
+        var i:int=0;
+        for (i=0; i < _overlays.length; i++)
+        {
+          map.removeOverlay(_overlays[i] as IOverlay);
+        }
+        map.setZoom(3)
+        map.setCenter(new LatLng(0,0))
+				var entity:Entity;
+				if (entities && entities.length > 0)
+				{
+					_markers=new Array();
+					_circles=new Array();
+
+				
+					var bounds:LatLngBounds=new LatLngBounds();
+
+					entity=entities.getItemAt(0) as Entity;
+					_centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+					map.setCenter(_centre, 14, MapType.NORMAL_MAP_TYPE);
+					_overlays=new Array();
+					for (i=0; i < entities.length; i++)
+					{
+						entity=entities.getItemAt(i) as Entity;
+						var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+						var marker:Marker=new Marker(coordinates, new MarkerOptions({icon: new CustomMarker(entity), hasShadow: false}));
+						marker.shadow.visible=false;
+						//marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
+
+						marker.foreground.alpha=1;
+
+						bounds.extend(coordinates);
+						var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+						//bounds.union(circleBounds)
+						_overlays.push(marker);
+						_markers.push(marker);
+						map.addOverlay(marker);
+					}
+					//selectedPosition=_positions[0]
+					map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+				}
+			}
+      private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
+      {
+        if (isNaN(radiusKm) || radiusKm <= 0)
+        {
+          //return new LatLngBounds();
+          radiusKm=0.02
+        }
+        
+        _scale=calculateMapScale();
+        var shape:Shape=new Shape();
+        var overlay:GroundOverlay;
+        var bounds:LatLngBounds;
+        var centrePoint:Point;
+        var topLeft:LatLng;
+        var bottomRight:LatLng;
+        var options:GroundOverlayOptions;
+        var circleWidth:Number=radiusKm * 2 * _scale;
+        
+        shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
+        shape.graphics.beginFill(circleFillColor, circleFillAlpha);
+        shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
+        shape.graphics.endFill();
+        centrePoint=_mapPane.fromLatLngToPaneCoords(position);
+        topLeft=_mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
+        bottomRight=_mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
+        bounds=new LatLngBounds(topLeft, bottomRight);
+        options=new GroundOverlayOptions();
+        options.applyProjection=true;
+        _circleOverlay=new GroundOverlay(shape, bounds, options);
+        map.addOverlay(_circleOverlay);
+        _overlays.push(_circleOverlay);
+        _circles.push(_circleOverlay);
+        
+        return bounds
+      }
+      
+      private function calculateMapScale():Number
+      {
+        var topLeft:LatLng;
+        var bottomLeft:LatLng;
+        var scale:Number;
+        var distance:Number;
+        
+        topLeft=_mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
+        bottomLeft=_mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
+        distance=topLeft.distanceFrom(bottomLeft) / 1000;
+        scale=map.height / distance;
+        
+        return scale;
+      }
+      
+			private function onMapReady(e:MapEvent):void
+			{
+        map.addControl(new ZoomControl());
+        map.addControl(new PositionControl());
+        map.addControl(new MapTypeControl())
+        
+        _mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
+        
+        //map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
+        map.removeEventListener(MapEvent.MAP_READY, onMapReady)
+				ready=true;
+        drawMap(positions)
+			}
+		]]>
+	</fx:Script>
+
+	<entities:GeoMapActionBar section="{section}"/>
+	<s:HGroup width="100%"
+						height="100%"
+						gap="5">
+		<s:BorderContainer width="100%"
+											 height="100%"
+											 borderAlpha="1"
+											 borderColor="0xCCCCCC"
+											 backgroundColor="0xCCCCCC"
+											 backgroundAlpha="0.1">
+			<maps:Map xmlns:maps="com.google.maps.*"
+								id="map"
+								width="100%"
+								height="100%"
+								key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
+								url="http://www.hackingteam.it/"
+								sensor="false"
+								accessibilityDescription=""
+								enabled="{LicenseManager.instance.correlation}" mapevent_mapready="onMapReady(event)"/>
+		</s:BorderContainer>
+		<entities:EntityInfoPanel id="info"/>
+	</s:HGroup>
+
+</s:VGroup>

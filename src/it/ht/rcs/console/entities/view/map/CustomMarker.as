@@ -11,13 +11,13 @@ package it.ht.rcs.console.entities.view.map
     [Embed(source='/img/NEW/star_50.png')]
     private var entityIcon:Class;
     
-    [Embed(source='/img/NEW/entity_people_50.png')]
+    [Embed(source='/img/NEW/mapMarker_people.png')]
     private var entityPeopleIcon:Class;
     
-    [Embed(source='/img/NEW/entity_location_50.png')]
+    [Embed(source='/img/NEW/mapMarker_location.png')]
     private var entityLocationIcon:Class;
     
-    [Embed(source='/img/NEW/entity_target_50.png')]
+    [Embed(source='/img/NEW/mapMarker_people.png')]
     private var entityTargetIcon:Class;
     
     public var data:Entity;
@@ -26,8 +26,8 @@ package it.ht.rcs.console.entities.view.map
     {
       data=entity;
       var icon:Sprite=new Sprite();
-      icon.x=-25;
-      icon.y=-25;
+      icon.x=-12;
+      icon.y=-24;
       if(entity.type =="position")
         icon.addChild(new entityLocationIcon());
       if(entity.type =="target")

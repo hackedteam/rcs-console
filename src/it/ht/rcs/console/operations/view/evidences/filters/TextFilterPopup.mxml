@@ -19,7 +19,7 @@
         input.text = StringUtil.trim(input.text);
         hasFilter = input.text != '';
         
-        hasFilter ? filter[property] = input.text : delete(filter[property]) ;
+        hasFilter ? filter[property] = input.text.split("|") : delete(filter[property]) ;
         if(hasFilter && property=="_id")
           filter[property]=[input.text]//id as Array
         visible = false;
@@ -36,7 +36,18 @@
       private function show():void
       {
         input.setFocus();
-        input.text = filter[property];
+        input.text = filter[property]
+        if(filter[property] is Array)
+        {
+          var s:String="";
+          for(var i:int=0;i<filter[property].length;i++)
+          {
+            s+=filter[property][i];
+            if(i<filter[property].length-1)
+              s+="|";
+          }
+          input.text =s;
+        }  
       }
       
       override public function rebuild(e:Event=null):void

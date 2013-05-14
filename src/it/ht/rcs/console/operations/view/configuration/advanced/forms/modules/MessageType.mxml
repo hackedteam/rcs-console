@@ -14,9 +14,9 @@
 			import it.ht.rcs.console.DefaultConfigBuilder;
 			import it.ht.rcs.console.utils.DateUtils;
 			import it.ht.rcs.console.utils.TimeUtils;
-			
+
 			import locale.R;
-			
+
 			import mx.events.ValidationResultEvent;
 			import mx.formatters.DateFormatter;
 
@@ -45,11 +45,13 @@
 				{
 					fromDate.selectedDate=DateUtils.parseDateTimeString(module[property].filter.datefrom);
 				}
-        else{
-          fromDate.selectedDate=new Date();
-        }
+				else
+				{
+					fromDate.selectedDate=new Date();
+				}
 				fromTime.time=module[property].filter.datefrom.split(' ')[1];
-
+				if (module[property].filter.dateto == "0000-00-00 00:00:00")
+					module[property].filter.dateto=DefaultConfigBuilder.FOREVER_DATE;
 				notForever.selected=module[property].filter.dateto != DefaultConfigBuilder.FOREVER_DATE;
 				if (notForever.selected)
 				{

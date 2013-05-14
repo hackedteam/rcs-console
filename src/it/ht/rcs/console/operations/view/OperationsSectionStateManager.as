@@ -189,7 +189,7 @@ package it.ht.rcs.console.operations.view
         {
           delete(EvidenceManager.instance.evidenceFilter.info);
         }
-        if(event.from)
+        if(!isNaN(event.from))
         {
           EvidenceManager.instance.evidenceFilter.date = 'da';
           EvidenceManager.instance.evidenceFilter.from = event.from;

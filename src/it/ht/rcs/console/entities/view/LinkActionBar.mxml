@@ -67,6 +67,12 @@
 										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedEdge!=null}"
 										 tag="{selectedEdge? selectedEdge.data.@rel: 0}"
 										 change="updateRelevance(tagEditor.tag)"/>
+  <s:Button label="{'Jump to Evidence'}"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mainView.jumpEnabled }"
+            icon="@Embed('/img/NEW/jumpToEvidence.png')"
+            click="jumpToEvidence()"/>
 
 	<s:Spacer width="100%"/>
 	<s:Spacer height="50"/>
@@ -158,7 +164,6 @@
       {
         EntityManager.instance.refresh();
         EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
-      
       }
       
       private function onDataLoaded(e:DataLoadedEvent):void
@@ -333,6 +338,36 @@
 			{
 				trace("fault");
 			}
+      
+      private function jumpToEvidence():void
+      {
+          var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+          var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+          var targetId:String;
+          
+          if(entity1.type=="target")
+          {
+           targetId=String(entity1.path.getItemAt(entity1.path.length - 1));
+          }
+          else
+          {
+            targetId=String(entity2.path.getItemAt(entity2.path.length - 1));
+          }
+          var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+          event.section=SectionEvent.OPERATIONS;
+          event.subsection='evidence';
+          
+         
+          event.item=SearchManager.instance.getItem(targetId);
+          event.evidenceTypes=["call", "chat", "message"];
+          //event.info=String(item.peer + " " + item.type);
+          //event.from=getFromTimestamp();
+          //event.to=getToTimestamp();
+          event.from=0;
+          event.to=0; //no filter
+          FlexGlobals.topLevelApplication.dispatchEvent(event);
+      
+      }
 		]]>
 	</fx:Script>
 

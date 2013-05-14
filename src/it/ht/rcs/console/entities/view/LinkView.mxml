@@ -63,6 +63,9 @@
 
 			[Bindable]
 			public var mergeEnabled:Boolean;
+      
+      [Bindable]
+      public var jumpEnabled:Boolean;
 
 			private var sort:Sort;
 			private var xmlData:XML;
@@ -106,6 +109,7 @@
 				}
 				mergeEnabled=false;
 				linkEnabled=false;
+        jumpEnabled=false;
 			}
 
 			private function analyzeData():void
@@ -261,6 +265,12 @@
 				info.selectedItem=null;
 				linkEnabled=false;
 				mergeEnabled=false;
+        var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+        var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+        if(selectedEdge!=null && (selectedEdge.data.@type=="peer" || selectedEdge.data.@type=="know") && selectedEdge.data.@level=="automatic")
+          jumpEnabled=true;
+        else
+          jumpEnabled=false;
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -289,6 +299,7 @@
 				info.selectedItem=null;
 				linkEnabled=false;
 				mergeEnabled=false;
+        jumpEnabled=false;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -408,6 +419,7 @@
 				{
 					mergeEnabled=false;
 				}
+        jumpEnabled=false;
 			}
 
 			private function parseItems():void
@@ -427,13 +439,13 @@
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='out'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='out'";
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "' versus='in'";
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='in'";
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'";
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'";
 							xmlStr+="/>"
 						}
 					}

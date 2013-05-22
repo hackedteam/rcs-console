@@ -45,7 +45,12 @@
         doSave();
         dispatchEvent(new Event("update"))
         if (currentState == CREATE)
-          EntityManager.instance.addEntity(entity, operation, function(entity:Entity):void { close(); dispatchEvent(new Event("close"))});
+          EntityManager.instance.addEntity(entity, operation, 
+            function(e:Entity):void 
+            { 
+              entity=e;
+              close(); 
+              dispatchEvent(new Event("close"))});
         else
           close();
         //close();  

@@ -17,7 +17,7 @@ package it.ht.rcs.console.entities.view.map
     [Embed(source='/img/NEW/mapMarker_location.png')]
     private var entityLocationIcon:Class;
     
-    [Embed(source='/img/NEW/mapMarker_people.png')]
+    [Embed(source='/img/NEW/mapMarker_target.png')]
     private var entityTargetIcon:Class;
     
     public var data:Entity;

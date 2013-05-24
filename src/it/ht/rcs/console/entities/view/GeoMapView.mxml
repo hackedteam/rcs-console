@@ -162,7 +162,8 @@
 						marker.foreground.alpha=1;
 
 						bounds.extend(coordinates);
-						var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+            var fillColor:uint = entity.type=="position"? 0x0000FF : 0xFF0000;
+						var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
 						//bounds.union(circleBounds)
 						_overlays.push(marker);
 						_markers.push(marker);
@@ -192,13 +193,13 @@
         // Polyline overlay.
         var polyline:Polyline = new Polyline([new LatLng(Number(entity1.position.latitude), Number(entity1.position.longitude)),new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude))], new PolylineOptions({ strokeStyle: new StrokeStyle({color: 0xFF0000,thickness: 4,alpha: 1})}));
         map.addOverlay(polyline);
-       
+        _overlays.push(polyline);
         
         //return bounds
       }
       
       
-      private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
+      private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
       {
         if (isNaN(radiusKm) || radiusKm <= 0)
         {
@@ -216,8 +217,8 @@
         var options:GroundOverlayOptions;
         var circleWidth:Number=radiusKm * 2 * _scale;
         
-        shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
-        shape.graphics.beginFill(circleFillColor, circleFillAlpha);
+        shape.graphics.lineStyle(circleBorderTickness, color, circleBorderFillAlpha);
+        shape.graphics.beginFill(color, circleFillAlpha);
         shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
         shape.graphics.endFill();
         centrePoint=_mapPane.fromLatLngToPaneCoords(position);

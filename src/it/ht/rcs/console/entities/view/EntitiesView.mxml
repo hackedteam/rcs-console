@@ -16,6 +16,9 @@
       [Bindable]
       public var section:EntitiesSection;
       
+      [Bindable]
+      public var selcetdObjects:Vector.<Object>
+      
       private function onDoubleClick(event:MouseEvent):void
       {
         var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
@@ -32,7 +35,7 @@
   </fx:Script>
   
 
-<entities:EntitiesActionBar section="{section}" selectedObject="{list.selectedItem}" viewStack="{views}"/>
+<entities:EntitiesActionBar section="{section}" selectedObjects="{list.selectedItems}" viewStack="{views}" selectedObject="{list.selectedItem}"/>
   
   
   <mx:ViewStack id="views" width="100%" height="100%" creationPolicy="all">
@@ -41,10 +44,10 @@
       
       <s:HGroup width="100%" height="100%" gap="5">
         
-        <view:BaseList id="list" dataProvider="{section.stateManager.view}" selectedItem="{grid.selectedItem}"
-                       doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)"/>
+        <view:BaseList id="list" dataProvider="{section.stateManager.view}" selectedItems="{grid.selectedItems}"
+                       doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)" allowMultipleSelection="true"/>
         
-       <entities:EntityInfoPanel selectedItem="{list.selectedItem}"/>
+       <entities:EntityInfoPanel selectedItem="{list.selectedItem}" selectedItems="{list.selectedItems}"/>
         
       </s:HGroup>
       
@@ -53,7 +56,7 @@
                         icon="@Embed('/img/windows/list.png')" showEffect="{fadeIn}">
       
       
-      <entities:EntitiesGrid id="grid" dataProvider="{section.stateManager.tableView}" selectedItem="{list.selectedItem}"
+      <entities:EntitiesGrid id="grid" dataProvider="{section.stateManager.tableView}" selectedItems="{list.selectedItems}"
                              doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)"/>
       
       

@@ -14,12 +14,12 @@
 
 	<s:Button label="{R.get('EDIT')}"
 						click="onEditClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject != null}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 }"
 						icon="@Embed('/img/NEW/edit.png')"/>
 
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.type!='target'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject.type!='target'}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"/>
@@ -28,24 +28,24 @@
 
 	<s:Button label="{R.get('JUMP_TO_TARGET')}"
 						click="onJumpClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject != null &amp;&amp; selectedObject.type=='target'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject.type=='target'}"
 						icon="@Embed('/img/NEW/jumpToTarget.png')"/>
 	<actionbar:Separator/>
-  
+
 	<s:Button label="{R.get('LINK_MAP')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles()}"
 						icon="@Embed('/img/NEW/link32.png')"
 						click="onLinkClick()"/>
-  
+
 	<s:Button label="{R.get('POSITION_MAP')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles()}"
 						icon="@Embed('/img/NEW/position32.png')"
 						click="onMapClick()"/>
-  
+
 	<s:Spacer width="100%"/>
 
 	<s:ButtonBar dataProvider="{viewStack}"
@@ -60,6 +60,7 @@
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.search.controller.SearchManager;
@@ -74,9 +75,12 @@
 
 			[Bindable]
 			public var section:EntitiesSection;
-      
-      [Bindable]
-      public var selectedEntities:ArrayCollection;
+
+			[Bindable]
+			public var selectedEntities:ArrayCollection;
+
+			[Bindable]
+			public var selectedObjects:Vector.<Object>;
 
 			private function onNewClick():void
 			{
@@ -89,6 +93,7 @@
 
 			private function onEditClick():void
 			{
+				//selectedObject=selectedObjects[0] 
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				//popup.addEventListener("update", onUpdate) 
 				popup.entity=selectedObject as Entity;
@@ -99,6 +104,7 @@
 
 			private function onJumpClick():void
 			{
+				//selectedObject=selectedObjects[0] 
 				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
 				event.section=SectionEvent.OPERATIONS;
 				event.subsection='target';
@@ -110,6 +116,7 @@
 
 			private function onDeleteClick():void
 			{
+				//selectedObject=selectedObjects[0] 
 				AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 				{
 					if (e.detail == AlertPopUp.YES)
@@ -122,31 +129,44 @@
 
 			private function onLinkClick():void
 			{
-        selectedEntities=new ArrayCollection()
-          
-          //temp - all entities
-        for(var i:int=0;i<section.stateManager.view.length;i++)
-        {
-         var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
-         selectedEntities.addItem(entity);
-        }
-        section.stateManager.selectedEntities=selectedEntities;
+				selectedEntities=new ArrayCollection()
+        var i:int;
+        var entity:Entity;
+				if (this.selectedObjects.length == 0 || this.selectedObjects.length == section.stateManager.view.length) //??
+
+				{ //temp - all entities
+					for (i=0; i < section.stateManager.view.length; i++)
+					{
+						entity=section.stateManager.view.getItemAt(i) as Entity;
+						selectedEntities.addItem(entity);
+            
+					}
+				}
+				else
+				{
+					for (i=0; i < this.selectedObjects.length; i++)
+					{
+						entity=selectedObjects[i] as Entity;
+						selectedEntities.addItem(entity);
+					}
+				}
+				section.stateManager.selectedEntities=selectedEntities;
 				section.stateManager.setState("links")
 			}
-      
-      private function onMapClick():void
-      {
-        selectedEntities=new ArrayCollection()
-        
-        //temp - all entities
-        for(var i:int=0;i<section.stateManager.view.length;i++)
-        {
-          var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
-          selectedEntities.addItem(entity);
-        }
-        section.stateManager.selectedEntities=selectedEntities;
-        section.stateManager.setState("map");
-      }
+
+			private function onMapClick():void
+			{
+				selectedEntities=new ArrayCollection()
+
+				//temp - all entities
+				for (var i:int=0; i < section.stateManager.view.length; i++)
+				{
+					var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
+					selectedEntities.addItem(entity);
+				}
+				section.stateManager.selectedEntities=selectedEntities;
+				section.stateManager.setState("map");
+			}
 
 			private function onRemovedFromStage():void
 			{

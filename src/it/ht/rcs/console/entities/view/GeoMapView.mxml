@@ -28,6 +28,9 @@
       import com.google.maps.overlays.GroundOverlayOptions;
       import com.google.maps.overlays.Marker;
       import com.google.maps.overlays.MarkerOptions;
+      import com.google.maps.overlays.Polyline;
+      import com.google.maps.overlays.PolylineOptions;
+      import com.google.maps.styles.StrokeStyle;
       
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
@@ -57,6 +60,9 @@
 			public var entities:ArrayCollection;
 			[Bindable]
 			public var positions:ArrayCollection;
+      
+      private var entitiesToShow:ArrayCollection;    
+      private var numEntitiesToShow:int=0;
       
       //Styling
       private var circleFillColor:uint=0xFF0000;
@@ -92,18 +98,36 @@
 
 				positions=new ArrayCollection();
 				var entity:Entity;
-				for (var i:int=0; i < entities.length; i++)
+        var i:int;
+				for (i=0; i < entities.length; i++)
 				{
 					entity=entities.getItemAt(i) as Entity;
-					if (isPosition(entity))
-						positions.addItem(entity);
+					if (isPosition(entity)) positions.addItem(entity);
 				}
-				if (ready)
-				{
-					drawMap(positions)
-				}
-				
+        
+        numEntitiesToShow=positions.length;
+        entitiesToShow=new ArrayCollection();
+        
+        for (i=0; i < positions.length; i++)
+        {
+          EntityManager.instance.show(positions.getItemAt(i)._id, onDetailResult)
+        }
+
 			}
+      
+      private function onDetailResult(e:ResultEvent):void
+      {
+        
+        numEntitiesToShow--
+          entitiesToShow.addItem(e.result)
+        if (numEntitiesToShow == 0)
+        {
+          if (ready)
+          {
+            drawMap(entitiesToShow)
+          }
+        }
+      }
 
 			private function drawMap(entities:ArrayCollection):void
 			{
@@ -115,7 +139,7 @@
         map.setZoom(3)
         map.setCenter(new LatLng(0,0))
 				var entity:Entity;
-				if (entities && entities.length > 0)
+				if (entitiesToShow && entitiesToShow.length > 0)
 				{
 					_markers=new Array();
 					_circles=new Array();
@@ -123,13 +147,13 @@
 				
 					var bounds:LatLngBounds=new LatLngBounds();
 
-					entity=entities.getItemAt(0) as Entity;
+					entity=entitiesToShow.getItemAt(0) as Entity;
 					_centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
 					map.setCenter(_centre, 14, MapType.NORMAL_MAP_TYPE);
 					_overlays=new Array();
-					for (i=0; i < entities.length; i++)
+					for (i=0; i < entitiesToShow.length; i++)
 					{
-						entity=entities.getItemAt(i) as Entity;
+						entity=entitiesToShow.getItemAt(i) as Entity;
 						var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
 						var marker:Marker=new Marker(coordinates, new MarkerOptions({icon: new CustomMarker(entity), hasShadow: true}));
 						marker.shadow.visible=true;
@@ -143,11 +167,37 @@
 						_overlays.push(marker);
 						_markers.push(marker);
 						map.addOverlay(marker);
+            
+            if(entity.links)
+            {
+              //draw connections
+              for(var l:int=0;l<entity.links.length;l++)
+              {
+                var link:Link=entity.links.getItemAt(l) as Link;
+                var entity2:Entity=EntityManager.instance.getEntityById(link.le)
+               // trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
+                if(entity.type=="target" && entity2.type=="position")
+                  drawLink(entity, entity2)
+              }
+            }
 					}
 					//selectedPosition=_positions[0]
 					map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 				}
 			}
+      
+      private function drawLink(entity1:Entity, entity2:Entity):void
+      {
+        //https://developers.google.com/maps/documentation/flash/overlays
+        // Polyline overlay.
+        var polyline:Polyline = new Polyline([new LatLng(Number(entity1.position.latitude), Number(entity1.position.longitude)),new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude))], new PolylineOptions({ strokeStyle: new StrokeStyle({color: 0xFF0000,thickness: 4,alpha: 1})}));
+        map.addOverlay(polyline);
+       
+        
+        //return bounds
+      }
+      
+      
       private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
       {
         if (isNaN(radiusKm) || radiusKm <= 0)
@@ -210,7 +260,7 @@
         //map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
         map.removeEventListener(MapEvent.MAP_READY, onMapReady)
 				ready=true;
-        drawMap(positions)
+        drawMap(entitiesToShow)
 			}
 		]]>
 	</fx:Script>

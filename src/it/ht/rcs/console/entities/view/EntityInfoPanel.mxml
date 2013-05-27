@@ -164,9 +164,9 @@
         {
           mapReady=true;
           
-          //map.addControl(new ZoomControl());
-          //map.addControl(new PositionControl());
-          //map.addControl(new MapTypeControl())
+          map.addControl(new ZoomControl());
+          map.addControl(new PositionControl());
+          map.addControl(new MapTypeControl());
           
           mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
           
@@ -244,6 +244,11 @@
                     visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}">
           <s:Label text="Lng: {selectedItem.position.longitude}"/>
       </s:FormItem>
+      <s:FormItem label=""
+                  includeInLayout="{selectedItem.type=='target'  &amp;&amp; selectedItem.position}"
+                  visible="{selectedItem.type=='target' &amp;&amp; selectedItem.position}">
+        <s:Label text="{'('+TimeUtils.timestampFormatter(selectedItem.position_attr.time * 1000)+')'}"/>
+      </s:FormItem>
       <!-- map -->
       <s:Spacer height="20"/>
       <s:BorderContainer width="300"
@@ -251,7 +256,8 @@
                          borderAlpha="1"
                          borderColor="0x666666"
                          backgroundColor="0xCCCCCC"
-                         backgroundAlpha="0.3">
+                         backgroundAlpha="0.3" includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}"
+                         visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}">
         <maps:Map xmlns:maps="com.google.maps.*"
                   id="map"
                   mapevent_mapready="onMapReady(event)"

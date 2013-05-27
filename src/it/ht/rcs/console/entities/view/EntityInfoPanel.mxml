@@ -48,6 +48,7 @@
       private var overlays:Array=new Array();
 
 			private var _selectedItem:*;
+      private var _selectedItems:Vector.<Object>;
       
       [Bindable]
       public function set selectedItem(value:*):void
@@ -55,7 +56,6 @@
         _selectedItem=value;
         if(mapReady)
           drawPosition()
-
       }
       
       public function get selectedItem():*
@@ -64,9 +64,18 @@
       }
       
       [Bindable]
-      public var selectedItems:Vector.<Object>
+      public function set selectedItems(value:Vector.<Object>):void
+      {
+        _selectedItems=value;
+        if(mapReady)
+          drawPosition()
+      }
       
-      
+      public function get selectedItems():Vector.<Object>
+      {
+        return _selectedItems;
+      }
+     
       private function calculateMapScale():Number
       {
         var topLeft:LatLng;
@@ -125,7 +134,7 @@
           {
             map.removeOverlay(overlays[i] as IOverlay);
           }
-          if (selectedItem.position)
+          if (selectedItem  && selectedItem.position)
           {
             if (selectedItem.position.latitude && selectedItem.position.longitude)
             {

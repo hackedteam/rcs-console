@@ -74,7 +74,11 @@
 
 	<actionbar:Separator/>
 
-
+  <s:Button label="{R.get('JUMP_TO_TARGET')}"
+            click="jumpToTarget()"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedNodes.length==1  &amp;&amp; selectedNodes.getItemAt(0).data.@nodeIcon=='target'}"
+            icon="@Embed('/img/NEW/jumpToTarget.png')"/>
+  
 	<s:Button label="{'Jump to Evidence'}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
@@ -413,10 +417,21 @@
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
 
 			}
+      private function jumpToTarget():void
+      {
+        //selectedObject=selectedObjects[0] 
+        var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+        event.section=SectionEvent.OPERATIONS;
+        event.subsection='target';
+        var entity:Entity=EntityManager.instance.getItem(selectedNodes.getItemAt(0).data.@id) as Entity;
+        var targetId:String=entity.path[entity.path.length - 1];
+        event.item=SearchManager.instance.getItem(targetId);
+        FlexGlobals.topLevelApplication.dispatchEvent(event);
+      }
       
       private function onTargetSelection(e:Event):void
       {
-        var targetId=String(e.currentTarget.selectedTarget.path.getItemAt(e.currentTarget.selectedTarget.path.length - 1));
+        var targetId:String=String(e.currentTarget.selectedTarget.path.getItemAt(e.currentTarget.selectedTarget.path.length - 1));
         var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
         event.section=SectionEvent.OPERATIONS;
         event.subsection='evidence';

@@ -90,6 +90,7 @@
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
+        info.selectedItems=null;
 				selectedEdge=null;
 
 				numEntitiesToShow=entities.length;
@@ -197,7 +198,7 @@
 					}
 				}
 
-				initData(g)
+				initData(g);
 			}
 
 			private function initData(g:Graph):void
@@ -227,11 +228,11 @@
 			private function onDetailResult(e:ResultEvent):void
 			{
 
-				numEntitiesToShow--
+				numEntitiesToShow--;
 				entitiesToShow.addItem(e.result)
 				if (numEntitiesToShow == 0)
 				{
-					parseItems()
+					parseItems();
 				}
 			}
 
@@ -263,6 +264,7 @@
 
 				}
 				info.selectedItem=null;
+        info.selectedItems=null;
 				linkEnabled=false;
 				mergeEnabled=false;
         var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
@@ -297,6 +299,7 @@
 				}
 				selectedEdge=null;
 				info.selectedItem=null;
+        info.selectedItems=null;
 				linkEnabled=false;
 				mergeEnabled=false;
         jumpEnabled=false;
@@ -390,10 +393,16 @@
 				}
 				selectedEdge=null;
 				if (selectedNodes.length == 1)
+        {
 					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
+          info.selectedItems=new <Object>[info.selectedItem];
+          info.selectedItems.push(info.selectedItem)
+        }
 				else
+        {
 					info.selectedItem=null;
-
+          info.selectedItems=null
+        }
 				if (selectedNodes.length == 2 && !(selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
 				{
 					linkEnabled=true;
@@ -431,22 +440,45 @@
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
 					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-
-					xmlStr+="<Node   id='" + e._id + "'  name='" + e.name + "'   desc='" + e.desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
+          var name:String=e.name.split('&').join('&amp;')
+            .split('<').join('&lt;')
+            .split('>').join('&gt;')
+            .split('"').join('&quote;')
+            .split("'").join('&apos;');
+          var desc:String=""
+          if(e.desc) desc=e.desc.split('&').join('&amp;')
+            .split('<').join('&lt;')
+            .split('>').join('&gt;')
+            .split('"').join('&quote;')
+            .split("'").join('&apos;');
+					xmlStr+="<Node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
 					if (e.links)
 					{
 						for (var j:int=0; j < e.links.length; j++)
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='out'";
+              {
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='out'>";
+              }
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='in'";
+              {                
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='in'>";
+              }
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'";
+              {
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'>";
+              }
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'";
-							xmlStr+="/>"
+              {
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'>";
+              }
+              //add links
+              for (var k:int=0;k<link.info.length;k++)
+              {
+                xmlStr+="<Info>"+String(link.info.getItemAt(k))+"</Info>"
+              }
+							xmlStr+="</Edge>"
 						}
 					}
 				}
@@ -556,6 +588,7 @@
 													linkRemoved="onAddedToStage()"
 													entityDeleted="refresh()"
 													entityCreated="refresh()"
+                          entityUpdated="onAddedToStage()"
 													merge="refresh()"
 													mainView="{this}"
 													section="{section}"/>

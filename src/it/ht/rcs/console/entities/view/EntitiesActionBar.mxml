@@ -95,7 +95,7 @@
 			{
 				//selectedObject=selectedObjects[0] 
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-				//popup.addEventListener("update", onUpdate) 
+				popup.addEventListener("update", onUpdate) 
 				popup.entity=selectedObject as Entity;
 				popup.entity.desc=selectedObject.desc;
 				popup.currentState=EntityForm.EDIT
@@ -113,7 +113,13 @@
 				event.item=SearchManager.instance.getItem(targetId);
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
 			}
-
+      private function onUpdate(e:Event):void
+      {
+        selectedObject.name=e.currentTarget.entity.name;
+        selectedObject.desc=e.currentTarget.entity.desc;
+        
+        dispatchEvent(e)
+      }
 			private function onDeleteClick():void
 			{
 				//selectedObject=selectedObjects[0] 

@@ -90,7 +90,7 @@
 				else if (entity.type == "target")
 				{
 					if (entity.position != null)
-						return true
+						return true;
 				}
 				return false;
 			}
@@ -111,19 +111,23 @@
 
 			private function onEntityCreated():void
 			{
-
 				refresh()
 			}
 
 			private function onEntityUpdated():void
 			{
-
 				refresh()
 			}
+      
+      private function onLinkAdded():void
+      {
+        refresh()
+      }
 
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
+        info.selectedItems=null;
 				positions=new ArrayCollection();
 				var entity:Entity;
 				var i:int;
@@ -158,21 +162,63 @@
 				}
 			}
 
-			private function onMarkerClick(e:MapMouseEvent):void
+			private function onMapClick(e:MapMouseEvent):void
 			{
-				//var customMarker:CustomMarker=e.currentTarget.wrapper.options.icon as CustomMarker;
+				trace("map clicked");
+				e.stopImmediatePropagation()
 				var icon:CustomMarker
 				for (var i:* in _icons)
 				{
 					icon=_icons[i]
 					icon.selected=false;
+				}
+
+				info.selectedItem=null;
+				info.selectedItems=new <Object>[];
+			}
+
+			private function onMarkerClick(e:MapMouseEvent):void
+			{
+
+				trace("marker clicked");
+				e.stopImmediatePropagation()
+				var icon:CustomMarker
+				var i:*;
+				//var customMarker:CustomMarker=e.currentTarget.wrapper.options.icon as CustomMarker;
+				if (e.ctrlKey) //multiple selection
+				{
+					icon=_icons[e.currentTarget];
+					icon.selected=!icon.selected;
+					var selectedItems:Vector.<Object>=new <Object>[];
+					for (i in _icons)
+					{
+						icon=_icons[i]
+						if (icon.selected)
+							selectedItems.push(icon.entity);
+					}
+					info.selectedItems=selectedItems
+					if (selectedItems.length > 0)
+						info.selectedItem=selectedItems[selectedItems.length - 1]
+					else
+						info.selectedItem=null
 
 				}
-				icon=_icons[e.currentTarget]
-				icon.selected=!icon.selected;
-				info.selectedItem=icon.selected ? icon.entity : null
-				info.selectedItems=new <Object>[info.selectedItem];
-				trace("marker clicked")
+
+				else //single selection
+				{
+					for (i in _icons)
+					{
+						icon=_icons[i]
+						icon.selected=false;
+					}
+
+					icon=_icons[e.currentTarget];
+					icon.selected=!icon.selected;
+					info.selectedItem=icon.selected ? icon.entity : null;
+					info.selectedItems=new <Object>[info.selectedItem];
+
+				}
+
 			}
 
 			private function drawMap(entities:ArrayCollection):void
@@ -183,6 +229,7 @@
 				{
 					map.removeOverlay(_overlays[i] as IOverlay);
 				}
+				map.addEventListener(MapMouseEvent.CLICK, onMapClick)
 				map.setZoom(3);
 				map.setCenter(new LatLng(0, 0));
 				var entity:Entity;
@@ -328,12 +375,13 @@
 			}
 		]]>
 	</fx:Script>
-
 	<entities:GeoMapActionBar section="{section}"
 														selectedObject="{info.selectedItem}"
+														selectedObjects="{info.selectedItems}"
 														entityDeleted="onEntityDeleted()"
 														entityCreated="onEntityCreated()"
-														entityUpdated="onEntityUpdated()"/>
+														entityUpdated="onEntityUpdated()"
+                            linkAdded="onLinkAdded()"/>
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">

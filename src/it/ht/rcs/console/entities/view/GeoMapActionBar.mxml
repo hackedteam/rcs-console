@@ -17,7 +17,7 @@
    
 
   </fx:Metadata>
- 
+
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.entities.controller.EntityManager;
@@ -27,16 +27,16 @@
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.utils.AlertPopUp;
-			
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			
+
 			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 
@@ -46,125 +46,159 @@
 			[Bindable]
 			public var mainView:GeoMapView;
 
+			[Bindable]
+			public var selectedObjects:Vector.<Object>;
+
 			private function onRemovedFromStage():void
 			{
 				// section.stateManager.view.refresh();
 				// section.stateManager.tableView.refresh();
 			}
+
+			private function onNewClick():void
+			{
+				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				popup.operation=section.stateManager.selectedOperation;
+				popup.entity=new Entity(Entity.defaultEntity());
+				popup.currentState=EntityForm.CREATE;
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function onDeleteEntityClick():void
+			{
+				var entity:Entity=EntityManager.instance.getEntityById(selectedObject._id)
+				AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [entity.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				{
+					if (e.detail == AlertPopUp.YES)
+					{
+						EntityManager.instance.removeItem(entity);
+						dispatchEvent(new Event("entityDeleted"));
+
+					}
+				}, null, AlertPopUp.NO);
+			}
+
+			private function onEditClick():void
+			{
+				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+				popup.addEventListener("update", onUpdate)
+
+				popup.entity=EntityManager.instance.getEntityById(selectedObject._id)
+
+				popup.currentState=EntityForm.EDIT
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function onUpdate(e:Event):void
+			{
+				var entity:Entity=EntityManager.instance.getEntityById(selectedObject._id)
+				entity.name=e.currentTarget.entity.name;
+				entity.desc=e.currentTarget.entity.desc;
+				dispatchEvent(new Event("entityUpdated"));
+			}
+
+			private function jumpToTarget():void
+			{
+				//selectedObject=selectedObjects[0] 
+				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+				event.section=SectionEvent.OPERATIONS;
+				event.subsection='target';
+				var entity:Entity=EntityManager.instance.getItem(selectedObject._id) as Entity;
+				var targetId:String=entity.path[entity.path.length - 1];
+				event.item=SearchManager.instance.getItem(targetId);
+				FlexGlobals.topLevelApplication.dispatchEvent(event);
+			}
       
-      private function onNewClick():void
+      private function addLink():void
       {
-        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-        popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
-        popup.operation=section.stateManager.selectedOperation;
-        popup.entity=new Entity(Entity.defaultEntity());
-        popup.currentState=EntityForm.CREATE;
-        PopUpManager.centerPopUp(popup);
-      }
-      
-      private function onDeleteEntityClick():void
-      {
-        var entity:Entity=EntityManager.instance.getEntityById(selectedObject._id)
-        AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [entity.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
-        {
-          if (e.detail == AlertPopUp.YES)
-          {
-            EntityManager.instance.removeItem(entity);
-            dispatchEvent(new Event("entityDeleted"));
-            
-          }
-        }, null, AlertPopUp.NO);
-      }
-      
-      private function onEditClick():void
-      {
-        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-        popup.addEventListener("update", onUpdate)
+        var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0]._id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1]._id);
         
-        popup.entity=EntityManager.instance.getEntityById(selectedObject._id)
-      
-        popup.currentState=EntityForm.EDIT
+        if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
+        {
+          popup.entity1=entity2;
+          popup.entity2=entity1;
+          popup.versusSelectionEnabled=false;
+        }
+        else if (entity2.type == "position" && (entity1.type == "target" || entity1.type == "person"))
+        {
+          popup.entity1=entity1;
+          popup.entity2=entity2;
+          popup.versusSelectionEnabled=false;
+        }
+        else
+        {
+          popup.entity1=entity1;
+          popup.entity2=entity2;
+          popup.versusSelectionEnabled=true;
+        }
+        
+        popup.currentState=LinkForm.CREATE;
+        popup.addEventListener(LinkForm.LINK_ADDED, onLinkAdded)
         PopUpManager.centerPopUp(popup);
+        
       }
       
-      private function onUpdate(e:Event):void
+      private function onLinkAdded(e:Event):void
       {
-        var entity:Entity=EntityManager.instance.getEntityById(selectedObject._id)
-        entity.name=e.currentTarget.entity.name;
-        entity.desc=e.currentTarget.entity.desc;
-        dispatchEvent(new Event("entityUpdated"));
-      }
-      
-      private function jumpToTarget():void
-      {
-        //selectedObject=selectedObjects[0] 
-        var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
-        event.section=SectionEvent.OPERATIONS;
-        event.subsection='target';
-        var entity:Entity=EntityManager.instance.getItem(selectedObject._id) as Entity;
-        var targetId:String=entity.path[entity.path.length - 1];
-        event.item=SearchManager.instance.getItem(targetId);
-        FlexGlobals.topLevelApplication.dispatchEvent(event);
-      }
-      
-      private function onEntityAdded(e:Event):void
-      {
-        dispatchEvent(new Event("entityCreated"));
+        dispatchEvent(new Event("linkAdded"));
       }
 
+			private function onEntityAdded(e:Event):void
+			{
+				dispatchEvent(new Event("entityCreated"));
+			}
 		]]>
 	</fx:Script>
-  <s:Button label="{R.get('NEW_ENTITY')}"
-            click="onNewClick()"
-            enabled="{Console.currentSession.user.is_view_profiles() }"
-            icon="@Embed('/img/NEW/newEntity.png')"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"/>
-  
-  <s:Button label="{R.get('EDIT')}"
-            icon="@Embed('/img/NEW/edit.png')"
-            click="onEditClick()"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject!=null }"/>
-  
-  <s:Button label="{R.get('DELETE')+ ' '+R.get('ENTITY')}"
-            click="onDeleteEntityClick()"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject!=null &amp;&amp; selectedObject.type!='target'}"
-            icon="@Embed('/img/NEW/delete_32.png')"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"/>
-  
-  <actionbar:Separator/>
-  
-  <s:Button label="{R.get('LINK_ADD')}"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="false"
-            
-            icon="@Embed('/img/NEW/linkAdd.png')"/>
-  
-  <s:Button label="{R.get('LINK_EDIT')}"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="false"
+	<s:Button label="{R.get('NEW_ENTITY')}"
+						click="onNewClick()"
+						enabled="{Console.currentSession.user.is_view_profiles() }"
+						icon="@Embed('/img/NEW/newEntity.png')"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"/>
 
-            icon="@Embed('/img/NEW/linkEdit.png')"/>
-  
-  <s:Button label="{R.get('LINK_REMOVE')}"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="false"
-            icon="@Embed('/img/NEW/linkRemove.png')"
-            />
-  
-  
-  
-  <actionbar:Separator/>
-  
-  <s:Button label="{R.get('JUMP_TO_TARGET')}"
-            click="jumpToTarget()"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject!=null &amp;&amp; selectedObject.type=='target'}"
-            icon="@Embed('/img/NEW/jumpToTarget.png')" />
-  
+	<s:Button label="{R.get('EDIT')}"
+						icon="@Embed('/img/NEW/edit.png')"
+						click="onEditClick()"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject!=null &amp;&amp;selectedObjects.length==1 }"/>
 
-  <s:Spacer width="100%"/>
+	<s:Button label="{R.get('DELETE')+ ' '+R.get('ENTITY')}"
+						click="onDeleteEntityClick()"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject!=null &amp;&amp; selectedObject.type!='target' &amp;&amp;selectedObjects.length==1}"
+						icon="@Embed('/img/NEW/delete_32.png')"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"/>
+
+	<actionbar:Separator/>
+
+	<s:Button label="{R.get('LINK_ADD')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="{selectedObjects!=null &amp;&amp; selectedObjects.length==2 &amp;&amp;((selectedObjects[0].type=='position' &amp;&amp; selectedObjects[1].type=='target') || (selectedObjects[0].type=='target' &amp;&amp; selectedObjects[1].type=='position'))}"
+            click="addLink()"
+						icon="@Embed('/img/NEW/linkAdd.png')"/>
+
+	<s:Button label="{R.get('LINK_EDIT')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="false"
+						icon="@Embed('/img/NEW/linkEdit.png')"/>
+
+	<s:Button label="{R.get('LINK_REMOVE')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="false"
+						icon="@Embed('/img/NEW/linkRemove.png')"/>
+
+	<actionbar:Separator/>
+
+	<s:Button label="{R.get('JUMP_TO_TARGET')}"
+						click="jumpToTarget()"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject!=null &amp;&amp; selectedObject.type=='target'}"
+						icon="@Embed('/img/NEW/jumpToTarget.png')"/>
+
+
+	<s:Spacer width="100%"/>
 </actionbar:ActionBar>

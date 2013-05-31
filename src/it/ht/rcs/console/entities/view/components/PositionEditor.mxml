@@ -30,6 +30,8 @@
       import com.google.maps.services.GeocodingEvent;
       import com.google.maps.services.Placemark;
       
+      import it.ht.rcs.console.entities.model.Entity;
+      
       import locale.R;
       
       import mx.collections.ArrayCollection;
@@ -95,6 +97,47 @@
         }
 			}
       
+      public function set(entity:Entity):void
+      {
+        defaultAccuracy=Number(entity.position_attr.accuracy)
+        inputMode=ADDRESS;
+        if (resultBox)
+          resultBox.visible=false;
+        if (addressRb)
+          addressRb.selected=true;
+        if (coordinatesRb)
+          coordinatesRb.selected=false;
+        if (addressTxt)
+          addressTxt.text="";
+        if (latTxt)
+          latTxt.text=String(entity.position.latitude);
+        if (longTxt)
+          longTxt.text=String(entity.position.longitude);
+        if (accuracyTxt)
+          accuracyTxt.text=String(defaultAccuracy);
+        if(map) 
+        {
+          if(map.initialized)
+          {
+            map.clearOverlays() 
+            map.setCenter(new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)))
+            map.setZoom(1)
+            marker=new Marker(new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)))
+            
+            marker.setOptions(new MarkerOptions({draggable: true}))
+            marker.addEventListener(MapMouseEvent.DRAG_STEP, onDrag)
+            marker.addEventListener(MapMouseEvent.DRAG_END, onDragEnd) 
+            map.addOverlay(marker);
+            drawAccuracy()
+            position.latitude=entity.position.latitude;
+            position.longitude=entity.position.longitude;
+            position.accuracy=defaultAccuracy;
+            positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
+            map.setZoom(15);
+          }
+        }
+      }
+      
       private function drawAccuracy():void
       {
         if(accuracyTxt)
@@ -127,6 +170,7 @@
         options.applyProjection=true;
         circleOverlay=new GroundOverlay(shape, bounds, options);
         map.addOverlay(circleOverlay);
+       // map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
         
       }
       

@@ -32,18 +32,18 @@
 			import com.google.maps.overlays.Polyline;
 			import com.google.maps.overlays.PolylineOptions;
 			import com.google.maps.styles.StrokeStyle;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
 			import it.ht.rcs.console.entities.view.map.CustomMarker;
 			import it.ht.rcs.console.events.RefreshEvent;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
@@ -72,6 +72,14 @@
 			private var circleBorderTickness:int=0.2;
 			private var circleBorderFillColor:uint=0xFF0000;
 			private var circleBorderFillAlpha:Number=0.5;
+      
+      
+      private var relevence0:uint=0x333333;
+      private var relevence1:uint=0x999999;
+      private var relevence2:uint=0x5DE35F;
+      private var relevence3:uint=0xFFDC42;
+      private var relevence4:uint=0xFF4034;
+      private var relevanceColors:Array;
 
 			private var ready:Boolean;
 
@@ -79,6 +87,7 @@
 			{
 				map.addEventListener(MapEvent.MAP_READY, onMapReady)
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+        relevanceColors=[relevence0, relevence1, relevence2, relevence3, relevence4]
 			}
 
 			private function isPosition(entity:Entity):Boolean
@@ -273,7 +282,11 @@
 								if (entity && entity2)
 								{
 									if (entity.type == "target" && entity2.type == "position")
-										drawLink(entity, entity2)
+                  {
+                    var color:uint=relevanceColors[link.rel]
+										drawLink(entity, entity2, color)
+                    
+                  }
 								}
 							}
 						}
@@ -283,10 +296,10 @@
 				}
 			}
 
-			private function drawLink(entity1:Entity, entity2:Entity):void
+			private function drawLink(entity1:Entity, entity2:Entity, color:uint):void
 			{
 				//https://developers.google.com/maps/documentation/flash/overlays
-				var polyline:Polyline=new Polyline([new LatLng(Number(entity1.position.latitude), Number(entity1.position.longitude)), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude))], new PolylineOptions({strokeStyle: new StrokeStyle({color: 0xFF0000, thickness: 4, alpha: 1})}));
+				var polyline:Polyline=new Polyline([new LatLng(Number(entity1.position.latitude), Number(entity1.position.longitude)), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude))], new PolylineOptions({strokeStyle: new StrokeStyle({color: color, thickness: 2, alpha: 1})}));
 				map.addOverlay(polyline);
 				_overlays.push(polyline);
 

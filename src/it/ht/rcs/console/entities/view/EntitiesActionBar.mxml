@@ -54,7 +54,16 @@
 	<s:TextInput id="searchInput"
 							 keyUp="onKeyUp(event)"
 							 removedFromStage="onRemovedFromStage()"/>
-
+  <fx:Metadata>
+    [Event(name="update", type="flash.events.Event")]
+    [Event(name="linkAdded", type="flash.events.Event")]
+    [Event(name="linkRemoved", type="flash.events.Event")]
+    [Event(name="entityDeleted", type="flash.events.Event")]
+    [Event(name="entityCreated", type="flash.events.Event")]
+    [Event(name="entityUpdated", type="flash.events.Event")]
+    [Event(name="merge", type="flash.events.Event")]
+    
+  </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
@@ -119,6 +128,7 @@
         selectedObject.desc=e.currentTarget.entity.desc;
         
         dispatchEvent(e)
+        dispatchEvent(new Event("entityUpdated"));
       }
 			private function onDeleteClick():void
 			{
@@ -138,7 +148,15 @@
 				selectedEntities=new ArrayCollection()
         var i:int;
         var entity:Entity;
-				if (this.selectedObjects.length == 0 || this.selectedObjects.length == section.stateManager.view.length) //??
+        
+        for (i=0; i < section.stateManager.view.length; i++)
+        {
+          entity=section.stateManager.view.getItemAt(i) as Entity;
+          selectedEntities.addItem(entity);
+          
+        }
+        
+			/* 	if (this.selectedObjects.length == 0 || this.selectedObjects.length == section.stateManager.view.length) //??
 
 				{ //temp - all entities
 					for (i=0; i < section.stateManager.view.length; i++)
@@ -155,7 +173,8 @@
 						entity=selectedObjects[i] as Entity;
 						selectedEntities.addItem(entity);
 					}
-				}
+				} */
+        
 				section.stateManager.selectedEntities=selectedEntities;
 				section.stateManager.setState("links")
 			}

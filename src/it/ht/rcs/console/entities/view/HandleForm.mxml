@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              creationComplete="init()" save="onSave(event)"
-                             title="{R.get('ADD_HANDLE')}">
+                             title="{entity.type=='virtual' ? R.get('ADD_URL') : R.get('ADD_HANDLE')}">
 
   <fx:Script>
     <![CDATA[
@@ -21,13 +21,11 @@
       import mx.events.CloseEvent;
       import mx.rpc.events.ResultEvent;
       
-      
       [Bindable] public var entity:Entity;
       
       private function init():void
       {
         saveButton.enabled=false;
-        
       }
       
       private function onSave(event:SaveEvent):void
@@ -38,7 +36,8 @@
 
       private function doSave():void
       {
-       EntityManager.instance.addHandle(entity._id, handle.text, handleName.text, typeCb.selectedItem, function(e:ResultEvent):void { close(); dispatchEvent(new Event("update"))});
+       var type:String=entity.type=='virtual' ? 'url' : typeCb.selectedItem
+       EntityManager.instance.addHandle(entity._id, handle.text, handleName.text, type, function(e:ResultEvent):void { close(); dispatchEvent(new Event("update"))});
       }
       
       private function onChange():void
@@ -57,14 +56,14 @@
   </fx:Script>
 
   <s:Form width="100%" defaultButton="{saveButton}">
-    <s:FormItem label="Account: *">
+    <s:FormItem label="{entity.type=='virtual'?'Url *':'Account *'}">
       <s:TextInput id="handle" width="250"  change="onChange()"/>
     </s:FormItem>
     <s:FormItem label="{R.get('NAME')}">
       <s:TextInput id="handleName" width="250"/>
     </s:FormItem>
-    <s:FormItem label="{R.get('TYPE')}">
-      <s:ComboBox selectedIndex="4" id="typeCb">
+    <s:FormItem label="{R.get('TYPE')}" visible="{entity.type!='virtual'}" includeInLayout="{entity.type!='virtual'}">
+      <s:ComboBox selectedIndex="4" id="typeCb" >
         <s:dataProvider>
           <s:ArrayList>
             <fx:String>Bbm</fx:String>

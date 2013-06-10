@@ -85,7 +85,7 @@
 
 					originalName=StringUtils.getFilename(data.data.path)
 					extension=StringUtils.getExtension(data.data.path)
-					var fileName:String=data.data._grid + encodeURIComponent(target) + "_" + originalName + "." + extension;
+					var fileName:String=data.data._grid + encodeURIComponent(target) + "_" + originalName;
 					if (DB.instance.demo)
 					{
 						fileName=data.data.path
@@ -113,10 +113,7 @@
 			private function onSelect(e:Event):void
 			{
 				downloadBtn.enabled=false;
-				if (file.extension != extension)
-				{
-					file=new flash.filesystem.File(file.nativePath + "." + extension);
-				}
+			
 				stream.addEventListener(Event.COMPLETE, onFileDownloaded);
 				stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
 				stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);

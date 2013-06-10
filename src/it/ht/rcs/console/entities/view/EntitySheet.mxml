@@ -41,11 +41,12 @@
 			import com.google.maps.overlays.GroundOverlay;
 			import com.google.maps.overlays.GroundOverlayOptions;
 			import com.google.maps.overlays.Marker;
-			
+
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Contact;
 			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Visit;
 			import it.ht.rcs.console.events.RefreshEvent;
 			import it.ht.rcs.console.events.SectionEvent;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
@@ -53,9 +54,9 @@
 			import it.ht.rcs.console.utils.AlertPopUp;
 			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.TimeUtils;
-			
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -74,6 +75,9 @@
 
 			[Bindable]
 			private var mostContacted:ArrayCollection;
+
+			[Bindable]
+			private var mostVisited:ArrayCollection;
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -98,9 +102,9 @@
 			private const MILLISECONDS_PER_DAY:int=86400000;
 			private const MONTH:int=MILLISECONDS_PER_DAY * 30;
 
-      [Bindable]
-      public var section:EntitiesSection;
-      
+			[Bindable]
+			public var section:EntitiesSection;
+
 			[Bindable]
 			public var entity:Entity;
 
@@ -143,6 +147,7 @@
 						limitTxt.text="5";
 
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 				}
 				else
 				{
@@ -150,19 +155,34 @@
 						contactsList.enabled=false; //TODO ADD A MESSAGE
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=false;
+
+					if (visitedList)
+						visitedList.enabled=false; //TODO ADD A MESSAGE
+					if (loadingBox2)
+						loadingBox2.visible=loadingBox.includeInLayout=false;
 				}
 
 				callLater(onRefresh, [null])
 
 			}
 
-			private function filter():void
+			private function filter(e:Event):void
 			{
-				limit=limitTxt.text;
+				if (e.currentTarget == limitTxt)
+				{
+					limit=limitTxt.text;
+				}
+
+
+				if (e.currentTarget == visitLimitTxt)
+				{
+					limit=visitLimitTxt.text;
+				}
 				fromDate=fromDf.selectedDate;
 				toDate=toDf.selectedDate;
 				loadingBox.visible=loadingBox.includeInLayout=true;
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+				EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 			}
 
 
@@ -301,7 +321,7 @@
 							else
 								lastPositionTxt.text="";
 
-							//map.setZoom(12)
+								//map.setZoom(12)
 						}
 						else
 						{
@@ -368,6 +388,23 @@
 				loadingBox.visible=loadingBox.includeInLayout=false;
 			}
 
+			private function onVisitedResult(e:ResultEvent):void
+			{
+
+				mostVisited=e.result as ArrayCollection
+
+				if (loadingBox2)
+					loadingBox2.visible=loadingBox2.includeInLayout=false;
+				if (visitedList)
+					visitedList.dataProvider=mostVisited;
+			}
+
+			private function onVisitedFault(e:FaultEvent):void
+			{
+				trace("fault callback most visited call")
+				loadingBox2.visible=loadingBox2.includeInLayout=false;
+			}
+
 			private function onDetailFault(e:FaultEvent):void
 			{
 				trace("fault callback entity show call")
@@ -377,6 +414,8 @@
 			{
 				//  TODO REDUNDANT
 				mostContacted=new ArrayCollection();
+				mostVisited=new ArrayCollection()
+
 				EntityManager.instance.show(entity._id, onDetailResult);
 				if (loadingBox)
 					loadingBox.visible=loadingBox.includeInLayout=false;
@@ -384,11 +423,15 @@
 				{
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=true;
+					if (loadingBox2)
+						loadingBox2.visible=loadingBox.includeInLayout=true;
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 				}
 				else
 				{
 					contactsList.enabled=false;
+					visitedList.enabled=false;
 				}
 			}
 
@@ -441,7 +484,7 @@
 
 			private function onRemoveHandle():void
 			{
-				AlertPopUp.show(R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				AlertPopUp.show(entity.type == 'virtual' ? R.get('CONFIRM_URL_DELETION') : R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 				{
 					if (e.detail == AlertPopUp.YES)
 						EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
@@ -468,27 +511,28 @@
 				}
 
 			}
-      
-      private function onEntityAdded(e:Event):void
-      {
-        var popup:EntityForm=e.currentTarget as EntityForm;
-        var entity:Entity=popup.entity;
-        var contact:Contact=contactsList.selectedItem as Contact;
-        EntityManager.instance.addHandle(entity._id, contact.peer, contact.peer_name, contact.type)
-      }
-      
-      private function addContactAsEntity():void
-      {
-        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-        popup.operation=section.stateManager.selectedOperation;
-        popup.entity=new Entity(Entity.defaultEntity());
-        popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
-        if(contactsList.selectedItem.peer_name!=null) popup.entity.name=contactsList.selectedItem.peer_name;
-        popup.type.enabled=false;
-        popup.currentState=EntityForm.CREATE;
-        PopUpManager.centerPopUp(popup);
-      }
-      
+
+			private function onEntityAdded(e:Event):void
+			{
+				var popup:EntityForm=e.currentTarget as EntityForm;
+				var entity:Entity=popup.entity;
+				var contact:Contact=contactsList.selectedItem as Contact;
+				EntityManager.instance.addHandle(entity._id, contact.peer, contact.peer_name, contact.type)
+			}
+
+			private function addContactAsEntity():void
+			{
+				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+				popup.operation=section.stateManager.selectedOperation;
+				popup.entity=new Entity(Entity.defaultEntity());
+				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				if (contactsList.selectedItem.peer_name != null)
+					popup.entity.name=contactsList.selectedItem.peer_name;
+				popup.type.enabled=false;
+				popup.currentState=EntityForm.CREATE;
+				PopUpManager.centerPopUp(popup);
+			}
+
 			public function update():void
 			{
 				onUpdate(null)
@@ -524,7 +568,7 @@
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
 				<mx:DateField id="fromDf"
 											selectedDate="{fromDate}"
-											change="filter()"
+											change="filter(event)"
 											formatString="YYYY-MM-DD"
 											enabled="{LicenseManager.instance.correlation}"/>
 				<s:Label text="{R.get('TO')}:"
@@ -532,7 +576,7 @@
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
 				<mx:DateField id="toDf"
 											selectedDate="{toDate}"
-											change="filter()"
+											change="filter(event)"
 											formatString="YYYY-MM-DD"
 											enabled="{LicenseManager.instance.correlation}"/>
 			</s:HGroup>
@@ -606,7 +650,7 @@
 										 text="{limit}"
 										 restrict="[0-9]"
 										 width="24"
-										 enter="filter()"
+										 enter="filter(event)"
 										 borderAlpha="0"
 										 fontWeight="bold"/>
 
@@ -631,7 +675,8 @@
 				<s:Button label="{R.get('ENTITY_ADD_AS')}"
 									visible="{mostContacted!=null &amp;&amp; mostContacted.length>0}"
 									includeInLayout="{mostContacted!=null &amp;&amp; mostContacted.length>0}"
-									enabled="{contactsList.selectedItem!=null}" click="addContactAsEntity()"/>
+									enabled="{contactsList.selectedItem!=null}"
+									click="addContactAsEntity()"/>
 			</s:HGroup>
 			<s:List width="100%"
 							height="100%"
@@ -641,6 +686,50 @@
 							dataProvider="{mostContacted}"
 							doubleClickEnabled="true"
 							doubleClick="jumpToEvidence(event)"
+							visible="{entity.type=='target'}"
+							includeInLayout="{entity.type=='target'}"/>
+
+			<s:HGroup width="100%"
+								verticalAlign="middle"
+								visible="{entity.type=='target'}"
+								includeInLayout="{entity.type=='target'}">
+				<s:TextInput id="visitLimitTxt"
+										 text="{limit}"
+										 restrict="[0-9]"
+										 width="24"
+										 enter="filter(event)"
+										 borderAlpha="0"
+										 fontWeight="bold"/>
+
+				<s:Label text="{R.get('MOST_VISITED')}"
+								 fontWeight="bold"
+								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+				<s:Label text=" (Feature not included in current License)"
+								 visible="{!LicenseManager.instance.correlation}"
+								 includeInLayout="{!LicenseManager.instance.correlation}"
+								 fontWeight="bold"
+								 alpha="0.5"/>
+				<s:Spacer width="100%"/>
+				<s:HGroup verticalAlign="middle"
+									id="loadingBox2"
+									visible="{LicenseManager.instance.correlation}"
+									includeInLayout="{LicenseManager.instance.correlation}">
+
+					<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+					<s:Label text="Retrieving data..."
+									 fontWeight="bold"/>
+				</s:HGroup>
+				<!--  <s:Button label="{R.get('ENTITY_ADD_AS')}"
+										visible="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
+										includeInLayout="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
+										enabled="{visitedList.selectedItem!=null}"/>-->
+			</s:HGroup>
+			<s:List width="100%"
+							height="100%"
+							id="visitedList"
+							enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
+							itemRenderer="it.ht.rcs.console.entities.view.renderers.VisitedListRenderer"
+							dataProvider="{mostVisited}"
 							visible="{entity.type=='target'}"
 							includeInLayout="{entity.type=='target'}"/>
 

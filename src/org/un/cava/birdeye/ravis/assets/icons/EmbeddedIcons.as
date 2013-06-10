@@ -282,6 +282,10 @@ package org.un.cava.birdeye.ravis.assets.icons {
     static public var targetIcon:Class;
     
     [Bindable]
+    [Embed(source='ht/entity_virtual_50.png')]
+    static public var virtualIcon:Class;
+    
+    [Bindable]
     [Embed(source='ht/fake_50.png')]
     static public var fakeIcon:Class;
 
@@ -323,6 +327,9 @@ package org.un.cava.birdeye.ravis.assets.icons {
           break;
         case "position":
           img.source = EmbeddedIcons.positionIcon;	
+          break;
+        case "virtual":
+          img.source = EmbeddedIcons.virtualIcon;	
           break;     
         case "fake":
           img.source = EmbeddedIcons.fakeIcon;	

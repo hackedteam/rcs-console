@@ -11,14 +11,35 @@
       [Bindable]
       private var ImageClass:Class;
       
-      
       private function init():void
       {
-        if(data)
+        var domain:String=""
+        var atIndex:int=String(data.handle).search("@")
+          if(atIndex!=-1)
+          {
+            domain=String(data.handle).substring(atIndex+1,data.handle.length);
+          }
+       
+        if(data.type=="mail")
+        {
+          switch(domain)
+          {
+          case "hotmail.com":
+            ImageClass=ChatIcons['outlook']
+            break;
+          case "gmail.com":
+            ImageClass=ChatIcons['gmail']
+            break;
+            default:
+              ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
+          }
+          
+        }
+        
+        else
         {
           ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
         }
-        
       }
     ]]>
   </fx:Script>

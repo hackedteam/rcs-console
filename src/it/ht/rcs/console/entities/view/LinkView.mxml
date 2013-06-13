@@ -63,9 +63,9 @@
 
 			[Bindable]
 			public var mergeEnabled:Boolean;
-      
-      [Bindable]
-      public var jumpEnabled:Boolean;
+
+			[Bindable]
+			public var jumpEnabled:Boolean;
 
 			private var sort:Sort;
 			private var xmlData:XML;
@@ -90,11 +90,16 @@
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
-        info.selectedItems=null;
+				info.selectedItems=null;
 				selectedEdge=null;
+
+				//ad links entity - depth=1
+
 
 				numEntitiesToShow=entities.length;
 				trace("entities: " + entities.length);
+
+
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
@@ -111,7 +116,7 @@
 				}
 				mergeEnabled=false;
 				linkEnabled=false;
-        jumpEnabled=false;
+				jumpEnabled=false;
 			}
 
 			private function analyzeData():void
@@ -229,11 +234,42 @@
 
 				numEntitiesToShow--;
 				entitiesToShow.addItem(e.result)
+				var i:int=0
 				if (numEntitiesToShow == 0)
 				{
+					//depth1
+					var linkedEntities:ArrayCollection=new ArrayCollection()
+					for (i=0; i < entitiesToShow.length; i++)
+					{
+						var entity:Entity=entitiesToShow.getItemAt(i) as Entity
+						if (entity.links)
+						{
+							for (var l:int=0; l < entity.links.length; l++)
+							{
+								var linkedEntity:Entity=EntityManager.instance.getItem(entity.links.getItemAt(l).le);
+								linkedEntities.addItem(linkedEntity)
+							}
+						}
+
+					}
+					 for (i=0; i < linkedEntities.length; i++)
+					{
+						if(!isAlreadyIn(entitiesToShow, linkedEntities.getItemAt(i) as Entity))
+              entitiesToShow.addItem(linkedEntities.getItemAt(i))  //check if already in
+					} 
 					parseItems();
 				}
 			}
+      
+      private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
+      {
+        for(var i:int=0;i<collection.length;i++)
+        {
+        if(entity._id==collection.getItemAt(i)._id)
+          return true;
+        }
+       return false;
+      }
 
 			private function onEdgeClick(e:VisualEdgeEvent):void
 			{
@@ -263,15 +299,15 @@
 
 				}
 				info.selectedItem=null;
-        info.selectedItems=null;
+				info.selectedItems=null;
 				linkEnabled=false;
 				mergeEnabled=false;
-        var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
-        var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-        if(selectedEdge!=null && (selectedEdge.data.@type=="peer" || selectedEdge.data.@type=="know") && selectedEdge.data.@level=="automatic")
-          jumpEnabled=true;
-        else
-          jumpEnabled=false;
+				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+				if (selectedEdge != null && (selectedEdge.data.@type == "peer" || selectedEdge.data.@type == "know") && selectedEdge.data.@level == "automatic")
+					jumpEnabled=true;
+				else
+					jumpEnabled=false;
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -298,10 +334,10 @@
 				}
 				selectedEdge=null;
 				info.selectedItem=null;
-        info.selectedItems=null;
+				info.selectedItems=null;
 				linkEnabled=false;
 				mergeEnabled=false;
-        jumpEnabled=false;
+				jumpEnabled=false;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -352,31 +388,31 @@
 						if (index != -1)
 							selectedNodes.removeItemAt(index)
 					}
-          //target + position
+					//target + position
 					if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
 					{
 						linkEnabled=true;
 					}
-          //target + person
-          else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
-          {
-            linkEnabled=true;
-          }
-          //target + virtual
-          else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
-            {
-              linkEnabled=true;
-            }
-            //person + virtual
-          else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
-            {
-              linkEnabled=true;
-            }
-            //person + position
-            else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
-              {
-                linkEnabled=true;
-              }
+					//target + person
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
+					{
+						linkEnabled=true;
+					}
+					//target + virtual
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
+					{
+						linkEnabled=true;
+					}
+					//person + virtual
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
+					{
+						linkEnabled=true;
+					}
+					//person + position
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
+					{
+						linkEnabled=true;
+					}
 					else
 					{
 						linkEnabled=false;
@@ -412,45 +448,45 @@
 				}
 				selectedEdge=null;
 				if (selectedNodes.length == 1)
-        {
+				{
 					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
-          info.selectedItems=new <Object>[info.selectedItem];
-          info.selectedItems.push(info.selectedItem)
-        }
+					info.selectedItems=new <Object>[info.selectedItem];
+					info.selectedItems.push(info.selectedItem)
+				}
 				else
-        {
+				{
 					info.selectedItem=null;
-          info.selectedItems=null
-        }
-        //target + position
-        if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
-        {
-          linkEnabled=true;
-        }
-          //target + person
-        else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
-        {
-          linkEnabled=true;
-        }
-          //target + virtual
-        else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
-        {
-          linkEnabled=true;
-        }
-          //person + virtual
-        else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
-        {
-          linkEnabled=true;
-        }
-          //person + position
-        else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
-        {
-          linkEnabled=true;
-        }
-        else
-        {
-          linkEnabled=false;
-        }
+					info.selectedItems=null
+				}
+				//target + position
+				if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
+				{
+					linkEnabled=true;
+				}
+				//target + person
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
+				{
+					linkEnabled=true;
+				}
+				//target + virtual
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
+				{
+					linkEnabled=true;
+				}
+				//person + virtual
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
+				{
+					linkEnabled=true;
+				}
+				//person + position
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
+				{
+					linkEnabled=true;
+				}
+				else
+				{
+					linkEnabled=false;
+				}
 
 				if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
 				{
@@ -468,7 +504,7 @@
 				{
 					mergeEnabled=false;
 				}
-        jumpEnabled=false;
+				jumpEnabled=false;
 			}
 
 			private function parseItems():void
@@ -480,17 +516,10 @@
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
 					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-          var name:String=e.name.split('&').join('&amp;')
-            .split('<').join('&lt;')
-            .split('>').join('&gt;')
-            .split('"').join('&quote;')
-            .split("'").join('&apos;');
-          var desc:String=""
-          if(e.desc) desc=e.desc.split('&').join('&amp;')
-            .split('<').join('&lt;')
-            .split('>').join('&gt;')
-            .split('"').join('&quote;')
-            .split("'").join('&apos;');
+					var name:String=e.name.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+					var desc:String=""
+					if (e.desc)
+						desc=e.desc.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
 					xmlStr+="<Node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
 					if (e.links)
 					{
@@ -498,26 +527,26 @@
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-              {
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='out'>";
-              }
+							{
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='out'>";
+							}
 							else if (link.versus == "in")
-              {                
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='in'>";
-              }
+							{
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='in'>";
+							}
 							else if (link.versus == "both")
-              {
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'>";
-              }
+							{
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
+							}
 							else
-              {
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type +"'level='"+ link.level +"' versus='both'>";
-              }
-              //add links
-              for (var k:int=0;k<link.info.length;k++)
-              {
-                xmlStr+="<Info>"+String(link.info.getItemAt(k))+"</Info>"
-              }
+							{
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
+							}
+							//add links
+							for (var k:int=0; k < link.info.length; k++)
+							{
+								xmlStr+="<Info>" + String(link.info.getItemAt(k)) + "</Info>"
+							}
 							xmlStr+="</Edge>"
 						}
 					}
@@ -628,7 +657,7 @@
 													linkRemoved="onAddedToStage()"
 													entityDeleted="refresh()"
 													entityCreated="refresh()"
-                          entityUpdated="onAddedToStage()"
+													entityUpdated="onAddedToStage()"
 													merge="refresh()"
 													mainView="{this}"
 													section="{section}"/>

@@ -231,42 +231,42 @@
 					 top="35"
 					 width="100%"
 					 height="100%">
-		<s:Form visible="{selectedItem != null &amp;&amp; selectedItems.length==1}">
+		<s:Form visible="{selectedItem != null &amp;&amp; selectedItems.length==1}" width="100%">
 			<s:FormItem label="{R.get('NAME')}">
 				<s:RichEditableText editable="false"
 														text="{selectedItem.name}"/>
 			</s:FormItem>
 
-      <s:FormItem label="{R.get('DESCRIPTION')}">
+      <s:FormItem label="{R.get('DESCRIPTION')}" width="100%">
         <s:RichEditableText editable="false"
-                            text="{selectedItem.desc}"/>
+                            text="{selectedItem.desc}" width="100%" heightInLines="4"/>
       </s:FormItem>
       <s:Spacer height="20"/>
 		
 			<s:FormItem label="{selectedItem.type=='target'?R.get('LAST_KNOWN_POSITION'): R.get('POSITION')}"
-									includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}"
-									visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}">
+									includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
+									visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
 				<s:Label text="Lat: {selectedItem.position.latitude}"/>
       </s:FormItem>
         <s:FormItem label=""
-                    includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}"
-                    visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}">
+                    includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
+                    visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
           <s:Label text="Lng: {selectedItem.position.longitude}"/>
       </s:FormItem>
       <s:FormItem label=""
-                  includeInLayout="{selectedItem.type=='target'  &amp;&amp; selectedItem.position}"
-                  visible="{selectedItem.type=='target' &amp;&amp; selectedItem.position}">
-        <s:Label text="{'('+TimeUtils.timestampFormatter(selectedItem.position_attr.time * 1000)+')'}"/>
+                  includeInLayout="{selectedItem.type=='target'  &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
+                  visible="{selectedItem.type=='target' &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
+        <s:Label text="{'('+TimeUtils.timestampFormatter(selectedItem.position_attr.time * 1000)+')'}" />
       </s:FormItem>
       <!-- map -->
       <s:Spacer height="20"/>
       <s:BorderContainer width="300"
-                         height="360"
+                         height="300"
                          borderAlpha="1"
                          borderColor="0x666666"
                          backgroundColor="0xCCCCCC"
-                         backgroundAlpha="0.3" includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}"
-                         visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position}">
+                         backgroundAlpha="0.3" includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
+                         visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
         <maps:Map xmlns:maps="com.google.maps.*"
                   id="map"
                   mapevent_mapready="onMapReady(event)"

@@ -131,6 +131,8 @@
 				{
 					fromDf.selectedDate=fromDate;
 				}
+        
+       
 
 				EntityManager.instance.show(entity._id, onDetailResult);
 
@@ -145,14 +147,18 @@
 					limit="5";
 					if (limitTxt)
 						limitTxt.text="5";
-
+         
+        
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 				}
 				else
 				{
 					if (contactsList)
-						contactsList.enabled=false; //TODO ADD A MESSAGE
+          {
+            contactsList.enabled=false; //TODO ADD A MESSAGE
+          }
+						
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=false;
 
@@ -363,7 +369,8 @@
 
 			private function onContactResult(e:ResultEvent):void
 			{
-
+        if(contactsList)
+          contactsList.addEventListener("entityAdd", addContactAsEntity)
 				mostContacted=new ArrayCollection();
 				var temp:ArrayCollection=e.result as ArrayCollection;
 				for (var i:int=0; i < temp.length; i++)
@@ -520,7 +527,7 @@
 				EntityManager.instance.addHandle(entity._id, contact.peer, contact.peer_name, contact.type)
 			}
 
-			private function addContactAsEntity():void
+			private function addContactAsEntity(e:Event):void
 			{
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				popup.operation=section.stateManager.selectedOperation;
@@ -613,7 +620,8 @@
 									width="100%"
 									height="100%"
 									visible="{entity.type!='position'}"
-									includeInLayout="{entity.type!='position'}" paddingBottom="0">
+									includeInLayout="{entity.type!='position'}"
+									paddingBottom="0">
 					<!-- <s:Label text="Accounts:"
 										fontWeight="bold"/>-->
 					<s:List width="380"
@@ -643,132 +651,153 @@
 			</s:HGroup>
 			<s:Spacer height="20"/>
 			<!-- -->
-      <s:VGroup gap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" width="100%" height="100%" visible="{entity.type=='target'}" includeInLayout="{entity.type=='target'}">
-        
-
-			<s:HGroup horizontalAlign="right"
-								width="100%" paddingBottom="0">
-				<s:TabBar id="tabs"
-									dataProvider="{vs}"
-									fontWeight="bold"/>
-			</s:HGroup>
-			<mx:ViewStack width="100%"
-										height="100%"
-										id="vs"
-										creationPolicy="all" >
+			<s:VGroup gap="0"
+								paddingBottom="0"
+								paddingTop="0"
+								paddingLeft="0"
+								paddingRight="0"
+								width="100%"
+								height="100%"
+								visible="{entity.type=='target'}"
+								includeInLayout="{entity.type=='target'}">
 
 
-				<s:NavigatorContent width="100%"
-														height="100%"
-														label="{R.get('MOST_CONTACTED')}"
-														creationPolicy="all">
-					<s:BorderContainer width="100%" height="100%">
-						<s:layout>
-							<s:VerticalLayout paddingBottom="6" paddingLeft="6" paddingRight="6" paddingTop="6"/>
-						</s:layout>
-						<s:HGroup width="100%"
-											verticalAlign="middle"
-											visible="{entity.type=='target'}"
-											includeInLayout="{entity.type=='target'}">
-							<s:TextInput id="limitTxt"
-													 text="{limit}"
-													 restrict="[0-9]"
-													 width="24"
-													 enter="filter(event)"
-													 borderAlpha="0"
+				<s:HGroup horizontalAlign="right"
+									width="100%"
+									paddingBottom="0">
+					<s:TabBar id="tabs"
+										dataProvider="{vs}"
+										fontWeight="bold"/>
+				</s:HGroup>
+				<mx:ViewStack width="100%"
+											height="100%"
+											id="vs"
+											creationPolicy="all">
+
+
+					<s:NavigatorContent width="100%"
+															height="100%"
+															label="{R.get('MOST_CONTACTED')}"
+															creationPolicy="all">
+						<s:BorderContainer width="100%"
+															 height="100%">
+							<s:layout>
+								<s:VerticalLayout paddingBottom="6"
+																	paddingLeft="6"
+																	paddingRight="6"
+																	paddingTop="6"/>
+							</s:layout>
+							<s:HGroup width="100%"
+												verticalAlign="middle"
+												visible="{entity.type=='target'}"
+												includeInLayout="{entity.type=='target'}">
+								<s:TextInput id="limitTxt"
+														 text="{limit}"
+														 restrict="[0-9]"
+														 width="24"
+														 enter="filter(event)"
+														 borderAlpha="0"
+														 fontWeight="bold"
+														 enabled="{LicenseManager.instance.correlation}"/>
+
+								<s:Label text="{R.get('MOST_CONTACTED')}"
+												 fontWeight="bold"
+												 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+								<s:Label text=" (Feature not included in current License)"
+												 visible="{!LicenseManager.instance.correlation}"
+												 includeInLayout="{!LicenseManager.instance.correlation}"
+												 fontWeight="bold"
+												 alpha="0.5"/>
+								<s:Spacer width="100%"/>
+								<s:HGroup verticalAlign="middle"
+													id="loadingBox"
+													visible="{LicenseManager.instance.correlation}"
+													includeInLayout="{LicenseManager.instance.correlation}">
+
+									<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+									<s:Label text="Retrieving data..."
 													 fontWeight="bold"/>
-
-							<s:Label text="{R.get('MOST_CONTACTED')}"
-											 fontWeight="bold"
-											 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
-							<s:Label text=" (Feature not included in current License)"
-											 visible="{!LicenseManager.instance.correlation}"
-											 includeInLayout="{!LicenseManager.instance.correlation}"
-											 fontWeight="bold"
-											 alpha="0.5"/>
-							<s:Spacer width="100%"/>
-							<s:HGroup verticalAlign="middle"
-												id="loadingBox"
-												visible="{LicenseManager.instance.correlation}"
-												includeInLayout="{LicenseManager.instance.correlation}">
-
-								<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
-								<s:Label text="Retrieving data..."
-												 fontWeight="bold"/>
+								</s:HGroup>
+								<!--<s:Button label="{R.get('ENTITY_ADD_AS')}"
+													visible="{mostContacted!=null &amp;&amp; mostContacted.length>0 &amp;&amp; LicenseManager.instance.intelligence}"
+													includeInLayout="{mostContacted!=null &amp;&amp; mostContacted.length>0 &amp;&amp; LicenseManager.instance.intelligence}"
+													enabled="{contactsList.selectedItem!=null}"
+													click="addContactAsEntity()"/>-->
 							</s:HGroup>
-							<s:Button label="{R.get('ENTITY_ADD_AS')}"
-												visible="{mostContacted!=null &amp;&amp; mostContacted.length>0}"
-												includeInLayout="{mostContacted!=null &amp;&amp; mostContacted.length>0}"
-												enabled="{contactsList.selectedItem!=null}"
-												click="addContactAsEntity()"/>
-						</s:HGroup>
-						<s:List width="100%"
-										height="100%"
-										id="contactsList"
-										enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
-										itemRenderer="it.ht.rcs.console.entities.view.renderers.ContactListRenderer"
-										dataProvider="{mostContacted}"
-										doubleClickEnabled="true"
-										doubleClick="jumpToEvidence(event)"
-										visible="{entity.type=='target'}"
-										includeInLayout="{entity.type=='target'}" borderAlpha="0.3"/>
-					</s:BorderContainer>
-				</s:NavigatorContent>
-				<s:NavigatorContent width="100%"
-														height="100%"
-														label="{R.get('MOST_VISITED')}"
-														creationPolicy="all">
-          <s:BorderContainer width="100%" height="100%">
-						<s:layout>
-              <s:VerticalLayout paddingBottom="6" paddingLeft="6" paddingRight="6" paddingTop="6"/>
-						</s:layout>
-						<s:HGroup width="100%"
-											verticalAlign="middle"
+							<s:List width="100%"
+											height="100%"
+											id="contactsList"
+											enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
+											itemRenderer="it.ht.rcs.console.entities.view.renderers.ContactListRenderer"
+											dataProvider="{mostContacted}"
+											doubleClickEnabled="true"
+											doubleClick="jumpToEvidence(event)"
 											visible="{entity.type=='target'}"
-											includeInLayout="{entity.type=='target'}">
-							<s:TextInput id="visitLimitTxt"
-													 text="{limit}"
-													 restrict="[0-9]"
-													 width="24"
-													 enter="filter(event)"
-													 borderAlpha="0"
+											includeInLayout="{entity.type=='target'}"
+											borderAlpha="0.3"/>
+						</s:BorderContainer>
+					</s:NavigatorContent>
+					<s:NavigatorContent width="100%"
+															height="100%"
+															label="{R.get('MOST_VISITED')}"
+															creationPolicy="all">
+						<s:BorderContainer width="100%"
+															 height="100%">
+							<s:layout>
+								<s:VerticalLayout paddingBottom="6"
+																	paddingLeft="6"
+																	paddingRight="6"
+																	paddingTop="6"/>
+							</s:layout>
+							<s:HGroup width="100%"
+												verticalAlign="middle"
+												visible="{entity.type=='target'}"
+												includeInLayout="{entity.type=='target'}">
+								<s:TextInput id="visitLimitTxt"
+														 text="{limit}"
+														 restrict="[0-9]"
+														 width="24"
+														 enter="filter(event)"
+														 borderAlpha="0"
+														 fontWeight="bold"
+														 enabled="{LicenseManager.instance.correlation}"/>
+
+								<s:Label text="{R.get('MOST_VISITED')}"
+												 fontWeight="bold"
+												 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+								<s:Label text=" (Feature not included in current License)"
+												 visible="{!LicenseManager.instance.correlation}"
+												 includeInLayout="{!LicenseManager.instance.correlation}"
+												 fontWeight="bold"
+												 alpha="0.5"/>
+								<s:Spacer width="100%"/>
+								<s:HGroup verticalAlign="middle"
+													id="loadingBox2"
+													visible="{LicenseManager.instance.correlation}"
+													includeInLayout="{LicenseManager.instance.correlation}">
+
+									<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+									<s:Label text="Retrieving data..."
 													 fontWeight="bold"/>
-
-							<s:Label text="{R.get('MOST_VISITED')}"
-											 fontWeight="bold"
-											 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
-							<s:Label text=" (Feature not included in current License)"
-											 visible="{!LicenseManager.instance.correlation}"
-											 includeInLayout="{!LicenseManager.instance.correlation}"
-											 fontWeight="bold"
-											 alpha="0.5"/>
-							<s:Spacer width="100%"/>
-							<s:HGroup verticalAlign="middle"
-												id="loadingBox2"
-												visible="{LicenseManager.instance.correlation}"
-												includeInLayout="{LicenseManager.instance.correlation}">
-
-								<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
-								<s:Label text="Retrieving data..."
-												 fontWeight="bold"/>
+								</s:HGroup>
+								<!--  <s:Button label="{R.get('ENTITY_ADD_AS')}"
+								visible="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
+								includeInLayout="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
+								enabled="{visitedList.selectedItem!=null}"/>-->
 							</s:HGroup>
-							<!--  <s:Button label="{R.get('ENTITY_ADD_AS')}"
-							visible="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
-							includeInLayout="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
-							enabled="{visitedList.selectedItem!=null}"/>-->
-						</s:HGroup>
-						<s:List width="100%"
-										height="100%"
-										id="visitedList"
-										enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
-										itemRenderer="it.ht.rcs.console.entities.view.renderers.VisitedListRenderer"
-										dataProvider="{mostVisited}"
-										visible="{entity.type=='target'}"
-										includeInLayout="{entity.type=='target'}" borderAlpha="0.3"/>
-					</s:BorderContainer>
-				</s:NavigatorContent>
-			</mx:ViewStack>
-      </s:VGroup>
+							<s:List width="100%"
+											height="100%"
+											id="visitedList"
+											enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
+											itemRenderer="it.ht.rcs.console.entities.view.renderers.VisitedListRenderer"
+											dataProvider="{mostVisited}"
+											visible="{entity.type=='target'}"
+											includeInLayout="{entity.type=='target'}"
+											borderAlpha="0.3"/>
+						</s:BorderContainer>
+					</s:NavigatorContent>
+				</mx:ViewStack>
+			</s:VGroup>
 		</s:VGroup>
 		<s:Spacer width="6"/>
 		<s:VGroup width="100%"

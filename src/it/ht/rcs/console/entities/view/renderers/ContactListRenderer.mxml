@@ -8,12 +8,17 @@
 		<![CDATA[
 			import it.ht.rcs.console.entities.model.Contact;
 			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+			
+			import locale.R;
 
 			[Bindable]
 			private var ImageClass:Class;
 
 			[Bindable]
 			private var bgColor:uint;
+
+			[Embed('/img/NEW/entity_16.png')]
+			private static const icon:Class;
 
 
 			private function init():void
@@ -41,9 +46,9 @@
 						case "sms":
 							bgColor=0xFFCC00;
 							break;
-            case "phone":
-              bgColor=0xFFCC00;
-              break;
+						case "phone":
+							bgColor=0xFFCC00;
+							break;
 						default:
 							bgColor=0xFFCC00;
 							break;
@@ -69,6 +74,12 @@
 
 				return contact.peer_name + " (" + contact.peer + ")";
 			}
+      
+      private function addAsEntity(e:MouseEvent):void
+      {
+      e.stopImmediatePropagation();
+      owner.dispatchEvent(new Event("entityAdd"));
+      }
 		]]>
 	</fx:Script>
 
@@ -126,6 +137,16 @@
 					<s:Label text="{formatPerc(data.percent) || ''}"
 									 fontWeight="bold"
 									 textAlign="right"/>
+				</s:HGroup>
+				<s:HGroup paddingBottom="0"
+									paddingLeft="0"
+									paddingRight="0"
+									paddingTop="0"
+									horizontalAlign="center">
+					<s:Image source="{icon}"
+									 toolTip="{R.get('ENTITY_ADD_AS')}"
+									 buttonMode="true"
+									 useHandCursor="true" click="addAsEntity(event)"/>
 				</s:HGroup>
 			</s:HGroup>
 			<s:Line width="100%">

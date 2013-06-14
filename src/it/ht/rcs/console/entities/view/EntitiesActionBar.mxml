@@ -45,6 +45,13 @@
 						enabled="{Console.currentSession.user.is_view_profiles()}"
 						icon="@Embed('/img/NEW/position32.png')"
 						click="onMapClick()"/>
+  <actionbar:Separator visible="{LicenseManager.instance.intelligence}"
+                       includeInLayout="{LicenseManager.instance.intelligence}"/>
+  <s:Button label="{R.get('EXPORT')}"
+            icon="@Embed('/img/NEW/export.png')"
+            visible="{LicenseManager.instance.intelligence}" click="exportEntity(event)"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length>0}"/>
 
 	<s:Spacer width="100%"/>
 
@@ -205,6 +212,14 @@
 				section.stateManager.view.refresh();
 				section.stateManager.tableView.refresh();
 			}
+      
+      private function exportEntity(event:MouseEvent):void
+      {
+        /* var popup:EntityExport=PopUpManager.createPopUp(root, EntityExport, true) as EntityExport;
+        popup.target=null
+        popup.agent=null
+        PopUpManager.centerPopUp(popup); */
+      }
 		]]>
 	</fx:Script>
 

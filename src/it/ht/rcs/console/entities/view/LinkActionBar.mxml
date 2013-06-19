@@ -85,7 +85,12 @@
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mainView.jumpEnabled }"
 						icon="@Embed('/img/NEW/jumpToEvidence.png')"
 						click="jumpToEvidence()"/>
-
+  <actionbar:Separator/>
+  <s:Button label="{R.get('EXPORT_GRAPH')}"
+            icon="@Embed('/img/NEW/export.png')"
+            visible="{LicenseManager.instance.intelligence}" click="exportEntity(event)"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mainView.entitiesToShow.length>0}"/>
 	<s:Spacer width="100%"/>
 	<s:Spacer height="50"/>
 
@@ -455,6 +460,21 @@
         event.from=0;
         event.to=0; //no filter
         FlexGlobals.topLevelApplication.dispatchEvent(event);
+      }
+      
+      private function exportEntity(event:MouseEvent):void
+      {
+        var popup:EntityExport=PopUpManager.createPopUp(root, EntityExport, true) as EntityExport;
+        popup.operation=section.stateManager.selectedOperation;
+        popup.type="entitygraph";
+        var ids:Array=[]
+        for (var i:int=0; i < mainView.entitiesToShow.length; i++)
+        {
+          var entity:Entity=mainView.entitiesToShow.getItemAt(i) as Entity;
+          ids.push(entity._id)
+        }
+        popup.ids=ids
+        PopUpManager.centerPopUp(popup); 
       }
 		]]>
 	</fx:Script>

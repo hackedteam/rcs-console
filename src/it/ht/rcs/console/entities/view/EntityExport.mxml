@@ -19,9 +19,9 @@
 			import it.ht.rcs.console.utils.AlertPopUp;
 			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.TimeUtils;
-
+			
 			import locale.R;
-
+			
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
@@ -31,6 +31,7 @@
 
 			public var operation:Operation
 			public var ids:Array;
+      public var type:String;
 
 			protected function closeMe(event:*):void
 			{
@@ -49,12 +50,10 @@
 				return TimeUtils.zeroPad(n, 2);
 			}
 
-
-
 			protected function export(event:MouseEvent):void
 			{
 
-				DownloadManager.instance.createTask("entitygraph", exportname.text, {id: id, operation: operation._id});
+				DownloadManager.instance.createTask(type, exportname.text, {id: ids, operation: operation._id});
 
 				PopUpManager.removePopUp(this);
 			}

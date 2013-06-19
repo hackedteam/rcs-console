@@ -1,277 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="350" 
-         close="closeMe(event)" title="{R.get('EXPORT')}"
-         creationComplete="init()"
-         xmlns:view="it.ht.rcs.console.utils.*">
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.agent.model.Agent;
-      import it.ht.rcs.console.events.SessionEvent;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.target.model.Target;
-      import it.ht.rcs.console.task.controller.DownloadManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.utils.Clock;
-      import it.ht.rcs.console.utils.TimeUtils;
-      
-      import locale.R;
-      
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      import mx.utils.ArrayUtil;
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="300"
+							 height="130"
+							 close="closeMe(event)"
+							 title="{R.get('EXPORT')}"
+							 creationComplete="init()"
+							 xmlns:view="it.ht.rcs.console.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.events.SessionEvent;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.operation.model.Operation;
+			import it.ht.rcs.console.target.model.Target;
+			import it.ht.rcs.console.task.controller.DownloadManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			import it.ht.rcs.console.utils.TimeUtils;
 
-      public var target:Target
-      public var agent:Agent;
-      
-      protected function closeMe(event:*):void
-      {
-        PopUpManager.removePopUp(this);
-      }
-      
-      private function init():void
-      {
-        FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, closeMe);
-        
-        var today:int = new Date().time/1000;
-        setFromTimestamp(today - 86400);
-        setToTimestamp(today);
-        
-        exportname.text = defaultName();
-      }
-      
-      private function adjust():void
-      {
-        var fromTS:int = getFromTimestamp();
-        var toTS:int = getToTimestamp();
-        
-        if (fromTS > toTS)
-          setToTimestamp(fromTS);
-      }
-      
-      private function getFromTimestamp():int
-      {
-        from.selectedDate.hours = fromH.value;
-        from.selectedDate.minutes = fromM.value;
-        return Clock.instance.toUTCTime(from.selectedDate) / 1000;
-      }
-      private function getToTimestamp():int
-      {
-        to.selectedDate.hours = toH.value;
-        to.selectedDate.minutes = toM.value;
-        return Clock.instance.toUTCTime(to.selectedDate) / 1000;
-      }
-      
-      private function setFromTimestamp(ts:int):void
-      {
-        var fromDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
-        from.selectedDate = fromDate;
-        fromH.value = fromDate.hours;
-        fromM.value = fromDate.minutes;
-      }
-      private function setToTimestamp(ts:int):void
-      {
-        var toDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
-        to.selectedDate = toDate;
-        toH.value = toDate.hours;
-        toM.value = toDate.minutes;
-      }
-      
-      private function pad(n:Number):String
-      {
-        return TimeUtils.zeroPad(n, 2);
-      }
-      
-      private function getTags():Array
-      {
-        var toReturn:Array = [];
-        
-        if (none.selected)
-          toReturn.push(0);
+			import locale.R;
 
-        if (low.selected)
-          toReturn.push(1);
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ArrayUtil;
 
-        if (medium.selected)
-          toReturn.push(2);
+			public var operation:Operation
+			public var ids:Array;
 
-        if (high.selected)
-          toReturn.push(3);
+			protected function closeMe(event:*):void
+			{
+				PopUpManager.removePopUp(this);
+			}
 
-        if (critical.selected)
-          toReturn.push(4);
+			private function init():void
+			{
+				FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, closeMe);
 
-        return toReturn;
-      }
-      
-      protected function export(event:MouseEvent):void
-      {
-        var filter:Object = {};
-        
-        filter.from = getFromTimestamp();
-        filter.to = getToTimestamp();
-        
-        filter.rel = getTags();
-        
-        filter.date = (date_da.selected == true) ? 'da' : 'dr'
-        
-        if (types.selectedItems.length > 0) {
-          filter.type = new Array();
-        
-          for (var i:int = 0; i < types.selectedItems.length; i++) {
-            filter.type.push(types.selectedItems[i]);
-         }
-        }
+				exportname.text=defaultName();
+			}
 
-        filter.blo = [blotter.selected];
-        
-        filter.target = target._id;
-                
-        if (agent != null) {
-          filter.agent = agent._id;
-        }
-        
-        DownloadManager.instance.createTask("evidence", exportname.text, {note: note.selected, filter: filter}); 
-        
-        PopUpManager.removePopUp(this);
-      }
-      
-      private function defaultName():String
-      {
-        var export_file:String = '';
-        
-        if (target != null)
-          export_file += target.name
-        
-        if (agent != null)
-          export_file += " - " + agent.name
+			private function pad(n:Number):String
+			{
+				return TimeUtils.zeroPad(n, 2);
+			}
 
-        export_file += " - " + "Evidence Export";
-        
-        return export_file;
-      }
-      
-    ]]>
-  </fx:Script>
 
-  <fx:Declarations>
-    <s:RadioButtonGroup id="date"/>
-  </fx:Declarations>
+
+			protected function export(event:MouseEvent):void
+			{
+
+				DownloadManager.instance.createTask("entitygraph", exportname.text, {id: id, operation: operation._id});
+
+				PopUpManager.removePopUp(this);
+			}
+
+			private function defaultName():String
+			{
+				var export_file:String='';
+
+				/*  if(ids.length==1)
+					 export_file += ids[0]; */
+				if (operation != null)
+					export_file+=operation.name;
+
+				export_file+=" - " + "Entities Export";
+
+				return export_file;
+			}
+		]]>
+	</fx:Script>
+
+
+	<s:VGroup paddingBottom="15" paddingLeft="15" paddingRight="15" paddingTop="15"
+						horizontalAlign="center" width="100%" verticalAlign="middle">
+<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle">
+  <s:Label text="{R.get('REPORT_NAME')}:"
+           fontWeight="bold"/>
   
-  <s:VGroup left="15" top="15" horizontalAlign="center">
+  <s:TextInput id="exportname"
+               width="100%"/>
+</s:HGroup>
+		
+<s:Spacer height="10"/>
+		<s:Button label="{R.get('EXPORT')}"
+							click="export(event)"/>
 
-    <s:HGroup>
-      <s:VGroup>
-        <s:HGroup verticalAlign="middle">
-          <s:Label width="40" text="{R.get('FROM')}" fontWeight="bold"/>
-          <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
-          <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0" valueFormatFunction="pad"/>
-          <s:Label text=":"/>
-          <s:NumericStepper id="fromM" change="adjust()" maximum="59" minimum="0" value="0" valueFormatFunction="pad"/>
-        </s:HGroup>
-        
-        <s:HGroup verticalAlign="middle">
-          <s:Label width="40" text="{R.get('TO')}" fontWeight="bold"/>
-          <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
-          <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23" valueFormatFunction="pad"/>
-          <s:Label text=":"/>
-          <s:NumericStepper id="toM" change="adjust()" maximum="59" minimum="0" value="59" valueFormatFunction="pad"/>
-        </s:HGroup>        
-      </s:VGroup>
-      <s:Spacer width="10"/>
-      <s:VGroup verticalAlign="middle">
-        <s:RadioButton id="date_da" label="{R.get('DATE_ACQUIRED')}" selected="true" group="{date}"/>
-        <s:RadioButton id="date_dr" label="{R.get('DATE_RECEIVED')}" group="{date}"/>  
-      </s:VGroup>
-    </s:HGroup>
-    
+	</s:VGroup>
 
-    <s:HGroup paddingTop="15" gap="10">
-      
-      <s:VGroup horizontalAlign="left" height="100%">
-        <s:Label text="{R.get('RELEVANCE')}:" fontWeight="bold"/>
-        <s:VGroup paddingLeft="0" width="135">
-          <s:HGroup width="100%">
-            <s:CheckBox id="critical" label="{R.get('CRITICAL')}" selected="true" width="63"/>
-            <view:TagImage value="4"/>
-          </s:HGroup>
-          <s:HGroup width="100%">
-            <s:CheckBox id="high" label="{R.get('HIGH')}" selected="true" width="63"/>
-            <view:TagImage value="3"/>
-          </s:HGroup>
-          <s:HGroup width="100%">
-            <s:CheckBox id="medium" label="{R.get('MEDIUM')}" selected="true" width="63"/>
-            <view:TagImage value="2"/>
-          </s:HGroup>
-          <s:HGroup width="100%">
-            <s:CheckBox id="low" label="{R.get('LOW')}" selected="true" width="63"/>
-            <view:TagImage value="1"/>
-          </s:HGroup>
-          <s:HGroup width="100%">
-            <s:CheckBox id="none" label="{R.get('UNTAGGED')}" selected="true" width="80"/>
-            <view:TagImage value="0"/>
-          </s:HGroup>
-        </s:VGroup>
-      </s:VGroup>
-      
-      <s:VGroup height="100%">
-        <s:Label text="{R.get('TYPE')}:" fontWeight="bold"/>
-        <s:VGroup paddingLeft="0" width="135" height="100%">
-          <s:List id="types" allowMultipleSelection="true" width="100%" height="150" >
-            <s:ArrayList>
-              <fx:String>addressbook</fx:String>
-              <fx:String>application</fx:String>
-              <fx:String>calendar</fx:String>
-              <fx:String>call</fx:String>
-              <fx:String>camera</fx:String>
-              <fx:String>command</fx:String>
-              <fx:String>chat</fx:String>
-              <fx:String>clipboard</fx:String>
-              <fx:String>device</fx:String>
-              <fx:String>file</fx:String>
-              <fx:String>keylog</fx:String>
-              <fx:String>ip</fx:String>
-              <fx:String>message</fx:String>
-              <fx:String>mic</fx:String>
-              <fx:String>mouse</fx:String>
-              <fx:String>password</fx:String>
-              <fx:String>position</fx:String>
-              <fx:String>print</fx:String>
-              <fx:String>screenshot</fx:String>
-              <fx:String>url</fx:String>
-            </s:ArrayList>
-          </s:List>
-        </s:VGroup>
-      </s:VGroup>
- 
-      <s:VGroup height="100%">
-        <s:Label text="{R.get('REPORT')}:" fontWeight="bold"/>
-        <s:VGroup paddingLeft="15" width="135" height="100%">
-          <s:HGroup verticalAlign="top">
-            <s:CheckBox id="blotter"/>
-            <s:Label text="{R.get('REPORT_INCLUDED')}" width="100" />            
-          </s:HGroup>
-          <s:HGroup verticalAlign="middle">
-            <s:CheckBox id="note" selected="true"/>
-            <s:Label text="{R.get('NOTE_INCLUDED')}" width="100" />            
-          </s:HGroup>
-        </s:VGroup>
-      </s:VGroup>
-    </s:HGroup>
-        
-    <s:Spacer height="20" />
-    
-    <s:HGroup horizontalAlign="right" width="100%">
-      <s:HGroup verticalAlign="middle" width="100%" horizontalAlign="left">
-        <s:Label text="{R.get('REPORT_NAME')}:" fontWeight="bold"/>
-        <s:TextInput id="exportname" width="250"/>
-      </s:HGroup>
-      <s:Button label="{R.get('EXPORT')}" click="export(event)"/>
-    </s:HGroup>
-  </s:VGroup>
-  
 </s:TitleWindow>

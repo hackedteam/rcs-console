@@ -116,7 +116,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Agent && item._kind == 'factory' && Console.currentSession.user.is_tech_config())
+      else if (item is Agent && item._kind == 'factory' ) //&& Console.currentSession.user.is_tech_config()
       {
         selectedFactory = item;
         selectedConfig = null;

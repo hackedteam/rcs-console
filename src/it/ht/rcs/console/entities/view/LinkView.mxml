@@ -29,6 +29,7 @@
 			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
 			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
@@ -212,6 +213,7 @@
 				vgraph.graph=g
 				vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
 				var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
+       
 				vgraph.layouter=layouter;
 				layouter.linkLength=80; //
 				//layouter.autoFitEnabled=true;
@@ -653,6 +655,22 @@
 				section.stateManager.selectedEntities=selectedEntities;
 				onAddedToStage();
 			}
+      
+      public function updateLinkLength():void {
+        
+      
+        if(vgraph == null || vgraph.layouter == null) {
+          
+          return;
+        }
+        
+        /* update the value */
+        vgraph.layouter.linkLength = lslider.value;
+        vgraph.layouter.layoutChanged = true;
+        
+        /* trigger redraw */
+        vgraph.draw();
+      }
 		]]>
 	</fx:Script>
 
@@ -690,12 +708,14 @@
 												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
 												 visibilityLimitActive="true">
 			</ravis:VisualGraph>
-			<s:VGroup x="6"
-								y="6"
+			<s:HGroup x="6"
+								y="10"
 								verticalAlign="middle"
 								horizontalAlign="center">
-				<s:Label text="+"/>
-				<s:VSlider stepSize=".25"
+        <s:Label text="Zoom:" width="60"  fontWeight="normal" textAlign="right"
+                 fontSize="10"/>
+				<s:Label text="-"/>
+				<s:HSlider stepSize=".1"
 									 x="6"
 									 y="6"
 									 id="bzoom"
@@ -704,9 +724,33 @@
 									 maximum="2"
 									 liveDragging="true"
 									 change="updateVScale(null)"/>
-				<s:Label text="-"/>
+				<s:Label text="+"/>
 
-			</s:VGroup>
+			</s:HGroup>
+      
+      <s:HGroup x="6"
+                y="40"
+                verticalAlign="middle"
+                horizontalAlign="center">
+        <s:Label text="Link length:" width="60"  fontWeight="normal" textAlign="right"
+                 fontSize="10"/>
+        <s:Label text="-"/>
+        <s:HSlider stepSize="25"
+                   x="6"
+                   y="6"
+                   id="lslider"
+                   value="80"
+                   liveDragging="true"
+                   change="updateLinkLength()"
+                 
+                   minimum="0"
+                   maximum="600"
+
+                   />
+        <s:Label text="+"/>
+        
+      </s:HGroup>
+
 
 			<s:HGroup y="6"
 								right="6"

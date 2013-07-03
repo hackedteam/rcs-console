@@ -9,7 +9,7 @@
 						variableRowHeight="true"
             doubleClickEnabled="true"
             gridClick="onGridClick(event)"
-            gridDoubleClick="onGridDoubleClick(event)"
+            gridDoubleClick="onGridDoubleClick(event)" 
             >
   <fx:Metadata> 
     [Event(name="dataChange", type="flash.events.Event")]
@@ -17,10 +17,12 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.controls.dataGridClasses.DataGridColumn;
       
       import spark.events.GridEvent;
 
@@ -74,6 +76,20 @@
       {
         if(this.grid)
         this.grid.ensureCellIsVisible(this.dataProvider.length-1);
+      }
+      
+      private function truncate(item:Object, column:GridColumn):String
+      {
+        var s:String;
+       if(item.data.command.length>30)
+       {
+       s=item.data.command.substr(0,29)+"...";
+       }
+       else
+       {
+       s=item.data.command
+       }
+       return s;
       }
 
       
@@ -143,7 +159,7 @@
 			</s:GridColumn>
 			<s:GridColumn dataField="data.command"
 										headerText="{R.get('COMMAND')}"
-										resizable="false">
+										resizable="false" labelFunction="truncate">
         <s:itemRenderer>
           
           <fx:Component>

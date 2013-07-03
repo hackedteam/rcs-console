@@ -39,16 +39,18 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.agent.controller.AgentManager;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.operations.view.OperationsSection;
-			import it.ht.rcs.console.utils.AlertPopUp;
-
-			import locale.R;
-
-			import mx.controls.Alert;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.controls.Alert;
+      import mx.managers.PopUpManager;
+      import mx.resources.ResourceManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			public var section:OperationsSection;
@@ -158,6 +160,11 @@
 						numFilesToProcess--
 						if (numFilesToProcess == 0)
 							AlertPopUp.show(R.get('FILE_RETRIEVE_DEFAULT'));
+					}, function(e:FaultEvent):void
+					{
+            var message:*=JSON.parse(e.fault.content as String)
+            var localized_error:String = R.get( message as String);
+						Alert.show(localized_error, "Error")
 					});
 				}
 			}

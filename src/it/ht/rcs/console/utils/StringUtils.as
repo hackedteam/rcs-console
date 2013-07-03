@@ -14,8 +14,12 @@ package it.ht.rcs.console.utils
     
     public static function getFilename(path:String):String
     {
-      var extRemoved : String = path.slice(path.lastIndexOf("\\")+1,path.lastIndexOf("."));
-      return extRemoved;
+      var fSlash: int = path.lastIndexOf("/");
+      var bSlash: int = path.lastIndexOf("\\"); // reason for the double slash is just to escape the slash so it doesn't escape the quote!!!
+      var slashIndex: int = fSlash > bSlash ? fSlash : bSlash;
+      var name: String = path.substr(slashIndex + 1);
+     
+      return name;
     }
     
     

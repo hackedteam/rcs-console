@@ -18,13 +18,21 @@
 							icon="@Embed('/img/NEW/delete_32.png')"/>-->
 
 
-	<actionbar:Separator/>
+	<actionbar:Separator visible="{entity.type=='target'}"
+                       includeInLayout="{entity.type=='target'}"/>
 	<s:Button label="{R.get('JUMP_TO_TARGET')}"
 						click="onJumpClick()"
 						enabled="{Console.currentSession.user.is_view_profiles()}"
 						icon="@Embed('/img/NEW/jumpToTarget.png')"
 						visible="{entity.type=='target'}"
 						includeInLayout="{entity.type=='target'}"/>
+  <actionbar:Separator visible="{LicenseManager.instance.intelligence}"
+                       includeInLayout="{LicenseManager.instance.intelligence}"/>
+  <s:Button label="{R.get('EXPORT')}"
+            icon="@Embed('/img/NEW/export.png')"
+            visible="{LicenseManager.instance.intelligence}" click="exportEntity(event)"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles()}"/>
 	<s:Spacer width="100%"/>
 
 	<fx:Script>
@@ -35,6 +43,7 @@
 			import it.ht.rcs.console.events.SectionEvent;
 			import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
 
 			import locale.R;
 
@@ -93,6 +102,16 @@
 			{
 
 			}
+      
+      private function exportEntity(event:MouseEvent):void
+      {
+        var popup:EntityExport=PopUpManager.createPopUp(root, EntityExport, true) as EntityExport;
+        popup.operation=section.stateManager.selectedOperation;
+        popup.type="entity"
+        var ids:Array=[entity._id];
+        popup.ids=ids
+        PopUpManager.centerPopUp(popup);
+      }
 
 			private function onRemovedFromStage():void
 			{

@@ -5,6 +5,7 @@
 										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
 
 
+
 	<s:Button label="{R.get('NEW_ANONYMIZER')}"
 						click="onNewClick()"
 						icon="@Embed('/img/NEW/newAnonymizer.png')"
@@ -54,6 +55,7 @@
 
 	<fx:Script>
 		<![CDATA[
+      import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.system.view.frontend.graph.FrontendGraph;
@@ -69,8 +71,8 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       import mx.rpc.events.ResultEvent;
-
-			[Bindable]
+			
+      [Bindable]
 			public var graph:FrontendGraph;
 
 			[Bindable]
@@ -90,6 +92,16 @@
 				popup.collector=selectedObject as Collector;
 				PopUpManager.centerPopUp(popup);
 			}
+      
+      private function update():void
+      {
+        for (var i:int=0; i < collectors.length; i++)
+        {
+          var c:Collector=collectors.getItemAt(i) as Collector;
+          CollectorManager.instance.update(c);
+        }
+        graph.dirty=true;
+      }
 
 			private function saveTopology():void
 			{
@@ -117,9 +129,11 @@
 				{
 					if (e.detail == AlertPopUp.YES)
 					{
+
 						CollectorManager.instance.removeItem(selectedObject);
 						selectedObject=null;
-						(parent as Frontend).buildGraph();
+            update();
+            CollectorManager.instance.dispatchEvent(new DataLoadedEvent(DataLoadedEvent.DATA_LOADED)) 
 					}
 				}, null, AlertPopUp.NO);
 			}

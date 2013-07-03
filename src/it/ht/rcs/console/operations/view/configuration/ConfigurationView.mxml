@@ -159,6 +159,8 @@
 
 			public function getDirtyState():Boolean
 			{
+        if(!Console.currentSession.user.is_tech_config())
+          return false;
 				var newConfig:Object=currentState == 'advanced' ? advanced.getConfig() : basic.getConfig();
 				return ObjectUtil.compare(newConfig, originalConfigAsObject) != 0;
 			}

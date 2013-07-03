@@ -69,6 +69,9 @@ package it.ht.rcs.console.entities.view
           
         case 'target':
           return EntityManager.instance.getEntityByTarget(item._id);
+          
+        case 'entity':
+          return EntityManager.instance.getItem(item._id);
        
         default:
           return null;

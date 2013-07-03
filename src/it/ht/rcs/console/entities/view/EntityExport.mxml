@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="300"
+							 height="130"
+							 close="closeMe(event)"
+							 title="{R.get('EXPORT')}"
+							 creationComplete="init()"
+							 xmlns:view="it.ht.rcs.console.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.agent.model.Agent;
+			import it.ht.rcs.console.events.SessionEvent;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.operation.model.Operation;
+			import it.ht.rcs.console.target.model.Target;
+			import it.ht.rcs.console.task.controller.DownloadManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
+			
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ArrayUtil;
+
+			public var operation:Operation
+			public var ids:Array;
+      public var type:String;
+
+			protected function closeMe(event:*):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			private function init():void
+			{
+				FlexGlobals.topLevelApplication.addEventListener(SessionEvent.LOGOUT, closeMe);
+
+				exportname.text=defaultName();
+			}
+
+			private function pad(n:Number):String
+			{
+				return TimeUtils.zeroPad(n, 2);
+			}
+
+			protected function export(event:MouseEvent):void
+			{
+
+				DownloadManager.instance.createTask(type, exportname.text, {id: ids, operation: operation._id});
+
+				PopUpManager.removePopUp(this);
+			}
+
+			private function defaultName():String
+			{
+				var export_file:String='';
+
+				/*  if(ids.length==1)
+					 export_file += ids[0]; */
+				if (operation != null)
+					export_file+=operation.name;
+
+				export_file+=" - " + "Entities Export";
+
+				return export_file;
+			}
+		]]>
+	</fx:Script>
+
+
+	<s:VGroup paddingBottom="15" paddingLeft="15" paddingRight="15" paddingTop="15"
+						horizontalAlign="center" width="100%" verticalAlign="middle">
+<s:HGroup width="100%" horizontalAlign="center" verticalAlign="middle">
+  <s:Label text="{R.get('REPORT_NAME')}:"
+           fontWeight="bold"/>
+  
+  <s:TextInput id="exportname"
+               width="100%"/>
+</s:HGroup>
+		
+<s:Spacer height="10"/>
+		<s:Button label="{R.get('EXPORT')}"
+							click="export(event)"/>
+
+	</s:VGroup>
+
+</s:TitleWindow>

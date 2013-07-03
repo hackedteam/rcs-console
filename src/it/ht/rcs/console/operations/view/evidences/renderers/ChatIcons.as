@@ -53,6 +53,15 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     [Embed(source='/img/evidence/social/viber_16.png')]
     public static const viber:Class;
     
+    [Embed(source='/img/evidence/social/line_16.png')]
+    public static const line:Class;
+    
+    [Embed(source='/img/evidence/social/wechat_16.png')]
+    public static const wechat:Class;
+    
+    [Embed(source='/img/evidence/social/url_16.png')]
+    public static const url:Class;
+    
     [Embed(source='/img/evidence/social/default_16.png')]
     public static const defaultIcon:Class;
 

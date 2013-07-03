@@ -28,6 +28,10 @@
       [Embed(source="img/NEW/entityPositionDeafult.jpg")]
       [Bindable]
       public var defaultPositionImage:Class;
+      
+      [Embed(source="img/NEW/entityVirtualDeafult.jpg")]
+      [Bindable]
+      public var defaultVirtualImage:Class;
 
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
@@ -50,7 +54,28 @@
 
 				else if (id == "")
 				{
-					picture.source = entity.type=='position' ? defaultPositionImage : defaultImage;
+					switch (entity.type)
+          {
+          case "target":
+            picture.source=defaultImage;
+            break;
+          
+          case "person":
+            picture.source=defaultImage;
+            break;
+          
+          case "position":
+            picture.source=defaultPositionImage;
+            break;
+          
+          case "virtual":
+            picture.source=defaultVirtualImage;
+            break;
+          
+          default:
+            picture.source=defaultImage;
+          
+          }
 				}
 				else
 				{

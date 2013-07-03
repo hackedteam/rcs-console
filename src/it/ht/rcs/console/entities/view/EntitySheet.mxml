@@ -41,11 +41,12 @@
 			import com.google.maps.overlays.GroundOverlay;
 			import com.google.maps.overlays.GroundOverlayOptions;
 			import com.google.maps.overlays.Marker;
-			
+
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Contact;
 			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Visit;
 			import it.ht.rcs.console.events.RefreshEvent;
 			import it.ht.rcs.console.events.SectionEvent;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
@@ -53,9 +54,9 @@
 			import it.ht.rcs.console.utils.AlertPopUp;
 			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.TimeUtils;
-			
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -74,6 +75,9 @@
 
 			[Bindable]
 			private var mostContacted:ArrayCollection;
+
+			[Bindable]
+			private var mostVisited:ArrayCollection;
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -99,22 +103,23 @@
 			private const MONTH:int=MILLISECONDS_PER_DAY * 30;
 
 			[Bindable]
+			public var section:EntitiesSection;
+
+			[Bindable]
 			public var entity:Entity;
 
 			[Bindable]
 			private var fromDate:Date;
-      
-      
-      [Bindable]
-      private var limit:String="5";
+
+			[Bindable]
+			private var limit:String="5";
 
 			[Bindable]
 			private var toDate:Date;
 
 			private function init():void
 			{
-       
-        this.visible=false;
+				this.visible=false;
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
@@ -126,6 +131,8 @@
 				{
 					fromDf.selectedDate=fromDate;
 				}
+        
+       
 
 				EntityManager.instance.show(entity._id, onDetailResult);
 
@@ -137,30 +144,51 @@
 					{
 						loadingBox.visible=loadingBox.includeInLayout=true;
 					}
-          limit="5";
-          if(limitTxt) limitTxt.text="5";
-            
+					limit="5";
+					if (limitTxt)
+						limitTxt.text="5";
+         
+        
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 				}
 				else
 				{
 					if (contactsList)
-						contactsList.enabled=false; //TODO ADD A MESSAGE
+          {
+            contactsList.enabled=false; //TODO ADD A MESSAGE
+          }
+						
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=false;
+
+					if (visitedList)
+						visitedList.enabled=false; //TODO ADD A MESSAGE
+					if (loadingBox2)
+						loadingBox2.visible=loadingBox.includeInLayout=false;
 				}
 
 				callLater(onRefresh, [null])
 
 			}
 
-			private function filter():void
+			private function filter(e:Event):void
 			{
-        limit=limitTxt.text;
+				if (e.currentTarget == limitTxt)
+				{
+					limit=limitTxt.text;
+				}
+
+
+				if (e.currentTarget == visitLimitTxt)
+				{
+					limit=visitLimitTxt.text;
+				}
 				fromDate=fromDf.selectedDate;
 				toDate=toDf.selectedDate;
 				loadingBox.visible=loadingBox.includeInLayout=true;
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+				EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 			}
 
 
@@ -175,7 +203,7 @@
 			{
 				toDf.selectedDate.hours=23;
 				toDf.selectedDate.minutes=59;
-        toDf.selectedDate.seconds=59;
+				toDf.selectedDate.seconds=59;
 				return Clock.instance.toUTCTime(toDf.selectedDate) / 1000;
 			}
 
@@ -292,28 +320,28 @@
 							map.addOverlay(marker);
 							overlays.push(marker);
 							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-              if(entity.type=='target')
-							  lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): \nLatitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
-              else if(entity.type=='position')
-                lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
-              else
-                lastPositionTxt.text="";
-              
-							map.setZoom(12)
+							if (entity.type == 'target')
+								lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " ( " + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + " ): \nLatitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
+							else if (entity.type == 'position')
+								lastPositionTxt.text="Latitude: " + entity.position.latitude + "\nLongitude: " + entity.position.longitude + "\nAccuracy: " + entity.position_attr.accuracy + " mt";
+							else
+								lastPositionTxt.text="";
+
+								//map.setZoom(12)
 						}
 						else
 						{
-              if(entity.type=='target')
-							lastPositionTxt.text="";
+							if (entity.type == 'target')
+								lastPositionTxt.text="";
 							map.setZoom(1);
 						}
 					}
 					else
 					{
-            if(entity.type=='target')
-						  lastPositionTxt.text="Last position unkown";
-            else
-              lastPositionTxt.text="";
+						if (entity.type == 'target')
+							lastPositionTxt.text="Last position unkown";
+						else
+							lastPositionTxt.text="";
 						map.setZoom(1)
 					}
 
@@ -334,14 +362,15 @@
 			protected function onRemovedFromStage():void
 			{
 				//photoViewer.currentPhoto="";
-        //entity=null;
+				//entity=null;
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
-			
+
 			}
 
 			private function onContactResult(e:ResultEvent):void
 			{
-
+        if(contactsList)
+          contactsList.addEventListener("entityAdd", addContactAsEntity)
 				mostContacted=new ArrayCollection();
 				var temp:ArrayCollection=e.result as ArrayCollection;
 				for (var i:int=0; i < temp.length; i++)
@@ -366,6 +395,23 @@
 				loadingBox.visible=loadingBox.includeInLayout=false;
 			}
 
+			private function onVisitedResult(e:ResultEvent):void
+			{
+
+				mostVisited=e.result as ArrayCollection
+
+				if (loadingBox2)
+					loadingBox2.visible=loadingBox2.includeInLayout=false;
+				if (visitedList)
+					visitedList.dataProvider=mostVisited;
+			}
+
+			private function onVisitedFault(e:FaultEvent):void
+			{
+				trace("fault callback most visited call")
+				loadingBox2.visible=loadingBox2.includeInLayout=false;
+			}
+
 			private function onDetailFault(e:FaultEvent):void
 			{
 				trace("fault callback entity show call")
@@ -375,6 +421,8 @@
 			{
 				//  TODO REDUNDANT
 				mostContacted=new ArrayCollection();
+				mostVisited=new ArrayCollection()
+
 				EntityManager.instance.show(entity._id, onDetailResult);
 				if (loadingBox)
 					loadingBox.visible=loadingBox.includeInLayout=false;
@@ -382,11 +430,15 @@
 				{
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=true;
+					if (loadingBox2)
+						loadingBox2.visible=loadingBox.includeInLayout=true;
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
 				}
 				else
 				{
 					contactsList.enabled=false;
+					visitedList.enabled=false;
 				}
 			}
 
@@ -425,7 +477,7 @@
 
 				if (mapReady)
 					drawPosition();
-        this.visible=true;
+				this.visible=true;
 				//dispatchEvent(new Event("update"));
 			}
 
@@ -439,7 +491,7 @@
 
 			private function onRemoveHandle():void
 			{
-				AlertPopUp.show(R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+				AlertPopUp.show(entity.type == 'virtual' ? R.get('CONFIRM_URL_DELETION') : R.get('CONFIRM_HANDLE_DELETION'), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 				{
 					if (e.detail == AlertPopUp.YES)
 						EntityManager.instance.deleteHandle(entity._id, handlesList.selectedItem._id, onUpdate)
@@ -459,12 +511,33 @@
 					var targetId:String=entity.path[entity.path.length - 1];
 					event.item=SearchManager.instance.getItem(targetId);
 					event.evidenceTypes=["call", "chat", "message"];
-					event.info=String(item.peer + " " + item.type);
+					event.info=[item.peer + " " + item.type];
 					event.from=getFromTimestamp();
 					event.to=getToTimestamp();
 					FlexGlobals.topLevelApplication.dispatchEvent(event);
 				}
 
+			}
+
+			private function onEntityAdded(e:Event):void
+			{
+				var popup:EntityForm=e.currentTarget as EntityForm;
+				var entity:Entity=popup.entity;
+				var contact:Contact=contactsList.selectedItem as Contact;
+				EntityManager.instance.addHandle(entity._id, contact.peer, contact.peer_name, contact.type)
+			}
+
+			private function addContactAsEntity(e:Event):void
+			{
+				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+				popup.operation=section.stateManager.selectedOperation;
+				popup.entity=new Entity(Entity.defaultEntity());
+				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				if (contactsList.selectedItem.peer_name != null)
+					popup.entity.name=contactsList.selectedItem.peer_name;
+				popup.type.enabled=false;
+				popup.currentState=EntityForm.CREATE;
+				PopUpManager.centerPopUp(popup);
 			}
 
 			public function update():void
@@ -502,7 +575,7 @@
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
 				<mx:DateField id="fromDf"
 											selectedDate="{fromDate}"
-											change="filter()"
+											change="filter(event)"
 											formatString="YYYY-MM-DD"
 											enabled="{LicenseManager.instance.correlation}"/>
 				<s:Label text="{R.get('TO')}:"
@@ -510,7 +583,7 @@
 								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
 				<mx:DateField id="toDf"
 											selectedDate="{toDate}"
-											change="filter()"
+											change="filter(event)"
 											formatString="YYYY-MM-DD"
 											enabled="{LicenseManager.instance.correlation}"/>
 			</s:HGroup>
@@ -524,8 +597,7 @@
 	</s:VGroup>
 	<s:HGroup width="100%"
 						height="100%">
-		<s:VGroup 
-							height="100%">
+		<s:VGroup height="100%">
 			<s:VGroup width="100%"
 								visible="{entity.desc!='' &amp;&amp; entity.desc!=null}"
 								includeInLayout="{entity.desc!='' &amp;&amp; entity.desc!=null}">
@@ -540,7 +612,7 @@
 					</s:stroke>
 				</s:Line>
 			</s:VGroup>
-			<s:HGroup width="100%">
+			<s:HGroup width="100%" height="50%">
 				<components:PhotoViewer id="photoViewer"
 																entity="{entity}"
 																update="onUpdate(event)"/>
@@ -548,7 +620,8 @@
 									width="100%"
 									height="100%"
 									visible="{entity.type!='position'}"
-									includeInLayout="{entity.type!='position'}">
+									includeInLayout="{entity.type!='position'}"
+									paddingBottom="0">
 					<!-- <s:Label text="Accounts:"
 										fontWeight="bold"/>-->
 					<s:List width="380"
@@ -575,46 +648,156 @@
 					</s:HGroup>
 
 				</s:VGroup>
-
-
 			</s:HGroup>
 			<s:Spacer height="20"/>
-			<s:HGroup width="100%"
-								verticalAlign="middle"
+			<!-- -->
+			<s:VGroup gap="0"
+								paddingBottom="0"
+								paddingTop="0"
+								paddingLeft="0"
+								paddingRight="0"
+								width="100%"
+								height="100%"
 								visible="{entity.type=='target'}"
 								includeInLayout="{entity.type=='target'}">
-        <s:TextInput id="limitTxt" text="{limit}" restrict="[0-9]" width="30" enter="filter()"/>
-          
-				<s:Label text="{R.get('MOST_CONTACTED')}"
-								 fontWeight="bold"
-								 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
-				<s:Label text=" (Feature not included in current License)"
-								 visible="{!LicenseManager.instance.correlation}"
-								 includeInLayout="{!LicenseManager.instance.correlation}"
-								 fontWeight="bold"
-								 alpha="0.5"/>
-				<s:Spacer width="100%"/>
-				<s:HGroup verticalAlign="middle"
-									id="loadingBox"
-									visible="{LicenseManager.instance.correlation}"
-									includeInLayout="{LicenseManager.instance.correlation}">
 
-					<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
-					<s:Label text="Retrieving data..."
-									 fontWeight="bold"/>
+
+				<s:HGroup horizontalAlign="right"
+									width="100%"
+									paddingBottom="0">
+					<s:TabBar id="tabs"
+										dataProvider="{vs}"
+										fontWeight="bold"/>
 				</s:HGroup>
-			</s:HGroup>
-			<s:List width="100%"
-							height="100%"
-							id="contactsList"
-							enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
-							itemRenderer="it.ht.rcs.console.entities.view.renderers.ContactListRenderer"
-							dataProvider="{mostContacted}"
-							doubleClickEnabled="true"
-							doubleClick="jumpToEvidence(event)"
-							visible="{entity.type=='target'}"
-							includeInLayout="{entity.type=='target'}"/>
+				<mx:ViewStack width="100%"
+											height="100%"
+											id="vs"
+											creationPolicy="all">
 
+
+					<s:NavigatorContent width="100%"
+															height="100%"
+															label="{R.get('MOST_CONTACTED')}"
+															creationPolicy="all">
+						<s:BorderContainer width="100%"
+															 height="100%">
+							<s:layout>
+								<s:VerticalLayout paddingBottom="6"
+																	paddingLeft="6"
+																	paddingRight="6"
+																	paddingTop="6"/>
+							</s:layout>
+							<s:HGroup width="100%"
+												verticalAlign="middle"
+												visible="{entity.type=='target'}"
+												includeInLayout="{entity.type=='target'}">
+								<s:TextInput id="limitTxt"
+														 text="{limit}"
+														 restrict="[0-9]"
+														 width="24"
+														 enter="filter(event)"
+														 borderAlpha="0"
+														 fontWeight="bold"
+														 enabled="{LicenseManager.instance.correlation}"/>
+
+								<s:Label text="{R.get('MOST_CONTACTED')}"
+												 fontWeight="bold"
+												 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+								<s:Label text=" (Feature not included in current License)"
+												 visible="{!LicenseManager.instance.correlation}"
+												 includeInLayout="{!LicenseManager.instance.correlation}"
+												 fontWeight="bold"
+												 alpha="0.5"/>
+								<s:Spacer width="100%"/>
+								<s:HGroup verticalAlign="middle"
+													id="loadingBox"
+													visible="{LicenseManager.instance.correlation}"
+													includeInLayout="{LicenseManager.instance.correlation}">
+
+									<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+									<s:Label text="Retrieving data..."
+													 fontWeight="bold"/>
+								</s:HGroup>
+								<!--<s:Button label="{R.get('ENTITY_ADD_AS')}"
+													visible="{mostContacted!=null &amp;&amp; mostContacted.length>0 &amp;&amp; LicenseManager.instance.intelligence}"
+													includeInLayout="{mostContacted!=null &amp;&amp; mostContacted.length>0 &amp;&amp; LicenseManager.instance.intelligence}"
+													enabled="{contactsList.selectedItem!=null}"
+													click="addContactAsEntity()"/>-->
+							</s:HGroup>
+							<s:List width="100%"
+											height="100%"
+											id="contactsList"
+											enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
+											itemRenderer="it.ht.rcs.console.entities.view.renderers.ContactListRenderer"
+											dataProvider="{mostContacted}"
+											doubleClickEnabled="true"
+											doubleClick="jumpToEvidence(event)"
+											visible="{entity.type=='target'}"
+											includeInLayout="{entity.type=='target'}"
+											borderAlpha="0.3"/>
+						</s:BorderContainer>
+					</s:NavigatorContent>
+					<s:NavigatorContent width="100%"
+															height="100%"
+															label="{R.get('MOST_VISITED')}"
+															creationPolicy="all">
+						<s:BorderContainer width="100%"
+															 height="100%">
+							<s:layout>
+								<s:VerticalLayout paddingBottom="6"
+																	paddingLeft="6"
+																	paddingRight="6"
+																	paddingTop="6"/>
+							</s:layout>
+							<s:HGroup width="100%"
+												verticalAlign="middle"
+												visible="{entity.type=='target'}"
+												includeInLayout="{entity.type=='target'}">
+								<s:TextInput id="visitLimitTxt"
+														 text="{limit}"
+														 restrict="[0-9]"
+														 width="24"
+														 enter="filter(event)"
+														 borderAlpha="0"
+														 fontWeight="bold"
+														 enabled="{LicenseManager.instance.correlation}"/>
+
+								<s:Label text="{R.get('MOST_VISITED')}"
+												 fontWeight="bold"
+												 alpha="{LicenseManager.instance.correlation? 1:0.5}"/>
+								<s:Label text=" (Feature not included in current License)"
+												 visible="{!LicenseManager.instance.correlation}"
+												 includeInLayout="{!LicenseManager.instance.correlation}"
+												 fontWeight="bold"
+												 alpha="0.5"/>
+								<s:Spacer width="100%"/>
+								<s:HGroup verticalAlign="middle"
+													id="loadingBox2"
+													visible="{LicenseManager.instance.correlation}"
+													includeInLayout="{LicenseManager.instance.correlation}">
+
+									<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+									<s:Label text="Retrieving data..."
+													 fontWeight="bold"/>
+								</s:HGroup>
+								<!--  <s:Button label="{R.get('ENTITY_ADD_AS')}"
+								visible="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
+								includeInLayout="{mostVisited!=null &amp;&amp; mostVisited.length>0}"
+								enabled="{visitedList.selectedItem!=null}"/>-->
+							</s:HGroup>
+							<s:List width="100%"
+											height="100%"
+											id="visitedList"
+											enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
+											itemRenderer="it.ht.rcs.console.entities.view.renderers.VisitedListRenderer"
+											dataProvider="{mostVisited}"
+											visible="{entity.type=='target'}"
+											includeInLayout="{entity.type=='target'}"
+											borderAlpha="0.3"/>
+						</s:BorderContainer>
+					</s:NavigatorContent>
+				</mx:ViewStack>
+			</s:VGroup>
 		</s:VGroup>
 		<s:Spacer width="6"/>
 		<s:VGroup width="100%"
@@ -637,7 +820,9 @@
 				<s:HGroup width="100%"
 									horizontalAlign="left">
 					<s:Label id="lastPositionTxt"
-									 alpha="{LicenseManager.instance.correlation? 1:0.5}" fontWeight="bold" width="300"/>
+									 alpha="{LicenseManager.instance.correlation? 1:0.5}"
+									 fontWeight="bold"
+									 width="300"/>
 					<!--	<s:CheckBox label="Last Positions"/>
 						<s:Spacer width="10"/>
 						<s:CheckBox label="Addresses"/>

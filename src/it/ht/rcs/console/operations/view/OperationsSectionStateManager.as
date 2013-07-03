@@ -116,7 +116,7 @@ package it.ht.rcs.console.operations.view
         UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
       }
       
-      else if (item is Agent && item._kind == 'factory' && Console.currentSession.user.is_tech_config())
+      else if (item is Agent && item._kind == 'factory' ) //&& Console.currentSession.user.is_tech_config()
       {
         selectedFactory = item;
         selectedConfig = null;
@@ -189,7 +189,7 @@ package it.ht.rcs.console.operations.view
         {
           delete(EvidenceManager.instance.evidenceFilter.info);
         }
-        if(event.from)
+        if(!isNaN(event.from))
         {
           EvidenceManager.instance.evidenceFilter.date = 'da';
           EvidenceManager.instance.evidenceFilter.from = event.from;
@@ -489,11 +489,11 @@ package it.ht.rcs.console.operations.view
     public var searchField:TextInput;
     private function searchFilterFunction(item:Object):Boolean
     {
-      if(item is Agent)// show factory to tech users only
+   /*   if(item is Agent)// show factory to tech users only
       {
         if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory')
           return false;
-      }
+      }*/
       
       if (!searchField || searchField.text == '')
         return true;
@@ -533,9 +533,9 @@ package it.ht.rcs.console.operations.view
      if(selectedTarget && item.path && item.path.length>1)
      {
        if (selectedTarget && item is Agent && item.path[1] == selectedTarget._id)
-         if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory')
+       /*  if (!(Console.currentSession.user.is_tech_factories()) && item._kind == 'factory') 
            return false;
-         else
+         else*/
            return searchFilterFunction(item);
          else return false;
      }

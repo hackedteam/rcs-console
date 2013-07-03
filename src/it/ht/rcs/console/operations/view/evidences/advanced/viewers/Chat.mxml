@@ -70,9 +70,13 @@
         {
           toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.rcpt_display || evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
-        else
+        else if (evidence.data.peer!=null && evidence.data.peer!="")
         {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.peer , TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+        else  
+        {
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+"-", TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
         
         if(evidence.data.from!=null && evidence.data.from!="")
@@ -88,12 +92,17 @@
         {
           chatFlow=EvidenceManager.instance.getChatFlow(evidence.data.program, evidence.data.rcpt, evidence.data.from);
         }
-        else
+        else if ( evidence.data.peer!=null &&  evidence.data.peer!="")
         {
           chatFlow=EvidenceManager.instance.getChatFlow(evidence.data.program, evidence.data.peer, "");
         }
-       
         
+        else
+        {
+          chatFlow=new ArrayCollection()
+          chatFlow.addItem(evidence)
+        }
+       
         if (evidence.data.program == "Facebook")
         {
           renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
@@ -228,7 +237,7 @@
 	</s:Line>
   <s:RichText id="toTxt"
               width="100%"
-              fontSize="12" textFlow="{TextConverter.importToFlow(evidence.data.rcpt!=null?'&lt;b&gt;To: &lt;/b&gt;'+evidence.data.rcpt:'&lt;b&gt;To: &lt;/b&gt;'+evidence.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+              fontSize="12" textFlow="{TextConverter.importToFlow(evidence.data.rcpt!=null?'&lt;b&gt;To: &lt;/b&gt;'+evidence.data.rcpt:'&lt;b&gt;To: &lt;/b&gt;'+evidence.data.peer || '', TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
 	<s:Line width="100%">
 		<s:stroke>
 			<s:SolidColorStroke color="0xCCCCCC"/>

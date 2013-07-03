@@ -29,28 +29,39 @@
       public static const EDIT:String = 'edit';
       public static const CLOSE:String = 'close';
       
-      
+
       private function init():void
       {
- 
         entityName.setFocus();
         entityName.text=entity.name;
         desc.text=entity.desc;
-        
+        if(currentState == EDIT)
+        {
+          if(entity.type=="position")
+          {
+            positionEditor.visible=positionEditor.includeInLayout=true;
+            positionEditor.set(entity);
+            PopUpManager.centerPopUp(this);
+          }
+        }
       }
-      
-    
-      
+
       private function onSave(event:SaveEvent):void
       {
-        //postion ={latitude, longitude, accuracy}
+       
         doSave();
         dispatchEvent(new Event("update"))
         if (currentState == CREATE)
-          EntityManager.instance.addEntity(entity, operation, function(entity:Entity):void { close(); dispatchEvent(new Event("close"))});
+          EntityManager.instance.addEntity(entity, operation, 
+            function(e:Entity):void 
+            { 
+              entity=e;
+              close(); 
+              dispatchEvent(new Event("close"))});
         else
+        {
           close();
-        //close();  
+        }
       }
 
       private function doSave():void
@@ -62,14 +73,32 @@
           entity.type=type.selectedItem.label.toLowerCase();
           if(entity.type=="position")
           {
-            entity.position=new Position()
+            entity.position=new Position();
             entity.position.latitude=String(positionEditor.position.latitude);
             entity.position.longitude=String(positionEditor.position.longitude);
             entity.position_attr=new Position_attr();
-            entity.position_attr.accuracy=String(positionEditor.position.accuracy*1000)
+            entity.position_attr.accuracy=String(positionEditor.position.accuracy*1000);
           }
         }
-        
+        else if(currentState==EDIT && entity.type=="position")  //problems updating
+        {
+          if(entity.position)
+          {
+          entity.position.latitude=String(positionEditor.position.latitude);
+          entity.position.longitude=String(positionEditor.position.longitude);
+          }
+          if(entity.position_attr)
+          {
+            entity.position_attr.accuracy=String(positionEditor.position.accuracy*1000);
+          }
+          var newPos:Position=new Position()
+          newPos.latitude= entity.position.latitude;
+          newPos.longitude=entity.position.longitude;
+          var newAttr:Position_attr=new Position_attr();
+          newAttr.accuracy=entity.position_attr.accuracy;
+          //
+          EntityManager.instance.updatePosition(entity, newPos, newAttr)
+        }
       }
       
       private function onTypeChange():void
@@ -83,11 +112,9 @@
         {
           positionEditor.visible=positionEditor.includeInLayout=false;
         }
-        PopUpManager.centerPopUp(this)
+        PopUpManager.centerPopUp(this);
       }
-      
-     
-      
+
     ]]>
   </fx:Script>
   
@@ -97,7 +124,6 @@
   </utils:states>
     
  <s:VGroup horizontalAlign="center">
-   
 
   <s:Form width="100%" defaultButton="{saveButton}">
 
@@ -114,13 +140,11 @@
         <s:ArrayCollection id="types">
           <fx:Object label="PERSON"/>
           <fx:Object label="POSITION"/>
+          <fx:Object label="VIRTUAL"/>
         </s:ArrayCollection>
       </s:DropDownList>
     </s:FormItem>
 </s:Form>
-
- 
-  
  <components:PositionEditor id="positionEditor" visible="false" includeInLayout="false" horizontalAlign="center"/>
  
  </s:VGroup>

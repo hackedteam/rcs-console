@@ -3,20 +3,26 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              addedToStage="onAddedToStage()" click="clickHandler(event)"
-                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()">
+                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()" rollOver="onRollover(event)" rollOut="onRollout(event)">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       
+      import locale.R;
+      
+      import mx.controls.ToolTip;
       import mx.core.FlexGlobals;
+      import mx.core.IToolTip;
       import mx.events.FlexMouseEvent;
       import mx.managers.PopUpManager;
+      import mx.managers.ToolTipManager;
       
       import spark.components.CheckBox;
       import spark.components.HGroup;
       
       private static var currentPopup:AbstractFilterPopup;
+      private var tip:ToolTip
 
       [Bindable]
       private var popup:AbstractFilterPopup;
@@ -45,8 +51,48 @@
         showFilter.selected = filter.hasOwnProperty(popup.property) || mandatory;
         
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, popup.rebuild);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter); 
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+       
+        
 
+      }
+      
+      private function getToolTip():String
+      {
+        
+        switch(this.column.dataField)
+        {
+        case "_id":
+          return "id";
+          break;
+        case "da":
+          return R.get('DATE_ACQUIRED');
+          break;
+        case "dr":
+          return R.get('DATE_RECEIVED');
+          break;
+        case "rel":
+          return R.get('RELEVANCE');
+          break;
+        case "type":
+          return R.get('TYPE');
+          break;
+        case "data":
+          return R.get('INFO');
+          break;
+        case "note":
+          return R.get('NOTE');
+          break;
+        case "blo":
+          return R.get('REPORT');
+          break;
+        case "aid":
+          return R.get('AGENT');
+          break;
+        
+        }
+
+        return "";
       }
       
       private function onRemovedFromStage():void {
@@ -112,13 +158,26 @@
         popup.reset(fireEvent);
         popup.visible = false;
       }
+      
+      protected function onRollover(event:MouseEvent):void
+      {
+        var p:Point=this.localToGlobal(new Point(this.showFilter.x+20,this.showFilter.y-20));
+        ToolTipManager.showDelay=1000;
+        tip=ToolTipManager.createToolTip(getToolTip(), p.x, p.y) as ToolTip;
+       
+      }
+      protected function onRollout(event:MouseEvent):void
+      {
+        ToolTipManager.destroyToolTip(tip);
+      }
+      
     ]]>
   </fx:Script>
 
   <fx:Declarations>
     <s:CheckBox id="showFilter" change="changeHandler()"
                 enabled="{editable &amp;&amp; showFilter.selected}"
-                selected="{mandatory || popup.hasFilter}"/>
+                selected="{mandatory || popup.hasFilter}" />
   </fx:Declarations>
 
 </s:DefaultGridHeaderRenderer>

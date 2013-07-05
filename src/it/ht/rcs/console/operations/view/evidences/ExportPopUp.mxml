@@ -7,6 +7,8 @@
   
   <fx:Script>
     <![CDATA[
+      import flash.utils.setTimeout;
+      
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.operations.view.evidences.EvidenceFileExporter;
       
@@ -49,30 +51,31 @@
       private function onExportStart(e:Event):void
       {
         okBtn.visible=okBtn.enabled=false;
-        statusTxt.text="Exporting file "+_exporter.currentIndex+"/"+_exporter.total;
+        statusTxt.text="Downloading file "+_exporter.currentIndex+"/"+_exporter.total;
       }
       
       private function onExportProgress(e:Event):void
       {
         progressBar.setProgress(_exporter.bytesLoaded, _exporter.bytesTotal);
-        statusTxt.text="Exporting file "+_exporter.currentIndex+"/"+_exporter.total;
+        statusTxt.text="Downloading file "+_exporter.currentIndex+"/"+_exporter.total;
       }
       
       private function onExportComplete(e:Event):void
       {
-        statusTxt.text="Exporting file "+_exporter.currentIndex+"/"+_exporter.total;
+        statusTxt.text="Downloading file "+_exporter.currentIndex+"/"+_exporter.total;
       }
       
       private function onExportEnd(e:Event):void
       {
         progressBar.setProgress(100, 100);
-        statusTxt.text="Export completed"
+        statusTxt.text="Download completed"
         okBtn.visible=okBtn.enabled=true;
+        setTimeout(closePopUp, 2000)
         
       }
       private function onExportError(e:Event):void
       {
-        statusTxt.text="Export completed"
+        statusTxt.text="Download Error"
         okBtn.visible=okBtn.enabled=true;
       }
       

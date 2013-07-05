@@ -60,12 +60,13 @@ package it.ht.rcs.console.operations.view.evidences
     private function onDirectorySelected(e:Event):void
     {
       trace(directory.nativePath);
+      dispatchEvent(new Event(EXPORT_START));
       startQueue()
     }
     
     private function startQueue():void
     {
-        dispatchEvent(new Event(EXPORT_START));
+        
         currentIndex=0;
         currentEvidence=evidences[currentIndex] as Evidence;
         exportFile(currentEvidence)

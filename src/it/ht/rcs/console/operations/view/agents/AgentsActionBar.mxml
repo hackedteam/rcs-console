@@ -53,7 +53,7 @@
 							includeInLayout="{Console.currentSession.user.is_view()}"/>
 
 		<s:Button label="{R.get('ADD_TO_ALERT')}"
-							icon="@Embed('/img/NEW/alert.png')"
+							icon="@Embed('/img/NEW/newAlert.png')"
 							click="addToAlert(event)"
 							enabled="{Console.currentSession.user.is_view_alerts() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject.status == 'open' }"
 							visible="{LicenseManager.instance.archive == false}"
@@ -164,30 +164,31 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.ObjectUtils;
-			import it.ht.rcs.console.agent.controller.AgentManager;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.alert.controller.AlertManager;
-			import it.ht.rcs.console.alert.model.Alert;
-			import it.ht.rcs.console.dashboard.controller.DashboardController;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.network.controller.CollectorManager;
-			import it.ht.rcs.console.operations.view.MoveItemPopup;
-			import it.ht.rcs.console.operations.view.OperationsSection;
-			import it.ht.rcs.console.operations.view.evidences.EvidenceExport;
-			import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			import it.ht.rcs.console.target.model.Target;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.ListCollectionView;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.operations.view.MoveItemPopup;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceExport;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceImport;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
 
 			[Bindable]
 			public var section:OperationsSection;
@@ -313,7 +314,7 @@
 
 			private function addToAlert(event:MouseEvent):void
 			{
-				var a:Alert=new Alert(Alert.defaultAlert());
+				var a:it.ht.rcs.console.alert.model.Alert=new it.ht.rcs.console.alert.model.Alert(it.ht.rcs.console.alert.model.Alert.defaultAlert());
 				a.type='LOG';
 				if (section.currentState == 'singleAgent')
 				{
@@ -323,7 +324,7 @@
 					a.path.addAll(section.stateManager.selectedAgent.path);
 					a.path.addItem(section.stateManager.selectedAgent._id);
 
-					AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void
+					AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:it.ht.rcs.console.alert.model.Alert):void
 					{
 						AlertPopUp.show(R.get('ADDED_TO_ALERT', [section.stateManager.selectedAgent.name]));
 					});
@@ -336,7 +337,7 @@
 					a.path.addAll(selectedObject.path);
 					a.path.addItem(selectedObject._id);
 
-					AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:Alert):void
+					AlertManager.instance.addAlert(ObjectUtils.toHash(a), function(a:it.ht.rcs.console.alert.model.Alert):void
 					{
 						AlertPopUp.show(R.get('ADDED_TO_ALERT', [selectedObject.name]));
 					});
@@ -346,15 +347,20 @@
 
 			private function addToDashboard(event:MouseEvent):void
 			{
+        var popup:mx.controls.Alert
 				if (section.currentState == 'singleAgent')
 				{
 					DashboardController.instance.newDashboardItem(section.stateManager.selectedAgent._id);
-					AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [section.stateManager.selectedAgent.name]));
+          popup=AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [section.stateManager.selectedAgent.name]));
+          popup.mx_internal::alertForm.removeChild(popup.mx_internal::alertForm.mx_internal::buttons[0]);
+          setTimeout(PopUpManager.removePopUp, 2000, popup)
 				}
 				else
 				{
 					DashboardController.instance.newDashboardItem(selectedObject._id);
-					AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
+          popup=AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
+          popup.mx_internal::alertForm.removeChild(popup.mx_internal::alertForm.mx_internal::buttons[0]);
+          setTimeout(PopUpManager.removePopUp, 2000, popup)
 				}
 
 			}

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DefaultGridHeaderRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             addedToStage="onAddedToStage()"
+                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()" rollOver="onRollover(event)" rollOut="onRollout(event)">
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import locale.R;
+      
+      import mx.controls.ToolTip;
+      import mx.core.FlexGlobals;
+      import mx.core.IToolTip;
+      import mx.events.FlexMouseEvent;
+      import mx.managers.PopUpManager;
+      import mx.managers.ToolTipManager;
+      
+      import spark.components.CheckBox;
+      import spark.components.HGroup;
+      
+      private var tip:ToolTip
+      
+  
+      
+      private function onAddedToStage():void {
+        
+        
+        
+      }
+      
+      private function getToolTip():String
+      {
+        
+        switch(this.column.dataField)
+        {
+          case "name":
+            return "name";
+            break;
+      
+          
+        }
+        
+        return "";
+      }
+      
+      private function onRemovedFromStage():void {
+ 
+      }
+      
+      
+      
+      override public function prepare(hasBeenRecycled:Boolean):void {
+        super.prepare(hasBeenRecycled);
+        height = 22;
+        (labelDisplayGroup.parent as HGroup).top = 2;
+        labelDisplay.left = 20;
+        labelDisplay.top = 1;
+      }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+
+      }
+      
+
+      
+      protected function onRollover(event:MouseEvent):void
+      {
+        var p:Point=this.localToGlobal(new Point(this.labelDisplay.x+20,this.labelDisplay.y-20));
+        ToolTipManager.showDelay=1000;
+        tip=ToolTipManager.createToolTip(getToolTip(), p.x, p.y) as ToolTip;
+        
+      }
+      protected function onRollout(event:MouseEvent):void
+      {
+        ToolTipManager.destroyToolTip(tip);
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <fx:Declarations>
+  
+  </fx:Declarations>
+  
+</s:DefaultGridHeaderRenderer>

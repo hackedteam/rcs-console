@@ -41,6 +41,7 @@
       
       import locale.R;
       
+      import mx.controls.Alert;
       import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
@@ -102,7 +103,8 @@
       private function addToDashboard(event:MouseEvent):void
       {
         DashboardController.instance.newDashboardItem(selectedObject._id);
-        AlertPopUp.show(R.get('ADDED'));
+        var popup:mx.controls.Alert=AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
+        setTimeout(PopUpManager.removePopUp, 2000, popup)
       }
     ]]>
   </fx:Script>

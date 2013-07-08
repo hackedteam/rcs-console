@@ -1,76 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
-          xmlns:view="it.ht.rcs.console.operations.view.*"
-          xmlns:entities="it.ht.rcs.console.entities.view.*"
-          width="100%" height="100%" addedToStage="onAddedToStage()">
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
+					xmlns:view="it.ht.rcs.console.operations.view.*"
+					xmlns:entities="it.ht.rcs.console.entities.view.*"
+					width="100%"
+					height="100%"
+					addedToStage="onAddedToStage()"
+					creationComplete="onAddedToStage()">
 
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.entities.view.EntitiesSection;
-      import it.ht.rcs.console.operations.view.OperationsSection;
-      
-      import locale.R;
-      
-      [Bindable]
-      public var section:EntitiesSection;
-      
-      private function onDoubleClick(event:MouseEvent):void
-      {
-        var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
-        if (item) section.stateManager.manageItemSelection(item);
-      }
-      
-      private function onKeyUp(event:KeyboardEvent):void
-      {
-        if (event.keyCode == Keyboard.ENTER) {
-          var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
-          if (item) section.stateManager.manageItemSelection(item);
-        }
-      }
-      
-      protected function onAddedToStage():void
-      {
-        section.stateManager.view.refresh()
-        
-      }
-      
-    ]]>
-  </fx:Script>
-  
-  <entities:OperationsEntityActionBar section="{section}" viewStack="{views}"/>
-  
-  <mx:ViewStack id="views" width="100%" height="100%" creationPolicy="all">
-    <s:NavigatorContent label="{R.get('ICON_VIEW')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/windows/icon.png')" showEffect="{fadeIn}">
-      
-      <s:HGroup width="100%" height="100%" gap="5">
-        
-        <view:BaseList id="list" dataProvider="{section.stateManager.view}" selectedItem="{grid.selectedItem}"
-                       doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)"/>
-        
-        <operations:OperationsInfoPanel selectedItem="{list.selectedItem}"/>
-        
-      </s:HGroup>
-       
-    </s:NavigatorContent>
-    <s:NavigatorContent label="{R.get('TABLE_VIEW')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/windows/list.png')" showEffect="{fadeIn}">
-      
-      
-      <operations:OperationsGrid id="grid" dataProvider="{section.stateManager.tableView}" selectedItem="{list.selectedItem}"
-                                 doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)"/>
-      
-      
-    </s:NavigatorContent>
-  </mx:ViewStack>
-  
-  
-  <fx:Declarations>
-    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
-    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
-  </fx:Declarations>
-  
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.entities.view.EntitiesSection;
+			import it.ht.rcs.console.operations.view.OperationsSection;
+
+			import locale.R;
+
+			[Bindable]
+			public var section:EntitiesSection;
+
+			private function onDoubleClick(event:MouseEvent):void
+			{
+				var item:*=event.currentTarget === list ? list.selectedItem : grid.selectedItem;
+				if (item)
+					section.stateManager.manageItemSelection(item);
+			}
+
+			private function onKeyUp(event:KeyboardEvent):void
+			{
+				if (event.keyCode == Keyboard.ENTER)
+				{
+					var item:*=event.currentTarget === list ? list.selectedItem : grid.selectedItem;
+					if (item)
+						section.stateManager.manageItemSelection(item);
+				}
+			}
+
+			protected function onAddedToStage():void
+			{
+				if (section.stateManager.view)
+					section.stateManager.view.refresh()
+
+			}
+		]]>
+	</fx:Script>
+
+	<entities:OperationsEntityActionBar section="{section}"
+																			viewStack="{views}"/>
+
+	<mx:ViewStack id="views"
+								width="100%"
+								height="100%"
+								creationPolicy="all">
+		<s:NavigatorContent label="{R.get('ICON_VIEW')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/windows/icon.png')"
+												showEffect="{fadeIn}">
+
+			<s:HGroup width="100%"
+								height="100%"
+								gap="5">
+
+				<view:BaseList id="list"
+											 dataProvider="{section.stateManager.view}"
+											 selectedItem="{grid.selectedItem}"
+											 doubleClick="onDoubleClick(event)"
+											 keyUp="onKeyUp(event)"/>
+
+				<operations:OperationsInfoPanel selectedItem="{list.selectedItem}"/>
+
+			</s:HGroup>
+
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{R.get('TABLE_VIEW')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/windows/list.png')"
+												showEffect="{fadeIn}">
+
+
+			<operations:OperationsGrid id="grid"
+																 dataProvider="{section.stateManager.tableView}"
+																 selectedItem="{list.selectedItem}"
+																 doubleClick="onDoubleClick(event)"
+																 keyUp="onKeyUp(event)"/>
+
+
+		</s:NavigatorContent>
+	</mx:ViewStack>
+
+
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="150"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="150"/>
+	</fx:Declarations>
+
 </s:VGroup>

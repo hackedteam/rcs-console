@@ -1,147 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
 <utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
-                             creationComplete="init()" save="{onSave(event)}"
-                             title="{currentState == CREATE ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
+														 xmlns:s="library://ns.adobe.com/flex/spark"
+														 xmlns:mx="library://ns.adobe.com/flex/mx"
+														 xmlns:utils="it.ht.rcs.console.utils.*"
+														 xmlns:groups="it.ht.rcs.console.accounting.view.groups.*"
+														 creationComplete="init()"
+														 save="{onSave(event)}"
+														 title="{currentState == CREATE ? R.get('NEW_OPERATION') : R.get('EDIT_OPERATION')}">
 
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.accounting.controller.GroupManager;
-      import it.ht.rcs.console.accounting.model.Group;
-      import it.ht.rcs.console.events.SaveEvent;
-      import it.ht.rcs.console.operation.controller.OperationManager;
-      import it.ht.rcs.console.operation.model.Operation;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.events.CloseEvent;
-      
-      public static const CREATE:String = 'create';
-      public static const EDIT:String = 'edit';
-      
-      [Bindable] public var operation:Operation;
-      
-      private function init():void
-      {
-        if (currentState == EDIT) {
-          for each (var s:Object in statuses)
-            if (s.label.toLowerCase() == operation.status)
-              status.selectedItem = s;
-        }
-        
-        operationName.setFocus();
-      }
-      
-      private function onSave(event:SaveEvent):void
-      {
-        
-        if (hasValidationErrors())
-          return;
-        
-        if(currentState == EDIT && getStatus() != operation.status)
-        {
-          AlertPopUp.show(R.get('CONFIRM_OPERATION_CLOSE', [operation.name]), R.get('CONFIRM'),
-            AlertPopUp.YES|AlertPopUp.NO, null,
-            function(e:CloseEvent):void {
-              if (e.detail == AlertPopUp.YES)
-                { doSave(); close(); }
-            }, null, AlertPopUp.NO);
-          return;
-        }
-          
-        doSave();
-        
-        if (currentState == CREATE)
-          OperationManager.instance.addOperation(operation, function(operation:Operation):void { close(); });
-        else
-          close();
-      }
-      
-      private function getStatus():String
-      {
-        return status.selectedIndex == 0 ? 'open' : 'closed';
-      }
-      
-      private function doSave():void
-      {
-        operation.name = operationName.text;
-        operation.desc = desc.text;
-        operation.contact = contact.text;
-        operation.group_ids = groups.dataProvider.toArray();
-        operation.status = (currentState == CREATE) ? 'open' : getStatus();
-      }
-      
-      private function hasValidationErrors():Boolean
-      {
-        var hasError:Boolean = false;
-        
-        groups.errorString = '';
-        if (groups.dataProvider.length == 0) {
-          groups.errorString = R.get('GROUP_SELECT_ONE');
-          hasError = true;
-        }
-        
-        var hasGroup:Boolean = false;
-        for each (var groupId:String in groups.dataProvider) {
-          if (Console.currentSession.user.group_ids.contains(groupId)) {
-            hasGroup = true;
-            break;
-          }
-        }
-        
-        if (!hasGroup) {
-          groups.errorString = R.get('GROUP_SELECT_YOURS');
-          hasError = true;
-        }
-        
-        return hasError;
-      }
-      
-      override protected function close(event:Event=null):void
-      {
-        GroupManager.instance.unlistenRefresh();
-        super.close(event);
-      }
-    ]]>
-  </fx:Script>
-  
-  <utils:states>
-    <s:State name="create"/>
-    <s:State name="edit"/>
-  </utils:states>
-  
-  <s:Form width="100%" defaultButton="{saveButton}">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.accounting.controller.GroupManager;
+			import it.ht.rcs.console.accounting.model.Group;
+			import it.ht.rcs.console.events.SaveEvent;
+			import it.ht.rcs.console.operation.controller.OperationManager;
+			import it.ht.rcs.console.operation.model.Operation;
+			import it.ht.rcs.console.utils.AlertPopUp;
 
-    <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="operationName" width="250" text="{operation.name}" restrict="A-Za-z0-9'\-_ " maxChars="20"/>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('DESCRIPTION')}">
-      <s:TextArea id="desc" width="250" heightInLines="3" text="{operation.desc}"/>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('CONTACT')}">
-      <s:TextInput id="contact" width="250" text="{operation.contact}"/>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('STATUS')}"
-                enabled="{currentState == EDIT &amp;&amp; operation.status == 'open'}">
-      <s:DropDownList id="status" width="150" requireSelection="true">
-        <s:ArrayCollection id="statuses">
-          <fx:Object label="OPEN"/>
-          <fx:Object label="CLOSED"/>
-        </s:ArrayCollection>
-      </s:DropDownList>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('GROUPS')}">
-      <groups:GroupSelector id="groups" width="250" dataProvider="{operation.group_ids}"/>
-    </s:FormItem>
-    
-  </s:Form>
-  
+			import locale.R;
+
+			import mx.events.CloseEvent;
+
+			public static const CREATE:String='create';
+			public static const EDIT:String='edit';
+
+			[Bindable]
+			public var operation:Operation;
+
+			private function init():void
+			{
+				if (currentState == EDIT)
+				{
+					for each (var s:Object in statuses)
+						if (s.label.toLowerCase() == operation.status)
+							status.selectedItem=s;
+				}
+
+				operationName.setFocus();
+			}
+
+			private function onSave(event:SaveEvent):void
+			{
+
+				if (hasValidationErrors())
+					return;
+
+				if (currentState == EDIT && getStatus() != operation.status)
+				{
+					AlertPopUp.show(R.get('CONFIRM_OPERATION_CLOSE', [operation.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+					{
+						if (e.detail == AlertPopUp.YES)
+						{
+							doSave();
+							close();
+						}
+					}, null, AlertPopUp.NO);
+					return;
+				}
+
+				doSave();
+
+				if (currentState == CREATE)
+					OperationManager.instance.addOperation(operation, function(operation:Operation):void
+					{
+						close();
+					});
+				else
+					close();
+			}
+
+			private function getStatus():String
+			{
+				return status.selectedIndex == 0 ? 'open' : 'closed';
+			}
+
+			private function doSave():void
+			{
+				operation.name=operationName.text;
+				operation.desc=desc.text;
+				operation.contact=contact.text;
+				operation.group_ids=groups.dataProvider.toArray();
+				operation.status=(currentState == CREATE) ? 'open' : getStatus();
+			}
+
+			private function hasValidationErrors():Boolean
+			{
+				var hasError:Boolean=false;
+
+				groups.errorString='';
+				if (groups.dataProvider.length == 0)
+				{
+					groups.errorString=R.get('GROUP_SELECT_ONE');
+					hasError=true;
+				}
+
+				var hasGroup:Boolean=false;
+				for each (var groupId:String in groups.dataProvider)
+				{
+					if (Console.currentSession.user.group_ids.contains(groupId))
+					{
+						hasGroup=true;
+						break;
+					}
+				}
+
+				if (!hasGroup)
+				{
+					groups.errorString=R.get('GROUP_SELECT_YOURS');
+					hasError=true;
+				}
+
+				return hasError;
+			}
+
+			override protected function close(event:Event=null):void
+			{
+				GroupManager.instance.unlistenRefresh();
+				super.close(event);
+			}
+		]]>
+	</fx:Script>
+
+	<utils:states>
+		<s:State name="create"/>
+		<s:State name="edit"/>
+	</utils:states>
+
+	<s:Form width="100%"
+					defaultButton="{saveButton}">
+
+		<s:FormItem label="{R.get('NAME')}">
+			<s:TextInput id="operationName"
+									 width="250"
+									 text="{operation.name}"
+									 restrict="A-Za-z0-9'\-_ "
+									 maxChars="20"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('DESCRIPTION')}">
+			<s:TextArea id="desc"
+									width="250"
+									heightInLines="3"
+									text="{operation.desc}"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('CONTACT')}">
+			<s:TextInput id="contact"
+									 width="250"
+									 text="{operation.contact}"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('STATUS')}"
+								includeInLayout="{currentState == EDIT}"
+								visible="{currentState == EDIT}"
+								enabled="{currentState == EDIT &amp;&amp; operation.status == 'open'}">
+			<s:DropDownList id="status"
+											width="150"
+											requireSelection="true">
+				<s:ArrayCollection id="statuses">
+					<fx:Object label="OPEN"/>
+					<fx:Object label="CLOSED"/>
+				</s:ArrayCollection>
+			</s:DropDownList>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('GROUPS')}">
+			<groups:GroupSelector id="groups"
+														width="250"
+														dataProvider="{operation.group_ids}"/>
+		</s:FormItem>
+
+	</s:Form>
+
 </utils:TitleWindowSaveCancel>

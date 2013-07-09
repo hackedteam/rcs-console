@@ -2,7 +2,7 @@
 <s:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009"
             xmlns:s="library://ns.adobe.com/flex/spark"
             xmlns:mx="library://ns.adobe.com/flex/mx"
-            width="100%" height="100%" doubleClick="onDoubleClick(event)" doubleClickEnabled="true">
+            width="100%" height="100%" doubleClick="onDoubleClick(event)" doubleClickEnabled="true" selectionMode="multipleRows">
   
   <fx:Script>
     <![CDATA[
@@ -16,6 +16,7 @@
       
       import mx.collections.ArrayCollection;
       import mx.core.FlexGlobals;
+      import mx.managers.CursorManager;
       
       private function formatDate(item:Object, column:GridColumn):String
       {
@@ -58,10 +59,9 @@
       
       private function onDoubleClick(event:MouseEvent):void
       {
+        
         if (selectedItem == null) return;
-        
         var log:AlertLog = selectedItem as AlertLog;
-        
         var se:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
         se.section = SectionEvent.OPERATIONS;
         se.subsection = 'evidence';

@@ -131,6 +131,7 @@
       private function onCancel():void
       {
         dispatchEvent(new Event("close"))
+        PopUpManager.removePopUp(this)
       }
       
       private function onSaveResult(e:ResultEvent):void
@@ -151,8 +152,9 @@
 						paddingLeft="20"
 						paddingRight="20"
 						paddingTop="20">
+    <s:Label text="{R.get('TEMPLATE_SAVE_AS_DESC')}" fontWeight="bold"/>
     <s:HGroup width="100%" verticalAlign="middle">
-      <s:Label text="{R.get('TEMPLATE_SAVE_AS_DESC')}"/>
+      <s:Label text="{R.get('NAME')}" />
       <s:TextInput id="descTxt" width="100%"/>
       <s:Button label="{R.get('SAVE')}" enabled="{descTxt.text!=''}" click="addTemplate()"/>
     </s:HGroup>
@@ -171,7 +173,7 @@
       <s:Label text="Loading template list..."
                fontWeight="bold"/>
     </s:HGroup>
-    <s:Label text="{R.get('TEMPLATE_LOAD_DESC')}" id="templateLabel" visible="false"/>
+    <s:Label text="{R.get('TEMPLATE_LOAD_DESC')}" id="templateLabel" visible="false" fontWeight="bold"/>
 		<s:DataGrid dataProvider="{templates}"
 								width="100%" height="100%" id="templatesDg">
 			<s:columns>
@@ -185,9 +187,11 @@
 				</s:ArrayList>
 			</s:columns>
 		</s:DataGrid>
-    <s:HGroup width="100%" horizontalAlign="right">
+    <s:HGroup width="100%" horizontalAlign="left">
       <s:Button label="{R.get('LOAD')}" enabled="{templatesDg.selectedItem!=null}" click="onLoad()"/>
       <s:Button label="{R.get('DELETE')}" enabled="{templatesDg.selectedItem!=null}" click="onDelete()"/>
+      <s:Spacer width="100%"/>
+      <s:Button label="{R.get('CANCEL')}" click="onCancel()"/>
     </s:HGroup>
  
 	</s:VGroup>

@@ -67,13 +67,15 @@
         alertBar.selectedObject = alerts.selectedItem ? alerts.selectedItem : null;
         logs.dataProvider = alerts.selectedItem ? alerts.selectedItem.logs : null;
         logs.selectedItem = null;
-        logBar.selectedObject = null;
+        logBar.selectedObjects = null;
+        logBar.selectedIndices = null;
         logBar.view = logs.dataProvider as ArrayCollection;
       }
       
       private function logsSelectionChange(event:GridSelectionEvent):void
       {
-        logBar.selectedObject = logs.selectedItem ? logs.selectedItem : null;
+        logBar.selectedObjects = logs.selectedItems ? logs.selectedItems : null;
+        logBar.selectedIndices = logs.selectedIndices ? logs.selectedIndices : null;
       }
     ]]>
   </fx:Script>
@@ -83,7 +85,7 @@
   
   <view:AlertingTable id="alerts" dataProvider="{view}" selectionChange="alertsSelectionChange(event)"/>
   
-  <view:LogsActionBar id="logBar" section="{this}"/>
+  <view:LogsActionBar id="logBar" section="{this}" view="{logs.dataProvider as ArrayCollection}"  selectedObjects="{logs.selectedItems}" selectedIndices="{logs.selectedIndices}"/>
  
   <view:LogsTable id="logs" selectionChange="logsSelectionChange(event)"/>
 

@@ -87,6 +87,7 @@
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
+        onAddedToStage(null)
 			}
 
 			private function onAddedToStage(e:Event=null):void
@@ -125,7 +126,7 @@
 			{
 
 				g=new Graph("XMLAsDocsGraph", false, xmlData);
-				vgraph.visible=true;
+				if(vgraph) vgraph.visible=true;
 
 				var i:int=0;
 				var node:Node;
@@ -210,26 +211,29 @@
 
 			private function initData(g:Graph):void
 			{
-				vgraph.graph=g
-				vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
-				var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
-       
-				vgraph.layouter=layouter;
-				layouter.linkLength=80; //
-				//layouter.autoFitEnabled=true;
-				//layouter.defaultRadius=50;
-
-				vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
-				vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
-				vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
-				vgraph.maxVisibleDistance=20;
-
-				vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
-				vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
-				vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
-				vgraph.scale=1;
-				bzoom.value=1;
-				vgraph.draw();
+				if(vgraph)
+        {
+          vgraph.graph=g
+          vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
+          var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
+          
+          vgraph.layouter=layouter;
+          layouter.linkLength=80; //
+          //layouter.autoFitEnabled=true;
+          //layouter.defaultRadius=50;
+          
+          vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
+          vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
+          vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
+          vgraph.maxVisibleDistance=20;
+          
+          vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
+          vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
+          vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
+          vgraph.scale=1;
+          bzoom.value=1;
+          vgraph.draw();
+        }
 			}
 
 			private function onDetailResult(e:ResultEvent):void

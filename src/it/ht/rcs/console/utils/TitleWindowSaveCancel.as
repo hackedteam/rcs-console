@@ -13,6 +13,7 @@ package it.ht.rcs.console.utils
   import spark.components.TitleWindow;
   
   [Event(name='save', type='it.ht.rcs.console.events.SaveEvent')]
+  
   public class TitleWindowSaveCancel extends TitleWindow
   {
     

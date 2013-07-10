@@ -75,7 +75,7 @@ package it.ht.rcs.console.utils
       consoleOffset = offset;
       consoleTimeZoneOffset = offset * 3600 * 1000;
       updateClock(null);
-      FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
+      //FlexGlobals.topLevelApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH));
     }
     
     public function toConsoleDate(localDate:Date):Date {

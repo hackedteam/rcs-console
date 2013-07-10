@@ -3,7 +3,7 @@
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              addedToStage="onAddedToStage()"
-                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()" rollOver="onRollover(event)" rollOut="onRollout(event)">
+                             removedFromStage="onRemovedFromStage()" initialize="onAddedToStage()" rollOver="onRollover(event)" rollOut="onRollout(event)" mouseChildren="false">
   
   <fx:Script>
     <![CDATA[
@@ -25,10 +25,9 @@
       
   
       
-      private function onAddedToStage():void {
-        
-        
-        
+      private function onAddedToStage():void
+      {
+
       }
       
       private function getToolTip():String
@@ -37,10 +36,17 @@
         switch(this.column.dataField)
         {
           case "name":
-            return "name";
+            return R.get('NAME');
             break;
-      
-          
+          case "enabled":
+            return  R.get('ENABLED');
+            break;
+          case "logs.length":
+            return R.get('LOGS');
+            break;
+          case "tag":
+            return R.get('RELEVANCE');
+            break;
         }
         
         return "";
@@ -49,9 +55,7 @@
       private function onRemovedFromStage():void {
  
       }
-      
-      
-      
+ 
       override public function prepare(hasBeenRecycled:Boolean):void {
         super.prepare(hasBeenRecycled);
         height = 22;

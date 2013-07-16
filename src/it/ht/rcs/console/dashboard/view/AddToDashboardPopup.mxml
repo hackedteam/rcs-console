@@ -4,8 +4,8 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
-                             creationComplete="init()" showCancelButton="false"
-                             showSaveButton="false" title="{R.get('ADD_TO_DASHBOARD')}">
+                             creationComplete="init()" showCancelButton="true"
+                             showSaveButton="true" title="{R.get('ADD_TO_DASHBOARD')}" save="onSave()">
   
   <fx:Script>
     <![CDATA[
@@ -13,15 +13,30 @@
       import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
       
       import locale.R;
+    
       
       private function init():void
       {
         searchInput.setFocus();
+        saveButton.label=R.get('ADD');
+        cancelButton.label=R.get('DONE');
+        saveButton.enabled=false;
       }
       
       private function onSelectSearchItem(event:ItemFieldEvent):void
       {
-        DashboardController.instance.newDashboardItem(event.selectedItem._id);
+        saveButton.enabled=searchInput.selectedItem!=null;
+      }
+      
+      private function onChange():void
+      {
+        trace("CHNGE")
+        saveButton.enabled=searchInput.selectedItem!=null;
+      }
+      
+      private function onSave():void
+      {
+        DashboardController.instance.newDashboardItem(searchInput.selectedItem._id);
       }
     ]]>
   </fx:Script>
@@ -29,7 +44,7 @@
   <s:VGroup horizontalAlign="center" paddingLeft="20" paddingRight="20" paddingTop="20">
 
     <itemfield:ItemField id="searchInput" width="220" itemSelected="onSelectSearchItem(event)"
-                       kinds="{['operation', 'target', 'agent']}"/>
+                       kinds="{['operation', 'target', 'agent']}" change="onChange()"/>
     
   </s:VGroup>
   

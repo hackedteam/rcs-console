@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+<utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
                              xmlns:s="library://ns.adobe.com/flex/spark"
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:utils="it.ht.rcs.console.utils.*"
                              creationComplete="init()" close="closeMe(event)"
-                             title="{R.get('USER_PROFILE')}" xmlns:users="it.ht.rcs.console.accounting.view.users.*">
+                             title="{R.get('USER_PROFILE')}" xmlns:users="it.ht.rcs.console.accounting.view.users.*" save="onSave()">
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.accounting.controller.UserManager;
@@ -14,9 +14,17 @@
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
+      
       private function init():void
       {
         localeList.setFocus();
+
+      }
+      
+      private function onSave():void
+      {
+        changeLocale()
+        PopUpManager.removePopUp(this);
       }
       
       private function changeLocale():void
@@ -59,7 +67,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('LANGUAGE')}">
-      <s:DropDownList id="localeList" width="100" change="changeLocale()"
+      <s:DropDownList id="localeList" width="100" 
                       dataProvider="{Console.locales}"
                       selectedIndex="{Console.locales.getItemIndex(Console.currentSession.user.locale)}"/>
     </s:FormItem>
@@ -70,4 +78,4 @@
     
   </s:Form>
   
-</s:TitleWindow>
+</utils:TitleWindowSaveCancel>

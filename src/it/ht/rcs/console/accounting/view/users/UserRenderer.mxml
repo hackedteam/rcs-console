@@ -3,7 +3,7 @@
                 xmlns:s="library://ns.adobe.com/flex/spark"
                 xmlns:mx="library://ns.adobe.com/flex/mx"
                 autoDrawBackground="true" doubleClick="onDoubleClick(event)" doubleClickEnabled="true"
-                toolTip="{data.session ? R.get('USER_ONLINE') : null}">
+                toolTip="{data.session ? R.get('USER_ONLINE') : null}" click="onClick(event)">
   
   <fx:Script>
     <![CDATA[
@@ -17,6 +17,11 @@
       private static const offline:Class;
       [Embed(source='/img/NEW/user_online.png')]
       private static const online:Class;
+      
+      private function onClick(e:MouseEvent):void
+      {
+        e.stopImmediatePropagation()
+      }
       
       private function onDoubleClick(event:MouseEvent):void
       {

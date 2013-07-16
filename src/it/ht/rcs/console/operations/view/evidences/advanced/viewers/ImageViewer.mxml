@@ -179,17 +179,18 @@
 
 			private function zoom(factor:Number):void
 			{
-        img.scaleMode="letterbox";
+				if (!fitToScreen)
+				{
 					zoomLevel+=factor;
 					zoomLevel=uint((zoomLevel) * 10) / 10;
 					if (zoomLevel > maxZoom)
 						zoomLevel=maxZoom;
 					else if (zoomLevel < minZoom)
 						zoomLevel=minZoom;
-        
+
 					img.scaleX=img.scaleY=zoomLevel
 
-			
+				}
 			}
 
 			private function rotate(direction:int):void
@@ -264,14 +265,18 @@
 						 useHandCursor="true"
 						 toolTip="Fit to Screen"
 						 click="fit()"
-						 />
-	
+						 enabled="{!fitToScreen}"/>
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
 		<s:Image source="{OriginalSizeIcon}"
 						 buttonMode="true"
 						 useHandCursor="true"
 						 toolTip="Original Size"
 						 click="originalSize()"
-						/>
+						 enabled="{fitToScreen}"/>
 
 		<s:Line height="100%">
 			<s:stroke>
@@ -284,7 +289,11 @@
 						 toolTip="Zoom In"
 						 click="zoom(+.2)"
 						 />
-		
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
 		<s:Image source="{ZoomMinus}"
 						 buttonMode="true"
 						 useHandCursor="true"
@@ -301,7 +310,11 @@
 						 useHandCursor="true"
 						 toolTip="Rotate CCW"
 						 click="rotate(-1)"/>
-		
+		<s:Line height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
 		<s:Image source="{RotateCWIcon}"
 						 buttonMode="true"
 						 useHandCursor="true"

@@ -52,15 +52,18 @@
   
   <fx:Script>
     <![CDATA[
+      import flash.utils.setTimeout;
+      
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.alert.model.Alert;
       import it.ht.rcs.console.dashboard.controller.DashboardController;
-      import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.FactoriesForm;
+      import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.target.controller.TargetManager;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -189,7 +192,9 @@
       private function addToDashboard(event:MouseEvent):void
       {
         DashboardController.instance.newDashboardItem(selectedObject._id);
-        AlertPopUp.show(R.get('ADDED'));
+        var popup:mx.controls.Alert=AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
+        popup.mx_internal::alertForm.removeChild(popup.mx_internal::alertForm.mx_internal::buttons[0]);
+        setTimeout(PopUpManager.removePopUp, 2000, popup)
       }
       
       private function moveItem(event:MouseEvent):void

@@ -211,6 +211,12 @@
         }        
       }
       
+      protected function openItem(event:ListEvent):void
+      {
+        var selectedRow:Object = event.currentTarget.selectedItem;
+        vectorTree.expandItem(selectedRow, !event.target.isItemOpen(selectedRow))
+      }
+      
     ]]>
   </fx:Script>
   
@@ -222,7 +228,7 @@
            change="vectorTree_changeHandler(event)"
            dataDescriptor="{new FilteredTreeDataDescriptor(filterFunc)}"
            dataProvider="{factory.type == 'desktop' ? treeData_desktop : treeData_mobile}"
-           labelField="@label" iconField="@icon" folderClosedIcon="{closedFolderIcon}" folderOpenIcon="{openFolderIcon}"/>
+           labelField="@label" iconField="@icon" folderClosedIcon="{closedFolderIcon}" folderOpenIcon="{openFolderIcon}" doubleClickEnabled="true" itemDoubleClick="openItem(event)"/>
   
   <build:LeftPanel id="leftPanel" left="220" right="10" top="35" bottom="10" factory="{factory}"/>
     

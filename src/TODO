@@ -1,125 +1,135 @@
 
 ========================================================================================
-TODO 8.3
+TODO 8.4.x
 ========================================================================================
 
-KEYLOG
-
-> visualizzazione avanzata rimuovendo backspace e caratteri speciali per ricostruire il testo.
-
-EVIDENCE
-> controllare e correggere lo scroll con la tastiera (anomalo)
-
-========================================================================================
-TODO 
-========================================================================================
-
-MAIL
-
-> incoming and draft
-
-AGENT
-
-> Build dare la possibilità di aprire la cartella dove è sta creata al click sul messaggio (desktop/rcsdownload) 
-
-// downloads are stored into /Desktop/RCS Downloads 
-  var path:String = File.desktopDirectory.nativePath + '/RCS Downloads';
-
-> Build EXPLOIT - File browse filtrato sulla base del tipo di exploit selezionato 
-
-> Sanity check (subjective to the kind of backdoor  - eg At least one host ip, at least one sync event. etc ) (NO)
-
-
- DASHBOARD
- 
-  - La console si pianta se viene tenuta aperta per lungo tempo la dashboard (2/3 gg da segnalazione di Zeno)
-  - le scrollbar in dashboard non devono andare sopra gli elementi
+EVIDENCE:
+  - visualizzare in maniere diversa se una mail mail e' incoming / outgoing o draft
+      
+OPERATIONS:
+  - cancellando un operation, su intelligence rimane anche dopo refresh (verificare) (OK)
+  - il messaggio di "added to dashboard" deve comparire e scomparire da solo senza l'OK dell'utente (OK)   //TODO > (Cosmetic) Finestra scura arrotondata con fade
   
+BUILD:
+  - il messaggio "config saved" deve sparire da solo a tempo (no tasto OK)  (OK) //TODO > (Cosmetic) Finestra scura arrotondata con fade
+  
+ALERTING:
+  - togliere il messaggio di warning quando si fa il jump alle evidence (toglierlo anche quando il filtro e' solo su ID)
+  - quando c'e' il jump a evidence, visualizzare la colonna ID a dimensione ridotta (poi scompare se si toglie il filtro)
+  
+GLOBAL:
+  - tasto save / cancel sul profilo utente (OK)
+  - deselezione cliccando su punto bianco in liste console (OK)
+
+
+========================================================================================
+TODO 9.0.0  Galileo
+========================================================================================
+
+INTELLIGENCE:
+  - data flows sui link (con il player temporale)
+  - play nella vista dei luoghi per far vedere il movimento dei target
+  - most visited places nel profile dell'entita' target
+  - aggiunta manuale di places sul profile dell'entita'
+
+ENTITY
+  - gestire PUSH ENTITY 'MODIFY' Event (quando si aggiornano i link in manuale o automatico)
+  - Cancellazione target > vai all'operation in intelligence > entity ancora visibile > (ascoltare evento push x rimuoverla ?)
+  - filtri per entity: sul tipo e altri (da pensare)
+
+EVIDENCE DETAIL AUDIO:
+  - mettere il blancer sulla stessa riga della waveform e stessa altezza (sistemare i versi)
+  - implemntare fading sulla traccia quando si sposta il balancer
+  - spostare il volume e metterlo in verticale affianco al balancer 
+  - spostare il tempo totale sotto la waveform
+  - spostare i comandi play a sinistra (sulla stessa riga del tempo)
+  - visualizzare ad intervalli regolare il tempo (a tacche) sotto la waveform
+
+EVIDENCE DETAIL:
+  - aggiungere nel breadcrumb “Details” (sottolivello aggiuntivo)  
+  - frecce Next e Prev nel dettaglio evidence
+  
+EVIDENCE GRID:
+  - cambiare i checkbox con un icona filtro (grigio chiaro / nero a seconda se abilitato o meno)
+  - ogni popup dei filtri deve avere il tasto "apply"
+  - il campo di ricerca testuale deve avere la lente di ingrandimento prima del campo testo
+  - riordinare la action bar: open detail, summary | download, relevance, report, note, delete | show id, filters, reset | translate
+
+GLOBAL:
+  - cambiare icona al progetto (nuova grafica)
+  - pulsante di navigazione "back" per tutti gli stati del sistema
+  - rimuovere il placeholder per il terzo tasto nella home
+  - icone "export *" e "jump to *" hanno stessa freccia, cambiare export verso il basso e magari jump in alto a destra diagonale (fare prove)
+  - nei breadcrumbs quando si e' al primo livello non ha senso il tasto "up": disabilitarlo  
+  
+ALERTING:
+  - mettere 'ANY' al posto di * nelle regole (stare attenti che pero' al db arrivi sempre *)
+  - il search nella action bar cerca solo per keyword, aggiungere evidence type e path
+  - visualizzare la parte sotto (con transizione verso l'alto) solo quando si seleziona un alert
+  - spostare la colonna "event" dopo il path e rendere coerente con questo ordinamento anche il form di inserimento nuova regola
+  - Jump da alert su entity e link
+  
+INJECTORS:
+  - visualizzare la parte sotto (con transizione verso l'alto) solo quando si seleziona un NI
+  - tooltip sugli header per indicare che si puo' fare sort
+  - specificare meglio i range di "probability" e indicare "once only", "xx% of the time", "everytime"
+  - tasto duplica regola
+  
+DASHBOARD:
+  - i baloon rossi diventano azzurri (come alert)
+  - Rimpiazzare il sistema di polling attuale con Pushing
+  - Le scrollbar in dashboard non devono andare sopra gli elementi
+
+CONFIG:
+  - riordinare actionbar: save, export, import, template | add event, add action, edit, delete, globals | basic | collapse
+  - GLOBALS > Flag conessioni remote
+  
+BUILD:
+  - Build EXPLOIT - File browse filtrato sulla base del tipo di exploit selezionato 
+  - Build > dare la possibilità di aprire la cartella dove è sta creata al click sul messaggio (desktop/rcsdownload) 
+   
+CONNECTORS:
+  - supporto per il tipo XML
+  - regole di forward verso RCS "archive"
+   
+========================================================================================
+TODO 9.x.x
+========================================================================================
+
+TARGET:
+  - raggruppamento Factory e Istanze
   
 FILESYSTEM
+  - Mantenere il tree aperto se si esce e si torna nella schermata
+  - Indicare se arrivati nuovi dati (modifica back-end?) 
+  - Shortcut per documenti, foto, musica
 
-  - lasciare il tree aperto se si esce e si torna nella schermata
-  - indicare se arrivati nuovi dati (modifica lato db richiesta)  
+EVIDENCE DETAIL KEYLOG:
+  - rimuovere backspace e caratteri speciali per ricostruire il testo (tasto tipo OCR)
 
-
-NETWORK INJECTOR
-  - separare TNI e NIA
+EXPORT EVIDENCE:
+  - mettere il tasto 'cancel' al form 
+  - cambiare la lista dei tipi in due checkbox: all e filtered. selezionando filtered appare un popup che chiede quali tipi (con i checkbox, tipo i filtri)
   
-FILESYSTEM:
-  - shortcut per documenti, foto, musica
+BUILD
+  - Configurazone Network Injector dentro finestra build
   
+ENTITY
+Libreria entità 'brutti ceffi' cross-operation
+
 EVIDENCE
+  -  Editing note con a capoe e copia/incolla in vista griglia
+  -  Visualizzazione eml per messaggi
 
-> Device (verificare scrollbar che non arriva in fondo su testi molto lunghi)
-> Chat (colori diversi per utenti diversi?)
 
-
-GUIDA HTML CONTESTUALE
+==================
+ HELP CONTESTUALE
+==================
+ - futuro remoto :)
+ 
 ========================
 Notes:
 ========================
 
 Some black icons sets
 http://www.topdesignmag.com/awesome-black-icon-sets/
-
-
-Agent upgrade > Scout custom message (TODO > LOCALIZE)
-
-User > Aggiungi gruppo e rimuovi gruppo deve essere contestuale (verifica)
-
-
-=================================
-
-merge di entita (manuale+manuale 0 entita + manuale)
-
-Crea entita da most-contacted (name, handle e relazione con target)
-
-
-GLOBALS > Flag conessioni remote // (da rivedere)
-
-
-// Cancellazione target > jump to entity > entity ancora visibile > ascoltare evento push e rimuoverla
-
-// Jump da alert su entity e link
-
-// Gestire PUSH ENTITY 'MODIFY' Event (quando si aggiornano i link in manuale o automatico)
-
-
-GEO MAP VIEW - LINK VIEW
-Torno indietro su elenco nessuno selezionato
-
-
-Immagini entità> consentire solo jpg 
-Add as entity > inserire come piccolo pulsante dentro il renderer
-
-
-CANCELLAZIONE OPERATION E SU INTELLIGENCE RIMANE ANCHE DOPO REFRESH ??? 
-
-> NAVIGAZIONE IMMAGINI SCREENSHOT IN MODALITA AVANZATA AVANTI/INDIETRO VENGONO MANTENUTE LE DIMENSIONI 1/1 dell'ultima immgine (fabio)
- 
- A capo su file di testo in vista avanzata file
- 
- ENTITY EXPORT (8.4)
- 
- 
- TECH CONFIG > TECH BUILD
- 
- 
- DASHBOARD > Push
- 
- //07/2013
--          Il popup di download complete deve scomparire automaticamente
-
--          Togliere la X del Close Detail
-
--          Aggiungere nel breadcrumb “Details”
-
--          Frecce Next e Prev nel dettaglio evidence
-
--          Open Detail come primo tasto
-
--          Raggruppamento Factory e Istanze
-
--          In adv. Conf. NewEvent e NewAction come primi tasti
- 
-

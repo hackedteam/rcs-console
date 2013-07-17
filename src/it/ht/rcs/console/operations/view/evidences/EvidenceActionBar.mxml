@@ -8,7 +8,7 @@
 										 removedFromStage="onRemovedFromStage()"
 										 addedToStage="onAddedToStage()">
 
-	<s:Button label="{R.get('EVIDENCE_EXPORT')}"
+	<s:Button label="{R.get('EVIDENCE_DOWNLOAD')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
 						enabled="{selectedObjects.length>0 &amp;&amp; Console.currentSession.user.is_view_export()}"/>
@@ -23,7 +23,8 @@
 						visible="{LicenseManager.instance.deletion == true}"
 						includeInLayout="{LicenseManager.instance.deletion == true}"
 						width="90" horizontalCenter="0"/>
-	<actionbar:Separator width="20"/>
+	<actionbar:Separator width="20" visible="{LicenseManager.instance.deletion == true}"
+                       includeInLayout="{LicenseManager.instance.deletion == true}"/>
   
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 enabled="false"
@@ -75,12 +76,12 @@
 	<s:Button label="{R.get('FILTER_PRESETS')}"
 						click="openFilterPanel()"
 						icon="@Embed('/img/NEW/presetFilters.png')"
-            width="100" />
+            width="100" enabled="{detailBtn.label == R.get('DETAIL_SHOW')}"/>
 
 	<s:Button label="{R.get('RESET_FILTERS')}"
 						click="resetFilters()"
 						icon="@Embed('/img/NEW/resetFilters.png')"
-            width="100" />
+            width="100" enabled="{detailBtn.label == R.get('DETAIL_SHOW')}"/>
 
 
 

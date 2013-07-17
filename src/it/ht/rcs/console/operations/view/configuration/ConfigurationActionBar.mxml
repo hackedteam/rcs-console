@@ -48,7 +48,7 @@
     
     <actionbar:Separator/>
     
-    <s:Button id="collapse" label="{configView.advanced.graph.collapsed ? R.get('EXPAND'): R.get('COLLAPSE')}" click="onCollapseAll()" icon="{configView.advanced.graph.collapsed ? expandIcon : collapseIcon}" enabled="{Console.currentSession.user.is_tech_config()}"/>
+    <s:Button id="collapse" label="{configView.advanced.graph.collapsed ? R.get('EXPAND'): R.get('COLLAPSE')}" click="onCollapseAll()" icon="{configView.advanced.graph.collapsed ? expandIcon : collapseIcon}"/>
     
   </s:HGroup>
   
@@ -146,7 +146,9 @@
       {
         if(saveConfig(goBackToList) !=null)
         {
-          Alert.show(R.get('CONFIG_SAVED'));
+          var popup:mx.controls.Alert=  Alert.show(R.get('CONFIG_SAVED'));
+          popup.mx_internal::alertForm.removeChild(popup.mx_internal::alertForm.mx_internal::buttons[0]);
+          setTimeout(PopUpManager.removePopUp, 2000, popup)
         }
        
       }

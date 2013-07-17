@@ -66,9 +66,13 @@
       
       private function update():void
       {
-        if(evidence.data.rcpt!=null && evidence.data.rcpt!="")
+        if(evidence.data.rcpt_display!=null && evidence.data.rcpt_display!="")
         {
-          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.rcpt_display || evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT);
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        }
+        else if(evidence.data.rcpt!=null && evidence.data.rcpt!="")
+        {
+          toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>"+evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT);
         }
         else if (evidence.data.peer!=null && evidence.data.peer!="")
         {
@@ -109,7 +113,7 @@
         }
         else
         {
-          renderMode=TextConverter.PLAIN_TEXT_FORMAT;
+          renderMode=TextConverter.PLAIN_TEXT_FORMAT;x
         }
         
         if(evidence.data.program.toLowerCase()=="" || evidence.data.program.toLowerCase()==null)
@@ -128,7 +132,7 @@
         }    
         else
         {
-          ImageClass=ChatIcons[evidence.data.program.toLowerCase()]
+          ImageClass=ChatIcons[evidence.data.program.toLowerCase()];
         }
         
         icon.source=ImageClass;           

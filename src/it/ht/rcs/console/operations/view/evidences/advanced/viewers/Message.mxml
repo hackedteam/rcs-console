@@ -58,6 +58,8 @@
 							var id:String=encodeURIComponent(value._id);
 							var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 							var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target;
+              //var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + value.data._grid + "?target_id=" + target;
+              
 							loader.addEventListener(Event.COMPLETE, onContentLoaded);
 							loader.load(new URLRequest(url));
 							break;
@@ -124,6 +126,7 @@
 
 			private function cleanHTMLText(text:String):String
 			{
+        if(text==null) return "";
 				var clean:String=text.replace("<", "&lt;");
 				clean=clean.replace(">", "&gt;");
 				return clean;

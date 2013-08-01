@@ -23,7 +23,11 @@
       public var connector:Connector;
 
       [Bindable]
-      private var types:ArrayCollection = new ArrayCollection(['JSON']);
+      private var types:ArrayCollection = new ArrayCollection(['LOCAL', 'REMOTE']);
+      [Bindable]
+      private var formats_local:ArrayCollection = new ArrayCollection(['JSON', 'XML']);
+      [Bindable]
+      private var formats_remote:ArrayCollection = new ArrayCollection(['RCS']);
       
       private function init():void
       {
@@ -40,6 +44,7 @@
         
         connector.enabled = formEnabled.selected;
         connector.type = formType.selectedItem;
+        connector.format = formFormat.selectedItem;
 
         if (formPath.selectedItem && formPath.text != '') {
           path = new ArrayCollection();
@@ -84,8 +89,12 @@
     </s:FormItem>
         
     <s:FormItem label="{R.get('TYPE')}">
-      <s:DropDownList id="formType" width="70" dataProvider="{types}"
+      <s:DropDownList id="formType" width="90" dataProvider="{types}" 
                       selectedIndex="{types.toArray().indexOf(connector.type)}"/>
+    </s:FormItem>
+    <s:FormItem label="{R.get('FORMAT')}">
+      <s:DropDownList id="formFormat" width="70" dataProvider="{formType.selectedItem == 'LOCAL' ? formats_local : formats_remote}"
+                      selectedIndex="{(formType.selectedItem == 'LOCAL' ? formats_local : formats_remote).toArray().indexOf(connector.format)}"/>
     </s:FormItem>
 <!--
     <s:FormItem label="{R.get('SAVE_RAW')}">

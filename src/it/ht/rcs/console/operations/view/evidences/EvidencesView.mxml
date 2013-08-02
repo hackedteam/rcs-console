@@ -136,7 +136,8 @@
 			{
 				try
 				{
-					return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date == "dr" && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("from") && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("to"));
+					//return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date == "dr" && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("from") && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("to"));
+          return (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date == "dr" && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("from") && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("to"));
 				}
 				catch (e:Error)
 				{
@@ -168,7 +169,15 @@
 			{
 				evidenceDg.dataProvider=null;
 				filteredById=isNoticeVisible();
+        
 				EvidenceManager.instance.refresh();
+        if(EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id'))
+        {
+          evidenceDg.idVisible=true;
+          evidenceDg.idColumn.visible=true;
+          viewer.idVisible=evidenceDg.idVisible;
+          actionBar.toggleIdButton(true);
+        }
 			}
 
 			private function toggleState():void
@@ -189,7 +198,7 @@
 
 				evidenceDg.idVisible=!evidenceDg.idVisible;
 				viewer.idVisible=evidenceDg.idVisible;
-				actionBar.toggleIdButton();
+				actionBar.toggleIdButton(evidenceDg.idVisible);
 
 			}
 

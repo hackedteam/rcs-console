@@ -60,6 +60,7 @@
       import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.notifications.NotificationPopup;
       import it.ht.rcs.console.operations.view.MoveItemPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.FactoriesForm;
@@ -192,9 +193,7 @@
       private function addToDashboard(event:MouseEvent):void
       {
         DashboardController.instance.newDashboardItem(selectedObject._id);
-        var popup:mx.controls.Alert=AlertPopUp.show(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]));
-        popup.mx_internal::alertForm.removeChild(popup.mx_internal::alertForm.mx_internal::buttons[0]);
-        setTimeout(PopUpManager.removePopUp, 2000, popup)
+        NotificationPopup.showNotification(R.get('ADDED_TO_DASHBOARD', [selectedObject.name]), 2)
       }
       
       private function moveItem(event:MouseEvent):void

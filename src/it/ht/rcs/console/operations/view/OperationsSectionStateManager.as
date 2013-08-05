@@ -173,13 +173,8 @@ package it.ht.rcs.console.operations.view
           EvidenceManager.instance.evidenceFilter.type = event.evidenceTypes;
         else delete(EvidenceManager.instance.evidenceFilter.type);
         
-        if (event.evidenceIds) {
-          EvidenceManager.instance.evidenceFilter.date = 'dr';
-          EvidenceManager.instance.evidenceFilter.from = event.from; //0
-          EvidenceManager.instance.evidenceFilter.to = event.to; //0
-          EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
-        }
-        else delete(EvidenceManager.instance.evidenceFilter._id);
+     
+       
         
         if(event.info)
         {
@@ -206,6 +201,14 @@ package it.ht.rcs.console.operations.view
           delete (EvidenceManager.instance.evidenceFilter.from);
           delete (EvidenceManager.instance.evidenceFilter.to);
         }
+        
+        if (event.evidenceIds) {
+          EvidenceManager.instance.evidenceFilter.date = 'dr';
+          EvidenceManager.instance.evidenceFilter.from = 0; //0
+          EvidenceManager.instance.evidenceFilter.to = 0; //0
+          EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
+        }
+        else delete(EvidenceManager.instance.evidenceFilter._id);
         
         var f:Object=EvidenceManager.instance.evidenceFilter;
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));

@@ -162,8 +162,7 @@
 					limit="5";
 					if (limitTxt)
 						limitTxt.text="5";
-         
-        
+
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
           EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
           EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
@@ -185,6 +184,9 @@
 				}
 
 				callLater(onRefresh, [null])
+        
+       
+        
 
 			}
 
@@ -331,7 +333,7 @@
 					}
 					if (entity.position)
 					{
-						if (entity.position.latitude && entity.position.longitude)
+						if (entity.position.latitude && entity.position.longitude && lastPosCh.selected)
 						{
 							coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
 							
@@ -370,7 +372,7 @@
 					}
           
           //draw visited places
-          if(mostVisitedPlaces && mostVisitedPlaces.length>0)
+          if(mostVisitedPlaces && mostVisitedPlaces.length>0 && mostVisitedCh.selected)
           {
             for(var p:int=0;p<mostVisitedPlaces.length;p++)
             {
@@ -411,6 +413,8 @@
 			{
 				//photoViewer.currentPhoto="";
 				//entity=null;
+        lastPosCh.selected=true;
+        mostVisitedCh.selected=true;
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 
 			}
@@ -978,6 +982,12 @@
 															 visible="{!LicenseManager.instance.correlation}"
 															 includeInLayout="{!LicenseManager.instance.correlation}"/>
 					</s:BorderContainer>
+          <s:Spacer height="6"/>
+          <s:HGroup width="100%" verticalAlign="middle">
+            <s:CheckBox label="Last Known Position" id="lastPosCh" selected="true" change="drawPosition()"/>
+            <s:Spacer width="50"/>
+            <s:CheckBox label="Most Visited Places" id="mostVisitedCh" selected="true" change="drawPosition()"/>
+          </s:HGroup>
 					<!--<s:Spacer height="6"/>
 					<s:List width="100%"
 									height="30%"

@@ -28,41 +28,45 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Contact;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Visit;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			import it.ht.rcs.console.utils.Clock;
-			import it.ht.rcs.console.utils.TimeUtils;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Contact;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Place;
+      import it.ht.rcs.console.entities.model.Visit;
+      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
+      import it.ht.rcs.console.entities.view.map.PlaceMarker;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.Clock;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -77,7 +81,10 @@
 			private var mostContacted:ArrayCollection;
 
 			[Bindable]
-			private var mostVisited:ArrayCollection;
+			private var mostVisitedUrls:ArrayCollection;
+      
+      [Bindable]
+      private var mostVisitedPlaces:ArrayCollection;
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -150,7 +157,8 @@
          
         
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
-					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
+          EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
+          EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
 				}
 				else
 				{
@@ -188,7 +196,8 @@
 				toDate=toDf.selectedDate;
 				loadingBox.visible=loadingBox.includeInLayout=true;
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
-				EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
+				EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
+        EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
 			}
 
 
@@ -261,7 +270,7 @@
 				return scale;
 			}
 
-			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
+			private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
 			{
 				if (isNaN(radiusKm) || radiusKm <= 0)
 				{
@@ -279,8 +288,8 @@
 				var options:GroundOverlayOptions;
 				var circleWidth:Number=radiusKm * 2 * scale;
 
-				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
-				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
+				shape.graphics.lineStyle(circleBorderTickness, color, circleBorderFillAlpha);
+				shape.graphics.beginFill(color, circleFillAlpha);
 				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
 				shape.graphics.endFill();
 				centrePoint=mapPane.fromLatLngToPaneCoords(position);
@@ -298,6 +307,13 @@
 
 			private function drawPosition():void
 			{
+        
+        var coordinates:LatLng;
+        var bounds:LatLngBounds=new LatLngBounds();;
+        var centre:LatLng;
+        var circleBounds:LatLngBounds;
+        var marker:Marker;
+        
 				if (LicenseManager.instance.correlation)
 				{
 					//remove overlays
@@ -309,14 +325,14 @@
 					{
 						if (entity.position.latitude && entity.position.longitude)
 						{
-							var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-							var bounds:LatLngBounds=new LatLngBounds();
-							var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
+							coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+							
+							centre=new LatLng(coordinates.lat(), coordinates.lng());
 							map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
 							bounds.extend(coordinates);
-							var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates);
+							circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, 0x00CCFF);
 							bounds.union(circleBounds)
-							var marker:Marker=new Marker(coordinates);
+              marker=new Marker(coordinates, new MarkerOptions({icon: new LastPositionMarker(), hasShadow: false}));
 							map.addOverlay(marker);
 							overlays.push(marker);
 							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
@@ -333,7 +349,7 @@
 						{
 							if (entity.type == 'target')
 								lastPositionTxt.text="";
-							map.setZoom(1);
+							//map.setZoom(1);
 						}
 					}
 					else
@@ -342,9 +358,33 @@
 							lastPositionTxt.text="Last position unkown";
 						else
 							lastPositionTxt.text="";
-						map.setZoom(1)
+						//map.setZoom(1)
 					}
-
+          
+          //draw visited places
+          if(mostVisitedPlaces && mostVisitedPlaces.length>0)
+          {
+            for(var p:int=0;p<mostVisitedPlaces.length;p++)
+            {
+              var place:Place= mostVisitedPlaces.getItemAt(p) as Place;
+              trace("place: "+place.position.getItemAt(0), " - ",  place.position.getItemAt(1))
+              
+              coordinates=new LatLng(Number(place.position.getItemAt(1)), Number(place.position.getItemAt(0)));
+              
+              centre=new LatLng(coordinates.lat(), coordinates.lng());
+              map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+              bounds.extend(coordinates);
+              circleBounds=drawCircle(Number(place.radius) / 1000, coordinates, 0xFF0000);
+              bounds.union(circleBounds);
+              marker=new Marker(coordinates, new MarkerOptions({icon: new PlaceMarker(place), hasShadow: false}));
+              map.addOverlay(marker);
+              overlays.push(marker);
+              map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+              
+            }
+          
+          }
+          map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 				}
 			}
 
@@ -395,22 +435,35 @@
 				loadingBox.visible=loadingBox.includeInLayout=false;
 			}
 
-			private function onVisitedResult(e:ResultEvent):void
+			private function onUrlsResult(e:ResultEvent):void
 			{
 
-				mostVisited=e.result as ArrayCollection
+				mostVisitedUrls=e.result as ArrayCollection
 
 				if (loadingBox2)
 					loadingBox2.visible=loadingBox2.includeInLayout=false;
 				if (visitedList)
-					visitedList.dataProvider=mostVisited;
+					visitedList.dataProvider=mostVisitedUrls;
 			}
+      
+      private function onPlacesResult(e:ResultEvent):void
+      {
+        trace("most visited places result")
+        mostVisitedPlaces=e.result as ArrayCollection;
+        drawPosition()
+      
+      }
 
-			private function onVisitedFault(e:FaultEvent):void
+			private function onUrlsFault(e:FaultEvent):void
 			{
 				trace("fault callback most visited call")
 				loadingBox2.visible=loadingBox2.includeInLayout=false;
 			}
+      
+      private function onPlacesFault(e:FaultEvent):void
+      {
+        trace("fault callback most visited places call")
+      }
 
 			private function onDetailFault(e:FaultEvent):void
 			{
@@ -421,7 +474,7 @@
 			{
 				//  TODO REDUNDANT
 				mostContacted=new ArrayCollection();
-				mostVisited=new ArrayCollection()
+				mostVisitedUrls=new ArrayCollection()
 
 				EntityManager.instance.show(entity._id, onDetailResult);
 				if (loadingBox)
@@ -433,7 +486,7 @@
 					if (loadingBox2)
 						loadingBox2.visible=loadingBox.includeInLayout=true;
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
-					EntityManager.instance.mostVisited(entity._id, formatDate(fromDate), formatDate(toDate), limit, onVisitedResult, onVisitedFault);
+					EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
 				}
 				else
 				{
@@ -791,7 +844,7 @@
 											id="visitedList"
 											enabled="{LicenseManager.instance.correlation &amp;&amp; entity.type=='target'}"
 											itemRenderer="it.ht.rcs.console.entities.view.renderers.VisitedListRenderer"
-											dataProvider="{mostVisited}"
+											dataProvider="{mostVisitedUrls}"
 											visible="{entity.type=='target'}"
 											includeInLayout="{entity.type=='target'}"
 											borderAlpha="0.3"/>

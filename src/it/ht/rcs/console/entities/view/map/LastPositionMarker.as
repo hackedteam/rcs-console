@@ -16,14 +16,12 @@ package it.ht.rcs.console.entities.view.map
     
 		public function LastPositionMarker()
 		{
-
 			var icon:Sprite=new Sprite();
 			icon.x=-12;
 			icon.y=-20;
 			icon.addChild(new MarkerIcon())
 			addChild(icon);
-      this.toolTip="last known position";
-
+      this.toolTip="Last known position: ";
 		}
 	}
 }

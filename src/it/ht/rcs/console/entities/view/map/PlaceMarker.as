@@ -14,7 +14,7 @@ package it.ht.rcs.console.entities.view.map
 		private var MarkerIcon:Class;
 
     
-		public function PlaceMarker(place:Place)
+		public function PlaceMarker(place:Object)
 		{
 
 			var icon:Sprite=new Sprite();
@@ -22,7 +22,7 @@ package it.ht.rcs.console.entities.view.map
 			icon.y=-20;
 			icon.addChild(new MarkerIcon())
 			addChild(icon);
-      this.toolTip="Visited: "+ place.count+ " times";
+      this.toolTip=place.address+" - ("+ place.place.count+ ")";
 
 		}
 	}

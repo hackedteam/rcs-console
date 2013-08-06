@@ -42,6 +42,8 @@
       import com.google.maps.overlays.GroundOverlayOptions;
       import com.google.maps.overlays.Marker;
       import com.google.maps.overlays.MarkerOptions;
+      import com.google.maps.services.ClientGeocoder;
+      import com.google.maps.services.GeocodingEvent;
       
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.entities.controller.EntityManager;
@@ -85,6 +87,10 @@
       
       [Bindable]
       private var mostVisitedPlaces:ArrayCollection;
+      
+      
+      private var placeIndex:int=0;
+      private var numPlaces:int=0;
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -99,6 +105,8 @@
 			private var circleOverlay:IOverlay;
 			private var mapReady:Boolean;
 			private var overlays:Array=new Array();
+      
+      private var geocoder:ClientGeocoder;
 
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
@@ -366,10 +374,10 @@
           {
             for(var p:int=0;p<mostVisitedPlaces.length;p++)
             {
-              var place:Place= mostVisitedPlaces.getItemAt(p) as Place;
-              trace("place: "+place.position.getItemAt(0), " - ",  place.position.getItemAt(1))
+              var place:Object= mostVisitedPlaces.getItemAt(p);
+              trace("place: "+place.place.position.getItemAt(0), " - ",  place.place.position.getItemAt(1))
               
-              coordinates=new LatLng(Number(place.position.getItemAt(1)), Number(place.position.getItemAt(0)));
+              coordinates=new LatLng(Number(place.place.position.getItemAt(1)), Number(place.place.position.getItemAt(0)));
               
               centre=new LatLng(coordinates.lat(), coordinates.lng());
               map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
@@ -448,10 +456,68 @@
       
       private function onPlacesResult(e:ResultEvent):void
       {
-        trace("most visited places result")
-        mostVisitedPlaces=e.result as ArrayCollection;
+        trace("most visited places result") // e.result as ArrayCollection;
+        mostVisitedPlaces=new ArrayCollection()
+       for(var i:int=0;i<e.result.length;i++)
+       {
+         mostVisitedPlaces.addItem({place:e.result.getItemAt(i)})
+       
+       }
+       
+        
         drawPosition()
+        
+        placeIndex=0;
+        numPlaces=mostVisitedPlaces.length;
+        
+      if(numPlaces>0)
+      {
+        geocoder=new ClientGeocoder();
+        geocoder.addEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
+        geocoder.addEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
+        var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(0))
+        geocoder.reverseGeocode(coordinates);
+      }
       
+      }
+      
+      private function handleGeocodingSuccess(e:GeocodingEvent):void
+      {
+        trace("solved")
+        trace("Address: "+e.response.placemarks[0].address)
+        mostVisitedPlaces.getItemAt(placeIndex).address=e.response.placemarks[0].address;
+        if(placeIndex<numPlaces-1)
+        {
+          placeIndex++
+          var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(0))
+          geocoder.reverseGeocode(coordinates);
+        }
+        else 
+        {
+          geocoder.removeEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
+          geocoder.removeEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
+          trace("no more places to solve")
+          drawPosition()
+        }
+        
+     
+      }
+      
+      private function handleGeocodingFailure(e:GeocodingEvent):void
+      {
+        if(placeIndex<numPlaces-1)
+        {
+          placeIndex++
+          var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).position.getItemAt(0))
+          geocoder.reverseGeocode(coordinates);
+        }
+        else 
+        {
+          geocoder.removeEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
+          geocoder.removeEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
+          trace("no more places to solve")
+          drawPosition()
+        }
       }
 
 			private function onUrlsFault(e:FaultEvent):void
@@ -584,8 +650,7 @@
 			{
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				popup.operation=section.stateManager.selectedOperation;
-				popup.entity=new Entity(Entity.defaultEntity());
-				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				popup.entity=new Entity(Entity.defaultEntity()); 				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
 				if (contactsList.selectedItem.peer_name != null)
 					popup.entity.name=contactsList.selectedItem.peer_name;
 				popup.type.enabled=false;

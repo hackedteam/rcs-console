@@ -138,7 +138,7 @@
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
-
+        mostVisitedPlaces=new ArrayCollection()
 				fromDate=new Date();
 				fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
 				toDate=new Date();
@@ -146,8 +146,6 @@
 				{
 					fromDf.selectedDate=fromDate;
 				}
-        
-       
 
 				EntityManager.instance.show(entity._id, onDetailResult);
 
@@ -165,7 +163,8 @@
 
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
           EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
-          EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
+          if(entity.type=="target")
+           EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
 				}
 				else
 				{
@@ -207,6 +206,7 @@
 				loadingBox.visible=loadingBox.includeInLayout=true;
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 				EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
+        if(entity.type=="target")
         EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
 			}
 
@@ -251,7 +251,6 @@
 					//range error
 
 					mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-
 					//map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
 
 					dispatchEvent(new Event("ready"));
@@ -331,7 +330,7 @@
 					{
 						map.removeOverlay(overlays[i] as IOverlay);
 					}
-					if (entity.position)
+					if (entity && entity.position)
 					{
 						if (entity.position.latitude && entity.position.longitude && lastPosCh.selected)
 						{
@@ -357,14 +356,14 @@
 						}
 						else
 						{
-							if (entity.type == 'target')
+							if (entity && entity.type == 'target')
 								lastPositionTxt.text="";
 							//map.setZoom(1);
 						}
 					}
 					else
 					{
-						if (entity.type == 'target')
+						if (entity && entity.type == 'target')
 							lastPositionTxt.text="Last position unkown";
 						else
 							lastPositionTxt.text="";
@@ -443,7 +442,7 @@
 
 			private function onContactFault(e:FaultEvent):void
 			{
-				trace("fault callback most contacted call")
+				trace("fault callback most contacted call");
 				loadingBox.visible=loadingBox.includeInLayout=false;
 			}
 
@@ -465,10 +464,8 @@
        for(var i:int=0;i<e.result.length;i++)
        {
          mostVisitedPlaces.addItem({place:e.result.getItemAt(i)})
-       
        }
-       
-        
+
         drawPosition()
         
         placeIndex=0;
@@ -983,7 +980,7 @@
 															 includeInLayout="{!LicenseManager.instance.correlation}"/>
 					</s:BorderContainer>
           <s:Spacer height="6"/>
-          <s:HGroup width="100%" verticalAlign="middle">
+          <s:HGroup width="100%" verticalAlign="middle" visible="{entity.type=='target'}" includeInLayout="{entity.type=='target'}">
             <s:CheckBox label="Last Known Position" id="lastPosCh" selected="true" change="drawPosition()"/>
             <s:Spacer width="50"/>
             <s:CheckBox label="Most Visited Places" id="mostVisitedCh" selected="true" change="drawPosition()"/>

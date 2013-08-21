@@ -32,15 +32,26 @@
   <s:columns>
     <s:ArrayList>
       
-      
-      <s:GridColumn width="130" dataField="when" headerText="{R.get('DATE')}" resizable="false"
-                    sortDescending="true"/>
-      
+      <s:GridColumn width="130" dataField="when" headerText="{R.get('DATE')}" resizable="false" sortDescending="true"/>
       <s:GridColumn dataField="name" headerText="{R.get('NAME')}"/>
-      
-      <s:GridColumn width="100" dataField="size" headerText="{R.get('SIZE')}"
-                    labelFunction="display_size" resizable="false"/>
-      
+      <s:GridColumn dataField="what" headerText="{R.get('WHAT')}" itemRenderer="it.ht.rcs.console.system.view.backup.renderers.BackupWhatRenderer"/>
+      <s:GridColumn headerText="{R.get('INCREMENTAL')}" dataField="incremental" width="90" resizable="false">
+        <s:itemRenderer>
+          <fx:Component>
+            <s:GridItemRenderer>
+              <fx:Script>
+                <![CDATA[
+                  import locale.R;
+                ]]>
+              </fx:Script>
+              <s:SkinnableContainer>
+                <s:Label left="30" top="10" text="{data.incremental ? R.get('YES') : ''}"/>                                          
+              </s:SkinnableContainer>
+            </s:GridItemRenderer>
+          </fx:Component>
+        </s:itemRenderer>
+      </s:GridColumn>
+      <s:GridColumn width="100" dataField="size" headerText="{R.get('SIZE')}" labelFunction="display_size" resizable="false"/>
       
     </s:ArrayList>
   </s:columns>

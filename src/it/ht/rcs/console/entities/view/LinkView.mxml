@@ -13,38 +13,41 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.events.RefreshEvent;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.rpc.events.ResultEvent;
-			
-			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
-			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
-			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-			import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
-			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
-			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
-			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-			
-			import spark.collections.Sort;
-			import spark.collections.SortField;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.events.RefreshEvent;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+      import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ArrayCollection;
 
 			[Bindable]
 			public var section:EntitiesSection;
-      
-      [Bindable]
+
+			[Bindable]
 			public var entitiesToShow:ArrayCollection;
 
 			private var numEntitiesToShow:int=0;
@@ -81,13 +84,29 @@
 			[Embed(source='/img/NEW/fullLine.png')]
 			public static const fullLine:Class;
 
+			[Bindable]
+			private var startDate:Date;
+
+			[Bindable]
+			private var endDate:Date;
+
 
 			private function init():void
 			{
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
-        onAddedToStage(null)
+
+				startDate=new Date();
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+				endDate=new Date();
+				if (fromDf)
+				{
+					fromDf.selectedDate=startDate;
+				}
+
+				onAddedToStage(null)
+        getFlows(entities)
 			}
 
 			private function onAddedToStage(e:Event=null):void
@@ -120,13 +139,17 @@
 				mergeEnabled=false;
 				linkEnabled=false;
 				jumpEnabled=false;
+        
+        
+        
 			}
 
 			private function analyzeData():void
 			{
 
 				g=new Graph("XMLAsDocsGraph", false, xmlData);
-				if(vgraph) vgraph.visible=true;
+				if (vgraph)
+					vgraph.visible=true;
 
 				var i:int=0;
 				var node:Node;
@@ -153,9 +176,9 @@
 
 			private function getEntityById(id:String):Entity
 			{
-				for (var i:int=0; i < entities.length; i++)
+				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
-					var entity:Entity=entities.getItemAt(i) as Entity;
+					var entity:Entity=entitiesToShow.getItemAt(i) as Entity;
 					if (entity._id == id)
 					{
 						return entity;
@@ -211,29 +234,29 @@
 
 			private function initData(g:Graph):void
 			{
-				if(vgraph)
-        {
-          vgraph.graph=g
-          vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
-          var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
-          
-          vgraph.layouter=layouter;
-          layouter.linkLength=80; //
-          //layouter.autoFitEnabled=true;
-          //layouter.defaultRadius=50;
-          
-          vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
-          vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
-          vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
-          vgraph.maxVisibleDistance=20;
-          
-          vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
-          vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
-          vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
-          vgraph.scale=1;
-          bzoom.value=1;
-          vgraph.draw();
-        }
+				if (vgraph)
+				{
+					vgraph.graph=g
+					vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
+					var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
+
+					vgraph.layouter=layouter;
+					layouter.linkLength=80; //
+					//layouter.autoFitEnabled=true;
+					//layouter.defaultRadius=50;
+
+					vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
+					vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
+					vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
+					vgraph.maxVisibleDistance=20;
+
+					vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
+					vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
+					vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
+					vgraph.scale=1;
+					bzoom.value=1;
+					vgraph.draw();
+				}
 			}
 
 			private function onDetailResult(e:ResultEvent):void
@@ -254,34 +277,35 @@
 							for (var l:int=0; l < entity.links.length; l++)
 							{
 								var linkedEntity:Entity=EntityManager.instance.getItem(entity.links.getItemAt(l).le);
-								if(linkedEntity!=null) linkedEntities.addItem(linkedEntity)
+								if (linkedEntity != null)
+									linkedEntities.addItem(linkedEntity)
 							}
 						}
 
 					}
-					 for (i=0; i < linkedEntities.length; i++)
+					for (i=0; i < linkedEntities.length; i++)
 					{
-						if(!isAlreadyIn(entitiesToShow, linkedEntities.getItemAt(i) as Entity))
-              entitiesToShow.addItem(linkedEntities.getItemAt(i))  //check if already in
-					} 
+						if (!isAlreadyIn(entitiesToShow, linkedEntities.getItemAt(i) as Entity))
+							entitiesToShow.addItem(linkedEntities.getItemAt(i)) //check if already in
+					}
 					parseItems();
 				}
 			}
-      
-      private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
-      {
-        if(entity==null || collection==null)
-          return false;
-        for(var i:int=0;i<collection.length;i++)
-        {
-        if(entity!=null && collection.getItemAt(i) !=null)
-        {
-        if(entity._id==collection.getItemAt(i)._id)
-          return true;
-        }
-        }
-       return false;
-      }
+
+			private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
+			{
+				if (entity == null || collection == null)
+					return false;
+				for (var i:int=0; i < collection.length; i++)
+				{
+					if (entity != null && collection.getItemAt(i) != null)
+					{
+						if (entity._id == collection.getItemAt(i)._id)
+							return true;
+					}
+				}
+				return false;
+			}
 
 			private function onEdgeClick(e:VisualEdgeEvent):void
 			{
@@ -310,16 +334,19 @@
 						selectedNodes.removeItemAt(index)
 
 				}
-				info.selectedItem=null;
-				info.selectedItems=null;
+
 				linkEnabled=false;
 				mergeEnabled=false;
 				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
 				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-				if (selectedEdge != null && (selectedEdge.data.@type == "peer" || selectedEdge.data.@type == "know") && selectedEdge.data.@level == "automatic")
+				if (selectedEdge != null && (selectedEdge.data.info))
 					jumpEnabled=true;
 				else
 					jumpEnabled=false;
+
+				info.selectedItem=selectedEdge;
+				info.selectedItems=new <Object>[info.selectedItem];
+				info.selectedItems.push(info.selectedItem)
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
@@ -425,11 +452,22 @@
 					{
 						linkEnabled=true;
 					}
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
+					{
+						linkEnabled=true;
+					}
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
+					{
+						linkEnabled=true;
+					}
+
 					else
 					{
 						linkEnabled=false;
 					}
 
+
+					//merge
 					if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
 					{
 						mergeEnabled=true;
@@ -461,7 +499,7 @@
 				selectedEdge=null;
 				if (selectedNodes.length == 1)
 				{
-					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
+					info.selectedItem=getEntityById(String(selectedNodes[0].data.@id))
 					info.selectedItems=new <Object>[info.selectedItem];
 					info.selectedItems.push(info.selectedItem)
 				}
@@ -495,6 +533,15 @@
 				{
 					linkEnabled=true;
 				}
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
+				{
+					linkEnabled=true;
+				}
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
+				{
+					linkEnabled=true;
+				}
+
 				else
 				{
 					linkEnabled=false;
@@ -659,22 +706,81 @@
 				section.stateManager.selectedEntities=selectedEntities;
 				onAddedToStage();
 			}
+
+			public function updateLinkLength():void
+			{
+
+
+				if (vgraph == null || vgraph.layouter == null)
+				{
+
+					return;
+				}
+
+				/* update the value */
+				vgraph.layouter.linkLength=lslider.value;
+				vgraph.layouter.layoutChanged=true;
+
+				/* trigger redraw */
+				vgraph.draw();
+			}
+
+			private function filter(e:Event):void
+			{
+				startDate=fromDf.selectedDate;
+				endDate=toDf.selectedDate;
+				timeline.startDate=startDate
+				timeline.endDate=endDate
+				timeline.update()
+			}
       
-      public function updateLinkLength():void {
-        
-      
-        if(vgraph == null || vgraph.layouter == null) {
-          
-          return;
+      private function onTimelineChange():void
+      {
+        var currentEdge:Edge;
+        var currentRenderer:BidirectedArrowEdgeRenderer;
+        for (var i:int=0; i < g.edges.length; i++)
+        {
+          currentEdge=g.edges[i] as Edge;
+          currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+          currentRenderer.showFlow()
         }
-        
-        /* update the value */
-        vgraph.layouter.linkLength = lslider.value;
-        vgraph.layouter.layoutChanged = true;
-        
-        /* trigger redraw */
-        vgraph.draw();
       }
+      
+      private function getFlows(entities:ArrayCollection):void
+      {
+        var ids:Array=new Array();
+        
+        for(var i:int=0;i<entities.length;i++)
+        {
+          var e:Entity = entities.getItemAt(i) as Entity;
+          ids.push(e._id)
+        }
+       EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
+      }
+      
+      private function onFlowResult(e:ResultEvent):void
+      {
+      trace("flow result")
+      }
+      
+      private function onFlowFault(e:FaultEvent):void
+      {
+        trace("flow fault")
+      }
+      
+      private function doubleDigits(n:Number):String
+      {
+        if (n < 10)
+          return "0" + String(n);
+        return String(n);
+      }
+      
+      private function formatDate(d:Date):String
+      {
+        return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
+      }
+      
+      
 		]]>
 	</fx:Script>
 
@@ -692,98 +798,139 @@
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
-		<mx:Canvas id="graphCnvs"
-							 borderStyle="none"
-							 borderColor="#CCCCCC"
-							 backgroundColor="#FFFFFF"
-							 width="100%"
-							 height="100%"
-							 verticalScrollPolicy="off">
+		<s:VGroup width="100%"
+							height="100%">
 
-			<ravis:VisualGraph id="vgraph"
-												 width="100%"
-												 height="100%"
-												 left="0"
-												 right="0"
-												 top="0"
-												 bottom="5"
-												 backgroundColor="#FFFFFF"
-												 alpha="1"
-												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
-												 visibilityLimitActive="true">
-			</ravis:VisualGraph>
-			<s:HGroup x="6"
-								y="10"
-								verticalAlign="middle"
-								horizontalAlign="center">
-        <s:Label text="Zoom:" width="60"  fontWeight="normal" textAlign="right"
-                 fontSize="10"/>
-				<s:Label text="-"/>
-				<s:HSlider stepSize=".1"
-									 x="6"
-									 y="6"
-									 id="bzoom"
-									 value="1"
-									 minimum=".25"
-									 maximum="2"
-									 liveDragging="true"
-									 change="updateVScale(null)"/>
-				<s:Label text="+"/>
-
+			<s:HGroup verticalAlign="middle"
+								horizontalAlign="right"
+								width="100%"
+								paddingTop="6">
+				<s:Label text="{R.get('FILTER_DATA')} "
+								 fontWeight="bold"/>
+				<s:Label text="{R.get('FROM')}:"
+								 fontWeight="bold"/>
+				<mx:DateField id="fromDf"
+											formatString="YYYY-MM-DD"
+											selectedDate="{startDate}"
+											change="filter(event)"/>
+				<s:Label text="{R.get('TO')}:"
+								 fontWeight="bold"/>
+				<mx:DateField id="toDf"
+											formatString="YYYY-MM-DD"
+											selectedDate="{endDate}"
+											change="filter(event)"/>
 			</s:HGroup>
-      
-      <s:HGroup x="6"
-                y="40"
-                verticalAlign="middle"
-                horizontalAlign="center">
-        <s:Label text="Link length:" width="60"  fontWeight="normal" textAlign="right"
-                 fontSize="10"/>
-        <s:Label text="-"/>
-        <s:HSlider stepSize="25"
-                   x="6"
-                   y="6"
-                   id="lslider"
-                   value="80"
-                   liveDragging="true"
-                   change="updateLinkLength()"
-                 
-                   minimum="0"
-                   maximum="600"
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<mx:Canvas id="graphCnvs"
+								 borderStyle="none"
+								 borderColor="#CCCCCC"
+								 backgroundColor="#FFFFFF"
+								 width="100%"
+								 height="100%"
+								 verticalScrollPolicy="off">
 
-                   />
-        <s:Label text="+"/>
-        
-      </s:HGroup>
+				<ravis:VisualGraph id="vgraph"
+													 width="100%"
+													 height="100%"
+													 left="0"
+													 right="0"
+													 top="0"
+													 bottom="5"
+													 backgroundColor="#FFFFFF"
+													 alpha="1"
+													 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
+													 visibilityLimitActive="true">
+				</ravis:VisualGraph>
+				<s:HGroup x="6"
+									y="10"
+									verticalAlign="middle"
+									horizontalAlign="center">
+					<s:Label text="Zoom:"
+									 width="60"
+									 fontWeight="normal"
+									 textAlign="right"
+									 fontSize="10"/>
+					<s:Label text="-"/>
+					<s:HSlider stepSize=".1"
+										 x="6"
+										 y="6"
+										 id="bzoom"
+										 value="1"
+										 minimum=".25"
+										 maximum="2"
+										 liveDragging="true"
+										 change="updateVScale(null)"/>
+					<s:Label text="+"/>
+
+				</s:HGroup>
+
+				<s:HGroup x="6"
+									y="40"
+									verticalAlign="middle"
+									horizontalAlign="center">
+					<s:Label text="Link length:"
+									 width="60"
+									 fontWeight="normal"
+									 textAlign="right"
+									 fontSize="10"/>
+					<s:Label text="-"/>
+					<s:HSlider stepSize="25"
+										 x="6"
+										 y="6"
+										 id="lslider"
+										 value="80"
+										 liveDragging="true"
+										 change="updateLinkLength()"
+										 minimum="0"
+										 maximum="600"/>
+					<s:Label text="+"/>
+
+				</s:HGroup>
 
 
-			<s:HGroup y="6"
-								right="6"
-								verticalAlign="middle">
-				<s:VGroup horizontalAlign="center"
-									gap="0">
-					<s:Image source="{fullLine}"/>
-					<s:Label text="Peer"
-									 fontWeight="normal"
-									 fontSize="10"/>
-				</s:VGroup>
-				<s:Spacer width="10"/>
-				<s:VGroup horizontalAlign="center"
-									gap="0">
-					<s:Image source="{dashedLine}"/>
-					<s:Label text="Identity"
-									 fontWeight="normal"
-									 fontSize="10"/>
-				</s:VGroup>
-				<s:Spacer width="10"/>
-				<s:VGroup horizontalAlign="center"
-									gap="0">
-					<s:Image source="{dottedLine}"/>
-					<s:Label text="Know"
-									 fontWeight="normal"
-									 fontSize="10"/>
-				</s:VGroup>
-			</s:HGroup>
-		</mx:Canvas>
+				<s:HGroup y="6"
+									right="6"
+									verticalAlign="middle">
+					<s:VGroup horizontalAlign="center"
+										gap="0">
+						<s:Image source="{fullLine}"/>
+						<s:Label text="Peer"
+										 fontWeight="normal"
+										 fontSize="10"/>
+					</s:VGroup>
+					<s:Spacer width="10"/>
+					<s:VGroup horizontalAlign="center"
+										gap="0">
+						<s:Image source="{dashedLine}"/>
+						<s:Label text="Identity"
+										 fontWeight="normal"
+										 fontSize="10"/>
+					</s:VGroup>
+					<s:Spacer width="10"/>
+					<s:VGroup horizontalAlign="center"
+										gap="0">
+						<s:Image source="{dottedLine}"/>
+						<s:Label text="Know"
+										 fontWeight="normal"
+										 fontSize="10"/>
+					</s:VGroup>
+				</s:HGroup>
+			</mx:Canvas>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<components:Timeline width="100%"
+													 id="timeline"
+													 startDate="{startDate}"
+													 endDate="{endDate}"
+													 change="onTimelineChange()"/>
+		</s:VGroup>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>
 

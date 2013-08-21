@@ -395,10 +395,21 @@
 				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
 				var xml:XML=XML(selectedEdge.data)
 				var info:Array=[];
-				for (var i:int=0; i < xml.Info.length(); i++)
-				{
-					info.push(String(selectedEdge.data.Info[i]));
-				}
+        
+        
+        if(entity1.type=="position" || entity2.type=="position")
+        {
+          var position:Entity=entity1.type=="position" ? entity1:entity2;
+          info.push("lon:"+position.position.longitude+",lat:"+position.position.latitude+",r:500")
+        
+        }
+        else
+        {
+  				for (var i:int=0; i < xml.Info.length(); i++)
+  				{
+  					info.push(String(selectedEdge.data.Info[i]));
+  				}
+        }
 				var targetId:String;
         if(entity1.type == "target" && entity2.type == "target")
         {
@@ -423,9 +434,10 @@
 				event.section=SectionEvent.OPERATIONS;
 				event.subsection='evidence';
 
-
 				event.item=SearchManager.instance.getItem(targetId);
-				event.evidenceTypes=["call", "chat", "message"];
+        if(entity1.type=="position" || entity2.type=="position") event.evidenceTypes=["position"];
+        else  event.evidenceTypes=["call", "chat", "message"];
+          
 				event.info=info;
 				//event.from=getFromTimestamp();
 				//event.to=getToTimestamp();

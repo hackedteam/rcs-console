@@ -308,7 +308,7 @@ package it.ht.rcs.console.operations.view
           currentFilter = searchFilterFunction;
           update();
           break;
-	
+    
         default:
           break;
       }

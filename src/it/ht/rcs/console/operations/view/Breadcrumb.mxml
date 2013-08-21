@@ -22,6 +22,13 @@
       
       private function onUpOneLevel(event:MouseEvent):void
       {
+        if(section.breadcrumb.detail.visible==true)
+        {
+          section.evidenceView.toggleDetail();
+          section.breadcrumb.detail.visible=false;
+          return;
+        }
+         
         section.stateManager.setState(getUpState());
       }
       
@@ -149,7 +156,14 @@
               includeInLayout="{section.currentState == 'evidence'}" verticalAlign="middle">
       <s:BitmapImage source="{arrow}"/>
       <s:Spacer width="5"/>
-      <mx:LinkButton label="{R.get('EVIDENCE')}" paddingLeft="2" paddingRight="0" icon="@Embed('/img/NEW/evidence_16.png')"/>
+      <mx:LinkButton label="{R.get('EVIDENCE')}" paddingLeft="2" paddingRight="0" icon="@Embed('/img/NEW/evidence_16.png')" click="{if(section.breadcrumb.detail.visible==true) section.evidenceView.toggleDetail() ; section.breadcrumb.detail.visible=false }"/>
+    </s:HGroup>
+    
+    <s:HGroup visible="false" gap="3"
+              includeInLayout="false" verticalAlign="middle" id="detail">
+      <s:BitmapImage source="{arrow}"/>
+      <s:Spacer width="5"/>
+      <mx:LinkButton label="{R.get('DETAILS')}" paddingLeft="2" paddingRight="0" icon="@Embed('/img/NEW/detail_16.png')"/>
     </s:HGroup>
     
     <s:HGroup visible="{section.currentState == 'info'}" gap="3"

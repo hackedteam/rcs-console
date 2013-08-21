@@ -25,7 +25,12 @@
 package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 {
 
+	import com.greensock.*;
+	import com.greensock.easing.*;
+	import com.greensock.motionPaths.*;
+	
 	import flash.display.Graphics;
+	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	
@@ -36,6 +41,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualNode;
 	import org.un.cava.birdeye.ravis.utils.Geometry;
 	import org.un.cava.birdeye.ravis.utils.GraphicsWrapper;
+
 
 
 	/**
@@ -68,6 +74,8 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
     private var dashed:DashedLine;
     private var dotted:DashedLine;
     
+    private var flowRenderer:Sprite;
+    
     private var relevence0:uint=0x333333;
     private var relevence1:uint=0x999999;
     private var relevence2:uint=0x5DE35F;
@@ -76,6 +84,8 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
     private var relevanceColors:Array;
     
     private var _selected:Boolean;
+    
+    private var path:LinePath2D;
 
 
 		public function BidirectedArrowEdgeRenderer()
@@ -88,7 +98,15 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
       this.addChild(dashed)
       this.addChild(dotted)
+        
+      flowRenderer=new Sprite();
+      flowRenderer.graphics.beginFill(0xFF0000);
+      flowRenderer.graphics.drawCircle(0, 0, 4);
+      this.addChild(flowRenderer);
 
+      path=new LinePath2D();
+      path.autoUpdatePoints=true;
+      path.addFollower(flowRenderer)
 		}
 
 		/**
@@ -101,11 +119,12 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * */
 		override public function draw():void
 		{
+      
 			/* first get the corresponding visual object */
 			var fromNode:IVisualNode=vedge.edge.node1.vnode;
 			var toNode:IVisualNode=vedge.edge.node2.vnode;
 
-			var fP:Point=fromNode.viewCenter;
+			var fP:Point=fromNode.viewCenter; 
 			var tP:Point=toNode.viewCenter;
 
 			var lArrowBase:Point;
@@ -170,6 +189,13 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			g.lineStyle(10, color, 0);
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
+      
+      flowRenderer.x=fP.x;
+      flowRenderer.y=fP.y;
+      
+      path.points=[new Point(fP.x, fP.y), new Point(tP.x, tP.y)]
+     
+      //TweenMax.to(path, 2, {progress:1});
       
       //dashed line
       
@@ -248,6 +274,21 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
       this.toolTip=this.vedge.edge.data.@type +" - "+this.vedge.edge.data.@rel;
 
 		}
+    
+    public function showFlow():void
+    {
+      var fromNode:IVisualNode=vedge.edge.node1.vnode;
+      var toNode:IVisualNode=vedge.edge.node2.vnode;
+      
+      var fP:Point=fromNode.viewCenter;
+      var tP:Point=toNode.viewCenter;
+      TweenMax.to(path, 0, {progress:0});
+      flowRenderer.x=fP.x;
+      flowRenderer.y=fP.y;
+      path.progress=0
+      TweenMax.to(path, 2, {progress:1});
+    }
+    
     public function set selected(value:Boolean):void
     {
       _selected=value;

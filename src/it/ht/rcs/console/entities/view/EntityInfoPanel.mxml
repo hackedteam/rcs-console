@@ -8,31 +8,35 @@
 
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			
-			import it.ht.rcs.console.ObjectUtils;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			import it.ht.rcs.console.target.model.Target;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import mx.events.PropertyChangeEvent;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.events.PropertyChangeEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
       
       private var circleFillColor:uint=0xFF0000;
       private var circleFillAlpha:Number=0.2;
@@ -134,7 +138,7 @@
           {
             map.removeOverlay(overlays[i] as IOverlay);
           }
-          if (selectedItem  && selectedItem.position)
+          if (selectedItem  && selectedItem is Entity && selectedItem.position)
           {
             if (selectedItem.position.latitude && selectedItem.position.longitude)
             {
@@ -230,7 +234,7 @@
 	<s:Group left="6"
 					 top="35"
 					 width="100%"
-					 height="100%">
+					 height="100%" visible="{selectedItem != null &amp;&amp; selectedItem is Entity}" includeInLayout="{selectedItem != null &amp;&amp; selectedItem is Entity}">
 		<s:Form visible="{selectedItem != null &amp;&amp; selectedItems.length==1}" width="100%">
 			<s:FormItem label="{R.get('NAME')}">
 				<s:RichEditableText editable="false"
@@ -288,6 +292,39 @@
       </s:BorderContainer>
 		</s:Form>
 	</s:Group>
-
+  <s:Group left="6"
+           top="35"
+           width="100%"
+           height="100%" visible="{selectedItem != null &amp;&amp; selectedItem is Edge}" includeInLayout="{selectedItem != null &amp;&amp; selectedItem is Edge}">
+    
+    <s:Form visible="{selectedItem != null &amp;&amp; selectedItems.length==1}" width="100%">
+      <s:FormItem label="{R.get('FROM')}">
+        <s:RichEditableText editable="false"
+                            text="{EntityManager.instance.getEntityById(selectedItem.data.@fromID).name}" width="200"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('TO')}">
+        <s:RichEditableText editable="false"
+                            text="{EntityManager.instance.getEntityById(selectedItem.data.@toID).name}" width="200"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('RELEVANCE')}">
+        <s:RichEditableText editable="false"
+                            text="{selectedItem.data.@rel}" width="200"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('TYPE')}">
+        <s:RichEditableText editable="false"
+                            text="{selectedItem.data.@type}" width="200"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('LEVEL')}">
+        <s:RichEditableText editable="false"
+                            text="{selectedItem.data.@level}" width="200"/>
+      </s:FormItem>
+      <s:FormItem label="{R.get('VERSUS')}">
+        <s:RichEditableText editable="false"
+                            text="{selectedItem.data.@versus}" width="200"/>
+      </s:FormItem>
+      
+    </s:Form>
+  
+  </s:Group>
 
 </s:Group>

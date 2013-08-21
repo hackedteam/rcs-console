@@ -160,16 +160,16 @@
 				EvidenceManager.instance.unlistenRefresh();
 				trace("evidence view removed from stage");
 
-				evidenceDg.selectedItems=new Vector.<Object>
-				actionBar.selectedObjects=evidenceDg.selectedItems;
+				//evidenceDg.selectedItems=new Vector.<Object>
+				//actionBar.selectedObjects=evidenceDg.selectedItems;
 				currentState="default";
 				actionBar.toggleSummaryButton(currentState);
 				//evidenceDg.dataProvider=null;
-				if (viewer.visible)
+				/* if (viewer.visible)
 				{
 					closeViewer();
 					actionBar.toggleDetailButton();
-				}
+				} */
 			}
 
 			public function refreshData(event:FilterEvent=null):void
@@ -236,10 +236,11 @@
 				}
 			}
 
-			private function toggleDetail():void
+			public function toggleDetail():void
 			{
 				if (!viewer.visible && evidenceDg.selectedItems != null)
 				{
+          section.breadcrumb.detail.visible=section.breadcrumb.detail.includeInLayout=true;
 					viewer.currentItems=evidenceDg.selectedItems;
 					viewer.currentIndex=evidenceDg.selectedIndices[0]
 					viewer.visible=viewer.includeInLayout=true;
@@ -249,10 +250,13 @@
 					selectedObject.push(evidenceDg.selectedItems[0]);
 					actionBar.selectedObjects=selectedObject;
 					notice.visible=notice.includeInLayout=false;
+         
 				}
 				else
 				{
+          section.breadcrumb.detail.visible=section.breadcrumb.detail.includeInLayout=false;
 					closeViewer()
+         
 				}
 				actionBar.toggleDetailButton();
 			}
@@ -300,7 +304,7 @@
 
 			}
 
-			private function closeViewer():void
+			public function closeViewer():void
 			{
 				viewer.visible=viewer.includeInLayout=false;
 				viewer.currentItem=null;

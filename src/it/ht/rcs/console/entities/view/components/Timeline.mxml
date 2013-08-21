@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:components="it.ht.rcs.console.entities.view.components.timeline.*"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 creationComplete="init()">
+  <fx:Metadata>
+    [Event(name="change", type="flash.events.Event")]
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.setTimeout;
+			
+			import it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin;
+			import it.ht.rcs.console.entities.view.components.timeline.HSliderTrackSkinTicks;
+			
+			import spark.skins.spark.HSliderTrackSkin;
+			[Bindable]
+			public var startDate:Date;
+
+			[Bindable]
+			public var endDate:Date;
+
+			[Bindable]
+			public var start:Number;
+
+			[Bindable]
+			public var end:Number;
+
+			private const DAY:int=1000 * 60 * 60 * 24;
+
+			private function formatTime(val:String):String
+			{
+				var time:Number=Number(val);
+				var d:Date=new Date();
+				d.time=time;
+				return d.date + "/" + d.month + "/" + d.fullYear
+			}
+
+			private function init():void
+			{
+				startDate=new Date();
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+				endDate=new Date();
+
+				start=startDate.time;
+				end=endDate.time;
+				slider.minimum=start;
+				slider.maximum=end;
+				slider.value=start;
+				slider.stepSize=DAY;
+				var sliderSkin:DashboardSliderSkin=slider.skin as DashboardSliderSkin;
+				var trackSkin:HSliderTrackSkinTicks=sliderSkin.track.skin as HSliderTrackSkinTicks;
+				trackSkin.drawTicks();
+			}
+
+			public function update():void
+			{
+				start=startDate.time;
+				end=endDate.time;
+				slider.minimum=start;
+				slider.maximum=end;
+				slider.value=start;
+				slider.stepSize=DAY;
+				var sliderSkin:DashboardSliderSkin=slider.skin as DashboardSliderSkin;
+				var trackSkin:HSliderTrackSkinTicks=sliderSkin.track.skin as HSliderTrackSkinTicks;
+				trackSkin.drawTicks();
+			}
+      
+      private function onChange():void
+      {
+        trace(formatTime(String(slider.value)))
+        dispatchEvent(new Event("change"))
+      }
+      
+		]]>
+	</fx:Script>
+	<!--<mx:HSlider width="100%" id="slider" snapInterval="{DAY}" dataTipFormatFunction="formatTime" tickColor="0x000000" tickInterval="{DAY}" tickLength="6" />-->
+	<components:DashboardSlider skinClass="it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin"
+															width="100%"
+															id="slider"
+															snapInterval="{DAY}"
+															dataTipFormatFunction="formatTime"
+															minimum="{start}"
+															maximum="{end}" change="onChange()"/>
+</s:Group>

@@ -21,6 +21,7 @@
       import com.google.maps.overlays.GroundOverlay;
       import com.google.maps.overlays.GroundOverlayOptions;
       import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
       
       import it.ht.rcs.console.ObjectUtils;
       import it.ht.rcs.console.agent.model.Agent;
@@ -31,6 +32,7 @@
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
+      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
       
       import locale.R;
       
@@ -38,10 +40,10 @@
       
       import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
       
-      private var circleFillColor:uint=0xFF0000;
+      private var circleFillColor:uint=0x00CCFF;
       private var circleFillAlpha:Number=0.2;
       private var circleBorderTickness:int=0.2;
-      private var circleBorderFillColor:uint=0xFF0000;
+      private var circleBorderFillColor:uint=0x00CCFF;
       private var circleBorderFillAlpha:Number=0.5;
       
       private var mapPane:IPane;
@@ -149,7 +151,7 @@
               bounds.extend(coordinates);
               var circleBounds:LatLngBounds=drawCircle(Number(selectedItem.position_attr.accuracy) / 1000, coordinates);
               bounds.union(circleBounds)
-              var marker:Marker=new Marker(coordinates);
+              var marker:Marker=new Marker(coordinates, new MarkerOptions({icon: new LastPositionMarker(), hasShadow: false}));
               map.addOverlay(marker);
               overlays.push(marker);
               map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));

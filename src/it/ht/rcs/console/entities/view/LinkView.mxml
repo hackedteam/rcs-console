@@ -252,6 +252,7 @@
 
 					vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
 					vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
+          vgraph.addEventListener(VisualNodeEvent.DOUBLE_CLICK, onNodeDoubleClick);
 					vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
 					vgraph.scale=1;
 					bzoom.value=1;
@@ -378,6 +379,12 @@
 				mergeEnabled=false;
 				jumpEnabled=false;
 			}
+      private function onNodeDoubleClick(e:VisualNodeEvent):void
+      {
+        var clickedNode:INode=e.node;
+        var item:* =getEntityById(String(clickedNode.data.@id))
+        if (item) section.stateManager.manageItemSelection(item); 
+      }
 
 			private function onNodeClick(e:VisualNodeEvent):void
 			{

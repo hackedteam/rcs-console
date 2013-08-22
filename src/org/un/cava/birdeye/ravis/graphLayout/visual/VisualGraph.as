@@ -2060,7 +2060,8 @@ package org.un.cava.birdeye.ravis.graphLayout.visual {
 			/* Now we change the root node, we go through
 			* our public setter method to get all associated
 			* updates done. */
-			this.currentRootVNode = vnode;
+			
+      //  this.currentRootVNode = vnode; (disabled)
 			
 			//LogUtil.debug(_LOG, "currentVNode:"+this.currentRootVNode.id);
 			

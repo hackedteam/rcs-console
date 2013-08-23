@@ -51,13 +51,16 @@
     ]]>
   </fx:Script>
   
-  <nia:NIAActionBar id="actionBar" selectedObject="{nias.selectedItem}" view="{view}"/>
+  <nia:NIAActionBar id="actionBar" selectedObject="{nias.selectedItem}" view="{view}" />
   
   <nia:NIAList id="nias" dataProvider="{view}" change="nias_changeHandler(event)"/>
   
-  <nia:RulesActionBar id="rulesActionBar" selectedInjector="{nias.selectedItem as Injector}"
-                      selectedRule="{rules.selectedItem as InjectorRule}"/>
+ <mx:VBox id="rulesBox" visible="{nias.selectedItem!=null}" includeInLayout="{nias.selectedItem!=null}" width="100%" height="100%">
+   <nia:RulesActionBar id="rulesActionBar" selectedInjector="{nias.selectedItem as Injector}"
+                       selectedRule="{rules.selectedItem as InjectorRule}"/>
    
-  <nia:RulesGrid id="rules" dataProvider="{Console.currentSession.user.is_tech_ni_rules() ? nias.selectedItem.rules : null}" />
+   <nia:RulesGrid id="rules" dataProvider="{Console.currentSession.user.is_tech_ni_rules() ? nias.selectedItem.rules : null}" />
+ </mx:VBox>
+ 
 
 </s:VGroup>

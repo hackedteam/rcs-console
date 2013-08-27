@@ -15,12 +15,17 @@
   
   <s:Button label="{R.get('RUN_NOW')}" click="onRunClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/run.png')"/>
   
+  <actionbar:Separator width="40"/>
+  
+  <s:Button label="{R.get('BACKUP_MANAGE')}" click="manageBackups()"  icon="@Embed('/img/NEW/manageBackup.png')"/>
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.backup.controller.BackupArchiveManager;
       import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupJob;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.system.view.backup.archives.BackupArchivesWindow;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -47,6 +52,12 @@
       private function onDeleteClick():void
       {
 		    BackupJobManager.instance.removeItem(selectedObject);
+      }
+      
+      private function manageBackups():void
+      {
+        var popup:BackupArchivesWindow = PopUpManager.createPopUp(this.parentDocument as DisplayObject, BackupArchivesWindow, true) as BackupArchivesWindow;
+        PopUpManager.centerPopUp(popup);
       }
       
       private function onRunClick():void

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:jobs="it.ht.rcs.console.system.view.backup.jobs.*"
+							 xmlns:archives="it.ht.rcs.console.system.view.backup.archives.*"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="800"
+							 height="600"
+							 title="{R.get('BACKUP_MANAGE')}"
+							 addedToStage="onAddedToStage(event)"
+							 removedFromStage="onRemovedFromStage(event)" xmlns:backup="it.ht.rcs.console.system.view.backup.*" close="onClose(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.events.RefreshEvent;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+
+			[Bindable]
+			private var _backup_archive_view:ListCollectionView;
+
+			private function onAddedToStage(event:Event):void
+			{
+
+				BackupArchiveManager.instance.listenRefresh();
+				BackupArchiveManager.instance.refresh();
+
+				_backup_archive_view=BackupArchiveManager.instance.getView();
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+			}
+
+			private function onRemovedFromStage(event:Event):void
+			{
+
+				BackupArchiveManager.instance.unlistenRefresh();
+				_backup_archive_view=null;
+				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+			}
+      
+      private function onRefresh(e:RefreshEvent):void
+      {
+        archivesActionBar.selectedObject = null;
+      }
+      
+      protected function onClose(event:CloseEvent):void
+      {
+        PopUpManager.removePopUp(this)
+        
+      }
+      
+    ]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+						height="100%" paddingBottom="10" paddingTop="10" paddingLeft="10" paddingRight="10" >
+		<archives:ArchivesActionBar id="archivesActionBar"
+																view="{_backup_archive_view}"
+																selectedObject="{backuparchives.selectedItem}"/>
+
+		<archives:BackupArchives id="backuparchives"
+														 dataProvider="{_backup_archive_view}"/>
+	</s:VGroup>
+</s:TitleWindow>

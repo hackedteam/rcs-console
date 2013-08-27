@@ -18,6 +18,8 @@ package it.ht.rcs.console.utils
     public static const DRAGGING:String = 'dragging';
     [Bindable] public var mode:String = NORMAL;
     
+    public var draggable:Boolean=true;
+    
     public function ScrollableGraph()
     {
       super();
@@ -47,6 +49,8 @@ package it.ht.rcs.console.utils
     
     private function onMouseOver(me:MouseEvent):void
     {
+      if(!draggable)
+        return
       if (mode == NORMAL)
         Mouse.cursor = NativeCursor.HAND_OPEN;
       else if (mode == DRAGGING)
@@ -54,6 +58,8 @@ package it.ht.rcs.console.utils
     }
     private function onMouseOut(me:MouseEvent):void
     {
+      if(!draggable)
+        return
       Mouse.cursor = MouseCursor.AUTO;
     }
     
@@ -71,6 +77,9 @@ package it.ht.rcs.console.utils
     // meaning we want to start dragging
     private function onMouseDown(me:MouseEvent):void
     {
+      if(!draggable)
+        return;
+        
       mode = DRAGGING;
       dragged = false;
       
@@ -83,6 +92,9 @@ package it.ht.rcs.console.utils
     
     private function onDraggingMove(me:MouseEvent):void
     {
+      if(!draggable)
+        return;
+      
       dragged = true;
       
       hScrollBar.value = hScrollBar.value + dragX - me.stageX;
@@ -94,6 +106,9 @@ package it.ht.rcs.console.utils
     
     private function onDraggingUp(me:MouseEvent):void
     {
+      if(!draggable)
+        return;
+      
       removeEventListener(MouseEvent.MOUSE_MOVE, onDraggingMove);
       removeEventListener(MouseEvent.MOUSE_UP, onDraggingUp);
       Mouse.cursor = NativeCursor.HAND_OPEN;

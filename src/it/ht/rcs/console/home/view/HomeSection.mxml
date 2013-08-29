@@ -45,6 +45,9 @@
 				if (Console.currentSession.user.is_tech() || Console.currentSession.user.is_view())
 					goto_kinds=['operation', 'target', 'factory', 'agent'];
 
+				if (Console.currentSession.user.is_view_profiles())
+					goto_kinds.push('entity');
+
 				if (Console.currentSession.user.is_sys())
 					goto_kinds=[];
 
@@ -53,16 +56,19 @@
 			private function refreshRecents(user:User):void
 			{
 				if (recents)
-        {
-          recents.dataProvider=null
+				{
+					recents.dataProvider=null
 					recents.dataProvider=user.recent_ids;
-        }
+				}
 			}
 
 			private function onGoTo(e:ItemFieldEvent):void
 			{
 				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
-				event.section='Operations';
+				if (e.selectedItem._kind == 'entity')
+					event.section='Intelligence';
+				else
+					event.section='Operations';
 				event.item=e.selectedItem;
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
 			}

@@ -11,6 +11,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/agent_16.png')]
     public static const agent16:Class;
     
+    [Embed(source='/img/NEW/entity_16.png')]
+    public static const entity16:Class;
+    
     [Embed(source='/img/NEW/factory_16.png')]
     public static const factory16:Class;
     

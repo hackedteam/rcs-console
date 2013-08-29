@@ -28,47 +28,47 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapType;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      import com.google.maps.services.ClientGeocoder;
-      import com.google.maps.services.GeocodingEvent;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Contact;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Place;
-      import it.ht.rcs.console.entities.model.Visit;
-      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
-      import it.ht.rcs.console.entities.view.map.PlaceMarker;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.utils.Clock;
-      import it.ht.rcs.console.utils.TimeUtils;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapType;
+			import com.google.maps.PaneId;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.overlays.MarkerOptions;
+			import com.google.maps.services.ClientGeocoder;
+			import com.google.maps.services.GeocodingEvent;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Contact;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Place;
+			import it.ht.rcs.console.entities.model.Visit;
+			import it.ht.rcs.console.entities.view.map.LastPositionMarker;
+			import it.ht.rcs.console.entities.view.map.PlaceMarker;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			import it.ht.rcs.console.utils.TimeUtils;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -84,12 +84,12 @@
 
 			[Bindable]
 			private var mostVisitedUrls:ArrayCollection;
-      
-      [Bindable]
-      private var mostVisitedPlaces:ArrayCollection;
 
-      private var placeIndex:int=0;
-      private var numPlaces:int=0;
+			[Bindable]
+			private var mostVisitedPlaces:ArrayCollection;
+
+			private var placeIndex:int=0;
+			private var numPlaces:int=0;
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -104,8 +104,8 @@
 			private var circleOverlay:IOverlay;
 			private var mapReady:Boolean;
 			private var overlays:Array=new Array();
-      
-      private var geocoder:ClientGeocoder;
+
+			private var geocoder:ClientGeocoder;
 
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
@@ -137,7 +137,7 @@
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				mostContacted=new ArrayCollection();
-        mostVisitedPlaces=new ArrayCollection()
+				mostVisitedPlaces=new ArrayCollection()
 				fromDate=new Date();
 				fromDate.time=fromDate.time - (1000 * 60 * 60 * 24 * 30);
 				toDate=new Date();
@@ -161,17 +161,17 @@
 						limitTxt.text="5";
 
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
-          EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
-          if(entity.type=="target")
-           EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
+					EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
+					if (entity.type == "target")
+						EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
 				}
 				else
 				{
 					if (contactsList)
-          {
-            contactsList.enabled=false; //TODO ADD A MESSAGE
-          }
-						
+					{
+						contactsList.enabled=false; //TODO ADD A MESSAGE
+					}
+
 					if (loadingBox)
 						loadingBox.visible=loadingBox.includeInLayout=false;
 
@@ -182,9 +182,9 @@
 				}
 
 				callLater(onRefresh, [null])
-        
-       
-        
+
+
+
 
 			}
 
@@ -205,8 +205,8 @@
 				loadingBox.visible=loadingBox.includeInLayout=true;
 				EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 				EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
-        if(entity.type=="target")
-        EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
+				if (entity.type == "target")
+					EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
 			}
 
 
@@ -315,13 +315,15 @@
 
 			private function drawPosition():void
 			{
-        
-        var coordinates:LatLng;
-        var bounds:LatLngBounds=new LatLngBounds();;
-        var centre:LatLng;
-        var circleBounds:LatLngBounds;
-        var marker:Marker;
-        
+				if (!mapReady)
+					return;
+				var coordinates:LatLng;
+				var bounds:LatLngBounds=new LatLngBounds();
+				;
+				var centre:LatLng;
+				var circleBounds:LatLngBounds;
+				var marker:Marker;
+
 				if (LicenseManager.instance.correlation)
 				{
 					//remove overlays
@@ -334,13 +336,13 @@
 						if (entity.position.latitude && entity.position.longitude && lastPosCh.selected)
 						{
 							coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-							
+
 							centre=new LatLng(coordinates.lat(), coordinates.lng());
 							map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
 							bounds.extend(coordinates);
 							circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, 0x00CCFF);
 							bounds.union(circleBounds)
-              marker=new Marker(coordinates, new MarkerOptions({icon: new LastPositionMarker(), hasShadow: false}));
+							marker=new Marker(coordinates, new MarkerOptions({icon: new LastPositionMarker(), hasShadow: false}));
 							map.addOverlay(marker);
 							overlays.push(marker);
 							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
@@ -357,7 +359,7 @@
 						{
 							if (entity && entity.type == 'target')
 								lastPositionTxt.text="";
-							//map.setZoom(1);
+								//map.setZoom(1);
 						}
 					}
 					else
@@ -366,33 +368,33 @@
 							lastPositionTxt.text="Last position unkown";
 						else
 							lastPositionTxt.text="";
-						//map.setZoom(1)
+							//map.setZoom(1)
 					}
-          
-          //draw visited places
-          if(mostVisitedPlaces && mostVisitedPlaces.length>0 && mostVisitedCh.selected)
-          {
-            for(var p:int=0;p<mostVisitedPlaces.length;p++)
-            {
-              var place:Object= mostVisitedPlaces.getItemAt(p);
-              trace("place: "+place.place.position.getItemAt(0), " - ",  place.place.position.getItemAt(1))
-              
-              coordinates=new LatLng(Number(place.place.position.getItemAt(1)), Number(place.place.position.getItemAt(0)));
-              
-              centre=new LatLng(coordinates.lat(), coordinates.lng());
-              map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-              bounds.extend(coordinates);
-              circleBounds=drawCircle(Number(place.radius) / 1000, coordinates, 0xFF0000);
-              bounds.union(circleBounds);
-              marker=new Marker(coordinates, new MarkerOptions({icon: new PlaceMarker(place), hasShadow: false}));
-              map.addOverlay(marker);
-              overlays.push(marker);
-              map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-              
-            }
-          
-          }
-          map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+
+					//draw visited places
+					if (mostVisitedPlaces && mostVisitedPlaces.length > 0 && mostVisitedCh.selected)
+					{
+						for (var p:int=0; p < mostVisitedPlaces.length; p++)
+						{
+							var place:Object=mostVisitedPlaces.getItemAt(p);
+							trace("place: " + place.place.position.getItemAt(0), " - ", place.place.position.getItemAt(1))
+
+							coordinates=new LatLng(Number(place.place.position.getItemAt(1)), Number(place.place.position.getItemAt(0)));
+
+							centre=new LatLng(coordinates.lat(), coordinates.lng());
+							map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+							bounds.extend(coordinates);
+							circleBounds=drawCircle(Number(place.radius) / 1000, coordinates, 0xFF0000);
+							bounds.union(circleBounds);
+							marker=new Marker(coordinates, new MarkerOptions({icon: new PlaceMarker(place), hasShadow: false}));
+							map.addOverlay(marker);
+							overlays.push(marker);
+							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+
+						}
+
+					}
+					map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 				}
 			}
 
@@ -411,16 +413,16 @@
 			{
 				//photoViewer.currentPhoto="";
 				//entity=null;
-        lastPosCh.selected=true;
-        mostVisitedCh.selected=true;
+				lastPosCh.selected=true;
+				mostVisitedCh.selected=true;
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 
 			}
 
 			private function onContactResult(e:ResultEvent):void
 			{
-        if(contactsList)
-          contactsList.addEventListener("entityAdd", addContactAsEntity)
+				if (contactsList)
+					contactsList.addEventListener("entityAdd", addContactAsEntity)
 				mostContacted=new ArrayCollection();
 				var temp:ArrayCollection=e.result as ArrayCollection;
 				for (var i:int=0; i < temp.length; i++)
@@ -455,81 +457,81 @@
 				if (visitedList)
 					visitedList.dataProvider=mostVisitedUrls;
 			}
-      
-      private function onPlacesResult(e:ResultEvent):void
-      {
-        trace("most visited places result") // e.result as ArrayCollection;
-        mostVisitedPlaces=new ArrayCollection()
-       for(var i:int=0;i<e.result.length;i++)
-       {
-         mostVisitedPlaces.addItem({place:e.result.getItemAt(i)})
-       }
 
-        drawPosition()
-        
-        placeIndex=0;
-        numPlaces=mostVisitedPlaces.length;
-        
-      if(numPlaces>0)
-      {
-        geocoder=new ClientGeocoder();
-        geocoder.addEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
-        geocoder.addEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
-        var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(0))
-        geocoder.reverseGeocode(coordinates);
-      }
-      
-      }
-      
-      private function handleGeocodingSuccess(e:GeocodingEvent):void
-      {
-        trace("solved")
-        trace("Address: "+e.response.placemarks[0].address)
-        mostVisitedPlaces.getItemAt(placeIndex).address=e.response.placemarks[0].address;
-        if(placeIndex<numPlaces-1)
-        {
-          placeIndex++
-          var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(0))
-          geocoder.reverseGeocode(coordinates);
-        }
-        else 
-        {
-          geocoder.removeEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
-          geocoder.removeEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
-          trace("no more places to solve")
-          drawPosition()
-        }
-        
-     
-      }
-      
-      private function handleGeocodingFailure(e:GeocodingEvent):void
-      {
-        if(placeIndex<numPlaces-1)
-        {
-          placeIndex++
-          var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).position.getItemAt(0))
-          geocoder.reverseGeocode(coordinates);
-        }
-        else 
-        {
-          geocoder.removeEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
-          geocoder.removeEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
-          trace("no more places to solve")
-          drawPosition()
-        }
-      }
+			private function onPlacesResult(e:ResultEvent):void
+			{
+				trace("most visited places result") // e.result as ArrayCollection;
+				mostVisitedPlaces=new ArrayCollection()
+				for (var i:int=0; i < e.result.length; i++)
+				{
+					mostVisitedPlaces.addItem({place: e.result.getItemAt(i)})
+				}
+
+				drawPosition()
+
+				placeIndex=0;
+				numPlaces=mostVisitedPlaces.length;
+
+				if (numPlaces > 0)
+				{
+					geocoder=new ClientGeocoder();
+					geocoder.addEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
+					geocoder.addEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
+					var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(0))
+					geocoder.reverseGeocode(coordinates);
+				}
+
+			}
+
+			private function handleGeocodingSuccess(e:GeocodingEvent):void
+			{
+				trace("solved")
+				trace("Address: " + e.response.placemarks[0].address)
+				mostVisitedPlaces.getItemAt(placeIndex).address=e.response.placemarks[0].address;
+				if (placeIndex < numPlaces - 1)
+				{
+					placeIndex++
+					var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).place.position.getItemAt(0))
+					geocoder.reverseGeocode(coordinates);
+				}
+				else
+				{
+					geocoder.removeEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
+					geocoder.removeEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
+					trace("no more places to solve")
+					drawPosition()
+				}
+
+
+			}
+
+			private function handleGeocodingFailure(e:GeocodingEvent):void
+			{
+				if (placeIndex < numPlaces - 1)
+				{
+					placeIndex++
+					var coordinates:LatLng=new LatLng(mostVisitedPlaces.getItemAt(placeIndex).position.getItemAt(1), mostVisitedPlaces.getItemAt(placeIndex).position.getItemAt(0))
+					geocoder.reverseGeocode(coordinates);
+				}
+				else
+				{
+					geocoder.removeEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
+					geocoder.removeEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
+					trace("no more places to solve")
+					drawPosition()
+				}
+			}
 
 			private function onUrlsFault(e:FaultEvent):void
 			{
 				trace("fault callback most visited call")
 				loadingBox2.visible=loadingBox2.includeInLayout=false;
 			}
-      
-      private function onPlacesFault(e:FaultEvent):void
-      {
-        trace("fault callback most visited places call")
-      }
+
+			private function onPlacesFault(e:FaultEvent):void
+			{
+				trace("fault callback most visited places call")
+			}
 
 			private function onDetailFault(e:FaultEvent):void
 			{
@@ -538,26 +540,30 @@
 
 			private function onRefresh(e:Event=null):void
 			{
-				//  TODO REDUNDANT
-				mostContacted=new ArrayCollection();
-				mostVisitedUrls=new ArrayCollection()
+				if (entity)
+				{
+					//  TODO REDUNDANT
+					mostContacted=new ArrayCollection();
+					mostVisitedUrls=new ArrayCollection()
 
-				EntityManager.instance.show(entity._id, onDetailResult);
-				if (loadingBox)
-					loadingBox.visible=loadingBox.includeInLayout=false;
-				if (LicenseManager.instance.correlation && entity.type == 'target')
-				{
+
+					EntityManager.instance.show(entity._id, onDetailResult);
 					if (loadingBox)
-						loadingBox.visible=loadingBox.includeInLayout=true;
-					if (loadingBox2)
-						loadingBox2.visible=loadingBox.includeInLayout=true;
-					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
-					EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
-				}
-				else
-				{
-					contactsList.enabled=false;
-					visitedList.enabled=false;
+						loadingBox.visible=loadingBox.includeInLayout=false;
+					if (LicenseManager.instance.correlation && entity.type == 'target')
+					{
+						if (loadingBox)
+							loadingBox.visible=loadingBox.includeInLayout=true;
+						if (loadingBox2)
+							loadingBox2.visible=loadingBox.includeInLayout=true;
+						EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
+						EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
+					}
+					else
+					{
+						contactsList.enabled=false;
+						visitedList.enabled=false;
+					}
 				}
 			}
 
@@ -650,7 +656,8 @@
 			{
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				popup.operation=section.stateManager.selectedOperation;
-				popup.entity=new Entity(Entity.defaultEntity()); 				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				popup.entity=new Entity(Entity.defaultEntity());
+				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
 				if (contactsList.selectedItem.peer_name != null)
 					popup.entity.name=contactsList.selectedItem.peer_name;
 				popup.type.enabled=false;
@@ -730,7 +737,8 @@
 					</s:stroke>
 				</s:Line>
 			</s:VGroup>
-			<s:HGroup width="100%" height="50%">
+			<s:HGroup width="100%"
+								height="50%">
 				<components:PhotoViewer id="photoViewer"
 																entity="{entity}"
 																update="onUpdate(event)"/>
@@ -779,14 +787,15 @@
 								visible="{entity.type=='target'}"
 								includeInLayout="{entity.type=='target'}">
 
-        <s:HGroup horizontalAlign="right"
-                  width="100%"
-                  paddingBottom="0" depth="1">
-          <s:TabBar id="tabs"
-                    dataProvider="{vs}"
-                    fontWeight="bold"/>
-        </s:HGroup>
-				
+				<s:HGroup horizontalAlign="right"
+									width="100%"
+									paddingBottom="0"
+									depth="1">
+					<s:TabBar id="tabs"
+										dataProvider="{vs}"
+										fontWeight="bold"/>
+				</s:HGroup>
+
 				<mx:ViewStack width="100%"
 											height="100%"
 											id="vs"
@@ -796,8 +805,8 @@
 					<s:NavigatorContent width="100%"
 															height="100%"
 															label="{R.get('MOST_CONTACTED')}"
-															creationPolicy="all" >
-              
+															creationPolicy="all">
+
 						<s:BorderContainer width="100%"
 															 height="100%">
 							<s:layout>
@@ -916,7 +925,7 @@
 						</s:BorderContainer>
 					</s:NavigatorContent>
 				</mx:ViewStack>
-      
+
 			</s:VGroup>
 		</s:VGroup>
 		<s:Spacer width="6"/>
@@ -979,12 +988,21 @@
 															 visible="{!LicenseManager.instance.correlation}"
 															 includeInLayout="{!LicenseManager.instance.correlation}"/>
 					</s:BorderContainer>
-          <s:Spacer height="6"/>
-          <s:HGroup width="100%" verticalAlign="middle" visible="{entity.type=='target'}" includeInLayout="{entity.type=='target'}">
-            <s:CheckBox label="Last Known Position" id="lastPosCh" selected="true" change="drawPosition()"/>
-            <s:Spacer width="50"/>
-            <s:CheckBox label="Most Visited Places" id="mostVisitedCh" selected="true" change="drawPosition()"/>
-          </s:HGroup>
+					<s:Spacer height="6"/>
+					<s:HGroup width="100%"
+										verticalAlign="middle"
+										visible="{entity.type=='target'}"
+										includeInLayout="{entity.type=='target'}">
+						<s:CheckBox label="Last Known Position"
+												id="lastPosCh"
+												selected="true"
+												change="drawPosition()"/>
+						<s:Spacer width="50"/>
+						<s:CheckBox label="Most Visited Places"
+												id="mostVisitedCh"
+												selected="true"
+												change="drawPosition()"/>
+					</s:HGroup>
 					<!--<s:Spacer height="6"/>
 					<s:List width="100%"
 									height="30%"

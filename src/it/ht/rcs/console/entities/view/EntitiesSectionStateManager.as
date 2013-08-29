@@ -92,14 +92,15 @@ package it.ht.rcs.console.entities.view
       {
         selectedOperation = item;
         setState('singleOperation');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type:"operation", section: "intelligence" });
       }
       
       if (item is Entity)
       {
         selectedEntity = item;
         setState('singleEntity');
-       //UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item)); //TODO
+        UserManager.instance.add_recent(Console.currentSession.user, {id: selectedEntity._id, type:"entity", section: "intelligence" });
+    
       }
       
     }

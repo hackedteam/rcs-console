@@ -99,21 +99,21 @@ package it.ht.rcs.console.operations.view
       {
         selectedOperation = item;
         setState('singleOperation');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedOperation._id, section:"operations", type:"operation"});
       }
       
       else if (item is Target && (Console.currentSession.user.is_view() || Console.currentSession.user.is_tech()))
       {
         selectedTarget = item;
         setState('singleTarget');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedTarget._id, section:"operations", type:"target"});
       }
       
       else if (item is Agent && item._kind == 'agent')
       {
         selectedAgent = item;
         setState('singleAgent');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedAgent._id, section:"operations", type:"agent"});
       }
       
       else if (item is Agent && item._kind == 'factory' ) //&& Console.currentSession.user.is_tech_config()
@@ -121,7 +121,7 @@ package it.ht.rcs.console.operations.view
         selectedFactory = item;
         selectedConfig = null;
         setState('config');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedFactory._id, section:"operations", type:"factory"});
       }
       
       else if (item is Config && Console.currentSession.user.is_tech_config())

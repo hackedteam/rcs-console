@@ -66,6 +66,8 @@
 				evidenceDg.setFocus(); // keep! fixes various focusmanager bestiality when switching view (eg from dashboard)
 
 				//trace("evidence view added to stage")
+        
+        
 			}
 
 			public function resetFilter():void
@@ -159,6 +161,14 @@
 				EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
 				EvidenceManager.instance.unlistenRefresh();
 				trace("evidence view removed from stage");
+        if(viewer.visible)
+        {
+          section.breadcrumb.detail.visible=section.breadcrumb.detail.includeInLayout=false;
+          closeViewer()
+          actionBar.toggleDetailButton();
+        }
+        
+        
 
 				//evidenceDg.selectedItems=new Vector.<Object>
 				//actionBar.selectedObjects=evidenceDg.selectedItems;

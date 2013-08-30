@@ -10,7 +10,8 @@
 
 	<fx:Script>
 		<![CDATA[
-			import spark.components.Group;
+      import spark.components.Group;
+      import spark.components.Label;
 
 			/**
 			* Probably a better way of doing this
@@ -37,7 +38,6 @@
 				// dig up to the custom Slider's skin to find information on the thumbGroup size
 				// and the stepSize, minimum, maximum values of the custom slider
 				var sliderSkin:DashboardSliderSkin=(this.hostComponent.parentDocument as DashboardSliderSkin);
-
 				var thumbGroupWidth:Number=sliderSkin.thumbGroup.width;
 				var stepSize:Number=sliderSkin.hostComponent.stepSize;
 				var numberOfTicks:int=Math.floor((sliderSkin.hostComponent.maximum - sliderSkin.hostComponent.minimum) / stepSize);
@@ -51,14 +51,20 @@
 				for (var i:int=0; i <= numberOfTicks; i++)
 				{
 					var value:Number=sliderSkin.hostComponent.minimum + (sliderSkin.hostComponent.stepSize * i);
-          trace("val: "+value)
-					var date:String=formatTime(String(value))
-          trace("date: "+date)
+					var date:String=formatTime(String(value));
 					var tick:Tick=new Tick();
-					tick.date=date;
+					//tick.date=date;
 					tick.y=0;
 					tick.x=Math.floor(i * tickSpacing);
 					ticksGroup.addElement(tick);
+          
+          var label:Label=new Label();
+          label.width=30
+          label.text=date;
+          label.x=tick.x-15;
+          label.y=20;
+          label.setStyle("fontSize", 9);
+          ticksGroup.addElement(label);
 				}
 			}
 
@@ -74,17 +80,8 @@
 
 	<fx:Declarations>
 		<fx:Component className="Tick">
-
-			<s:Group width="30">
-				<fx:Script>
-					<![CDATA[
-						[Bindable]
-						public var date:String="";
-					]]>
-				</fx:Script>
-				<s:layout>
-					<s:VerticalLayout horizontalAlign="center"/>
-				</s:layout>
+			<s:Group >
+			
 				<s:Rect left="0"
 								right="0"
 								top="0"
@@ -92,11 +89,9 @@
 								height="20"
 								width="1">
 					<s:fill>
-						<s:SolidColor color="0x666666"/>
+						<s:SolidColor color="0x666666" alpha="1"/>
 					</s:fill>
 				</s:Rect>
-				<s:Label fontSize="9"
-								 text="{date}"/>
 			</s:Group>
 		</fx:Component>
 	</fx:Declarations>

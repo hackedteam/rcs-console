@@ -3,20 +3,15 @@
 				 xmlns:s="library://ns.adobe.com/flex/spark"
 				 xmlns:components="it.ht.rcs.console.entities.view.components.timeline.*"
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
-				 creationComplete="init()" resize="onResize()">
-  <fx:Metadata>
+				 creationComplete="init()"
+				 resize="onResize()">
+	<fx:Metadata>
     [Event(name="change", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import flash.utils.setTimeout;
-      
       import it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin;
       import it.ht.rcs.console.entities.view.components.timeline.HSliderTrackSkinTicks;
-      
-      import mx.events.DragEvent;
-      
-      import spark.skins.spark.HSliderTrackSkin;
 			[Bindable]
 			public var startDate:Date;
 
@@ -30,14 +25,16 @@
 			public var end:Number;
 
 			private const DAY:int=1000 * 60 * 60 * 24;
-      
-      [Bindable]
-      private var numberOfTicks:int;
-      
-      [Bindable]
-      private var tickWidth:Number=30;
-      
-      private var lastValue:Number;
+      private var t:Timer;
+
+			[Bindable]
+			private var numberOfTicks:int;
+
+			[Bindable]
+			private var tickWidth:Number=30;
+
+			private var lastValue:Number;
+      private var isPlaying:Boolean;
 
 			private function formatTime(val:String):String
 			{
@@ -46,15 +43,15 @@
 				d.time=time;
 				return d.date + "/" + d.month + "/" + d.fullYear
 			}
-      
-      private function onResize():void
-      {
-      trace("resize: "+this.width)
-      }
+
+			private function onResize():void
+			{
+				trace("resize: " + this.width)
+			}
 
 			private function init():void
 			{
-       
+
 				startDate=new Date();
 				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
 				endDate=new Date();
@@ -64,11 +61,64 @@
 				slider.maximum=end;
 				slider.value=start;
 				slider.stepSize=DAY;
-        numberOfTicks = Math.floor((slider.maximum - slider.minimum)/slider.stepSize)-1;
+				numberOfTicks=Math.floor((slider.maximum - slider.minimum) / slider.stepSize) - 1;
 				var sliderSkin:DashboardSliderSkin=slider.skin as DashboardSliderSkin;
 				var trackSkin:HSliderTrackSkinTicks=sliderSkin.track.skin as HSliderTrackSkinTicks;
 				trackSkin.drawTicks();
-        lastValue=slider.value;
+				lastValue=slider.value;
+				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_DOWN, onMD);
+        t=new Timer(2000);
+        t.addEventListener(TimerEvent.TIMER, nextTimelineFrame)
+        
+			}
+      
+      private function nextTimelineFrame(e:TimerEvent):void
+      {
+       slider.value+=slider.stepSize;
+       trace("frame")
+      }
+
+
+
+			private function onMD(e:MouseEvent):void 
+			{
+				trace("down")
+        slider.addEventListener(MouseEvent.MOUSE_UP, onMU)
+				slider.thumbGroup.removeEventListener(MouseEvent.MOUSE_DOWN, onMD)
+				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_UP, onMU)
+				slider.thumbGroup.addEventListener(Event.ENTER_FRAME, onMM)
+        this.stage.addEventListener(MouseEvent.MOUSE_UP, onMU)
+          
+        if(isPlaying)
+        {
+          t.stop();
+          isPlaying=false;
+          playBtn.label="play"
+        }
+			}
+
+			private function onMU(e:MouseEvent):void 
+			{
+				trace("up")
+        slider.removeEventListener(MouseEvent.MOUSE_UP, onMU)
+				slider.thumbGroup.removeEventListener(Event.ENTER_FRAME, onMM)
+				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_DOWN, onMD)
+        this.stage.removeEventListener(MouseEvent.MOUSE_UP, onMU)
+          
+			}
+
+			private function onMM(e:Event):void 
+			{     
+        var n:Number=viewport.horizontalScrollPosition + viewport.width
+
+        if (slider.thumbGroup.x <= viewport.horizontalScrollPosition)
+        {
+          viewport.horizontalScrollPosition=slider.thumbGroup.x
+        }
+        if (slider.thumbGroup.x+80 >= n)
+        {
+          viewport.horizontalScrollPosition=slider.thumbGroup.x -viewport.width+80
+        }
 			}
 
 			public function update():void
@@ -79,40 +129,77 @@
 				slider.maximum=end;
 				slider.value=start;
 				slider.stepSize=DAY;
-        numberOfTicks = Math.floor((slider.maximum - slider.minimum)/slider.stepSize)-1;
+				numberOfTicks=Math.floor((slider.maximum - slider.minimum) / slider.stepSize) - 1;
 				var sliderSkin:DashboardSliderSkin=slider.skin as DashboardSliderSkin;
 				var trackSkin:HSliderTrackSkinTicks=sliderSkin.track.skin as HSliderTrackSkinTicks;
 				trackSkin.drawTicks();
-        lastValue=slider.value;
+				lastValue=slider.value;
+			}
+
+			private function onChange():void
+			{
+				trace(formatTime(String(slider.value)));
+				dispatchEvent(new Event("change"));
+        onMM(null)
 			}
       
-      private function onChange():void
+			private function onChangeEnd():void
+			{
+				trace("change end")
+
+			}
+      private function doStop():void
       {
-        
-        trace(formatTime(String(slider.value)));
-        dispatchEvent(new Event("change"));
-       // slider.addEventListener(DragEvent.DRAG_START, onDragStart)
-        var current:int = Math.floor((slider.value - slider.minimum)/slider.stepSize)-1;
-        trace("current: "+current)
-       
+        isPlaying=false;
+        t.stop();
+        playBtn.label="play";
+        slider.value=slider.minimum;
       }
       
-    
+      private function doPlay():void
+      {
+        if(!isPlaying)
+        {
+          t.start();
+          isPlaying=true;
+          playBtn.label="pause"
+        }
+        else
+        {
+          t.stop();
+          isPlaying=false;
+          playBtn.label="play"
+        }
+        
+      }
       
 		]]>
 	</fx:Script>
 	<!--<mx:HSlider width="100%" id="slider" snapInterval="{DAY}" dataTipFormatFunction="formatTime" tickColor="0x000000" tickInterval="{DAY}" tickLength="6" />-->
-  <s:layout>
-    <s:VerticalLayout/>
-  </s:layout>
-  <s:HGroup width="100%" clipAndEnableScrolling="true" height="70" id="viewport">
-	<components:DashboardSlider skinClass="it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin"
-															width="{tickWidth*numberOfTicks}"
-															id="slider"
-															snapInterval="{DAY}"
-															dataTipFormatFunction="formatTime"
-															minimum="{start}"
-															maximum="{end}" change="onChange()"/>
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:HGroup width="100%"
+						clipAndEnableScrolling="true"
+						height="50"
+						id="viewport">
+		<components:DashboardSlider skinClass="it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin"
+																width="{tickWidth*numberOfTicks}"
+																id="slider"
+																snapInterval="{DAY}"
+																dataTipFormatFunction="formatTime"
+																minimum="{start}"
+																maximum="{end}"
+																change="onChange()"
+																liveDragging="true"	
+																changeEnd="onChangeEnd()" valueCommit="onChange()"/>
+	</s:HGroup>
+	<s:HScrollBar viewport="{viewport}"
+								width="100%"
+								id="scrollbar"
+								stepSize="30"/>
+  <s:HGroup>
+    <s:Button label="play" click="doPlay()" id="playBtn"/>
+    <s:Button label="stop" click="doStop()" id="stopBtn"/>
   </s:HGroup>
-  <s:HScrollBar viewport="{viewport}" width="100%" id="scrollbar" />
 </s:Group>

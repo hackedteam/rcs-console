@@ -32,7 +32,7 @@
 		<![CDATA[
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
-
+			
 			import mx.collections.IList;
 
 			[Bindable]
@@ -120,11 +120,12 @@
 						if (currentItems.length > 1 && sameType("position", currentItems))
 						{
 							positionViewer.evidences=currentItems;
-
 						}
 						else
 						{
-							positionViewer.evidence=currentItem;
+              var pos:Object={lat: currentItem.data.latitude, lng: currentItem.data.longitude, range: currentItem.data.accuracy, evidence: currentItem as Evidence};
+              if(positionViewer.mapViewer.ready) positionViewer.mapViewer.positions=[pos];
+              positionViewer.evidence=currentItem;
 						}
 					}
 					if (currentState == "keylog")

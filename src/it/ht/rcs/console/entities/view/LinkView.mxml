@@ -13,8 +13,12 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
+      import com.greensock.TweenMax;
+      
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Flow;
+      import it.ht.rcs.console.entities.model.Flows;
       import it.ht.rcs.console.entities.model.Link;
       import it.ht.rcs.console.events.RefreshEvent;
       
@@ -90,6 +94,8 @@
 			[Bindable]
 			private var endDate:Date;
 
+			private var flows:ArrayCollection;
+
 
 			private function init():void
 			{
@@ -106,7 +112,7 @@
 				}
 
 				onAddedToStage(null)
-        getFlows(entities)
+				getFlows(entities)
 			}
 
 			private function onAddedToStage(e:Event=null):void
@@ -139,9 +145,7 @@
 				mergeEnabled=false;
 				linkEnabled=false;
 				jumpEnabled=false;
-        
-        
-        
+
 			}
 
 			private function analyzeData():void
@@ -198,22 +202,24 @@
 					{
 						var child:INode=node.successors[i] as INode;
 						examined.push(node);
-						if (examined.indexOf(child) == -1)
+						if (examined.indexOf(child) == -1) //&& child.data.@name!="Diego Hernandez" && child.data.@name!="Kasimir Malevich" && child.data.@name!="Jimmy Page" && child.data.@name!="Jamie Moreno")
 						{
 							var index:int=roots.getItemIndex(child);
-							roots.removeItemAt(index);
+							if (index != -1)
+								roots.removeItemAt(index);
 							getConnections(child, examined);
 						}
 					}
 				}
 			}
 
-			private function manipulateData():void
+			private function manipulateData():void //add a fake root
 			{
 
 				if (roots.length == 1)
 				{
 					//trace("no need to add a fake root")
+
 				}
 				else
 				{
@@ -252,7 +258,7 @@
 
 					vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
 					vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
-          vgraph.addEventListener(VisualNodeEvent.DOUBLE_CLICK, onNodeDoubleClick);
+					vgraph.addEventListener(VisualNodeEvent.DOUBLE_CLICK, onNodeDoubleClick);
 					vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
 					vgraph.scale=1;
 					bzoom.value=1;
@@ -379,12 +385,22 @@
 				mergeEnabled=false;
 				jumpEnabled=false;
 			}
-      private function onNodeDoubleClick(e:VisualNodeEvent):void
-      {
-        var clickedNode:INode=e.node;
-        var item:* =getEntityById(String(clickedNode.data.@id))
-        if (item) section.stateManager.manageItemSelection(item); 
-      }
+
+			private function onNodeDoubleClick(e:VisualNodeEvent):void
+			{
+				if (e.ctrlKey)
+				{
+					vgraph.currentRootVNode=e.node.vnode;
+				}
+				else
+				{
+					var clickedNode:INode=e.node;
+					var item:*=getEntityById(String(clickedNode.data.@id))
+					if (item)
+						section.stateManager.manageItemSelection(item);
+				}
+
+			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
 			{
@@ -740,57 +756,89 @@
 				timeline.endDate=endDate
 				timeline.update()
 			}
-      
-      private function onTimelineChange():void
-      {
-        var currentEdge:Edge;
-        var currentRenderer:BidirectedArrowEdgeRenderer;
-       if(g)
-       {
-         for (var i:int=0; i < g.edges.length; i++)
-         {
-           currentEdge=g.edges[i] as Edge;
-           if(currentEdge.vedge) currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-           if(currentRenderer) currentRenderer.showFlow();
-         }
-       }
-      }
-      
-      private function getFlows(entities:ArrayCollection):void
-      {
-        var ids:Array=new Array();
+
+			private function onTimelineChange():void
+			{
+
+				var d:Date=new Date();
+				d.time=timeline.slider.value;
+				var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
         
-        for(var i:int=0;i<entities.length;i++)
-        {
-          var e:Entity = entities.getItemAt(i) as Entity;
-          ids.push(e._id)
-        }
-       EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
-      }
-      
-      private function onFlowResult(e:ResultEvent):void
-      {
-      trace("flow result")
-      }
-      
-      private function onFlowFault(e:FaultEvent):void
-      {
-        trace("flow fault")
-      }
-      
-      private function doubleDigits(n:Number):String
-      {
-        if (n < 10)
-          return "0" + String(n);
-        return String(n);
-      }
-      
-      private function formatDate(d:Date):String
-      {
-        return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
-      }
-      
-      
+    
+				if (flows)
+				{
+					for (var i:int=0; i < flows.length; i++)
+					{
+						var flow:Flow=flows[i] as Flow;
+           
+						if (flow.date == formattedDate)
+						{
+              trace("========================")
+              trace("flow: "+flow.date)
+							for(var j:int=0;j<flow.flows.length;j++)
+              {
+                  var f:Flows=flow.flows.getItemAt(j) as Flows;
+                  var currentEdge:Edge;
+                  var currentRenderer:BidirectedArrowEdgeRenderer;
+                  
+                  trace("from: "+f.from+"> "+getEntityById(f.from).name);
+                  trace("to: "+f.rcpt+"> "+getEntityById(f.rcpt).name);
+                  trace("count: "+f.count)
+                  
+                  
+                  if(g)
+                  {
+                    for (var k:int=0; k < g.edges.length; k++)
+                    {
+                      currentEdge=g.edges[k] as Edge;
+                      
+                      if(currentEdge.data.@fromID== f.from && currentEdge.data.@toID==f.rcpt)
+                      {
+                        if(currentEdge.vedge) currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+                        if(currentRenderer) currentRenderer.showFlow(f.count);
+                      }
+                    }
+                  } 
+              }
+						}
+					}
+				}
+			}
+
+			private function getFlows(entities:ArrayCollection):void
+			{
+				var ids:Array=new Array();
+
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var e:Entity=entities.getItemAt(i) as Entity;
+					ids.push(e._id)
+				}
+				EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
+			}
+
+			private function onFlowResult(e:ResultEvent):void
+			{
+				trace("flow result")
+				flows=e.result as ArrayCollection;
+			}
+
+			private function onFlowFault(e:FaultEvent):void
+			{
+				trace("flow fault")
+			}
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return "0" + String(n);
+				return String(n);
+			}
+
+			private function formatDate(d:Date):String
+			{
+				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
+			}
 		]]>
 	</fx:Script>
 
@@ -935,15 +983,16 @@
 					<s:SolidColorStroke color="0xCCCCCC"/>
 				</s:stroke>
 			</s:Line>
-     
-        
-     
+
+
+
 			<components:Timeline width="100%"
 													 id="timeline"
+													 step="{Timeline.DAY}"
 													 startDate="{startDate}"
 													 endDate="{endDate}"
 													 change="onTimelineChange()"/>
-     
+
 		</s:VGroup>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>

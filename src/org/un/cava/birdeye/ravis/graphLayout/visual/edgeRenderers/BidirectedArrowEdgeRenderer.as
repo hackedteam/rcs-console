@@ -190,6 +190,10 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
       
+      flowRenderer.graphics.clear()
+      flowRenderer.graphics.beginFill(color);
+      flowRenderer.graphics.drawCircle(0, 0, 4);
+      
       flowRenderer.x=fP.x;
       flowRenderer.y=fP.y;
       
@@ -275,7 +279,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
 		}
     
-    public function showFlow():void
+    public function showFlow(count:int):void
     {
       var fromNode:IVisualNode=vedge.edge.node1.vnode;
       var toNode:IVisualNode=vedge.edge.node2.vnode;
@@ -286,9 +290,11 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
       flowRenderer.x=fP.x;
       flowRenderer.y=fP.y;
       path.progress=0
+      flowRenderer.visible=true;
       TweenMax.to(path, 2, {progress:1});
     }
     
+  
     public function set selected(value:Boolean):void
     {
       _selected=value;

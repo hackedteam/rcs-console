@@ -24,7 +24,13 @@
 			[Bindable]
 			public var end:Number;
 
-			private const DAY:int=1000 * 60 * 60 * 24;
+			public static const DAY:int=1000 * 60 * 60 * 24;
+      public static const MINUTE:int=1000 * 60 ;
+      
+      [Bindable]
+      public var step:int;
+      
+      
       private var t:Timer;
 
 			[Bindable]
@@ -160,6 +166,7 @@
       {
         if(!isPlaying)
         {
+          this.nextTimelineFrame(null)
           t.start();
           isPlaying=true;
           playBtn.label="pause"
@@ -186,7 +193,7 @@
 		<components:DashboardSlider skinClass="it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin"
 																width="{tickWidth*numberOfTicks}"
 																id="slider"
-																snapInterval="{DAY}"
+																snapInterval="{step}"
 																dataTipFormatFunction="formatTime"
 																minimum="{start}"
 																maximum="{end}"

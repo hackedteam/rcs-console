@@ -5,6 +5,7 @@
 					xmlns:mx="library://ns.adobe.com/flex/mx"
 					xmlns:maps="com.google.maps.*"
 					xmlns:components="it.ht.rcs.console.entities.view.components.*"
+					xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					height="100%"
@@ -13,45 +14,46 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapEvent;
-      import com.google.maps.MapMouseEvent;
-      import com.google.maps.MapType;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      import com.google.maps.overlays.Polyline;
-      import com.google.maps.overlays.PolylineOptions;
-      import com.google.maps.styles.StrokeStyle;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.entities.view.map.CustomMarker;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.search.model.SearchItem;
-      import it.ht.rcs.console.utils.TimeUtils;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.ResultEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapEvent;
+			import com.google.maps.MapMouseEvent;
+			import com.google.maps.MapType;
+			import com.google.maps.PaneId;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.overlays.MarkerOptions;
+			import com.google.maps.overlays.Polyline;
+			import com.google.maps.overlays.PolylineOptions;
+			import com.google.maps.styles.StrokeStyle;
+			
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.view.map.CustomMarker;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.search.model.SearchItem;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			private var _mapPane:IPane;
 			private var _markers:Array;
@@ -66,8 +68,15 @@
 			public var section:EntitiesSection;
 			[Bindable]
 			public var entities:ArrayCollection;
+
 			[Bindable]
 			public var positions:ArrayCollection;
+
+			[Bindable]
+			public var targets:ArrayCollection;
+
+			[Bindable]
+			public var flows:ArrayCollection;
 
 			private var entitiesToShow:ArrayCollection;
 			private var numEntitiesToShow:int=0;
@@ -88,25 +97,35 @@
 			private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
 
 			private var ready:Boolean;
-      
-      [Bindable]
-      private var startDate:Date;
-      
-      [Bindable]
-      private var endDate:Date;
+
+			[Bindable]
+			private var startDate:Date;
+
+			[Bindable]
+			private var endDate:Date;
+
+
 
 			private function init():void
 			{
 				map.addEventListener(MapEvent.MAP_READY, onMapReady)
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
 				relevanceColors=[relevence0, relevence1, relevence2, relevence3, relevence4];
-        startDate=new Date();
-        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-        endDate=new Date();
-        if (fromDf)
-        {
-          fromDf.selectedDate=startDate;
-        }
+				startDate=new Date();
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60);
+				endDate=new Date();
+				if (fromDf)
+				{
+					fromDf.selectedDate=startDate;
+				}
+				targets=new ArrayCollection
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var entity:Entity=entities.getItemAt(i) as Entity;
+					if (entity.type == "target")
+						targets.addItem(entity);
+				}
+
 			}
 
 			private function isPosition(entity:Entity):Boolean
@@ -173,6 +192,7 @@
 				{
 					EntityManager.instance.show(positions.getItemAt(i)._id, onDetailResult)
 				}
+
 			}
 
 			private function onDetailResult(e:ResultEvent):void
@@ -184,7 +204,8 @@
 				{
 					if (ready)
 					{
-						drawMap(entitiesToShow)
+						getPositions(targets)
+							//drawMap(entitiesToShow)
 					}
 				}
 			}
@@ -251,12 +272,12 @@
 				var icon:CustomMarker;
 				icon=_icons[e.currentTarget];
 
-        
-        var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
-        event.section=SectionEvent.INTELLIGENCE;
-        event.subsection='entity';
-        event.item=new SearchItem(icon.entity) //SearchManager.instance.getItem(icon.entity._id);
-        FlexGlobals.topLevelApplication.dispatchEvent(event);  
+
+				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+				event.section=SectionEvent.INTELLIGENCE;
+				event.subsection='entity';
+				event.item=new SearchItem(icon.entity) //SearchManager.instance.getItem(icon.entity._id);
+				FlexGlobals.topLevelApplication.dispatchEvent(event);
 
 			}
 
@@ -389,11 +410,11 @@
 
 				return scale;
 			}
-      
-      private function pad(n:Number):String
-      {
-        return TimeUtils.zeroPad(n, 2);
-      }
+
+			private function pad(n:Number):String
+			{
+				return TimeUtils.zeroPad(n, 2);
+			}
 
 			private function onMapReady(e:MapEvent):void
 			{
@@ -407,11 +428,53 @@
 				ready=true;
 				drawMap(entitiesToShow)
 			}
-      
-      private function onTimelineChange():void
-      {
-        
-      }
+
+			private function onTimelineChange():void
+			{
+
+			}
+
+			private function getPositions(entities:ArrayCollection):void
+			{
+				var ids:Array=new Array();
+
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var e:Entity=entities.getItemAt(i) as Entity;
+					ids.push(e._id)
+				}
+				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), onPositionsResult, onPositionsFault)
+			}
+
+			private function onPositionsResult(e:ResultEvent):void
+			{
+				trace("flow result")
+				flows=e.result as ArrayCollection;
+				for (var i:int=0; i < flows.length; i++)
+				{
+        var d:Date=new Date()
+        d.time=flows.getItemAt(i).time*1000;
+        trace(d)
+				}
+			}
+
+			private function onPositionsFault(e:FaultEvent):void
+			{
+				trace("flow fault")
+			}
+
+			private function formatDate(d:Date):String
+			{
+				return String(d.time / 1000);
+			}
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return "0" + String(n);
+				return String(n);
+			}
+
 
 			private function refresh():void
 			{
@@ -426,6 +489,11 @@
 				section.stateManager.selectedEntities=selectedEntities;
 				onAddedToStage();
 			}
+
+			private function onDateChange():void
+			{
+				trace("Geo Map > Date Change: " + tracker.currentDate)
+			}
 		]]>
 	</fx:Script>
 	<entities:GeoMapActionBar section="{section}"
@@ -438,65 +506,73 @@
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
-    <s:VGroup width="100%"
-              height="100%">
-      <s:HGroup verticalAlign="middle"
-                horizontalAlign="right"
-                width="100%"
-                paddingTop="6">
-        <s:Label text="{R.get('FILTER_DATA')} "
-                 fontWeight="bold"/>
-        <s:Label text="{R.get('FROM')}:"
-                 fontWeight="bold"/>
-        <mx:DateField id="fromDf"
-                      formatString="YYYY-MM-DD"
-                      selectedDate="{startDate}"
-                      />
-        <s:NumericStepper minimum="0" maximum="23" id="hFromNs" valueFormatFunction="pad"/>
-        <s:NumericStepper minimum="0" maximum="59" id="mFromNs" valueFormatFunction="pad"/>
-        <s:Label text="{R.get('TO')}:"
-                 fontWeight="bold"/>
-        <mx:DateField id="toDf"
-                      formatString="YYYY-MM-DD"
-                      selectedDate="{endDate}"
-                      />
-        <s:NumericStepper minimum="0" maximum="23" id="hToNs" valueFormatFunction="pad"/>
-        <s:NumericStepper minimum="0" maximum="59" id="mToNs" valueFormatFunction="pad"/>
-      </s:HGroup>
-      <s:Line width="100%">
-        <s:stroke>
-          <s:SolidColorStroke color="0xCCCCCC"/>
-        </s:stroke>
-      </s:Line>
-      <s:BorderContainer width="100%"
-                         height="100%"
-                         borderAlpha="1"
-                         borderColor="0xCCCCCC"
-                         backgroundColor="0xCCCCCC"
-                         backgroundAlpha="0.1">
-        <maps:Map xmlns:maps="com.google.maps.*"
-                  id="map"
-                  width="100%"
-                  height="100%"
-                  key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
-                  url="http://www.hackingteam.it/"
-                  sensor="false"
-                  accessibilityDescription=""
-                  enabled="{LicenseManager.instance.correlation}"
-                  mapevent_mapready="onMapReady(event)"/>
-      </s:BorderContainer>
-      <s:Line width="100%">
-        <s:stroke>
-          <s:SolidColorStroke color="0xCCCCCC"/>
-        </s:stroke>
-      </s:Line>
-      <components:Timeline width="100%"
-                           id="timeline"
-                           startDate="{startDate}"
-                           endDate="{endDate}"
-                           change="onTimelineChange()"/>
-    </s:VGroup>
-		
+		<s:VGroup width="100%"
+							height="100%">
+			<s:HGroup verticalAlign="middle"
+								horizontalAlign="right"
+								width="100%"
+								paddingTop="6">
+				<s:Label text="{R.get('FILTER_DATA')} "
+								 fontWeight="bold"/>
+				<s:Label text="{R.get('FROM')}:"
+								 fontWeight="bold"/>
+				<mx:DateField id="fromDf"
+											formatString="YYYY-MM-DD"
+											selectedDate="{startDate}"/>
+				<s:NumericStepper minimum="0"
+													maximum="23"
+													id="hFromNs"
+													valueFormatFunction="pad"/>
+				<s:NumericStepper minimum="0"
+													maximum="59"
+													id="mFromNs"
+													valueFormatFunction="pad"/>
+				<s:Label text="{R.get('TO')}:"
+								 fontWeight="bold"/>
+				<mx:DateField id="toDf"
+											formatString="YYYY-MM-DD"
+											selectedDate="{endDate}"/>
+				<s:NumericStepper minimum="0"
+													maximum="23"
+													id="hToNs"
+													valueFormatFunction="pad"/>
+				<s:NumericStepper minimum="0"
+													maximum="59"
+													id="mToNs"
+													valueFormatFunction="pad"/>
+			</s:HGroup>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<s:BorderContainer width="100%"
+												 height="100%"
+												 borderAlpha="1"
+												 borderColor="0xCCCCCC"
+												 backgroundColor="0xCCCCCC"
+												 backgroundAlpha="0.1">
+				<maps:Map xmlns:maps="com.google.maps.*"
+									id="map"
+									width="100%"
+									height="100%"
+									key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
+									url="http://www.hackingteam.it/"
+									sensor="false"
+									accessibilityDescription=""
+									enabled="{LicenseManager.instance.correlation}"
+									mapevent_mapready="onMapReady(event)"/>
+			</s:BorderContainer>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<timeline:Tracker width="100%"
+												dateChange="onDateChange()"
+												id="tracker"/>
+		</s:VGroup>
+
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>
 

@@ -75,7 +75,6 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
     private var dashed:DashedLine;
     private var dotted:DashedLine;
     
-    //private var flowRenderer:Sprite;
     
     private var relevence0:uint=0x333333;
     private var relevence1:uint=0x999999;
@@ -102,20 +101,14 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
       this.addChild(dashed)
       this.addChild(dotted)
-        
-      /*flowRenderer=new Sprite();
-      flowRenderer.graphics.beginFill(0xFF0000);
-      flowRenderer.graphics.drawCircle(0, 0, 4);
-      this.addChild(flowRenderer);*/
 
       path1=new LinePath2D();
       path1.autoUpdatePoints=true;
       
       path2=new LinePath2D();
       path2.autoUpdatePoints=true;
-      //path.addFollower(flowRenderer)
-      
-      flowRenderers=new Array()
+
+      flowRenderers=new Array();
 		}
 
 		/**
@@ -192,7 +185,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var color:int;
 			var a:Number=1;
 			color=relevanceColors[this.data.data.@rel]
-      flowColor=color;
+      flowColor=0x00CCFF//color;
         g.clear()
 
 			//fake bold line
@@ -323,7 +316,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
          
       
          path1.addFollower(flowRenderer,increment)
-         increment+=0.02;
+         increment+=0.05;
        }
         path1.progress=0;
         TweenMax.to(path1, 2, {progress:1, repeat:-1});
@@ -342,7 +335,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
           flowRenderer.graphics.drawCircle(0, 0, 4);
           this.addChild(flowRenderer);
           path2.addFollower(flowRenderer, increment)
-          increment+=0.02;
+          increment+=0.05;
         }
     
        

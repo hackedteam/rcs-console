@@ -764,6 +764,22 @@
 				d.time=timeline.slider.value;
 				var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
         
+        //reset
+        var currentEdge:Edge;
+        var currentRenderer:BidirectedArrowEdgeRenderer;
+        
+        if(g)
+        {
+          for (var r:int=0; r < g.edges.length; r++)
+          {
+            currentEdge=g.edges[r] as Edge;
+            
+           
+              if(currentEdge.vedge) currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+              if(currentRenderer) currentRenderer.reset()
+        
+          }
+        } 
     
 				if (flows)
 				{
@@ -773,18 +789,10 @@
            
 						if (flow.date == formattedDate)
 						{
-              trace("========================")
-              trace("flow: "+flow.date)
+             
 							for(var j:int=0;j<flow.flows.length;j++)
               {
                   var f:Flows=flow.flows.getItemAt(j) as Flows;
-                  var currentEdge:Edge;
-                  var currentRenderer:BidirectedArrowEdgeRenderer;
-                  
-                  trace("from: "+f.from+"> "+getEntityById(f.from).name);
-                  trace("to: "+f.rcpt+"> "+getEntityById(f.rcpt).name);
-                  trace("count: "+f.count)
-                  
                   
                   if(g)
                   {
@@ -792,10 +800,10 @@
                     {
                       currentEdge=g.edges[k] as Edge;
                       
-                      if(currentEdge.data.@fromID== f.from && currentEdge.data.@toID==f.rcpt)
+                      if(currentEdge.data.@fromID== f.from && currentEdge.data.@toID==f.rcpt || currentEdge.data.@fromID== f.rcpt && currentEdge.data.@toID==f.from)
                       {
                         if(currentEdge.vedge) currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-                        if(currentRenderer) currentRenderer.showFlow(f.count);
+                        if(currentRenderer) currentRenderer.showFlow(f.from, f.rcpt, f.count);
                       }
                     }
                   } 

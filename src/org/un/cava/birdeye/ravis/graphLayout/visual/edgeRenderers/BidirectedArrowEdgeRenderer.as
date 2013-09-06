@@ -29,6 +29,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 	import com.greensock.easing.*;
 	import com.greensock.motionPaths.*;
 	
+	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
@@ -74,7 +75,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
     private var dashed:DashedLine;
     private var dotted:DashedLine;
     
-    private var flowRenderer:Sprite;
+    //private var flowRenderer:Sprite;
     
     private var relevence0:uint=0x333333;
     private var relevence1:uint=0x999999;
@@ -85,8 +86,11 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
     
     private var _selected:Boolean;
     
-    private var path:LinePath2D;
-
+    private var path1:LinePath2D;
+    private var path2:LinePath2D;
+    
+    private var flowColor:uint;
+    private var flowRenderers:Array;
 
 		public function BidirectedArrowEdgeRenderer()
 		{
@@ -99,14 +103,19 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
       this.addChild(dashed)
       this.addChild(dotted)
         
-      flowRenderer=new Sprite();
+      /*flowRenderer=new Sprite();
       flowRenderer.graphics.beginFill(0xFF0000);
       flowRenderer.graphics.drawCircle(0, 0, 4);
-      this.addChild(flowRenderer);
+      this.addChild(flowRenderer);*/
 
-      path=new LinePath2D();
-      path.autoUpdatePoints=true;
-      path.addFollower(flowRenderer)
+      path1=new LinePath2D();
+      path1.autoUpdatePoints=true;
+      
+      path2=new LinePath2D();
+      path2.autoUpdatePoints=true;
+      //path.addFollower(flowRenderer)
+      
+      flowRenderers=new Array()
 		}
 
 		/**
@@ -183,6 +192,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var color:int;
 			var a:Number=1;
 			color=relevanceColors[this.data.data.@rel]
+      flowColor=color;
         g.clear()
 
 			//fake bold line
@@ -190,14 +200,11 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
       
-      flowRenderer.graphics.clear()
-      flowRenderer.graphics.beginFill(color);
-      flowRenderer.graphics.drawCircle(0, 0, 4);
+     // flowRenderer.x=fP.x;
+     // flowRenderer.y=fP.y; //________________________________________
       
-      flowRenderer.x=fP.x;
-      flowRenderer.y=fP.y;
-      
-      path.points=[new Point(fP.x, fP.y), new Point(tP.x, tP.y)]
+      path1.points=[new Point(fP.x, fP.y), new Point(tP.x, tP.y)]
+      path2.points=[new Point(tP.x, tP.y), new Point(fP.x, fP.y)]
      
       //TweenMax.to(path, 2, {progress:1});
       
@@ -279,22 +286,72 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
 		}
     
-    public function showFlow(count:int):void
+    public function reset():void
     {
+     while(this.numChildren>0)
+       this.removeChildAt(0)
+    }
+    public function showFlow(from:String, to:String, count:int):void
+    {
+      
+      var numBalls:int=0;
+      
+      if(count>0 && count<=10) numBalls=1;
+      else if(count>10 && count<=50) numBalls=2;
+      else if(count>50) numBalls=3;
+      
       var fromNode:IVisualNode=vedge.edge.node1.vnode;
       var toNode:IVisualNode=vedge.edge.node2.vnode;
       
       var fP:Point=fromNode.viewCenter;
       var tP:Point=toNode.viewCenter;
-      TweenMax.to(path, 0, {progress:0});
-      flowRenderer.x=fP.x;
-      flowRenderer.y=fP.y;
-      path.progress=0
-      flowRenderer.visible=true;
-      TweenMax.to(path, 2, {progress:1});
-    }
+      
+      var flowRenderer:Sprite;
+      var i:int;
+      var increment:Number=0
+      if(this.data.data.@fromID==from && this.data.data.@toID==to)
+      {
+       
+        TweenMax.to(path1, 0, {progress:0});
+      
+       for(i=0;i<numBalls;i++)
+       {
+         flowRenderer=new Sprite();
+         flowRenderer.graphics.beginFill(flowColor);
+         flowRenderer.graphics.drawCircle(0, 0, 4);
+         this.addChild(flowRenderer);
+         
+      
+         path1.addFollower(flowRenderer,increment)
+         increment+=0.02;
+       }
+        path1.progress=0;
+        TweenMax.to(path1, 2, {progress:1, repeat:-1});
+        
+      }
+      //inverse
+      else if(this.data.data.@fromID==to && this.data.data.@toID==from)
+      {
+        
+        TweenMax.to(path2, 0, {progress:0});
+       
+        for(i=0;i<numBalls;i++)
+        {
+          flowRenderer=new Sprite();
+          flowRenderer.graphics.beginFill(flowColor);
+          flowRenderer.graphics.drawCircle(0, 0, 4);
+          this.addChild(flowRenderer);
+          path2.addFollower(flowRenderer, increment)
+          increment+=0.02;
+        }
     
-  
+       
+        path2.progress=0;
+        TweenMax.to(path2, 2, {progress:1, repeat:-1});
+      }
+
+    }
+
     public function set selected(value:Boolean):void
     {
       _selected=value;

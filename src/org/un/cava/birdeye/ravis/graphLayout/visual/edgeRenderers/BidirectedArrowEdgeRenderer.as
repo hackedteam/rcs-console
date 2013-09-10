@@ -58,12 +58,12 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * The size of the arrowhead in pixel. The distance of the
 		 * two points defining the base of the arrowhead.
 		 * */
-		public var arrowBaseSize:Number=12;
+		public var arrowBaseSize:Number=8;
 
 		/**
 		 * The distance of the arrowbase from the tip in pixel.
 		 * */
-		public var arrowHeadLength:Number=20;
+		public var arrowHeadLength:Number=16;
 
 		/**
 		 * Constructor sets the graphics object (required).
@@ -185,7 +185,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var color:int;
 			var a:Number=1;
 			color=relevanceColors[this.data.data.@rel]
-      flowColor=0x00CCFF//color;
+      flowColor=0xFF0000;//=0x00CCFF//color;
         g.clear()
 
 			//fake bold line

@@ -33,7 +33,7 @@
 			import com.google.maps.overlays.Polyline;
 			import com.google.maps.overlays.PolylineOptions;
 			import com.google.maps.styles.StrokeStyle;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
@@ -47,9 +47,9 @@
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.search.model.SearchItem;
 			import it.ht.rcs.console.target.model.Target;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.FaultEvent;
@@ -230,8 +230,11 @@
 				for (var m:* in targetsMarkers)
 				{
 					marker=targetsMarkers[m] as Marker;
-					coordinates=marker.getLatLng()
-					bounds.extend(coordinates);
+          if(!marker.isHidden())
+          {
+  					coordinates=marker.getLatLng()
+  					bounds.extend(coordinates);
+          }
 				}
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 			}
@@ -374,17 +377,31 @@
 				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsResult, onPositionsFault)
 			}
 
-			private function onPositionsResult(e:ResultEvent):void
+/* 			private function onPositionsResult(e:ResultEvent):void
 			{
 				var pos:ArrayCollection=e.result as ArrayCollection;
 				for (var i:int=0; i < pos.length; i++)
 				{
 					var d:Date=new Date()
 					d.time=pos.getItemAt(i).time * 1000;
+          trace(d)
 				}
 				tracker.populate(pos)
 				drawMap()
-			}
+			} */
+      
+      private function onPositionsResult(e:ResultEvent):void
+      {
+        var pos:ArrayCollection=e.result as ArrayCollection;
+        for (var i:int=0; i < pos.length; i++)
+        {
+          var d:Date=new Date()
+          d.time=pos.getItemAt(i).time * 1000;
+          trace(d)
+        }
+        tracker.populate(pos)
+        drawMap()
+      }
 
 			private function onPositionsFault(e:FaultEvent):void
 			{
@@ -496,7 +513,7 @@
 				for (i=0; i < h.positions.length; i++)
 				{
 					var log:Positions=h.positions.getItemAt(i) as Positions;
-					var entity:Entity=EntityManager.instance.getItem(log._id);
+					var entity:Entity=getTarget(log._id);
 
 					var p:Position=log.position;
 					trace("name: " + entity.name)
@@ -508,7 +525,7 @@
 					marker.show()
 					marker.setLatLng(new LatLng(p.lat, p.lon))
 					//draw links
-					if (entity.links)
+					if (entity.links && linksCh.selected)
 					{
 						//draw connections
 						for (var l:int=0; l < entity.links.length; l++)
@@ -534,13 +551,23 @@
 			private function drawLink(pos1:LatLng, pos2:LatLng, color:uint):void
 			{
 				//https://developers.google.com/maps/documentation/flash/overlays
-				var polyline:Polyline=new Polyline([], new PolylineOptions({strokeStyle: new StrokeStyle({color: color, thickness: 0.5, alpha: 1})}));
+				var polyline:Polyline=new Polyline([pos1, pos2], new PolylineOptions({strokeStyle: new StrokeStyle({color: color, thickness: 0.5, alpha: 1})}));
 				map.addOverlay(polyline);
 				overlays.push(polyline);
 				links.push(polyline)
 
 			}
-
+      private function getTarget(id:String):Entity
+      {
+        if(!targets) return null
+        for(var i:int=0;i<targets.length;i++)
+        {
+        var entity:Entity=targets.getItemAt(i) as Entity;
+        if(entity._id==id)
+          return entity;
+        }
+        return null;
+      }
 			//utils stuff
 			private function formatDate(d:Date):String
 			{
@@ -573,8 +600,9 @@
 								width="100%"
 								paddingTop="6">
 				<s:CheckBox id="fitCh"
-										label="Fit bounds"/>
-				<!--   <s:CheckBox id="positionsCh" label="Show places" selected="true"/>-->
+										label="Fit bounds" change="onDateChange()"/>
+			<!--	<s:CheckBox id="positionsCh" label="Show places" selected="true" change="onDateChange()"/>-->
+        <s:CheckBox id="linksCh" label="Draw links" selected="true" change="onDateChange()"/>
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>

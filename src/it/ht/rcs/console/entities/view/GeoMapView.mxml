@@ -33,53 +33,41 @@
 			import com.google.maps.overlays.Polyline;
 			import com.google.maps.overlays.PolylineOptions;
 			import com.google.maps.styles.StrokeStyle;
-			
+
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.model.Position;
+			import it.ht.rcs.console.entities.model.Positions;
+			import it.ht.rcs.console.entities.model.PositionsFlow;
+			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
 			import it.ht.rcs.console.entities.view.map.CustomMarker;
 			import it.ht.rcs.console.events.RefreshEvent;
 			import it.ht.rcs.console.events.SectionEvent;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.search.model.SearchItem;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
+			import it.ht.rcs.console.target.model.Target;
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			
-			import spark.collections.Sort;
-			import spark.collections.SortField;
 
-			private var _mapPane:IPane;
-			private var _markers:Array;
-			private var _circles:Array;
-			private var _overlays:Array=new Array();
-			private var _centre:LatLng;
-			private var _scale:Number;
-			private var _circleOverlay:IOverlay;
-			private var _icons:Dictionary;
-
-			[Bindable]
-			public var section:EntitiesSection;
-			[Bindable]
-			public var entities:ArrayCollection;
-
-			[Bindable]
-			public var positions:ArrayCollection;
-
-			[Bindable]
-			public var targets:ArrayCollection;
-
-			[Bindable]
-			public var flows:ArrayCollection;
-
-			private var entitiesToShow:ArrayCollection;
-			private var numEntitiesToShow:int=0;
+			//map stuff
+			private var mapReady:Boolean;
+			private var mapPane:IPane;
+			private var centre:LatLng;
+			private var icons:Dictionary; //pins?
+			private var targetsMarkers:Dictionary; //pins?
+			private var overlays:Array;
+			private var links:Array
+			private var markers:Array;
+			private var circles:Array;
+			private var mapScale:Number;
+			private var circleOverlay:IOverlay;
+			private var bounds:LatLngBounds
 
 			//Styling
 			private var circleFillColor:uint=0xFF0000;
@@ -89,135 +77,285 @@
 			private var circleBorderFillAlpha:Number=0.5;
 
 
-			private var relevence0:uint=0x333333;
-			private var relevence1:uint=0x999999;
-			private var relevence2:uint=0x5DE35F;
-			private var relevence3:uint=0xFFDC42;
-			private var relevence4:uint=0xFF4034;
-			private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
-
-			private var ready:Boolean;
-
+			[Bindable]
+			public var section:EntitiesSection;
+			[Bindable]
+			public var entities:ArrayCollection; //all entities
 			[Bindable]
 			private var startDate:Date;
-
 			[Bindable]
 			private var endDate:Date;
+			[Bindable]
+			private var currentDate:Date;
+
+			private var numEntitiesToShow:int;
+			private var entitiesToShow:ArrayCollection //only targets and positions
+			private var positions:ArrayCollection; //only positions
+			private var targets:ArrayCollection; //only targets
 
 
+			private function drawMap():void
+			{
+				var i:int=0;
+				var entity:Entity;
+				targetsMarkers=new Dictionary()
+				icons=new Dictionary()
+				//remove all overlays and ckear map
+				for (i=0; i < overlays.length; i++)
+				{
+					map.removeOverlay(overlays[i] as IOverlay);
+				}
+
+				map.setZoom(3);
+				map.setCenter(new LatLng(0, 0));
+
+				markers=new Array();
+				circles=new Array();
+				links=new Array()
+
+				bounds=new LatLngBounds();
+
+				if (positions.length > 0)
+				{
+					entity=positions.getItemAt(0) as Entity;
+					centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+					map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+					overlays=new Array();
+				}
+
+				var coordinates:LatLng
+				var customMarker:CustomMarker
+				var marker:Marker;
+				var fillColor:uint;
+				var circleBounds:LatLngBounds;
+
+				//positions
+				for (i=0; i < positions.length; i++)
+				{
+					entity=positions.getItemAt(i) as Entity;
+					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+					customMarker=new CustomMarker(entity)
+					marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
+					icons[marker]=customMarker;
+					//marker.shadow.visible=true;
+					marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
+					marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
+					marker.foreground.alpha=1;
+					bounds.extend(coordinates);
+					fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
+					circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
+					bounds.union(circleBounds)
+					overlays.push(marker);
+					markers.push(marker);
+					map.addOverlay(marker);
+
+				}
+				//targets
+				for (i=0; i < targets.length; i++)
+				{
+					entity=targets.getItemAt(i) as Entity;
+					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+					customMarker=new CustomMarker(entity)
+					marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
+					icons[marker]=customMarker;
+					//marker.shadow.visible=true;
+					marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
+					marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
+					marker.foreground.alpha=1;
+					bounds.extend(coordinates);
+					fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
+					//circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
+					//bounds.union(circleBounds)
+					overlays.push(marker);
+					markers.push(marker);
+					map.addOverlay(marker);
+
+					targetsMarkers[entity._id]=marker
+
+				}
+				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+			}
+
+			private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
+			{
+				if (isNaN(radiusKm) || radiusKm <= 0)
+				{
+					//return new LatLngBounds();
+					radiusKm=0.02
+				}
+
+				mapScale=calculateMapScale();
+				var shape:Shape=new Shape();
+				var overlay:GroundOverlay;
+				var bounds:LatLngBounds;
+				var centrePoint:Point;
+				var topLeft:LatLng;
+				var bottomRight:LatLng;
+				var options:GroundOverlayOptions;
+				var circleWidth:Number=radiusKm * 2 * mapScale;
+
+				shape.graphics.lineStyle(circleBorderTickness, color, circleBorderFillAlpha);
+				shape.graphics.beginFill(color, circleFillAlpha);
+				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
+				shape.graphics.endFill();
+				centrePoint=mapPane.fromLatLngToPaneCoords(position);
+				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
+				bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
+				bounds=new LatLngBounds(topLeft, bottomRight);
+				options=new GroundOverlayOptions();
+				options.applyProjection=true;
+				circleOverlay=new GroundOverlay(shape, bounds, options);
+				map.addOverlay(circleOverlay);
+				overlays.push(circleOverlay);
+				circles.push(circleOverlay);
+
+				return bounds
+			}
+
+			private function zoomToBounds():void
+			{
+				bounds=new LatLngBounds
+				var i:int
+				var entity:Entity;
+				var coordinates:LatLng
+				var marker:Marker
+				//places
+				for (i=0; i < positions.length; i++)
+				{
+					entity=positions.getItemAt(i) as Entity;
+					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+					bounds.extend(coordinates);
+				}
+				//targets
+				for (var m:* in targetsMarkers)
+				{
+					marker=targetsMarkers[m] as Marker;
+					coordinates=marker.getLatLng()
+					bounds.extend(coordinates);
+				}
+				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+			}
+
+			private function calculateMapScale():Number
+			{
+				var topLeft:LatLng;
+				var bottomLeft:LatLng;
+				var scale:Number;
+				var distance:Number;
+
+				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
+				bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
+				distance=topLeft.distanceFrom(bottomLeft) / 1000;
+				scale=map.height / distance;
+
+				return scale;
+			}
 
 			private function init():void
 			{
 				map.addEventListener(MapEvent.MAP_READY, onMapReady)
-				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
-				relevanceColors=[relevence0, relevence1, relevence2, relevence3, relevence4];
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+
+				//temporary dates
 				startDate=new Date();
-				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60);
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60); //60 days
 				endDate=new Date();
 				if (fromDf)
-				{
 					fromDf.selectedDate=startDate;
-				}
-				targets=new ArrayCollection
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var entity:Entity=entities.getItemAt(i) as Entity;
-					if (entity.type == "target")
-						targets.addItem(entity);
-				}
+				if (toDf)
+					toDf.selectedDate=endDate;
 
 			}
 
-			private function isPosition(entity:Entity):Boolean
-			{
-				if (entity.type == "person")
-					return false;
-				else if (entity.type == "position")
-					return true;
-				else if (entity.type == "target")
-				{
-					if (entity.position != null)
-						return true;
-				}
-				return false;
-			}
-
-			private function onEntityDeleted():void
-			{
-				var entity:Entity=info.selectedItem as Entity;
-				for (var i:int=0; i < entities.length; i++)
-				{
-					if (entities.getItemAt(i)._id == entity._id)
-					{
-						entities.removeItemAt(i)
-						trace("remove " + entity.name)
-					}
-				}
-				onAddedToStage(null)
-			}
-
-			private function onEntityCreated():void
+			private function onAddedToStage():void
 			{
 				refresh()
 			}
 
-			private function onEntityUpdated():void
+
+			private function onRefresh(e:RefreshEvent):void
 			{
-				refresh()
-			}
-
-			private function onLinkAdded():void
-			{
-				refresh()
-			}
-
-			private function onAddedToStage(e:Event=null):void
-			{
-				info.selectedItem=null;
-				info.selectedItems=null;
-				positions=new ArrayCollection();
-				var entity:Entity;
-				var i:int;
-				for (i=0; i < entities.length; i++)
-				{
-					entity=entities.getItemAt(i) as Entity;
-					if (isPosition(entity))
-						positions.addItem(entity);
-				}
-
-				numEntitiesToShow=positions.length;
-				entitiesToShow=new ArrayCollection();
-
-				for (i=0; i < positions.length; i++)
-				{
-					EntityManager.instance.show(positions.getItemAt(i)._id, onDetailResult)
-				}
+				refresh();
 
 			}
 
 			private function onDetailResult(e:ResultEvent):void
 			{
-
 				numEntitiesToShow--
-				entitiesToShow.addItem(e.result)
+				var entity:Entity=e.result as Entity
+
+				if (entity.type == "position")
+				{
+					positions.addItem(e.result)
+				}
+				if (entity.type == "target")
+				{
+					targets.addItem(e.result)
+				}
 				if (numEntitiesToShow == 0)
 				{
-					if (ready)
-					{
-						getPositions(targets)
-							//drawMap(entitiesToShow)
-					}
+					trace("ALL ENTITIES DETAILS LOADED")
+					trace("GET TARGETS POSITIONS")
+					getPositions(targets)
 				}
+			}
+
+			private function refresh():void
+			{
+				trace("REFRESH")
+				trace("TOTAL ENTITIES: " + entities.length)
+
+				//get details about entities
+				info.selectedItem=null;
+				info.selectedItems=null;
+
+				entitiesToShow=new ArrayCollection()
+				numEntitiesToShow=0;
+
+				var entity:Entity;
+				var i:int;
+				for (i=0; i < entities.length; i++)
+				{
+					entity=entities.getItemAt(i) as Entity;
+					if (entity.type == "position" || entity.type == "target")
+						entitiesToShow.addItem(entity);
+				}
+
+				numEntitiesToShow=entitiesToShow.length;
+
+				positions=new ArrayCollection
+				targets=new ArrayCollection
+
+				for (i=0; i < entitiesToShow.length; i++)
+				{
+					EntityManager.instance.show(entitiesToShow.getItemAt(i)._id, onDetailResult)
+				}
+
+
+			}
+
+			private function onMapReady(e:MapEvent):void
+			{
+				trace("GOOGLE MAP IS READY")
+				mapReady=true;
+				map.removeEventListener(MapEvent.MAP_READY, onMapReady)
+				map.addControl(new ZoomControl());
+				map.addControl(new PositionControl());
+				map.addControl(new MapTypeControl());
+				map.addEventListener(MapMouseEvent.CLICK, onMapClick);
+				mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
+				overlays=new Array();
 			}
 
 			private function onMapClick(e:MapMouseEvent):void
 			{
 				trace("map clicked");
 				e.stopImmediatePropagation()
-				var icon:CustomMarker
-				for (var i:* in _icons)
+				var icon:CustomMarker;
+
+				for (var i:* in icons)
 				{
-					icon=_icons[i]
+					icon=icons[i]
 					icon.selected=false;
 				}
 
@@ -225,22 +363,70 @@
 				info.selectedItems=new <Object>[];
 			}
 
+			private function getPositions(targets:ArrayCollection):void
+			{
+				var ids:Array=new Array();
+				for (var i:int=0; i < targets.length; i++)
+				{
+					var e:Entity=targets.getItemAt(i) as Entity;
+					ids.push(e._id)
+				}
+				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsResult, onPositionsFault)
+			}
+
+			private function onPositionsResult(e:ResultEvent):void
+			{
+				var pos:ArrayCollection=e.result as ArrayCollection;
+				for (var i:int=0; i < pos.length; i++)
+				{
+					var d:Date=new Date()
+					d.time=pos.getItemAt(i).time * 1000;
+				}
+				tracker.populate(pos)
+				drawMap()
+			}
+
+			private function onPositionsFault(e:FaultEvent):void
+			{
+				trace("positions fault")
+			}
+
+			//Entities operations
+			private function onEntityDeleted():void
+			{
+				//TODO
+			}
+
+			private function onEntityCreated():void
+			{
+				//TODO
+			}
+
+			private function onEntityUpdated():void
+			{
+				//TODO
+			}
+
+			private function onLinkAdded():void
+			{
+				//TODO
+			}
+
 			private function onMarkerClick(e:MapMouseEvent):void
 			{
 
-				trace("marker clicked");
 				e.stopImmediatePropagation()
 				var icon:CustomMarker
 				var i:*;
 				//var customMarker:CustomMarker=e.currentTarget.wrapper.options.icon as CustomMarker;
 				if (e.ctrlKey) //multiple selection
 				{
-					icon=_icons[e.currentTarget];
+					icon=icons[e.currentTarget];
 					icon.selected=!icon.selected;
 					var selectedItems:Vector.<Object>=new <Object>[];
-					for (i in _icons)
+					for (i in icons)
 					{
-						icon=_icons[i]
+						icon=icons[i]
 						if (icon.selected)
 							selectedItems.push(icon.entity);
 					}
@@ -253,12 +439,12 @@
 
 				else //single selection
 				{
-					for (i in _icons)
+					for (i in icons)
 					{
-						icon=_icons[i]
+						icon=icons[i]
 						icon.selected=false;
 					}
-					icon=_icons[e.currentTarget];
+					icon=icons[e.currentTarget];
 					icon.selected=!icon.selected;
 					info.selectedItem=icon.selected ? icon.entity : null;
 					info.selectedItems=new <Object>[info.selectedItem];
@@ -270,9 +456,7 @@
 			{
 				e.stopImmediatePropagation()
 				var icon:CustomMarker;
-				icon=_icons[e.currentTarget];
-
-
+				icon=icons[e.currentTarget];
 				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
 				event.section=SectionEvent.INTELLIGENCE;
 				event.subsection='entity';
@@ -281,188 +465,83 @@
 
 			}
 
-
-			private function drawMap(entities:ArrayCollection):void
+			private function onDateChange():void
 			{
-				var i:int=0;
-				_icons=new Dictionary()
-				for (i=0; i < _overlays.length; i++)
+				var i:int;
+				//remove links
+				//draw links
+  			if(links)
+        {
+          for (i=0; i < links.length; i++)
+          {
+            map.removeOverlay(links[i] as IOverlay);
+            
+          }
+        }
+				links=new Array()
+
+				trace("Geo Map > Date Change: " + tracker.currentDate)
+				currentDate=tracker.currentDate;
+
+				var h:HourRenderer=tracker.currentItem;
+				if (!h)
+					return;
+				trace("num positions: " + h.positions.length)
+				var marker:Marker
+				for (var m:* in targetsMarkers)
 				{
-					map.removeOverlay(_overlays[i] as IOverlay);
+					marker=targetsMarkers[m] as Marker;
+					marker.hide()
 				}
-				map.addEventListener(MapMouseEvent.CLICK, onMapClick)
-				map.setZoom(3);
-				map.setCenter(new LatLng(0, 0));
-				var entity:Entity;
-				if (entitiesToShow && entitiesToShow.length > 0)
+				for (i=0; i < h.positions.length; i++)
 				{
-					_markers=new Array();
-					_circles=new Array();
+					var log:Positions=h.positions.getItemAt(i) as Positions;
+					var entity:Entity=EntityManager.instance.getItem(log._id);
 
-
-					var bounds:LatLngBounds=new LatLngBounds();
-
-					entity=entitiesToShow.getItemAt(0) as Entity;
-					_centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-					map.setCenter(_centre, 14, MapType.NORMAL_MAP_TYPE);
-					_overlays=new Array();
-					for (i=0; i < entitiesToShow.length; i++)
+					var p:Position=log.position;
+					trace("name: " + entity.name)
+					trace("lat: " + p.lat)
+					trace("long: " + p.lon)
+					trace("rad: " + p.rad)
+					trace("================")
+					marker=targetsMarkers[entity._id] as Marker;
+					marker.show()
+					marker.setLatLng(new LatLng(p.lat, p.lon))
+					//draw links
+					if (entity.links)
 					{
-						entity=entitiesToShow.getItemAt(i) as Entity;
-						var coordinates:LatLng=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-						var customMarker:CustomMarker=new CustomMarker(entity)
-						var marker:Marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: true}));
-						_icons[marker]=customMarker;
-						marker.shadow.visible=true;
-						marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
-						marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
-						marker.foreground.alpha=1;
-
-						bounds.extend(coordinates);
-						var fillColor:uint=entity.type == "position" ? 0x0000FF : 0xFF0000;
-						var circleBounds:LatLngBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
-						//bounds.union(circleBounds)
-						_overlays.push(marker);
-						_markers.push(marker);
-						map.addOverlay(marker);
-
-						if (entity.links)
+						//draw connections
+						for (var l:int=0; l < entity.links.length; l++)
 						{
-							//draw connections
-							for (var l:int=0; l < entity.links.length; l++)
+							var link:Link=entity.links.getItemAt(l) as Link;
+							var entity2:Entity=EntityManager.instance.getItem(link.le);
+							// trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
+							if (entity && entity2)
 							{
-								var link:Link=entity.links.getItemAt(l) as Link;
-								var entity2:Entity=EntityManager.instance.getEntityById(link.le);
-								// trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
-								if (entity && entity2)
+								if (entity.type == "target" && entity2.type == "position")
 								{
-									if (entity.type == "target" && entity2.type == "position")
-									{
-										var color:uint=relevanceColors[link.rel]
-										drawLink(entity, entity2, color);
-									}
+									var color:uint=0xFF0000 //relevanceColors[link.rel]
+									drawLink(marker.getLatLng(), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude)), color);
 								}
 							}
 						}
 					}
-					//selectedPosition=_positions[0]
-					map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 				}
+				if (fitCh.selected)
+					zoomToBounds();
 			}
 
-			private function drawLink(entity1:Entity, entity2:Entity, color:uint):void
+			private function drawLink(pos1:LatLng, pos2:LatLng, color:uint):void
 			{
 				//https://developers.google.com/maps/documentation/flash/overlays
-				var polyline:Polyline=new Polyline([new LatLng(Number(entity1.position.latitude), Number(entity1.position.longitude)), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude))], new PolylineOptions({strokeStyle: new StrokeStyle({color: color, thickness: 2, alpha: 1})}));
+				var polyline:Polyline=new Polyline([], new PolylineOptions({strokeStyle: new StrokeStyle({color: color, thickness: 0.5, alpha: 1})}));
 				map.addOverlay(polyline);
-				_overlays.push(polyline);
+				overlays.push(polyline);
+				links.push(polyline)
 
 			}
 
-
-			private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
-			{
-				if (isNaN(radiusKm) || radiusKm <= 0)
-				{
-					//return new LatLngBounds();
-					radiusKm=0.02
-				}
-
-				_scale=calculateMapScale();
-				var shape:Shape=new Shape();
-				var overlay:GroundOverlay;
-				var bounds:LatLngBounds;
-				var centrePoint:Point;
-				var topLeft:LatLng;
-				var bottomRight:LatLng;
-				var options:GroundOverlayOptions;
-				var circleWidth:Number=radiusKm * 2 * _scale;
-
-				shape.graphics.lineStyle(circleBorderTickness, color, circleBorderFillAlpha);
-				shape.graphics.beginFill(color, circleFillAlpha);
-				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
-				shape.graphics.endFill();
-				centrePoint=_mapPane.fromLatLngToPaneCoords(position);
-				topLeft=_mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
-				bottomRight=_mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
-				bounds=new LatLngBounds(topLeft, bottomRight);
-				options=new GroundOverlayOptions();
-				options.applyProjection=true;
-				_circleOverlay=new GroundOverlay(shape, bounds, options);
-				map.addOverlay(_circleOverlay);
-				_overlays.push(_circleOverlay);
-				_circles.push(_circleOverlay);
-
-				return bounds
-			}
-
-			private function calculateMapScale():Number
-			{
-				var topLeft:LatLng;
-				var bottomLeft:LatLng;
-				var scale:Number;
-				var distance:Number;
-
-				topLeft=_mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
-				bottomLeft=_mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
-				distance=topLeft.distanceFrom(bottomLeft) / 1000;
-				scale=map.height / distance;
-
-				return scale;
-			}
-
-			private function pad(n:Number):String
-			{
-				return TimeUtils.zeroPad(n, 2);
-			}
-
-			private function onMapReady(e:MapEvent):void
-			{
-				map.addControl(new ZoomControl());
-				map.addControl(new PositionControl());
-				map.addControl(new MapTypeControl())
-
-				_mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-
-				map.removeEventListener(MapEvent.MAP_READY, onMapReady)
-				ready=true;
-				drawMap(entitiesToShow)
-			}
-
-			private function onTimelineChange():void
-			{
-
-			}
-
-			private function getPositions(entities:ArrayCollection):void
-			{
-				var ids:Array=new Array();
-
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var e:Entity=entities.getItemAt(i) as Entity;
-					ids.push(e._id)
-				}
-				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), onPositionsResult, onPositionsFault)
-			}
-
-			private function onPositionsResult(e:ResultEvent):void
-			{
-				trace("flow result")
-				flows=e.result as ArrayCollection;
-				for (var i:int=0; i < flows.length; i++)
-				{
-        var d:Date=new Date()
-        d.time=flows.getItemAt(i).time*1000;
-        trace(d)
-				}
-			}
-
-			private function onPositionsFault(e:FaultEvent):void
-			{
-				trace("flow fault")
-			}
-
+			//utils stuff
 			private function formatDate(d:Date):String
 			{
 				return String(d.time / 1000);
@@ -473,26 +552,6 @@
 				if (n < 10)
 					return "0" + String(n);
 				return String(n);
-			}
-
-
-			private function refresh():void
-			{
-				var selectedEntities:ArrayCollection=new ArrayCollection()
-
-				//temp - all entities
-				for (var i:int=0; i < section.stateManager.view.length; i++)
-				{
-					var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
-					selectedEntities.addItem(entity);
-				}
-				section.stateManager.selectedEntities=selectedEntities;
-				onAddedToStage();
-			}
-
-			private function onDateChange():void
-			{
-				trace("Geo Map > Date Change: " + tracker.currentDate)
 			}
 		]]>
 	</fx:Script>
@@ -506,12 +565,17 @@
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
+
 		<s:VGroup width="100%"
 							height="100%">
 			<s:HGroup verticalAlign="middle"
-								horizontalAlign="right"
+								horizontalAlign="left"
 								width="100%"
 								paddingTop="6">
+				<s:CheckBox id="fitCh"
+										label="Fit bounds"/>
+				<!--   <s:CheckBox id="positionsCh" label="Show places" selected="true"/>-->
+				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
 				<s:Label text="{R.get('FROM')}:"
@@ -519,27 +583,13 @@
 				<mx:DateField id="fromDf"
 											formatString="YYYY-MM-DD"
 											selectedDate="{startDate}"/>
-				<s:NumericStepper minimum="0"
-													maximum="23"
-													id="hFromNs"
-													valueFormatFunction="pad"/>
-				<s:NumericStepper minimum="0"
-													maximum="59"
-													id="mFromNs"
-													valueFormatFunction="pad"/>
+
 				<s:Label text="{R.get('TO')}:"
 								 fontWeight="bold"/>
 				<mx:DateField id="toDf"
 											formatString="YYYY-MM-DD"
 											selectedDate="{endDate}"/>
-				<s:NumericStepper minimum="0"
-													maximum="23"
-													id="hToNs"
-													valueFormatFunction="pad"/>
-				<s:NumericStepper minimum="0"
-													maximum="59"
-													id="mToNs"
-													valueFormatFunction="pad"/>
+
 			</s:HGroup>
 			<s:Line width="100%">
 				<s:stroke>

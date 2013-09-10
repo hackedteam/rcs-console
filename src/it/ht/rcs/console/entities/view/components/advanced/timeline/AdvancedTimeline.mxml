@@ -41,11 +41,16 @@
       private var currentIndex:int;
       
       [Bindable]
+      public var currentItem:HourRenderer;
+      
+      [Bindable]
       public var isPlaying:Boolean;
+      
+      public var frames:Array;
+      public var hours:Dictionary;
       
       private var timeline:Group;
       private var monthsHeader:Group;
-      private var frames:Array;
       private var t:Timer;
       
       public static const DAY:int=1000 * 60 * 60 * 24;
@@ -84,6 +89,7 @@
         
         currentDate=startDate;
         currentIndex=0;
+        currentItem=null //??TODO
         dispatchEvent(new Event("dateChange"));
         draw();
       }
@@ -98,7 +104,7 @@
         
       }
       
-      private function onThumbMove(e:MouseEvent):void  //ON MOUSEoVER ON TILES???
+      private function onThumbMove(e:MouseEvent):void  
       { 
         if(thumbDrag)
         {
@@ -111,13 +117,22 @@
           thumb.x=h.x
           thumb.y=h.y;
           currentDate=h.date;
+          currentItem=h;
+          currentIndex=h.index;
           dispatchEvent(new Event("dateChange"));
-          currentIndex=h.index
         }
         
       }
       
-      private function onThumbUp(e:MouseEvent):void  //ON MOUSEoVER ON TILES???
+      public function reset():void
+      {
+        /* currentDate=endDate;
+        currentItem=frames
+        currentIndex=h.index;
+        dispatchEvent(new Event("dateChange")); */
+      }
+      
+      private function onThumbUp(e:MouseEvent):void  
       {
         thumbDrag=false;
         thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
@@ -132,7 +147,10 @@
         t.stop();
         dispatchEvent(new Event("stop"));
         isPlaying=false;
-        frames=new Array()
+        
+        frames=new Array();
+        hours=new Dictionary();
+        
         var numDays:int=Math.floor((endDate.time - startDate.time + DAY) / DAY);
         var currentDate:Date=new Date();
         currentDate.time=startDate.time;
@@ -176,7 +194,9 @@
             
             timeline.addElement(h);
             index++;
+            var key:String=formatDate(h.date)
             frames.push(h);
+            hours[key]=h;
             yPos+=dayHeight / 24;
           }
           d.x=xPos;
@@ -235,7 +255,7 @@
         thumb.y=h.y;
         currentDate=h.date;
         currentIndex=h.index
-        
+        currentItem=h;
         dispatchEvent(new Event("dateChange"));
       }
       
@@ -267,7 +287,8 @@
             dispatchEvent(new Event("stop"));
           }
         }
-        currentDate.minutes++
+          currentDate.minutes++
+          currentItem=frames[currentIndex]
           dispatchEvent(new Event("dateChange"));
       }
       
@@ -284,6 +305,18 @@
         t.stop()
         dispatchEvent(new Event("stop"));
         
+      }
+      private function doubleDigits(n:Number):String
+      {
+        if (n < 10)
+          return "0" + String(n);
+        return String(n);
+      }
+      
+      private function formatDate(d:Date):String
+      {
+        if(!d) return "";
+        return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date)+ doubleDigits(d.hours);
       }
     ]]>
   </fx:Script>

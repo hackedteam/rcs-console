@@ -7,11 +7,15 @@
   </fx:Metadata>
   <fx:Script>
     <![CDATA[
+      import mx.collections.ArrayCollection;
       
       private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       
       [Bindable]
       public var currentDate:Date;
+      
+      [Bindable]
+      public var currentItem:HourRenderer;
       
       private function doPlay():void
       {
@@ -42,22 +46,56 @@
         else
           return String(n)
       }
+      
+      public function populate(positions:ArrayCollection):void
+      {
+        var i:int;
+        for(i=0;i<timeline.frames.length;i++)
+        {
+          var h:HourRenderer=timeline.frames[i] as HourRenderer
+          h.reset()
+        }
+        for(i=0;i<positions.length;i++)
+        {
+          var d:Date=new Date()
+          d.time=positions.getItemAt(i).time*1000;
+          var key:String=formatDate(d);
+          var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
+          renderer.populate(positions.getItemAt(i).positions);
+        }
+      }
+      private function reset():void
+      {
+        timeline.reset()
+        //dispatchEvent(new Event("dateChange"));
+      }
+      
       private function init():void
       {
         currentDate=timeline.currentDate;
+        currentItem=null //?? TODO
         dispatchEvent(new Event("dateChange"));
       }
       private function onDateChange():void
       {
         currentDate=timeline.currentDate;
-        dispatchEvent(new Event("dateChange"));
+        currentItem=timeline.currentItem;
         currentDateTxt.text=doubleDigits(timeline.currentDate.date)+" "+monthNames[timeline.currentDate.month]+ " "+doubleDigits(timeline.currentDate.fullYear)+ " "+doubleDigits(timeline.currentDate.hours)+":"+doubleDigits(timeline.currentDate.minutes);
+        dispatchEvent(new Event("dateChange"));
+      }
+      
+     
+      
+      private function formatDate(d:Date):String
+      {
+        if(!d) return "";
+        return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date)+doubleDigits(d.hours);
       }
     ]]>
   </fx:Script>
   <s:HGroup width="100%"
             clipAndEnableScrolling="true"
-            height="136"
+            height="136" 
             id="viewport">
     <timeline:AdvancedTimeline width="100%" id="timeline" dateChange="onDateChange()" stop="onTimelineStop()" play="onTimelinePlay()"/>    
   </s:HGroup>

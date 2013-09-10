@@ -313,6 +313,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
          flowRenderer.graphics.beginFill(flowColor);
          flowRenderer.graphics.drawCircle(0, 0, 4);
          this.addChild(flowRenderer);
+         this.setChildIndex(flowRenderer, this.numChildren-1)
          
       
          path1.addFollower(flowRenderer,increment)

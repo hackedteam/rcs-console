@@ -14,46 +14,47 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapEvent;
-			import com.google.maps.MapMouseEvent;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-			import com.google.maps.overlays.Polyline;
-			import com.google.maps.overlays.PolylineOptions;
-			import com.google.maps.styles.StrokeStyle;
-			
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.model.Position;
-			import it.ht.rcs.console.entities.model.Positions;
-			import it.ht.rcs.console.entities.model.PositionsFlow;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
-			import it.ht.rcs.console.entities.view.map.CustomMarker;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.model.SearchItem;
-			import it.ht.rcs.console.target.model.Target;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapEvent;
+      import com.google.maps.MapMouseEvent;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      import com.google.maps.overlays.Polyline;
+      import com.google.maps.overlays.PolylineOptions;
+      import com.google.maps.styles.StrokeStyle;
+      import com.greensock.TweenMax;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.Position;
+      import it.ht.rcs.console.entities.model.Positions;
+      import it.ht.rcs.console.entities.model.PositionsFlow;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+      import it.ht.rcs.console.entities.view.map.CustomMarker;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.model.SearchItem;
+      import it.ht.rcs.console.target.model.Target;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			//map stuff
 			private var mapReady:Boolean;
@@ -154,7 +155,7 @@
 				for (i=0; i < targets.length; i++)
 				{
 					entity=targets.getItemAt(i) as Entity;
-					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)); //last position!!!
 					customMarker=new CustomMarker(entity)
 					marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
 					icons[marker]=customMarker;
@@ -171,7 +172,7 @@
 					map.addOverlay(marker);
 
 					targetsMarkers[entity._id]=marker
-
+          //marker.hide()
 				}
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 			}
@@ -377,18 +378,7 @@
 				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsResult, onPositionsFault)
 			}
 
-/* 			private function onPositionsResult(e:ResultEvent):void
-			{
-				var pos:ArrayCollection=e.result as ArrayCollection;
-				for (var i:int=0; i < pos.length; i++)
-				{
-					var d:Date=new Date()
-					d.time=pos.getItemAt(i).time * 1000;
-          trace(d)
-				}
-				tracker.populate(pos)
-				drawMap()
-			} */
+      
       
       private function onPositionsResult(e:ResultEvent):void
       {
@@ -400,6 +390,7 @@
           trace(d)
         }
         tracker.populate(pos)
+        //tracker.populateMinutes(pos)
         drawMap()
       }
 
@@ -510,9 +501,15 @@
 					marker=targetsMarkers[m] as Marker;
 					marker.hide()
 				}
-				for (i=0; i < h.positions.length; i++)
+        //
+        var key:String=String(currentDate.minutes)
+          
+				/* for (i=0; i < h.minutes[key].length; i++)
 				{
-					var log:Positions=h.positions.getItemAt(i) as Positions;
+					var log:Positions=h.minutes[key].getItemAt(i) as Positions; */
+        for (i=0; i < h.positions.length; i++)
+        {
+          var log:Positions=h.positions.getItemAt(i) as Positions;
 					var entity:Entity=getTarget(log._id);
 
 					var p:Position=log.position;
@@ -524,6 +521,9 @@
 					marker=targetsMarkers[entity._id] as Marker;
 					marker.show()
 					marker.setLatLng(new LatLng(p.lat, p.lon))
+           
+        
+            //marker.getLatLng().
 					//draw links
 					if (entity.links && linksCh.selected)
 					{

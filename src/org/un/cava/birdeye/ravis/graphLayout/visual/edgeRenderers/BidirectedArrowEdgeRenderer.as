@@ -276,6 +276,14 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			}
       
       this.toolTip=this.vedge.edge.data.@type +" - "+this.vedge.edge.data.@rel;
+      
+      //bring renderers on top
+      for(var i:int=0;i<this.numChildren;i++)
+      {
+        var o:DisplayObject=this.getChildAt(i) as DisplayObject;
+        this.setChildIndex(o, this.numChildren-1)
+      }
+ 
 
 		}
     
@@ -310,9 +318,11 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
        for(i=0;i<numBalls;i++)
        {
          flowRenderer=new Sprite();
-         flowRenderer.graphics.beginFill(flowColor);
-         flowRenderer.graphics.drawCircle(0, 0, 4);
+         
          this.addChild(flowRenderer);
+         flowRenderer.graphics.beginFill(flowColor);
+         flowRenderer.graphics.drawCircle(0, 0, 3);
+         flowRenderers.push(flowRenderer)
          this.setChildIndex(flowRenderer, this.numChildren-1)
          
       
@@ -332,9 +342,12 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
         for(i=0;i<numBalls;i++)
         {
           flowRenderer=new Sprite();
-          flowRenderer.graphics.beginFill(flowColor);
-          flowRenderer.graphics.drawCircle(0, 0, 4);
+          
           this.addChild(flowRenderer);
+          flowRenderer.graphics.beginFill(flowColor);
+          flowRenderer.graphics.drawCircle(0, 0, 3);
+          flowRenderers.push(flowRenderer)
+          this.setChildIndex(flowRenderer, this.numChildren-1)
           path2.addFollower(flowRenderer, increment)
           increment+=0.05;
         }
@@ -343,6 +356,8 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
         path2.progress=0;
         TweenMax.to(path2, 2, {progress:1, repeat:-1});
       }
+      
+    draw()
 
     }
 

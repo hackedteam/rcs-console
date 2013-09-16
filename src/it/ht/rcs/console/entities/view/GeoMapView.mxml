@@ -134,7 +134,7 @@
 				//positions
 				for (i=0; i < positions.length; i++)
 				{
-					entity=positions.getItemAt(i) as Entity;
+				/* 	entity=positions.getItemAt(i) as Entity;
 					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
 					customMarker=new CustomMarker(entity)
 					marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
@@ -149,7 +149,7 @@
 					bounds.union(circleBounds)
 					overlays.push(marker);
 					markers.push(marker);
-					map.addOverlay(marker);
+					map.addOverlay(marker); */
 
 				}
 				//targets
@@ -226,12 +226,12 @@
 				var coordinates:LatLng
 				var marker:Marker
 				//places
-				for (i=0; i < positions.length; i++)
+			/* 	for (i=0; i < positions.length; i++) //temp replace with positions
 				{
 					entity=positions.getItemAt(i) as Entity;
 					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
 					bounds.extend(coordinates);
-				}
+				} */
 				//targets
 				for (var m:* in targetsMarkers)
 				{
@@ -267,18 +267,20 @@
 
 				//temporary dates
 				startDate=new Date();
-        startDate.date=29;
+        /* startDate.date=29;
         startDate.month=6
         startDate.fullYear=2013
         startDate.hours=7
-        startDate.minutes=0
-				//startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60); //60 days
+        */
+        startDate.minutes=0 
+        
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60); //60 days
 				endDate=new Date();
         
-        endDate.date=1;
+       /*  endDate.date=1;
         endDate.month=7
         endDate.fullYear=2013
-        endDate.hours=8
+        endDate.hours=8 */
         endDate.minutes=0
           
           
@@ -318,9 +320,9 @@
 				{
 					trace("ALL ENTITIES DETAILS LOADED")
 					trace("GET TARGETS POSITIONS")
-         // getPositionsSummary(targets)
+         //getPositionsSummary(targets)
           
-          getPositionsDetail(targets)
+         getPositionsDetail(targets)
 				}
 			}
 
@@ -560,13 +562,14 @@
 					trace("lat: " + p.lat)
 					trace("long: " + p.lon)
 					trace("rad: " + p.rad)
-					trace("================")
           trace("alpha: "+log.alpha)
+          trace("================")
+          
 					marker=targetsMarkers[entity._id] as Marker;
 					marker.show()
 					marker.setLatLng(new LatLng(p.lat, p.lon))
            
-          marker.foreground.alpha=(log.alpha*ALPHA_RATIO)/100;
+          //marker.foreground.alpha=(log.alpha*ALPHA_RATIO)/100;
            
         
             //marker.getLatLng().

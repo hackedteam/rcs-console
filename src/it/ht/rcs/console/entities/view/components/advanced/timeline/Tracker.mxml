@@ -1,136 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-          xmlns:s="library://ns.adobe.com/flex/spark" 
-          xmlns:mx="library://ns.adobe.com/flex/mx" gap="4" creationComplete="init()" xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*">
-  <fx:Metadata>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*">
+	<fx:Metadata>
     [Event(name="dateChange", type="flash.events.Event")]
   </fx:Metadata>
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.entities.model.PositionsFlow;
-      
-      import mx.collections.ArrayCollection;
-      
-      private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      
-      [Bindable]
-      public var currentDate:Date;
-      
-      [Bindable]
-      public var currentItem:HourRenderer;
-      
-      private function doPlay():void
-      {
-        if(timeline.isPlaying)
-        {
-          timeline.doStop()
-        }
-        else
-        {
-          timeline.doPlay()
-          
-        }
-      }
-      private function onTimelineStop():void
-      {
-        playBtn.label="play"
-      }
-      
-      private function onTimelinePlay():void
-      {
-        playBtn.label="stop"
-      }
-      
-      private function doubleDigits(n:Number):String
-      {
-        if(n<10)
-          return String("0"+n)
-        else
-          return String(n)
-      }
-      
-      public function populateMinutes(positions:ArrayCollection):void
-      {
-        var i:int;
-        for(i=0;i<timeline.frames.length;i++)
-        {
-          var h:HourRenderer=timeline.frames[i] as HourRenderer
-          h.reset()
-        }
-        
-        for(i=0;i<positions.length;i++)
-        {
-          var d:Date=new Date()
-          d.time=positions.getItemAt(i).time*1000;
-          var key:String=formatDate(d);
-          var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
-          renderer.populateMinute(positions.getItemAt(i) as PositionsFlow);
-        }
-      }
-      
-      public function populate(positions:ArrayCollection):void
-      {
-        var i:int;
-        for(i=0;i<timeline.frames.length;i++)
-        {
-          var h:HourRenderer=timeline.frames[i] as HourRenderer
-          h.reset()
-        }
-        for(i=0;i<positions.length;i++)
-        {
-          var d:Date=new Date()
-          d.time=positions.getItemAt(i).time*1000;
-          var key:String=formatDate(d);
-          var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
-          renderer.populate(positions.getItemAt(i) as PositionsFlow);
-        }
-      }
-      private function reset():void
-      {
-        timeline.reset()
-        //dispatchEvent(new Event("dateChange"));
-      }
-      
-      private function init():void
-      {
-        currentDate=timeline.currentDate;
-        currentItem=null //?? TODO
-        dispatchEvent(new Event("dateChange"));
-      }
-      private function onDateChange():void
-      {
-        currentDate=timeline.currentDate;
-        currentItem=timeline.currentItem;
-        currentDateTxt.text=doubleDigits(timeline.currentDate.date)+" "+monthNames[timeline.currentDate.month]+ " "+doubleDigits(timeline.currentDate.fullYear)+ " "+doubleDigits(timeline.currentDate.hours)+":"+doubleDigits(timeline.currentDate.minutes);
-        dispatchEvent(new Event("dateChange"));
-      }
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.entities.model.PositionsFlow;
 
-      private function formatDate(d:Date):String
-      {
-        if(!d) return "";
-        return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date)+doubleDigits(d.hours);
-      }
-    ]]>
-  </fx:Script>
-  <s:Group width="100%"
-            clipAndEnableScrolling="true"
-            height="136" 
-            id="viewport">
-    <s:Rect width="100%" height="100%">
-      <s:fill>
-        <s:BitmapFill source="@Embed('img/backgrounds/geomaptimeline.png')" fillMode="repeat"/>
-      </s:fill>
-    </s:Rect>
-   
-    <timeline:AdvancedTimeline width="100%" id="timeline" dateChange="onDateChange()" stop="onTimelineStop()" play="onTimelinePlay()"/>    
-  </s:Group>
-  <s:HScrollBar viewport="{viewport}"
-                width="100%"
-                id="scrollbar"
-                stepSize="30"/>
-  <s:HGroup verticalAlign="middle">
-    <s:Button label="play" click="doPlay()" id="playBtn"/>
-    <s:Spacer width="50"/>
-    <s:Label id="currentDateTxt"/>
-  </s:HGroup>
-</s:VGroup>
+			import mx.collections.ArrayCollection;
+
+			private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+			[Bindable]
+			public var currentDate:Date;
+			[Bindable]
+			public var startDate:Date;
+			[Bindable]
+			public var endDate:Date;
+
+			[Bindable]
+			public var currentItem:HourRenderer;
+
+			private function doPlay():void
+			{
+				if (timeline.isPlaying)
+				{
+					timeline.doStop()
+				}
+				else
+				{
+					timeline.doPlay()
+
+				}
+			}
+
+			private function onTimelineStop():void
+			{
+				playBtn.label="play"
+			}
+
+			private function onTimelinePlay():void
+			{
+				playBtn.label="stop"
+			}
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return String("0" + n)
+				else
+					return String(n)
+			}
+
+			public function populateMinutes(positions:ArrayCollection):void
+			{
+				var i:int;
+				for (i=0; i < timeline.frames.length; i++)
+				{
+					var h:HourRenderer=timeline.frames[i] as HourRenderer
+					h.reset()
+				}
+
+				for (i=0; i < positions.length; i++)
+				{
+					var d:Date=new Date()
+					d.time=positions.getItemAt(i).time * 1000;
+					var key:String=formatDate(d);
+					trace("key: " + key)
+					var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
+					renderer.populateMinute(positions.getItemAt(i) as PositionsFlow);
+				}
+			}
+
+			public function populate(positions:ArrayCollection):void
+			{
+				var i:int;
+				for (i=0; i < timeline.frames.length; i++)
+				{
+					var h:HourRenderer=timeline.frames[i] as HourRenderer
+					h.reset()
+				}
+				for (i=0; i < positions.length; i++)
+				{
+					var d:Date=new Date()
+					d.time=positions.getItemAt(i).time * 1000;
+					var key:String=formatDate(d);
+					var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
+					renderer.populate(positions.getItemAt(i) as PositionsFlow);
+				}
+			}
+
+			private function reset():void
+			{
+				timeline.reset()
+				//dispatchEvent(new Event("dateChange"));
+			}
+
+			public function init():void
+			{
+			/* 	currentDate=timeline.currentDate;
+				currentItem=null //?? TODO
+				dispatchEvent(new Event("dateChange")); */
+        timeline.init()
+			}
+
+			private function onDateChange():void
+			{
+				currentDate=timeline.currentDate;
+				currentItem=timeline.currentItem;
+				currentDateTxt.text=doubleDigits(timeline.currentDate.date) + " " + monthNames[timeline.currentDate.month] + " " + doubleDigits(timeline.currentDate.fullYear) + " " + doubleDigits(timeline.currentDate.hours) + ":" + doubleDigits(timeline.currentDate.minutes);
+				dispatchEvent(new Event("dateChange"));
+			}
+
+			private function formatDate(d:Date):String
+			{
+				if (!d)
+					return "";
+				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date) + doubleDigits(d.hours);
+			}
+		]]>
+	</fx:Script>
+
+
+	<s:VGroup gap="4"
+						width="100%">
+
+
+		<s:Group width="100%"
+						 clipAndEnableScrolling="true"
+						 height="136"
+						 id="viewport">
+			<s:Rect width="100%"
+							height="100%">
+				<s:fill>
+					<s:BitmapFill source="@Embed('img/backgrounds/geomaptimeline.png')"
+												fillMode="repeat"/>
+				</s:fill>
+			</s:Rect>
+
+			<timeline:AdvancedTimeline width="100%"
+																 id="timeline"
+																 dateChange="onDateChange()"
+																 stop="onTimelineStop()"
+																 play="onTimelinePlay()"
+																 startDate="{startDate}"
+																 endDate="{endDate}"/>
+		</s:Group>
+		<s:HScrollBar viewport="{viewport}"
+									width="100%"
+									id="scrollbar"
+									stepSize="30"/>
+		<s:HGroup verticalAlign="middle">
+			<s:Button label="play"
+								click="doPlay()"
+								id="playBtn"/>
+			<s:Spacer width="50"/>
+			<s:Label id="currentDateTxt"/>
+		</s:HGroup>
+	</s:VGroup>
+
+</s:Group>

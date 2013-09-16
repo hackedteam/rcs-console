@@ -104,13 +104,13 @@ package it.ht.rcs.console.entities.view
 				setState('singleOperation');
 				UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type: "operation", section: "intelligence"});
 			}
-			if (item is Entity) //&& event.subsection == "links") //event can be null
+		/*	if (item is Entity) //&& event.subsection == "links") //event can be null
 			{
 				trace("is a link")
-			/*	selectedOperation=OperationManager.instance.getItem(item.path[0]);
+			selectedOperation=OperationManager.instance.getItem(item.path[0]);
         currentFilter=singleOperationFilterFunction;
-				setState("links")*/
-			}
+				setState("links")
+			}*/
 
 			else if (item is Entity)
 			{

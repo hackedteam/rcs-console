@@ -3,8 +3,7 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:mx="library://ns.adobe.com/flex/mx"
          width="100%"
-         height="200"
-         creationComplete="init()">
+         height="200">
   <fx:Declarations>
     <!-- Place non-visual elements (e.g., services, value objects) here -->
   </fx:Declarations>
@@ -26,23 +25,17 @@
       private var thumbDrag:Boolean;
       
       [Bindable]
-      private var dayHeight:Number=120;
-      
+      private var dayHeight:Number=120; 
       [Bindable]
-      public var startDate:Date;
-      
+      public var startDate:Date;  
       [Bindable]
       public var endDate:Date;
-      
       [Bindable]
       public var currentDate:Date;
-      
       [Bindable]
       private var currentIndex:int;
-      
       [Bindable]
       public var currentItem:HourRenderer;
-      
       [Bindable]
       public var isPlaying:Boolean;
       
@@ -61,31 +54,13 @@
       
       private static const MINUTES_PER_DAY:int=60 * 24;
       
-      private function init():void
+      public function init():void
       {
-        thumb=new SpriteVisualElement();
-        thumb.graphics.beginFill(0xFF0000, 0.5);
-        thumb.graphics.drawRect(0, 0, 12, 6);
-        thumb.buttonMode=true;
-        thumb.useHandCursor=true;
-        thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
+        
         
         t=new Timer(250);
         t.addEventListener(TimerEvent.TIMER, onTick)
-        
-        //
-        startDate=new Date();
-        startDate.hours=0;
-        startDate.minutes=0;
-        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-        endDate=new Date();
-        
-        timeline=new Group()
-        timeline.y=12;
-        addElement(timeline)
-        
-        monthsHeader=new Group();
-        addElement(monthsHeader)
+       
         
         currentDate=new Date()
         currentDate.date=startDate.date;
@@ -96,6 +71,14 @@
         currentIndex=0;
         currentItem=null //??TODO
         dispatchEvent(new Event("dateChange"));
+        
+        thumb=new SpriteVisualElement();
+        thumb.graphics.beginFill(0xFF0000, 0.5);
+        thumb.graphics.drawRect(0, 0, 12, 6);
+        thumb.buttonMode=true;
+        thumb.useHandCursor=true;
+        thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
+          
         draw();
       }
       
@@ -141,6 +124,8 @@
         dispatchEvent(new Event("dateChange"));
       }
       
+      
+    
       private function onThumbUp(e:MouseEvent):void  
       {
         thumbDrag=false;
@@ -150,9 +135,19 @@
         this.stage.removeEventListener(MouseEvent.MOUSE_UP, onThumbUp)
       }
       
-      private function draw():void
+      public function draw():void
       {
         //remove if needed
+        
+        this.removeAllElements();
+        
+        timeline=new Group()
+        timeline.y=12;
+        addElement(timeline)
+        
+        monthsHeader=new Group();
+        addElement(monthsHeader)
+        
         t.stop();
         dispatchEvent(new Event("stop"));
         isPlaying=false;

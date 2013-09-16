@@ -70,7 +70,7 @@
         thumb.useHandCursor=true;
         thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
         
-        t=new Timer(100);
+        t=new Timer(250);
         t.addEventListener(TimerEvent.TIMER, onTick)
         
         //
@@ -87,7 +87,12 @@
         monthsHeader=new Group();
         addElement(monthsHeader)
         
-        currentDate=startDate;
+        currentDate=new Date()
+        currentDate.date=startDate.date;
+        currentDate.month=startDate.month;
+        currentDate.fullYear=startDate.fullYear;
+        currentDate.hours=startDate.hours;
+        currentDate.minutes=startDate.minutes
         currentIndex=0;
         currentItem=null //??TODO
         dispatchEvent(new Event("dateChange"));
@@ -116,7 +121,11 @@
           trace(h.date)
           thumb.x=h.x;
           thumb.y=h.y;
-          currentDate=h.date;
+          currentDate.date=h.date.date;
+          currentDate.month=h.date.month;
+          currentDate.fullYear=h.date.fullYear;
+          currentDate.hours=h.date.hours;
+          currentDate.minutes=h.date.minutes
           currentItem=h;
           currentIndex=h.index;
           dispatchEvent(new Event("dateChange"));
@@ -126,10 +135,10 @@
       
       public function reset():void
       {
-        /* currentDate=endDate;
-        currentItem=frames
-        currentIndex=h.index;
-        dispatchEvent(new Event("dateChange")); */
+        currentDate=endDate;
+        currentItem=frames[frames.length-1]
+        currentIndex=frames.length-1
+        dispatchEvent(new Event("dateChange"));
       }
       
       private function onThumbUp(e:MouseEvent):void  
@@ -250,10 +259,15 @@
         dispatchEvent(new Event("stop"));
         
         var h:HourRenderer=e.currentTarget as HourRenderer;
+        h.date.minutes=0;
         trace(h.date);
         thumb.x=h.x
         thumb.y=h.y;
-        currentDate=h.date;
+        currentDate.date=h.date.date;
+        currentDate.month=h.date.month;
+        currentDate.fullYear=h.date.fullYear;
+        currentDate.hours=h.date.hours;
+        currentDate.minutes=h.date.minutes
         currentIndex=h.index
         currentItem=h;
         dispatchEvent(new Event("dateChange"));

@@ -13,37 +13,37 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-      import com.greensock.TweenMax;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Flow;
-      import it.ht.rcs.console.entities.model.Flows;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.events.RefreshEvent;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
-      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
-      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
-      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-      import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import com.greensock.TweenMax;
+
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Flow;
+			import it.ht.rcs.console.entities.model.Flows;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.events.RefreshEvent;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ArrayCollection;
@@ -123,7 +123,7 @@
 
 				//ad links entity - depth=1
 
-
+        flows=new ArrayCollection
 				numEntitiesToShow=entities.length;
 				trace("entities: " + entities.length);
 
@@ -133,11 +133,16 @@
 
 				if (vgraph)
 				{
+         
 					vgraph.graph=new Graph("XMLAsDocsGraph", false, null);
 					vgraph.visible=false;
+
 				}
 				if (g)
+        {
 					g.purgeGraph();
+  
+        }
 				for (var i:int=0; i < entities.length; i++)
 				{
 					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
@@ -202,7 +207,7 @@
 					{
 						var child:INode=node.successors[i] as INode;
 						examined.push(node);
-						if (examined.indexOf(child) == -1) //&& child.data.@name!="Diego Hernandez" && child.data.@name!="Kasimir Malevich" && child.data.@name!="Jimmy Page" && child.data.@name!="Jamie Moreno")
+						if (examined.indexOf(child) == -1 && child.data.@name != "Diego Hernandez" && child.data.@name != "Kasimir Malevich" && child.data.@name != "Jimmy Page" && child.data.@name != "Jamie Moreno")
 						{
 							var index:int=roots.getItemIndex(child);
 							if (index != -1)
@@ -264,7 +269,7 @@
 					bzoom.value=1;
 					vgraph.draw();
 				}
-        getFlows(entities)
+				getFlows(entities)
 			}
 
 			private function onDetailResult(e:ResultEvent):void
@@ -717,7 +722,7 @@
 				}
 			}
 
-			private function refresh():void
+			public function refresh():void
 			{
 				var selectedEntities:ArrayCollection=new ArrayCollection()
 
@@ -764,51 +769,55 @@
 				var d:Date=new Date();
 				d.time=timeline.slider.value;
 				var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
-        
-        //reset
-        var currentEdge:Edge;
-        var currentRenderer:BidirectedArrowEdgeRenderer;
-        
-        if(g)
-        {
-          for (var r:int=0; r < g.edges.length; r++)
-          {
-            currentEdge=g.edges[r] as Edge;
-            
-           
-              if(currentEdge.vedge) currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-              if(currentRenderer) currentRenderer.reset()
-        
-          }
-        } 
-    
+
+				//reset
+				var currentEdge:Edge;
+				var currentRenderer:BidirectedArrowEdgeRenderer;
+
+				if (g)
+				{
+					for (var r:int=0; r < g.edges.length; r++)
+					{
+						currentEdge=g.edges[r] as Edge;
+
+
+						if (currentEdge.vedge)
+							currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+						if (currentRenderer)
+							currentRenderer.reset()
+
+					}
+				}
+
 				if (flows)
 				{
 					for (var i:int=0; i < flows.length; i++)
 					{
 						var flow:Flow=flows[i] as Flow;
-           
+
 						if (flow.date == formattedDate)
 						{
-             
-							for(var j:int=0;j<flow.flows.length;j++)
-              {
-                  var f:Flows=flow.flows.getItemAt(j) as Flows;
-                  
-                  if(g)
-                  {
-                    for (var k:int=0; k < g.edges.length; k++)
-                    {
-                      currentEdge=g.edges[k] as Edge;
-                      
-                      if(currentEdge.data.@fromID== f.from && currentEdge.data.@toID==f.rcpt || currentEdge.data.@fromID== f.rcpt && currentEdge.data.@toID==f.from)
-                      {
-                        if(currentEdge.vedge) currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-                        if(currentRenderer) currentRenderer.showFlow(f.from, f.rcpt, f.count);
-                      }
-                    }
-                  } 
-              }
+
+							for (var j:int=0; j < flow.flows.length; j++)
+							{
+								var f:Flows=flow.flows.getItemAt(j) as Flows;
+
+								if (g)
+								{
+									for (var k:int=0; k < g.edges.length; k++)
+									{
+										currentEdge=g.edges[k] as Edge;
+
+										if (currentEdge.data.@fromID == f.from && currentEdge.data.@toID == f.rcpt || currentEdge.data.@fromID == f.rcpt && currentEdge.data.@toID == f.from)
+										{
+											if (currentEdge.vedge)
+												currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+											if (currentRenderer)
+												currentRenderer.showFlow(f.from, f.rcpt, f.count);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -817,7 +826,7 @@
 			private function getFlows(entities:ArrayCollection):void
 			{
 				var ids:Array=new Array();
-        flows=new ArrayCollection
+				flows=new ArrayCollection
 
 				for (var i:int=0; i < entities.length; i++)
 				{
@@ -847,7 +856,8 @@
 
 			private function formatDate(d:Date):String
 			{
-        if(!d) return "";
+				if (!d)
+					return "";
 				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
 			}
 		]]>

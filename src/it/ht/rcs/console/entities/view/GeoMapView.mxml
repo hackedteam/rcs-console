@@ -77,6 +77,7 @@
 			private var circleBorderFillColor:uint=0xFF0000;
 			private var circleBorderFillAlpha:Number=0.5;
 
+      private const ALPHA_RATIO:Number=100/60;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -155,23 +156,27 @@
 				for (i=0; i < targets.length; i++)
 				{
 					entity=targets.getItemAt(i) as Entity;
-					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)); //last position!!!
-					customMarker=new CustomMarker(entity)
-					marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
-					icons[marker]=customMarker;
-					//marker.shadow.visible=true;
-					marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
-					marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
-					marker.foreground.alpha=1;
-					bounds.extend(coordinates);
-					fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
-					//circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
-					//bounds.union(circleBounds)
-					overlays.push(marker);
-					markers.push(marker);
-					map.addOverlay(marker);
-
-					targetsMarkers[entity._id]=marker
+					if(entity.position)
+          {
+            coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)); //last position!!!
+            customMarker=new CustomMarker(entity)
+            marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
+            icons[marker]=customMarker;
+            //marker.shadow.visible=true;
+            marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
+            marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
+            marker.foreground.alpha=1;
+            bounds.extend(coordinates);
+            fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
+            //circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
+            //bounds.union(circleBounds)
+            overlays.push(marker);
+            markers.push(marker);
+            map.addOverlay(marker);
+            
+            targetsMarkers[entity._id]=marker
+          
+          }
           //marker.hide()
 				}
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
@@ -262,8 +267,21 @@
 
 				//temporary dates
 				startDate=new Date();
-				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60); //60 days
+        startDate.date=29;
+        startDate.month=6
+        startDate.fullYear=2013
+        startDate.hours=7
+        startDate.minutes=0
+				//startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60); //60 days
 				endDate=new Date();
+        
+        endDate.date=1;
+        endDate.month=7
+        endDate.fullYear=2013
+        endDate.hours=8
+        endDate.minutes=0
+          
+          
 				if (fromDf)
 					fromDf.selectedDate=startDate;
 				if (toDf)
@@ -300,7 +318,9 @@
 				{
 					trace("ALL ENTITIES DETAILS LOADED")
 					trace("GET TARGETS POSITIONS")
-					getPositions(targets)
+         // getPositionsSummary(targets)
+          
+          getPositionsDetail(targets)
 				}
 			}
 
@@ -367,7 +387,7 @@
 				info.selectedItems=new <Object>[];
 			}
 
-			private function getPositions(targets:ArrayCollection):void
+			private function getPositionsSummary(targets:ArrayCollection):void
 			{
 				var ids:Array=new Array();
 				for (var i:int=0; i < targets.length; i++)
@@ -375,12 +395,35 @@
 					var e:Entity=targets.getItemAt(i) as Entity;
 					ids.push(e._id)
 				}
-				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsResult, onPositionsFault)
+				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsSummaryResult, onPositionsFault)
 			}
 
+      private function getPositionsDetail(targets:ArrayCollection):void
+      {
+        var ids:Array=new Array();
+        for (var i:int=0; i < targets.length; i++)
+        {
+          var e:Entity=targets.getItemAt(i) as Entity;
+          ids.push(e._id)
+        }
+        EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), false, onPositionsDetailResult, onPositionsFault)
+      }
+
+      private function onPositionsDetailResult(e:ResultEvent):void
+      {
+        var pos:ArrayCollection=e.result as ArrayCollection;
+        for (var i:int=0; i < pos.length; i++)
+        {
+          var d:Date=new Date()
+          d.time=pos.getItemAt(i).time * 1000;
+          trace(d)
+        }
+        //tracker.populate(pos)
+        tracker.populateMinutes(pos)
+        drawMap()
+      }
       
-      
-      private function onPositionsResult(e:ResultEvent):void
+      private function onPositionsSummaryResult(e:ResultEvent):void
       {
         var pos:ArrayCollection=e.result as ArrayCollection;
         for (var i:int=0; i < pos.length; i++)
@@ -499,17 +542,17 @@
 				for (var m:* in targetsMarkers)
 				{
 					marker=targetsMarkers[m] as Marker;
-					marker.hide()
+					marker.hide();
 				}
         //
         var key:String=String(currentDate.minutes)
           
-				/* for (i=0; i < h.minutes[key].length; i++)
+				for (i=0; i < h.minutes[key].length; i++)
 				{
-					var log:Positions=h.minutes[key].getItemAt(i) as Positions; */
-        for (i=0; i < h.positions.length; i++)
-        {
-          var log:Positions=h.positions.getItemAt(i) as Positions;
+					var log:Positions=h.minutes[key].getItemAt(i) as Positions; 
+       /*  for (i=0; i < h.positions.length; i++)
+        { */
+          //var log:Positions=h.positions.getItemAt(i) as Positions;
 					var entity:Entity=getTarget(log._id);
 
 					var p:Position=log.position;
@@ -518,9 +561,12 @@
 					trace("long: " + p.lon)
 					trace("rad: " + p.rad)
 					trace("================")
+          trace("alpha: "+log.alpha)
 					marker=targetsMarkers[entity._id] as Marker;
 					marker.show()
 					marker.setLatLng(new LatLng(p.lat, p.lon))
+           
+          marker.foreground.alpha=(log.alpha*ALPHA_RATIO)/100;
            
         
             //marker.getLatLng().

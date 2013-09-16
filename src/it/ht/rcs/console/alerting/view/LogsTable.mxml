@@ -8,6 +8,7 @@
     <![CDATA[
       import it.ht.rcs.console.alert.model.AlertLog;
       import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Link;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.TimeUtils;
@@ -63,10 +64,22 @@
         if (selectedItem == null) return;
         var log:AlertLog = selectedItem as AlertLog;
         var se:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
-        se.section = SectionEvent.OPERATIONS;
-        se.subsection = 'evidence';
-        se.item = SearchManager.instance.getItem(log.path.getItemAt(log.path.length-1) as String);
         
+        if(log.entities && log.entities.length==2) //it's a link
+        {
+         
+          se.section = SectionEvent.INTELLIGENCE;
+          se.subsection = 'links';
+          se.item=SearchManager.instance.getItem(log.path.getItemAt(log.path.length-1) as String);
+          return; //temp
+        
+        }
+        else
+        {
+          se.section = SectionEvent.OPERATIONS;
+          se.subsection = 'evidence';
+          se.item = SearchManager.instance.getItem(log.path.getItemAt(log.path.length-1) as String);
+        }
         if (log.evidence.length > 0) {
           se.evidenceIds = log.evidence.source;
         }

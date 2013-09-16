@@ -185,7 +185,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var color:int;
 			var a:Number=1;
 			color=relevanceColors[this.data.data.@rel]
-      flowColor=0xFF0000;//=0x00CCFF//color;
+      flowColor=color;
         g.clear()
 
 			//fake bold line
@@ -322,6 +322,9 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
          this.addChild(flowRenderer);
          flowRenderer.graphics.beginFill(flowColor);
          flowRenderer.graphics.drawCircle(0, 0, 3);
+         flowRenderer.graphics.endFill()
+         flowRenderer.graphics.lineStyle(0.5, 0xFF0000,1)
+         flowRenderer.graphics.drawCircle(0, 0, 4);
          flowRenderers.push(flowRenderer)
          this.setChildIndex(flowRenderer, this.numChildren-1)
          
@@ -346,6 +349,9 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
           this.addChild(flowRenderer);
           flowRenderer.graphics.beginFill(flowColor);
           flowRenderer.graphics.drawCircle(0, 0, 3);
+          flowRenderer.graphics.endFill()
+          flowRenderer.graphics.lineStyle(0.5, 0xFF0000,1)
+          flowRenderer.graphics.drawCircle(0, 0, 4);
           flowRenderers.push(flowRenderer)
           this.setChildIndex(flowRenderer, this.numChildren-1)
           path2.addFollower(flowRenderer, increment)

@@ -14,47 +14,49 @@
 					addedToStage="onAddedToStage()">
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapEvent;
-			import com.google.maps.MapMouseEvent;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-			import com.google.maps.overlays.Polyline;
-			import com.google.maps.overlays.PolylineOptions;
-			import com.google.maps.styles.StrokeStyle;
-			import com.greensock.TweenMax;
-
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.model.Position;
-			import it.ht.rcs.console.entities.model.Positions;
-			import it.ht.rcs.console.entities.model.PositionsFlow;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
-			import it.ht.rcs.console.entities.view.map.CustomMarker;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.model.SearchItem;
-			import it.ht.rcs.console.target.model.Target;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapEvent;
+      import com.google.maps.MapMouseEvent;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      import com.google.maps.overlays.Polyline;
+      import com.google.maps.overlays.PolylineOptions;
+      import com.google.maps.styles.StrokeStyle;
+      import com.greensock.TweenMax;
+      
+      import flash.utils.setTimeout;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.Position;
+      import it.ht.rcs.console.entities.model.Positions;
+      import it.ht.rcs.console.entities.model.PositionsFlow;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+      import it.ht.rcs.console.entities.view.map.CustomMarker;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.model.SearchItem;
+      import it.ht.rcs.console.target.model.Target;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			//map stuff
 			private var mapReady:Boolean;
@@ -96,7 +98,26 @@
 			private var positions:ArrayCollection; //only positions
 			private var targets:ArrayCollection; //only targets
 
-
+      
+      private function clearMap():void
+      {
+        if(map && overlays)
+        {
+        for (var i:int=0; i < overlays.length; i++)
+        {
+          map.removeOverlay(overlays[i] as IOverlay);
+        }
+        overlays=new Array()
+        circles=new Array()
+        map.clearOverlays()
+        map.enabled=false;
+        map.setZoom(1);
+        map.setCenter(new LatLng(0, 0));
+        
+        }
+      }
+      
+      
 			private function drawMap():void
 			{
 				var i:int=0;
@@ -110,7 +131,8 @@
 				{
 					map.removeOverlay(overlays[i] as IOverlay);
 				}
-
+        overlays=new Array
+        map.clearOverlays()
 				map.setZoom(3);
 				map.setCenter(new LatLng(0, 0));
 
@@ -120,13 +142,13 @@
 
 				bounds=new LatLngBounds();
 
-				if (positions.length > 0)
+			/* 	if (positions.length > 0)
 				{
 					entity=positions.getItemAt(0) as Entity;
 					centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
 					map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
 					overlays=new Array();
-				}
+				} */
 
 				var coordinates:LatLng
 				var customMarker:CustomMarker
@@ -148,13 +170,14 @@
 					marker.foreground.alpha=1;
 					bounds.extend(coordinates);
 					fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
-					circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
-					bounds.union(circleBounds)
+					//circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
+					//bounds.union(circleBounds)
 					overlays.push(marker);
 					markers.push(marker);
 					map.addOverlay(marker);
 
 					placesMarkers[entity._id]=marker
+          //marker.foreground.visible=false
 
 				}
 				//targets
@@ -178,12 +201,14 @@
 						overlays.push(marker);
 						markers.push(marker);
 						map.addOverlay(marker);
-
 						targetsMarkers[entity._id]=marker
-
+            marker.foreground.visible=false
 					}
-						//marker.hide()
+        
+						
 				}
+        if(!map.enabled)
+          map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 			}
 
@@ -232,20 +257,25 @@
 				var entity:Entity;
 				var coordinates:LatLng
 				var marker:Marker
+        
 				if (positionsCh.selected)
 				{
-					for (i=0; i < positions.length; i++) //temp replace with positions
-					{
-						entity=positions.getItemAt(i) as Entity;
-						coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-						bounds.extend(coordinates);
-					}
+          //targets
+          for (var p:* in placesMarkers)
+          {
+            marker=placesMarkers[p] as Marker;
+            if (marker.foreground.visible)
+            {
+              coordinates=marker.getLatLng()
+              bounds.extend(coordinates);
+            }
+          }
 				}
 				//targets
 				for (var m:* in targetsMarkers)
 				{
 					marker=targetsMarkers[m] as Marker;
-					if (!marker.isHidden())
+					if (marker.foreground.visible)
 					{
 						coordinates=marker.getLatLng()
 						bounds.extend(coordinates);
@@ -283,13 +313,18 @@
 				endDate=new Date();
 				endDate.minutes=0
 				endDate.seconds=0;
+        
+        fitCh.selected=false;
+        positionsCh.selected=true;
+        linksCh.selected=true;
 
 				if (fromDf)
 					fromDf.selectedDate=startDate;
 				if (toDf)
 					toDf.selectedDate=endDate;
-        
-        tracker.init()
+        tracker.visible=false;
+        loadingBox.visible=true;
+        setTimeout(tracker.init, 100)
 
 			}
 
@@ -305,20 +340,54 @@
 				//TODO CHECK DATES CONSISTENCY
 				trace("start date: " + startDate);
 				trace("end date: " + endDate);
+        tracker.visible=false;
+        loadingBox.visible=true;
+        clearMap()
+        setTimeout(tracker.draw, 100)
+        
 
 			}
+      
+      private function onTrackerReady():void
+      {
+        //tracker.visible=true;
+        //loadingBox.visible=false;
+        clearMap()
+        refresh()
+      }
 
 			private function onAddedToStage():void
 			{
+        tracker.visible=false;
+        loadingBox.visible=true;
+        fitCh.selected=false;
+        positionsCh.selected=true;
+        linksCh.selected=true;
+        clearMap()
 				refresh()
+        //reset??
 			}
 
 
 			private function onRefresh(e:RefreshEvent):void
 			{
+        clearMap()
 				refresh();
 
 			}
+      
+      //TEMPORARY!!!!!
+      private function isIn(a:ArrayCollection, e:Entity):Boolean
+      {
+        for(var i:int=0;i<a.length;i++)
+        {
+        var entity:Entity=a.getItemAt(i) as Entity;
+        if(entity._id==e._id)
+          return true;
+        
+        }
+        return false;
+      }
 
 			private function onDetailResult(e:ResultEvent):void
 			{
@@ -327,19 +396,27 @@
 
 				if (entity.type == "position")
 				{
-					positions.addItem(e.result)
+					if(!isIn(positions, entity))
+          {
+            positions.addItem(entity)
+            trace("adding a position: "+entity._id)
+          }
+            
 				}
-				if (entity.type == "target")
+        else if (entity.type == "target")
 				{
-					targets.addItem(e.result)
+          if(!isIn(targets, entity))
+          {
+            targets.addItem(entity)
+          }
 				}
 				if (numEntitiesToShow == 0)
 				{
 					trace("ALL ENTITIES DETAILS LOADED")
 					trace("GET TARGETS POSITIONS")
-					//getPositionsSummary(targets)
-
-					getPositionsDetail(targets)
+          
+					getPositionsSummary(targets)
+				
 				}
 			}
 
@@ -366,8 +443,8 @@
 
 				numEntitiesToShow=entitiesToShow.length;
 
-				positions=new ArrayCollection
-				targets=new ArrayCollection
+				positions=new ArrayCollection()
+				targets=new ArrayCollection()
 
 				for (i=0; i < entitiesToShow.length; i++)
 				{
@@ -437,8 +514,12 @@
 					d.time=pos.getItemAt(i).time * 1000;
 					trace(d)
 				}
-				//tracker.populate(pos)
+
 				tracker.populateMinutes(pos)
+        tracker.visible=true;
+        loadingBox.visible=false;
+        
+
 				drawMap()
 			}
 
@@ -452,8 +533,8 @@
 					trace(d)
 				}
 				tracker.populate(pos)
-				//tracker.populateMinutes(pos)
-				drawMap()
+        getPositionsDetail(targets)
+      
 			}
 
 			private function onPositionsFault(e:FaultEvent):void
@@ -553,28 +634,35 @@
 				trace("Geo Map > Date Change: " + tracker.currentDate)
 				currentDate=tracker.currentDate;
 
-				var h:HourRenderer=tracker.currentItem;
-				if (!h)
-					return;
-				trace("num positions: " + h.positions.length)
+				
+			
+        
 				var marker:Marker
 				for (var tm:* in targetsMarkers)
 				{
 					marker=targetsMarkers[tm] as Marker;
-					marker.hide();
+          marker.foreground.visible=false;
 				}
 
 				for (var pm:* in placesMarkers)
 				{
 					marker=placesMarkers[pm] as Marker;
 					if (positionsCh.selected)
-						marker.show()
+          {
+						marker.foreground.visible=true;
+          }
 					else
-						marker.hide();
+          {
+            marker.foreground.visible=false;
+          }
 				}
 				//
 				var key:String=String(currentDate.minutes)
-
+          
+        var h:HourRenderer=tracker.currentItem;
+        if (!h)
+          return;
+        trace("num positions: " + h.positions.length)
 				for (i=0; i < h.minutes[key].length; i++)
 				{
 					var log:Positions=h.minutes[key].getItemAt(i) as Positions;
@@ -592,7 +680,7 @@
 					trace("================")
 
 					marker=targetsMarkers[entity._id] as Marker;
-					marker.show()
+          marker.foreground.visible=true;
 					marker.setLatLng(new LatLng(p.lat, p.lon))
 
 					marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
@@ -680,17 +768,17 @@
 				<s:CheckBox id="fitCh"
 										label="Fit bounds"
 										change="onDateChange()"/>
-				<s:Spacer width="10"/>
+				<s:Spacer width="8"/>
 				<s:CheckBox id="positionsCh"
 										label="Show places"
-										selected="false"
+										selected="true"
 										change="onDateChange()"/>
-				<s:Spacer width="10"/>
+				<s:Spacer width="8"/>
 				<s:CheckBox id="linksCh"
 										label="Draw links"
 										selected="true"
 										change="onDateChange()"/>
-				<s:Spacer width="10"/>
+				<s:Spacer width="8"/>
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
@@ -739,11 +827,11 @@
 				</s:stroke>
 			</s:Line>
 			<s:Group width="100%"
-							 height="136">
+							 >
 				<timeline:Tracker width="100%"
 													startDate="{startDate}"
 													endDate="{endDate}"
-													dateChange="onDateChange()"
+													dateChange="onDateChange()" ready="onTrackerReady()"
 													id="tracker"/>
 				<s:HGroup verticalAlign="middle"
 									horizontalAlign="center"
@@ -752,7 +840,7 @@
 									width="100%"
 									height="100%">
 					<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
-					<s:Label text="Loading data..."
+					<s:Label text="Loading timeline data. Please wait..."
 									 fontWeight="bold"/>
 				</s:HGroup>
 			</s:Group>

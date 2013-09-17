@@ -11,6 +11,7 @@
     [Event(name="dateChange", type="flash.events.Event")]
     [Event(name="stop", type="flash.events.Event")]
     [Event(name="play", type="flash.events.Event")]
+    [Event(name="ready", type="flash.events.Event")]
   </fx:Metadata>
   <fx:Script>
     <![CDATA[
@@ -156,7 +157,7 @@
         hours=new Dictionary();
         
         var numDays:int=Math.floor((endDate.time - startDate.time + DAY) / DAY);
-        var currentDate:Date=new Date();
+        
         currentDate.time=startDate.time;
         
         var currentHour:Number=0;
@@ -167,6 +168,7 @@
         var month:Object={days: 0, index: currentMonth}
         months.push(month)
         var index:int=0;
+        
         for (var i:int=0; i < numDays; i++)
         {
           var d:Group=drawDay();
@@ -216,9 +218,7 @@
             months.push(month)
           }
         }
-        thumb.x=0;
-        thumb.y=0;
-        timeline.addElement(thumb);
+       
         
         //draw months headers  //remove elements
         
@@ -244,7 +244,13 @@
           monthsHeader.addElement(monthRenderer);
           xPos+=monthRenderer.width;
         }
+        
+        thumb.x=0;
+        thumb.y=0;
+        timeline.addElement(thumb);
+        
         this.setElementIndex(monthsHeader, 0)
+          dispatchEvent(new Event("ready"))
       }
       
       private function onHourClick(e:MouseEvent):void

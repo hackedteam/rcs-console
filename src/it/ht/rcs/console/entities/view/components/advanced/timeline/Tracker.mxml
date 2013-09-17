@@ -5,11 +5,12 @@
 				 xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*">
 	<fx:Metadata>
     [Event(name="dateChange", type="flash.events.Event")]
+    [Event(name="ready", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.entities.model.PositionsFlow;
-
+			
 			import mx.collections.ArrayCollection;
 
 			private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -61,8 +62,8 @@
 				for (i=0; i < timeline.frames.length; i++)
 				{
 					var h:HourRenderer=timeline.frames[i] as HourRenderer
-					h.reset()
-				}
+					//h.reset()
+				} 
 
 				for (i=0; i < positions.length; i++)
 				{
@@ -88,16 +89,23 @@
 					var d:Date=new Date()
 					d.time=positions.getItemAt(i).time * 1000;
 					var key:String=formatDate(d);
+          trace("key summary: " + key)
 					var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
 					renderer.populate(positions.getItemAt(i) as PositionsFlow);
 				}
 			}
 
-			private function reset():void
+			public function reset():void
 			{
 				timeline.reset()
 				//dispatchEvent(new Event("dateChange"));
 			}
+      
+      public function draw():void
+      {
+        timeline.draw()
+        //dispatchEvent(new Event("dateChange"));
+      }
 
 			public function init():void
 			{
@@ -106,6 +114,11 @@
 				dispatchEvent(new Event("dateChange")); */
         timeline.init()
 			}
+      
+      private function onTimelineReady():void
+      {
+      dispatchEvent(new Event("ready"))
+      }
 
 			private function onDateChange():void
 			{
@@ -147,7 +160,8 @@
 																 stop="onTimelineStop()"
 																 play="onTimelinePlay()"
 																 startDate="{startDate}"
-																 endDate="{endDate}"/>
+																 endDate="{endDate}"
+                                 ready="onTimelineReady()"/>
 		</s:Group>
 		<s:HScrollBar viewport="{viewport}"
 									width="100%"

@@ -1,95 +1,258 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:view="it.ht.rcs.console.operations.view.*"
-          xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
-          xmlns:entities="it.ht.rcs.console.entities.view.*"
-          width="100%" height="100%"  addedToStage="onAddedToStage()">
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:view="it.ht.rcs.console.operations.view.*"
+					xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
+					xmlns:entities="it.ht.rcs.console.entities.view.*"
+					width="100%"
+					height="100%"
+					addedToStage="onAddedToStage()">
 
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.view.EntitiesSection;
-      
-      import locale.R;
-      
-      [Bindable]
-      public var section:EntitiesSection;
-      
-      [Bindable]
-      public var selcetdObjects:Vector.<Object>
-      
-      private function onDoubleClick(event:MouseEvent):void
-      {
-        var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
-        if (item) section.stateManager.manageItemSelection(item);
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.view.EntitiesSection;
+      import it.ht.rcs.console.events.DataLoadedEvent;
 
-      }
-      
-      private function onKeyUp(event:KeyboardEvent):void
-      {
-       
-      }
-      
-      protected function onAddedToStage():void
-      {
-        EntityManager.instance.refresh();
-      }
-      
-      private function onChangeView():void
-      {
-         trace("view changed");
-      }
-      
-    ]]>
-  </fx:Script>   
+			import locale.R;
 
-<entities:EntitiesActionBar section="{section}" selectedObjects="{list.selectedItems}" viewStack="{views}" selectedObject="{list.selectedItem}" entityUpdated="{list.selectedItem=null}"/>
-  
-  
-  <mx:ViewStack id="views" width="100%" height="100%" creationPolicy="all" change="onChangeView()">
-    <s:NavigatorContent label="{R.get('ICON_VIEW')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/windows/icon.png')" showEffect="{fadeIn}">
+			import mx.collections.ArrayCollection;
+
+			[Bindable]
+			public var section:EntitiesSection;
+
+			[Bindable]
+			public var selcetdObjects:Vector.<Object>;
+
+			[Bindable]
+			public var entities:ArrayCollection=new ArrayCollection()
+
+			private function onDoubleClick(event:MouseEvent):void
+			{
+				var item:*=event.currentTarget === list ? list.selectedItem : grid.selectedItem;
+				if (item)
+					section.stateManager.manageItemSelection(item);
+
+			}
+
+			private function onKeyUp(event:KeyboardEvent):void
+			{
+
+			}
+
+			protected function onAddedToStage():void
+			{
+				EntityManager.instance.refresh();
+				onChangeView();
+			}
+
+			public function onChangeView():void
+			{
+				if (geoMap)
+					geoMap.doStop();
+
+				actionbar.selectedObject=null;
+				actionbar.selectedObjects=null; //TODO > SYNC SELECTION
+
+				trace("view changed: " + views.selectedIndex);
+
+				var i:int;
+
+
+				if (views.selectedIndex == 0) //links
+				{
+					actionbar.currentState="linkmap"
+				/* 	entities.removeAll()
+					for (i=0; i < section.stateManager.view.length; i++)
+					{
+						entities.addItem(section.stateManager.view.getItemAt(i));
+					}
+            */
+					linkMap.entities=section.stateManager.tableView; 
+					linkMap.init()
+				}
+
+				else if (views.selectedIndex == 1) //geo map
+				{
+					actionbar.currentState="geomap"
+					entities.removeAll()
+					for (i=0; i < section.stateManager.view.length; i++)
+					{
+						entities.addItem(section.stateManager.view.getItemAt(i));
+					}
+					geoMap.entities=entities;
+					geoMap.init() // TODO 
+				}
+
+				else if (views.selectedIndex == 2) //list
+				{
+					actionbar.currentState="list"
+					list.selectedItem=null;
+					list.selectedItems=null
+
+
+				}
+
+				if (views.selectedIndex == 3) //table
+				{
+					actionbar.currentState="table"
+					grid.selectedItem=null
+					grid.selectedItems=null
+
+				}
+			}
+
+			protected function onNewLink():void
+			{
+				trace("new link created in link view")
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+
+			}
       
-      <s:HGroup width="100%" height="100%" gap="5">
-        
-        <view:BaseList id="list" dataProvider="{section.stateManager.view}" selectedItems="{grid.selectedItems}"
-                       doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)" allowMultipleSelection="true" section="{this.section}"/>
-        
-       <entities:EntityInfoPanel selectedItem="{list.selectedItem}" selectedItems="{list.selectedItems}"/>
-        
-      </s:HGroup>
+      private function onDataLoaded(e:DataLoadedEvent):void
+      {
+        EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+        onChangeView()
+      }
+
+			protected function onLinkRemoved():void
+			{
+				trace("link removed in link view")
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+			}
+
+			protected function onLinkUpdated():void
+			{
+				trace("link updated in link view")
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+			}
       
-    </s:NavigatorContent>
-   <s:NavigatorContent label="{R.get('TABLE_VIEW')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/windows/list.png')" showEffect="{fadeIn}">
-      
-      
-      <entities:EntitiesGrid id="grid" dataProvider="{section.stateManager.tableView}" selectedItems="{list.selectedItems}"
-                             doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)"/>
-      
-    </s:NavigatorContent>
-    
-   <!-- <s:NavigatorContent label="{R.get('LINK_MAP')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/NEW/link16.png')" showEffect="{fadeIn}">
-      
-      
-      <entities:LinkView entities="{section.stateManager.selectedEntities}" section="{this.section}"/>
-      
-    </s:NavigatorContent>
-    <s:NavigatorContent label="{R.get('POSITION_MAP')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/NEW/position16.png')" showEffect="{fadeIn}">
+      protected function onEntityMerged():void
+      {
+        trace("entity merged in link view")
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+      }
       
       
-      <s:Group/>
+      protected function onEntityCreated():void
+      {
+        trace("entity created")
+        onChangeView()
+      }
       
-    </s:NavigatorContent>-->
-  </mx:ViewStack>
-  
-  <fx:Declarations>
-    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
-    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
-  </fx:Declarations>
-  
+      protected function onEntityDeleted():void
+      {
+        trace("entity deleted")
+        onChangeView()
+      }
+      protected function onEntityUpdated():void
+      {
+        trace("entity updated")
+        onChangeView()
+      }
+		]]>
+	</fx:Script>
+
+	<entities:EntitiesActionBar section="{section}"
+															selectedObjects="{list.selectedItems}"
+															viewStack="{views}"
+															selectedObject="{list.selectedItem}"
+															entityUpdated="onEntityUpdated();list.selectedItem=null"
+                              entityCreated="onEntityCreated(); list.selectedItem=null"
+                              entityDeleted="onEntityDeleted(); list.selectedItem=null"
+                              entityMerged="onEntityMerged(); list.selectedItem=null"
+															linkAdded="onNewLink()"
+															linkRemoved="onLinkRemoved()"
+															linkUpdated="onLinkUpdated()"
+															id="actionbar"/>
+
+
+	<mx:ViewStack id="views"
+								width="100%"
+								height="100%"
+								creationPolicy="all"
+								change="onChangeView()"
+								creationComplete="onChangeView()">
+
+		<s:NavigatorContent label="{R.get('LINK_MAP')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/NEW/link16.png')"
+												showEffect="{fadeIn}">
+
+
+			<entities:LinkView section="{this.section}"
+												 id="linkMap"
+												 entities="{section.stateManager.tableView}"
+												 actionbar="{actionbar}"/>
+
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{R.get('POSITION_MAP')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/NEW/position16.png')"
+												showEffect="{fadeIn}">
+
+
+			<entities:GeoMapView id="geoMap"
+													 section="{this.section}"
+													 actionbar="{actionbar}"
+													 entities="{entities}"/>
+
+		</s:NavigatorContent>
+
+		<s:NavigatorContent label="{R.get('ICON_VIEW')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/windows/icon.png')"
+												showEffect="{fadeIn}">
+
+			<s:HGroup width="100%"
+								height="100%"
+								gap="5">
+
+				<view:BaseList id="list"
+											 dataProvider="{section.stateManager.view}"
+											 selectedItems="{grid.selectedItems}"
+											 doubleClick="onDoubleClick(event)"
+											 keyUp="onKeyUp(event)"
+											 allowMultipleSelection="true"
+											 section="{this.section}"/>
+
+				<entities:EntityInfoPanel selectedItem="{list.selectedItem}"
+																	selectedItems="{list.selectedItems}"/>
+
+			</s:HGroup>
+
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{R.get('TABLE_VIEW')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/windows/list.png')"
+												showEffect="{fadeIn}">
+
+
+			<entities:EntitiesGrid id="grid"
+														 dataProvider="{section.stateManager.tableView}"
+														 selectedItems="{list.selectedItems}"
+														 doubleClick="onDoubleClick(event)"
+														 keyUp="onKeyUp(event)"/>
+
+		</s:NavigatorContent>
+
+
+	</mx:ViewStack>
+
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="150"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="150"/>
+	</fx:Declarations>
+
 </s:VGroup>

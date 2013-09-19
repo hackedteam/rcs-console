@@ -67,11 +67,22 @@
         
         if(log.entities && log.entities.length==2) //it's a link
         {
+          
+          se.section = SectionEvent.INTELLIGENCE;
+          se.subsection = 'links';
+          se.info=[log.entities.getItemAt(0), log.entities.getItemAt(1)]
+          se.item=SearchManager.instance.getItem(log.path.getItemAt(0) as String);
+          
+          
+        }
+        
+        else if(log.entities && log.entities.length==1) //it's an entity
+        {
          
           se.section = SectionEvent.INTELLIGENCE;
           se.subsection = 'links';
+          se.info=[log.entities.getItemAt(0)]
           se.item=SearchManager.instance.getItem(log.path.getItemAt(log.path.length-1) as String);
-          return; //temp
         
         }
         else

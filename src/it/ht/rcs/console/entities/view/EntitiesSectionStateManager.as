@@ -1,6 +1,7 @@
 package it.ht.rcs.console.entities.view
 {
 	import flash.utils.Dictionary;
+	import flash.utils.setTimeout;
 	
 	import it.ht.rcs.console.accounting.controller.UserManager;
 	import it.ht.rcs.console.agent.controller.AgentManager;
@@ -85,7 +86,8 @@ package it.ht.rcs.console.entities.view
 					return null;
 			}
 		}
-
+    
+   
 		public function manageItemSelection(i:*, event:SectionEvent=null):void
 		{
 			var item:*=i || getItemFromEvent(event);
@@ -98,19 +100,21 @@ package it.ht.rcs.console.entities.view
 				CurrentManager.instance.unlistenRefresh();
 			}
 
-			if (item is Operation)
-			{
-				selectedOperation=item;
-				setState('singleOperation');
-				UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type: "operation", section: "intelligence"});
-			}
-		/*	if (item is Entity) //&& event.subsection == "links") //event can be null
+			
+      if (item is Operation && event && event.subsection == "links") //event can be null
 			{
 				trace("is a link")
-			selectedOperation=OperationManager.instance.getItem(item.path[0]);
-        currentFilter=singleOperationFilterFunction;
-				setState("links")
-			}*/
+        var data:Array=event.info;
+			  selectedOperation=item
+				setState("links", data)
+			}
+      
+      if (item is Operation)
+      {
+        selectedOperation=item;
+        setState('singleOperation');
+        UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type: "operation", section: "intelligence"});
+      }
 
 			else if (item is Entity)
 			{
@@ -119,8 +123,6 @@ package it.ht.rcs.console.entities.view
 				UserManager.instance.add_recent(Console.currentSession.user, {id: selectedEntity._id, type: "entity", section: "intelligence"});
 
 			}
-
-
 
 		}
 
@@ -132,7 +134,7 @@ package it.ht.rcs.console.entities.view
 
 		private var currentState:String;
 
-		public function setState(state:String):void
+		public function setState(state:String, data:*=null):void
 		{
 			if (!state)
 				return;
@@ -156,10 +158,11 @@ package it.ht.rcs.console.entities.view
 				case 'singleOperation':
 					selectedEntity=null;
 					//selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
-					section.currentState='singleOperation';
+					
 					CurrentManager=EntityManager;
 					currentFilter=singleOperationFilterFunction;
 					update();
+          section.currentState='singleOperation';
 					break;
 
 				case 'singleEntity':
@@ -183,9 +186,27 @@ package it.ht.rcs.console.entities.view
 					break;
 
         case 'links':
-          section.currentState = 'links';
           CurrentManager = EntityManager;
+          section.currentState = 'singleOperation';
+          currentFilter=singleOperationFilterFunction;
+          
+          
           update();
+          //link view
+
+          if(data)
+          {
+            if(data.length==1)
+            {
+              section.view.linkMap.nodeToHighLight={id:data[0]} //single entity: highlight node
+            }
+            else if (data.length==2)
+            {
+              section.view.linkMap.linkToHighLight={from:data[0], to:data[1]} // two entities: highlight link 
+            }
+          }
+          section.view.views.selectedIndex=0;
+          section.view.onChangeView()
           break;
 				case 'map':
 					section.currentState='map';

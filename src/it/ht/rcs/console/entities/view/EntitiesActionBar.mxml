@@ -2,56 +2,127 @@
 <actionbar:ActionBar xmlns:fx="http://ns.adobe.com/mxml/2009"
 										 xmlns:s="library://ns.adobe.com/flex/spark"
 										 xmlns:mx="library://ns.adobe.com/flex/mx"
+										 xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
 										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
 										 xmlns:view="it.ht.rcs.console.entities.view.*">
+  
+  <fx:Metadata>
+    [Event(name="update", type="flash.events.Event")]
+    [Event(name="linkAdded", type="flash.events.Event")]
+    [Event(name="linkUpdated", type="flash.events.Event")]
+    [Event(name="linkRemoved", type="flash.events.Event")]
+    [Event(name="entityDeleted", type="flash.events.Event")]
+    [Event(name="entityCreated", type="flash.events.Event")]
+    [Event(name="entityUpdated", type="flash.events.Event")]
+    [Event(name="entityMerged", type="flash.events.Event")]
+    
+  </fx:Metadata>
 
-	<s:Button label="{R.get('NEW_ENTITY')}"
+	<actionbar:states>
+		<s:State name="linkmap"/>
+		<s:State name="geomap"/>
+		<s:State name="list"/>
+		<s:State name="table"/>
+	</actionbar:states>
+
+	<s:Button label="{R.get('NEW')}"
 						click="onNewClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() }"
+						enabled="{Console.currentSession.user.is_view_profiles()}"
 						icon="@Embed('/img/NEW/newEntity.png')"
 						visible="{LicenseManager.instance.intelligence}"
-						includeInLayout="{LicenseManager.instance.intelligence}"/>
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('EDIT')}"
 						click="onEditClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 }"
-						icon="@Embed('/img/NEW/edit.png')"/>
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity} "
+						icon="@Embed('/img/NEW/edit.png')"
+						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick()"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject.type!='target'}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
-						includeInLayout="{LicenseManager.instance.intelligence}"/>
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						includeIn="geomap, linkmap,list, table"/>
 
-	<actionbar:Separator/>
+	<s:Button label="{R.get('EXPORT')}"
+						icon="@Embed('/img/NEW/export.png')"
+						visible="{LicenseManager.instance.intelligence}"
+						click="exportEntity(event)"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length>0}"
+						includeIn="geomap, linkmap,list, table"/>
+
+	<s:Button label="{R.get('MERGE')}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mergeEnabled}"
+						icon="@Embed('/img/NEW/merge32.png')"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+            click="onMergeClick()"
+						includeIn="linkmap"/>
+
+
+	<actionbar:Separator width="20"/>
 
 	<s:Button label="{R.get('JUMP_TO_TARGET')}"
 						click="onJumpClick()"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject.type=='target'}"
-						icon="@Embed('/img/NEW/jumpToTarget.png')"/>
-	<actionbar:Separator/>
+						icon="@Embed('/img/NEW/jumpToTarget.png')"
+						includeIn="geomap, linkmap,list, table"/>
 
-	<s:Button label="{R.get('LINK_MAP')}"
+	<s:Button label="{'Jump to Evidence'}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; jumpEnabled}"
+						icon="@Embed('/img/NEW/jumpToEvidence.png')"
+						click="jumpToEvidence()"
+						includeIn="linkmap"/>
+
+	<actionbar:Separator width="20"/>
+
+	<s:Button label="{R.get('LINK_ADD')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; linkEnabled==true}"
+						icon="@Embed('/img/NEW/linkAdd.png')"
+            click="addLink()"
+						includeIn="linkmap, geomap"/>
+
+	<s:Button label="{R.get('LINK_EDIT')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence} "
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject is Edge &amp;&amp; selectedObject.data.@type!='identity'}"
+						icon="@Embed('/img/NEW/linkEdit.png')"
+            click="editLink()"
+						includeIn="linkmap, geomap"/>
+
+	<s:Button label="{R.get('LINK_REMOVE')}"
+						visible="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject is Edge}"
+						icon="@Embed('/img/NEW/linkRemove.png')"
+            click="onDeleteLinkClick()"
+						includeIn="linkmap, geomap"/>
+
+	<editors:TagEditor label="{R.get('RELEVANCE')}"
+										 id="tagEditor"
+										 width="80"
+										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject is Edge}"
+                     change="updateRelevance(tagEditor.tag)"
+                     tag="{selectedObject is Edge? selectedObject.data.@rel: 0}"
+										 includeIn="linkmap, geomap"/>
+
+	<actionbar:Separator includeIn="linkmap"
+											 width="20"/>
+
+	<s:Button label="{R.get('EXPORT_GRAPH')}"
+						icon="@Embed('/img/NEW/export.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles()}"
-						icon="@Embed('/img/NEW/link32.png')"
-						click="onLinkClick()"/>
-
-	<s:Button label="{R.get('POSITION_MAP')}"
-						visible="{LicenseManager.instance.intelligence}"
-						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles()}"
-						icon="@Embed('/img/NEW/position32.png')"
-						click="onMapClick()"/>
-  <actionbar:Separator visible="{LicenseManager.instance.intelligence}"
-                       includeInLayout="{LicenseManager.instance.intelligence}"/>
-  <s:Button label="{R.get('EXPORT')}"
-            icon="@Embed('/img/NEW/export.png')"
-            visible="{LicenseManager.instance.intelligence}" click="exportEntity(event)"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length>0}"/>
+						includeIn="linkmap"/>
 
 	<s:Spacer width="100%"/>
 
@@ -60,8 +131,9 @@
 
 	<s:TextInput id="searchInput"
 							 keyUp="onKeyUp(event)"
-							 removedFromStage="onRemovedFromStage()"/>
-  <fx:Metadata>
+							 removedFromStage="onRemovedFromStage()"
+							 enabled="{currentState=='list' || currentState=='table'}"/>
+	<fx:Metadata>
     [Event(name="update", type="flash.events.Event")]
     [Event(name="linkAdded", type="flash.events.Event")]
     [Event(name="linkRemoved", type="flash.events.Event")]
@@ -88,6 +160,11 @@
       import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -98,9 +175,19 @@
 			[Bindable]
 			public var selectedObjects:Vector.<Object>;
 
+			[Bindable]
+			public var mergeEnabled:Boolean;
+      
+      [Bindable]
+      public var linkEnabled:Boolean; //Add a link
+
+			[Bindable]
+			public var jumpEnabled:Boolean; //Jump to evidence
+
 			private function onNewClick():void
 			{
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+        popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
 				popup.operation=section.stateManager.selectedOperation;
 				popup.entity=new Entity(Entity.defaultEntity());
 				popup.currentState=EntityForm.CREATE;
@@ -111,7 +198,7 @@
 			{
 				//selectedObject=selectedObjects[0] 
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-				popup.addEventListener("update", onUpdate) 
+				popup.addEventListener("update", onUpdate)
 				popup.entity=selectedObject as Entity;
 				popup.entity.desc=selectedObject.desc;
 				popup.currentState=EntityForm.EDIT
@@ -129,14 +216,16 @@
 				event.item=SearchManager.instance.getItem(targetId);
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
 			}
-      private function onUpdate(e:Event):void
-      {
-        selectedObject.name=e.currentTarget.entity.name;
-        selectedObject.desc=e.currentTarget.entity.desc;
-        
-        dispatchEvent(e)
-        dispatchEvent(new Event("entityUpdated"));
-      }
+
+			private function onUpdate(e:Event):void
+			{
+				selectedObject.name=e.currentTarget.entity.name;
+				selectedObject.desc=e.currentTarget.entity.desc;
+
+				dispatchEvent(e)
+				dispatchEvent(new Event("entityUpdated"));
+			}
+
 			private function onDeleteClick():void
 			{
 				//selectedObject=selectedObjects[0] 
@@ -146,6 +235,7 @@
 					{
 						EntityManager.instance.removeItem(selectedObject);
 						section.stateManager.setState("singleOperation")
+            dispatchEvent(new Event("entityDeleted"));
 					}
 				}, null, AlertPopUp.NO);
 			}
@@ -153,17 +243,17 @@
 			private function onLinkClick():void
 			{
 				selectedEntities=new ArrayCollection()
-        var i:int;
-        var entity:Entity;
-        
-        /* for (i=0; i < section.stateManager.view.length; i++)
-        {
-          entity=section.stateManager.view.getItemAt(i) as Entity;
-          selectedEntities.addItem(entity);
-          
-        } */
-        
-			if (this.selectedObjects.length == 0 || this.selectedObjects.length == section.stateManager.view.length) //??
+				var i:int;
+				var entity:Entity;
+
+				/* for (i=0; i < section.stateManager.view.length; i++)
+				{
+					entity=section.stateManager.view.getItemAt(i) as Entity;
+					selectedEntities.addItem(entity);
+
+				} */
+
+				if (this.selectedObjects.length == 0 || this.selectedObjects.length == section.stateManager.view.length) //??
 
 				{ //temp - all entities
 					for (i=0; i < section.stateManager.view.length; i++)
@@ -179,7 +269,7 @@
 						entity=selectedObjects[i] as Entity;
 						selectedEntities.addItem(entity);
 					}
-				} 
+				}
 				section.stateManager.selectedEntities=selectedEntities;
 				section.stateManager.setState("links")
 			}
@@ -212,21 +302,280 @@
 				section.stateManager.view.refresh();
 				section.stateManager.tableView.refresh();
 			}
+
+			private function exportEntity(event:MouseEvent):void
+			{
+				var popup:EntityExport=PopUpManager.createPopUp(root, EntityExport, true) as EntityExport;
+				popup.operation=section.stateManager.selectedOperation;
+				popup.type="entity";
+				var ids:Array=[];
+				for (var i:int=0; i < this.selectedObjects.length; i++)
+				{
+					var entity:Entity=selectedObjects[i] as Entity;
+					ids.push(entity._id);
+				}
+				popup.ids=ids;
+				PopUpManager.centerPopUp(popup);
+			}
+
+			private function jumpToEvidence():void
+			{
+				var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
+				var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+				var xml:XML=XML(selectedObject.data)
+				var info:Array=[];
+				if (entity1.type == "position" || entity2.type == "position")
+				{
+					var position:Entity=entity1.type == "position" ? entity1 : entity2;
+					info.push("lon:" + position.position.longitude + ",lat:" + position.position.latitude + ",r:500")
+				}
+				else
+				{
+					for (var i:int=0; i < xml.Info.length(); i++)
+					{
+						info.push(String(selectedObject.data.Info[i]));
+					}
+				}
+				var targetId:String;
+				if (entity1.type == "target" && entity2.type == "target")
+				{
+					//open dialog
+					var popup:TargetSelectionForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, TargetSelectionForm, true) as TargetSelectionForm;
+					popup.entity1=entity1;
+					popup.entity2=entity2;
+					popup.info=info;
+					popup.addEventListener("targetSelected", onTargetSelection)
+					PopUpManager.centerPopUp(popup);
+					return;
+				}
+				else if (entity1.type == "target" && entity2.type != "target")
+				{
+					targetId=String(entity1.path.getItemAt(entity1.path.length - 1));
+				}
+				else if (entity2.type == "target" && entity1.type != "target")
+				{
+					targetId=String(entity2.path.getItemAt(entity2.path.length - 1));
+				}
+				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+				event.section=SectionEvent.OPERATIONS;
+				event.subsection='evidence';
+
+				event.item=SearchManager.instance.getItem(targetId);
+				if (entity1.type == "position" || entity2.type == "position")
+					event.evidenceTypes=["position"];
+				else
+					event.evidenceTypes=["call", "chat", "message"];
+
+				event.info=info;
+				//event.from=getFromTimestamp();
+				//event.to=getToTimestamp();
+				event.from=0;
+				event.to=0; //no filter
+				FlexGlobals.topLevelApplication.dispatchEvent(event);
+
+			}
+
+			private function onTargetSelection(e:Event):void
+			{
+				var targetId:String=String(e.currentTarget.selectedTarget.path.getItemAt(e.currentTarget.selectedTarget.path.length - 1));
+				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+				event.section=SectionEvent.OPERATIONS;
+				event.subsection='evidence';
+				event.item=SearchManager.instance.getItem(targetId);
+				event.evidenceTypes=["call", "chat", "message"];
+				event.info=e.currentTarget.info;
+				//event.from=getFromTimestamp();
+				//event.to=getToTimestamp();
+				event.from=0;
+				event.to=0; //no filter
+				FlexGlobals.topLevelApplication.dispatchEvent(event);
+			}
       
-      private function exportEntity(event:MouseEvent):void
+      private function updateRelevance(value:int):void
       {
-        var popup:EntityExport=PopUpManager.createPopUp(root, EntityExport, true) as EntityExport;
-        popup.operation=section.stateManager.selectedOperation;
-        popup.type="entity";
-        var ids:Array=[];
-        for (var i:int=0; i < this.selectedObjects.length; i++)
+        if (selectedObject  != null && selectedObject is Edge)
         {
-          var entity:Entity=selectedObjects[i] as Entity;
-          ids.push(entity._id);
+          selectedObject.data.@rel=value;
+          var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer;
+          currentRenderer.draw();
+
+          var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
+          var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+          
+          trace("1: " + entity1.name);
+          trace("2: " + entity2.name);
+          //
+          var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
+          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.@type, versus, value, null, null);
         }
-        popup.ids=ids;
+      }
+      
+      private function addLink():void
+      {
+        var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        
+        if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
+        {
+          popup.entity1=entity2;
+          popup.entity2=entity1;
+          popup.versusSelectionEnabled=false;
+        }
+        else if (entity2.type == "position" && (entity1.type == "target" || entity1.type == "person"))
+        {
+          popup.entity1=entity1;
+          popup.entity2=entity2;
+          popup.versusSelectionEnabled=false;
+        }
+          
+        else if (entity1.type == "virtual" && (entity2.type == "target" || entity2.type == "person"))
+        {
+          popup.entity1=entity2;
+          popup.entity2=entity1;
+          popup.versusSelectionEnabled=false;
+        }
+        else if (entity2.type == "virtual" && (entity1.type == "target" || entity1.type == "person"))
+        {
+          popup.entity1=entity1;
+          popup.entity2=entity2;
+          popup.versusSelectionEnabled=false;
+        }
+        else
+        {
+          popup.entity1=entity1;
+          popup.entity2=entity2;
+          popup.versusSelectionEnabled=true;
+        }
+        
+        popup.currentState=LinkForm.CREATE;
+        popup.addEventListener(LinkForm.LINK_ADDED, onLinkAdded)
         PopUpManager.centerPopUp(popup);
       }
+      
+      private function onLinkAdded(e:Event):void
+      {
+        dispatchEvent(new Event("linkAdded"));
+      }
+      
+      private function onLinkUpdated(e:Event):void
+      {
+        dispatchEvent(new Event("linkUpdated"));
+      }
+      
+      private function onDeleteLinkClick():void
+      {
+        
+        AlertPopUp.show('Do you want to remove the selected link ', R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+        {
+          if (e.detail == AlertPopUp.YES)
+          {
+            EntityManager.instance.deleteLink(selectedObject.data.@fromID, selectedObject.data.@toID, onDeleteLinkResult, onFault)
+            
+          }
+        }, null, AlertPopUp.NO);
+      }
+      
+      private function onDeleteLinkResult(e:ResultEvent):void
+      {
+        dispatchEvent(new Event("linkRemoved"))
+      }
+      
+      private function onFault(e:FaultEvent):void
+      {
+        trace("Fault CallBack");
+      }
+      
+      private function editLink():void
+      {
+        var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
+        var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+        
+        var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
+        var type:String=selectedObject.data.@type;
+        var relevance:int=selectedObject.data.@rel;
+        
+        
+        popup.entity1=entity1;
+        popup.entity2=entity2;
+        popup.versus=versus;
+        popup.type=type;
+        popup.rel=relevance;
+        if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
+        {
+          //popup.entity1=entity2;
+          //popup.entity2=entity1;
+          popup.versusSelectionEnabled=false;
+        }
+        else if (entity2.type == "position" && (entity1.type == "target" || entity1.type == "person"))
+        {
+          //popup.entity1=entity1;
+          //popup.entity2=entity2;
+          popup.versusSelectionEnabled=false;
+        }
+        else
+        {
+          //popup.entity1=entity1;
+          //popup.entity2=entity2;
+          popup.versusSelectionEnabled=true;
+        }
+        popup.currentState=LinkForm.EDIT;
+        popup.addEventListener(LinkForm.LINK_ADDED, onLinkUpdated)
+        PopUpManager.centerPopUp(popup);
+        
+      }
+      
+      private function onMergeClick():void
+      {
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        var msg:String;
+        
+        if (entity1.type == "person" && entity2.type == "target")
+        {
+          msg='Merge ' + entity2.name + ' with ' + entity1.name + '?'
+        }
+        else
+        {
+          msg='Merge ' + entity1.name + ' with ' + entity2.name + '?'
+        }
+        
+        AlertPopUp.show(msg, R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
+        {
+          if (e.detail == AlertPopUp.YES)
+          {
+            merge()
+          }
+        }, null, AlertPopUp.NO);
+      }
+      
+      private function merge():void
+      {
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        
+        if (entity1.type == "person" && entity2.type == "target")
+        {
+          EntityManager.instance.merge(entity2, entity1, onMergeResult, onFault)
+        }
+        else
+        {
+          EntityManager.instance.merge(entity1, entity2, onMergeResult, onFault)
+        }
+      }
+      
+      private function onMergeResult(e:ResultEvent):void
+      {
+        dispatchEvent(new Event("entityMerged"));
+      }
+      
+      private function onEntityAdded(e:Event):void
+      {
+        dispatchEvent(new Event("entityCreated"));
+      }
+
+
 		]]>
 	</fx:Script>
 

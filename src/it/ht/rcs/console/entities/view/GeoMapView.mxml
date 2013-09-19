@@ -9,9 +9,9 @@
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					height="100%"
-					width="100%"
-					creationComplete="init()"
-					addedToStage="onAddedToStage()">
+					width="100%" hide="onRemovedFromStage()"
+					
+					addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
 	<fx:Script>
 		<![CDATA[
       import com.google.maps.LatLng;
@@ -81,6 +81,10 @@
 			private var circleBorderFillAlpha:Number=0.5;
 
 			private const ALPHA_RATIO:Number=100 / 60;
+      
+      
+      [Bindable]
+      public var actionbar:EntitiesActionBar
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -211,6 +215,17 @@
           map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 			}
+      
+      private function onRemovedFromStage():void
+      {
+      tracker.doStop()
+      }
+      
+      public function doStop():void
+      {
+        tracker.doStop()
+      }
+      
 
 			private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
 			{
@@ -282,6 +297,7 @@
 					}
 				}
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+        map.setZoom(map.getBoundsZoomLevel(bounds)-1)
 			}
 
 			private function calculateMapScale():Number
@@ -299,7 +315,7 @@
 				return scale;
 			}
 
-			private function init():void
+			public function init():void
 			{
 				map.addEventListener(MapEvent.MAP_READY, onMapReady)
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
@@ -338,8 +354,8 @@
 				endDate.minutes=0;
 				endDate.seconds=0;
 				//TODO CHECK DATES CONSISTENCY
-				trace("start date: " + startDate);
-				trace("end date: " + endDate);
+				//("start date: " + startDate);
+				//trace("end date: " + endDate);
         tracker.visible=false;
         loadingBox.visible=true;
         clearMap()
@@ -358,13 +374,17 @@
 
 			private function onAddedToStage():void
 			{
-        tracker.visible=false;
-        loadingBox.visible=true;
-        fitCh.selected=false;
-        positionsCh.selected=true;
-        linksCh.selected=true;
-        clearMap()
-				refresh()
+        trace("GEO MAP ADDED TO STAGE")
+        /* if(this.initialized)
+        {
+          tracker.visible=false;
+          loadingBox.visible=true;
+          fitCh.selected=false;
+          positionsCh.selected=true;
+          linksCh.selected=true;
+          clearMap()
+  				refresh()
+        } */
         //reset??
 			}
 
@@ -519,7 +539,6 @@
         tracker.visible=true;
         loadingBox.visible=false;
         
-
 				drawMap()
 			}
 
@@ -575,17 +594,25 @@
 					icon=icons[e.currentTarget];
 					icon.selected=!icon.selected;
 					var selectedItems:Vector.<Object>=new <Object>[];
+          
 					for (i in icons)
 					{
 						icon=icons[i]
 						if (icon.selected)
 							selectedItems.push(icon.entity);
 					}
-					info.selectedItems=selectedItems
+					info.selectedItems=selectedItems;
+          actionbar.selectedObjects=selectedItems;
 					if (selectedItems.length > 0)
+          {
 						info.selectedItem=selectedItems[selectedItems.length - 1]
+            actionbar.selectedObject=selectedItems[selectedItems.length - 1]
+          }
 					else
+          {
 						info.selectedItem=null
+            actionbar.selectedObject=null
+          }
 				}
 
 				else //single selection
@@ -599,13 +626,16 @@
 					icon.selected=!icon.selected;
 					info.selectedItem=icon.selected ? icon.entity : null;
 					info.selectedItems=new <Object>[info.selectedItem];
+          
+          actionbar.selectedObject=icon.selected ? icon.entity : null;
+          actionbar.selectedObjects=new <Object>[info.selectedItem];
 				}
 
 			}
 
 			private function onMarkerDoubleClick(e:MapMouseEvent):void
 			{
-				e.stopImmediatePropagation()
+				e.stopImmediatePropagation();
 				var icon:CustomMarker;
 				icon=icons[e.currentTarget];
 				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
@@ -662,7 +692,7 @@
         var h:HourRenderer=tracker.currentItem;
         if (!h)
           return;
-        trace("num positions: " + h.positions.length)
+       // trace("num positions: " + h.positions.length)
 				for (i=0; i < h.minutes[key].length; i++)
 				{
 					var log:Positions=h.minutes[key].getItemAt(i) as Positions;
@@ -672,12 +702,12 @@
 					var entity:Entity=getTarget(log._id);
 
 					var p:Position=log.position;
-					trace("name: " + entity.name)
+				/* 	trace("name: " + entity.name)
 					trace("lat: " + p.lat)
 					trace("long: " + p.lon)
 					trace("rad: " + p.rad)
 					trace("alpha: " + log.alpha)
-					trace("================")
+					trace("================") */
 
 					marker=targetsMarkers[entity._id] as Marker;
           marker.foreground.visible=true;
@@ -748,13 +778,13 @@
 			}
 		]]>
 	</fx:Script>
-	<entities:GeoMapActionBar section="{section}"
+	<!--<entities:GeoMapActionBar section="{section}"
 														selectedObject="{info.selectedItem}"
 														selectedObjects="{info.selectedItems}"
 														entityDeleted="onEntityDeleted()"
 														entityCreated="onEntityCreated()"
 														entityUpdated="onEntityUpdated()"
-														linkAdded="onLinkAdded()"/>
+														linkAdded="onLinkAdded()"/>-->
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">

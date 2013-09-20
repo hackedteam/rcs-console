@@ -10,8 +10,20 @@
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.entities.model.PositionsFlow;
-			
+
 			import mx.collections.ArrayCollection;
+
+			[Embed(source="img/mediaplayers/playMedium.png")]
+			[Bindable]
+			public var playIcon:Class;
+
+			[Embed(source="img/mediaplayers/pauseMedium.png")]
+			[Bindable]
+			public var pauseIcon:Class;
+
+			[Embed(source="img/mediaplayers/stopMedium.png")]
+			[Bindable]
+			public var stopIcon:Class;
 
 			private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -37,23 +49,25 @@
 
 				}
 			}
-      
-      public function doStop():void
-      {
-        if (timeline.isPlaying)
-        {
-          timeline.doStop()
-        }
-      }
+
+			public function doStop():void
+			{
+				if (timeline.isPlaying)
+				{
+					timeline.doStop()
+				}
+			}
 
 			private function onTimelineStop():void
 			{
-				playBtn.label="play"
+				playBtn.toolTip="play"
+				playBtn.setStyle("icon", playIcon)
 			}
 
 			private function onTimelinePlay():void
 			{
-				playBtn.label="stop"
+				playBtn.toolTip="stop"
+				playBtn.setStyle("icon", stopIcon)
 			}
 
 			private function doubleDigits(n:Number):String
@@ -70,8 +84,8 @@
 				for (i=0; i < timeline.frames.length; i++)
 				{
 					var h:HourRenderer=timeline.frames[i] as HourRenderer
-					//h.reset()
-				} 
+						//h.reset()
+				}
 
 				for (i=0; i < positions.length; i++)
 				{
@@ -97,7 +111,7 @@
 					var d:Date=new Date()
 					d.time=positions.getItemAt(i).time * 1000;
 					var key:String=formatDate(d);
-          //trace("key summary: " + key)
+					//trace("key summary: " + key)
 					var renderer:HourRenderer=timeline.hours[key] as HourRenderer;
 					renderer.populate(positions.getItemAt(i) as PositionsFlow);
 				}
@@ -108,25 +122,25 @@
 				timeline.reset()
 				//dispatchEvent(new Event("dateChange"));
 			}
-      
-      public function draw():void
-      {
-        timeline.draw()
-        //dispatchEvent(new Event("dateChange"));
-      }
+
+			public function draw():void
+			{
+				timeline.draw()
+				//dispatchEvent(new Event("dateChange"));
+			}
 
 			public function init():void
 			{
-			/* 	currentDate=timeline.currentDate;
-				currentItem=null //?? TODO
-				dispatchEvent(new Event("dateChange")); */
-        timeline.init()
+				/* 	currentDate=timeline.currentDate;
+					currentItem=null //?? TODO
+					dispatchEvent(new Event("dateChange")); */
+				timeline.init()
 			}
-      
-      private function onTimelineReady():void
-      {
-      dispatchEvent(new Event("ready"))
-      }
+
+			private function onTimelineReady():void
+			{
+				dispatchEvent(new Event("ready"))
+			}
 
 			private function onDateChange():void
 			{
@@ -142,11 +156,11 @@
 					return "";
 				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date) + doubleDigits(d.hours);
 			}
-      
-      private function changeSpeed():void
-      {
-        timeline.t.delay=speed.value*100
-      }
+
+			private function changeSpeed():void
+			{
+				timeline.t.delay=speed.value * 100
+			}
 		]]>
 	</fx:Script>
 
@@ -174,21 +188,35 @@
 																 play="onTimelinePlay()"
 																 startDate="{startDate}"
 																 endDate="{endDate}"
-                                 ready="onTimelineReady()"/>
+																 ready="onTimelineReady()"/>
 		</s:Group>
 		<s:HScrollBar viewport="{viewport}"
 									width="100%"
 									id="scrollbar"
 									stepSize="30"/>
 		<s:HGroup verticalAlign="middle">
-			<s:Button label="play"
+			<s:Button label=""
 								click="doPlay()"
-								id="playBtn"/>
-			<s:Spacer width="50"/>
-			<s:Label id="currentDateTxt"/>
-      <s:Spacer width="50"/>
+								toolTip="play"
+								id="playBtn"
+								icon="{playIcon}"
+								width="24"
+								height="24"/>
+			<s:Spacer width="30"/>
       <s:Label text="speed"/>
-      <s:HSlider minimum="1" maximum="5" value="2.5" stepSize="0.5" liveDragging="true" change="changeSpeed()" id="speed" showDataTip="false" layoutDirection="rtl"/>
+      <s:HSlider minimum="1"
+                 maximum="5"
+                 value="2.5"
+                 stepSize="0.5"
+                 liveDragging="true"
+                 change="changeSpeed()"
+                 id="speed"
+                 showDataTip="false"
+                 layoutDirection="rtl"/>
+			
+			<s:Spacer width="30"/>
+      <s:Label id="currentDateTxt" fontWeight="bold"/>
+		
 		</s:HGroup>
 	</s:VGroup>
 

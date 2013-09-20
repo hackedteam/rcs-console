@@ -12,6 +12,8 @@
 		<![CDATA[
       import it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin;
       import it.ht.rcs.console.entities.view.components.timeline.HSliderTrackSkinTicks;
+      
+      import mx.collections.ArrayCollection;
 			[Bindable]
 			public var startDate:Date;
 
@@ -41,6 +43,18 @@
 
 			private var lastValue:Number;
       private var isPlaying:Boolean;
+      
+      [Embed(source="img/mediaplayers/playMedium.png")]
+      [Bindable]
+      public var playIcon:Class;
+      
+      [Embed(source="img/mediaplayers/pauseMedium.png")]
+      [Bindable]
+      public var pauseIcon:Class;
+      
+      [Embed(source="img/mediaplayers/stopMedium.png")]
+      [Bindable]
+      public var stopIcon:Class;
 
 			private function formatTime(val:String):String
 			{
@@ -75,7 +89,6 @@
 				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_DOWN, onMD);
         t=new Timer(2000);
         t.addEventListener(TimerEvent.TIMER, nextTimelineFrame)
-        
 			}
       
       private function nextTimelineFrame(e:TimerEvent):void
@@ -158,7 +171,8 @@
       {
         isPlaying=false;
         t.stop();
-        playBtn.label="play";
+        playBtn.setStyle("icon", playIcon)
+        playBtn.toolTip="play"
         slider.value=slider.minimum;
       }
       
@@ -169,15 +183,24 @@
           this.nextTimelineFrame(null)
           t.start();
           isPlaying=true;
-          playBtn.label="pause"
+          playBtn.setStyle("icon", pauseIcon)
+          playBtn.toolTip="pause"
         }
         else
         {
           t.stop();
           isPlaying=false;
-          playBtn.label="play"
+          playBtn.setStyle("icon", playIcon)
+
+          playBtn.toolTip="play"
         }
         
+      }
+      
+      public function highlight(flows:ArrayCollection):void
+      {
+      trace("HL")
+      slider.highlight(flows)
       }
       
 		]]>
@@ -211,7 +234,7 @@
 								id="scrollbar"
 								stepSize="30"/>
   <s:HGroup>
-    <s:Button label="play" click="doPlay()" id="playBtn"/>
-    <s:Button label="stop" click="doStop()" id="stopBtn"/>
+    <s:Button label="" click="doPlay()" id="playBtn" toolTip="Play" icon="{playIcon}" height="24" width="24"/>
+    <s:Button label="" click="doStop()" id="stopBtn" toolTip="Stop" icon="{stopIcon}" height="24" width="24"/>
   </s:HGroup>
 </s:Group>

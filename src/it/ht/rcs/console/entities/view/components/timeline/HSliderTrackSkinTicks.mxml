@@ -10,9 +10,16 @@
 
 	<fx:Script>
 		<![CDATA[
-      import spark.components.Group;
-      import spark.components.Label;
-      import it.ht.rcs.console.entities.view.components.timeline.Tick
+			import it.ht.rcs.console.entities.model.Flow;
+			import it.ht.rcs.console.entities.view.components.timeline.Tick;
+			
+			import mx.collections.ArrayCollection;
+			
+			import spark.components.Group;
+			import spark.components.Label;
+
+
+			private var ticks:Dictionary;
 
 			/**
 			* Probably a better way of doing this
@@ -22,13 +29,24 @@
 				super.updateDisplayList(unscaledWidth, unscaledHeight);
 				drawTicks();
 			}
-      
-      private function doubleDigits(val:Number):String
-      {
-        if (val < 10)
-          return String("0" + val);
-        return String(val)
-      }
+
+			public function highlightTicks(flows:ArrayCollection):void
+			{
+				for (var i:int=0; i < flows.length; i++)
+				{
+					var f:Flow=flows.getItemAt(i) as Flow;
+          var tick:Tick=ticks[f.date] as Tick;
+          tick.highlight()
+				}
+
+			}
+
+			private function doubleDigits(val:Number):String
+			{
+				if (val < 10)
+					return String("0" + val);
+				return String(val)
+			}
 
 			/**
 			 * This is very naive, and it could be made more efficient
@@ -46,10 +64,11 @@
 				var tickSpacing:Number=((width - thumbGroupWidth) / numberOfTicks);
 				ticksGroup.left=ticksGroup.right=Math.floor(thumbGroupWidth / 2);
 
+
 				ticksGroup.removeAllElements();
 				ticksGroup.width=0;
-
-			 	for (var i:int=0; i <= numberOfTicks; i++)
+				ticks=new Dictionary
+				for (var i:int=0; i <= numberOfTicks; i++)
 				{
 					var value:Number=sliderSkin.hostComponent.minimum + (sliderSkin.hostComponent.stepSize * i);
 					var date:String=formatTime(String(value));
@@ -58,28 +77,32 @@
 					tick.y=0;
 					tick.x=Math.floor(i * tickSpacing);
 					ticksGroup.addElement(tick);
-          
-          var label:Label=new Label();
-          label.width=30
-          label.text=date;
-          label.x=tick.x-15;
-          label.y=20;
-          label.setStyle("fontSize", 9);
-          ticksGroup.addElement(label);
-				} 
+
+					var label:Label=new Label();
+					label.width=30
+					label.text=date;
+					label.x=tick.x - 15;
+					label.y=20;
+					label.setStyle("fontSize", 9);
+					ticksGroup.addElement(label);
+          var d:Date=new Date();
+          d.time=value;
+          var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
+					ticks[formattedDate]=tick
+				}
 			}
 
 			private function formatTime(val:String):String
 			{
 				var time:Number=Number(val);
 				var d:Date=new Date();
-        d.time=time;
-        return doubleDigits(d.date) + "/" + doubleDigits((d.month + 1)) 
+				d.time=time;
+				return doubleDigits(d.date) + "/" + doubleDigits((d.month + 1))
 			}
 		]]>
 	</fx:Script>
 
-	
+
 
 	<s:states>
 		<s:State name="up"/>
@@ -94,9 +117,9 @@
 					top="3"
 					bottom="3"
 					height="5">
-		<s:fill>
-			<s:SolidColor color="0x666666"/>
-		</s:fill>
+		<!--	<s:fill>
+				<s:SolidColor color="0xFFFFFF"/>
+			</s:fill>-->
 	</s:Rect>
 
 	<!-- fill -->
@@ -104,20 +127,20 @@
 					right="1"
 					top="4"
 					bottom="4">
-		<s:fill>
-			<s:SolidColor color="0xCACACA"/>
-		</s:fill>
+		<!--	<s:fill>
+				<s:SolidColor color="0xFFFFFF"/>
+			</s:fill>-->
 	</s:Rect>
 
 	<!-- shadow -->
-	<s:Rect left="2"
-					right="2"
-					top="4"
-					height="1">
-		<s:fill>
-			<s:SolidColor color="0x9E9E9E"/>
-		</s:fill>
-	</s:Rect>
+	<!--	<s:Rect left="2"
+						right="2"
+						top="4"
+						height="1">
+			<s:fill>
+				<s:SolidColor color="0x9E9E9E"/>
+			</s:fill>
+		</s:Rect>-->
 
 	<!-- hit area -->
 	<s:Rect left="0"

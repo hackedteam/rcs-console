@@ -2,9 +2,10 @@ package it.ht.rcs.console.entities.view.components.timeline
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-
+	
+	import mx.collections.ArrayCollection;
 	import mx.events.FlexEvent;
-
+	
 	import spark.components.Button;
 	import spark.components.Group;
 	import spark.components.HSlider;
@@ -18,6 +19,9 @@ package it.ht.rcs.console.entities.view.components.timeline
 		public var decrementButton:Button;
 		[SkinPart(required="false")]
 		public var thumbGroup:Group;
+    
+    
+    private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 		public function DashboardSlider()
 		{
@@ -26,6 +30,14 @@ package it.ht.rcs.console.entities.view.components.timeline
 			addEventListener('creationComplete', setupListeners);
 
 		}
+    
+    public function highlight(flows:ArrayCollection):void
+    {
+      var skin:DashboardSliderSkin=this.skin as DashboardSliderSkin;
+      var trackskin:HSliderTrackSkinTicks=track.skin as HSliderTrackSkinTicks
+      trackskin.highlightTicks(flows)
+    
+    }
 
 		private function setupListeners(e:FlexEvent):void
 		{
@@ -75,7 +87,7 @@ package it.ht.rcs.console.entities.view.components.timeline
 			var time:Number=Number(value);
 			var d:Date=new Date();
 			d.time=time;
-			thumb.label=doubleDigits(d.date) + "/" + doubleDigits((d.month + 1)) + "/" + d.fullYear
+			thumb.label=doubleDigits(d.date) + " " + monthNames[d.month]
 
 		}
 

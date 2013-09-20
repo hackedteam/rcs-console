@@ -9,7 +9,9 @@
   
   <s:Button label="{R.get('DELETE_ALL')}" click="onDeleteAllClick()" enabled="{view &amp;&amp; view.length > 0}" icon="@Embed('/img/NEW/delete_all.png')"/>
   <actionbar:Separator/>
-  <s:Button label="{R.get('JUMP_TO_EVIDENCE')}"  enabled="{selectedObjects.length==1}" icon="@Embed('/img/NEW/jumpToEvidence.png')" click="jumpToEvidence()"/>
+  <s:Button label="{R.get('JUMP_TO_EVIDENCE')}"  enabled="{selectedObjects.length==1 &amp;&amp; selectedObjects[0].entities.length==0}" icon="@Embed('/img/NEW/jumpToEvidence.png')" click="jumpToEvidence()"/>
+  <s:Button label="{R.get('JUMP_TO_ENTITY')}"  enabled="{selectedObjects.length==1 &amp;&amp; selectedObjects[0].entities.length==1}" icon="@Embed('/img/NEW/jumpToEntities.png')" click="jumpToEntity()"/>
+  <s:Button label="{R.get('JUMP_TO_LINK')}"  enabled="{selectedObjects.length==1 &amp;&amp; selectedObjects[0].entities.length==2}" icon="@Embed('/img/NEW/jumpToLink.png')" click="jumpToLink()"/>
   
  
   <fx:Script>
@@ -51,6 +53,32 @@
         FlexGlobals.topLevelApplication.dispatchEvent(se);
       }
       
+      private function jumpToLink():void
+      {
+        if (selectedObjects == null) return;
+        var log:AlertLog = selectedObjects[0] as AlertLog;    
+        var se:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        se.section = SectionEvent.INTELLIGENCE;
+        se.subsection = 'links';
+        se.info=[log.entities.getItemAt(0), log.entities.getItemAt(1)]
+        se.item=SearchManager.instance.getItem(log.path.getItemAt(0) as String);
+      
+        FlexGlobals.topLevelApplication.dispatchEvent(se);
+      }
+      
+      private function jumpToEntity():void
+      {
+        if (selectedObjects == null) return;
+        var log:AlertLog = selectedObjects[0] as AlertLog;    
+        var se:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
+        se.section = SectionEvent.INTELLIGENCE;
+        se.subsection = 'links';
+        se.info=[log.entities.getItemAt(0)]
+        se.item=SearchManager.instance.getItem(log.path.getItemAt(log.path.length-1) as String);
+
+        FlexGlobals.topLevelApplication.dispatchEvent(se);
+      }
+      
       private function onDeleteClick():void
       {
           var alert:Alert = section.alertBar.selectedObject as Alert;
@@ -78,7 +106,7 @@
       
       private function onDeleteAllClick():void
       {
-        var alert:Alert = (parent as AlertingSection).alerts.selectedItem as Alert;
+        var alert:Alert = (parent.parent as AlertingSection).alerts.selectedItem as Alert;
 
         AlertPopUp.show(R.get('CONFIRM_ALERT_LOG_DELETION'), R.get('CONFIRM'),
                         AlertPopUp.YES|AlertPopUp.NO, null,

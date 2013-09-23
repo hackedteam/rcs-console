@@ -190,7 +190,6 @@ package it.ht.rcs.console.entities.view
           section.currentState = 'singleOperation';
           currentFilter=singleOperationFilterFunction;
           
-          
           update();
           //link view
 

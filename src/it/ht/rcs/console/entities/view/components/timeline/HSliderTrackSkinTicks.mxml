@@ -20,6 +20,8 @@
 
 
 			private var ticks:Dictionary;
+      
+      private var flows:ArrayCollection;
 
 			/**
 			* Probably a better way of doing this
@@ -32,12 +34,21 @@
 
 			public function highlightTicks(flows:ArrayCollection):void
 			{
+        this.flows=flows;
+        
+        for(var t:* in ticks)
+        {
+          tick=ticks[t] as Tick;
+          if( tick) tick.unHighlight()
+        }
+        
 				for (var i:int=0; i < flows.length; i++)
 				{
 					var f:Flow=flows.getItemAt(i) as Flow;
+          var tick:Tick;
           if(ticks)
           {
-            var tick:Tick=ticks[f.date] as Tick;
+            tick=ticks[f.date] as Tick;
             if( tick) tick.highlight()
           }
 				}
@@ -93,6 +104,8 @@
           var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
 					ticks[formattedDate]=tick
 				}
+        if(flows)
+          highlightTicks(flows)
 			}
 
 			private function formatTime(val:String):String

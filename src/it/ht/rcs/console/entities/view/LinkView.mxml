@@ -8,42 +8,41 @@
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					height="100%"
-					width="100%"
-					>
+					width="100%">
 	<fx:Script>
 		<![CDATA[
-      import com.greensock.TweenMax;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Flow;
-      import it.ht.rcs.console.entities.model.Flows;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.events.RefreshEvent;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
-      import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
-      import org.un.cava.birdeye.ravis.graphLayout.data.INode;
-      import org.un.cava.birdeye.ravis.graphLayout.data.Node;
-      import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-      import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import com.greensock.TweenMax;
+
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Flow;
+			import it.ht.rcs.console.entities.model.Flows;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.events.RefreshEvent;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
+			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
+			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
+			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
+			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ListCollectionView;
@@ -75,9 +74,9 @@
 
 			[Bindable]
 			public var jumpEnabled:Boolean;
-      
-      public var linkToHighLight:Object;
-      public var nodeToHighLight:Object;
+
+			public var linkToHighLight:Object;
+			public var nodeToHighLight:Object;
 
 			private var sort:Sort;
 			private var xmlData:XML;
@@ -117,7 +116,7 @@
 				{
 					fromDf.selectedDate=startDate;
 				}
-
+				timeline.reset()
 				onAddedToStage(null)
 				//getFlows(entities)
 			}
@@ -139,10 +138,7 @@
 
 				flows=new ArrayCollection
 				numEntitiesToShow=entities.length;
-				trace("entities: " + entities.length);
 
-
-				//entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
 				if (vgraph)
@@ -154,23 +150,15 @@
 				{
 					g.purgeGraph();
 				}
-			/* 	for (var i:int=0; i < entities.length; i++)
-				{
-					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
-				} */
-        entitiesToShow=entities
-          
-      /*   for(var i:int=0;i<entities.length;i++)
-        {
-          entitiesToShow.addItem(entities.getItemAt(i))
-        } */
-      parseItems()
-        
-        
-        //links are already in
+
+				entitiesToShow=entities
+
+
+				parseItems()
+
 				mergeEnabled=actionbar.mergeEnabled=false;
 				linkEnabled=actionbar.linkEnabled=false;
-        jumpEnabled=actionbar.jumpEnabled=false;
+				jumpEnabled=actionbar.jumpEnabled=false;
 
 			}
 
@@ -244,12 +232,13 @@
 
 				if (roots.length == 1)
 				{
-					//trace("no need to add a fake root")
+					trace("no need to add a fake root")
 
 				}
 				else
 				{
-					//trace("more than 1 root - add a fake root and attach real roots")
+					trace("more than 1 root - add a fake root and attach real roots")
+          
 					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />");
 					var fakeRoot:INode=g.createNode("0", xnode);
 
@@ -289,64 +278,32 @@
 					bzoom.value=1;
 					vgraph.draw();
 				}
-        if(linkToHighLight)
-        {
-          setTimeout(highlightLink, 1000, linkToHighLight.from, linkToHighLight.to)
-        }
-        
-        if(nodeToHighLight)
-        {
-          setTimeout(highlightNode, 1000,  nodeToHighLight.id)
-        }
-        
+				if (linkToHighLight)
+				{
+					setTimeout(highlightLink, 1000, linkToHighLight.from, linkToHighLight.to)
+				}
+
+				if (nodeToHighLight)
+				{
+					setTimeout(highlightNode, 1000, nodeToHighLight.id)
+				}
+
 				getFlows(entities)
 			}
-      
-      //TEMPORARY!!!!!
-      private function isIn(a:ArrayCollection, e:Entity):Boolean
-      {
-        for(var i:int=0;i<a.length;i++)
-        {
-          var entity:Entity=a.getItemAt(i) as Entity;
-          if(entity._id==e._id)
-            return true;
-          
-        }
-        return false;
-      }
 
-			/* private function onDetailResult(e:ResultEvent):void
+			//TEMPORARY!!!!!
+			private function isIn(a:ArrayCollection, e:Entity):Boolean
 			{
-
-				numEntitiesToShow--;
-				if(!isIn(entitiesToShow, e.result as Entity)) entitiesToShow.addItem(e.result)
-				var i:int=0
-				if (numEntitiesToShow == 0)
+				for (var i:int=0; i < a.length; i++)
 				{
-					//depth1
-					var linkedEntities:ArrayCollection=new ArrayCollection()
-					for (i=0; i < entitiesToShow.length; i++)
-					{
-						var entity:Entity=entitiesToShow.getItemAt(i) as Entity
-						if (entity.links)
-						{
-							for (var l:int=0; l < entity.links.length; l++)
-							{
-								var linkedEntity:Entity=EntityManager.instance.getItem(entity.links.getItemAt(l).le);
-								if (linkedEntity != null)
-									linkedEntities.addItem(linkedEntity)
-							}
-						}
+					var entity:Entity=a.getItemAt(i) as Entity;
+					if (entity._id == e._id)
+						return true;
 
-					}
-					for (i=0; i < linkedEntities.length; i++)
-					{
-						if (!isAlreadyIn(entitiesToShow, linkedEntities.getItemAt(i) as Entity))
-							entitiesToShow.addItem(linkedEntities.getItemAt(i)) //check if already in
-					}
-					parseItems();
 				}
-			} */
+				return false;
+			}
+
 
 			private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
 			{
@@ -393,10 +350,10 @@
 
 				linkEnabled=actionbar.linkEnabled=false;
 				mergeEnabled=actionbar.mergeEnabled=false;
-        
+
 				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
 				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-				if (selectedEdge != null && (selectedEdge.data.Info.length()>0))
+				if (selectedEdge != null && (selectedEdge.data.Info.length() > 0))
 					jumpEnabled=actionbar.jumpEnabled=true;
 				else
 					jumpEnabled=actionbar.jumpEnabled=false;
@@ -415,7 +372,7 @@
 			{
 				var index:int;
 				var i:int;
-        
+
 				for (i=0; i < g.nodes.length; i++)
 				{
 					var currentNode:Node=g.nodes[i] as Node;
@@ -598,61 +555,61 @@
 				//target + position
 				if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//target + person
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//target + virtual
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//person + virtual
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//person + position
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
 				{
-          actionbar.selectedObjects=new Vector.<Object>
-          actionbar.selectedObjects.push(selectedNodes[0])
-          actionbar.selectedObjects.push(selectedNodes[1])
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
 					linkEnabled=actionbar.linkEnabled=true;
 				}
 
 				else
 				{
-          //actionbar.selectedObjects=null
+					//actionbar.selectedObjects=null
 					linkEnabled=actionbar.linkEnabled=false;
 				}
 
@@ -750,6 +707,7 @@
 				//_vgraph.scale = bzoom.value;
 
 				// Handle the update for mousewheel events outside the component
+        
 				if (e != null)
 				{
 					if (e.delta != 0)
@@ -902,91 +860,91 @@
 					}
 				}
 			}
-      
-      public function highlightLink(from:*, to:*):void
-      {
-        linkToHighLight=null;
-        for (var i:int=0; i < g.edges.length; i++)
-        {
-          var currentEdge:Edge=g.edges[i] as Edge;
-          var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
-          currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-          if(currentEdge.data.@fromID == from && currentEdge.data.@toID == to || currentEdge.data.@fromID == to && currentEdge.data.@toID == from)
-          {
-            currentEdgeRenderer.selected=true;  
-            selectedEdge=currentEdge;
-          }
-          else
-          {
-            currentEdgeRenderer.selected=false;
-          }
-        }
-        
-        
-        
-        for (i=0; i < g.nodes.length; i++)
-        {
-          var currentNode:Node=g.nodes[i] as Node;
-          var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
-          currentNodeRenderer.selected=false;
-          var index:int=selectedNodes.getItemIndex(currentNode);
-          if (index != -1)
-            selectedNodes.removeItemAt(index)
-          
-        }
-        
-        linkEnabled=actionbar.linkEnabled=false;
-        mergeEnabled=actionbar.mergeEnabled=false;
-        
-        var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
-        var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-        if (selectedEdge != null && (selectedEdge.data.Info.length()>0))
-          jumpEnabled=actionbar.jumpEnabled=true;
-        else
-          jumpEnabled=actionbar.jumpEnabled=false;
-        
-        info.selectedItem=selectedEdge;
-        actionbar.selectedObject=selectedEdge; //SEL
-        
-        info.selectedItems=new <Object>[info.selectedItem];
-        actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-        
-        info.selectedItems.push(info.selectedItem)
-        actionbar.selectedObjects.push(actionbar.selectedObject);
-        
-       
-      }
-      
-      public function highlightNode(id:*):void
-      {
-        nodeToHighLight=null;
-        var currentNode:Node;
-        var currentRenderer:IconNodeRenderer;
-        for (var i:int=0; i < g.nodes.length; i++)
-        {
-          currentNode=g.nodes[i] as Node;
-          currentRenderer=currentNode.vnode.view as IconNodeRenderer;
-          if(currentNode.data.@id==id)
-          {
-           
-            info.selectedItem=getEntityById(String(currentNode.data.@id))
-            
-            actionbar.selectedObject=info.selectedItem;
-            actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-            actionbar.selectedObjects.push(actionbar.selectedObject)
-            
-            info.selectedItems=new <Object>[info.selectedItem];
-            info.selectedItems.push(info.selectedItem)
-              
-            currentRenderer.selected=true;
-          }
-          else
-          {
-            currentRenderer.selected=false;
-          }
-        }
-        
-      }
+
+			public function highlightLink(from:*, to:*):void
+			{
+				linkToHighLight=null;
+				for (var i:int=0; i < g.edges.length; i++)
+				{
+					var currentEdge:Edge=g.edges[i] as Edge;
+					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
+					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+					if (currentEdge.data.@fromID == from && currentEdge.data.@toID == to || currentEdge.data.@fromID == to && currentEdge.data.@toID == from)
+					{
+						currentEdgeRenderer.selected=true;
+						selectedEdge=currentEdge;
+					}
+					else
+					{
+						currentEdgeRenderer.selected=false;
+					}
+				}
+
+
+
+				for (i=0; i < g.nodes.length; i++)
+				{
+					var currentNode:Node=g.nodes[i] as Node;
+					var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
+					currentNodeRenderer.selected=false;
+					var index:int=selectedNodes.getItemIndex(currentNode);
+					if (index != -1)
+						selectedNodes.removeItemAt(index)
+
+				}
+
+				linkEnabled=actionbar.linkEnabled=false;
+				mergeEnabled=actionbar.mergeEnabled=false;
+
+				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+				if (selectedEdge != null && (selectedEdge.data.Info.length() > 0))
+					jumpEnabled=actionbar.jumpEnabled=true;
+				else
+					jumpEnabled=actionbar.jumpEnabled=false;
+
+				info.selectedItem=selectedEdge;
+				actionbar.selectedObject=selectedEdge; //SEL
+
+				info.selectedItems=new <Object>[info.selectedItem];
+				actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+
+				info.selectedItems.push(info.selectedItem)
+				actionbar.selectedObjects.push(actionbar.selectedObject);
+
+
+			}
+
+			public function highlightNode(id:*):void
+			{
+				nodeToHighLight=null;
+				var currentNode:Node;
+				var currentRenderer:IconNodeRenderer;
+				for (var i:int=0; i < g.nodes.length; i++)
+				{
+					currentNode=g.nodes[i] as Node;
+					currentRenderer=currentNode.vnode.view as IconNodeRenderer;
+					if (currentNode.data.@id == id)
+					{
+
+						info.selectedItem=getEntityById(String(currentNode.data.@id))
+
+						actionbar.selectedObject=info.selectedItem;
+						actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+						actionbar.selectedObjects.push(actionbar.selectedObject)
+
+						info.selectedItems=new <Object>[info.selectedItem];
+						info.selectedItems.push(info.selectedItem)
+
+						currentRenderer.selected=true;
+					}
+					else
+					{
+						currentRenderer.selected=false;
+					}
+				}
+
+			}
 
 
 
@@ -1010,7 +968,7 @@
 			{
 				trace("flow result")
 				flows=e.result as ArrayCollection;
-        timeline.highlight(flows);
+				timeline.highlight(flows);
 			}
 
 			private function onFlowFault(e:FaultEvent):void
@@ -1035,16 +993,7 @@
 	</fx:Script>
 
 	<!-- Graph Panel -->
-	<!--<entities:LinkActionBar selectedNodes="{selectedNodes}"
-													selectedEdge="{selectedEdge}"
-													linkAdded="onAddedToStage()"
-													linkRemoved="onAddedToStage()"
-													entityDeleted="refresh()"
-													entityCreated="refresh()"
-													entityUpdated="onAddedToStage()"
-													merge="refresh()"
-													mainView="{this}"
-													section="{section}"/>-->
+
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">

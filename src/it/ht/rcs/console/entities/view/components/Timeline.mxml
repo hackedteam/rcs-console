@@ -31,8 +31,7 @@
       
       [Bindable]
       public var step:int;
-      
-      
+
       private var t:Timer;
 
 			[Bindable]
@@ -63,6 +62,11 @@
 				d.time=time;
 				return d.date + "/" + d.month + "/" + d.fullYear
 			}
+      
+      public function reset():void
+      {
+        slider.value=slider.minimum;
+      }
 
 			private function onResize():void
 			{
@@ -94,14 +98,14 @@
       private function nextTimelineFrame(e:TimerEvent):void
       {
        slider.value+=slider.stepSize;
-       trace("frame")
+
       }
 
 
 
 			private function onMD(e:MouseEvent):void 
 			{
-				trace("down")
+
         slider.addEventListener(MouseEvent.MOUSE_UP, onMU)
 				slider.thumbGroup.removeEventListener(MouseEvent.MOUSE_DOWN, onMD)
 				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_UP, onMU)
@@ -118,7 +122,7 @@
 
 			private function onMU(e:MouseEvent):void 
 			{
-				trace("up")
+
         slider.removeEventListener(MouseEvent.MOUSE_UP, onMU)
 				slider.thumbGroup.removeEventListener(Event.ENTER_FRAME, onMM)
 				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_DOWN, onMD)
@@ -157,16 +161,16 @@
 
 			private function onChange():void
 			{
-				trace(formatTime(String(slider.value)));
+				
 				dispatchEvent(new Event("change"));
         onMM(null)
 			}
       
 			private function onChangeEnd():void
 			{
-				trace("change end")
 
 			}
+      
       private function doStop():void
       {
         isPlaying=false;
@@ -199,7 +203,7 @@
       
       public function highlight(flows:ArrayCollection):void
       {
-      trace("HL")
+      
       slider.highlight(flows)
       }
       

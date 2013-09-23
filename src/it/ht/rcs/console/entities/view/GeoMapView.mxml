@@ -111,13 +111,13 @@
         {
           map.removeOverlay(overlays[i] as IOverlay);
         }
+        
         overlays=new Array()
         circles=new Array()
         map.clearOverlays()
         map.enabled=false;
         map.setZoom(1);
         map.setCenter(new LatLng(0, 0));
-        
         }
       }
       
@@ -325,7 +325,7 @@
 				startDate.minutes=0
 				startDate.seconds=0
 
-				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 60); //60 days
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30); //60 days
 				endDate=new Date();
 				endDate.minutes=0
 				endDate.seconds=0;
@@ -490,17 +490,9 @@
 			private function onMapClick(e:MapMouseEvent):void
 			{
 				trace("map clicked");
+        unselectAll();
 				e.stopImmediatePropagation()
-				var icon:CustomMarker;
-
-				for (var i:* in icons)
-				{
-					icon=icons[i]
-					icon.selected=false;
-				}
-
-				info.selectedItem=null;
-				info.selectedItems=new <Object>[];
+			  
 			}
 
 			private function getPositionsSummary(targets:ArrayCollection):void
@@ -629,9 +621,25 @@
           
           actionbar.selectedObject=icon.selected ? icon.entity : null;
           actionbar.selectedObjects=new <Object>[info.selectedItem];
+          actionbar.selectedObjects.push(info.selectedItem)
 				}
 
 			}
+      
+      public function unselectAll():void
+      {
+        var icon:CustomMarker
+        for (var i:* in icons)
+        {
+          icon=icons[i]
+          icon.selected=false;
+        }
+        info.selectedItem=null
+        info.selectedItems=null
+        
+        actionbar.selectedObject=null
+        actionbar.selectedObjects=null
+      }
 
 			private function onMarkerDoubleClick(e:MapMouseEvent):void
 			{
@@ -648,6 +656,7 @@
 
 			private function onDateChange():void
 			{
+        
 				var i:int;
 				//remove links
 				//draw links
@@ -803,7 +812,7 @@
 				<s:CheckBox id="positionsCh"
 										label="Show places"
 										selected="false"
-										change="onDateChange()"/>
+										change="onDateChange(); unselectAll()"/>
 				<s:Spacer width="8"/>
 				<s:CheckBox id="linksCh"
 										label="Draw links"

@@ -121,7 +121,8 @@
 						icon="@Embed('/img/NEW/export.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles()}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; section.stateManager.tableView.length>0}"
+            click="exportGraph(event)"
 						includeIn="linkmap"/>
 
 	<s:Spacer width="100%"/>
@@ -183,6 +184,21 @@
 
 			[Bindable]
 			public var jumpEnabled:Boolean; //Jump to evidence
+      
+      private function exportGraph(event:MouseEvent):void
+      {
+        var popup:EntityExport=PopUpManager.createPopUp(root, EntityExport, true) as EntityExport;
+        popup.operation=section.stateManager.selectedOperation;
+        popup.type="entitygraph";
+        var ids:Array=[]
+        for (var i:int=0; i < section.stateManager.tableView.length; i++)
+        {
+          var entity:Entity=section.stateManager.tableView.getItemAt(i) as Entity;
+          ids.push(entity._id)
+        }
+        popup.ids=ids
+        PopUpManager.centerPopUp(popup); 
+      }
 
 			private function onNewClick():void
 			{

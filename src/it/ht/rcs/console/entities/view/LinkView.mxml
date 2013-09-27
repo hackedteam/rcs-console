@@ -7,6 +7,7 @@
 					xmlns:components="it.ht.rcs.console.entities.view.components.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					height="100%"
 					width="100%">
 	<fx:Script>
@@ -105,7 +106,7 @@
 
 			public function init():void
 			{
-				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
 
@@ -216,7 +217,7 @@
 					{
 						var child:INode=node.successors[i] as INode;
 						examined.push(node);
-						if (examined.indexOf(child) == -1 && child.data.@name != "Diego Hernandez" && child.data.@name != "Kasimir Malevich" && child.data.@name != "Jimmy Page" && child.data.@name != "Jamie Moreno")
+						if (examined.indexOf(child) == -1 )//&& child.data.@name != "Diego Hernandez" && child.data.@name != "Kasimir Malevich" && child.data.@name != "Jimmy Page" && child.data.@name != "Jamie Moreno")
 						{
 							var index:int=roots.getItemIndex(child);
 							if (index != -1)
@@ -262,6 +263,7 @@
 
 					vgraph.layouter=layouter;
 					layouter.linkLength=80; //
+          layouter.disableAnimation=true;
 					//layouter.autoFitEnabled=true;
 					//layouter.defaultRadius=50;
 
@@ -1004,6 +1006,9 @@
 								horizontalAlign="right"
 								width="100%"
 								paddingTop="6">
+
+        
+
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
 				<s:Label text="{R.get('FROM')}:"

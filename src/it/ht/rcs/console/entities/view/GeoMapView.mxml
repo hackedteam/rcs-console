@@ -9,9 +9,12 @@
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					height="100%"
-					width="100%" hide="onRemovedFromStage()"
-					
-					addedToStage="onAddedToStage()" removedFromStage="onRemovedFromStage()">
+					width="100%"
+          creationComplete="init()"
+					hide="onRemovedFromStage()"
+					addedToStage="onAddedToStage()"
+					removedFromStage="onRemovedFromStage()">
+
 	<fx:Script>
 		<![CDATA[
       import com.google.maps.LatLng;
@@ -35,6 +38,7 @@
       import com.google.maps.styles.StrokeStyle;
       import com.greensock.TweenMax;
       
+      import flash.filters.GlowFilter;
       import flash.utils.setTimeout;
       
       import it.ht.rcs.console.entities.controller.EntityManager;
@@ -54,9 +58,12 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 
 			//map stuff
 			private var mapReady:Boolean;
@@ -66,7 +73,8 @@
 			private var targetsMarkers:Dictionary; //pins?
 			private var placesMarkers:Dictionary;
 			private var overlays:Array;
-			private var links:Array
+			private var lines:Array
+      private var links:Dictionary
 			private var markers:Array;
 			private var circles:Array;
 			private var mapScale:Number;
@@ -83,13 +91,21 @@
 			private const ALPHA_RATIO:Number=100 / 60;
       
       
-      [Bindable]
-      public var actionbar:EntitiesActionBar
+      private var relevence0:uint=0x333333;
+      private var relevence1:uint=0x999999;
+      private var relevence2:uint=0x5DE35F;
+      private var relevence3:uint=0xFFDC42;
+      private var relevence4:uint=0xFF4034;
+      private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
+
+
+			[Bindable]
+			public var actionbar:EntitiesActionBar
 
 			[Bindable]
 			public var section:EntitiesSection;
 			[Bindable]
-			public var entities:ArrayCollection; //all entities
+			public var entities:ListCollectionView; //all entities
 			[Bindable]
 			private var startDate:Date;
 			[Bindable]
@@ -102,28 +118,30 @@
 			private var positions:ArrayCollection; //only positions
 			private var targets:ArrayCollection; //only targets
 
-      
-      private function clearMap():void
-      {
-        if(map && overlays)
-        {
-        for (var i:int=0; i < overlays.length; i++)
-        {
-          map.removeOverlay(overlays[i] as IOverlay);
-        }
-        
-        overlays=new Array()
-        circles=new Array()
-        map.clearOverlays()
-        map.enabled=false;
-        map.setZoom(1);
-        map.setCenter(new LatLng(0, 0));
-        }
-      }
-      
-      
+
+			private function clearMap():void
+			{
+				if (map && overlays)
+				{
+					for (var i:int=0; i < overlays.length; i++)
+					{
+						map.removeOverlay(overlays[i] as IOverlay);
+					}
+
+					overlays=new Array()
+					circles=new Array()
+					map.clearOverlays()
+					map.enabled=false;
+					map.setZoom(1);
+					map.setCenter(new LatLng(0, 0));
+				}
+			}
+
+
 			private function drawMap():void
 			{
+        
+        
 				var i:int=0;
 				var entity:Entity;
 				targetsMarkers=new Dictionary()
@@ -135,24 +153,25 @@
 				{
 					map.removeOverlay(overlays[i] as IOverlay);
 				}
-        overlays=new Array
-        map.clearOverlays()
+				overlays=new Array
+				map.clearOverlays()
 				map.setZoom(3);
 				map.setCenter(new LatLng(0, 0));
 
 				markers=new Array();
 				circles=new Array();
-				links=new Array()
+				lines=new Array()
+        links=new Dictionary()
 
 				bounds=new LatLngBounds();
 
-			/* 	if (positions.length > 0)
-				{
-					entity=positions.getItemAt(0) as Entity;
-					centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-					map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-					overlays=new Array();
-				} */
+				/* 	if (positions.length > 0)
+					{
+						entity=positions.getItemAt(0) as Entity;
+						centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
+						map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
+						overlays=new Array();
+					} */
 
 				var coordinates:LatLng
 				var customMarker:CustomMarker
@@ -181,7 +200,7 @@
 					map.addOverlay(marker);
 
 					placesMarkers[entity._id]=marker
-          marker.foreground.visible=false
+					marker.foreground.visible=false
 
 				}
 				//targets
@@ -206,26 +225,27 @@
 						markers.push(marker);
 						map.addOverlay(marker);
 						targetsMarkers[entity._id]=marker
-            marker.foreground.visible=false
+						marker.foreground.visible=false
 					}
-        
-						
+
+
 				}
-        if(!map.enabled)
-          map.enabled=true;
+				if (!map.enabled)
+					map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
+        onDateChange()
 			}
-      
-      private function onRemovedFromStage():void
-      {
-      tracker.doStop()
-      }
-      
-      public function doStop():void
-      {
-        tracker.doStop()
-      }
-      
+
+			private function onRemovedFromStage():void
+			{
+				tracker.doStop()
+			}
+
+			public function doStop():void
+			{
+				tracker.doStop()
+			}
+
 
 			private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
 			{
@@ -272,19 +292,19 @@
 				var entity:Entity;
 				var coordinates:LatLng
 				var marker:Marker
-        
+
 				if (positionsCh.selected)
 				{
-          //targets
-          for (var p:* in placesMarkers)
-          {
-            marker=placesMarkers[p] as Marker;
-            if (marker.foreground.visible)
-            {
-              coordinates=marker.getLatLng()
-              bounds.extend(coordinates);
-            }
-          }
+					//targets
+					for (var p:* in placesMarkers)
+					{
+						marker=placesMarkers[p] as Marker;
+						if (marker.foreground.visible)
+						{
+							coordinates=marker.getLatLng()
+							bounds.extend(coordinates);
+						}
+					}
 				}
 				//targets
 				for (var m:* in targetsMarkers)
@@ -297,7 +317,7 @@
 					}
 				}
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-        map.setZoom(map.getBoundsZoomLevel(bounds)-1)
+				map.setZoom(map.getBoundsZoomLevel(bounds) - 1)
 			}
 
 			private function calculateMapScale():Number
@@ -314,11 +334,12 @@
 
 				return scale;
 			}
+              
 
 			public function init():void
 			{
 				map.addEventListener(MapEvent.MAP_READY, onMapReady)
-				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				//temporary dates
 				startDate=new Date();
@@ -329,18 +350,18 @@
 				endDate=new Date();
 				endDate.minutes=0
 				endDate.seconds=0;
-        
-        fitCh.selected=true;
-        positionsCh.selected=false;
-        linksCh.selected=false;
+
+				fitCh.selected=true;
+				positionsCh.selected=false;
+				linksCh.selected=false;
 
 				if (fromDf)
 					fromDf.selectedDate=startDate;
 				if (toDf)
 					toDf.selectedDate=endDate;
-        tracker.visible=false;
-        loadingBox.visible=true;
-        setTimeout(tracker.init, 100)
+				tracker.visible=false;
+				loadingBox.visible=true;
+				setTimeout(tracker.init, 100)
 
 			}
 
@@ -356,58 +377,47 @@
 				//TODO CHECK DATES CONSISTENCY
 				//("start date: " + startDate);
 				//trace("end date: " + endDate);
-        tracker.visible=false;
-        loadingBox.visible=true;
-        clearMap()
-        setTimeout(tracker.draw, 100)
-        
+				tracker.visible=false;
+				loadingBox.visible=true;
+				clearMap()
+				setTimeout(tracker.draw, 100)
+
 
 			}
-      
-      private function onTrackerReady():void
-      {
-        //tracker.visible=true;
-        //loadingBox.visible=false;
-        clearMap()
-        refresh()
-      }
+
+			private function onTrackerReady():void
+			{
+
+				clearMap()
+				refresh()
+			}
 
 			private function onAddedToStage():void
 			{
-        trace("GEO MAP ADDED TO STAGE")
-        /* if(this.initialized)
-        {
-          tracker.visible=false;
-          loadingBox.visible=true;
-          fitCh.selected=false;
-          positionsCh.selected=true;
-          linksCh.selected=true;
-          clearMap()
-  				refresh()
-        } */
-        //reset??
+				trace("GEO MAP ADDED TO STAGE")
+
 			}
 
 
 			private function onRefresh(e:RefreshEvent):void
 			{
-        clearMap()
+				clearMap()
 				refresh();
 
 			}
-      
-      //TEMPORARY!!!!!
-      private function isIn(a:ArrayCollection, e:Entity):Boolean
-      {
-        for(var i:int=0;i<a.length;i++)
-        {
-        var entity:Entity=a.getItemAt(i) as Entity;
-        if(entity._id==e._id)
-          return true;
-        
-        }
-        return false;
-      }
+
+			//TEMPORARY!!!!!
+			private function isIn(a:ArrayCollection, e:Entity):Boolean
+			{
+				for (var i:int=0; i < a.length; i++)
+				{
+					var entity:Entity=a.getItemAt(i) as Entity;
+					if (entity._id == e._id)
+						return true;
+
+				}
+				return false;
+			}
 
 			private function onDetailResult(e:ResultEvent):void
 			{
@@ -416,32 +426,33 @@
 
 				if (entity.type == "position")
 				{
-					if(!isIn(positions, entity))
-          {
-            positions.addItem(entity)
-            trace("adding a position: "+entity._id)
-          }
-            
+					if (!isIn(positions, entity))
+					{
+						positions.addItem(entity)
+						trace("adding a position: " + entity._id)
+					}
+
 				}
-        else if (entity.type == "target")
+				else if (entity.type == "target")
 				{
-          if(!isIn(targets, entity))
-          {
-            targets.addItem(entity)
-          }
+					if (!isIn(targets, entity))
+					{
+						targets.addItem(entity)
+					}
 				}
 				if (numEntitiesToShow == 0)
 				{
 					trace("ALL ENTITIES DETAILS LOADED")
 					trace("GET TARGETS POSITIONS")
-          
+
 					getPositionsSummary(targets)
-				
+
 				}
 			}
 
-			private function refresh():void
+			public function refresh():void
 			{
+        clearMap()
 				trace("REFRESH")
 				trace("TOTAL ENTITIES: " + entities.length)
 
@@ -461,16 +472,25 @@
 						entitiesToShow.addItem(entity);
 				}
 
-				numEntitiesToShow=entitiesToShow.length;
+
 
 				positions=new ArrayCollection()
 				targets=new ArrayCollection()
 
 				for (i=0; i < entitiesToShow.length; i++)
 				{
-					EntityManager.instance.show(entitiesToShow.getItemAt(i)._id, onDetailResult)
+					entity=entitiesToShow.getItemAt(i) as Entity;
+					if (entity.type == "position")
+					{
+						positions.addItem(entity)
+					}
+					else if (entity.type == "target")
+					{
+						targets.addItem(entity)
+					}
 				}
 
+				getPositionsSummary(targets)
 
 			}
 
@@ -490,9 +510,14 @@
 			private function onMapClick(e:MapMouseEvent):void
 			{
 				trace("map clicked");
-        unselectAll();
+				unselectAll();
+        for(var i:int=0;i<lines.length;i++)
+        {
+          var polyline:Polyline=lines[i] as Polyline;
+          polyline.foreground.filters=null;
+        }
 				e.stopImmediatePropagation()
-			  
+
 			}
 
 			private function getPositionsSummary(targets:ArrayCollection):void
@@ -528,9 +553,9 @@
 				}
 
 				tracker.populateMinutes(pos)
-        tracker.visible=true;
-        loadingBox.visible=false;
-        
+				tracker.visible=true;
+				loadingBox.visible=false;
+
 				drawMap()
 			}
 
@@ -544,8 +569,8 @@
 					trace(d)
 				}
 				tracker.populate(pos)
-        getPositionsDetail(targets)
-      
+				getPositionsDetail(targets)
+
 			}
 
 			private function onPositionsFault(e:FaultEvent):void
@@ -576,6 +601,13 @@
 
 			private function onMarkerClick(e:MapMouseEvent):void
 			{
+        
+        
+        for(var l:int=0;l<lines.length;l++)
+        {
+          var polyline:Polyline=lines[l] as Polyline;
+          polyline.foreground.filters=null;
+        }
 
 				e.stopImmediatePropagation()
 				var icon:CustomMarker
@@ -586,7 +618,7 @@
 					icon=icons[e.currentTarget];
 					icon.selected=!icon.selected;
 					var selectedItems:Vector.<Object>=new <Object>[];
-          
+
 					for (i in icons)
 					{
 						icon=icons[i]
@@ -594,16 +626,24 @@
 							selectedItems.push(icon.entity);
 					}
 					info.selectedItems=selectedItems;
-          actionbar.selectedObjects=selectedItems;
+					actionbar.selectedObjects=selectedItems;
 					if (selectedItems.length > 0)
-          {
+					{
 						info.selectedItem=selectedItems[selectedItems.length - 1]
-            actionbar.selectedObject=selectedItems[selectedItems.length - 1]
-          }
+						actionbar.selectedObject=selectedItems[selectedItems.length - 1]
+					}
 					else
-          {
+					{
 						info.selectedItem=null
-            actionbar.selectedObject=null
+						actionbar.selectedObject=null
+					}
+          if(selectedItems.length==2)
+          {
+            actionbar.linkEnabled=true;
+          }
+          else
+          {
+            actionbar.linkEnabled=false;
           }
 				}
 
@@ -618,28 +658,28 @@
 					icon.selected=!icon.selected;
 					info.selectedItem=icon.selected ? icon.entity : null;
 					info.selectedItems=new <Object>[info.selectedItem];
-          
-          actionbar.selectedObject=icon.selected ? icon.entity : null;
-          actionbar.selectedObjects=new <Object>[info.selectedItem];
-          actionbar.selectedObjects.push(info.selectedItem)
+
+					actionbar.selectedObject=icon.selected ? icon.entity : null;
+					actionbar.selectedObjects=new <Object>[info.selectedItem];
+					actionbar.selectedObjects.push(info.selectedItem)
 				}
 
 			}
-      
-      public function unselectAll():void
-      {
-        var icon:CustomMarker
-        for (var i:* in icons)
-        {
-          icon=icons[i]
-          icon.selected=false;
-        }
-        info.selectedItem=null
-        info.selectedItems=null
-        
-        actionbar.selectedObject=null
-        actionbar.selectedObjects=null
-      }
+
+			public function unselectAll():void
+			{
+				var icon:CustomMarker
+				for (var i:* in icons)
+				{
+					icon=icons[i]
+					icon.selected=false;
+				}
+				info.selectedItem=null
+				info.selectedItems=null
+
+				actionbar.selectedObject=null
+				actionbar.selectedObjects=null
+			}
 
 			private function onMarkerDoubleClick(e:MapMouseEvent):void
 			{
@@ -656,53 +696,57 @@
 
 			private function onDateChange():void
 			{
+        //unselectAll()
+        //edges
         
 				var i:int;
 				//remove links
 				//draw links
-				if (links)
+				if (lines)
 				{
-					for (i=0; i < links.length; i++)
+					for (i=0; i < lines.length; i++)
 					{
-						map.removeOverlay(links[i] as IOverlay);
+						map.removeOverlay(lines[i] as IOverlay);
 
 					}
 				}
-				links=new Array()
-
+				lines=new Array()
+        links=new Dictionary()
+          
 				trace("Geo Map > Date Change: " + tracker.currentDate)
 				currentDate=tracker.currentDate;
 
-				
-			
-        
+
+
+
 				var marker:Marker
 				for (var tm:* in targetsMarkers)
 				{
 					marker=targetsMarkers[tm] as Marker;
-          marker.foreground.visible=false;
+					marker.foreground.visible=false;
 				}
 
 				for (var pm:* in placesMarkers)
 				{
 					marker=placesMarkers[pm] as Marker;
 					if (positionsCh.selected)
-          {
+					{
 						marker.foreground.visible=true;
-          }
+					}
 					else
-          {
-            marker.foreground.visible=false;
-          }
+					{
+						marker.foreground.visible=false;
+					}
 				}
 				//
 				var key:String=String(currentDate.minutes)
-          
-        var h:HourRenderer=tracker.currentItem;
-        if (!h)
-          return;
-       // trace("num positions: " + h.positions.length)
-        if(h.minutes[key]==null) return;
+
+				var h:HourRenderer=tracker.currentItem;
+				if (!h)
+					return;
+				// trace("num positions: " + h.positions.length)
+				if (h.minutes[key] == null)
+					return;
 
 				for (i=0; i < h.minutes[key].length; i++)
 				{
@@ -713,15 +757,15 @@
 					var entity:Entity=getTarget(log._id);
 
 					var p:Position=log.position;
-				/* 	trace("name: " + entity.name)
-					trace("lat: " + p.lat)
-					trace("long: " + p.lon)
-					trace("rad: " + p.rad)
-					trace("alpha: " + log.alpha)
-					trace("================") */
+					/* 	trace("name: " + entity.name)
+						trace("lat: " + p.lat)
+						trace("long: " + p.lon)
+						trace("rad: " + p.rad)
+						trace("alpha: " + log.alpha)
+						trace("================") */
 
 					marker=targetsMarkers[entity._id] as Marker;
-          marker.foreground.visible=true;
+					marker.foreground.visible=true;
 					marker.setLatLng(new LatLng(p.lat, p.lon))
 
 					marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
@@ -741,8 +785,7 @@
 							{
 								if (entity.type == "target" && entity2.type == "position")
 								{
-									var color:uint=0xFF0000 //relevanceColors[link.rel]
-									drawLink(marker.getLatLng(), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude)), color);
+									drawLink(marker.getLatLng(), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude)), entity, link);
 								}
 							}
 						}
@@ -752,15 +795,22 @@
 					zoomToBounds();
 			}
 
-			private function drawLink(pos1:LatLng, pos2:LatLng, color:uint):void
+			private function drawLink(pos1:LatLng, pos2:LatLng, entity:Entity, link:Link ):void
 			{
 				//https://developers.google.com/maps/documentation/flash/overlays
-				var polyline:Polyline=new Polyline([pos1, pos2], new PolylineOptions({strokeStyle: new StrokeStyle({color: color, thickness: 0.5, alpha: 1})}));
+				var polyline:Polyline=new Polyline([pos1, pos2], new PolylineOptions({strokeStyle: new StrokeStyle({color: relevanceColors[link.rel], thickness: 2, alpha: 1})}));
+        polyline.foreground.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void {Mouse.cursor="button"})
+        polyline.foreground.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void {Mouse.cursor="auto"})
+        polyline.foreground.addEventListener(MouseEvent.CLICK, onLinkClick);
+       
 				map.addOverlay(polyline);
 				overlays.push(polyline);
-				links.push(polyline)
+				lines.push(polyline)
+        var str:String="<Edge><data fromID='" + entity._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level +"'></data></Edge>"
+        links[polyline.foreground]=str
 
 			}
+      
 
 			private function getTarget(id:String):Entity
 			{
@@ -787,15 +837,31 @@
 					return "0" + String(n);
 				return String(n);
 			}
-		]]>
+      
+      protected function onLinkClick(e:MouseEvent):void
+      {
+       trace("link clicked")
+        e.preventDefault()
+        e.stopImmediatePropagation()
+          
+          for(var i:int=0;i<lines.length;i++)
+          {
+            var polyline:Polyline=lines[i] as Polyline;
+            polyline.foreground.filters=null;
+          }
+          var link:XMLList=XMLList(links[e.currentTarget]);
+         
+          
+          actionbar.selectedObject=link;
+          actionbar.selectedObjects=new <Object>[link];
+          actionbar.selectedObjects.push(link);
+          
+          e.currentTarget.filters=[new GlowFilter(0x00CCFF, 1, 10, 10, 2, 1)]
+      }
+      
+    ]]>
 	</fx:Script>
-	<!--<entities:GeoMapActionBar section="{section}"
-														selectedObject="{info.selectedItem}"
-														selectedObjects="{info.selectedItems}"
-														entityDeleted="onEntityDeleted()"
-														entityCreated="onEntityCreated()"
-														entityUpdated="onEntityUpdated()"
-														linkAdded="onLinkAdded()"/>-->
+
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
@@ -809,7 +875,7 @@
 				<s:CheckBox id="fitCh"
 										label="Fit bounds"
 										change="onDateChange()"
-                    selected="true"/>
+										selected="true"/>
 				<s:Spacer width="8"/>
 				<s:CheckBox id="positionsCh"
 										label="Show places"
@@ -868,12 +934,12 @@
 					<s:SolidColorStroke color="0xCCCCCC"/>
 				</s:stroke>
 			</s:Line>
-			<s:Group width="100%"
-							 >
+			<s:Group width="100%">
 				<timeline:Tracker width="100%"
 													startDate="{startDate}"
 													endDate="{endDate}"
-													dateChange="onDateChange()" ready="onTrackerReady()"
+													dateChange="onDateChange()"
+													ready="onTrackerReady()"
 													id="tracker"/>
 				<s:HGroup verticalAlign="middle"
 									horizontalAlign="center"

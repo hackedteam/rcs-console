@@ -265,7 +265,7 @@ package it.ht.rcs.console.entities.view
 				var i:int=0;
 				for (i=0; i < entities.length; i++)
 				{
-					items.push(entities.getItemAt(i))
+					items.push(entities.getItemAt(i));
 				}
 
 				lcv.list=new ArrayList(items);

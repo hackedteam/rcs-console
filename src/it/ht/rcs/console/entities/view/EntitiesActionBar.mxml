@@ -93,7 +93,7 @@
 	<s:Button label="{R.get('LINK_EDIT')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence} "
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject is Edge &amp;&amp; selectedObject.data.@type!='identity'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList) &amp;&amp; selectedObject.data.@type!='identity'}"
 						icon="@Embed('/img/NEW/linkEdit.png')"
             click="editLink()"
 						includeIn="linkmap, geomap"/>
@@ -101,7 +101,7 @@
 	<s:Button label="{R.get('LINK_REMOVE')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject is Edge}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList)}"
 						icon="@Embed('/img/NEW/linkRemove.png')"
             click="onDeleteLinkClick()"
 						includeIn="linkmap, geomap"/>
@@ -109,9 +109,9 @@
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 id="tagEditor"
 										 width="80"
-										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObject is Edge}"
+										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList)}"
                      change="updateRelevance(tagEditor.tag)"
-                     tag="{selectedObject is Edge? selectedObject.data.@rel: 0}"
+                     tag="{(selectedObject is Edge || selectedObject is XMLList)? selectedObject.data.@rel: 0}"
 										 includeIn="linkmap, geomap"/>
 
 	<actionbar:Separator includeIn="linkmap"
@@ -409,11 +409,19 @@
       
       private function updateRelevance(value:int):void
       {
-        if (selectedObject  != null && selectedObject is Edge)
+        if (selectedObject  != null && (selectedObject is Edge || selectedObject is XMLList))
         {
           selectedObject.data.@rel=value;
-          var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer;
-          currentRenderer.draw();
+          
+         if(selectedObject is Edge)
+         {
+           var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer;
+           currentRenderer.draw();
+         }
+         else
+         {
+         trace("update geoview")
+         }
 
           var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
           var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
@@ -422,15 +430,26 @@
           trace("2: " + entity2.name);
           //
           var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
-          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.@type, versus, value, null, null);
+          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.@type, versus, value, onLinkUpdated, null);
         }
       }
       
       private function addLink():void
       {
         var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        
+        var entity1:Entity;
+        var entity2:Entity;
+        if(selectedObjects[0].data && selectedObjects[1].data) //link view
+        {
+           entity1=EntityManager.instance.getItem(selectedObjects[0].data.@id);
+           entity2=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        }
+        else //geo view
+        {
+          entity1=selectedObjects[0] as Entity;
+          entity2=selectedObjects[1] as Entity;
+        }
         
         if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
         {
@@ -518,6 +537,7 @@
         popup.versus=versus;
         popup.type=type;
         popup.rel=relevance;
+        
         if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
         {
           //popup.entity1=entity2;

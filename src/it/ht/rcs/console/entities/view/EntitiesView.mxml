@@ -6,18 +6,20 @@
 					xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					width="100%"
-					height="100%"
+					height="100%" creationComplete="init()"
 					addedToStage="onAddedToStage()">
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.view.EntitiesSection;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.view.EntitiesSection;
       import it.ht.rcs.console.events.DataLoadedEvent;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
+      import it.ht.rcs.console.events.RefreshEvent;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -35,6 +37,16 @@
 					section.stateManager.manageItemSelection(item);
 
 			}
+      
+      private function init():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+      }
+      
+      private function onRefresh(e:RefreshEvent):void
+      {
+        onChangeView()
+      }
 
 			private function onKeyUp(event:KeyboardEvent):void
 			{
@@ -76,7 +88,7 @@
 						entities.addItem(section.stateManager.view.getItemAt(i));
 					}
 					geoMap.entities=entities;
-					geoMap.init() // TODO 
+					geoMap.refresh()
 				}
 
 				else if (views.selectedIndex == 2) //list
@@ -84,8 +96,6 @@
 					actionbar.currentState="list"
 					list.selectedItem=null;
 					list.selectedItems=null
-
-
 				}
 
 				if (views.selectedIndex == 3) //table
@@ -194,7 +204,7 @@
 			<entities:GeoMapView id="geoMap"
 													 section="{this.section}"
 													 actionbar="{actionbar}"
-													 entities="{entities}"/>
+													 entities="{section.stateManager.tableView}"/>
 
 		</s:NavigatorContent>
 

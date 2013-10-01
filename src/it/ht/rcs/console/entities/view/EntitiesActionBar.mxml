@@ -68,14 +68,14 @@
 
 	<s:Button label="{R.get('JUMP_TO_TARGET')}"
 						click="onJumpClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject.type=='target'}"
+						enabled="{selectedObjects.length==1 &amp;&amp; selectedObject.type=='target'}"
 						icon="@Embed('/img/NEW/jumpToTarget.png')"
 						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{'Jump to Evidence'}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; jumpEnabled}"
+						enabled="{jumpEnabled}"
 						icon="@Embed('/img/NEW/jumpToEvidence.png')"
 						click="jumpToEvidence()"
 						includeIn="linkmap"/>
@@ -121,7 +121,7 @@
 						icon="@Embed('/img/NEW/exportGraph.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; section.stateManager.tableView.length>0}"
+						enabled="{section.stateManager.tableView.length>0}"
             click="exportGraph(event)"
 						includeIn="linkmap"/>
 
@@ -212,7 +212,7 @@
 
 			private function onEditClick():void
 			{
-				//selectedObject=selectedObjects[0] 
+
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				popup.addEventListener("update", onUpdate)
 				popup.entity=selectedObject as Entity;
@@ -223,7 +223,6 @@
 
 			private function onJumpClick():void
 			{
-				//selectedObject=selectedObjects[0] 
 				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
 				event.section=SectionEvent.OPERATIONS;
 				event.subsection='target';
@@ -244,7 +243,7 @@
 
 			private function onDeleteClick():void
 			{
-				//selectedObject=selectedObjects[0] 
+
 				AlertPopUp.show(R.get('CONFIRM_ENTITY_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 				{
 					if (e.detail == AlertPopUp.YES)
@@ -262,16 +261,10 @@
 				var i:int;
 				var entity:Entity;
 
-				/* for (i=0; i < section.stateManager.view.length; i++)
-				{
-					entity=section.stateManager.view.getItemAt(i) as Entity;
-					selectedEntities.addItem(entity);
-
-				} */
 
 				if (this.selectedObjects.length == 0 || this.selectedObjects.length == section.stateManager.view.length) //??
 
-				{ //temp - all entities
+				{ 
 					for (i=0; i < section.stateManager.view.length; i++)
 					{
 						entity=section.stateManager.view.getItemAt(i) as Entity;
@@ -294,7 +287,6 @@
 			{
 				selectedEntities=new ArrayCollection()
 
-				//temp - all entities
 				for (var i:int=0; i < section.stateManager.view.length; i++)
 				{
 					var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;

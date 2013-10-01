@@ -2,7 +2,7 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
 				 xmlns:s="library://ns.adobe.com/flex/spark"
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
-				 xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*">
+				 xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"  resize="onResize()">
 	<fx:Metadata>
     [Event(name="dateChange", type="flash.events.Event")]
     [Event(name="ready", type="flash.events.Event")]
@@ -36,6 +36,11 @@
 
 			[Bindable]
 			public var currentItem:HourRenderer;
+      
+      private function onResize():void
+      {
+        scrollbar.visible=scrollbar.includeInLayout=timeline.width > this.width;
+      }
 
 			private function doPlay():void
 			{
@@ -123,10 +128,10 @@
 				//dispatchEvent(new Event("dateChange"));
 			}
 
-			public function draw():void
+			public function draw():void //called when date range change
 			{
 				timeline.draw()
-				//dispatchEvent(new Event("dateChange"));
+        onDateChange();
 			}
 
 			public function init():void
@@ -140,6 +145,8 @@
 			private function onTimelineReady():void
 			{
 				dispatchEvent(new Event("ready"))
+        scrollbar.visible=scrollbar.includeInLayout=timeline.width > this.width;
+       
 			}
 
 			private function onDateChange():void
@@ -148,6 +155,7 @@
 				currentItem=timeline.currentItem;
 				currentDateTxt.text=doubleDigits(timeline.currentDate.date) + " " + monthNames[timeline.currentDate.month] + " " + doubleDigits(timeline.currentDate.fullYear) + " " + doubleDigits(timeline.currentDate.hours) + ":" + doubleDigits(timeline.currentDate.minutes);
 				dispatchEvent(new Event("dateChange"));
+        scrollbar.visible=scrollbar.includeInLayout=timeline.width > this.width;
 			}
 
 			private function formatDate(d:Date):String
@@ -193,7 +201,9 @@
 		<s:HScrollBar viewport="{viewport}"
 									width="100%"
 									id="scrollbar"
-									stepSize="30"/>
+									stepSize="30"
+                  visible="{timeline.width>this.width}"
+                  includeInLayout="{timeline.width>this.width}"/>
 		<s:HGroup verticalAlign="middle">
 			<s:Button label=""
 								click="doPlay()"

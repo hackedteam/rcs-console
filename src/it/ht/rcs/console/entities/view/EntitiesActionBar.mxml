@@ -41,7 +41,7 @@
 
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject.type!='target'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; selectedObject.type!='target'}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
@@ -118,7 +118,7 @@
 											 width="20"/>
 
 	<s:Button label="{R.get('EXPORT_GRAPH')}"
-						icon="@Embed('/img/NEW/export.png')"
+						icon="@Embed('/img/NEW/exportGraph.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; section.stateManager.tableView.length>0}"
@@ -440,7 +440,7 @@
         
         var entity1:Entity;
         var entity2:Entity;
-        if(selectedObjects[0].data && selectedObjects[1].data) //link view
+        if(selectedObjects[0].hasOwnProperty("data") && selectedObjects[1].hasOwnProperty("data")) //link view
         {
            entity1=EntityManager.instance.getItem(selectedObjects[0].data.@id);
            entity2=EntityManager.instance.getItem(selectedObjects[1].data.@id);

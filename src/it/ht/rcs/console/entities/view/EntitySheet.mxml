@@ -163,7 +163,10 @@
 					EntityManager.instance.mostContacted(entity._id, formatDate(fromDate), formatDate(toDate), limit, onContactResult, onContactFault);
 					EntityManager.instance.mostVisitedUrls(entity._id, formatDate(fromDate), formatDate(toDate), limit, onUrlsResult, onUrlsFault);
 					if (entity.type == "target")
+					{
+						locations=new ArrayCollection()
 						EntityManager.instance.mostVisitedPlaces(entity._id, formatDate(fromDate), formatDate(toDate), limit, onPlacesResult, onPlacesFault);
+					}
 				}
 				else
 				{
@@ -180,7 +183,7 @@
 					if (loadingBox2)
 						loadingBox2.visible=loadingBox.includeInLayout=false;
 				}
-
+				locations=new ArrayCollection()
 				callLater(onRefresh, [null])
 
 			}
@@ -446,7 +449,8 @@
 
 			private function onUrlsResult(e:ResultEvent):void
 			{
-
+				if (visitedList)
+					visitedList.addEventListener("entityAdd", addURLAsEntity)
 				mostVisitedUrls=e.result as ArrayCollection
 
 				if (loadingBox2)
@@ -485,6 +489,7 @@
 				trace("solved")
 				trace("Address: " + e.response.placemarks[0].address)
 				mostVisitedPlaces.getItemAt(placeIndex).address=e.response.placemarks[0].address;
+				locations.addItem(e.response.placemarks[0].address)
 				if (placeIndex < numPlaces - 1)
 				{
 					placeIndex++
@@ -499,7 +504,7 @@
 					drawPosition()
 				}
 
-
+				mostVisitedList.dataProvider=locations;
 			}
 
 			private function handleGeocodingFailure(e:GeocodingEvent):void
@@ -662,12 +667,15 @@
 				PopUpManager.centerPopUp(popup);
 			}
 
+			private function addURLAsEntity(e:Event):void
+			{
+				trace("TODO")
+			}
+
 			public function update():void
 			{
 				onUpdate(null)
 			}
-      
-     
 		]]>
 	</fx:Script>
 	<s:layout>
@@ -768,7 +776,8 @@
 						<s:Button width="30"
 											label="+"
 											cornerRadius="0"
-											toolTip="{R.get('ADD_HANDLE')}" enabled="{Console.currentSession.user.is_view_profiles()}"
+											toolTip="{R.get('ADD_HANDLE')}"
+											enabled="{Console.currentSession.user.is_view_profiles()}"
 											click="addHandle()"/>
 					</s:HGroup>
 
@@ -845,11 +854,7 @@
 									<s:Label text="Retrieving data..."
 													 fontWeight="bold"/>
 								</s:HGroup>
-								<!--<s:Button label="{R.get('ENTITY_ADD_AS')}"
-													visible="{mostContacted!=null &amp;&amp; mostContacted.length>0 &amp;&amp; LicenseManager.instance.intelligence}"
-													includeInLayout="{mostContacted!=null &amp;&amp; mostContacted.length>0 &amp;&amp; LicenseManager.instance.intelligence}"
-													enabled="{contactsList.selectedItem!=null}"
-													click="addContactAsEntity()"/>-->
+
 							</s:HGroup>
 							<s:List width="100%"
 											height="100%"
@@ -988,6 +993,14 @@
 															 includeInLayout="{!LicenseManager.instance.correlation}"/>
 					</s:BorderContainer>
 					<s:Spacer height="6"/>
+          <s:List width="100%"
+                  id="mostVisitedList"
+                  visible="{mostVisitedCh.selected &amp;&amp; entity.type=='target'}"
+                  includeInLayout="{mostVisitedCh.selected &amp;&amp; entity.type=='target'}"
+                  height="30%"
+                  dataProvider="{locations}"
+                  itemRenderer="it.ht.rcs.console.entities.view.renderers.AddressListRenderer"/>
+          <s:Spacer height="6"/>
 					<s:HGroup width="100%"
 										verticalAlign="middle"
 										visible="{entity.type=='target'}"
@@ -1002,11 +1015,8 @@
 												selected="true"
 												change="drawPosition()"/>
 					</s:HGroup>
-					<!--<s:Spacer height="6"/>
-					<s:List width="100%"
-									height="30%"
-									dataProvider="{locations}"
-									itemRenderer="it.ht.rcs.console.entities.view.AddressListRenderer"/>-->
+					
+					
 				</s:VGroup>
 			</s:BorderContainer>
 

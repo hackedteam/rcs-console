@@ -158,7 +158,6 @@ package it.ht.rcs.console.entities.view
 				case 'singleOperation':
 					selectedEntity=null;
 					//selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
-					
 					CurrentManager=EntityManager;
 					currentFilter=singleOperationFilterFunction;
 					update();
@@ -178,12 +177,11 @@ package it.ht.rcs.console.entities.view
 					clearVars();
 					section.currentState='allEntities';
 					CurrentManager=EntityManager;
-					if (searchField)
-						searchField.text='';
+					if (searchField) searchField.text='';
 					currentFilter=searchFilterFunction;
-					currentFilter=singleOperationFilterFunction;
 					update();
 					break;
+        
 
         case 'links':
           CurrentManager = EntityManager;

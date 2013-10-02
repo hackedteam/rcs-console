@@ -10,60 +10,59 @@
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					height="100%"
 					width="100%"
-          creationComplete="init()"
-					hide="onRemovedFromStage()"
+					creationComplete="init()"
 					addedToStage="onAddedToStage()"
 					removedFromStage="onRemovedFromStage()">
 
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapEvent;
-      import com.google.maps.MapMouseEvent;
-      import com.google.maps.MapType;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      import com.google.maps.overlays.Polyline;
-      import com.google.maps.overlays.PolylineOptions;
-      import com.google.maps.styles.StrokeStyle;
-      import com.greensock.TweenMax;
-      
-      import flash.filters.GlowFilter;
-      import flash.utils.setTimeout;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.entities.model.Position;
-      import it.ht.rcs.console.entities.model.Positions;
-      import it.ht.rcs.console.entities.model.PositionsFlow;
-      import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
-      import it.ht.rcs.console.entities.view.map.CustomMarker;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.model.SearchItem;
-      import it.ht.rcs.console.target.model.Target;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapEvent;
+			import com.google.maps.MapMouseEvent;
+			import com.google.maps.MapType;
+			import com.google.maps.PaneId;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.overlays.MarkerOptions;
+			import com.google.maps.overlays.Polyline;
+			import com.google.maps.overlays.PolylineOptions;
+			import com.google.maps.styles.StrokeStyle;
+			import com.greensock.TweenMax;
+
+			import flash.filters.GlowFilter;
+			import flash.utils.setTimeout;
+
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.model.Position;
+			import it.ht.rcs.console.entities.model.Positions;
+			import it.ht.rcs.console.entities.model.PositionsFlow;
+			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+			import it.ht.rcs.console.entities.view.map.CustomMarker;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.model.SearchItem;
+			import it.ht.rcs.console.target.model.Target;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 
 			//map stuff
 			private var mapReady:Boolean;
@@ -74,7 +73,7 @@
 			private var placesMarkers:Dictionary;
 			private var overlays:Array;
 			private var lines:Array
-      private var links:Dictionary
+			private var links:Dictionary
 			private var markers:Array;
 			private var circles:Array;
 			private var mapScale:Number;
@@ -89,14 +88,14 @@
 			private var circleBorderFillAlpha:Number=0.5;
 
 			private const ALPHA_RATIO:Number=100 / 60;
-      
-      
-      private var relevence0:uint=0x333333;
-      private var relevence1:uint=0x999999;
-      private var relevence2:uint=0x5DE35F;
-      private var relevence3:uint=0xFFDC42;
-      private var relevence4:uint=0xFF4034;
-      private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
+
+
+			private var relevence0:uint=0x333333;
+			private var relevence1:uint=0x999999;
+			private var relevence2:uint=0x5DE35F;
+			private var relevence3:uint=0xFFDC42;
+			private var relevence4:uint=0xFF4034;
+			private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
 
 
 			[Bindable]
@@ -113,7 +112,6 @@
 			[Bindable]
 			private var currentDate:Date;
 
-			private var numEntitiesToShow:int;
 			private var entitiesToShow:ArrayCollection //only targets and positions
 			private var positions:ArrayCollection; //only positions
 			private var targets:ArrayCollection; //only targets
@@ -121,27 +119,29 @@
 
 			private function clearMap():void
 			{
-				if (map && overlays)
-				{
-					for (var i:int=0; i < overlays.length; i++)
-					{
-						map.removeOverlay(overlays[i] as IOverlay);
-					}
+				if (!mapReady || !overlays)
+					return;
 
-					overlays=new Array()
-					circles=new Array()
-					map.clearOverlays()
-					map.enabled=false;
-					map.setZoom(1);
-					map.setCenter(new LatLng(0, 0));
+				for (var i:int=0; i < overlays.length; i++)
+				{
+					map.removeOverlay(overlays[i] as IOverlay);
 				}
+
+				overlays=new Array()
+				circles=new Array()
+				map.clearOverlays()
+				map.enabled=false;
+				map.setZoom(1);
+				map.setCenter(new LatLng(0, 0));
+
 			}
 
 
 			private function drawMap():void
 			{
-        
-        
+				if (!map.initialized)
+					return;
+
 				var i:int=0;
 				var entity:Entity;
 				targetsMarkers=new Dictionary()
@@ -161,7 +161,7 @@
 				markers=new Array();
 				circles=new Array();
 				lines=new Array()
-        links=new Dictionary()
+				links=new Dictionary()
 
 				bounds=new LatLngBounds();
 
@@ -233,7 +233,8 @@
 				if (!map.enabled)
 					map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-        onDateChange()
+				onDateChange()
+				map.visible=true;
 			}
 
 			private function onRemovedFromStage():void
@@ -334,34 +335,45 @@
 
 				return scale;
 			}
-              
+
 
 			public function init():void
 			{
+
+				trace("GEO MAP INIT")
+
 				map.addEventListener(MapEvent.MAP_READY, onMapReady)
 				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
-				//temporary dates
+				//default dates
 				startDate=new Date();
 				startDate.minutes=0
 				startDate.seconds=0
 
 				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30); //60 days
 				endDate=new Date();
-				endDate.minutes=0
-				endDate.seconds=0;
+				endDate.hours=23
+				endDate.minutes=59
+				endDate.seconds=59;
 
+				//default filters settings
 				fitCh.selected=true;
 				positionsCh.selected=false;
 				linksCh.selected=false;
+
+				overlays=new Array();
+
 
 				if (fromDf)
 					fromDf.selectedDate=startDate;
 				if (toDf)
 					toDf.selectedDate=endDate;
+
 				tracker.visible=false;
 				loadingBox.visible=true;
-				setTimeout(tracker.init, 100)
+
+				tracker.init()
+				//setTimeout(tracker.init, 100)
 
 			}
 
@@ -374,6 +386,7 @@
 				endDate=toDf.selectedDate;
 				endDate.minutes=0;
 				endDate.seconds=0;
+				x
 				//TODO CHECK DATES CONSISTENCY
 				//("start date: " + startDate);
 				//trace("end date: " + endDate);
@@ -382,20 +395,23 @@
 				clearMap()
 				setTimeout(tracker.draw, 100)
 
+				refresh()
 
 			}
 
 			private function onTrackerReady():void
 			{
-
+				trace("TRACKER READY")
 				clearMap()
-				refresh()
+				loadingBox.visible=false;
+				tracker.visible=true;
+
+				//	refresh()
 			}
 
 			private function onAddedToStage():void
 			{
 				trace("GEO MAP ADDED TO STAGE")
-
 			}
 
 
@@ -406,62 +422,27 @@
 
 			}
 
-			//TEMPORARY!!!!!
-			private function isIn(a:ArrayCollection, e:Entity):Boolean
-			{
-				for (var i:int=0; i < a.length; i++)
-				{
-					var entity:Entity=a.getItemAt(i) as Entity;
-					if (entity._id == e._id)
-						return true;
-
-				}
-				return false;
-			}
-
-			private function onDetailResult(e:ResultEvent):void
-			{
-				numEntitiesToShow--
-				var entity:Entity=e.result as Entity
-
-				if (entity.type == "position")
-				{
-					if (!isIn(positions, entity))
-					{
-						positions.addItem(entity)
-						trace("adding a position: " + entity._id)
-					}
-
-				}
-				else if (entity.type == "target")
-				{
-					if (!isIn(targets, entity))
-					{
-						targets.addItem(entity)
-					}
-				}
-				if (numEntitiesToShow == 0)
-				{
-					trace("ALL ENTITIES DETAILS LOADED")
-					trace("GET TARGETS POSITIONS")
-
-					getPositionsSummary(targets)
-
-				}
-			}
-
 			public function refresh():void
 			{
-        clearMap()
+
+				clearMap()
+
+				loadingBox.visible=true;
+				tracker.visible=false;
+				map.visible=false;
+
 				trace("REFRESH")
 				trace("TOTAL ENTITIES: " + entities.length)
 
 				//get details about entities
 				info.selectedItem=null;
 				info.selectedItems=null;
+        actionbar.selectedObject=null;
+        actionbar.selectedObjects=null;
+        actionbar.linkEnabled=false;
 
 				entitiesToShow=new ArrayCollection()
-				numEntitiesToShow=0;
+
 
 				var entity:Entity;
 				var i:int;
@@ -489,7 +470,7 @@
 						targets.addItem(entity)
 					}
 				}
-
+				reset()
 				getPositionsSummary(targets)
 
 			}
@@ -504,18 +485,17 @@
 				map.addControl(new MapTypeControl());
 				map.addEventListener(MapMouseEvent.CLICK, onMapClick);
 				mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-				overlays=new Array();
 			}
 
 			private function onMapClick(e:MapMouseEvent):void
 			{
 				trace("map clicked");
 				unselectAll();
-        for(var i:int=0;i<lines.length;i++)
-        {
-          var polyline:Polyline=lines[i] as Polyline;
-          polyline.foreground.filters=null;
-        }
+				for (var i:int=0; i < lines.length; i++)
+				{
+					var polyline:Polyline=lines[i] as Polyline;
+					polyline.foreground.filters=null;
+				}
 				e.stopImmediatePropagation()
 
 			}
@@ -553,9 +533,12 @@
 				}
 
 				tracker.populateMinutes(pos)
+
 				tracker.visible=true;
 				loadingBox.visible=false;
 
+
+				reset()
 				drawMap()
 			}
 
@@ -601,13 +584,13 @@
 
 			private function onMarkerClick(e:MapMouseEvent):void
 			{
-        
-        
-        for(var l:int=0;l<lines.length;l++)
-        {
-          var polyline:Polyline=lines[l] as Polyline;
-          polyline.foreground.filters=null;
-        }
+
+
+				for (var l:int=0; l < lines.length; l++)
+				{
+					var polyline:Polyline=lines[l] as Polyline;
+					polyline.foreground.filters=null;
+				}
 
 				e.stopImmediatePropagation()
 				var icon:CustomMarker
@@ -637,14 +620,14 @@
 						info.selectedItem=null
 						actionbar.selectedObject=null
 					}
-          if(selectedItems.length==2)
-          {
-            actionbar.linkEnabled=true;
-          }
-          else
-          {
-            actionbar.linkEnabled=false;
-          }
+					if (selectedItems.length == 2 && ((selectedItems[0].type=="position" && selectedItems[1].type=="target") || (selectedItems[0].type=="target" && selectedItems[1].type=="position")))
+					{
+						actionbar.linkEnabled=true;
+					}
+					else
+					{
+						actionbar.linkEnabled=false;
+					}
 				}
 
 				else //single selection
@@ -662,6 +645,7 @@
 					actionbar.selectedObject=icon.selected ? icon.entity : null;
 					actionbar.selectedObjects=new <Object>[info.selectedItem];
 					actionbar.selectedObjects.push(info.selectedItem)
+          actionbar.linkEnabled=false;
 				}
 
 			}
@@ -679,6 +663,7 @@
 
 				actionbar.selectedObject=null
 				actionbar.selectedObjects=null
+        actionbar.linkEnabled=false;
 			}
 
 			private function onMarkerDoubleClick(e:MapMouseEvent):void
@@ -696,9 +681,8 @@
 
 			private function onDateChange():void
 			{
-        //unselectAll()
-        //edges
-        
+
+
 				var i:int;
 				//remove links
 				//draw links
@@ -711,8 +695,8 @@
 					}
 				}
 				lines=new Array()
-        links=new Dictionary()
-          
+				links=new Dictionary()
+
 				trace("Geo Map > Date Change: " + tracker.currentDate)
 				currentDate=tracker.currentDate;
 
@@ -791,26 +775,45 @@
 						}
 					}
 				}
+
+				unselectAll();
+				for ( i=0; i < lines.length; i++)
+				{
+					var polyline:Polyline=lines[i] as Polyline;
+					polyline.foreground.filters=null;
+				}
+        
+				actionbar.selectedObject=null;
+				actionbar.selectedObjects=null
+				info.selectedItem=null;
+				info.selectedItems=null
+        actionbar.linkEnabled=false;
 				if (fitCh.selected)
 					zoomToBounds();
 			}
 
-			private function drawLink(pos1:LatLng, pos2:LatLng, entity:Entity, link:Link ):void
+			private function drawLink(pos1:LatLng, pos2:LatLng, entity:Entity, link:Link):void
 			{
 				//https://developers.google.com/maps/documentation/flash/overlays
 				var polyline:Polyline=new Polyline([pos1, pos2], new PolylineOptions({strokeStyle: new StrokeStyle({color: relevanceColors[link.rel], thickness: 2, alpha: 1})}));
-        polyline.foreground.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void {Mouse.cursor="button"})
-        polyline.foreground.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void {Mouse.cursor="auto"})
-        polyline.foreground.addEventListener(MouseEvent.CLICK, onLinkClick);
-       
+				polyline.foreground.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void
+				{
+					Mouse.cursor="button"
+				})
+				polyline.foreground.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void
+				{
+					Mouse.cursor="auto"
+				})
+				polyline.foreground.addEventListener(MouseEvent.CLICK, onLinkClick);
+
 				map.addOverlay(polyline);
 				overlays.push(polyline);
 				lines.push(polyline)
-        var str:String="<Edge><data fromID='" + entity._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level +"'></data></Edge>"
-        links[polyline.foreground]=str
+				var str:String="<Edge><data fromID='" + entity._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "'></data></Edge>"
+				links[polyline.foreground]=str
 
 			}
-      
+
 
 			private function getTarget(id:String):Entity
 			{
@@ -837,29 +840,38 @@
 					return "0" + String(n);
 				return String(n);
 			}
-      
-      protected function onLinkClick(e:MouseEvent):void
-      {
-       trace("link clicked")
-        e.preventDefault()
-        e.stopImmediatePropagation()
-          
-          for(var i:int=0;i<lines.length;i++)
-          {
-            var polyline:Polyline=lines[i] as Polyline;
-            polyline.foreground.filters=null;
-          }
-          var link:XMLList=XMLList(links[e.currentTarget]);
-         
-          
-          actionbar.selectedObject=link;
-          actionbar.selectedObjects=new <Object>[link];
-          actionbar.selectedObjects.push(link);
-          
-          e.currentTarget.filters=[new GlowFilter(0x00CCFF, 1, 10, 10, 2, 1)]
-      }
-      
-    ]]>
+
+			protected function onLinkClick(e:MouseEvent):void
+			{
+				trace("link clicked")
+				e.preventDefault()
+				e.stopImmediatePropagation()
+
+				for (var i:int=0; i < lines.length; i++)
+				{
+					var polyline:Polyline=lines[i] as Polyline;
+					polyline.foreground.filters=null;
+				}
+				var link:XMLList=XMLList(links[e.currentTarget]);
+
+
+				actionbar.selectedObject=link;
+				actionbar.selectedObjects=new <Object>[link];
+				actionbar.selectedObjects.push(link);
+        
+        actionbar.linkEnabled=false;
+
+				info.selectedItem=link;
+				info.selectedItems=new <Object>[link];
+
+				e.currentTarget.filters=[new GlowFilter(0x00CCFF, 1, 10, 10, 2, 1)]
+			}
+
+			public function reset():void
+			{
+				tracker.reset()
+			}
+		]]>
 	</fx:Script>
 
 	<s:HGroup width="100%"

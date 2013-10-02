@@ -27,14 +27,16 @@
 package org.un.cava.birdeye.ravis.components.renderers.nodes {
 	
 	// Flash classes
+	import com.adrianparr.utils.HtmlEntities;
+	
 	import flash.events.Event;
 	
 	import mx.controls.Label;
 	import mx.controls.LinkButton;
-		
+	
 	import org.un.cava.birdeye.ravis.components.renderers.BaseRenderer;
-	import org.un.cava.birdeye.ravis.utils.events.VGraphRendererEvent;
 	import org.un.cava.birdeye.ravis.utils.LogUtil;
+	import org.un.cava.birdeye.ravis.utils.events.VGraphRendererEvent;
 	
 	/**
 	 * This is an extension to the base renderer
@@ -123,7 +125,6 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
 			
 			/* create the top part using super class */
 			super.initTopPart();
-			
 			/* set the tool tip to be the name attribute of the XML object
 			 * we should also check here about the correctness of all
 			 * the data objects, just as in getDetails(), even more important
@@ -148,7 +149,7 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
 			
 			/* add node specific data;
 			 * here no check, but should be done */
-			lb.label = this.data.data.@name;
+			lb.label = HtmlEntities.decode(this.data.data.@name);
 			return lb;
 		}
 		

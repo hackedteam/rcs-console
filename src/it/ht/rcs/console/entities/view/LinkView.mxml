@@ -13,6 +13,7 @@
 	<fx:Script>
 		<![CDATA[
 			import com.greensock.TweenMax;
+      import com.adrianparr.utils.HtmlEntities;
 
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
@@ -643,10 +644,10 @@
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
 					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-					var name:String=e.name.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+					var name:String=HtmlEntities.encode(e.name)
 					var desc:String=""
 					if (e.desc)
-						desc=e.desc.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+						desc==HtmlEntities.encode(e.desc)
 					xmlStr+="<Node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
 					if (e.links)
 					{

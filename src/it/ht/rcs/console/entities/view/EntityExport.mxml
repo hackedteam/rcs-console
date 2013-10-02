@@ -5,7 +5,7 @@
 							 width="300"
 							 height="130"
 							 close="closeMe(event)"
-							 title="{R.get('EXPORT')}"
+							 title="{type=='entitygraph'? R.get('EXPORT_GRAPH') : R.get('EXPORT')}"
 							 creationComplete="init()"
 							 xmlns:view="it.ht.rcs.console.utils.*">
 	<fx:Script>
@@ -31,6 +31,8 @@
 
 			public var operation:Operation
 			public var ids:Array;
+      
+      [Bindable]
       public var type:String;
 
 			protected function closeMe(event:*):void
@@ -86,8 +88,13 @@
 </s:HGroup>
 		
 <s:Spacer height="10"/>
-		<s:Button label="{R.get('EXPORT')}"
-							click="export(event)"/>
+    <s:HGroup width="100%" horizontalAlign="center">
+      <s:Button label="{R.get('EXPORT')}"
+                click="export(event)"/>
+      <s:Button label="{R.get('CANCEL')}"
+                click="closeMe(null)"/>
+    </s:HGroup>
+		
 
 	</s:VGroup>
 

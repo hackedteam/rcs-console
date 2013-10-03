@@ -12,10 +12,12 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.dashboard.controller.DashboardController;
+      import it.ht.rcs.console.events.RefreshEvent;
       
       import mx.collections.ListCollectionView;
       import mx.collections.Sort;
       import mx.collections.SortField;
+      import mx.core.FlexGlobals;
       
       [Bindable]
       private var view:ListCollectionView;
@@ -26,17 +28,25 @@
         sort.fields = [new SortField('lastSync', true, true), new SortField('_id', true, true)];
         view = DashboardController.instance.getView(sort, searchFilterFunction);
         DashboardController.instance.refresh();
+       
       }
       
       private function onAddedToStage():void
       {
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
         DashboardController.instance.refresh();
-        DashboardController.instance.startAutoRefresh();
+        DashboardController.instance.startListeningForUpdates();
       }
       
       private function onRemovedFromStage():void
       {
-        DashboardController.instance.stopAutoRefresh();
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        DashboardController.instance.stopListeningForUpdates();
+      }
+      
+      private function onRefresh(e:RefreshEvent):void
+      {
+        DashboardController.instance.refresh();
       }
       
       private function searchFilterFunction(item:Object):Boolean

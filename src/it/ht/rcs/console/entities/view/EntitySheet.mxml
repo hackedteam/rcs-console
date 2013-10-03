@@ -44,7 +44,7 @@
 			import com.google.maps.overlays.MarkerOptions;
 			import com.google.maps.services.ClientGeocoder;
 			import com.google.maps.services.GeocodingEvent;
-
+			
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Contact;
@@ -60,9 +60,9 @@
 			import it.ht.rcs.console.utils.AlertPopUp;
 			import it.ht.rcs.console.utils.Clock;
 			import it.ht.rcs.console.utils.TimeUtils;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
@@ -650,8 +650,8 @@
 			{
 				var popup:EntityForm=e.currentTarget as EntityForm;
 				var entity:Entity=popup.entity;
-				var contact:Contact=contactsList.selectedItem as Contact;
-				EntityManager.instance.addHandle(entity._id, contact.peer, contact.peer_name, contact.type)
+				var visit:Visit=visitedList.selectedItem as Visit;
+				EntityManager.instance.addHandle(entity._id, visit.host, visit.host, "url");
 			}
 
 			private function addContactAsEntity(e:Event):void
@@ -669,7 +669,16 @@
 
 			private function addURLAsEntity(e:Event):void
 			{
-				trace("TODO")
+        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+        popup.operation=section.stateManager.selectedOperation;
+        popup.entity=new Entity(Entity.defaultEntity());
+        popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+        if (visitedList.selectedItem.host != null)
+          popup.entity.name=visitedList.selectedItem.host;
+        popup.type.enabled=false;
+        popup.type.selectedIndex=2;
+        popup.currentState=EntityForm.CREATE;
+        PopUpManager.centerPopUp(popup);
 			}
 
 			public function update():void

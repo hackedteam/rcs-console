@@ -255,9 +255,9 @@
         }
 			}
 
-			private function volumeDataTipFunction(value:String):String
+			private function volumeDataTipFunction(value:Number):String
 			{
-				return String(value + "%");
+				return String(value/100);
 			}
 		]]>
 	</fx:Script>
@@ -273,6 +273,7 @@
       
       <s:Label text="L"/>
       <s:VSlider id="panControl"
+                 skinClass="it.ht.rcs.console.operations.view.evidences.advanced.viewers.skins.PanBarSkin"
                  height="100%"
                  enabled="true"
                  minimum="-1"
@@ -280,22 +281,11 @@
                  change="onPanChange()"
                  stepSize="0.1"
                  value="0"
+                 width="10"
                  showDataTip="false"/>
       <s:Label text="R"/>
     </s:VGroup>
-    <s:VGroup  height="100%">
-      <s:BitmapImage source="{SpeakerIcon}"/>
-      <s:VSlider id="volumeControl"
-                 height="100%"
-                 enabled="true"
-                 minimum="0"
-                 maximum="400"
-                 change="onVolumeChange()"  
-                 stepSize="1"
-                 dataTipFormatFunction="volumeDataTipFunction"
-                 value="100"/>
-      
-    </s:VGroup>
+   
   </s:HGroup>
 
 	<s:BorderContainer width="100%"
@@ -336,6 +326,19 @@
         </s:stroke>
       </s:Line>
     </s:HGroup>
+    <s:HGroup verticalAlign="middle">
+      <s:BitmapImage source="{SpeakerIcon}"/>
+      <s:HSlider id="volumeControl" 
+                 skinClass="it.ht.rcs.console.operations.view.evidences.advanced.viewers.skins.VolumeBarSkin" 
+                 enabled="true"
+                 minimum="0"
+                 maximum="400"
+                 change="onVolumeChange()"  
+                 stepSize="1"
+                 dataTipFormatFunction="volumeDataTipFunction"
+                 value="100"/> 
+      </s:HGroup>
+      
     <s:Spacer width="100%"/>
 		<s:RichText id="timeTxt"
 								text="00:00:00"

@@ -95,7 +95,16 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/worker.png')]
     public static const worker32:Class;
     
+    [Embed(source='/img/NEW/plug_32.png')]
+    public static const connector32:Class;
     
+    [Embed(source='/img/NEW/ocr_32.png')]
+    public static const ocr32:Class;
+    
+    [Embed(source='/img/NEW/archive_32.png')]
+    public static const archive32:Class;
+    
+
     [Embed(source='/img/NEW/device/mobile_android.png')]
     public static const mobile_android:Class;
     

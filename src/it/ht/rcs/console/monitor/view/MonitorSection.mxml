@@ -1,72 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
-              xmlns:s="library://ns.adobe.com/flex/spark"
-              xmlns:mx="library://ns.adobe.com/flex/mx"
-              xmlns:main="it.ht.rcs.console.main.*"
-              xmlns:monitor="it.ht.rcs.console.monitor.view.*"
-              addedToStage="onAddedToStage()" creationComplete="init()"
-              removedFromStage="onRemovedFromStage()">
-  
-  <main:layout>
-    <s:VerticalLayout horizontalAlign="center" paddingBottom="5" paddingLeft="5" paddingRight="5"
-                      paddingTop="5"/> 
-  </main:layout>
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.monitor.controller.MonitorManager;
-      
-      import mx.collections.ListCollectionView;
-      import mx.collections.Sort;
-      import mx.collections.SortField;
-      import mx.core.ScrollPolicy;
-      
-      [Bindable]
-      private var view:ListCollectionView;
-      
-      private function init():void
-      {
-        var sort:Sort = new Sort();
-        sort.fields = [new SortField('status', true, true, true), new SortField('_id', true)];
-        view = MonitorManager.instance.getView(sort, searchFilterFunction);
-      }
-      
-      private function onAddedToStage():void
-      {
-        LicenseManager.instance.listenRefresh();
-        MonitorManager.instance.listenRefresh();
-        MonitorManager.instance.startAutorefresh();
-      }
-      
-      private function onRemovedFromStage():void
-      {
-        LicenseManager.instance.unlistenRefresh();
-        MonitorManager.instance.unlistenRefresh();
-        MonitorManager.instance.stopAutorefresh();
-      }
-      
-      private function searchFilterFunction(item:Object):Boolean
-      {
-        try {
-          return item.name.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
-        } catch (e:Error) {}
-        return true;
-      }
-    ]]>
-  </fx:Script>
-  
-  <monitor:MonitorActionBar id="actionBar" selectedObject="{grid.selectedItem}" view="{view}"/>
+							xmlns:s="library://ns.adobe.com/flex/spark"
+							xmlns:mx="library://ns.adobe.com/flex/mx"
+							xmlns:main="it.ht.rcs.console.main.*"
+							xmlns:monitor="it.ht.rcs.console.monitor.view.*"
+							addedToStage="onAddedToStage()"
+							creationComplete="init()"
+							removedFromStage="onRemovedFromStage()">
 
-  <monitor:StatusGrid id="grid" dataProvider="{view}"/>
+	<main:layout>
+		<s:VerticalLayout horizontalAlign="center"
+											paddingBottom="5"
+											paddingLeft="5"
+											paddingRight="5"
+											paddingTop="5"/>
+	</main:layout>
 
-  <s:Spacer height="10"/>
-  <s:Scroller verticalScrollPolicy="off" width="100%">
-  <s:Group width="100%">
-  <s:HGroup id="licenseAndVersion" horizontalAlign="center" top="12" width="100%">
-    <monitor:License />
-    <monitor:Version />
-  </s:HGroup>
-  </s:Group>
-  </s:Scroller>
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.monitor.controller.MonitorManager;
+
+			import mx.collections.ListCollectionView;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.core.ScrollPolicy;
+
+			[Bindable]
+			private var view:ListCollectionView;
+
+			private function init():void
+			{
+				var sort:Sort=new Sort();
+				sort.fields=[new SortField('status', true, true, true), new SortField('_id', true)];
+				view=MonitorManager.instance.getView(sort, searchFilterFunction);
+			}
+
+			private function onAddedToStage():void
+			{
+				LicenseManager.instance.listenRefresh();
+				MonitorManager.instance.listenRefresh();
+				MonitorManager.instance.startAutorefresh();
+			}
+
+			private function onRemovedFromStage():void
+			{
+				LicenseManager.instance.unlistenRefresh();
+				MonitorManager.instance.unlistenRefresh();
+				MonitorManager.instance.stopAutorefresh();
+			}
+
+			private function searchFilterFunction(item:Object):Boolean
+			{
+				try
+				{
+					return item.name.toLowerCase().indexOf(actionBar.searchInput.text.toLowerCase()) != -1;
+				}
+				catch (e:Error)
+				{
+				}
+				return true;
+			}
+		]]>
+	</fx:Script>
+
+	<monitor:MonitorActionBar id="actionBar"
+														selectedObject="{grid.selectedItem}"
+														view="{view}"/>
+
+	<monitor:StatusGrid id="grid"
+											dataProvider="{view}"/>
+
+	<s:Spacer height="10"/>
+	<s:Scroller verticalScrollPolicy="off"
+							width="100%">
+		<s:Group width="100%">
+			<s:HGroup id="licenseAndVersion"
+								horizontalAlign="center"
+								top="12"
+								width="100%">
+				<monitor:License/>
+				<monitor:Version/>
+			</s:HGroup>
+		</s:Group>
+	</s:Scroller>
 </main:Section>

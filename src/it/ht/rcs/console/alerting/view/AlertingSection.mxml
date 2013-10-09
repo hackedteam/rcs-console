@@ -7,7 +7,7 @@
 							addedToStage="onAddedToStage()"
 							creationComplete="init()"
 							removedFromStage="onRemovedFromStage()">
-	
+
 
 	<main:layout>
 		<s:VerticalLayout paddingBottom="5"
@@ -19,19 +19,20 @@
 
 	<fx:Script>
 		<![CDATA[
-			import com.hurlant.crypto.symmetric.NullPad;
-
-			import it.ht.rcs.console.alert.controller.AlertManager;
-			import it.ht.rcs.console.alert.model.Alert;
-			import it.ht.rcs.console.search.controller.SearchManager;
-
-			import mx.collections.ArrayCollection;
-			import mx.collections.ArrayList;
-			import mx.collections.ListCollectionView;
-
-			import spark.collections.Sort;
-			import spark.collections.SortField;
-			import spark.events.GridSelectionEvent;
+      import com.greensock.TweenMax;
+      import com.hurlant.crypto.symmetric.NullPad;
+      
+      import it.ht.rcs.console.alert.controller.AlertManager;
+      import it.ht.rcs.console.alert.model.Alert;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ArrayList;
+      import mx.collections.ListCollectionView;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
+      import spark.events.GridSelectionEvent;
 
 			[Bindable]
 			private var view:ListCollectionView;
@@ -109,6 +110,7 @@
 				logBar.selectedObjects=null;
 				logBar.selectedIndices=null;
 				logBar.view=logs.dataProvider as ArrayCollection;
+        onLogsShow()
 			}
 
 			private function logsSelectionChange(event:GridSelectionEvent):void
@@ -116,19 +118,27 @@
 				logBar.selectedObjects=logs.selectedItems ? logs.selectedItems : null;
 				logBar.selectedIndices=logs.selectedIndices ? logs.selectedIndices : null;
 			}
-      
-    
-      
-    
+
+			private function onLogsShow():void
+			{
+				trace("show effect ")
+        logsBox.percentHeight=1;
+        TweenMax.to(logsBox,0.4,{percentHeight:100})
+			}
+
+			private function onLogsHide():void
+			{
+				trace("hide effect ")
+			}
 		]]>
 	</fx:Script>
 	<mx:VBox paddingBottom="0"
-						paddingLeft="0"
-						paddingTop="0"
-						paddingRight="0"
-						id="alertBox"
-						width="100%"
-						height="100%">
+					 paddingLeft="0"
+					 paddingTop="0"
+					 paddingRight="0"
+					 id="alertBox"
+					 width="100%"
+					 height="100%">
 
 		<view:AlertingActionBar id="alertBar"
 														view="{view}"
@@ -140,17 +150,16 @@
 	</mx:VBox>
 
 	<mx:VBox paddingBottom="0"
-						paddingLeft="0"
-						paddingTop="0"
-						paddingRight="0"
-						id="logsBox"
-						visible="{alerts.selectedItem!=null}"
-						includeInLayout="{alerts.selectedItem!=null}"
-						width="100%"
-						height="100%"
-						>
-
-
+					 paddingLeft="0"
+					 paddingTop="0"
+					 paddingRight="0"
+					 id="logsBox"
+					 visible="{alerts.selectedItem!=null}"
+					 includeInLayout="{alerts.selectedItem!=null}"
+					 width="100%"
+					 height="100%"
+					 show="onLogsShow()"
+					 hide="onLogsHide()">
 		<view:LogsActionBar id="logBar"
 												section="{this}"
 												view="{logs.dataProvider as ArrayCollection}"

@@ -73,6 +73,7 @@
         
 				var latitude:String;
 				var longitude:String;
+        var accuracy:String;
         
 				if (isNaN(data.data.latitude))
 				{
@@ -93,7 +94,17 @@
           longitude=longitude.substr(0,6)
         }
         
+        if (isNaN(data.data.accuracy))
+        {
+          accuracy="unknown";
+        }
+        else
+        {
+          accuracy=data.data.accuracy+" mt"
+        }
+        
 				coordsTxt.textFlow=TextConverter.importToFlow("<b>Lat: </b>" + latitude + " | <b>Long: </b>" + longitude, TextConverter.TEXT_FIELD_HTML_FORMAT);
+        accuracyTxt.textFlow=TextConverter.importToFlow("<b>Accuracy: </b>" + accuracy, TextConverter.TEXT_FIELD_HTML_FORMAT);
         
 				//var address:EvidenceDataAddress=data.data.address as EvidenceDataAddress;
         
@@ -159,6 +170,8 @@
 		<s:VGroup verticalAlign="middle"
 							width="100%">
       <s:RichText id="coordsTxt"
+                  width="100%"/>
+      <s:RichText id="accuracyTxt"
                   width="100%"/>
 			<s:RichText id="addressTxt"
 									width="100%"/>

@@ -41,6 +41,7 @@
 		<![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.notifications.NotificationPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.utils.AlertPopUp;
       
@@ -124,8 +125,7 @@
 			{
 				numFilesToProcess--
 				if (numFilesToProcess == 0)
-
-					Alert.show(R.get('FILE_DOWNLOAD_SCHEDULED'));
+          NotificationPopup.showNotification(R.get('FILE_DOWNLOAD_SCHEDULED'),2)
 			}
 
 			private function onRetrieve(e:MouseEvent):void
@@ -159,7 +159,7 @@
 					{
 						numFilesToProcess--
 						if (numFilesToProcess == 0)
-							AlertPopUp.show(R.get('FILE_RETRIEVE_DEFAULT'));
+              NotificationPopup.showNotification(R.get('FILE_RETRIEVE_DEFAULT'),2);
 					}, function(e:FaultEvent):void
 					{
             var message:*=JSON.parse(e.fault.content as String)

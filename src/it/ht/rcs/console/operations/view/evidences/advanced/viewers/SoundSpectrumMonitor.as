@@ -211,6 +211,8 @@ package it.ht.rcs.console.operations.view.evidences.advanced.viewers
 		{
 			_playheadWidth=value;
 		}
+    
+   
 
 	}
 }

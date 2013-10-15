@@ -29,7 +29,7 @@
 -->
 <s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
              xmlns:fb="http://ns.adobe.com/flashbuilder/2009" xmlns:mx="library://ns.adobe.com/flex/mx" 
-             minHeight="24" >
+             minHeight="24" addedToStage="onAddedToStage(event)">
 
     <fx:Metadata>
       /** 
@@ -40,9 +40,10 @@
   
     <fx:Script fb:purpose="styling">
       <![CDATA[
-        import mx.core.FlexGlobals;
         import it.ht.rcs.console.accounting.controller.SessionManager;
         import it.ht.rcs.console.events.RefreshEvent;
+        
+        import mx.core.FlexGlobals;
       
         /*  Define the skin elements that should not be colorized. 
          *  Exclude the titleBar and scroller because they are SparkSkins and we 
@@ -62,6 +63,7 @@
         {
             useChromeColor = true;
             super.initializationComplete();
+          
         }
       
         private function onToggleFullScreen():void
@@ -70,17 +72,45 @@
             case StageDisplayState.NORMAL:
               stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
               fullscreenButton.toolTip="Exit Fullscreen"
+              fullscreenButton.selected=true;
               parentApplication.gripper.visible = false;
               break;
             case StageDisplayState.FULL_SCREEN_INTERACTIVE:
               stage.displayState = StageDisplayState.NORMAL;
               fullscreenButton.toolTip="Fullscreen"
+              fullscreenButton.selected=false;
               parentApplication.gripper.visible = true;
               break;
             default:
               break;
           }
         }
+        
+        protected function onResize(event:Event):void
+        {
+          switch (stage.displayState) {
+            case StageDisplayState.NORMAL:
+              fullscreenButton.toolTip="Fullscreen"
+              fullscreenButton.selected=false;
+              parentApplication.gripper.visible = true;
+              break;
+            case StageDisplayState.FULL_SCREEN_INTERACTIVE:
+              fullscreenButton.toolTip="Exit Fullscreen"
+              fullscreenButton.selected=true;
+              parentApplication.gripper.visible = false;
+              break;
+            default:
+              break;
+          }
+          
+        }
+        
+        protected function onAddedToStage(event:Event):void
+        {
+          this.stage.addEventListener(Event.RESIZE, onResize)
+          
+        }
+        
       ]]>
     </fx:Script>
     

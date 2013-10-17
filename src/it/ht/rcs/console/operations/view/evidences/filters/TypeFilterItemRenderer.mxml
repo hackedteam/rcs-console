@@ -3,14 +3,21 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           width="120" verticalAlign="middle">
-  
+  <fx:Metadata>
+    [Event(name="change", type="flash.events.Event")] 
+  </fx:Metadata>
   <fx:Script>
     <![CDATA[
       [Bindable]
       public var label:String;
+      
+      private function onChange():void
+      {
+      dispatchEvent(new Event("change"));
+      }
     ]]>
   </fx:Script>
   
-  <s:CheckBox id="checkbox" label="{label}"/>
+  <s:CheckBox id="checkbox" label="{label}" change="onChange()"/>
   
 </s:HGroup>

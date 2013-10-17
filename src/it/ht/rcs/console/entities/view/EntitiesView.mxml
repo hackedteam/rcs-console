@@ -15,6 +15,7 @@
       import it.ht.rcs.console.entities.view.EntitiesSection;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
@@ -40,6 +41,14 @@
       
       private function init():void
       {
+        if(!LicenseManager.instance.intelligence)
+        {
+          while(views.numChildren>2)
+          {
+            views.removeChildAt(0) //remove link view and map view if not in License 
+          }
+ 
+        }
         FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       }
       
@@ -67,47 +76,67 @@
 				actionbar.selectedObject=null;
 				actionbar.selectedObjects=null; //TODO > SYNC SELECTION
 
+        trace("License: "+ LicenseManager.instance.intelligence)
 
 				var i:int;
 
+        if(!LicenseManager.instance.intelligence)
+        {
+           if (views.selectedIndex == 0) //list
+          {
+            actionbar.currentState="list"
+            list.selectedItem=null;
+            list.selectedItems=null;
+          }
+          
+          if (views.selectedIndex == 1) //table
+          {
+            actionbar.currentState="table";
+            grid.selectedItem=null;
+            grid.selectedItems=null;
+          }
+        }
 
-				if (views.selectedIndex == 0) //links
-				{
-					actionbar.currentState="linkmap"
-			
-					linkMap.entities=section.stateManager.tableView; 
-					setTimeout(linkMap.init, 100)
-				}
-
-				else if (views.selectedIndex == 1) //geo map
-				{
-					actionbar.currentState="geomap"
-					/* entities.removeAll()
-					for (i=0; i < section.stateManager.view.length; i++)
-					{
-						entities.addItem(section.stateManager.view.getItemAt(i));
-					}
-					geoMap.entities=entities;
-					geoMap.refresh() */
-          geoMap.entities=section.stateManager.tableView
-          geoMap.reset()
-          geoMap.refresh()
-				}
-
-				else if (views.selectedIndex == 2) //list
-				{
-					actionbar.currentState="list"
-					list.selectedItem=null;
-					list.selectedItems=null
-				}
-
-				if (views.selectedIndex == 3) //table
-				{
-					actionbar.currentState="table"
-					grid.selectedItem=null
-					grid.selectedItems=null
-
-				}
+        else //License has intelligence
+        {
+          if (views.selectedIndex == 0) //links
+          {
+            actionbar.currentState="linkmap"
+            
+            linkMap.entities=section.stateManager.tableView; 
+            setTimeout(linkMap.init, 100)
+          }
+            
+          else if (views.selectedIndex == 1) //geo map
+          {
+            actionbar.currentState="geomap"
+            /* entities.removeAll()
+            for (i=0; i < section.stateManager.view.length; i++)
+            {
+            entities.addItem(section.stateManager.view.getItemAt(i));
+            }
+            geoMap.entities=entities;
+            geoMap.refresh() */
+            geoMap.entities=section.stateManager.tableView
+            geoMap.reset()
+            geoMap.refresh()
+          }
+            
+          else if (views.selectedIndex == 2) //list
+          {
+            actionbar.currentState="list"
+            list.selectedItem=null;
+            list.selectedItems=null
+          }
+          
+          if (views.selectedIndex == 3) //table
+          {
+            actionbar.currentState="table"
+            grid.selectedItem=null
+            grid.selectedItems=null
+            
+          }
+        }
 			}
 
 			protected function onNewLink():void
@@ -189,7 +218,7 @@
 		<s:NavigatorContent label="{R.get('LINK_MAP')}"
 												hideEffect="{fadeOut}"
 												icon="@Embed('/img/NEW/link16.png')"
-												showEffect="{fadeIn}">
+												showEffect="{fadeIn}" >
 
 
 			<entities:LinkView section="{this.section}"
@@ -201,7 +230,7 @@
 		<s:NavigatorContent label="{R.get('POSITION_MAP')}"
 												hideEffect="{fadeOut}"
 												icon="@Embed('/img/NEW/position16.png')"
-												showEffect="{fadeIn}">
+												showEffect="{fadeIn}" >
 
 
 			<entities:GeoMapView id="geoMap"

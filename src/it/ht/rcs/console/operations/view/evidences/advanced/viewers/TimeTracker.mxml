@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 resize="onResize(event)"
+									 backgroundColor="0xCCCCCC"
+                   borderColor="0xCCCCCC"
+									 backgroundAlpha="1"
+									 borderAlpha="1">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Label;
+			
+			import spark.core.SpriteVisualElement;
+
+			public var totalTime:Number; //seconds
+
+
+			private var seconds:Number;
+			private var minutes:Number;
+			private var hours:Number;
+
+			public function draw():void
+			{
+        var mmw:Number=this.width/totalTime; //milliseconds width
+        var sw:Number=mmw*1000
+        var mw:Number=sw*60
+        var spacing:Number
+        var desc:String;
+          
+				seconds=Math.floor(totalTime/1000)
+				minutes=seconds / 60
+				hours= minutes / 60    //eccedenza
+
+				trace("h: " + hours)
+				trace("m: " + minutes)
+				trace("s: " + seconds)
+
+				var numTicks:int;
+
+				if (minutes < 2)
+				{
+					numTicks= seconds
+          spacing=sw;
+          desc="sec"
+				}
+				else
+				{
+					numTicks=minutes
+          spacing=mw;
+          desc="min"
+				}
+
+				mainBox.removeAllElements()
+
+				var tickSpace:Number=this.width / numTicks;
+				var xPos:Number=0;
+
+				for (var i:int=0; i <= numTicks ; i++)
+				{
+					var s:SpriteVisualElement=new SpriteVisualElement();
+					s.graphics.lineStyle(1, 0x000000, 1);
+					s.graphics.moveTo(0, -4);
+					s.graphics.lineTo(0, 4);
+					s.x=xPos;
+					mainBox.addElement(s);
+					if ((i == 1 || i % 10 == 0) && i!=0)
+					{
+						var t:Label=new Label;
+						t.text=String(i)+" "+desc
+						t.x=xPos - 8;
+						t.y=8
+            mainBox.addElement(t);
+					}
+
+					xPos+=spacing;
+				}
+			}
+
+			public function reset():void
+			{
+				totalTime=0;
+				draw();
+			}
+
+			protected function onAddedToStage(event:Event):void
+			{
+				this.addEventListener(Event.ENTER_FRAME, onResize)
+
+			}
+
+			protected function onRemovedFromStage(event:Event):void
+			{
+				this.removeEventListener(Event.ENTER_FRAME, onResize)
+			}
+
+			private function onResize(e:Event):void
+			{
+				trace("resize " + this.width)
+				draw()
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%"
+						horizontalAlign="left"
+						gap="0"
+						paddingBottom="0"
+						paddingLeft="0"
+						paddingRight="0"
+						paddingTop="0">
+		<s:Group height="30"
+						 id="mainBox"
+						 width="100%"/>
+	</s:HGroup>
+
+</s:BorderContainer>

@@ -1,93 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                xmlns:s="library://ns.adobe.com/flex/spark"
-                xmlns:mx="library://ns.adobe.com/flex/mx"
-                autoDrawBackground="true" buttonMode="true">
-  
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.search.model.SearchItem;
-      import it.ht.rcs.console.dashboard.view.renderer.Icons;
-      
-      import mx.core.FlexGlobals;
-      
-      import spark.components.List;
-      
-      [Embed(source='/img/NEW/operation_16.png')]
-      private static var operationIcon:Class;
-      
-      [Embed(source='/img/NEW/target_16.png')]
-      private static var targetIcon:Class;
-      
-      [Embed(source='/img/NEW/agent_16.png')]
-      private static var agentIcon:Class;
-      
-      [Embed(source='/img/NEW/factory_16.png')]
-      private static var factoryIcon:Class;
-      
-      [Bindable]
-      private var _item:SearchItem;
-      
-      [Bindable]
-      private var _label:String;
-      
-      override public function set data(value:Object):void
-      {
-        if (value) {
+								xmlns:s="library://ns.adobe.com/flex/spark"
+								xmlns:mx="library://ns.adobe.com/flex/mx"
+								autoDrawBackground="true"
+								buttonMode="true">
 
-          _item = SearchManager.instance.getItem(value as String);
-          if (!_item) return;
-          
-          if (_item.desc != '')
-            _label = _item.name + ' - ' + _item.desc;
-          else
-            _label = _item.name;
-            
-          if (!_item) return;
-          switch (_item._kind) {
-            case 'operation':
-              icon.source = operationIcon;
-              break;
-            case 'target':
-              icon.source = targetIcon;
-              break;
-            case 'agent':
-              icon.source=Icons[_item.platform + '16'];
-              break;
-            case 'factory':
-              icon.source=Icons[_item.type + '16'];
-              break;
-            default:
-              break;
-          }
-          
-        }
-      }
-      
-      protected function goto():void
-      {
-        (this.owner as List).selectedIndex = -1;
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.dashboard.view.renderer.Icons;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.search.model.SearchItem;
+
+			import mx.core.FlexGlobals;
+
+			import spark.components.List;
+
+			[Embed(source='/img/NEW/operation_16.png')]
+			private static var operationIcon:Class;
+
+			[Embed(source='/img/NEW/operationEntity_16.png')]
+			private static var operationEntityIcon:Class;
+
+			[Embed(source='/img/NEW/target_16.png')]
+			private static var targetIcon:Class;
+
+			[Embed(source='/img/NEW/agent_16.png')]
+			private static var agentIcon:Class;
+
+			[Embed(source='/img/NEW/factory_16.png')]
+			private static var factoryIcon:Class;
+
+			[Embed(source='/img/NEW/entity_16.png')]
+			private static var entityIcon:Class;
+
+
+			[Bindable]
+			private var _item:SearchItem;
+
+			[Bindable]
+			private var type:String;
+
+			[Bindable]
+			private var section:String;
+
+			[Bindable]
+			private var _label:String;
+
+			override public function set data(value:Object):void
+			{
+				if (value)
+				{
+
+					if (value.hasOwnProperty("id"))
+						_item=SearchManager.instance.getItem(value.id as String);
+					else
+						_item=SearchManager.instance.getItem(value as String); //old String only format
+					if (!_item)
+						return;
+
+					if (_item.desc != '' && _item.desc != null)
+						_label=_item.name + ' - ' + _item.desc;
+					else
+						_label=_item.name;
+
+					if (!_item)
+						return;
+
+					switch (_item._kind)
+					{
+						case 'operation':
+							icon.source=operationIcon;
+							break;
+						case 'target':
+							icon.source=targetIcon;
+							break;
+						case 'agent':
+							icon.source=Icons[_item.platform + '16'];
+							break;
+						case 'factory':
+							icon.source=Icons[_item.type + '16'];
+							break;
+						case 'entity':
+							icon.source=entityIcon;
+							break;
+						default:
+							break;
+					}
+					if (value.hasOwnProperty("section"))
+					{
+						section=value.section;
+					}
+					if (value.hasOwnProperty("type"))
+					{
+						type=value.type;
+					}
+
+					if (section == "intelligence" && type == "operation")
+					{
+						icon.source=operationEntityIcon;
+					}
+					if (section == "intelligence" && type == "entity")
+					{
+						icon.source=entityIcon;
+					}
+				}
+
+
+			}
+
+			protected function goto():void
+			{
+				(this.owner as List).selectedIndex=-1;
         
-        var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
-        event.section = 'Operations';
-        event.item = _item;
-        FlexGlobals.topLevelApplication.dispatchEvent(event);
-      }
-    ]]>
-  </fx:Script>
-  
-  <s:states>
-    <s:State name="normal"/>
-    <s:State name="hovered"/>
-    <s:State name="selected"/>
-  </s:states>
+       
+				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
+				event.section = section == "operations" ? 'Operations' : 'Intelligence';
 
-  <s:HGroup width="100%" click="goto()" gap="10" paddingBottom="5"
-            paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="middle">
-    <s:BitmapImage id="icon"/>
-    <s:Label width="284" maxDisplayedLines="1" paddingTop="2" text="{_label}"/>
-  </s:HGroup>
-  
+				if (section == "intelligence" && type == "entity")
+				{
+					_item._kind="entity";
+				}
+
+				if (section == "intelligence" && type == "operation")
+				{
+					_item._kind="operation";
+				}
+				event.item=_item;
+				FlexGlobals.topLevelApplication.dispatchEvent(event);
+			}
+		]]>
+	</fx:Script>
+
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+
+	<s:HGroup width="100%"
+						click="goto()"
+						gap="10"
+						paddingBottom="5"
+						paddingLeft="5"
+						paddingRight="5"
+						paddingTop="5"
+						verticalAlign="middle">
+		<s:BitmapImage id="icon"/>
+		<s:Label width="284"
+						 maxDisplayedLines="1"
+						 paddingTop="2"
+						 text="{_label}"/>
+	</s:HGroup>
+
 </s:ItemRenderer>

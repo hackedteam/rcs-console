@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:components="it.ht.rcs.console.entities.view.components.timeline.*"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 creationComplete="init()"
+				 resize="onResize()">
+	<fx:Metadata>
+    [Event(name="change", type="flash.events.Event")]
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin;
+			import it.ht.rcs.console.entities.view.components.timeline.HSliderTrackSkinTicks;
+
+			import mx.collections.ArrayCollection;
+			[Bindable]
+			public var startDate:Date;
+
+			[Bindable]
+			public var endDate:Date;
+
+			[Bindable]
+			public var start:Number;
+
+			[Bindable]
+			public var end:Number;
+
+			public static const DAY:int=1000 * 60 * 60 * 24;
+			public static const MINUTE:int=1000 * 60;
+
+			[Bindable]
+			public var step:int;
+
+			private var t:Timer;
+
+			[Bindable]
+			private var numberOfTicks:int;
+
+			[Bindable]
+			private var tickWidth:Number=30;
+
+			private var lastValue:Number;
+			private var isPlaying:Boolean;
+
+			[Embed(source="img/mediaplayers/playMedium.png")]
+			[Bindable]
+			public var playIcon:Class;
+
+			[Embed(source="img/mediaplayers/pauseMedium.png")]
+			[Bindable]
+			public var pauseIcon:Class;
+
+			[Embed(source="img/mediaplayers/stopMedium.png")]
+			[Bindable]
+			public var stopIcon:Class;
+
+			private function formatTime(val:String):String
+			{
+				var time:Number=Number(val);
+				var d:Date=new Date();
+				d.time=time;
+				return d.date + "/" + d.month + "/" + d.fullYear
+			}
+
+			public function reset():void
+			{
+				slider.value=slider.minimum;
+			}
+
+			private function onResize():void
+			{
+				scrollbar.visible=scrollbar.includeInLayout=slider.width > this.width;
+			}
+
+			private function init():void
+			{
+
+				startDate=new Date();
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+				endDate=new Date();
+				start=startDate.time;
+				end=endDate.time;
+				slider.minimum=start;
+				slider.maximum=end;
+				slider.value=start;
+				slider.stepSize=DAY;
+				numberOfTicks=Math.floor((slider.maximum - slider.minimum) / slider.stepSize) - 1;
+				var sliderSkin:DashboardSliderSkin=slider.skin as DashboardSliderSkin;
+				var trackSkin:HSliderTrackSkinTicks=sliderSkin.track.skin as HSliderTrackSkinTicks;
+				trackSkin.drawTicks();
+				lastValue=slider.value;
+				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_DOWN, onMD);
+				t=new Timer(2000);
+				t.addEventListener(TimerEvent.TIMER, nextTimelineFrame)
+			}
+
+			private function nextTimelineFrame(e:TimerEvent):void
+			{
+				slider.value+=slider.stepSize;
+
+			}
+
+			private function onMD(e:MouseEvent):void
+			{
+
+				slider.addEventListener(MouseEvent.MOUSE_UP, onMU)
+				slider.thumbGroup.removeEventListener(MouseEvent.MOUSE_DOWN, onMD)
+				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_UP, onMU)
+				slider.thumbGroup.addEventListener(Event.ENTER_FRAME, onMM)
+				this.stage.addEventListener(MouseEvent.MOUSE_UP, onMU)
+
+				if (isPlaying)
+				{
+					t.stop();
+					isPlaying=false;
+					playBtn.label="play"
+				}
+			}
+
+			private function onMU(e:MouseEvent):void
+			{
+
+				slider.removeEventListener(MouseEvent.MOUSE_UP, onMU)
+				slider.thumbGroup.removeEventListener(Event.ENTER_FRAME, onMM)
+				slider.thumbGroup.addEventListener(MouseEvent.MOUSE_DOWN, onMD)
+				this.stage.removeEventListener(MouseEvent.MOUSE_UP, onMU)
+
+			}
+
+			private function onMM(e:Event):void
+			{
+				var n:Number=viewport.horizontalScrollPosition + viewport.width
+
+				if (slider.thumbGroup.x <= viewport.horizontalScrollPosition)
+				{
+					viewport.horizontalScrollPosition=slider.thumbGroup.x
+				}
+				if (slider.thumbGroup.x + 80 >= n)
+				{
+					viewport.horizontalScrollPosition=slider.thumbGroup.x - viewport.width + 80
+				}
+			}
+
+			public function update():void
+			{
+				start=startDate.time;
+				end=endDate.time;
+				slider.minimum=start;
+				slider.maximum=end;
+				slider.value=start;
+				slider.stepSize=DAY;
+				numberOfTicks=Math.floor((slider.maximum - slider.minimum) / slider.stepSize) - 1;
+				var sliderSkin:DashboardSliderSkin=slider.skin as DashboardSliderSkin;
+				var trackSkin:HSliderTrackSkinTicks=sliderSkin.track.skin as HSliderTrackSkinTicks;
+				trackSkin.drawTicks();
+				lastValue=slider.value;
+
+				scrollbar.visible=scrollbar.includeInLayout=slider.width > this.width;
+			}
+
+			private function onChange():void
+			{
+
+				dispatchEvent(new Event("change"));
+				onMM(null)
+			}
+
+			private function onChangeEnd():void
+			{
+
+			}
+
+			private function doStop():void
+			{
+				isPlaying=false;
+				t.stop();
+				playBtn.setStyle("icon", playIcon)
+				playBtn.toolTip="play"
+				slider.value=slider.minimum;
+			}
+
+			private function doPlay():void
+			{
+				if (!isPlaying)
+				{
+					this.nextTimelineFrame(null)
+					t.start();
+					isPlaying=true;
+					playBtn.setStyle("icon", pauseIcon)
+					playBtn.toolTip="pause"
+				}
+				else
+				{
+					t.stop();
+					isPlaying=false;
+					playBtn.setStyle("icon", playIcon)
+
+					playBtn.toolTip="play"
+				}
+
+			}
+
+			public function highlight(flows:ArrayCollection):void
+			{
+
+				slider.highlight(flows)
+			}
+		]]>
+	</fx:Script>
+	<!--<mx:HSlider width="100%" id="slider" snapInterval="{DAY}" dataTipFormatFunction="formatTime" tickColor="0x000000" tickInterval="{DAY}" tickLength="6" />-->
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:Group width="100%"
+					 clipAndEnableScrolling="true"
+					 height="50"
+					 id="viewport">
+		<s:Rect width="100%"
+						height="100%">
+			<s:fill>
+				<s:BitmapFill source="@Embed('img/backgrounds/linkmaptimeline.png')"
+											fillMode="repeat"/>
+			</s:fill>
+		</s:Rect>
+		<components:DashboardSlider skinClass="it.ht.rcs.console.entities.view.components.timeline.DashboardSliderSkin"
+																width="{tickWidth*numberOfTicks}"
+																id="slider"
+																snapInterval="{step}"
+																dataTipFormatFunction="formatTime"
+																minimum="{start}"
+																maximum="{end}"
+																change="onChange()"
+																liveDragging="true"
+																changeEnd="onChangeEnd()"
+																valueCommit="onChange()"/>
+	</s:Group>
+	<s:HScrollBar viewport="{viewport}"
+								width="100%"
+								id="scrollbar"
+								stepSize="30"
+								visible="{slider.width>this.width}"
+								includeInLayout="{slider.width>this.width}"/>
+	<s:HGroup>
+		<s:Button label=""
+							click="doPlay()"
+							id="playBtn"
+							toolTip="Play"
+							icon="{playIcon}"
+							height="24"
+							width="24"/>
+		<s:Button label=""
+							click="doStop()"
+							id="stopBtn"
+							toolTip="Stop"
+							icon="{stopIcon}"
+							height="24"
+							width="24"/>
+	</s:HGroup>
+</s:Group>

@@ -10,7 +10,7 @@
   
   <fx:Script>
     <![CDATA[
-      import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+ 
       import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupJob;
       import it.ht.rcs.console.events.RefreshEvent;
@@ -25,17 +25,15 @@
       
       [Bindable]
       private var _backup_job_view:ListCollectionView;
-      [Bindable]
-      private var _backup_archive_view:ListCollectionView;
+     
       
       private function onAddedToStage(event:Event):void
       {
         BackupJobManager.instance.listenRefresh();
         BackupJobManager.instance.refresh();
-        BackupArchiveManager.instance.listenRefresh();
-        BackupArchiveManager.instance.refresh();
+     
         _backup_job_view = BackupJobManager.instance.getView(); 
-        _backup_archive_view = BackupArchiveManager.instance.getView();
+      
         FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
       }
       
@@ -43,14 +41,12 @@
       {
         BackupJobManager.instance.unlistenRefresh();
         _backup_job_view = null;
-        BackupArchiveManager.instance.unlistenRefresh();
-        _backup_archive_view = null;
         FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       }
       
       private function onRefresh(e:RefreshEvent):void
       {
-        archivesActionBar.selectedObject = jobsActionBar.selectedObject = null;
+         jobsActionBar.selectedObject = null;
       }
       
       private function selectJob(j:BackupJob):void
@@ -67,6 +63,8 @@
         PopUpManager.centerPopUp(popup);
       }
       
+    
+      
     ]]>
   </fx:Script>
   
@@ -79,10 +77,6 @@
                        doubleClickEnabled="true"/>
     </s:VGroup>
   
-    <s:VGroup width="100%" height="100%">
-      <archives:ArchivesActionBar id="archivesActionBar" view="{_backup_archive_view}" selectedObject="{backuparchives.selectedItem}"/>
-      
-      <archives:BackupArchives id="backuparchives" dataProvider="{_backup_archive_view}"/>
-    </s:VGroup>
+  
   
 </s:VGroup>

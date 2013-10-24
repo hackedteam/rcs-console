@@ -22,8 +22,14 @@
       }
       
       private function labelEvidence(item:Object, column:GridColumn):String {
+       
         if (item[column.dataField])
+        {
+          if (item[column.dataField].toString().toUpperCase()=='*')
+            return 'ANY';
+          else
           return item[column.dataField].toString().toUpperCase();
+        }
         return '';
       }
     ]]>
@@ -56,9 +62,10 @@
         </s:itemRenderer>
       </s:GridColumn>
       
-      <s:GridColumn width="80" dataField="action" headerText="{R.get('ALERT_EVENT')}"/>
+    
       <s:GridColumn dataField="path" headerText="{R.get('PATH')}"
                     itemRenderer="it.ht.rcs.console.utils.PathRenderer"/>
+      <s:GridColumn width="80" dataField="action" headerText="{R.get('ALERT_EVENT')}"/>
       <s:GridColumn width="100" dataField="evidence" headerText="Evidence"
                     labelFunction="labelEvidence"/>
       <s:GridColumn dataField="keywords" headerText="{R.get('KEYWORD')}"></s:GridColumn>

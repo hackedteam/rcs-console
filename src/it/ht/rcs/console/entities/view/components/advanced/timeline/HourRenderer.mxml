@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+											xmlns:s="library://ns.adobe.com/flex/spark"
+											xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.entities.model.Positions;
+      import it.ht.rcs.console.entities.model.PositionsFlow;
+      
+      import mx.collections.ArrayCollection;
+      
+      import spark.core.SpriteVisualElement;
+
+			public var date:Date=new Date();
+			public var dayHeight:Number=120;
+			public var index:int;
+			private var monthNames:Array=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+			private var marker:SpriteVisualElement;
+			public var positions:ArrayCollection;
+      public var minutes:Dictionary;
+
+			override protected function createChildren():void
+			{
+
+				this.buttonMode=true;
+				this.useHandCursor=true;
+				this.graphics.lineStyle(0.5, 0xCCCCCC, 0.1);
+				this.graphics.beginFill(0xCCCCCC, 0.1);
+				this.graphics.drawRect(0, 0, 12, dayHeight / 24);
+				this.toolTip=doubleDigits(this.date.date) + " " + monthNames[this.date.month] + " " + this.date.fullYear + " " + doubleDigits(this.date.hours) + ":" + doubleDigits(this.date.minutes)
+
+				marker=new SpriteVisualElement()
+				marker.graphics.lineStyle(0.5, 0x33CCFF, 1);
+				marker.graphics.beginFill(0x33CCFF, 1);
+				marker.graphics.drawRect(0, 0, 12, dayHeight / 24);
+				this.addElement(marker)
+				marker.visible=false;
+				positions=new ArrayCollection()
+        minutes=new Dictionary();
+        
+     /*   for(var i:int=0;i<60;i++)
+        {
+          minutes[String(i)]=new ArrayCollection()
+        }  */
+
+			}
+      
+      public function populateMinute(pos:PositionsFlow):void
+      {
+        //marker.visible=true;
+        var d:Date=new Date(pos.time*1000)
+        minutes[String(d.minutes)]=pos.positions;
+        
+      }
+
+			public function populate(pos:PositionsFlow):void
+			{
+				marker.visible=true;
+        marker.alpha=pos.alpha/100;
+				this.positions.removeAll();
+        
+				for (var i:int=0; i < pos.positions.length; i++)
+				{
+					this.positions.addItem(pos.positions.getItemAt(i));
+				}
+			}
+
+			public function reset():void
+			{
+				marker.visible=false;
+				positions.removeAll()
+        //clean
+        minutes=new Dictionary();
+        /* for(var i:int=0;i<60;i++)
+        {
+          minutes[String(i)]=new ArrayCollection();
+        } */
+			}
+
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return String("0" + n)
+				else
+					return String(n)
+			}
+		]]>
+	</fx:Script>
+</s:SkinnableContainer>

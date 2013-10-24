@@ -192,7 +192,6 @@ package org.un.cava.birdeye.ravis.components.renderers {
 			ll.height = 11;*/
 			ll.setStyle("textAlign","center");
 			ll.setStyle("fontSize",10);
-			
 			this.addChild(ll);
 			
 			/* not sure yet how to incoroporate this

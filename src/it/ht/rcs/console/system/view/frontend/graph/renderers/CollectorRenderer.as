@@ -137,6 +137,8 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
         textLabel.setStyle('textAlign', 'center');
         textLabel.width = 80;
         textLabel.maxDisplayedLines = 2;
+        textLabel.setStyle('fontFamily', 'Myriad');
+        textLabel.setStyle('fontSize', 12);
   			addElement(textLabel);
   
       }

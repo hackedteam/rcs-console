@@ -20,6 +20,14 @@
       [Embed(source='/img/NEW/device/compass.png')]
       private static const compassIcon:Class;
       
+      
+      override public function set data(value:Object):void
+      {
+        super.data = value;
+      
+      }
+      
+      
       private function onClick(e:MouseEvent):void
       {
         var event:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
@@ -27,9 +35,7 @@
         event.item = SearchManager.instance.getItem(data._id);
         FlexGlobals.topLevelApplication.dispatchEvent(event);
       }
-      
-      
-      
+
       private function onRoll(event:MouseEvent):void
       {
         container.setStyle('backgroundColor', event.type == MouseEvent.ROLL_OVER ? 0xa8c6ee : 0xffffff);
@@ -46,10 +52,10 @@
     </s:Group>
     
     
-    <renderer:CounterBaloon visible="{data.sync != 0}" right="-6" top="-8" style="red"
-                            value="{data.sync}"/>
-    <renderer:CounterBaloon visible="{data.tot != 0}" right="-6" bottom="-8" style="white"
-                            value="{data.tot}"/>
+    <renderer:CounterBaloon  right="-6" top="-8" style="blue"
+                            value="{data.sync}" visible="{data.sync != 0}"/>
+    <renderer:CounterBaloon  right="-6" bottom="-3" style="white"
+                            value="{data.tot}" visible="{data.tot != 0}"/>
     
   </s:BorderContainer>
   

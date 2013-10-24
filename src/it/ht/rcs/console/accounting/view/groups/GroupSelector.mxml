@@ -2,6 +2,7 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:components="it.ht.rcs.console.accounting.view.components.*"
           creationComplete="init()" gap="-1">
   
   <fx:Script>
@@ -26,6 +27,7 @@
       
       private function init():void
       {
+        //addBtn.mx_internal::getCurrentIcon()=null;
         groupsToAdd=new ArrayCollection;
         groupsToRemove=new ArrayCollection;
         availableDP = GroupManager.instance.getView(null, listFilterFunction);
@@ -114,12 +116,12 @@
     <s:Button width="30" label="-" click="removeGroup(event)" cornerRadius="0"
               enabled="{selectedGroups.selectedItem != null}"/>
     
-    <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
-      <mx:popUp>
+    <components:SimplePopUpButton width="48" label="+" cornerRadius="0" openAlways="true" id="addBtn">
+      <components:popUp>
         <s:List id="availableGroups" click="addGroup(event)" dataProvider="{availableDP}"
                 labelField="name" textAlign="left" filters="{[dropShadow]}" maxHeight="200" maxWidth="200" width="200" height="200"/>
-      </mx:popUp>
-    </mx:PopUpButton>
+      </components:popUp>
+    </components:SimplePopUpButton>
     
   </s:HGroup>
   

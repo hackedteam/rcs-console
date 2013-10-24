@@ -1,103 +1,32 @@
 
 ========================================================================================
-TODO 8.4.x
-========================================================================================
-
-EVIDENCE:
-  - visualizzare in maniere diversa se una mail mail e' incoming / outgoing o draft
-      
-OPERATIONS:
-  - cancellando un operation, su intelligence rimane anche dopo refresh (verificare) (OK)
-  - il messaggio di "added to dashboard" deve comparire e scomparire da solo senza l'OK dell'utente (OK)   //TODO > (Cosmetic) Finestra scura arrotondata con fade
-  
-BUILD:
-  - il messaggio "config saved" deve sparire da solo a tempo (no tasto OK)  (OK) //TODO > (Cosmetic) Finestra scura arrotondata con fade
-  
-ALERTING:
-  - togliere il messaggio di warning quando si fa il jump alle evidence (toglierlo anche quando il filtro e' solo su ID)
-  - quando c'e' il jump a evidence, visualizzare la colonna ID a dimensione ridotta (poi scompare se si toglie il filtro)
-  
-GLOBAL:
-  - tasto save / cancel sul profilo utente (OK)
-  - deselezione cliccando su punto bianco in liste console (OK)
-
-
-========================================================================================
-TODO 9.0.0  Galileo
-========================================================================================
-
-INTELLIGENCE:
-  - data flows sui link (con il player temporale)
-  - play nella vista dei luoghi per far vedere il movimento dei target
-  - most visited places nel profile dell'entita' target
-  - aggiunta manuale di places sul profile dell'entita'
-
-ENTITY
-  - gestire PUSH ENTITY 'MODIFY' Event (quando si aggiornano i link in manuale o automatico)
-  - Cancellazione target > vai all'operation in intelligence > entity ancora visibile > (ascoltare evento push x rimuoverla ?)
-  - filtri per entity: sul tipo e altri (da pensare)
-
-EVIDENCE DETAIL AUDIO:
-  - mettere il blancer sulla stessa riga della waveform e stessa altezza (sistemare i versi)
-  - implemntare fading sulla traccia quando si sposta il balancer
-  - spostare il volume e metterlo in verticale affianco al balancer 
-  - spostare il tempo totale sotto la waveform
-  - spostare i comandi play a sinistra (sulla stessa riga del tempo)
-  - visualizzare ad intervalli regolare il tempo (a tacche) sotto la waveform
-
-EVIDENCE DETAIL:
-  - aggiungere nel breadcrumb “Details” (sottolivello aggiuntivo)  
-  - frecce Next e Prev nel dettaglio evidence
-  
-EVIDENCE GRID:
-  - cambiare i checkbox con un icona filtro (grigio chiaro / nero a seconda se abilitato o meno)
-  - ogni popup dei filtri deve avere il tasto "apply"
-  - il campo di ricerca testuale deve avere la lente di ingrandimento prima del campo testo
-  - riordinare la action bar: open detail, summary | download, relevance, report, note, delete | show id, filters, reset | translate
-
-GLOBAL:
-  - cambiare icona al progetto (nuova grafica)
-  - pulsante di navigazione "back" per tutti gli stati del sistema
-  - rimuovere il placeholder per il terzo tasto nella home
-  - icone "export *" e "jump to *" hanno stessa freccia, cambiare export verso il basso e magari jump in alto a destra diagonale (fare prove)
-  - nei breadcrumbs quando si e' al primo livello non ha senso il tasto "up": disabilitarlo  
-  
-ALERTING:
-  - mettere 'ANY' al posto di * nelle regole (stare attenti che pero' al db arrivi sempre *)
-  - il search nella action bar cerca solo per keyword, aggiungere evidence type e path
-  - visualizzare la parte sotto (con transizione verso l'alto) solo quando si seleziona un alert
-  - spostare la colonna "event" dopo il path e rendere coerente con questo ordinamento anche il form di inserimento nuova regola
-  - Jump da alert su entity e link
-  
-INJECTORS:
-  - visualizzare la parte sotto (con transizione verso l'alto) solo quando si seleziona un NI
-  - tooltip sugli header per indicare che si puo' fare sort
-  - specificare meglio i range di "probability" e indicare "once only", "xx% of the time", "everytime"
-  - tasto duplica regola
-  
-DASHBOARD:
-  - i baloon rossi diventano azzurri (come alert)
-  - Rimpiazzare il sistema di polling attuale con Pushing
-  - Le scrollbar in dashboard non devono andare sopra gli elementi
-
-CONFIG:
-  - riordinare actionbar: save, export, import, template | add event, add action, edit, delete, globals | basic | collapse
-  - GLOBALS > Flag conessioni remote
-  
-BUILD:
-  - Build EXPLOIT - File browse filtrato sulla base del tipo di exploit selezionato 
-  - Build > dare la possibilità di aprire la cartella dove è sta creata al click sul messaggio (desktop/rcsdownload) 
-   
-CONNECTORS:
-  - supporto per il tipo XML
-  - regole di forward verso RCS "archive"
-   
-========================================================================================
 TODO 9.x.x
 ========================================================================================
 
-TARGET:
+ACCOUNTING:
+    - nel form di creazione/modifica utente:
+    - togliere la freccia in giu' vicino a + nell'aggiunta gruppi
+    - togliere la freccia giu' vicino a + anche nei gruppi 
+ 
+OPERATION:
+  - togliere la freccia giu' vicino a + nel form di edit operation
+
+INTELLIGENCE
+  - visualizazione di places sul profile dell'entita'
+  - implementiamo i filtri una volta dentro la view (come discusso nel mockup) (TODO)
+  - filtri per entity: sul tipo e altri (da pensare)
+
+OPERATION:
+  - actionbar contestuali a seconda se ci riferiamo all'oggetto padre o alle selezioni (discutere bene)
+  - export / import evidence abilitati solo se selezionato evidence
   - raggruppamento Factory e Istanze
+  - evidence e filesystem da soli sopra, factory sotto 
+
+EVIDENCE GRID:
+  - ogni popup deve avere il tasto "apply"
+  
+INJECTORS:
+  - tasto duplica regola ?
   
 FILESYSTEM
   - Mantenere il tree aperto se si esce e si torna nella schermata
@@ -106,6 +35,9 @@ FILESYSTEM
 
 EVIDENCE DETAIL KEYLOG:
   - rimuovere backspace e caratteri speciali per ricostruire il testo (tasto tipo OCR)
+  
+EVIDENCE DETAIL AUDIO:
+  - Possibilità di zoomare la traccia audio grafica (es.. alzando il volume l'altezza delle barre dello spettro si allungano in proporzione)
 
 EXPORT EVIDENCE:
   - mettere il tasto 'cancel' al form 
@@ -113,15 +45,26 @@ EXPORT EVIDENCE:
   
 BUILD
   - Configurazone Network Injector dentro finestra build
+  - Build EXPLOIT - File browse filtrato sulla base del tipo di exploit selezionato 
+  - Build > dare la possibilità di aprire la cartella dove è sta creata al click sul messaggio (desktop/rcsdownload) 
   
+CONFIG:
+  - GLOBALS > Flag conessioni remote (OK impostare flag a true di default - decidere il nome) 
+    
 ENTITY
-Libreria entità 'brutti ceffi' cross-operation
+  - Libreria entità 'brutti ceffi' cross-operation
 
 EVIDENCE
-  -  Editing note con a capoe e copia/incolla in vista griglia
+  -  Editing note con a capo e copia/incolla in vista griglia
   -  Visualizzazione eml per messaggi
+  
+GLOBAL  
+  - pulsante di navigazione "back" per tutti gli stati del sistema
 
+DASHBOARD:
+  - Le scrollbar in dashboard non devono andare sopra gli elementi
 
+  
 ==================
  HELP CONTESTUALE
 ==================
@@ -133,3 +76,5 @@ Notes:
 
 Some black icons sets
 http://www.topdesignmag.com/awesome-black-icon-sets/
+
+

@@ -87,6 +87,8 @@ package it.ht.rcs.console.operations.view.evidences
     
     private function exportFile(evidence:Evidence):void
     {
+      if(!evidence) return;
+      
       switch(evidence.type)
       {
         case "screenshot":
@@ -225,7 +227,14 @@ package it.ht.rcs.console.operations.view.evidences
       var target:String=EvidenceManager.instance.evidenceFilter.target;
       extension="txt"
       var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
-      file=new File(directory.nativePath +"/"+fileName);
+      trace(fileName)
+      try{
+        file=new File(directory.nativePath +"/"+fileName);
+      }
+      catch(e:Error){
+       trace("error")
+      }
+    
       var content:String=getInfo(currentEvidence)
       var fileStream:FileStream=new FileStream();
       fileStream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError)
@@ -418,8 +427,13 @@ package it.ht.rcs.console.operations.view.evidences
         
         case "position":
           info="Position: "+"\n\n";
-          info+="Type: "+evidence.data.type+"\n";
-          
+          try {
+            info+="Type: "+evidence.data.type+"\n";
+          }
+          catch(e:Error)
+        {
+          trace("error");
+        }
           var lat:String;
           var lng:String;
           

@@ -9,19 +9,20 @@
 							 title="{R.get('COMMANDS')}">
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.agent.controller.AgentManager;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.agent.model.Command;
-			import it.ht.rcs.console.operations.view.OperationsSection;
-			import it.ht.rcs.console.utils.AlertPopUp;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.agent.model.Command;
+      import it.ht.rcs.console.notifications.NotificationPopup;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 
 			[Bindable]
@@ -105,10 +106,8 @@
 			{
         commandTxt.text=""
 				AgentManager.instance.getCommands(agent, onCommandsResult, onCommandsFault)
-				AlertPopUp.show(R.get('COMMAND_SAVE_SUCCESS'), "", 0x4, null, function():void
-				{
-					dispatchEvent(new Event("close"))
-				})
+          NotificationPopup.showNotification(R.get('COMMAND_SAVE_SUCCESS'),2)
+          dispatchEvent(new Event("close"))
 			}
 
 			private function onSaveFault(e:FaultEvent):void

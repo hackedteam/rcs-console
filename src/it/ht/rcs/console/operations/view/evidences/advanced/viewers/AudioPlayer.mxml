@@ -64,13 +64,13 @@
 			[BINDABLE]
 			public function set sound(value:String):void
 			{
-				
+
 				stopBtn.enabled=false;
 				playBtn.enabled=false;
 				removeEventListener(Event.ENTER_FRAME, update);
 				_sound=new Sound();
 				_sound.addEventListener(ProgressEvent.PROGRESS, onSoundLoading);
-        _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError)
+				_sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundError)
 				_sound.addEventListener(Event.COMPLETE, onSoundLoaded);
 				_sound.load(new URLRequest(value));
 				spectrumMonitor.scaleX=1;
@@ -81,56 +81,66 @@
 				_pan=0;
 				_soundTransform.volume=_volume;
 				_soundTransform.pan=_pan;
-        if (_channel)
-        {
-          _channel.stop();
-          _channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete)
-          _channel.soundTransform=_soundTransform;
-        }
-				
+
+				if (_channel)
+				{
+					_channel.stop();
+					_channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+					_channel.soundTransform=_soundTransform;
+				}
+
 				volumeControl.value=100;
 				panControl.value=0;
-        durationTxt.text="00:00:00";
+				durationTxt.text="00:00:00";
+        timeTracker.reset()
+        
+       
 			}
-      private function onSoundError(e:IOErrorEvent):void
-      {
-        trace("sound error");
-        _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
-        timeTxt.text="Unable to load sound data"; 
-      }
+
+			private function onSoundError(e:IOErrorEvent):void
+			{
+				trace("sound error");
+				_sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
+				timeTxt.text="Unable to load sound data";
+			}
 
 			private function onSoundLoading(e:ProgressEvent):void
 			{
 				//trace(e.bytesLoaded)
 				//trace(e.bytesTotal)
-        var perc:int=(e.bytesLoaded/e.bytesTotal)*100;
-        timeTxt.text="Loading sound data..."+perc+"%";
+				var perc:int=(e.bytesLoaded / e.bytesTotal) * 100;
+				timeTxt.text="Loading sound data..." + perc + "%";
 			}
 
 			private function onSoundLoaded(e:Event):void
 			{
 				_sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading)
-        _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
+				_sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
 				_sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
 				_playingTime=_sound.length;
-				
-        spectrumMonitor.addEventListener(SpectrumMonitor.READY, onSpectrumReady)
+
+				spectrumMonitor.addEventListener(SpectrumMonitor.READY, onSpectrumReady)
 				spectrumMonitor.draw(_sound);
-        timeTxt.text="00:00:00"
+				timeTxt.text="00:00:00"
+          
+        timeTracker.totalTime=_sound.length
+        timeTracker.draw()
+        trace(timeTracker.totalTime)
 
 			}
-      private function onSpectrumReady(e:Event):void
-      {
-        addEventListener(Event.ENTER_FRAME, update);
-        playBtn.toolTip="pause";
-        playBtn.source=PauseIcon;
-        playBtn.enabled=true;
-        stopBtn.enabled=true;
-        _channel=_sound.play();
-        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
-        _channel.soundTransform=_soundTransform;
-        _isPlaying=true;
-      }
+
+			private function onSpectrumReady(e:Event):void
+			{
+				addEventListener(Event.ENTER_FRAME, update);
+				playBtn.toolTip="pause";
+				playBtn.source=PauseIcon;
+				playBtn.enabled=true;
+				stopBtn.enabled=true;
+				_channel=_sound.play();
+				_channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+				_channel.soundTransform=_soundTransform;
+				_isPlaying=true;
+			}
 
 			private function onSoundComplete(e:Event):void
 			{
@@ -158,7 +168,7 @@
 				_channel.stop();
 				var monitor:SpectrumMonitor=e.currentTarget as SpectrumMonitor;
 				_channel=_sound.play(monitor.selectionRect.x * monitor.ratio);
-        _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+				_channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
 				_isPlaying=true;
 				playBtn.toolTip="pause";
 				playBtn.source=PauseIcon;
@@ -180,7 +190,7 @@
 				{
 					_pausePoint=_channel.position;
 					_channel.stop();
-          _channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+					_channel.removeEventListener(Event.SOUND_COMPLETE, onSoundComplete)
 					_isPlaying=false;
 					playBtn.toolTip="play";
 					playBtn.source=PlayIcon;
@@ -190,7 +200,7 @@
 				else
 				{
 					_channel=_sound.play(_pausePoint);
-          _channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
+					_channel.addEventListener(Event.SOUND_COMPLETE, onSoundComplete)
 					_isPlaying=true;
 					playBtn.toolTip="pause";
 					playBtn.source=PauseIcon;
@@ -215,11 +225,9 @@
 				spectrumMonitor.update(0);
 				removeEventListener(Event.ENTER_FRAME, update);
 				_looper.stop();
-        timeTxt.text="00:00:00";
+				timeTxt.text="00:00:00";
 				spectrumMonitor.clearSelection();
 			}
-
-
 
 			private function onVolumeChange():void
 			{
@@ -229,13 +237,14 @@
 
 			private function onPanChange():void
 			{
-				_pan=panControl.value;
+				_pan=panControl.value * -1;
+				spectrumMonitor.pan(_pan)
 
 			}
 
 			public function reset():void
 			{
-				
+
 				if (_channel)
 				{
 					_channel.stop();
@@ -246,103 +255,122 @@
 				removeEventListener(Event.ENTER_FRAME, update);
 				spectrumMonitor.clear();
 				_looper.stop();
-        if(_sound)
-        {
-          _sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading);
-          _sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError)
-          _sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
-        }
+				if (_sound)
+				{
+					_sound.removeEventListener(ProgressEvent.PROGRESS, onSoundLoading);
+					_sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError)
+					_sound.removeEventListener(Event.COMPLETE, onSoundLoaded);
+				}
+        timeTracker.reset()
 			}
 
-			private function volumeDataTipFunction(value:String):String
+			private function volumeDataTipFunction(value:Number):String
 			{
-				return String(value + "%");
+				return String(value / 100);
 			}
 		]]>
 	</fx:Script>
-  <s:HGroup horizontalAlign="right" width="100%">
-    <s:RichText id="durationTxt"
-                text="00:00:00"
-                fontSize="15"/>
-    
-  </s:HGroup>
-	<viewers:SpectrumMonitor id="spectrumMonitor"
-													 visible="true"
-													 width="100%"/>
+
+	<s:HGroup width="100%"
+						height="100%">
+
+		<s:VGroup width="100%" height="100%" gap="0">
+			<viewers:SpectrumMonitor id="spectrumMonitor"
+															 visible="true"
+															 width="100%"/>
+		<viewers:TimeTracker id="timeTracker" width="100%"/>
+		</s:VGroup>
+
+
+		<s:VGroup height="100%">
+
+			<s:Label text="L"/>
+			<s:VSlider id="panControl"
+								 skinClass="it.ht.rcs.console.operations.view.evidences.advanced.viewers.skins.PanBarSkin"
+								 height="100%"
+								 enabled="true"
+								 minimum="-1"
+								 maximum="1"
+								 change="onPanChange()"
+								 stepSize="0.1"
+								 value="0"
+								 width="10"
+								 showDataTip="false"/>
+			<s:Label text="R"/>
+		</s:VGroup>
+
+	</s:HGroup>
+
 	<s:BorderContainer width="100%"
-										 height="60"
+										 height="50"
 										 borderColor="0xCCCCCC"
 										 backgroundColor="0xFFFFFF"
-										 backgroundAlpha="0.5">
+										 backgroundAlpha="0"
+										 borderAlpha="0">
 		<s:layout>
 			<s:HorizontalLayout verticalAlign="middle"
-													horizontalAlign="center"/>
+													horizontalAlign="right"/>
 		</s:layout>
-		<s:RichText id="timeTxt"
-								text="00:00:00"
-								fontSize="28"/>
-	</s:BorderContainer>
-	<s:HGroup verticalAlign="middle"
-						width="100%"
-						horizontalAlign="center">
-		
+		<s:HGroup>
+			<s:Line height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<s:Image source="{PlayIcon}"
+							 buttonMode="true"
+							 useHandCursor="true"
+							 toolTip="play"
+							 click="onPlayClick(event)"
+							 id="playBtn"/>
+			<s:Line height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<s:Image source="{StopIcon}"
+							 buttonMode="true"
+							 useHandCursor="true"
+							 toolTip="stop"
+							 click="onStopClick(event)"
+							 id="stopBtn"/>
+			<s:Line height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+		</s:HGroup>
 		<s:HGroup verticalAlign="middle">
 			<s:BitmapImage source="{SpeakerIcon}"/>
 			<s:HSlider id="volumeControl"
+								 skinClass="it.ht.rcs.console.operations.view.evidences.advanced.viewers.skins.VolumeBarSkin"
 								 enabled="true"
 								 minimum="0"
 								 maximum="400"
-								 change="onVolumeChange()"  
+								 change="onVolumeChange()"
 								 stepSize="1"
 								 dataTipFormatFunction="volumeDataTipFunction"
 								 value="100"/>
 		</s:HGroup>
-    <s:Spacer width="100%"/>
-		<s:HGroup>
-      <s:Line height="100%">
-        <s:stroke>
-          <s:SolidColorStroke color="0xCCCCCC"/>
-        </s:stroke>
-      </s:Line>
-      <s:Image source="{PlayIcon}"
-               buttonMode="true"
-               useHandCursor="true"
-               toolTip="play"
-               click="onPlayClick(event)"
-               id="playBtn"/>
-      <s:Line height="100%">
-        <s:stroke>
-          <s:SolidColorStroke color="0xCCCCCC"/>
-        </s:stroke>
-      </s:Line>
-      <s:Image source="{StopIcon}"
-               buttonMode="true"
-               useHandCursor="true"
-               toolTip="stop"
-               click="onStopClick(event)"
-               id="stopBtn"/>
-      <s:Line height="100%">
-        <s:stroke>
-          <s:SolidColorStroke color="0xCCCCCC"/>
-        </s:stroke>
-      </s:Line>
-    </s:HGroup>
-		
+
 		<s:Spacer width="100%"/>
-    <s:Spacer width="110"/>
-    <s:VGroup>
-      
-      <s:Label text="L"/>
-      <s:VSlider id="panControl"
-                 height="30"
-                 enabled="true"
-                 minimum="-1"
-                 maximum="1"
-                 change="onPanChange()"
-                 stepSize="0.1"
-                 value="0"
-                 showDataTip="false"/>
-      <s:Label text="R"/>
-    </s:VGroup>
+		<s:RichText id="timeTxt"
+								text="00:00:00"
+								fontSize="24"/>
+		<s:Spacer width="10"/>
+		<s:Line height="50%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+		<s:Spacer width="10"/>
+		<s:RichText id="durationTxt"
+								text="00:00:00"
+								fontSize="24"/>
+
+	</s:BorderContainer>
+	<s:HGroup verticalAlign="middle"
+						width="100%"
+						horizontalAlign="center">
 	</s:HGroup>
 </s:VGroup>

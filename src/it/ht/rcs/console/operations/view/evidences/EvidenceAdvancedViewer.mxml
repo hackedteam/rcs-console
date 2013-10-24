@@ -40,6 +40,14 @@
 			public var CloseIcon:Class;
 
 			[Bindable]
+			[Embed(source="/img/evidence/next.png")]
+			public var nextIcon:Class;
+
+			[Bindable]
+			[Embed(source="/img/evidence/prev.png")]
+			public var prevIcon:Class;
+
+			[Bindable]
 			public var dataProvider:IList;
 
 			[Bindable]
@@ -120,10 +128,12 @@
 						if (currentItems.length > 1 && sameType("position", currentItems))
 						{
 							positionViewer.evidences=currentItems;
-
 						}
 						else
 						{
+							var pos:Object={lat: currentItem.data.latitude, lng: currentItem.data.longitude, range: currentItem.data.accuracy, evidence: currentItem as Evidence};
+							if (positionViewer.mapViewer.ready)
+								positionViewer.mapViewer.positions=[pos];
 							positionViewer.evidence=currentItem;
 						}
 					}
@@ -218,25 +228,36 @@
 				switch (e.keyCode)
 				{
 					case 39:
-						if (currentIndex < dataProvider.length - 1)
-						{
-							
-							currentIndex++
-							currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
-							dispatchEvent(new Event("selectionChange"));
-						}
+						next()
 						break;
 					case 37:
-						if (currentIndex > 0)
-						{
-							
-							currentIndex--
-							currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
-							dispatchEvent(new Event("selectionChange"));
-						}
+						prev();
 						break;
 
 				}
+			}
+
+			private function next():void
+			{
+				if (currentIndex < dataProvider.length - 1)
+				{
+
+					currentIndex++
+					currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
+					dispatchEvent(new Event("selectionChange"));
+				}
+			}
+
+			private function prev():void
+			{
+				if (currentIndex > 0)
+				{
+
+					currentIndex--
+					currentItem=dataProvider.getItemAt(currentIndex) as Evidence;
+					dispatchEvent(new Event("selectionChange"));
+				}
+
 			}
 
 			public function editNote():void
@@ -337,6 +358,15 @@
 	<s:HGroup width="100%"
 						height="100%">
 
+		<s:VGroup width="15"
+							height="100%"
+							verticalAlign="middle"
+							horizontalAlign="center">
+			<s:Image source="{prevIcon}"
+							 buttonMode="true"
+							 useHandCursor="true"
+							 click="prev()"/>
+		</s:VGroup>
 		<viewers:Addressbook evidence="{currentItem}"
 												 includeIn="addressbook"
 												 id="addressbookViewer"
@@ -413,15 +443,24 @@
 								 includeIn="url"
 								 id="urlViewer"
 								 idVisible="{idVisible}"/>
+		<s:VGroup width="15"
+							height="100%"
+							verticalAlign="middle"
+							horizontalAlign="center">
+			<s:Image source="{nextIcon}"
+							 buttonMode="true"
+							 useHandCursor="true"
+							 click="next()"/>
+		</s:VGroup>
 		<evidences:EvidenceInfoPanel evidence="{currentItem}"
 																 id="infoPanel"
 																 height="100%"/>
 
 	</s:HGroup>
-<!--	<s:Image source="{CloseIcon}"
-					 y="{10}"
-					 x="{this.width-infoPanel.width-30}"
-					 useHandCursor="true"
-					 buttonMode="true"
-					 click="close()"/>-->
+	<!--	<s:Image source="{CloseIcon}"
+						 y="{10}"
+						 x="{this.width-infoPanel.width-30}"
+						 useHandCursor="true"
+						 buttonMode="true"
+						 click="close()"/>-->
 </s:Group>

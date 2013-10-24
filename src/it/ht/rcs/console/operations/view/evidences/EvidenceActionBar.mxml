@@ -7,12 +7,44 @@
 										 creationComplete="init()"
 										 removedFromStage="onRemovedFromStage()"
 										 addedToStage="onAddedToStage()">
+  
+  <s:Button label="{R.get('DETAIL_SHOW')}"
+            click="onDetailClick()"
+            icon="@Embed('/img/evidence/article32.png')"
+            id="detailBtn"
+            enabled="{selectedObjects.length>0}"
+            />
+  
+  <s:Button label="{R.get('SUMMARY_SHOW')}"
+            click="onSummaryClick()"
+            icon="@Embed('/img/evidence/linedpaperplus32.png')"
+            id="summaryBtn"
+            />
+  <actionbar:Separator width="20"/>
+  
 
 	<s:Button label="{R.get('EVIDENCE_DOWNLOAD')}"
 						click="onExportClick()"
 						icon="@Embed('/img/evidence/boxdownload32.png')"
 						enabled="{selectedObjects.length>0 &amp;&amp; Console.currentSession.user.is_view_export()}"/>
-	<actionbar:Separator width="20"/>
+
+  <editors:TagEditor label="{R.get('RELEVANCE')}"
+                     enabled="false"
+                     id="tagEditor"
+                     change="onRelevanceChange(event)"
+                     />
+  
+  <s:Button label="{R.get('REPORT_ADD')}"
+            click="onReportClick()"
+            enabled="false"
+            icon="@Embed('/img/evidence/paperplus32.png')"
+            id="reportBtn"
+            />
+  
+  <s:Button label="{R.get('EDIT_NOTE')}"
+            click="onEditNoteClick()"
+            enabled="{selectedObjects.length>0  &amp;&amp; Console.currentSession.user.is_view_edit()}"
+            icon="@Embed('/img/evidence/notepencil32.png')"/>
 
 	
 
@@ -22,66 +54,33 @@
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.deletion == true}"
 						includeInLayout="{LicenseManager.instance.deletion == true}"
-						width="90" horizontalCenter="0"/>
-	<actionbar:Separator width="20" visible="{LicenseManager.instance.deletion == true}"
-                       includeInLayout="{LicenseManager.instance.deletion == true}"/>
+						 horizontalCenter="0"/>
   
-	<editors:TagEditor label="{R.get('RELEVANCE')}"
-										 enabled="false"
-										 id="tagEditor"
-										 change="onRelevanceChange(event)"
-                     width="80"/>
-
-	<s:Button label="{R.get('REPORT_ADD')}"
-						click="onReportClick()"
-						enabled="false"
-						icon="@Embed('/img/evidence/paperplus32.png')"
-						id="reportBtn"
-						width="90"/>
-
-	<s:Button label="{R.get('EDIT_NOTE')}"
-						click="onEditNoteClick()"
-						enabled="{selectedObjects.length>0  &amp;&amp; Console.currentSession.user.is_view_edit()}"
-						icon="@Embed('/img/evidence/notepencil32.png')"/>
-
 	<actionbar:Separator width="20"/>
 
 	<s:Button label="{R.get('ID_COLUMN_SHOW')}"
 						click="onIdClick()"
 						icon="@Embed('/img/evidence/paper32.png')"
 						id="idBtn"
-						width="80"/>
-	<s:Button label="{R.get('SUMMARY_SHOW')}"
-						click="onSummaryClick()"
-						icon="@Embed('/img/evidence/linedpaperplus32.png')"
-						id="summaryBtn"
-						width="120"/>
-	<actionbar:Separator width="20"/>
-  
+						/>
 
-	<s:Button label="{R.get('DETAIL_SHOW')}"
-						click="onDetailClick()"
-						icon="@Embed('/img/evidence/article32.png')"
-						id="detailBtn"
-						enabled="{selectedObjects.length>0}"
-						width="100"/>
+  <s:Button label="{R.get('FILTER_PRESETS')}"
+            click="openFilterPanel()"
+            icon="@Embed('/img/NEW/presetFilters.png')"
+             enabled="{detailBtn.label == R.get('DETAIL_SHOW')}"/>
+  
+  <s:Button label="{R.get('RESET_FILTERS')}"
+            click="resetFilters()"
+            icon="@Embed('/img/NEW/resetFilters.png')"
+             enabled="{detailBtn.label == R.get('DETAIL_SHOW')}"/>
 
 	<actionbar:Separator width="20" visible="{LicenseManager.instance.translation}" includeInLayout="{LicenseManager.instance.translation}"/>
 	<s:Button label="Translate"
 						click="onTranslateClick()"
 						icon="@Embed('/img/evidence/globe32.png')"
 						id="translateBtn"
-						width="130" visible="{LicenseManager.instance.translation}" includeInLayout="{LicenseManager.instance.translation}"/>
-	<actionbar:Separator width="20"/>
-	<s:Button label="{R.get('FILTER_PRESETS')}"
-						click="openFilterPanel()"
-						icon="@Embed('/img/NEW/presetFilters.png')"
-            width="100" enabled="{detailBtn.label == R.get('DETAIL_SHOW')}"/>
+						 visible="{LicenseManager.instance.translation}" includeInLayout="{LicenseManager.instance.translation}"/>
 
-	<s:Button label="{R.get('RESET_FILTERS')}"
-						click="resetFilters()"
-						icon="@Embed('/img/NEW/resetFilters.png')"
-            width="100" enabled="{detailBtn.label == R.get('DETAIL_SHOW')}"/>
 
 
 
@@ -391,9 +390,9 @@
 				}
 			}
 
-			public function toggleIdButton():void
+			public function toggleIdButton(visibility:Boolean):void
 			{
-				if (idBtn.label == R.get('ID_COLUMN_SHOW'))
+				if (visibility)
 				{
 					idBtn.setStyle("icon", IdHideIcon);
 					idBtn.label=R.get('ID_COLUMN_HIDE');

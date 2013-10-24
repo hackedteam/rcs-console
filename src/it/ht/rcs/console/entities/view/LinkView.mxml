@@ -7,21 +7,29 @@
 					xmlns:components="it.ht.rcs.console.entities.view.components.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					height="100%"
-					width="100%"
-					creationComplete="init()"
-					addedToStage="onAddedToStage()">
+					width="100%">
 	<fx:Script>
 		<![CDATA[
+			import com.greensock.TweenMax;
+      import com.adrianparr.utils.HtmlEntities;
+
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Flow;
+			import it.ht.rcs.console.entities.model.Flows;
 			import it.ht.rcs.console.entities.model.Link;
 			import it.ht.rcs.console.events.RefreshEvent;
-			
+
+			import locale.R;
+
 			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			
+
 			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
 			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
@@ -34,18 +42,18 @@
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-			
+
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
 			[Bindable]
-			public var entities:ArrayCollection;
+			public var entities:ListCollectionView;
 
 			[Bindable]
 			public var section:EntitiesSection;
-      
-      [Bindable]
-			public var entitiesToShow:ArrayCollection;
+
+			[Bindable]
+			public var entitiesToShow:ListCollectionView;
 
 			private var numEntitiesToShow:int=0;
 
@@ -58,7 +66,7 @@
 			public var selectedNodes:ArrayCollection;
 
 			[Bindable]
-			private var selectedEdge:Edge;
+			public var selectedEdge:Edge;
 
 			[Bindable]
 			public var linkEnabled:Boolean;
@@ -68,6 +76,9 @@
 
 			[Bindable]
 			public var jumpEnabled:Boolean;
+
+			public var linkToHighLight:Object;
+			public var nodeToHighLight:Object;
 
 			private var sort:Sort;
 			private var xmlData:XML;
@@ -81,29 +92,55 @@
 			[Embed(source='/img/NEW/fullLine.png')]
 			public static const fullLine:Class;
 
+			[Bindable]
+			private var startDate:Date;
 
-			private function init():void
+			[Bindable]
+			private var endDate:Date;
+
+			[Bindable]
+			public var actionbar:EntitiesActionBar;
+
+			private var flows:ArrayCollection;
+
+
+
+			public function init():void
 			{
-				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
-        onAddedToStage(null)
+
+				startDate=new Date();
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+				endDate=new Date();
+				if (fromDf)
+				{
+					fromDf.selectedDate=startDate;
+				}
+				timeline.reset()
+				onAddedToStage(null)
+				//getFlows(entities)
 			}
 
 			private function onAddedToStage(e:Event=null):void
 			{
+
+				if (!entities)
+					return;
+
 				info.selectedItem=null;
 				info.selectedItems=null;
+				actionbar.selectedObject=null; //SELECTION
+				actionbar.selectedObjects=null;
+
 				selectedEdge=null;
 
 				//ad links entity - depth=1
 
-
+				flows=new ArrayCollection
 				numEntitiesToShow=entities.length;
-				trace("entities: " + entities.length);
 
-
-				entitiesToShow=new ArrayCollection();
 				selectedNodes=new ArrayCollection();
 
 				if (vgraph)
@@ -112,21 +149,27 @@
 					vgraph.visible=false;
 				}
 				if (g)
-					g.purgeGraph();
-				for (var i:int=0; i < entities.length; i++)
 				{
-					EntityManager.instance.show(entities.getItemAt(i)._id, onDetailResult)
+					g.purgeGraph();
 				}
-				mergeEnabled=false;
-				linkEnabled=false;
-				jumpEnabled=false;
+
+				entitiesToShow=entities
+
+
+				parseItems()
+
+				mergeEnabled=actionbar.mergeEnabled=false;
+				linkEnabled=actionbar.linkEnabled=false;
+				jumpEnabled=actionbar.jumpEnabled=false;
+
 			}
 
 			private function analyzeData():void
 			{
 
 				g=new Graph("XMLAsDocsGraph", false, xmlData);
-				if(vgraph) vgraph.visible=true;
+				if (vgraph)
+					vgraph.visible=true;
 
 				var i:int=0;
 				var node:Node;
@@ -153,9 +196,9 @@
 
 			private function getEntityById(id:String):Entity
 			{
-				for (var i:int=0; i < entities.length; i++)
+				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
-					var entity:Entity=entities.getItemAt(i) as Entity;
+					var entity:Entity=entitiesToShow.getItemAt(i) as Entity;
 					if (entity._id == id)
 					{
 						return entity;
@@ -175,26 +218,29 @@
 					{
 						var child:INode=node.successors[i] as INode;
 						examined.push(node);
-						if (examined.indexOf(child) == -1)
+						if (examined.indexOf(child) == -1 )//&& child.data.@name != "Diego Hernandez" && child.data.@name != "Kasimir Malevich" && child.data.@name != "Jimmy Page" && child.data.@name != "Jamie Moreno")
 						{
 							var index:int=roots.getItemIndex(child);
-							roots.removeItemAt(index);
+							if (index != -1)
+								roots.removeItemAt(index);
 							getConnections(child, examined);
 						}
 					}
 				}
 			}
 
-			private function manipulateData():void
+			private function manipulateData():void //add a fake root
 			{
 
 				if (roots.length == 1)
 				{
-					//trace("no need to add a fake root")
+					trace("no need to add a fake root")
+
 				}
 				else
 				{
-					//trace("more than 1 root - add a fake root and attach real roots")
+					trace("more than 1 root - add a fake root and attach real roots")
+          
 					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />");
 					var fakeRoot:INode=g.createNode("0", xnode);
 
@@ -205,83 +251,77 @@
 						g.link(fakeRoot, root, xedge); //add data
 					}
 				}
-
 				initData(g);
 			}
 
 			private function initData(g:Graph):void
 			{
-				if(vgraph)
-        {
-          vgraph.graph=g
-          vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
-          var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
-          
-          vgraph.layouter=layouter;
-          layouter.linkLength=80; //
-          //layouter.autoFitEnabled=true;
-          //layouter.defaultRadius=50;
-          
-          vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
-          vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
-          vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
-          vgraph.maxVisibleDistance=20;
-          
-          vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
-          vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
-          vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
-          vgraph.scale=1;
-          bzoom.value=1;
-          vgraph.draw();
-        }
-			}
-
-			private function onDetailResult(e:ResultEvent):void
-			{
-
-				numEntitiesToShow--;
-				entitiesToShow.addItem(e.result)
-				var i:int=0
-				if (numEntitiesToShow == 0)
+				if (vgraph)
 				{
-					//depth1
-					var linkedEntities:ArrayCollection=new ArrayCollection()
-					for (i=0; i < entitiesToShow.length; i++)
-					{
-						var entity:Entity=entitiesToShow.getItemAt(i) as Entity
-						if (entity.links)
-						{
-							for (var l:int=0; l < entity.links.length; l++)
-							{
-								var linkedEntity:Entity=EntityManager.instance.getItem(entity.links.getItemAt(l).le);
-								if(linkedEntity!=null) linkedEntities.addItem(linkedEntity)
-							}
-						}
+					vgraph.graph=g
+					vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
+					var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
 
-					}
-					 for (i=0; i < linkedEntities.length; i++)
-					{
-						if(!isAlreadyIn(entitiesToShow, linkedEntities.getItemAt(i) as Entity))
-              entitiesToShow.addItem(linkedEntities.getItemAt(i))  //check if already in
-					} 
-					parseItems();
+					vgraph.layouter=layouter;
+					layouter.linkLength=80; //
+          layouter.disableAnimation=true;
+					//layouter.autoFitEnabled=true;
+					//layouter.defaultRadius=50;
+
+					vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
+					vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
+					vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
+					vgraph.maxVisibleDistance=20;
+
+					vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
+					vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
+					vgraph.addEventListener(VisualNodeEvent.DOUBLE_CLICK, onNodeDoubleClick);
+					vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
+					vgraph.scale=1;
+					bzoom.value=1;
+					vgraph.draw();
 				}
+				if (linkToHighLight)
+				{
+					setTimeout(highlightLink, 1000, linkToHighLight.from, linkToHighLight.to)
+				}
+
+				if (nodeToHighLight)
+				{
+					setTimeout(highlightNode, 1000, nodeToHighLight.id)
+				}
+
+				getFlows(entities)
 			}
-      
-      private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
-      {
-        if(entity==null || collection==null)
-          return false;
-        for(var i:int=0;i<collection.length;i++)
-        {
-        if(entity!=null && collection.getItemAt(i) !=null)
-        {
-        if(entity._id==collection.getItemAt(i)._id)
-          return true;
-        }
-        }
-       return false;
-      }
+
+			//TEMPORARY!!!!!
+			private function isIn(a:ArrayCollection, e:Entity):Boolean
+			{
+				for (var i:int=0; i < a.length; i++)
+				{
+					var entity:Entity=a.getItemAt(i) as Entity;
+					if (entity._id == e._id)
+						return true;
+
+				}
+				return false;
+			}
+
+
+			private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
+			{
+				if (entity == null || collection == null)
+					return false;
+				for (var i:int=0; i < collection.length; i++)
+				{
+					if (entity != null && collection.getItemAt(i) != null)
+					{
+						if (entity._id == collection.getItemAt(i)._id)
+							return true;
+					}
+				}
+				return false;
+			}
 
 			private function onEdgeClick(e:VisualEdgeEvent):void
 			{
@@ -310,22 +350,32 @@
 						selectedNodes.removeItemAt(index)
 
 				}
-				info.selectedItem=null;
-				info.selectedItems=null;
-				linkEnabled=false;
-				mergeEnabled=false;
+
+				linkEnabled=actionbar.linkEnabled=false;
+				mergeEnabled=actionbar.mergeEnabled=false;
+
 				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
 				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-				if (selectedEdge != null && (selectedEdge.data.@type == "peer" || selectedEdge.data.@type == "know") && selectedEdge.data.@level == "automatic")
-					jumpEnabled=true;
+				if (selectedEdge != null && (selectedEdge.data.Info.length() > 0))
+					jumpEnabled=actionbar.jumpEnabled=true;
 				else
-					jumpEnabled=false;
+					jumpEnabled=actionbar.jumpEnabled=false;
+
+				info.selectedItem=selectedEdge;
+				actionbar.selectedObject=selectedEdge; //SEL
+
+				info.selectedItems=new <Object>[info.selectedItem];
+				actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+
+				info.selectedItems.push(info.selectedItem)
+				actionbar.selectedObjects.push(actionbar.selectedObject);
 			}
 
 			private function onBgClick(e:VisualGraphEvent):void
 			{
 				var index:int;
 				var i:int;
+
 				for (i=0; i < g.nodes.length; i++)
 				{
 					var currentNode:Node=g.nodes[i] as Node;
@@ -347,9 +397,26 @@
 				selectedEdge=null;
 				info.selectedItem=null;
 				info.selectedItems=null;
-				linkEnabled=false;
-				mergeEnabled=false;
-				jumpEnabled=false;
+				actionbar.selectedObject=null
+				actionbar.selectedObjects=null
+				linkEnabled=actionbar.linkEnabled=false;
+				mergeEnabled=actionbar.mergeEnabled=false;
+				jumpEnabled=actionbar.jumpEnabled=false;
+			}
+
+			private function onNodeDoubleClick(e:VisualNodeEvent):void
+			{
+				if (e.ctrlKey)
+				{
+					vgraph.currentRootVNode=e.node.vnode;
+				}
+				else
+				{
+					var clickedNode:INode=e.node;
+					var item:*=getEntityById(String(clickedNode.data.@id))
+					if (item)
+						section.stateManager.manageItemSelection(item);
+				}
 			}
 
 			private function onNodeClick(e:VisualNodeEvent):void
@@ -403,48 +470,59 @@
 					//target + position
 					if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
 					{
-						linkEnabled=true;
+						linkEnabled=actionbar.linkEnabled=true;
 					}
 					//target + person
 					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
 					{
-						linkEnabled=true;
+						linkEnabled=actionbar.linkEnabled=true;
 					}
 					//target + virtual
 					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
 					{
-						linkEnabled=true;
+						linkEnabled=actionbar.linkEnabled=true;
 					}
 					//person + virtual
 					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
 					{
-						linkEnabled=true;
+						linkEnabled=actionbar.linkEnabled=true;
 					}
 					//person + position
 					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
 					{
-						linkEnabled=true;
+						linkEnabled=actionbar.linkEnabled=true;
 					}
-					else
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
 					{
-						linkEnabled=false;
+						linkEnabled=actionbar.linkEnabled=true;
+					}
+					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
+					{
+						linkEnabled=actionbar.linkEnabled=true;
 					}
 
+					else
+					{
+						linkEnabled=actionbar.linkEnabled=false;
+					}
+
+
+					//merge
 					if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
 					{
-						mergeEnabled=true;
+						mergeEnabled=actionbar.mergeEnabled=true;
 					}
 					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
 					{
-						mergeEnabled=true;
+						mergeEnabled=actionbar.mergeEnabled=true;
 					}
 					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
 					{
-						mergeEnabled=true;
+						mergeEnabled=actionbar.mergeEnabled=true;
 					}
 					else
 					{
-						mergeEnabled=false;
+						mergeEnabled=actionbar.mergeEnabled=false;
 					}
 				}
 
@@ -461,62 +539,100 @@
 				selectedEdge=null;
 				if (selectedNodes.length == 1)
 				{
-					info.selectedItem=getEntityById(selectedNodes[0].data.@id)
+					info.selectedItem=getEntityById(String(selectedNodes[0].data.@id))
+
+					actionbar.selectedObject=info.selectedItem;
+					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+					actionbar.selectedObjects.push(actionbar.selectedObject)
+
 					info.selectedItems=new <Object>[info.selectedItem];
 					info.selectedItems.push(info.selectedItem)
 				}
 				else
 				{
+					actionbar.selectedObject=null
+					actionbar.selectedObjects=null;
 					info.selectedItem=null;
 					info.selectedItems=null
 				}
 				//target + position
 				if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
 				{
-					linkEnabled=true;
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//target + person
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
 				{
-					linkEnabled=true;
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//target + virtual
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
 				{
-					linkEnabled=true;
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//person + virtual
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
 				{
-					linkEnabled=true;
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
 				}
 				//person + position
 				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
 				{
-					linkEnabled=true;
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
 				}
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
+				{
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
+				}
+				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
+				{
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(selectedNodes[0])
+					actionbar.selectedObjects.push(selectedNodes[1])
+					linkEnabled=actionbar.linkEnabled=true;
+				}
+
 				else
 				{
-					linkEnabled=false;
+					//actionbar.selectedObjects=null
+					linkEnabled=actionbar.linkEnabled=false;
 				}
 
 				if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
 				{
-					mergeEnabled=true;
+					mergeEnabled=actionbar.mergeEnabled=true;
 				}
 				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
 				{
-					mergeEnabled=true;
+					mergeEnabled=actionbar.mergeEnabled=true;
 				}
 				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
 				{
-					mergeEnabled=true;
+					mergeEnabled=actionbar.mergeEnabled=true;
 				}
 				else
 				{
-					mergeEnabled=false;
+					mergeEnabled=actionbar.mergeEnabled=false;
 				}
-				jumpEnabled=false;
+				jumpEnabled=actionbar.jumpEnabled=false;
 			}
 
 			private function parseItems():void
@@ -528,10 +644,12 @@
 				for (var i:int=0; i < entitiesToShow.length; i++)
 				{
 					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-					var name:String=e.name.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+          if(!e)
+            continue;
+					var name:String=HtmlEntities.encode(e.name)
 					var desc:String=""
 					if (e.desc)
-						desc=e.desc.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quote;').split("'").join('&apos;');
+						desc==HtmlEntities.encode(e.desc)
 					xmlStr+="<Node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
 					if (e.links)
 					{
@@ -594,6 +712,7 @@
 				//_vgraph.scale = bzoom.value;
 
 				// Handle the update for mousewheel events outside the component
+        
 				if (e != null)
 				{
 					if (e.delta != 0)
@@ -646,7 +765,7 @@
 				}
 			}
 
-			private function refresh():void
+			public function refresh():void
 			{
 				var selectedEntities:ArrayCollection=new ArrayCollection()
 
@@ -659,131 +778,371 @@
 				section.stateManager.selectedEntities=selectedEntities;
 				onAddedToStage();
 			}
-      
-      public function updateLinkLength():void {
-        
-      
-        if(vgraph == null || vgraph.layouter == null) {
-          
-          return;
+
+			public function updateLinkLength():void
+			{
+
+
+				if (vgraph == null || vgraph.layouter == null)
+				{
+
+					return;
+				}
+
+				/* update the value */
+				vgraph.layouter.linkLength=lslider.value;
+				vgraph.layouter.layoutChanged=true;
+
+				/* trigger redraw */
+				vgraph.draw();
+			}
+
+			private function filter(e:Event):void
+			{
+				startDate=fromDf.selectedDate;
+				endDate=toDf.selectedDate;
+				timeline.startDate=startDate
+				timeline.endDate=endDate
+				timeline.update()
+			}
+
+			private function onTimelineChange():void
+			{
+
+				var d:Date=new Date();
+				d.time=timeline.slider.value;
+				var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
+
+				//reset
+				var currentEdge:Edge;
+				var currentRenderer:BidirectedArrowEdgeRenderer;
+
+				if (g)
+				{
+					for (var r:int=0; r < g.edges.length; r++)
+					{
+						currentEdge=g.edges[r] as Edge;
+
+
+						if (currentEdge.vedge)
+							currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+						if (currentRenderer)
+							currentRenderer.reset()
+
+					}
+				}
+
+				if (flows)
+				{
+					for (var i:int=0; i < flows.length; i++)
+					{
+						var flow:Flow=flows[i] as Flow;
+
+						if (flow.date == formattedDate)
+						{
+
+							for (var j:int=0; j < flow.flows.length; j++)
+							{
+								var f:Flows=flow.flows.getItemAt(j) as Flows;
+
+								if (g)
+								{
+									for (var k:int=0; k < g.edges.length; k++)
+									{
+										currentEdge=g.edges[k] as Edge;
+
+										if (currentEdge.data.@fromID == f.from && currentEdge.data.@toID == f.rcpt || currentEdge.data.@fromID == f.rcpt && currentEdge.data.@toID == f.from)
+										{
+											if (currentEdge.vedge)
+												currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+											if (currentRenderer)
+												currentRenderer.showFlow(f.from, f.rcpt, f.count);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			public function highlightLink(from:*, to:*):void
+			{
+				linkToHighLight=null;
+				for (var i:int=0; i < g.edges.length; i++)
+				{
+					var currentEdge:Edge=g.edges[i] as Edge;
+					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
+					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
+					if (currentEdge.data.@fromID == from && currentEdge.data.@toID == to || currentEdge.data.@fromID == to && currentEdge.data.@toID == from)
+					{
+						currentEdgeRenderer.selected=true;
+						selectedEdge=currentEdge;
+					}
+					else
+					{
+						currentEdgeRenderer.selected=false;
+					}
+				}
+
+
+
+				for (i=0; i < g.nodes.length; i++)
+				{
+					var currentNode:Node=g.nodes[i] as Node;
+					var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
+					currentNodeRenderer.selected=false;
+					var index:int=selectedNodes.getItemIndex(currentNode);
+					if (index != -1)
+						selectedNodes.removeItemAt(index)
+
+				}
+
+				linkEnabled=actionbar.linkEnabled=false;
+				mergeEnabled=actionbar.mergeEnabled=false;
+        if (selectedEdge)
+        {
+          var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
+          var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
         }
-        
-        /* update the value */
-        vgraph.layouter.linkLength = lslider.value;
-        vgraph.layouter.layoutChanged = true;
-        
-        /* trigger redraw */
-        vgraph.draw();
-      }
+			
+				if (selectedEdge != null && (selectedEdge.data.Info.length() > 0))
+					jumpEnabled=actionbar.jumpEnabled=true;
+				else
+					jumpEnabled=actionbar.jumpEnabled=false;
+
+				info.selectedItem=selectedEdge;
+				actionbar.selectedObject=selectedEdge; //SEL
+
+				info.selectedItems=new <Object>[info.selectedItem];
+				actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+
+				info.selectedItems.push(info.selectedItem)
+				actionbar.selectedObjects.push(actionbar.selectedObject);
+
+
+			}
+
+			public function highlightNode(id:*):void
+			{
+				nodeToHighLight=null;
+				var currentNode:Node;
+				var currentRenderer:IconNodeRenderer;
+				for (var i:int=0; i < g.nodes.length; i++)
+				{
+					currentNode=g.nodes[i] as Node;
+					currentRenderer=currentNode.vnode.view as IconNodeRenderer;
+					if (currentNode.data.@id == id)
+					{
+
+						info.selectedItem=getEntityById(String(currentNode.data.@id))
+
+						actionbar.selectedObject=info.selectedItem;
+						actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+						actionbar.selectedObjects.push(actionbar.selectedObject)
+
+						info.selectedItems=new <Object>[info.selectedItem];
+						info.selectedItems.push(info.selectedItem)
+
+						currentRenderer.selected=true;
+					}
+					else
+					{
+						currentRenderer.selected=false;
+					}
+				}
+
+			}
+
+
+
+			private function getFlows(entities:ListCollectionView):void
+			{
+				if (!entities)
+					return;
+
+				var ids:Array=new Array();
+				flows=new ArrayCollection
+
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var e:Entity=entities.getItemAt(i) as Entity;
+					ids.push(e._id)
+				}
+				EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
+			}
+
+			private function onFlowResult(e:ResultEvent):void
+			{
+				trace("flow result")
+				flows=e.result as ArrayCollection;
+				timeline.highlight(flows);
+			}
+
+			private function onFlowFault(e:FaultEvent):void
+			{
+				trace("flow fault")
+			}
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return "0" + String(n);
+				return String(n);
+			}
+
+			private function formatDate(d:Date):String
+			{
+				if (!d)
+					return "";
+				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
+			}
 		]]>
 	</fx:Script>
 
 	<!-- Graph Panel -->
-	<entities:LinkActionBar selectedNodes="{selectedNodes}"
-													selectedEdge="{selectedEdge}"
-													linkAdded="onAddedToStage()"
-													linkRemoved="onAddedToStage()"
-													entityDeleted="refresh()"
-													entityCreated="refresh()"
-													entityUpdated="onAddedToStage()"
-													merge="refresh()"
-													mainView="{this}"
-													section="{section}"/>
+
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
-		<mx:Canvas id="graphCnvs"
-							 borderStyle="none"
-							 borderColor="#CCCCCC"
-							 backgroundColor="#FFFFFF"
-							 width="100%"
-							 height="100%"
-							 verticalScrollPolicy="off">
+		<s:VGroup width="100%"
+							height="100%">
 
-			<ravis:VisualGraph id="vgraph"
-												 width="100%"
-												 height="100%"
-												 left="0"
-												 right="0"
-												 top="0"
-												 bottom="5"
-												 backgroundColor="#FFFFFF"
-												 alpha="1"
-												 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
-												 visibilityLimitActive="true">
-			</ravis:VisualGraph>
-			<s:HGroup x="6"
-								y="10"
-								verticalAlign="middle"
-								horizontalAlign="center">
-        <s:Label text="Zoom:" width="60"  fontWeight="normal" textAlign="right"
-                 fontSize="10"/>
-				<s:Label text="-"/>
-				<s:HSlider stepSize=".1"
-									 x="6"
-									 y="6"
-									 id="bzoom"
-									 value="1"
-									 minimum=".25"
-									 maximum="2"
-									 liveDragging="true"
-									 change="updateVScale(null)"/>
-				<s:Label text="+"/>
+			<s:HGroup verticalAlign="middle"
+								horizontalAlign="right"
+								width="100%"
+								paddingTop="6">
 
-			</s:HGroup>
-      
-      <s:HGroup x="6"
-                y="40"
-                verticalAlign="middle"
-                horizontalAlign="center">
-        <s:Label text="Link length:" width="60"  fontWeight="normal" textAlign="right"
-                 fontSize="10"/>
-        <s:Label text="-"/>
-        <s:HSlider stepSize="25"
-                   x="6"
-                   y="6"
-                   id="lslider"
-                   value="80"
-                   liveDragging="true"
-                   change="updateLinkLength()"
-                 
-                   minimum="0"
-                   maximum="600"
-
-                   />
-        <s:Label text="+"/>
         
-      </s:HGroup>
 
-
-			<s:HGroup y="6"
-								right="6"
-								verticalAlign="middle">
-				<s:VGroup horizontalAlign="center"
-									gap="0">
-					<s:Image source="{fullLine}"/>
-					<s:Label text="Peer"
-									 fontWeight="normal"
-									 fontSize="10"/>
-				</s:VGroup>
-				<s:Spacer width="10"/>
-				<s:VGroup horizontalAlign="center"
-									gap="0">
-					<s:Image source="{dashedLine}"/>
-					<s:Label text="Identity"
-									 fontWeight="normal"
-									 fontSize="10"/>
-				</s:VGroup>
-				<s:Spacer width="10"/>
-				<s:VGroup horizontalAlign="center"
-									gap="0">
-					<s:Image source="{dottedLine}"/>
-					<s:Label text="Know"
-									 fontWeight="normal"
-									 fontSize="10"/>
-				</s:VGroup>
+				<s:Label text="{R.get('FILTER_DATA')} "
+								 fontWeight="bold"/>
+				<s:Label text="{R.get('FROM')}:"
+								 fontWeight="bold"/>
+				<mx:DateField id="fromDf"
+											formatString="YYYY-MM-DD"
+											selectedDate="{startDate}"
+											change="filter(event)"/>
+				<s:Label text="{R.get('TO')}:"
+								 fontWeight="bold"/>
+				<mx:DateField id="toDf"
+											formatString="YYYY-MM-DD"
+											selectedDate="{endDate}"
+											change="filter(event)"/>
 			</s:HGroup>
-		</mx:Canvas>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<mx:Canvas id="graphCnvs"
+								 borderStyle="none"
+								 borderColor="#CCCCCC"
+								 backgroundColor="#FFFFFF"
+								 width="100%"
+								 height="100%"
+								 verticalScrollPolicy="off">
+
+				<ravis:VisualGraph id="vgraph"
+													 width="100%"
+													 height="100%"
+													 left="0"
+													 right="0"
+													 top="0"
+													 bottom="5"
+													 backgroundColor="#FFFFFF"
+													 alpha="1"
+													 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
+													 visibilityLimitActive="true">
+				</ravis:VisualGraph>
+				<s:HGroup x="6"
+									y="10"
+									verticalAlign="middle"
+									horizontalAlign="center">
+					<s:Label text="Zoom:"
+									 width="60"
+									 fontWeight="normal"
+									 textAlign="right"
+									 fontSize="10"/>
+					<s:Label text="-"/>
+					<s:HSlider stepSize=".1"
+										 x="6"
+										 y="6"
+										 id="bzoom"
+										 value="1"
+										 minimum=".25"
+										 maximum="2"
+										 liveDragging="true"
+										 change="updateVScale(null)"/>
+					<s:Label text="+"/>
+
+				</s:HGroup>
+
+				<s:HGroup x="6"
+									y="40"
+									verticalAlign="middle"
+									horizontalAlign="center">
+					<s:Label text="Link length:"
+									 width="60"
+									 fontWeight="normal"
+									 textAlign="right"
+									 fontSize="10"/>
+					<s:Label text="-"/>
+					<s:HSlider stepSize="25"
+										 x="6"
+										 y="6"
+										 id="lslider"
+										 value="80"
+										 liveDragging="true"
+										 change="updateLinkLength()"
+										 minimum="0"
+										 maximum="600"/>
+					<s:Label text="+"/>
+
+				</s:HGroup>
+
+
+				<s:HGroup y="6"
+									right="6"
+									verticalAlign="middle">
+					<s:VGroup horizontalAlign="center"
+										gap="0">
+						<s:Image source="{fullLine}"/>
+						<s:Label text="Peer"
+										 fontWeight="normal"
+										 fontSize="10"/>
+					</s:VGroup>
+					<s:Spacer width="10"/>
+					<s:VGroup horizontalAlign="center"
+										gap="0">
+						<s:Image source="{dashedLine}"/>
+						<s:Label text="Identity"
+										 fontWeight="normal"
+										 fontSize="10"/>
+					</s:VGroup>
+					<s:Spacer width="10"/>
+					<s:VGroup horizontalAlign="center"
+										gap="0">
+						<s:Image source="{dottedLine}"/>
+						<s:Label text="Know"
+										 fontWeight="normal"
+										 fontSize="10"/>
+					</s:VGroup>
+				</s:HGroup>
+			</mx:Canvas>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xCCCCCC"/>
+				</s:stroke>
+			</s:Line>
+			<components:Timeline width="100%"
+													 id="timeline"
+													 step="{Timeline.DAY}"
+													 startDate="{startDate}"
+													 endDate="{endDate}"
+													 change="onTimelineChange()"/>
+
+		</s:VGroup>
 		<entities:EntityInfoPanel id="info"/>
 	</s:HGroup>
 

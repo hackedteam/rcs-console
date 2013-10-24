@@ -7,6 +7,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.events.FilterEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
   import it.ht.rcs.console.monitor.controller.LicenseManager;
@@ -15,13 +16,13 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
-  import it.ht.rcs.console.events.FilterEvent;
-  import mx.core.FlexGlobals;
   
   import locale.R;
   
   import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
+  import mx.core.FlexGlobals;
+  import mx.managers.CursorManager;
   
   import spark.collections.Sort;
   import spark.collections.SortField;
@@ -70,6 +71,7 @@ package it.ht.rcs.console.operations.view
     private function getItemFromEvent(event:SectionEvent):*
     {
       var item:SearchItem = event ? event.item : null;
+      CursorManager.removeBusyCursor()
       if (!item) return null;
       
       switch (item._kind) {
@@ -99,21 +101,21 @@ package it.ht.rcs.console.operations.view
       {
         selectedOperation = item;
         setState('singleOperation');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedOperation._id, section:"operations", type:"operation"});
       }
       
       else if (item is Target && (Console.currentSession.user.is_view() || Console.currentSession.user.is_tech()))
       {
         selectedTarget = item;
         setState('singleTarget');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedTarget._id, section:"operations", type:"target"});
       }
       
       else if (item is Agent && item._kind == 'agent')
       {
         selectedAgent = item;
         setState('singleAgent');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedAgent._id, section:"operations", type:"agent"});
       }
       
       else if (item is Agent && item._kind == 'factory' ) //&& Console.currentSession.user.is_tech_config()
@@ -121,7 +123,7 @@ package it.ht.rcs.console.operations.view
         selectedFactory = item;
         selectedConfig = null;
         setState('config');
-        UserManager.instance.add_recent(Console.currentSession.user, new SearchItem(item));
+        UserManager.instance.add_recent(Console.currentSession.user, {id:selectedFactory._id, section:"operations", type:"factory"});
       }
       
       else if (item is Config && Console.currentSession.user.is_tech_config())
@@ -173,13 +175,8 @@ package it.ht.rcs.console.operations.view
           EvidenceManager.instance.evidenceFilter.type = event.evidenceTypes;
         else delete(EvidenceManager.instance.evidenceFilter.type);
         
-        if (event.evidenceIds) {
-          EvidenceManager.instance.evidenceFilter.date = 'dr';
-          EvidenceManager.instance.evidenceFilter.from = event.from; //0
-          EvidenceManager.instance.evidenceFilter.to = event.to; //0
-          EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
-        }
-        else delete(EvidenceManager.instance.evidenceFilter._id);
+     
+       
         
         if(event.info)
         {
@@ -206,6 +203,14 @@ package it.ht.rcs.console.operations.view
           delete (EvidenceManager.instance.evidenceFilter.from);
           delete (EvidenceManager.instance.evidenceFilter.to);
         }
+        
+        if (event.evidenceIds) {
+          EvidenceManager.instance.evidenceFilter.date = 'dr';
+          EvidenceManager.instance.evidenceFilter.from = 0; //0
+          EvidenceManager.instance.evidenceFilter.to = 0; //0
+          EvidenceManager.instance.evidenceFilter._id = event.evidenceIds;
+        }
+        else delete(EvidenceManager.instance.evidenceFilter._id);
         
         var f:Object=EvidenceManager.instance.evidenceFilter;
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
@@ -305,7 +310,7 @@ package it.ht.rcs.console.operations.view
           currentFilter = searchFilterFunction;
           update();
           break;
-	
+    
         default:
           break;
       }

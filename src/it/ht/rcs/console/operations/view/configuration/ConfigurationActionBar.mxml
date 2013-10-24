@@ -12,44 +12,40 @@
   </s:HGroup>
   
   <s:Button label="{R.get('SAVE')}" click="onSave()" icon="@Embed('/img/NEW/save.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
+  <s:Button label="{R.get('EXPORT')}" click="export(event)" icon="@Embed('/img/NEW/export.png')"/>
+  <s:Button label="{R.get('IMPORT')}" click="importFile(event)" icon="@Embed('/img/NEW/import.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
+  <s:Button label="{R.get('TEMPLATES')}" click="openTemplatePanel(event)" icon="@Embed('/img/NEW/template.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
   
+  <actionbar:Separator/>
+
   <s:HGroup visible="{configView.currentState == 'advanced'}" gap="0"
             includeInLayout="{configView.currentState == 'advanced'}">
+    <s:Button label="{R.get('ADD_EVENT')}" click="addEvent(event)" icon="@Embed('/img/NEW/newEvent.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
+    <s:Button label="{R.get('ADD_ACTION')}" click="addAction(event)" icon="@Embed('/img/NEW/newAction.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
+    
     <s:Button label="{R.get('EDIT')}" click="onEdit()"
               enabled="{configView.advanced.graph.selectedElement != null &amp;&amp; Console.currentSession.user.is_tech_config()}" 
               icon="@Embed('/img/NEW/edit.png')"/>
     <s:Button label="{R.get('DELETE')}" click="onDelete()"
               enabled="{configView.advanced.graph.selectedElement != null &amp;&amp; !(configView.advanced.graph.selectedElement is ModuleRenderer) &amp;&amp; Console.currentSession.user.is_tech_config()}" 
               icon="@Embed('/img/NEW/delete_32.png')"/>
+    <s:Button label="{R.get('EDIT_GLOBALS')}" click="editGlobals(event)" icon="@Embed('/img/NEW/globals.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
     <actionbar:Separator/>
     <s:Button label="{R.get('BACK_TO_BASIC')}" click="backToBasic(event)" icon="@Embed('/img/NEW/basic.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
+    <actionbar:Separator/>  
+    <s:Button id="collapse" label="{configView.advanced.graph.collapsed ? R.get('EXPAND'): R.get('COLLAPSE')}" click="onCollapseAll()" icon="{configView.advanced.graph.collapsed ? expandIcon : collapseIcon}"/>
   </s:HGroup>
-  
-  <actionbar:Separator/>
-  
-  <s:Button label="{R.get('EXPORT')}" click="export(event)" icon="@Embed('/img/NEW/export.png')"/>
-  <s:Button label="{R.get('IMPORT')}" click="importFile(event)" icon="@Embed('/img/NEW/import.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
-  <s:Button label="{R.get('TEMPLATES')}" click="openTemplatePanel(event)" icon="@Embed('/img/NEW/template.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
-  
+
   <s:HGroup visible="{configView.currentState == 'basic'}" gap="0"
             includeInLayout="{configView.currentState == 'basic'}">
-    <actionbar:Separator/>
+
     <s:Button label="{R.get('CONFIG_ADVANCED')}" click="goToAdvanced(event)"
               icon="@Embed('/img/NEW/config_32.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
   </s:HGroup>
   
   <s:HGroup visible="{configView.currentState == 'advanced'}" gap="0">
     <actionbar:Separator/>
-    
-    <s:Button label="{R.get('ADD_EVENT')}" click="addEvent(event)" icon="@Embed('/img/NEW/newEvent.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
-    <s:Button label="{R.get('ADD_ACTION')}" click="addAction(event)" icon="@Embed('/img/NEW/newAction.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
-    
-    <s:Button label="{R.get('EDIT_GLOBALS')}" click="editGlobals(event)" icon="@Embed('/img/NEW/globals.png')" enabled="{Console.currentSession.user.is_tech_config()}"/>
-    
-    <actionbar:Separator/>
-    
-    <s:Button id="collapse" label="{configView.advanced.graph.collapsed ? R.get('EXPAND'): R.get('COLLAPSE')}" click="onCollapseAll()" icon="{configView.advanced.graph.collapsed ? expandIcon : collapseIcon}"/>
-    
+
   </s:HGroup>
   
   <fx:Script>
@@ -63,6 +59,7 @@
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.notifications.NotificationPopup;
       import it.ht.rcs.console.operations.view.OperationsSection;
       import it.ht.rcs.console.operations.view.agents.build.BuildForm;
       import it.ht.rcs.console.operations.view.configuration.advanced.forms.globals.GlobalsForm;
@@ -146,9 +143,7 @@
       {
         if(saveConfig(goBackToList) !=null)
         {
-          var popup:mx.controls.Alert=  Alert.show(R.get('CONFIG_SAVED'));
-          popup.mx_internal::alertForm.removeChild(popup.mx_internal::alertForm.mx_internal::buttons[0]);
-          setTimeout(PopUpManager.removePopUp, 2000, popup)
+          NotificationPopup.showNotification(R.get('CONFIG_SAVED'), 2)
         }
        
       }

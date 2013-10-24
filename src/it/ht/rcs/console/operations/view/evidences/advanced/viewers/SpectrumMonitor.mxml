@@ -3,7 +3,7 @@
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx" width="1024" height="100%"
          resize="onResize()"
-         creationComplete="init()"
+         creationComplete="init()" mouseChildren="false"
          >
   <fx:Script>
     <![CDATA[
@@ -31,7 +31,9 @@
       private var _monitorHeight:Number=512;
       
       //Styling
+      [Bindable]
       private var _backgroundColor:uint=0xCCCCCC;//RGBA
+      
       private var _waveColor:uint=0x333333;
       private var _selectionColor:uint=0x110000FF;
       private var _playheadColor:uint=0xFFFF0000;
@@ -280,9 +282,28 @@
         _playheadWidth=value;
       }
       
+      public function pan(value:Number):void
+      {
+        top.alpha=0;
+        bottom.alpha=0;
+        if(value<0)
+          bottom.alpha = Math.abs(value);
+        else if(value>0)
+          top.alpha = Math.abs(value);
+      }
+      
+      public function get buffer():BitmapData
+      {
+        return _buffer;
+      }
+      
     ]]>
   </fx:Script>
   <s:BitmapImage source="{_screen}" width="100%" height="100%"/>
+  <s:VGroup paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" width="100%" height="100%" gap="0">
+  <s:BorderContainer width="100%" height="50%" borderAlpha="0" backgroundAlpha="1" backgroundColor="{_backgroundColor}" id="top" mouseEnabled="false" alpha="0"/>
+  <s:BorderContainer width="100%" height="50%" borderAlpha="0" backgroundAlpha="1" backgroundColor="{_backgroundColor}" id="bottom" mouseEnabled="false" alpha="0"/>
+  </s:VGroup>
   <s:BitmapImage source="{_selectScreen}" width="100%" height="100%"/>
   <s:BitmapImage source="{_cursorScreen}" width="100%" height="100%"/>
   <s:Label id="loadingTxt" x="20" y="20" fontSize="16"/>

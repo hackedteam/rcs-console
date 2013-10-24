@@ -25,17 +25,24 @@
 package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 {
 
+	import com.greensock.*;
+	import com.greensock.easing.*;
+	import com.greensock.motionPaths.*;
+
+	import flash.display.DisplayObject;
 	import flash.display.Graphics;
+	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	
+
 	import it.ht.rcs.console.utils.DashedLine;
-	
+
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualEdge;
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualGraph;
 	import org.un.cava.birdeye.ravis.graphLayout.visual.IVisualNode;
 	import org.un.cava.birdeye.ravis.utils.Geometry;
 	import org.un.cava.birdeye.ravis.utils.GraphicsWrapper;
+
 
 
 	/**
@@ -51,44 +58,57 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * The size of the arrowhead in pixel. The distance of the
 		 * two points defining the base of the arrowhead.
 		 * */
-		public var arrowBaseSize:Number=12;
+		public var arrowBaseSize:Number=8;
 
 		/**
 		 * The distance of the arrowbase from the tip in pixel.
 		 * */
-		public var arrowHeadLength:Number=20;
+		public var arrowHeadLength:Number=16;
 
 		/**
 		 * Constructor sets the graphics object (required).
 		 * @param g The graphics object to be used.
 		 * */
 
-	
-    
-    private var dashed:DashedLine;
-    private var dotted:DashedLine;
-    
-    private var relevence0:uint=0x333333;
-    private var relevence1:uint=0x999999;
-    private var relevence2:uint=0x5DE35F;
-    private var relevence3:uint=0xFFDC42;
-    private var relevence4:uint=0xFF4034;
-    private var relevanceColors:Array;
-    
-    private var _selected:Boolean;
 
+
+		private var dashed:DashedLine;
+		private var dotted:DashedLine;
+
+
+		private var relevence0:uint=0x333333;
+		private var relevence1:uint=0x999999;
+		private var relevence2:uint=0x5DE35F;
+		private var relevence3:uint=0xFFDC42;
+		private var relevence4:uint=0xFF4034;
+		private var relevanceColors:Array;
+
+		private var _selected:Boolean;
+
+		private var path1:LinePath2D;
+		private var path2:LinePath2D;
+
+		private var flowColor:uint;
+		private var flowRenderers:Array;
 
 		public function BidirectedArrowEdgeRenderer()
 		{
 			super();
-      relevanceColors=[relevence0, relevence1, relevence2, relevence3, relevence4]
-        
-      dashed=new DashedLine(3,0x000000,new Array(10,3,10,3));
-      dotted=new DashedLine(3,0x000000,new Array(2,2,2,2));
+			relevanceColors=[relevence0, relevence1, relevence2, relevence3, relevence4]
 
-      this.addChild(dashed)
-      this.addChild(dotted)
+			dashed=new DashedLine(3, 0x000000, new Array(10, 3, 10, 3));
+			dotted=new DashedLine(3, 0x000000, new Array(2, 2, 2, 2));
 
+			this.addChild(dashed)
+			this.addChild(dotted)
+
+			path1=new LinePath2D();
+			path1.autoUpdatePoints=true;
+
+			path2=new LinePath2D();
+			path2.autoUpdatePoints=true;
+
+			flowRenderers=new Array();
 		}
 
 		/**
@@ -101,6 +121,7 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 		 * */
 		override public function draw():void
 		{
+
 			/* first get the corresponding visual object */
 			var fromNode:IVisualNode=vedge.edge.node1.vnode;
 			var toNode:IVisualNode=vedge.edge.node2.vnode;
@@ -164,61 +185,71 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 			var color:int;
 			var a:Number=1;
 			color=relevanceColors[this.data.data.@rel]
-        g.clear()
+			flowColor=color;
+			g.clear()
 
 			//fake bold line
 			g.lineStyle(10, color, 0);
 			g.moveTo(fP.x, fP.y);
 			g.lineTo(tP.x, tP.y);
-      
-      //dashed line
-      
-      if (this.data.data.@type=="identity")
-      { dashed.clear()
-        dashed.lineStyle(2,color, 1)
-        dashed.beginFill(color, 1)
-        dashed.moveTo(fP.x, fP.y);
-        dashed.lineTo(tP.x, tP.y);
-        
-        //
-        g.lineStyle(2, color, 0); //
-        g.beginFill(color, 1);
-        g.moveTo(fP.x, fP.y);
-        g.lineTo(tP.x, tP.y);
-      }
-      //dotted line
-      
-      else if (this.data.data.@type=="know")
-      { 
-        dotted.clear()
-        dotted.lineStyle(2,color, 1)
-        dotted.beginFill(color, 1)
-        dotted.moveTo(fP.x, fP.y);
-        dotted.lineTo(tP.x, tP.y);
-        
-        //
-        g.lineStyle(2, color, 0); //
-        g.beginFill(color, 1);
-        g.moveTo(fP.x, fP.y);
-        g.lineTo(tP.x, tP.y);
-      }
-      //regular line
-      else
-      {
-  			g.lineStyle(2, color, a); //
-  			g.beginFill(color, a);
-  			g.moveTo(fP.x, fP.y);
-  			g.lineTo(tP.x, tP.y);
-      }
-      
-      if(this.data.data.@type!="identity")
-      {
-  			g.lineTo(lArrowBase.x, lArrowBase.y);
-  			g.lineTo(rArrowBase.x, rArrowBase.y);
-  			g.lineTo(tP.x, tP.y);
-      }
-      
-			if (this.data.data.@versus != null && this.data.data.@versus == "both" && this.data.data.@type!="identity")
+
+			// flowRenderer.x=fP.x;
+			// flowRenderer.y=fP.y; //________________________________________
+
+			path1.points=[new Point(fP.x, fP.y), new Point(tP.x, tP.y)]
+			path2.points=[new Point(tP.x, tP.y), new Point(fP.x, fP.y)]
+
+			//TweenMax.to(path, 2, {progress:1});
+
+			//dashed line
+
+			if (this.data.data.@type == "identity")
+			{
+				dashed.clear()
+				dashed.lineStyle(2, color, 1)
+				dashed.beginFill(color, 1)
+				dashed.moveTo(fP.x, fP.y);
+				dashed.lineTo(tP.x, tP.y);
+
+				//
+				g.lineStyle(2, color, 0); //
+				g.beginFill(color, 1);
+				g.moveTo(fP.x, fP.y);
+				g.lineTo(tP.x, tP.y);
+			}
+			//dotted line
+
+			else if (this.data.data.@type == "know")
+			{
+				dotted.clear()
+				dotted.lineStyle(2, color, 1)
+				dotted.beginFill(color, 1)
+				dotted.moveTo(fP.x, fP.y);
+				dotted.lineTo(tP.x, tP.y);
+
+				//
+				g.lineStyle(2, color, 0); //
+				g.beginFill(color, 1);
+				g.moveTo(fP.x, fP.y);
+				g.lineTo(tP.x, tP.y);
+			}
+			//regular line
+			else
+			{
+				g.lineStyle(2, color, a); //
+				g.beginFill(color, a);
+				g.moveTo(fP.x, fP.y);
+				g.lineTo(tP.x, tP.y);
+			}
+
+			if (this.data.data.@type != "identity")
+			{
+				g.lineTo(lArrowBase.x, lArrowBase.y);
+				g.lineTo(rArrowBase.x, rArrowBase.y);
+				g.lineTo(tP.x, tP.y);
+			}
+
+			if (this.data.data.@versus != null && this.data.data.@versus == "both" && this.data.data.@type != "identity")
 			{
 				g.moveTo(fP.x, fP.y);
 				g.lineTo(lArrowEnd.x, lArrowEnd.y);
@@ -228,37 +259,131 @@ package org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers
 
 			if (this.data.data.@versus != null && this.data.data.@versus == "fake")
 				this.visible=false;
-      
-      if(this.selected)
-      {
-        g.lineStyle(12, 0x00CCFF, 0.3);
-        g.beginFill(0x00CCFF, 0.3);
-        g.moveTo(fP.x, fP.y);
-        g.lineTo(tP.x, tP.y);
-      }
+
+			if (this.selected)
+			{
+				g.lineStyle(12, 0x00CCFF, 0.3);
+				g.beginFill(0x00CCFF, 0.3);
+				g.moveTo(fP.x, fP.y);
+				g.lineTo(tP.x, tP.y);
+			}
 
 			/* if the vgraph currently displays edgeLabels, then
 			* we need to update their coordinates */
-      
+
 			if (vedge.vgraph.displayEdgeLabels)
 			{
 				vedge.setEdgeLabelCoordinates(labelCoordinates());
 			}
-      
-      this.toolTip=this.vedge.edge.data.@type +" - "+this.vedge.edge.data.@rel;
+
+			this.toolTip=this.vedge.edge.data.@type + " - " + this.vedge.edge.data.@rel;
+
+			//bring renderers on top
+			for (var i:int=0; i < this.numChildren; i++)
+			{
+				var o:DisplayObject=this.getChildAt(i) as DisplayObject;
+					//this.setChildIndex(o, this.numChildren-1)
+			}
+
 
 		}
-    public function set selected(value:Boolean):void
-    {
-      _selected=value;
-      g.clear();
-      draw();
-    }
-    
-    public function get selected():Boolean
-    {
-      return _selected;
-    }
+
+		public function reset():void
+		{
+			while (this.numChildren > 0)
+				this.removeChildAt(0)
+			this.addChild(dashed)
+			this.addChild(dotted)
+			draw()
+		}
+
+		public function showFlow(from:String, to:String, count:int):void
+		{
+			flowRenderers=new Array()
+			var numBalls:int=0;
+
+			if (count > 0 && count <= 10)
+				numBalls=1;
+			else if (count > 10 && count <= 50)
+				numBalls=2;
+			else if (count > 50)
+				numBalls=3;
+
+			var fromNode:IVisualNode=vedge.edge.node1.vnode;
+			var toNode:IVisualNode=vedge.edge.node2.vnode;
+
+			var fP:Point=fromNode.viewCenter;
+			var tP:Point=toNode.viewCenter;
+
+			var flowRenderer:Sprite;
+			var i:int;
+			var increment:Number=0
+			if (this.data.data.@fromID == from && this.data.data.@toID == to)
+			{
+
+				TweenMax.to(path1, 0, {progress: 0});
+
+				for (i=0; i < numBalls; i++)
+				{
+					flowRenderer=new Sprite();
+
+					this.addChild(flowRenderer);
+					flowRenderer.graphics.beginFill(flowColor);
+					flowRenderer.graphics.drawCircle(0, 0, 3);
+					flowRenderer.graphics.endFill()
+					flowRenderer.graphics.lineStyle(0.5, 0xFF0000, 1)
+					flowRenderer.graphics.drawCircle(0, 0, 4);
+					flowRenderers.push(flowRenderer)
+					//this.setChildIndex(flowRenderer, this.numChildren-1)
+
+
+					path1.addFollower(flowRenderer, increment)
+					increment+=0.05;
+				}
+				path1.progress=0;
+				TweenMax.to(path1, 2, {progress: 1, repeat: -1});
+
+			}
+			//inverse
+			else if (this.data.data.@fromID == to && this.data.data.@toID == from)
+			{
+
+				TweenMax.to(path2, 0, {progress: 0});
+
+				for (i=0; i < numBalls; i++)
+				{
+					flowRenderer=new Sprite();
+
+					this.addChild(flowRenderer);
+					flowRenderer.graphics.beginFill(flowColor);
+					flowRenderer.graphics.drawCircle(0, 0, 3);
+					flowRenderer.graphics.endFill()
+					flowRenderer.graphics.lineStyle(0.5, 0xFF0000, 1)
+					flowRenderer.graphics.drawCircle(0, 0, 4);
+					flowRenderers.push(flowRenderer)
+					// this.setChildIndex(flowRenderer, this.numChildren-1)
+					path2.addFollower(flowRenderer, increment)
+					increment+=0.05;
+				}
+				path2.progress=0;
+				TweenMax.to(path2, 2, {progress: 1, repeat: -1});
+			}
+
+			draw()
+
+		}
+
+		public function set selected(value:Boolean):void
+		{
+			_selected=value;
+			g.clear();
+			draw();
+		}
+
+		public function get selected():Boolean
+		{
+			return _selected;
+		}
 
 	}
 }

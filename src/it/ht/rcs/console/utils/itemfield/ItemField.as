@@ -35,7 +35,7 @@ package it.ht.rcs.console.utils.itemfield
 
 		private var _selectedItem:SearchItem;
 
-		private static const kindOrder:Array=['operation', 'target', 'factory', 'agent'];
+		private static const kindOrder:Array=['operation', 'target', 'entity', 'factory', 'agent'];
 
 		public function ItemField()
 		{
@@ -157,8 +157,13 @@ package it.ht.rcs.console.utils.itemfield
 
 			if (text == '')
 				return true;
-
-			var toMatch:String=item.name.toLowerCase() + ' ' + item.desc.toLowerCase();
+      
+		
+			var toMatch:String=item.name.toLowerCase() ;
+      if(item.desc)
+      {
+        toMatch += ' ' + item.desc.toLowerCase();
+      }
 			if (item.ident)
 				toMatch=toMatch + ' ' + item.ident.toLowerCase();
 
@@ -205,7 +210,7 @@ package it.ht.rcs.console.utils.itemfield
 				dropDown.setFocus();
 			}
 
-			else if (event.charCode != 0 && _dataProvider != null && this.text.split(" ").join("")!="")
+			else if (event.charCode != 0 && _dataProvider != null && this.text.split(" ").join("") != "")
 			{
 				_dataProvider.refresh();
 				showDropDown();

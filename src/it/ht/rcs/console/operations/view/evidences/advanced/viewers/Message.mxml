@@ -30,6 +30,15 @@
 			[Bindable]
 			[Embed(source="/img/evidence/attachment16.png")]
 			public var AttachIcon:Class;
+      [Bindable]
+      [Embed(source="/img/NEW/message_incoming.png")]
+      public var IncomingIcon:Class;
+      [Bindable]
+      [Embed(source="/img/NEW/message_outgoing.png")]
+      public var OutgoingIcon:Class;
+      [Bindable]
+      [Embed(source="/img/NEW/message_draft.png")]
+      public var DraftIcon:Class;
 
 			private var _evidence:Object;
 
@@ -231,12 +240,20 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	<s:RichText id="fromTxt"
-							width="100%"
-							textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+cleanHTMLText(evidence.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-							fontSize="12"
-							visible="{evidence.data.from!='local'}"
-							includeInLayout="{evidence.data.from!='local'}"/>
+  <s:HGroup width="100%" verticalAlign="middle">
+    <s:RichText id="fromTxt"
+                width="100%"
+                textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+cleanHTMLText(evidence.data.from), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+                fontSize="12"
+                visible="{evidence.data.from!='local'}"
+                includeInLayout="{evidence.data.from!='local'}"/>
+    <s:Spacer width="100%"/>
+      
+    <s:Image source="{IncomingIcon}" toolTip="incoming" visible="{evidence.data.incoming}" includeInLayout="{evidence.data.incoming}"/>
+    <s:Image source="{OutgoingIcon}" toolTip="outgoing" visible="{!evidence.data.incoming}" includeInLayout="{!evidence.data.incoming}"/>
+    <s:Image source="{DraftIcon}" toolTip="draft" visible="{evidence.data.draft}" includeInLayout="{evidence.data.draft}"/>
+  </s:HGroup>
+
 	<s:Line width="100%"
 					visible="{evidence.data.from!='local'}"
 					includeInLayout="{evidence.data.from!='local'}">

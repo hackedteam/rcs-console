@@ -12,20 +12,16 @@
 
 	<fx:Script>
 		<![CDATA[
+			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.events.DataLoadedEvent;
 			import it.ht.rcs.console.events.FilterEvent;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.operations.view.OperationsSection;
-
-			import it.ht.rcs.console.DB;
-
-			import mx.collections.ArrayCollection;
-			import mx.collections.IList;
-			import mx.collections.ListCollectionView;
+			
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
-
+			
 			import spark.events.GridEvent;
 
 			[Bindable]
@@ -66,6 +62,8 @@
 				evidenceDg.setFocus(); // keep! fixes various focusmanager bestiality when switching view (eg from dashboard)
 
 				//trace("evidence view added to stage")
+        
+        
 			}
 
 			public function resetFilter():void
@@ -129,6 +127,13 @@
 				evidenceDg.validateNow();
 				evidenceDg.scrollDown();
 				notice.visible=notice.includeInLayout=isNoticeVisible();
+        if(EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id'))
+        {
+          evidenceDg.idVisible=true;
+          evidenceDg.idColumn.visible=true;
+          viewer.idVisible=evidenceDg.idVisible;
+          actionBar.toggleIdButton(true);
+        }
 
 			}
 
@@ -136,7 +141,8 @@
 			{
 				try
 				{
-					return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date == "dr" && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("from") && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("to"));
+					//return EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id') || (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date == "dr" && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("from") && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("to"));
+          return (EvidenceManager.instance._view.length == 0 && EvidenceManager.instance.total != 0 && EvidenceManager.instance.evidenceFilter.date == "dr" && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("from") && !EvidenceManager.instance.evidenceFilter.hasOwnProperty("to"));
 				}
 				catch (e:Error)
 				{
@@ -151,24 +157,40 @@
 				EvidenceManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
 				EvidenceManager.instance.unlistenRefresh();
 				trace("evidence view removed from stage");
+        if(viewer.visible)
+        {
+          section.breadcrumb.detail.visible=section.breadcrumb.detail.includeInLayout=false;
+          closeViewer()
+          actionBar.toggleDetailButton();
+        }
+        
+        
 
-				evidenceDg.selectedItems=new Vector.<Object>
-				actionBar.selectedObjects=evidenceDg.selectedItems;
+				//evidenceDg.selectedItems=new Vector.<Object>
+				//actionBar.selectedObjects=evidenceDg.selectedItems;
 				currentState="default";
 				actionBar.toggleSummaryButton(currentState);
 				//evidenceDg.dataProvider=null;
-				if (viewer.visible)
+				/* if (viewer.visible)
 				{
 					closeViewer();
 					actionBar.toggleDetailButton();
-				}
+				} */
 			}
 
 			public function refreshData(event:FilterEvent=null):void
 			{
 				evidenceDg.dataProvider=null;
 				filteredById=isNoticeVisible();
+        
 				EvidenceManager.instance.refresh();
+        if(EvidenceManager.instance.evidenceFilter.hasOwnProperty('_id'))
+        {
+          evidenceDg.idVisible=true;
+          evidenceDg.idColumn.visible=true;
+          viewer.idVisible=evidenceDg.idVisible;
+          actionBar.toggleIdButton(true);
+        }
 			}
 
 			private function toggleState():void
@@ -189,7 +211,7 @@
 
 				evidenceDg.idVisible=!evidenceDg.idVisible;
 				viewer.idVisible=evidenceDg.idVisible;
-				actionBar.toggleIdButton();
+				actionBar.toggleIdButton(evidenceDg.idVisible);
 
 			}
 
@@ -220,10 +242,11 @@
 				}
 			}
 
-			private function toggleDetail():void
+			public function toggleDetail():void
 			{
 				if (!viewer.visible && evidenceDg.selectedItems != null)
 				{
+          section.breadcrumb.detail.visible=section.breadcrumb.detail.includeInLayout=true;
 					viewer.currentItems=evidenceDg.selectedItems;
 					viewer.currentIndex=evidenceDg.selectedIndices[0]
 					viewer.visible=viewer.includeInLayout=true;
@@ -233,10 +256,13 @@
 					selectedObject.push(evidenceDg.selectedItems[0]);
 					actionBar.selectedObjects=selectedObject;
 					notice.visible=notice.includeInLayout=false;
+         
 				}
 				else
 				{
+          section.breadcrumb.detail.visible=section.breadcrumb.detail.includeInLayout=false;
 					closeViewer()
+         
 				}
 				actionBar.toggleDetailButton();
 			}
@@ -284,7 +310,7 @@
 
 			}
 
-			private function closeViewer():void
+			public function closeViewer():void
 			{
 				viewer.visible=viewer.includeInLayout=false;
 				viewer.currentItem=null;

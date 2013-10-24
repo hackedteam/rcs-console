@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 width="100%"
+				 height="200">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Metadata>
+    [Event(name="dateChange", type="flash.events.Event")]
+    [Event(name="stop", type="flash.events.Event")]
+    [Event(name="play", type="flash.events.Event")]
+    [Event(name="ready", type="flash.events.Event")]
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import spark.components.BorderContainer;
+			import spark.components.Label;
+			import spark.components.SkinnableContainer;
+			import spark.core.SpriteVisualElement;
+			import spark.primitives.Rect;
+
+			private var days:int=30;
+			private var thumb:SpriteVisualElement;
+			private var thumbDrag:Boolean;
+
+			[Bindable]
+			private var dayHeight:Number=120;
+			[Bindable]
+			public var startDate:Date;
+			[Bindable]
+			public var endDate:Date;
+			[Bindable]
+			public var currentDate:Date;
+			[Bindable]
+			private var currentIndex:int;
+			[Bindable]
+			public var currentItem:HourRenderer;
+			[Bindable]
+			public var isPlaying:Boolean;
+
+			public var frames:Array;
+			public var hours:Dictionary;
+
+			private var timeline:Group;
+			private var monthsHeader:Group;
+			public var t:Timer;
+
+
+			public static const DAY:int=1000 * 60 * 60 * 24;
+			public static const HOUR:int=1000 * 60 * 60;
+
+
+
+			private var monthNames:Array=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "Dicember"]
+
+
+			private static const MINUTES_PER_DAY:int=60 * 24;
+
+			public function init():void
+			{
+
+				t=new Timer(250);
+				t.addEventListener(TimerEvent.TIMER, onTick)
+
+				currentDate=new Date()
+				currentDate.date=startDate.date;
+				currentDate.month=startDate.month;
+				currentDate.fullYear=startDate.fullYear;
+				currentDate.hours=startDate.hours;
+				currentDate.minutes=startDate.minutes
+				currentIndex=0;
+				currentItem=null //??TODO
+				dispatchEvent(new Event("dateChange"));
+
+				thumb=new SpriteVisualElement();
+				thumb.graphics.beginFill(0xFF0000, 0.5);
+				thumb.graphics.drawRect(0, 0, 12, 6);
+				thumb.buttonMode=true;
+				thumb.useHandCursor=true;
+				thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
+
+				draw();
+			}
+
+			private function onThumbClick(e:MouseEvent):void
+			{
+				thumbDrag=true;
+				thumb.removeEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
+
+				thumb.addEventListener(MouseEvent.MOUSE_UP, onThumbUp)
+				this.stage.addEventListener(MouseEvent.MOUSE_UP, onThumbUp)
+
+			}
+
+			private function onThumbMove(e:MouseEvent):void
+			{
+				if (thumbDrag)
+				{
+					isPlaying=false;
+					t.stop();
+					dispatchEvent(new Event("stop"));
+
+					var h:HourRenderer=e.currentTarget as HourRenderer;
+					trace(h.date)
+					thumb.x=h.x;
+					thumb.y=h.y;
+					currentDate.date=h.date.date;
+					currentDate.month=h.date.month;
+					currentDate.fullYear=h.date.fullYear;
+					currentDate.hours=h.date.hours;
+					currentDate.minutes=h.date.minutes
+					currentItem=h;
+					currentIndex=h.index;
+					dispatchEvent(new Event("dateChange"));
+				}
+
+			}
+
+			public function reset():void
+			{
+				currentDate.time=endDate.time;
+				currentItem=frames[frames.length - 1]
+				currentIndex=frames.length - 1
+          
+        thumb.x=frames[currentIndex].x;
+        thumb.y=frames[currentIndex].y;
+        
+				dispatchEvent(new Event("dateChange"));
+			}
+
+
+
+			private function onThumbUp(e:MouseEvent):void
+			{
+				thumbDrag=false;
+				thumb.addEventListener(MouseEvent.MOUSE_DOWN, onThumbClick)
+
+				thumb.removeEventListener(MouseEvent.MOUSE_UP, onThumbUp)
+				this.stage.removeEventListener(MouseEvent.MOUSE_UP, onThumbUp)
+			}
+
+			public function draw():void
+			{
+				//remove if needed
+
+
+				this.removeAllElements();
+
+				timeline=new Group()
+				timeline.y=12;
+				addElement(timeline)
+
+				monthsHeader=new Group();
+				addElement(monthsHeader)
+
+				t.stop();
+				dispatchEvent(new Event("stop"));
+				isPlaying=false;
+
+				frames=new Array();
+				hours=new Dictionary();
+
+				var numDays:int=Math.floor((endDate.time - startDate.time + DAY) / DAY);
+
+				currentDate.time=startDate.time;
+
+				var currentHour:Number=0;
+				var xPos:Number=0;
+
+				var months:Array=new Array()
+				var currentMonth:Number=currentDate.month;
+				var month:Object={days: 0, index: currentMonth}
+				months.push(month)
+				var index:int=0;
+
+        var d:Group;
+        var l:Label;
+        var yPos:Number;
+        
+				for (var i:int=0; i < numDays; i++)
+				{
+					d=drawDay();
+					l=new Label();
+					l.text=String(currentDate.date)
+					l.width=12;
+
+					l.y=-10
+					l.setStyle("textAlign", "center")
+					l.setStyle("fontSize", 8)
+					//l.setStyle("fontWeight", "bold")
+					d.addElement(l)
+					yPos=0;
+
+					for (var j:int=0; j < 24; j++)
+					{
+						var h:HourRenderer=new HourRenderer()
+						h.date.time=currentDate.time;
+						h.date.hours=j;
+						h.date.minutes=0;
+						h.date.seconds=0;
+						h.index=index
+						//h.toolTip=String(h.date);
+						h.y=yPos;
+						h.x=xPos
+						h.mouseChildren=false;
+						h.addEventListener(MouseEvent.CLICK, onHourClick)
+						h.addEventListener(MouseEvent.MOUSE_OVER, onThumbMove)
+
+						timeline.addElement(h);
+						index++;
+						var key:String=formatDate(h.date)
+						frames.push(h);
+						hours[key]=h;
+						yPos+=dayHeight / 24;
+					}
+					d.x=xPos;
+					timeline.addElement(d);
+					month.days++;
+					xPos+=12;
+
+					currentDate.time+=DAY;
+					if (currentDate.month != currentMonth)
+					{
+						currentMonth=currentDate.month;
+						month={days: 0, index: currentMonth}
+						months.push(month)
+					}
+				}
+
+
+				//draw months headers  //remove elements
+
+				xPos=0;
+        var m:int
+        var monthRenderer:Group;
+        
+				for (m=0; m < months.length; m++)
+				{
+					monthRenderer=new Group;
+					monthRenderer.height=30
+					monthRenderer.width=12 * months[m].days;
+					monthRenderer.x=xPos;
+					monthRenderer.graphics.lineStyle(1, 0x000000);
+					monthRenderer.graphics.moveTo(0, 0)
+					monthRenderer.graphics.lineTo(0, 132)
+					l=new Label();
+					l.text=monthNames[months[m].index];
+					l.width=monthRenderer.width;
+					l.y=50
+					l.alpha=0.2;
+					l.setStyle("textAlign", "center");
+					l.setStyle("fontSize", 24);
+					if (monthRenderer.width > 6 * 20)
+						monthRenderer.addElement(l);
+					monthsHeader.addElement(monthRenderer);
+					xPos+=monthRenderer.width;
+				}
+
+				thumb.x=0;
+				thumb.y=0;
+				timeline.addElement(thumb);
+
+				this.setElementIndex(monthsHeader, 0)
+          
+				currentDate.time=startDate.time;
+				dispatchEvent(new Event("ready"))
+				dispatchEvent(new Event("dateChange"));
+			}
+
+			private function onHourClick(e:MouseEvent):void
+			{
+				isPlaying=false;
+				t.stop();
+				dispatchEvent(new Event("stop"));
+
+				var h:HourRenderer=e.currentTarget as HourRenderer;
+				h.date.minutes=0;
+				trace(h.date);
+				thumb.x=h.x
+				thumb.y=h.y;
+				currentDate.date=h.date.date;
+				currentDate.month=h.date.month;
+				currentDate.fullYear=h.date.fullYear;
+				currentDate.hours=h.date.hours;
+				currentDate.minutes=h.date.minutes
+				currentIndex=h.index
+				currentItem=h;
+				dispatchEvent(new Event("dateChange"));
+			}
+
+
+
+			private function drawDay():Group
+			{
+				var s:Group=new Group();
+				s.graphics.lineStyle(0.5, 0xCCCCCC, 0.5);
+				s.graphics.drawRect(0, -14, 12, dayHeight + 14);
+				return s;
+			}
+
+			private function onTick(e:TimerEvent):void
+			{
+				//thumb.y+=(6/59)
+				if (currentDate.minutes == 59)
+				{
+					if (currentIndex < frames.length - 1)
+					{
+						currentIndex++;
+						thumb.x=frames[currentIndex].x;
+						thumb.y=frames[currentIndex].y;
+					}
+					else
+					{
+						isPlaying=false;
+						t.stop();
+						dispatchEvent(new Event("stop"));
+					}
+				}
+				currentDate.minutes++
+				currentItem=frames[currentIndex]
+				dispatchEvent(new Event("dateChange"));
+			}
+
+			public function doPlay():void
+			{
+				isPlaying=true;
+				t.start()
+				dispatchEvent(new Event("play"));
+			}
+
+			public function doStop():void
+			{
+				isPlaying=false;
+				t.stop()
+				dispatchEvent(new Event("stop"));
+
+			}
+
+			private function doubleDigits(n:Number):String
+			{
+				if (n < 10)
+					return "0" + String(n);
+				return String(n);
+			}
+
+			private function formatDate(d:Date):String
+			{
+				if (!d)
+					return "";
+				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date) + doubleDigits(d.hours);
+			}
+		]]>
+	</fx:Script>
+</s:Group>

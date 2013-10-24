@@ -96,6 +96,11 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
 			 
 			/* now the link button */
 			initLinkButton();
+      
+      if(selected) img.filters=[_glow]
+      else img.filters=null
+        
+        
 
 		}
     
@@ -106,13 +111,13 @@ package org.un.cava.birdeye.ravis.components.renderers.nodes {
       {
         //border.setStyle('backgroundAlpha', 0.2);
         //border.setStyle('borderAlpha', 1);
-         img.filters=[_glow]
+        if(img) img.filters=[_glow]
       }
       else
       {
         //border.setStyle('backgroundAlpha', 0);
         //border.setStyle('borderAlpha', 0);
-        img.filters=null
+        if(img) img.filters=null
       }
     }
     

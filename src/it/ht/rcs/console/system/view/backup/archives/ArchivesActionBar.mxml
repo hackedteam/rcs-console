@@ -14,6 +14,7 @@
       import it.ht.rcs.console.backup.controller.BackupArchiveManager;
       import it.ht.rcs.console.backup.model.BackupArchive;
       import it.ht.rcs.console.network.model.Collector;
+      import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       
       import locale.R;
@@ -28,8 +29,10 @@
         
         AlertPopUp.show(R.get('CONFIRM_BACKUP_RESTORE', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES|AlertPopUp.NO, null,
           function(e:CloseEvent):void {
-            if (e.detail == AlertPopUp.YES) 
-              BackupArchiveManager.instance.restoreArchive(selectedObject as BackupArchive, false);
+            if (e.detail == AlertPopUp.YES) {
+              DownloadManager.instance.createTask("restore", null, {id: (selectedObject as BackupArchive)._id});
+              //BackupArchiveManager.instance.restoreArchive(selectedObject as BackupArchive, false);
+            }
           }, null, AlertPopUp.NO);
       }
       

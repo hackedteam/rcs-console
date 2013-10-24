@@ -43,6 +43,14 @@
 					section.stateManager.view.refresh()
 
 			}
+
+			private function onSelectionChange(e:Event):void //Bindings bestiality!
+			{
+				if (e.currentTarget == grid)
+					list.selectedItem=grid.selectedItem;
+				else if (e.currentTarget == list)
+					grid.selectedItem=list.selectedItem;
+			}
 		]]>
 	</fx:Script>
 
@@ -64,9 +72,11 @@
 
 				<view:BaseList id="list"
 											 dataProvider="{section.stateManager.view}"
-											 selectedItem="{grid.selectedItem}"
+											 change="onSelectionChange(event)"
+                       selectedItem="{grid.selectedItem}"
 											 doubleClick="onDoubleClick(event)"
-											 keyUp="onKeyUp(event)"/>
+											 keyUp="onKeyUp(event)"
+											 section="{this.section}"/>
 
 				<operations:OperationsInfoPanel selectedItem="{list.selectedItem}"/>
 
@@ -81,7 +91,7 @@
 
 			<operations:OperationsGrid id="grid"
 																 dataProvider="{section.stateManager.tableView}"
-																 selectedItem="{list.selectedItem}"
+																 selectionChange="onSelectionChange(event)"
 																 doubleClick="onDoubleClick(event)"
 																 keyUp="onKeyUp(event)"/>
 

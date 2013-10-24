@@ -1,70 +1,303 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:view="it.ht.rcs.console.operations.view.*"
-          xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
-          xmlns:entities="it.ht.rcs.console.entities.view.*"
-          width="100%" height="100%" >
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:view="it.ht.rcs.console.operations.view.*"
+					xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
+					xmlns:entities="it.ht.rcs.console.entities.view.*"
+					width="100%"
+					height="100%"
+          creationComplete="init()"
+					addedToStage="onAddedToStage()"
+          removedFromStage="onRemovedFromStage()">
 
-  <fx:Script>
-    <![CDATA[
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.view.EntitiesSection;
+      import it.ht.rcs.console.events.DataLoadedEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.push.PushEvent;
       
       import locale.R;
       
-      [Bindable]
-      public var section:EntitiesSection;
-      
-      [Bindable]
-      public var selcetdObjects:Vector.<Object>
-      
-      private function onDoubleClick(event:MouseEvent):void
-      {
-        var item:* = event.currentTarget === list ? list.selectedItem : grid.selectedItem;
-        if (item) section.stateManager.manageItemSelection(item);
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
 
+			[Bindable]
+			public var section:EntitiesSection;
+
+			[Bindable]
+			public var selcetdObjects:Vector.<Object>;
+
+			[Bindable]
+			public var entities:ArrayCollection=new ArrayCollection()
+
+			private function onDoubleClick(event:MouseEvent):void
+			{
+				var item:*=event.currentTarget === list ? list.selectedItem : grid.selectedItem;
+				if (item)
+					section.stateManager.manageItemSelection(item);
+
+			}
+      
+      private function init():void
+      {
+        if(!LicenseManager.instance.intelligence)
+        {
+          while(views.numChildren>2)
+          {
+            views.removeChildAt(0) //remove link view and map view if not in License 
+          }
+ 
+        }
+      /*   FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush); */
       }
       
-      private function onKeyUp(event:KeyboardEvent):void
+      private function onEntityPush(e:PushEvent):void
       {
-       
+        onChangeView()
       }
       
-    ]]>
-  </fx:Script>
-  
+      private function onRefresh(e:RefreshEvent):void
+      {
+        onChangeView()
+      }
 
-<entities:EntitiesActionBar section="{section}" selectedObjects="{list.selectedItems}" viewStack="{views}" selectedObject="{list.selectedItem}" entityUpdated="{list.selectedItem=null}"/>
-  
-  
-  <mx:ViewStack id="views" width="100%" height="100%" creationPolicy="all">
-    <s:NavigatorContent label="{R.get('ICON_VIEW')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/windows/icon.png')" showEffect="{fadeIn}">
-      
-      <s:HGroup width="100%" height="100%" gap="5">
+			private function onKeyUp(event:KeyboardEvent):void
+			{
         
-        <view:BaseList id="list" dataProvider="{section.stateManager.view}" selectedItems="{grid.selectedItems}"
-                       doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)" allowMultipleSelection="true"/>
-        
-       <entities:EntityInfoPanel selectedItem="{list.selectedItem}" selectedItems="{list.selectedItems}"/>
-        
-      </s:HGroup>
+			}
+
+			protected function onAddedToStage():void
+			{
+        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush);
+				EntityManager.instance.refresh();
+				onChangeView();
+			}
       
-    </s:NavigatorContent>
-   <s:NavigatorContent label="{R.get('TABLE_VIEW')}" hideEffect="{fadeOut}"
-                        icon="@Embed('/img/windows/list.png')" showEffect="{fadeIn}">
+      protected function onRemovedFromStage():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush);
+      }
+
+			public function onChangeView():void
+			{
+				if (geoMap)
+					geoMap.doStop();
+
+				actionbar.selectedObject=null;
+				actionbar.selectedObjects=null; //TODO > SYNC SELECTION
+
+
+				var i:int;
+
+        if(!LicenseManager.instance.intelligence)
+        {
+           if (views.selectedIndex == 0) //list
+          {
+            actionbar.currentState="list"
+            list.selectedItem=null;
+            list.selectedItems=null;
+          }
+          
+          if (views.selectedIndex == 1) //table
+          {
+            actionbar.currentState="table";
+            grid.selectedItem=null;
+            grid.selectedItems=null;
+          }
+        }
+
+        else //License has intelligence
+        {
+          if (views.selectedIndex == 0) //links
+          {
+            actionbar.currentState="linkmap"
+            linkMap.entities=section.stateManager.tableView; 
+            setTimeout(linkMap.init, 100)
+          }
+            
+          else if (views.selectedIndex == 1) //geo map
+          {
+            actionbar.currentState="geomap"
+            /* entities.removeAll()
+            for (i=0; i < section.stateManager.view.length; i++)
+            {
+            entities.addItem(section.stateManager.view.getItemAt(i));
+            }
+            geoMap.entities=entities;
+            geoMap.refresh() */
+            geoMap.entities=section.stateManager.tableView
+            geoMap.reset()
+            geoMap.refresh()
+          }
+            
+          else if (views.selectedIndex == 2) //list
+          {
+            actionbar.currentState="list"
+            list.selectedItem=null;
+            list.selectedItems=null
+          }
+          
+          if (views.selectedIndex == 3) //table
+          {
+            actionbar.currentState="table"
+            grid.selectedItem=null
+            grid.selectedItems=null
+          }
+        }
+			}
+
+			protected function onNewLink():void
+			{
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+			}
+      
+      private function onDataLoaded(e:DataLoadedEvent):void
+      {
+        EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+        onChangeView()
+      }
+
+			protected function onLinkRemoved():void
+			{
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+			}
+
+			protected function onLinkUpdated():void
+			{
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+			}
+      
+      protected function onEntityMerged():void
+      {
+        EntityManager.instance.refresh()
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+      }
       
       
-      <entities:EntitiesGrid id="grid" dataProvider="{section.stateManager.tableView}" selectedItems="{list.selectedItems}"
-                             doubleClick="onDoubleClick(event)" keyUp="onKeyUp(event)"/>
+      protected function onEntityCreated():void
+      { 
+        onChangeView()
+      }
       
-    </s:NavigatorContent>
-  </mx:ViewStack>
-  
-  <fx:Declarations>
-    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="150"/>
-    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="150"/>
-  </fx:Declarations>
-  
+      protected function onEntityDeleted():void
+      {
+        onChangeView()
+      }
+      
+      protected function onEntityUpdated():void
+      {
+        onChangeView()
+      }
+      
+		]]>
+	</fx:Script>
+
+	<entities:EntitiesActionBar section="{section}"
+															selectedObjects="{list.selectedItems}"
+															viewStack="{views}"
+															selectedObject="{list.selectedItem}"
+															entityUpdated="onEntityUpdated();list.selectedItem=null"
+                              entityCreated="onEntityCreated(); list.selectedItem=null"
+                              entityDeleted="onEntityDeleted(); list.selectedItem=null"
+                              entityMerged="onEntityMerged(); list.selectedItem=null"
+															linkAdded="onNewLink()"
+															linkRemoved="onLinkRemoved()"
+															linkUpdated="onLinkUpdated()"
+															id="actionbar"/>
+
+
+	<mx:ViewStack id="views"
+								width="100%"
+								height="100%"
+								creationPolicy="all"
+								change="onChangeView()"
+								creationComplete="onChangeView()">
+
+		<s:NavigatorContent label="{R.get('LINK_MAP')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/NEW/link16.png')"
+												showEffect="{fadeIn}" >
+
+
+			<entities:LinkView section="{this.section}"
+												 id="linkMap"
+												 entities="{section.stateManager.tableView}"
+												 actionbar="{actionbar}"/>
+
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{R.get('POSITION_MAP')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/NEW/position16.png')"
+												showEffect="{fadeIn}" >
+
+
+			<entities:GeoMapView id="geoMap"
+													 section="{this.section}"
+													 actionbar="{actionbar}"
+													 entities="{section.stateManager.tableView}"/>
+
+		</s:NavigatorContent>
+
+		<s:NavigatorContent label="{R.get('ICON_VIEW')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/windows/icon.png')"
+												showEffect="{fadeIn}">
+
+			<s:HGroup width="100%"
+								height="100%"
+								gap="5">
+
+				<view:BaseList id="list"
+											 dataProvider="{section.stateManager.view}"
+											 selectedItems="{grid.selectedItems}"
+											 doubleClick="onDoubleClick(event)"
+											 keyUp="onKeyUp(event)"
+											 allowMultipleSelection="true"
+											 section="{this.section}"/>
+
+				<entities:EntityInfoPanel selectedItem="{list.selectedItem}"
+																	selectedItems="{list.selectedItems}"/>
+
+			</s:HGroup>
+
+		</s:NavigatorContent>
+		<s:NavigatorContent label="{R.get('TABLE_VIEW')}"
+												hideEffect="{fadeOut}"
+												icon="@Embed('/img/windows/list.png')"
+												showEffect="{fadeIn}">
+
+
+			<entities:EntitiesGrid id="grid"
+														 dataProvider="{section.stateManager.tableView}"
+														 selectedItems="{list.selectedItems}"
+														 doubleClick="onDoubleClick(event)"
+														 keyUp="onKeyUp(event)"/>
+
+		</s:NavigatorContent>
+
+
+	</mx:ViewStack>
+
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="150"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="150"/>
+	</fx:Declarations>
+
 </s:VGroup>

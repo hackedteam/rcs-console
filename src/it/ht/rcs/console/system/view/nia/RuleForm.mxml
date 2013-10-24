@@ -237,6 +237,17 @@
           resource.enabled=true;
         }
       }
+      
+      protected function formatProbability(value:Number):String
+      {
+        if(value==0)
+          return "once only";
+        if(value==100)
+          return "everytime";
+        else
+          return value+"% of the time";
+      }
+      
     ]]>
   </fx:Script>
   
@@ -257,7 +268,7 @@
     </s:FormItem>
     
     <s:FormItem label="{R.get('PROBABILITY')}">
-      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1"
+      <s:HSlider id="probability" width="200" maximum="100" minimum="0" snapInterval="1" stepSize="1" dataTipFormatFunction="formatProbability"
                  value="{rule.probability}"/>
     </s:FormItem>
     

@@ -23,6 +23,7 @@ package it.ht.rcs.console.entities.view
 	import mx.collections.ArrayCollection;
 	import mx.collections.ArrayList;
 	import mx.collections.ListCollectionView;
+	import mx.managers.CursorManager;
 	
 	import spark.collections.Sort;
 	import spark.collections.SortField;
@@ -67,7 +68,9 @@ package it.ht.rcs.console.entities.view
 
 		private function getItemFromEvent(event:SectionEvent):*
 		{
+    
 			var item:SearchItem=event ? event.item : null;
+      CursorManager.removeBusyCursor()
 			if (!item)
 				return null;
 
@@ -85,6 +88,7 @@ package it.ht.rcs.console.entities.view
 				default:
 					return null;
 			}
+      
 		}
     
    

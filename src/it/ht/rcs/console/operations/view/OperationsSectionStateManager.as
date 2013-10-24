@@ -7,6 +7,7 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.agent.model.Agent;
   import it.ht.rcs.console.agent.model.Config;
   import it.ht.rcs.console.events.DataLoadedEvent;
+  import it.ht.rcs.console.events.FilterEvent;
   import it.ht.rcs.console.events.SectionEvent;
   import it.ht.rcs.console.evidence.controller.EvidenceManager;
   import it.ht.rcs.console.monitor.controller.LicenseManager;
@@ -15,13 +16,13 @@ package it.ht.rcs.console.operations.view
   import it.ht.rcs.console.search.model.SearchItem;
   import it.ht.rcs.console.target.controller.TargetManager;
   import it.ht.rcs.console.target.model.Target;
-  import it.ht.rcs.console.events.FilterEvent;
-  import mx.core.FlexGlobals;
   
   import locale.R;
   
   import mx.collections.ArrayList;
   import mx.collections.ListCollectionView;
+  import mx.core.FlexGlobals;
+  import mx.managers.CursorManager;
   
   import spark.collections.Sort;
   import spark.collections.SortField;
@@ -70,6 +71,7 @@ package it.ht.rcs.console.operations.view
     private function getItemFromEvent(event:SectionEvent):*
     {
       var item:SearchItem = event ? event.item : null;
+      CursorManager.removeBusyCursor()
       if (!item) return null;
       
       switch (item._kind) {

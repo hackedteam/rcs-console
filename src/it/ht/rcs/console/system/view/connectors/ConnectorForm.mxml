@@ -1,114 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <utils:TitleWindowSaveCancel xmlns:fx="http://ns.adobe.com/mxml/2009"
-                             xmlns:s="library://ns.adobe.com/flex/spark"
-                             xmlns:mx="library://ns.adobe.com/flex/mx"
-                             xmlns:utils="it.ht.rcs.console.utils.*"
-                             xmlns:view="it.ht.rcs.console.alerting.view.*"
-                             xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
-                             creationComplete="init()" save="save()" 
-                             title="{currentState == 'create'?R.get('NEW_CONNECTOR').toUpperCase():R.get('EDIT_CONNECTOR').toUpperCase()}"
-                             >
+														 xmlns:s="library://ns.adobe.com/flex/spark"
+														 xmlns:mx="library://ns.adobe.com/flex/mx"
+														 xmlns:utils="it.ht.rcs.console.utils.*"
+														 xmlns:view="it.ht.rcs.console.alerting.view.*"
+														 xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
+														 creationComplete="init()"
+														 save="save()"
+														 title="{currentState == 'create'?R.get('NEW_CONNECTOR').toUpperCase():R.get('EDIT_CONNECTOR').toUpperCase()}">
 
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.ObjectUtils;
-      import it.ht.rcs.console.connector.controller.ConnectorManager;
-      import it.ht.rcs.console.connector.model.Connector;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      
-      [Bindable]
-      public var connector:Connector;
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.ObjectUtils;
+			import it.ht.rcs.console.connector.controller.ConnectorManager;
+			import it.ht.rcs.console.connector.model.Connector;
 
-      [Bindable]
-      private var types:ArrayCollection = new ArrayCollection(['LOCAL', 'REMOTE']);
-      [Bindable]
-      private var formats_local:ArrayCollection = new ArrayCollection(['JSON', 'XML']);
-      [Bindable]
-      private var formats_remote:ArrayCollection = new ArrayCollection(['RCS']);
-      
-      private function init():void
-      {
-        formName.setFocus();
-        if (currentState == 'create')
-          connector = new Connector(Connector.defaultConnector());
-        else
-          formPath.selectedItemId = (connector.path.length > 0) ? connector.path.getItemAt(connector.path.length - 1) as String : null;
-      }
-      
-      private function save():void
-      {
-        var path:ArrayCollection;
-        
-        connector.enabled = formEnabled.selected;
-        connector.type = formType.selectedItem;
-        connector.format = formFormat.selectedItem;
+			import locale.R;
 
-        if (formPath.selectedItem && formPath.text != '') {
-          path = new ArrayCollection();
-          path.addAll(formPath.selectedItem.path);
-          path.addItem(formPath.selectedItem._id);
-        } else {
-          path = new ArrayCollection();
-        }
-        connector.path = path;
-        connector.keep = formKeep.selected;
-        //connector.raw = formRaw.selected;
-        connector.raw = false;
-        connector.dest = formDest.text;
-        connector.name = formName.text;
-        
-        if (currentState == 'create')
-          ConnectorManager.instance.addConnector(ObjectUtils.toHash(connector), function(f:Connector):void { close(); });
-        else
-          close();
-      }
-    ]]>
-  </fx:Script>
-  
-  <utils:states>
-    <s:State name="create"/>
-    <s:State name="edit"/>
-  </utils:states>
-  
-  <s:Form>
-    
-    <s:FormItem label="{R.get('ENABLED')}">
-      <s:CheckBox id="formEnabled" selected="{connector.enabled}"/>
-    </s:FormItem>
-    
-    <s:FormItem label="{R.get('NAME')}">
-      <s:TextInput id="formName" width="200" text="{connector.name}"/>
-    </s:FormItem>
+			import mx.collections.ArrayCollection;
 
-    <s:FormItem label="{R.get('PATH')}">
-      <itemfield:ItemField id="formPath" right="5" top="0"
-                           kinds="{['operation', 'target', 'agent']}"/>
-    </s:FormItem>
-        
-    <s:FormItem label="{R.get('TYPE')}">
-      <s:DropDownList id="formType" width="90" dataProvider="{types}" 
-                      selectedIndex="{types.toArray().indexOf(connector.type)}"/>
-    </s:FormItem>
-    <s:FormItem label="{R.get('FORMAT')}">
-      <s:DropDownList id="formFormat" width="70" dataProvider="{formType.selectedItem == 'LOCAL' ? formats_local : formats_remote}"
-                      selectedIndex="{(formType.selectedItem == 'LOCAL' ? formats_local : formats_remote).toArray().indexOf(connector.format)}"/>
-    </s:FormItem>
-<!--
-    <s:FormItem label="{R.get('SAVE_RAW')}">
-      <s:CheckBox id="formRaw" selected="{connector.raw}"/>
-    </s:FormItem>
--->
-    <s:FormItem label="{R.get('KEEP_EVIDENCE')}">
-      <s:CheckBox id="formKeep" selected="{connector.keep}"/>
-    </s:FormItem>
+			[Bindable]
+			public var connector:Connector;
 
-    <s:FormItem label="{R.get('DEST')}">
-      <s:TextInput id="formDest" width="200" text="{connector.dest}"/>
-    </s:FormItem>
+			[Bindable]
+			private var types:ArrayCollection=new ArrayCollection(['LOCAL', 'REMOTE']);
+			[Bindable]
+			private var formats_local:ArrayCollection=new ArrayCollection(['JSON', 'XML']);
+			[Bindable]
+			private var formats_remote:ArrayCollection=new ArrayCollection(['RCS']);
 
-  </s:Form>
+			private function init():void
+			{
+				formName.setFocus();
+				if (currentState == 'create')
+					connector=new Connector(Connector.defaultConnector());
+				else
+					formPath.selectedItemId=(connector.path.length > 0) ? connector.path.getItemAt(connector.path.length - 1) as String : null;
+			}
+
+			private function save():void
+			{
+				var path:ArrayCollection;
+
+				connector.enabled=formEnabled.selected;
+				connector.type=formType.selectedItem;
+				connector.format=formFormat.selectedItem;
+
+				if (formPath.selectedItem && formPath.text != '')
+				{
+					path=new ArrayCollection();
+					path.addAll(formPath.selectedItem.path);
+					path.addItem(formPath.selectedItem._id);
+				}
+				else
+				{
+					path=new ArrayCollection();
+				}
+				connector.path=path;
+				connector.keep=formKeep.selected;
+        if (currentState == 'create') connector.enqueue_previous=enqueue.selected;
+				//connector.raw = formRaw.selected;
+				connector.raw=false;
+				connector.dest=formDest.text;
+				connector.name=formName.text;
+
+				if (currentState == 'create')
+					ConnectorManager.instance.addConnector(ObjectUtils.toHash(connector), function(f:Connector):void
+					{
+						close();
+					});
+				else
+					close();
+			}
+
+			private function onProcessChange():void
+			{
+				if (currentState == 'create')
+				{
+					if (enqueue.selected)
+          {
+						saveButton.label=R.get('SAVE_AND_PROCESS')
+            formEnabled.selected=true;
+          }
+					else
+						saveButton.label=R.get('SAVE')
+				}
+			}
+
+			private function onEnabledChange():void
+			{
+				if (currentState == 'create')
+				{
+					if (!formEnabled.selected)
+						enqueue.selected=false
+					if (enqueue.selected)
+						saveButton.label=R.get('SAVE_AND_PROCESS')
+					else
+						saveButton.label=R.get('SAVE')
+				}
+			}
+		]]>
+	</fx:Script>
+
+	<utils:states>
+		<s:State name="create"/>
+		<s:State name="edit"/>
+	</utils:states>
+
+	<s:Form>
+
+		<s:FormItem label="{R.get('ENABLED')}">
+			<s:CheckBox id="formEnabled"
+									selected="{connector.enabled}" change="onEnabledChange()"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('NAME')}">
+			<s:TextInput id="formName"
+									 width="200"
+									 text="{connector.name}"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('PATH')}">
+			<itemfield:ItemField id="formPath"
+													 right="5"
+													 top="0"
+													 kinds="{['operation', 'target', 'agent']}"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('TYPE')}">
+			<s:DropDownList id="formType"
+											width="90"
+											dataProvider="{types}"
+											selectedIndex="{types.toArray().indexOf(connector.type)}"/>
+		</s:FormItem>
+		<s:FormItem label="{R.get('FORMAT')}">
+			<s:DropDownList id="formFormat"
+											width="70"
+											dataProvider="{formType.selectedItem == 'LOCAL' ? formats_local : formats_remote}"
+											selectedIndex="{(formType.selectedItem == 'LOCAL' ? formats_local : formats_remote).toArray().indexOf(connector.format)}"/>
+		</s:FormItem>
+		<!--
+				<s:FormItem label="{R.get('SAVE_RAW')}">
+					<s:CheckBox id="formRaw" selected="{connector.raw}"/>
+				</s:FormItem>
+		-->
+		<s:FormItem label="{R.get('KEEP_EVIDENCE')}">
+			<s:CheckBox id="formKeep"
+									selected="{connector.keep}"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('DEST')}">
+			<s:TextInput id="formDest"
+									 width="200"
+									 text="{connector.dest}"/>
+		</s:FormItem>
+
+		<s:FormItem label="{R.get('PROCESS_PREVIOUS_EVIDENCE')}"
+								visible="{currentState == 'create'}"
+								includeInLayout="{currentState == 'create'}">
+			<s:CheckBox id="enqueue"
+									selected="{connector.enqueue_previous}"
+									change="onProcessChange()"/>
+		</s:FormItem>
+
+	</s:Form>
 
 </utils:TitleWindowSaveCancel>

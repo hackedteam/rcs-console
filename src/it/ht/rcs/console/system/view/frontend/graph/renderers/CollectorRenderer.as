@@ -145,7 +145,7 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
       
 		}
     
-    private function getStatusIcon():Class
+    private function getStatusIcon():Class 
     {
       if (collector.type == 'remote' && !collector.poll)
         return unknownIcon;

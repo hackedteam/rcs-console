@@ -103,25 +103,32 @@
 
 			private var flows:ArrayCollection;
 
-
+      public var inited:Boolean;
+      
 
 			public function init():void
 			{
-				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
-				sort=new Sort();
-				sort.fields=[new SortField("type", true), new SortField("name", false)]
-
-				startDate=new Date();
-				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-				endDate=new Date();
-				if (fromDf)
-				{
-					fromDf.selectedDate=startDate;
-				}
-				timeline.reset()
+       if(!inited)
+       {
+  				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+  				sort=new Sort();
+  				sort.fields=[new SortField("type", true), new SortField("name", false)]
+  
+  				startDate=new Date();
+  				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+  				endDate=new Date();
+  				if (fromDf)
+  				{
+  					fromDf.selectedDate=startDate;
+  				}
+  				timeline.reset()
+          inited=true;
+       }
 				onAddedToStage(null)
 				//getFlows(entities)
 			}
+      
+     
 
 			private function onAddedToStage(e:Event=null):void
 			{
@@ -647,6 +654,7 @@
           if(!e)
             continue;
 					var name:String=HtmlEntities.encode(e.name)
+          name.replace("&nbsp;", " ")
 					var desc:String=""
 					if (e.desc)
 						desc==HtmlEntities.encode(e.desc)
@@ -804,6 +812,7 @@
 				timeline.startDate=startDate
 				timeline.endDate=endDate
 				timeline.update()
+        onAddedToStage(null);
 			}
 
 			private function onTimelineChange():void

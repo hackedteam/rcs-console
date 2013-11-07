@@ -68,20 +68,29 @@
 							var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 							var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target;
               //var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + value.data._grid + "?target_id=" + target;
-              
+              html.visible=false;
 							loader.addEventListener(Event.COMPLETE, onContentLoaded);
 							loader.load(new URLRequest(url));
 							break;
 
 						case "sms":
+              fullHtml="";
+              hasImages=false;
+              html.visible=true;
 							content=value.data.content || "";
 							break;
 
 						case "mms":
+              fullHtml="";
+              hasImages=false;
+              html.visible=true;
 							content=value.data.content || "";
 							break
 
 						default:
+              fullHtml="";
+              hasImages=false;
+              html.visible=true;
 							content=value.data.content || "";
 					}
 				}
@@ -104,6 +113,7 @@
 
 				html.htmlText=content || ("content not available");
 				onTranslate(null)
+        html.visible=true;
 				loader.removeEventListener(Event.COMPLETE, onContentLoaded);
 			}
 

@@ -28,47 +28,48 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-			import com.google.maps.services.ClientGeocoder;
-			import com.google.maps.services.GeocodingEvent;
-			
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Contact;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Place;
-			import it.ht.rcs.console.entities.model.Visit;
-			import it.ht.rcs.console.entities.view.map.LastPositionMarker;
-			import it.ht.rcs.console.entities.view.map.PlaceMarker;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			import it.ht.rcs.console.utils.Clock;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      import com.google.maps.services.ClientGeocoder;
+      import com.google.maps.services.GeocodingEvent;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Contact;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Place;
+      import it.ht.rcs.console.entities.model.Visit;
+      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
+      import it.ht.rcs.console.entities.view.map.PlaceMarker;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.Clock;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -110,6 +111,10 @@
 			[Embed(source='/img/stub/fakeprofile.jpg')]
 			[Bindable]
 			private var FakeProfile:Class;
+
+			[Embed(source="img/stub/map.png")]
+			[Bindable]
+			public var fakeMap:Class;
 
 			public var fileReference:FileReference;
 
@@ -669,16 +674,16 @@
 
 			private function addURLAsEntity(e:Event):void
 			{
-        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-        popup.operation=section.stateManager.selectedOperation;
-        popup.entity=new Entity(Entity.defaultEntity());
-        popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
-        if (visitedList.selectedItem.host != null)
-          popup.entity.name=visitedList.selectedItem.host;
-        popup.type.enabled=false;
-        popup.type.selectedIndex=2;
-        popup.currentState=EntityForm.CREATE;
-        PopUpManager.centerPopUp(popup);
+				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+				popup.operation=section.stateManager.selectedOperation;
+				popup.entity=new Entity(Entity.defaultEntity());
+				popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				if (visitedList.selectedItem.host != null)
+					popup.entity.name=visitedList.selectedItem.host;
+				popup.type.enabled=false;
+				popup.type.selectedIndex=2;
+				popup.currentState=EntityForm.CREATE;
+				PopUpManager.centerPopUp(popup);
 			}
 
 			public function update():void
@@ -982,6 +987,7 @@
 														 borderColor="0x666666"
 														 backgroundColor="0xCCCCCC"
 														 backgroundAlpha="0.3">
+					
 						<maps:Map xmlns:maps="com.google.maps.*"
 											id="map"
 											mapevent_mapready="onMapReady(event)"
@@ -1000,16 +1006,22 @@
 															 backgroundAlpha="0.5"
 															 visible="{!LicenseManager.instance.correlation}"
 															 includeInLayout="{!LicenseManager.instance.correlation}"/>
+            <s:BitmapImage source="{fakeMap}"
+                           width="100%"
+                           height="100%"
+                           visible="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"
+                           includeInLayout="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"/>
 					</s:BorderContainer>
+        
 					<s:Spacer height="6"/>
-          <s:List width="100%"
-                  id="mostVisitedList"
-                  visible="{mostVisitedCh.selected &amp;&amp; entity.type=='target' &amp;&amp; locations.length>0}"
-                  includeInLayout="{mostVisitedCh.selected &amp;&amp; entity.type=='target' &amp;&amp; locations.length>0}"
-                  height="30%"
-                  dataProvider="{locations}"
-                  itemRenderer="it.ht.rcs.console.entities.view.renderers.AddressListRenderer"/>
-          <s:Spacer height="6"/>
+					<s:List width="100%"
+									id="mostVisitedList"
+									visible="{mostVisitedCh.selected &amp;&amp; entity.type=='target' &amp;&amp; locations.length>0}"
+									includeInLayout="{mostVisitedCh.selected &amp;&amp; entity.type=='target' &amp;&amp; locations.length>0}"
+									height="30%"
+									dataProvider="{locations}"
+									itemRenderer="it.ht.rcs.console.entities.view.renderers.AddressListRenderer"/>
+					<s:Spacer height="6"/>
 					<s:HGroup width="100%"
 										verticalAlign="middle"
 										visible="{entity.type=='target'}"
@@ -1024,8 +1036,8 @@
 												selected="true"
 												change="drawPosition()"/>
 					</s:HGroup>
-					
-					
+
+
 				</s:VGroup>
 			</s:BorderContainer>
 

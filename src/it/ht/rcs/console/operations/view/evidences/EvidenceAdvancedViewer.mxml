@@ -225,6 +225,9 @@
 
 			private function onKeyPress(e:KeyboardEvent):void
 			{
+        if(infoPanel.editing)
+          return;
+        
 				switch (e.keyCode)
 				{
 					case 39:
@@ -365,7 +368,7 @@
 			<s:Image source="{prevIcon}"
 							 buttonMode="true"
 							 useHandCursor="true"
-							 click="prev()"/>
+							 click="prev()" enabled="{!infoPanel.editing}"/>
 		</s:VGroup>
 		<viewers:Addressbook evidence="{currentItem}"
 												 includeIn="addressbook"
@@ -450,7 +453,8 @@
 			<s:Image source="{nextIcon}"
 							 buttonMode="true"
 							 useHandCursor="true"
-							 click="next()"/>
+							 click="next()"
+               enabled="{!infoPanel.editing}"/>
 		</s:VGroup>
 		<evidences:EvidenceInfoPanel evidence="{currentItem}"
 																 id="infoPanel"

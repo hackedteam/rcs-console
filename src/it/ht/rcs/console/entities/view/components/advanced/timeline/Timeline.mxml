@@ -14,14 +14,14 @@
 	<fx:Script>
 		<![CDATA[
 			import it.ht.rcs.console.entities.model.PositionsFlow;
-			
+
 			import mx.collections.ArrayCollection;
-			
+
 			import spark.components.Label;
 			import spark.components.gridClasses.GridColumn;
 			import spark.core.SpriteVisualElement;
 			import spark.events.GridSelectionEvent;
-      
+
 			[Bindable]
 			private var grid:Grid;
 
@@ -57,7 +57,7 @@
 				endDate.minutes=0
 				endDate.seconds=0
 				endDate.milliseconds=0
-          
+
 
 				while (viewport.numElements > 0)
 					viewport.removeElementAt(0)
@@ -65,6 +65,7 @@
 				grid=new Grid()
 
 				grid.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelection)
+				grid.addEventListener(MouseEvent.CLICK, onSelection)
 				viewport.addElement(grid)
 
 				if (grid.dataProvider)
@@ -79,24 +80,24 @@
 				var daysPerMonth:Array;
 				var daysPerMonthCount:Number;
 				var months:Array=new Array();
-       
+
 
 				currentMonth=startDate.month;
 				daysPerMonth=new Array();
 				daysPerMonthCount=0;
 				months=new Array();
-        
+
 				//Columns
 				for (var d:Date=startDate; d <= endDate; d.date+=1)
 				{
-				
-          var currentDate:Date=new Date();
+
+					var currentDate:Date=new Date();
 					currentDate.time=d.time;
 
 					if (currentDate.month != currentMonth)
 					{
 						//add month separator
-						daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count:daysPerMonthCount});
+						daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count: daysPerMonthCount});
 						daysPerMonthCount=0;
 					}
 					daysPerMonthCount++
@@ -107,7 +108,7 @@
 				//last loop
 
 				trace("month separator " + daysPerMonthCount);
-        daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count:daysPerMonthCount});
+				daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count: daysPerMonthCount});
 				daysPerMonthCount=0;
 
 				rows=new ArrayCollection();
@@ -146,12 +147,12 @@
 
 				//draw separators
 				var xPos:Number=0;
-        
+
 				for (var s:int=0; s < daysPerMonth.length - 1; s++)
 				{
-          var w:Number=0 //width
+					var w:Number=0 //width
 					xPos+=daysPerMonth[s].count * 16;
-          w=daysPerMonth[s].count * 16;
+					w=daysPerMonth[s].count * 16;
 					//draw separator at xPos;
 					var separator:SpriteVisualElement=new SpriteVisualElement();
 					separator.graphics.lineStyle(2, 0x333333, 1);
@@ -159,35 +160,60 @@
 					separator.graphics.lineTo(0, 168);
 					separator.x=xPos + 1;
 					viewport.addElement(separator);
-					
+
 
 					var monthLabel:Label=new Label();
 					monthLabel.text=daysPerMonth[s].name; //looped
 					monthLabel.setStyle("color", 0x333333);
 					monthLabel.setStyle("fontWeight", "bold");
 					monthLabel.setStyle("fontSize", 40);
-          monthLabel.validateNow()
+					monthLabel.validateNow()
 					monthLabel.alpha=0.13;
-					monthLabel.x=(xPos - (16*31))
-          monthLabel.x+=((16*31)-(monthLabel.text.length*20))*.5
+					monthLabel.x=(xPos - (16 * 31))
+					monthLabel.x+=((16 * 31) - (monthLabel.text.length * 20)) * .5
 					monthLabel.y=70;
-          
-          //check if there is enough width to display label
+
+					//check if there is enough width to display label
 
 					monthLabel.mouseEnabled=false;
 					viewport.addElement(monthLabel)
 
-						//keep track monthname-length-days, etc.  
-
 				}
-        
-        // TODO last month
-        
-        
-				labelDisplay.text=""
-				//TODO SET SELECTED DATE (start or end)
-				setTimeout(ready, 3000)
 
+				// TODO last month
+				xPos+=30 * 16;
+				var lastLabel:Label=new Label();
+				lastLabel.text=daysPerMonth[daysPerMonth.length - 1].name; //looped
+				lastLabel.setStyle("color", 0x333333);
+				lastLabel.setStyle("fontWeight", "bold");
+				lastLabel.setStyle("fontSize", 40);
+				lastLabel.validateNow()
+				lastLabel.alpha=0.13;
+				lastLabel.x=(xPos - (16 * 31))
+				lastLabel.x+=((16 * 31) - (lastLabel.text.length * 20)) * .5
+				lastLabel.y=70;
+
+				//check if there is enough width to display label
+
+				lastLabel.mouseEnabled=false;
+				viewport.addElement(lastLabel)
+
+				labelDisplay.text=""
+
+				setTimeout(ready, 3000)
+				reset()
+			}
+
+			public function reset():void
+			{
+				if (playBtn.label == "pause")
+				{
+					t.stop();
+					t.removeEventListener(TimerEvent.TIMER, doPlay);
+					playBtn.label="play"
+				}
+				if(grid)
+          grid.setSelectedCell(0, 0)
 			}
 
 			private function ready():void
@@ -214,6 +240,12 @@
 				else
 					currentFlow=null
 				//get data
+				if (playBtn.label == "pause")
+				{
+					t.removeEventListener(TimerEvent.TIMER, doPlay);
+					t.stop();
+					playBtn.label="play"
+				}
 				dispatchEvent(new Event("dateChange"))
 			}
 
@@ -226,11 +258,16 @@
 				var nextColumn:Number=currentColumn
 				if (nextRow > 23)
 				{
+
 					nextRow=0;
 					nextColumn=currentColumn + 1
 				}
+				if (nextRow == 0 && nextColumn == grid.columns.length)
+				{
+					reset();
+					return;
+				}
 				grid.setSelectedCell(nextRow, nextColumn)
-				onSelection(new Event("change"))
 
 			}
 
@@ -292,13 +329,13 @@
 				{
 					t.addEventListener(TimerEvent.TIMER, doPlay);
 					t.start();
-					playBtn.label = "pause"
+					playBtn.label="pause"
 				}
 				else if (playBtn.label == "pause")
 				{
 					t.removeEventListener(TimerEvent.TIMER, doPlay);
 					t.stop();
-					playBtn.label = "play"
+					playBtn.label="play"
 				}
 			}
 
@@ -314,7 +351,25 @@
 
 			private function doPlay(e:TimerEvent):void
 			{
-
+				selectedDate.minutes++
+				if (selectedDate.minutes == 0)
+					next()
+				labelDisplay.text=TimelineUtils.doubleDigits(selectedDate.date) + " " + TimelineUtils.months[selectedDate.month] + " " + selectedDate.fullYear + " - " + TimelineUtils.doubleDigits(selectedDate.hours) + ":" + TimelineUtils.doubleDigits(selectedDate.minutes)
+				var hour:Object=grid.dataProvider.getItemAt(selectedDate.hours);
+				if (!hour)
+					return;
+				var h:Date=new Date()
+				h.time=selectedDate.time
+				h.hours=0
+				h.minutes=0
+				h.seconds=0
+				h.milliseconds=0
+				if (hour[h.time] && hour[h.time].minutes && hour[h.time].minutes[selectedDate.minutes])
+					currentFlow=hour[h.time].minutes[selectedDate.minutes] as PositionsFlow;
+				else
+					currentFlow=null;
+				//get data
+				dispatchEvent(new Event("dateChange"))
 			}
 		]]>
 	</fx:Script>

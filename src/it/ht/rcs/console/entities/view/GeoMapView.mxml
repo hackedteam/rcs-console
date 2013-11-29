@@ -8,6 +8,7 @@
 					xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          removedFromStage="onRemovedFromStage()"
 					height="100%"
 					width="100%">
 	<!--
@@ -252,13 +253,13 @@
 				if (!map.enabled)
 					map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-				//onDateChange()
+				onDateChange()
 				//map.visible=true;
 			}
 
 			private function onRemovedFromStage():void
 			{
-				//tracker.doStop()
+        tracker.reset()
 			}
 
 			public function doStop():void
@@ -402,6 +403,7 @@
 			private function onDateRange(e:Event):void
 			{
 				e.stopImmediatePropagation()
+        tracker.reset();
 				if (fromDf.selectedDate > toDf.selectedDate)
 				{
 					fromDf.selectedDate=new Date()
@@ -476,7 +478,8 @@
 
 			public function refresh():void
 			{
-
+        clearMap()
+        tracker.reset()
 				loadingBox.visible=true;
 				tracker.visible=false;
 				map.visible=false;
@@ -727,7 +730,7 @@
 
 				//		trace("Geo Map > Date Change: " + tracker.currentDate)
 				//		currentDate=tracker.currentDate;
-				currentDate=tracker.selectedDate
+				if(tracker.selectedDate) currentDate=tracker.selectedDate
 
 				var marker:Marker
 				for (var tm:* in targetsMarkers)

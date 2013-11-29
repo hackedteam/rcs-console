@@ -11,10 +11,6 @@
           removedFromStage="onRemovedFromStage()"
 					height="100%"
 					width="100%">
-	<!--
-					creationComplete="init()"
-					addedToStage="onAddedToStage()"
-					removedFromStage="onRemovedFromStage()"> -->
 
 	<fx:Script>
 		<![CDATA[
@@ -119,17 +115,7 @@
 			private var positions:ArrayCollection; //only positions
 			private var targets:ArrayCollection; //only targets
 
-			/*
-			on init and on date change
-			load data
-			draw map
-			draw timeline
-
-			*/
-
-			/*
-			On MAP READY
-			*/
+	    //TODO > CHECK MAP IS READY!
 			private function onMapReady(e:MapEvent):void
 			{
 				trace("GEO MAP >>>>>>>>>>>>>>>> MAP READY")
@@ -253,7 +239,6 @@
 				if (!map.enabled)
 					map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-				onDateChange()
 				//map.visible=true;
 			}
 
@@ -617,8 +602,6 @@
 
 			private function onMarkerClick(e:MapMouseEvent):void
 			{
-
-
 				for (var l:int=0; l < lines.length; l++)
 				{
 					var polyline:Polyline=lines[l] as Polyline;
@@ -711,12 +694,10 @@
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
 			}
 
-///==============================================================================================================================
 			private function onDateChange():void
 			{
 				var i:int;
-				//remove links
-				//draw links
+			
 				if (lines)
 				{
 					for (i=0; i < lines.length; i++)

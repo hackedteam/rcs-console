@@ -12,24 +12,24 @@
 					width="100%">
 	<fx:Script>
 		<![CDATA[
+			import com.adrianparr.utils.HtmlEntities;
 			import com.greensock.TweenMax;
-      import com.adrianparr.utils.HtmlEntities;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Flow;
 			import it.ht.rcs.console.entities.model.Flows;
 			import it.ht.rcs.console.entities.model.Link;
 			import it.ht.rcs.console.events.RefreshEvent;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
 			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
 			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
@@ -42,7 +42,7 @@
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
 			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-
+			
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
@@ -53,7 +53,7 @@
 			public var section:EntitiesSection;
 
 			[Bindable]
-			public var entitiesToShow:ListCollectionView;
+			public var entitiesToShow:ArrayCollection;
 
 			private var numEntitiesToShow:int=0;
 
@@ -146,7 +146,7 @@
 				//ad links entity - depth=1
 
 				flows=new ArrayCollection
-				numEntitiesToShow=entities.length;
+				//numEntitiesToShow=entities.length; //????
 
 				selectedNodes=new ArrayCollection();
 
@@ -160,9 +160,23 @@
 					g.purgeGraph();
 				}
 
-				entitiesToShow=entities
+				entitiesToShow=new ArrayCollection()
 
+       for(var i:int=0;i<entities.length;i++)
+       {
+         var entity:Entity=entities.getItemAt(i) as Entity;
+           
+          if(entity.type=="target" && targetCh.selected)
+            entitiesToShow.addItem(entity)
+          else if(entity.type=="person" && personCh.selected)
+            entitiesToShow.addItem(entity)
+          else if(entity.type=="position" && positionCh.selected)
+            entitiesToShow.addItem(entity)
+          else if(entity.type=="virtual" && virtualCh.selected)
+            entitiesToShow.addItem(entity)
+       }
 
+       numEntitiesToShow=entitiesToShow.length; //????
 				parseItems()
 
 				mergeEnabled=actionbar.mergeEnabled=false;
@@ -1032,8 +1046,12 @@
 								width="100%"
 								paddingTop="6">
 
+        <s:CheckBox label="target"   selected="true" id="targetCh"   change="filter(event)"/>
+        <s:CheckBox label="person"   selected="true" id="personCh"   change="filter(event)"/>
+        <s:CheckBox label="position" selected="true" id="positionCh" change="filter(event)"/>
+        <s:CheckBox label="virtual"  selected="true" id="virtualCh"  change="filter(event)"/>
         
-
+<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
 				<s:Label text="{R.get('FROM')}:"

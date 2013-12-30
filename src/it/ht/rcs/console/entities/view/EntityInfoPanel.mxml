@@ -325,36 +325,36 @@
 					 top="35"
 					 width="100%"
 					 height="100%"
-					 visible="{selectedItem != null &amp;&amp; (selectedItem is Edge || selectedItem is XMLList)}"
-					 includeInLayout="{selectedItem != null &amp;&amp; (selectedItem is Edge || selectedItem is XMLList)}">
+					 visible="{selectedItem != null &amp;&amp; selectedItem is Dictionary}"
+					 includeInLayout="{selectedItem != null &amp;&amp; selectedItem is Dictionary}">
 
 		<s:Form visible="{selectedItem != null &amp;&amp; selectedItems.length==1}"
 						width="100%">
 			<s:FormItem label="{R.get('FROM')}">
 				<s:RichEditableText editable="false"
-														text="{EntityManager.instance.getEntityById(selectedItem.data.@fromID).name}"
+														text="{selectedItem.versus=='out'? EntityManager.instance.getItem(selectedItem.source).name : EntityManager.instance.getItem(selectedItem.target).name}"
 														width="200"/>
 			</s:FormItem>
 			<s:FormItem label="{R.get('TO')}">
 				<s:RichEditableText editable="false"
-														text="{EntityManager.instance.getEntityById(selectedItem.data.@toID).name}"
+                            text="{selectedItem.versus=='out'? EntityManager.instance.getItem(selectedItem.target).name : EntityManager.instance.getItem(selectedItem.source).name}"
 														width="200"/>
 			</s:FormItem>
 
 			<s:FormItem label="{R.get('RELEVANCE')}"
 									skinClass="it.ht.rcs.console.skins.EvidenceFormItemSkin"
 									textAlign="right">
-				<utils:TagImage value="{selectedItem.data.@rel}"/>
+				<utils:TagImage value="{selectedItem.rel}"/>
 			</s:FormItem>
 
 			<s:FormItem label="{R.get('TYPE')}">
 				<s:RichEditableText editable="false"
-														text="{selectedItem.data.@type}"
+														text="{selectedItem.type}"
 														width="200"/>
 			</s:FormItem>
 			<s:FormItem label="{R.get('LEVEL')}">
 				<s:RichEditableText editable="false"
-														text="{selectedItem.data.@level}"
+														text="{selectedItem.level}"
 														width="200"/>
 			</s:FormItem>
 			<!--  <s:FormItem label="{R.get('VERSUS')}">

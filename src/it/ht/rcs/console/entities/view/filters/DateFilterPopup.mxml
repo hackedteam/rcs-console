@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
+                             creationComplete="init()"
+                             show="show()">
+
+
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.managers.PopUpManager;
+      
+      private function init():void
+      {
+        
+      }
+      
+      private function show():void
+      {
+        
+      }
+      
+      private function pad(n:Number):String
+      {
+        return TimeUtils.zeroPad(n, 2);
+      }
+      
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:Parallel id="fadeIn"
+								duration="200">
+			<s:Fade alphaFrom="0"
+							alphaTo="1"/>
+			<s:Move yFrom="{y - 20}"
+							yTo="{y}"/>
+		</s:Parallel>
+		<s:Parallel id="fadeOut"
+								duration="200">
+			<s:Fade alphaFrom="1"
+							alphaTo="0"/>
+			<s:Move yFrom="{y}"
+							yTo="{y - 20}"/>
+		</s:Parallel>
+    <s:RadioButtonGroup id="group"/>
+	</fx:Declarations>
+  
+  <s:VGroup gap="10" styleName="evidenceFilter">
+    
+    <s:RadioButton id="last24"   label="Last 24 Hours" group="{group}"/>
+    <s:RadioButton id="lastWeek" label="Last Week"     group="{group}"/>
+    <s:RadioButton id="lastMonth" label="Last Month"     group="{group}"/>
+    <!--s:RadioButton id="all"      label="All"           group="{group}"/-->
+    <s:RadioButton id="fromTo"   label="From / To"     group="{group}"/>
+    
+    <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
+      
+      <s:HGroup verticalAlign="middle">
+        <s:Label width="40" text="From"/>
+        <mx:DateField id="from" width="120"  formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="fromH"  maximum="23" minimum="0" value="0"
+                          valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="fromM"  maximum="59" minimum="0" value="0"
+                          valueFormatFunction="pad"/>
+      </s:HGroup>
+      
+      <s:HGroup verticalAlign="middle">
+        <s:Label width="40" text="To"/>
+        <mx:DateField id="to" width="120"  formatString="YYYY-MM-DD"
+                      showToday="false" yearNavigationEnabled="true"/>
+        <s:NumericStepper id="toH"  maximum="23" minimum="0" value="23"
+                          valueFormatFunction="pad"/>
+        <s:Label text=":"/>
+        <s:NumericStepper id="toM" maximum="59" minimum="0" value="59"
+                          valueFormatFunction="pad"/>
+      </s:HGroup>
+      
+    </s:VGroup>
+    
+  </s:VGroup>
+</filters:AbstractFilterPopup>

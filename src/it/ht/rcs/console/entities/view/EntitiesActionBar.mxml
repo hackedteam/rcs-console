@@ -52,14 +52,14 @@
 						visible="{LicenseManager.instance.intelligence}"
 						click="exportEntity(event)"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length>0}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; exportEnabled}"
 						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('MERGE')}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mergeEnabled}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mergeEnabled}" 
 						icon="@Embed('/img/NEW/merge32.png')"
 						visible="{LicenseManager.instance.intelligence}"
-						includeInLayout="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}" 
             click="onMergeClick()"
 						includeIn="linkmap"/>
 
@@ -101,7 +101,7 @@
 	<s:Button label="{R.get('LINK_REMOVE')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList)}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name}"
 						icon="@Embed('/img/NEW/linkRemove.png')"
             click="onDeleteLinkClick()"
 						includeIn="linkmap, geomap"/>
@@ -184,6 +184,9 @@
 
 			[Bindable]
 			public var jumpEnabled:Boolean; //Jump to evidence
+      
+      [Bindable]
+      public var exportEnabled:Boolean; //Export entities
       
       private function exportGraph(event:MouseEvent):void
       {
@@ -405,7 +408,7 @@
       {
         if (selectedObject  != null && (selectedObject is Edge || selectedObject is XMLList))
         {
-          selectedObject.data.@rel=value;
+          selectedObject.data.rel=value;
           
          if(selectedObject is Edge)
          {
@@ -417,14 +420,14 @@
          trace("update geoview")
          }
 
-          var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
-          var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+          var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.source);
+          var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.target);
           
           trace("1: " + entity1.name);
           trace("2: " + entity2.name);
           //
           var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
-          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.@type, versus, value, onLinkUpdated, null);
+          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.type, versus, value, onLinkUpdated, null);
         }
       }
       
@@ -434,16 +437,18 @@
         
         var entity1:Entity;
         var entity2:Entity;
-        if(selectedObjects[0].hasOwnProperty("data") && selectedObjects[1].hasOwnProperty("data")) //link view
-        {
-           entity1=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-           entity2=EntityManager.instance.getItem(selectedObjects[1].data.@id);
-        }
-        else //geo view
-        {
+        
+        if(selectedObjects[0] is Dictionary) //link view
+          entity1=EntityManager.instance.getItem(selectedObjects[0].id);
+        else  //geo view
           entity1=selectedObjects[0] as Entity;
+        
+        if(selectedObjects[1] is Dictionary)//link view
+          entity2=EntityManager.instance.getItem(selectedObjects[1].id);
+        else //geo view
           entity2=selectedObjects[1] as Entity;
-        }
+        
+      
         
         if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
         {
@@ -499,7 +504,7 @@
         {
           if (e.detail == AlertPopUp.YES)
           {
-            EntityManager.instance.deleteLink(selectedObject.data.@fromID, selectedObject.data.@toID, onDeleteLinkResult, onFault)
+            EntityManager.instance.deleteLink(selectedObject.source, selectedObject.target, onDeleteLinkResult, onFault)
             
           }
         }, null, AlertPopUp.NO);
@@ -521,9 +526,9 @@
         var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
         var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
         
-        var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
-        var type:String=selectedObject.data.@type;
-        var relevance:int=selectedObject.data.@rel;
+        var versus:String=selectedObject.data.versus == "both" ? "both" : "out";
+        var type:String=selectedObject.data.type;
+        var relevance:int=selectedObject.data.rel;
         
         
         popup.entity1=entity1;
@@ -555,8 +560,8 @@
       
       private function onMergeClick():void
       {
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].id);
         var msg:String;
         
         if (entity1.type == "person" && entity2.type == "target")
@@ -579,8 +584,8 @@
       
       private function merge():void
       {
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].id);
         
         if (entity1.type == "person" && entity2.type == "target")
         {

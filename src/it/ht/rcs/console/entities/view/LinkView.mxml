@@ -5,46 +5,51 @@
 					xmlns:mx="library://ns.adobe.com/flex/mx"
 					xmlns:maps="com.google.maps.*"
 					xmlns:components="it.ht.rcs.console.entities.view.components.*"
-					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
+					xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
+					xmlns:visualizer="fr.kapit.visualizer.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
-          xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
+					xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					height="100%"
 					width="100%">
 	<fx:Script>
 		<![CDATA[
-			import com.adrianparr.utils.HtmlEntities;
-			import com.greensock.TweenMax;
-			
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Flow;
-			import it.ht.rcs.console.entities.model.Flows;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.events.RefreshEvent;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.ListCollectionView;
-			import mx.core.FlexGlobals;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			
-			import org.un.cava.birdeye.ravis.components.renderers.edgeLabels.WFBEdgeLabelRenderer;
-			import org.un.cava.birdeye.ravis.components.renderers.nodes.IconNodeRenderer;
-			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-			import org.un.cava.birdeye.ravis.graphLayout.data.Graph;
-			import org.un.cava.birdeye.ravis.graphLayout.data.INode;
-			import org.un.cava.birdeye.ravis.graphLayout.data.Node;
-			import org.un.cava.birdeye.ravis.graphLayout.layout.ConcentricRadialLayouter;
-			import org.un.cava.birdeye.ravis.graphLayout.layout.ForceDirectedLayouter;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualEdgeEvent;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualGraphEvent;
-			import org.un.cava.birdeye.ravis.graphLayout.visual.events.VisualNodeEvent;
-			
-			import spark.collections.Sort;
-			import spark.collections.SortField;
+      import com.adrianparr.utils.HtmlEntities;
+      import com.greensock.TweenMax;
+      
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+      import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
+      import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
+      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
+      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
+      import fr.kapit.layouts.algorithms.radial.RadialLayout;
+      import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
+      import fr.kapit.layouts.algorithms.sugiyama.SugiyamaLayoutParams;
+      import fr.kapit.layouts.constants.EdgeDrawType;
+      import fr.kapit.layouts.model.Edge;
+      import fr.kapit.visualizer.events.VisualizerEvent;
+      import fr.kapit.visualizer.styles.LinkStyle;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Flow;
+      import it.ht.rcs.console.entities.model.Flows;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
+      import it.ht.rcs.console.entities.view.renderers.CustomLink;
+      import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
+      import it.ht.rcs.console.events.RefreshEvent;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ListCollectionView;
@@ -57,7 +62,7 @@
 
 			private var numEntitiesToShow:int=0;
 
-			private var g:Graph;
+
 			private var currentIndex:int=0;
 
 			private var roots:ArrayCollection;
@@ -66,7 +71,7 @@
 			public var selectedNodes:ArrayCollection;
 
 			[Bindable]
-			public var selectedEdge:Edge;
+			public var selectedEdge:Object
 
 			[Bindable]
 			public var linkEnabled:Boolean;
@@ -76,6 +81,9 @@
 
 			[Bindable]
 			public var jumpEnabled:Boolean;
+      
+      [Bindable]
+      public var exportEnabled:Boolean;
 
 			public var linkToHighLight:Object;
 			public var nodeToHighLight:Object;
@@ -83,14 +91,6 @@
 			private var sort:Sort;
 			private var xmlData:XML;
 
-			[Embed(source='/img/NEW/dottedLine.png')]
-			public static const dottedLine:Class;
-
-			[Embed(source='/img/NEW/dashedLine.png')]
-			public static const dashedLine:Class;
-
-			[Embed(source='/img/NEW/fullLine.png')]
-			public static const fullLine:Class;
 
 			[Bindable]
 			private var startDate:Date;
@@ -103,32 +103,48 @@
 
 			private var flows:ArrayCollection;
 
-      public var inited:Boolean;
-      
+			public var inited:Boolean;
+
+			[Embed(source='/img/NEW/dottedLine.png')]
+			public static const dottedLine:Class;
+
+			[Embed(source='/img/NEW/dashedLine.png')]
+			public static const dashedLine:Class;
+
+			[Embed(source='/img/NEW/fullLine.png')]
+			public static const fullLine:Class;
+
 
 			public function init():void
 			{
-       if(!inited)
-       {
-  				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
-  				sort=new Sort();
-  				sort.fields=[new SortField("type", true), new SortField("name", false)]
-  
-  				startDate=new Date();
-  				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-  				endDate=new Date();
-  				if (fromDf)
-  				{
-  					fromDf.selectedDate=startDate;
-  				}
-  				timeline.reset()
-          inited=true;
-       }
+				trace("LINK VIEW INIT")
+
+				var layout:SingleCycleCircularLayout=vis.layout as SingleCycleCircularLayout;
+				var params:SingleCircularLayoutParams=new SingleCircularLayoutParams(layout);
+				params.nodesSpacing=100;
+				params.minimalRadius=100;
+				vis.circularLayout.params=params;
+
+				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink)
+
+				if (!inited)
+				{
+					//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
+					sort=new Sort();
+					sort.fields=[new SortField("type", true), new SortField("name", false)]
+
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+					endDate=new Date();
+					if (fromDf)
+					{
+						fromDf.selectedDate=startDate;
+					}
+					timeline.reset()
+					inited=true;
+				}
 				onAddedToStage(null)
-				//getFlows(entities)
 			}
-      
-     
 
 			private function onAddedToStage(e:Event=null):void
 			{
@@ -150,890 +166,398 @@
 
 				selectedNodes=new ArrayCollection();
 
-				if (vgraph)
-				{
-					vgraph.graph=new Graph("XMLAsDocsGraph", false, null);
-					vgraph.visible=false;
-				}
-				if (g)
-				{
-					g.purgeGraph();
-				}
+				/*  if (vgraph)
+				 {
+					 vgraph.graph=new Graph("XMLAsDocsGraph", false, null);
+					 vgraph.visible=false;
+				 }
+				 if (g)
+				 {
+					 g.purgeGraph();
+				 } */
 
 				entitiesToShow=new ArrayCollection()
 
-       for(var i:int=0;i<entities.length;i++)
-       {
-         var entity:Entity=entities.getItemAt(i) as Entity;
-           
-          if(entity.type=="target" && targetCh.selected)
-            entitiesToShow.addItem(entity)
-          else if(entity.type=="person" && personCh.selected)
-            entitiesToShow.addItem(entity)
-          else if(entity.type=="position" && positionCh.selected)
-            entitiesToShow.addItem(entity)
-          else if(entity.type=="virtual" && virtualCh.selected)
-            entitiesToShow.addItem(entity)
-       }
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var entity:Entity=entities.getItemAt(i) as Entity;
 
-       numEntitiesToShow=entitiesToShow.length; //????
-				parseItems()
+					if (entity.type == "target" && targetCh.selected)
+						entitiesToShow.addItem(entity)
+					else if (entity.type == "person" && personCh.selected)
+						entitiesToShow.addItem(entity)
+					else if (entity.type == "position" && positionCh.selected)
+						entitiesToShow.addItem(entity)
+					else if (entity.type == "virtual" && virtualCh.selected)
+						entitiesToShow.addItem(entity)
+				}
+
+				numEntitiesToShow=entitiesToShow.length; //????
+				
 
 				mergeEnabled=actionbar.mergeEnabled=false;
 				linkEnabled=actionbar.linkEnabled=false;
 				jumpEnabled=actionbar.jumpEnabled=false;
+        exportEnabled=actionbar.exportEnabled=false;
+        
+        parseItems()
 
 			}
 
-			private function analyzeData():void
+
+			private function alreadyLinked(links:Array, source:String, target:String):Boolean
 			{
-
-				g=new Graph("XMLAsDocsGraph", false, xmlData);
-				if (vgraph)
-					vgraph.visible=true;
-
-				var i:int=0;
-				var node:Node;
-
-				//all roots by default
-				currentIndex=0;
-				roots=new ArrayCollection();
-				//backword
-				for (i=g.nodes.length; i > 0; i--)
+				for (var i:int=0; i < links.length; i++)
 				{
-					node=g.nodes[i - 1] as Node;
-					roots.addItem(node);
-				}
-
-				while (currentIndex < roots.length)
-				{
-					var currentNode:Node=roots.getItemAt(currentIndex) as Node;
-					getConnections(currentNode);
-					currentIndex++;
-				}
-
-				manipulateData();
-			}
-
-			private function getEntityById(id:String):Entity
-			{
-				for (var i:int=0; i < entitiesToShow.length; i++)
-				{
-					var entity:Entity=entitiesToShow.getItemAt(i) as Entity;
-					if (entity._id == id)
-					{
-						return entity;
-					}
-				}
-				return null;
-			}
-
-			private function getConnections(node:INode, examined:Array=null):void
-			{
-				if (!examined)
-					examined=new Array
-				if (node)
-				{
-
-					for (var i:int=0; i < node.successors.length; i++)
-					{
-						var child:INode=node.successors[i] as INode;
-						examined.push(node);
-						if (examined.indexOf(child) == -1 )//&& child.data.@name != "Diego Hernandez" && child.data.@name != "Kasimir Malevich" && child.data.@name != "Jimmy Page" && child.data.@name != "Jamie Moreno")
-						{
-							var index:int=roots.getItemIndex(child);
-							if (index != -1)
-								roots.removeItemAt(index);
-							getConnections(child, examined);
-						}
-					}
-				}
-			}
-
-			private function manipulateData():void //add a fake root
-			{
-
-				if (roots.length == 1)
-				{
-					//trace("no need to add a fake root")
-
-				}
-				else
-				{
-					//trace("more than 1 root - add a fake root and attach real roots")
-          
-					var xnode:XML=new XML(" <Node id='0' name='' desc='' nodeColor='0x333333' nodeSize='32' nodeClass='tree' nodeIcon='fake' x='10' y='10' />");
-					var fakeRoot:INode=g.createNode("0", xnode);
-
-					for (var i:int=0; i < roots.length; i++)
-					{
-						var root:Node=roots[i] as Node;
-						var xedge:XML=new XML("<Edge edgeLabel='Bad' flow='400' color='0xcd5c5c' edgeClass='sun' edgeIcon='Bad' versus='fake'/>");
-						g.link(fakeRoot, root, xedge); //add data
-					}
-				}
-				initData(g);
-			}
-
-			private function initData(g:Graph):void
-			{
-				if (vgraph)
-				{
-					vgraph.graph=g
-					vgraph.currentRootVNode=vgraph.graph.nodes[0].vnode //???
-					var layouter:ConcentricRadialLayouter=new ConcentricRadialLayouter(vgraph);
-
-					vgraph.layouter=layouter;
-					layouter.linkLength=80; //
-          layouter.disableAnimation=true;
-					//layouter.autoFitEnabled=true;
-					//layouter.defaultRadius=50;
-
-					vgraph.itemRenderer=new ClassFactory(IconNodeRenderer);
-					vgraph.edgeRendererFactory=new ClassFactory(BidirectedArrowEdgeRenderer);
-					vgraph.edgeLabelRenderer=new ClassFactory(WFBEdgeLabelRenderer);
-					vgraph.maxVisibleDistance=20;
-
-					vgraph.addEventListener(VisualEdgeEvent.CLICK, onEdgeClick);
-					vgraph.addEventListener(VisualNodeEvent.CLICK, onNodeClick);
-					vgraph.addEventListener(VisualNodeEvent.DOUBLE_CLICK, onNodeDoubleClick);
-					vgraph.addEventListener(VisualGraphEvent.BACKGROUND_CLICK, onBgClick);
-					vgraph.scale=1;
-					bzoom.value=1;
-					vgraph.draw();
-				}
-				if (linkToHighLight)
-				{
-					setTimeout(highlightLink, 1000, linkToHighLight.from, linkToHighLight.to)
-				}
-
-				if (nodeToHighLight)
-				{
-					setTimeout(highlightNode, 1000, nodeToHighLight.id)
-				}
-
-				getFlows(entities)
-			}
-
-			//TEMPORARY!!!!!
-			private function isIn(a:ArrayCollection, e:Entity):Boolean
-			{
-				for (var i:int=0; i < a.length; i++)
-				{
-					var entity:Entity=a.getItemAt(i) as Entity;
-					if (entity._id == e._id)
+					if ((links[i].target == target && links[i].source == source) || (links[i].target == source && links[i].source == target))
 						return true;
-
 				}
+
 				return false;
-			}
-
-
-			private function isAlreadyIn(collection:ArrayCollection, entity:Entity):Boolean
-			{
-				if (entity == null || collection == null)
-					return false;
-				for (var i:int=0; i < collection.length; i++)
-				{
-					if (entity != null && collection.getItemAt(i) != null)
-					{
-						if (entity._id == collection.getItemAt(i)._id)
-							return true;
-					}
-				}
-				return false;
-			}
-
-			private function onEdgeClick(e:VisualEdgeEvent):void
-			{
-
-				var currentRenderer:BidirectedArrowEdgeRenderer;
-				var currentEdge:Edge;
-
-				for (var i:int=0; i < g.edges.length; i++)
-				{
-					currentEdge=g.edges[i] as Edge;
-					currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-					currentRenderer.selected=false;
-				}
-
-				var renderer:BidirectedArrowEdgeRenderer=e.edge.edgeView as BidirectedArrowEdgeRenderer;
-				renderer.selected=!renderer.selected;
-				selectedEdge=e.edge.edge as Edge;
-				//remove selected nodes
-				for (i=0; i < g.nodes.length; i++)
-				{
-					var currentNode:Node=g.nodes[i] as Node;
-					var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
-					currentNodeRenderer.selected=false;
-					var index:int=selectedNodes.getItemIndex(currentNode);
-					if (index != -1)
-						selectedNodes.removeItemAt(index)
-
-				}
-
-				linkEnabled=actionbar.linkEnabled=false;
-				mergeEnabled=actionbar.mergeEnabled=false;
-
-				var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
-				var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
-				if (selectedEdge != null && (selectedEdge.data.Info.length() > 0))
-					jumpEnabled=actionbar.jumpEnabled=true;
-				else
-					jumpEnabled=actionbar.jumpEnabled=false;
-
-				info.selectedItem=selectedEdge;
-				actionbar.selectedObject=selectedEdge; //SEL
-
-				info.selectedItems=new <Object>[info.selectedItem];
-				actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-
-				info.selectedItems.push(info.selectedItem)
-				actionbar.selectedObjects.push(actionbar.selectedObject);
-			}
-
-			private function onBgClick(e:VisualGraphEvent):void
-			{
-				var index:int;
-				var i:int;
-
-				for (i=0; i < g.nodes.length; i++)
-				{
-					var currentNode:Node=g.nodes[i] as Node;
-					var currentRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
-					currentRenderer.selected=false;
-					index=selectedNodes.getItemIndex(currentNode)
-					if (index != -1)
-						selectedNodes.removeItemAt(index)
-				}
-
-				for (i=0; i < g.edges.length; i++)
-				{
-					var currentEdge:Edge=g.edges[i] as Edge;
-					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer.selected=false;
-
-				}
-				selectedEdge=null;
-				info.selectedItem=null;
-				info.selectedItems=null;
-				actionbar.selectedObject=null
-				actionbar.selectedObjects=null
-				linkEnabled=actionbar.linkEnabled=false; 
-				mergeEnabled=actionbar.mergeEnabled=false;
-				jumpEnabled=actionbar.jumpEnabled=false;
-			}
-
-			private function onNodeDoubleClick(e:VisualNodeEvent):void
-			{
-				if (e.ctrlKey)
-				{
-					vgraph.currentRootVNode=e.node.vnode;
-				}
-				else
-				{
-					var clickedNode:INode=e.node;
-					var item:*=getEntityById(String(clickedNode.data.@id))
-					if (item)
-						section.stateManager.manageItemSelection(item);
-				}
-			}
-
-			private function onNodeClick(e:VisualNodeEvent):void
-			{
-				var index:int;
-				var currentNode:Node;
-				var clickedNode:INode=e.node;
-				var currentRenderer:IconNodeRenderer;
-
-				if (e.ctrlKey) //multiple selection
-				{
-					currentRenderer=clickedNode.vnode.view as IconNodeRenderer;
-					currentRenderer.selected=!currentRenderer.selected;
-					if (currentRenderer.selected)
-					{
-						selectedNodes.addItem(e.node);
-					}
-					else
-					{
-						index=selectedNodes.getItemIndex(clickedNode);
-						if (index != -1)
-							selectedNodes.removeItemAt(index);
-					}
-				}
-
-
-				else //single selection
-				{
-					for (var i:int=0; i < g.nodes.length; i++)
-					{
-						currentNode=g.nodes[i] as Node;
-						currentRenderer=currentNode.vnode.view as IconNodeRenderer;
-						currentRenderer.selected=false;
-						index=selectedNodes.getItemIndex(currentNode)
-						if (index != -1)
-							selectedNodes.removeItemAt(index)
-
-					}
-					currentRenderer=clickedNode.vnode.view as IconNodeRenderer;
-					currentRenderer.selected=!currentRenderer.selected;
-					if (currentRenderer.selected)
-					{
-						selectedNodes.addItem(e.node);
-					}
-					else
-					{
-						index=selectedNodes.getItemIndex(clickedNode);
-						if (index != -1)
-							selectedNodes.removeItemAt(index)
-					}
-					//target + position
-					if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-					//target + person
-					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-					//target + virtual
-					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-					//person + virtual
-					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-					//person + position
-					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-					else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
-					{
-						linkEnabled=actionbar.linkEnabled=true;
-					}
-
-					else
-					{
-						linkEnabled=actionbar.linkEnabled=false;
-					}
-
-
-					//merge
-					if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
-					{
-						mergeEnabled=actionbar.mergeEnabled=true;
-					}
-					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
-					{
-						mergeEnabled=actionbar.mergeEnabled=true;
-					}
-					else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
-					{
-						mergeEnabled=actionbar.mergeEnabled=true;
-					}
-					else
-					{
-						mergeEnabled=actionbar.mergeEnabled=false;
-					}
-				}
-
-				//trace("selected nodes: " + selectedNodes.length);
-				// unselect links
-				for (i=0; i < g.edges.length; i++)
-				{
-					var currentEdge:Edge=g.edges[i] as Edge;
-					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer.selected=false;
-
-				}
-				selectedEdge=null;
-				if (selectedNodes.length == 1)
-				{
-					info.selectedItem=getEntityById(String(selectedNodes[0].data.@id))
-
-					actionbar.selectedObject=info.selectedItem;
-					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-					actionbar.selectedObjects.push(actionbar.selectedObject)
-
-					info.selectedItems=new <Object>[info.selectedItem];
-					info.selectedItems.push(info.selectedItem)
-				}
-				else
-				{
-					actionbar.selectedObject=null
-					actionbar.selectedObjects=null;
-					info.selectedItem=null;
-					info.selectedItems=null
-				}
-				//target + position
-				if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "position")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-				//target + person
-				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "person")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-				//target + virtual
-				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "virtual")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-				//person + virtual
-				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "virtual") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "virtual")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-				//person + position
-				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "position") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "position")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "target") || (selectedNodes[1].data.@nodeIcon == "target" && selectedNodes[0].data.@nodeIcon == "target")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-				else if (selectedNodes.length == 2 && ((selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person") || (selectedNodes[1].data.@nodeIcon == "person" && selectedNodes[0].data.@nodeIcon == "person")))
-				{
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(selectedNodes[0])
-					actionbar.selectedObjects.push(selectedNodes[1])
-					linkEnabled=actionbar.linkEnabled=true;
-				}
-
-				else
-				{
-					//actionbar.selectedObjects=null
-					linkEnabled=actionbar.linkEnabled=false;
-				}
-
-				if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "person"))
-				{
-					mergeEnabled=actionbar.mergeEnabled=true;
-				}
-				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "target" && selectedNodes[1].data.@nodeIcon == "person"))
-				{
-					mergeEnabled=actionbar.mergeEnabled=true;
-				}
-				else if (selectedNodes.length == 2 && (selectedNodes[0].data.@nodeIcon == "person" && selectedNodes[1].data.@nodeIcon == "target"))
-				{
-					mergeEnabled=actionbar.mergeEnabled=true;
-				}
-				else
-				{
-					mergeEnabled=actionbar.mergeEnabled=false;
-				}
-				jumpEnabled=actionbar.jumpEnabled=false;
 			}
 
 			private function parseItems():void
 			{
 				entitiesToShow.sort=sort;
 				entitiesToShow.refresh();
+		
+        var i:int=0;
+        var e:Entity;
+        var link:Link;
+        
+				var xmlStr:String="<graphml>"
 
-				var xmlStr:String="<Graph>"
-				for (var i:int=0; i < entitiesToShow.length; i++)
+				//nodes
+				for (i=0; i < entitiesToShow.length; i++)
 				{
-					var e:Entity=entitiesToShow.getItemAt(i) as Entity;
-          if(!e)
+					e=entitiesToShow.getItemAt(i) as Entity;
+					if (!e)
             continue;
 					var name:String=HtmlEntities.encode(e.name)
-          if((Capabilities.os.indexOf("Windows") >= 0))
-          {
-            // in windows
-            name=name.split("&nbsp;").join(" ");
-          }
-          if((Capabilities.os.indexOf("Mac") >= 0))
-          {
-            // in windows
-            name=name.split("&nbsp;").join(" ");
-           
-          }
+          name=name.split("&nbsp;").join(" ");
+				
 					var desc:String=""
-					if (e.desc)
-						desc==HtmlEntities.encode(e.desc)
-					xmlStr+="<Node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  nodeColor='0x333333'  nodeSize='32'   nodeClass='tree'  nodeIcon='" + e.type + "'   x='10'  y='10' />"
+					if (e.desc) desc == HtmlEntities.encode(e.desc)
+          desc=desc.split("&nbsp;").join(" ");
+					xmlStr+="<node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  type='" + e.type + "'  />"
+
+				}
+
+				//edges
+        var links:Array=new Array()
+				for (i=0; i < entitiesToShow.length; i++)
+				{
+					e=entitiesToShow.getItemAt(i) as Entity;
+					if (!e) 
+            continue;
 					if (e.links)
 					{
 						for (var j:int=0; j < e.links.length; j++)
 						{
-							var link:Link=e.links.getItemAt(j) as Link;
-							if (link.versus == "out")
+							link=e.links.getItemAt(j) as Link;
+							if (!alreadyLinked(links, e._id, link.le))
 							{
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='out'>";
+
+								if (link.versus == "out")
+								{
+									xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='out'/>";
+									links.push({source:e._id, target:link.le})
+								}
+								else if (link.versus == "in")
+								{
+									xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='in'/>";
+									links.push({source:link.le, target:e._id})
+								}
+								else if (link.versus == "both")
+								{
+									xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'/>";
+									links.push({source:e._id, target:link.le})
+								}
+								/*  else
+								{
+								xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
+								links.push({source:e._id, target:link.le})
+								}
+								//add links
+								for (var k:int=0; k < link.info.length; k++)
+								{
+								xmlStr+="<info>" + String(link.info.getItemAt(k)) + "</info>"
+								} */
+									//xmlStr+="</edge>"
 							}
-							else if (link.versus == "in")
-							{
-								xmlStr+="<Edge fromID='" + link.le + "' toID='" + e._id + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='in'>";
-							}
-							else if (link.versus == "both")
-							{
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
-							}
-							else
-							{
-								xmlStr+="<Edge fromID='" + e._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
-							}
-							//add links
-							for (var k:int=0; k < link.info.length; k++)
-							{
-								xmlStr+="<Info>" + String(link.info.getItemAt(k)) + "</Info>"
-							}
-							xmlStr+="</Edge>"
 						}
 					}
 				}
-				xmlStr+="</Graph>";
+
+				//end
+				xmlStr+="</graphml>";
 				xmlData=XML(xmlStr);
-				analyzeData();
+				trace(xmlData)
+				dp=xmlData
+				vis.dataProvider=dp
 			}
 
-			private function zoomIn():void
+			private function nodeRendererFunction(data:Object):CustomNodeRenderer
 			{
-				bzoom.value=bzoom.value - .10;
-				updateVScale(null);
+				var renderer:CustomNodeRenderer=new CustomNodeRenderer();
+				if (data['type'] == "target")
+					renderer.icon.source=renderer.TargetIcon;
+				else if (data['type'] == "person")
+					renderer.icon.source=renderer.PersonIcon;
+				else if (data['type'] == "position")
+					renderer.icon.source=renderer.PositionIcon;
+				else if (data['type'] == "virtual")
+					renderer.icon.source=renderer.VirtualIcon;
+
+				renderer.label.text=data['name'];
+				return renderer
 			}
 
-			private function zoomOut():void
+			private function linkStyleFunction(data:Object):LinkStyle
 			{
-				bzoom.value=bzoom.value - .10;
-				updateVScale(null);
-			}
+				var linkStyle:LinkStyle=new LinkStyle();
 
-			private function updateVScale(e:MouseEvent):void
-			{
-				if (bzoom == null)
-				{
-					return;
-				}
-
-				if (vgraph == null)
-				{
-					return;
-				}
-				//_vgraph.scale = bzoom.value;
-
-				// Handle the update for mousewheel events outside the component
+				linkStyle.arrowWidth=10
+				linkStyle.arrowHeight=20
+				linkStyle.arrowRadius=10
+				linkStyle.thickness=2
+				//relevance
         
-				if (e != null)
-				{
-					if (e.delta != 0)
-					{
-						if (bzoom.value == bzoom.minimum)
-						{
-							if (e.delta > 0)
-							{
-								bzoom.value=bzoom.value + (e.delta * 0.01);
-								vgraph.scale=bzoom.value;
-							}
-						}
-						else if (bzoom.value == bzoom.maximum)
-						{
-							if (e.delta < 0)
-							{
-								bzoom.value=bzoom.value + (e.delta * 0.01);
-								vgraph.scale=bzoom.value;
-							}
-						}
-						else
-						{
-							bzoom.value=bzoom.value + (e.delta * 0.01);
-							vgraph.scale=bzoom.value;
-						}
-					}
-				}
-				// Handle the update for the zoom buttons
-				else
-				{
-					if (bzoom.value <= bzoom.minimum)
-					{
-						bzoom.value=bzoom.minimum;
-						return;
-					}
-					else
-					{
-						vgraph.scale=bzoom.value;
-					}
+				if (data['rel'] == '0')
+					linkStyle.lineColor=0x333333
+				else if (data['rel'] == '1')
+					linkStyle.lineColor=0x999999
+				else if (data['rel'] == '2')
+					linkStyle.lineColor=0x5DE35F
+				else if (data['rel'] == '3')
+					linkStyle.lineColor=0xFFDC42
+        else if (data['rel'] == '4')
+          linkStyle.lineColor=0xFF4034
 
-					if (bzoom.value >= bzoom.maximum)
-					{
-						bzoom.value=bzoom.maximum;
-						return;
-					}
-					else
-					{
-						vgraph.scale=bzoom.value;
-					}
+
+				//direction
+				if (data['versus'] == 'in')
+				{
+					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
+					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_NONE_TYPE
+
 				}
+				else if (data['versus'] == 'out')
+				{
+					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_NONE_TYPE
+					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
+				}
+				else if (data['versus'] == 'both')
+				{
+					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
+					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
+				}
+
+				//type
+				if (data['type'] == 'peer')
+					linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_SOLID;
+				else if (data['type'] == 'know')
+					linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_DASH;
+
+				return linkStyle;
 			}
 
-			public function refresh():void
-			{
-				var selectedEntities:ArrayCollection=new ArrayCollection()
-
-				//temp - all entities
-				for (var i:int=0; i < section.stateManager.view.length; i++)
-				{
-					var entity:Entity=section.stateManager.view.getItemAt(i) as Entity;
-					selectedEntities.addItem(entity);
-				}
-				section.stateManager.selectedEntities=selectedEntities;
-				onAddedToStage();
-			}
-
-			public function updateLinkLength():void
-			{
-
-
-				if (vgraph == null || vgraph.layouter == null)
-				{
-
-					return;
-				}
-
-				/* update the value */
-				vgraph.layouter.linkLength=lslider.value;
-				vgraph.layouter.layoutChanged=true;
-
-				/* trigger redraw */
-				vgraph.draw();
-			}
 
 			private function filter(e:Event):void
 			{
-				startDate=fromDf.selectedDate;
-				endDate=toDf.selectedDate;
-				timeline.startDate=startDate
-				timeline.endDate=endDate
-				timeline.update()
-        onAddedToStage(null);
+				trace("FILTER")
 			}
 
 			private function onTimelineChange():void
 			{
-
-				var d:Date=new Date();
-				d.time=timeline.slider.value;
-				var formattedDate:String=String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
-
-				//reset
-				var currentEdge:Edge;
-				var currentRenderer:BidirectedArrowEdgeRenderer;
-
-				if (g)
-				{
-					for (var r:int=0; r < g.edges.length; r++)
-					{
-						currentEdge=g.edges[r] as Edge;
-
-
-						if (currentEdge.vedge)
-							currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-						if (currentRenderer)
-							currentRenderer.reset()
-
-					}
-				}
-
-				if (flows)
-				{
-					for (var i:int=0; i < flows.length; i++)
-					{
-						var flow:Flow=flows[i] as Flow;
-
-						if (flow.date == formattedDate)
-						{
-
-							for (var j:int=0; j < flow.flows.length; j++)
-							{
-								var f:Flows=flow.flows.getItemAt(j) as Flows;
-
-								if (g)
-								{
-									for (var k:int=0; k < g.edges.length; k++)
-									{
-										currentEdge=g.edges[k] as Edge;
-
-										if (currentEdge.data.@fromID == f.from && currentEdge.data.@toID == f.rcpt || currentEdge.data.@fromID == f.rcpt && currentEdge.data.@toID == f.from)
-										{
-											if (currentEdge.vedge)
-												currentRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-											if (currentRenderer)
-												currentRenderer.showFlow(f.from, f.rcpt, f.count);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+				trace("TIMELINE CHANGE")
 			}
 
-			public function highlightLink(from:*, to:*):void
+			private function updateLinkLength():void
 			{
-				linkToHighLight=null;
-				for (var i:int=0; i < g.edges.length; i++)
-				{
-					var currentEdge:Edge=g.edges[i] as Edge;
-					var currentEdgeRenderer:BidirectedArrowEdgeRenderer;
-					currentEdgeRenderer=currentEdge.vedge.edgeView as BidirectedArrowEdgeRenderer;
-					if (currentEdge.data.@fromID == from && currentEdge.data.@toID == to || currentEdge.data.@fromID == to && currentEdge.data.@toID == from)
-					{
-						currentEdgeRenderer.selected=true;
-						selectedEdge=currentEdge;
-					}
-					else
-					{
-						currentEdgeRenderer.selected=false;
-					}
-				}
+				trace("UPDATE LINK LENGTH")
+			}
 
-
-
-				for (i=0; i < g.nodes.length; i++)
-				{
-					var currentNode:Node=g.nodes[i] as Node;
-					var currentNodeRenderer:IconNodeRenderer=currentNode.vnode.view as IconNodeRenderer;
-					currentNodeRenderer.selected=false;
-					var index:int=selectedNodes.getItemIndex(currentNode);
-					if (index != -1)
-						selectedNodes.removeItemAt(index)
-
-				}
-
-				linkEnabled=actionbar.linkEnabled=false;
-				mergeEnabled=actionbar.mergeEnabled=false;
-        if (selectedEdge)
+			private function updateVScale(e:Event):void
+			{
+				trace("UPDATE V SCALE")
+			}
+      
+      protected function onSelectionChange():void
+      {
+        trace("VIS SELECTION CHANGED")
+        trace(vis.selection.length)
+        
+        actionbar.selectedObject=null
+        actionbar.selectedObjects=null;
+        info.selectedItem=null;
+        info.selectedItems=null;
+        
+        linkEnabled=actionbar.linkEnabled=false;
+        mergeEnabled=actionbar.mergeEnabled=false;
+        jumpEnabled=actionbar.jumpEnabled=false;
+        exportEnabled=actionbar.exportEnabled=true;
+          
+        //Only 1 node 
+        if (vis.selection.length == 1 && vis.selection[0].data.name)
         {
-          var entity1:Entity=EntityManager.instance.getItem(selectedEdge.data.@fromID);
-          var entity2:Entity=EntityManager.instance.getItem(selectedEdge.data.@toID);
+          info.selectedItem=EntityManager.instance.getItem(String(vis.selection[0].data.id))
+          info.selectedItems=new <Object>[info.selectedItem];
+          actionbar.selectedObject=info.selectedItem;
+          actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+          actionbar.selectedObjects.push(actionbar.selectedObject)
         }
-			
-				if (selectedEdge != null && (selectedEdge.data.Info.length() > 0))
-					jumpEnabled=actionbar.jumpEnabled=true;
-				else
-					jumpEnabled=actionbar.jumpEnabled=false;
+        //Only 1 edge 
+        else if (vis.selection.length == 1 && !vis.selection[0].data.name)
+        {
+          info.selectedItem=vis.selection[0].data
+          info.selectedItems=new <Object>[info.selectedItem];
+          actionbar.selectedObject=info.selectedItem;
+          actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+          actionbar.selectedObjects.push(actionbar.selectedObject)
+        }
+        //merging enabled?
+        else if (vis.selection.length == 2)
+        {
+          actionbar.selectedObjects=new Vector.<Object>
+          actionbar.selectedObjects.push(vis.selection[0].data)
+          actionbar.selectedObjects.push(vis.selection[1].data)
+            if (vis.selection[0].data.name && vis.selection[1].data.name) linkEnabled=actionbar.linkEnabled=true;
+          
+        if((vis.selection[0].data.type=="person" && vis.selection[1].data.type=="person") || 
+           (vis.selection[0].data.type=="target" && vis.selection[1].data.type=="person") || 
+           (vis.selection[0].data.type=="person" && vis.selection[1].data.type=="target"))
+          {
+            mergeEnabled=actionbar.mergeEnabled=true;
+          }
+        }
+        else if (vis.selection.length >1)
+        {
+         
+        }
+        //no selection do not enable export
+        if(vis.selection.length<1) exportEnabled=actionbar.exportEnabled=false;
+        else
+        {//check if there is a link object in  selection
+          for(var i:int=0;i<vis.selection.length;i++)
+          {
+            if(!vis.selection[i].data.name) //link has no name
+              exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
+          }
+        }
 
-				info.selectedItem=selectedEdge;
-				actionbar.selectedObject=selectedEdge; //SEL
-
-				info.selectedItems=new <Object>[info.selectedItem];
-				actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-
-				info.selectedItems.push(info.selectedItem)
-				actionbar.selectedObjects.push(actionbar.selectedObject);
-
-
-			}
-
-			public function highlightNode(id:*):void
-			{
-				nodeToHighLight=null;
-				var currentNode:Node;
-				var currentRenderer:IconNodeRenderer;
-				for (var i:int=0; i < g.nodes.length; i++)
-				{
-					currentNode=g.nodes[i] as Node;
-					currentRenderer=currentNode.vnode.view as IconNodeRenderer;
-					if (currentNode.data.@id == id)
-					{
-
-						info.selectedItem=getEntityById(String(currentNode.data.@id))
-
-						actionbar.selectedObject=info.selectedItem;
-						actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-						actionbar.selectedObjects.push(actionbar.selectedObject)
-
-						info.selectedItems=new <Object>[info.selectedItem];
-						info.selectedItems.push(info.selectedItem)
-
-						currentRenderer.selected=true;
-					}
-					else
-					{
-						currentRenderer.selected=false;
-					}
-				}
-
-			}
-
-
-
-			private function getFlows(entities:ListCollectionView):void
-			{
-				if (!entities)
-					return;
-
-				var ids:Array=new Array();
-				flows=new ArrayCollection
-
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var e:Entity=entities.getItemAt(i) as Entity;
-					ids.push(e._id)
-				}
-				EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
-			}
-
-			private function onFlowResult(e:ResultEvent):void
-			{
-				//trace("flow result")
-				flows=e.result as ArrayCollection;
-				timeline.highlight(flows);
-			}
-
-			private function onFlowFault(e:FaultEvent):void
-			{
-				//trace("flow fault")
-			}
-
-			private function doubleDigits(n:Number):String
-			{
-				if (n < 10)
-					return "0" + String(n);
-				return String(n);
-			}
-
-			private function formatDate(d:Date):String
-			{
-				if (!d)
-					return "";
-				return String(d.fullYear) + doubleDigits(d.month + 1) + doubleDigits(d.date);
-			}
-		]]>
+      }
+      
+      protected function onElementDoubleClick(event:VisualizerEvent):void
+      {
+        var item:*=EntityManager.instance.getItem(vis.selection[vis.selection.length-1].data.id) //last selected
+          
+        if (item)
+          section.stateManager.manageItemSelection(item);
+        
+      }
+      
+      
+      
+    ]]>
 	</fx:Script>
 
-	<!-- Graph Panel -->
+	<fx:Declarations>
+		<fx:XML id="dp"
+						xmlns="">
+			<graphml>
+
+				<node id="t1"
+							name="Michael"
+							type="target"/>
+				<node id="t2"
+							name="Jack"
+							type="target"/>
+				<node id="t3"
+							name="Steve"
+							type="target"/>
+				<node id="l1"
+							name="Office"
+							type="position"/>
+				<node id="l2"
+							name="Home"
+							type="position"/>
+				<node id="v1"
+							name="Forum"
+							type="virtual"/>
+
+				<node id="g1"
+							name="Friends">
+					<node id="p1"
+								name="John"
+								type="person"/>
+					<node id="p2"
+								name="Jimmy"
+								type="person"/>
+				</node>
+
+				<node id="g2"
+							name="Colleagues">
+					<node id="p3"
+								name="Jane"
+								type="person"/>
+					<node id="p4"
+								name="Peter"
+								type="person"/>
+				</node>
+
+				<edge id="e1"
+							source="t1"
+							target="t2"
+							type="know"
+							direction="both"
+							relevance="0"/>
+				<edge id="e2"
+							source="t1"
+							target="t3"
+							type="peer"
+							direction="out"
+							relevance="0"/>
+				<edge id="e3"
+							source="t3"
+							target="l1"
+							type="peer"
+							direction="out"
+							relevance="2"/>
+				<edge id="e4"
+							source="t1"
+							target="l1"
+							type="peer"
+							direction="in"
+							relevance="3"/>
+				<edge id="e5"
+							source="t1"
+							target="p1"
+							type="know"
+							direction="in"
+							relevance="0"/>
+				<edge id="e6"
+							source="t3"
+							target="p1"
+							type="peer"
+							direction="out"
+							relevance="1"/>
+				<edge id="e7"
+							source="t1"
+							target="p3"
+							type="peer"
+							direction="out"
+							relevance="1"/>
+				<edge id="e8"
+							source="t2"
+							target="p4"
+							type="know"
+							direction="in"
+							relevance="0"/>
+			</graphml>
+		</fx:XML>
+	</fx:Declarations>
+
 
 	<s:HGroup width="100%"
 						height="100%"
@@ -1046,12 +570,45 @@
 								width="100%"
 								paddingTop="6">
 
-        <s:CheckBox label="target"   selected="true" id="targetCh"   change="filter(event)"/>
-        <s:CheckBox label="person"   selected="true" id="personCh"   change="filter(event)"/>
-        <s:CheckBox label="position" selected="true" id="positionCh" change="filter(event)"/>
-        <s:CheckBox label="virtual"  selected="true" id="virtualCh"  change="filter(event)"/>
-        
-<s:Spacer width="100%"/>
+				<renderers:FilterRenderer label="Time"
+																	popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
+																	width="100"/>
+				<renderers:FilterRenderer label="Type"
+																	popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
+																	width="100"/>
+				<renderers:FilterRenderer label="Relevance"
+																	popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
+																	width="100"/>
+				<renderers:FilterRenderer label="Entities"
+																	popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
+																	width="100"/>
+
+				<s:CheckBox label="target"
+										selected="true"
+										id="targetCh"
+										change="filter(event)"
+										visible="false"
+										includeInLayout="false"/>
+				<s:CheckBox label="person"
+										selected="true"
+										id="personCh"
+										change="filter(event)"
+										visible="false"
+										includeInLayout="false"/>
+				<s:CheckBox label="position"
+										selected="true"
+										id="positionCh"
+										change="filter(event)"
+										visible="false"
+										includeInLayout="false"/>
+				<s:CheckBox label="virtual"
+										selected="true"
+										id="virtualCh"
+										change="filter(event)"
+										visible="false"
+										includeInLayout="false"/>
+
+				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
 				<s:Label text="{R.get('FROM')}:"
@@ -1080,18 +637,24 @@
 								 height="100%"
 								 verticalScrollPolicy="off">
 
-				<ravis:VisualGraph id="vgraph"
-													 width="100%"
-													 height="100%"
-													 left="0"
-													 right="0"
-													 top="0"
-													 bottom="5"
-													 backgroundColor="#FFFFFF"
-													 alpha="1"
-													 resize="vgraph.draw(VisualGraph.DF_RESET_LL)"
-													 visibilityLimitActive="true">
-				</ravis:VisualGraph>
+
+				<visualizer:Visualizer width="100%"
+															 height="100%"
+															 id="vis"
+															 layout="singleCircular"
+															 creationComplete="init()"
+															 dataProvider="{dp}"
+															 groupLabelField="name"
+															 linkStyleFunction="{linkStyleFunction}"
+															 nodeRendererFunction="{nodeRendererFunction}"
+															 groupRendererClass="{CustomGroupRenderer}"
+															 showNodeExpandCollapseButton="false"
+															 highlightLinksOnSelection="false"
+															 fitGroupsToContent="true"
+                               elementsSelectionChanged="onSelectionChange()"
+                               elementDoubleClicked="onElementDoubleClick(event)"/>
+
+
 				<s:HGroup x="6"
 									y="10"
 									verticalAlign="middle"

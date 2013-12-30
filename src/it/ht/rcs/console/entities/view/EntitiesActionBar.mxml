@@ -93,7 +93,7 @@
 	<s:Button label="{R.get('LINK_EDIT')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence} "
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList) &amp;&amp; selectedObject.data.@type!='identity'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name &amp;&amp; selectedObject.type!='identity'}"
 						icon="@Embed('/img/NEW/linkEdit.png')"
             click="editLink()"
 						includeIn="linkmap, geomap"/>
@@ -109,9 +109,9 @@
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 id="tagEditor"
 										 width="80"
-										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList)}"
+										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name}"
                      change="updateRelevance(tagEditor.tag)"
-                     tag="{(selectedObject is Edge || selectedObject is XMLList)? selectedObject.data.@rel: 0}"
+                     tag="{selectedObject.name ? 0: selectedObject.rel}"
 										 includeIn="linkmap, geomap"/>
 
 	<actionbar:Separator includeIn="linkmap"
@@ -406,9 +406,9 @@
       
       private function updateRelevance(value:int):void
       {
-        if (selectedObject  != null && (selectedObject is Edge || selectedObject is XMLList))
+        if (selectedObject  != null && !selectedObject.name)
         {
-          selectedObject.data.rel=value;
+          selectedObject.rel=value;
           
          if(selectedObject is Edge)
          {
@@ -420,14 +420,14 @@
          trace("update geoview")
          }
 
-          var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.source);
-          var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.target);
+          var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
+          var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
           
           trace("1: " + entity1.name);
           trace("2: " + entity2.name);
           //
-          var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
-          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.type, versus, value, onLinkUpdated, null);
+          var versus:String=selectedObject.versus == "both" ? "both" : "out";
+          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.type, versus, value, onLinkUpdated, null);
         }
       }
       
@@ -523,12 +523,12 @@
       private function editLink():void
       {
         var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
-        var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
         
-        var versus:String=selectedObject.data.versus == "both" ? "both" : "out";
-        var type:String=selectedObject.data.type;
-        var relevance:int=selectedObject.data.rel;
+        var versus:String=selectedObject.versus == "both" ? "both" : "out";
+        var type:String=selectedObject.type;
+        var relevance:int=selectedObject.rel;
         
         
         popup.entity1=entity1;

@@ -21,6 +21,7 @@ package it.ht.rcs.console.entities.view.renderers
     private var path1:LinePath2D;
     private var path2:LinePath2D;
     
+    private var flowColor:uint;
     private var flowRenderers:Array;
       
     public function CustomLink(source:ISprite, target:ISprite)
@@ -123,6 +124,89 @@ package it.ht.rcs.console.entities.view.renderers
         
       TweenMax.to(path1, 2, {progress: 1, repeat: -1});*/
 
+    }
+    
+    public function showFlow(from:String, to:String, count:int):void
+    {
+      flowRenderers=new Array()
+      flowColor=0xFF0000;
+      var numBalls:int=0;
+      
+      if (count > 0 && count <= 10)
+        numBalls=1;
+      else if (count > 10 && count <= 50)
+        numBalls=2;
+      else if (count > 50)
+        numBalls=3;
+      
+
+      
+      var flowRenderer:Sprite;
+      var i:int;
+      var increment:Number=0
+      if (this.data.source == from && this.data.target == to)
+      {
+        
+        TweenMax.to(path1, 0, {progress: 0});
+        
+        for (i=0; i < numBalls; i++)
+        {
+          flowRenderer=new Sprite();
+          
+          this.addChild(flowRenderer);
+          flowRenderer.graphics.beginFill(flowColor);
+          flowRenderer.graphics.drawCircle(0, 0, 3);
+          flowRenderer.graphics.endFill()
+          flowRenderer.graphics.lineStyle(0.5, 0xFF0000, 1)
+          flowRenderer.graphics.drawCircle(0, 0, 4);
+          flowRenderers.push(flowRenderer)
+          //this.setChildIndex(flowRenderer, this.numChildren-1)
+          
+          
+          path1.addFollower(flowRenderer, increment)
+          increment+=0.05;
+        }
+        path1.progress=0;
+        TweenMax.to(path1, 2, {progress: 1, repeat: -1});
+        
+      }
+        //inverse
+      else if (this.data.source == to && this.data.target == from)
+      {
+        
+        TweenMax.to(path2, 0, {progress: 0});
+        
+        for (i=0; i < numBalls; i++)
+        {
+          flowRenderer=new Sprite();
+          
+          this.addChild(flowRenderer);
+          flowRenderer.graphics.beginFill(flowColor);
+          flowRenderer.graphics.drawCircle(0, 0, 3);
+          flowRenderer.graphics.endFill()
+          flowRenderer.graphics.lineStyle(0.5, 0xFF0000, 1)
+          flowRenderer.graphics.drawCircle(0, 0, 4);
+          flowRenderers.push(flowRenderer)
+          // this.setChildIndex(flowRenderer, this.numChildren-1)
+          path2.addFollower(flowRenderer, increment)
+          increment+=0.05;
+        }
+        path2.progress=0;
+        TweenMax.to(path2, 2, {progress: 1, repeat: -1});
+      }
+      
+      draw()
+      
+    }
+    
+    public function reset():void
+    {
+      trace("Custom Link Reset")
+      while (this.numChildren > 0)
+        this.removeChildAt(0)
+      //this.addChild(dashed)
+      //this.addChild(dotted)
+      draw()
     }
     
     override protected function handleRollOverEvent(event:MouseEvent):void

@@ -331,10 +331,11 @@
 
 			private function jumpToEvidence():void
 			{
-				var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
-				var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
-				var xml:XML=XML(selectedObject.data)
-				var info:Array=[];
+				var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
+				var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
+
+				var temp:Array=selectedObject.info.toString().split(",");
+        var info:Array=[]
 				if (entity1.type == "position" || entity2.type == "position")
 				{
 					var position:Entity=entity1.type == "position" ? entity1 : entity2;
@@ -342,9 +343,9 @@
 				}
 				else
 				{
-					for (var i:int=0; i < xml.Info.length(); i++)
+					for (var i:int=0; i <temp.length; i++)
 					{
-						info.push(String(selectedObject.data.Info[i]));
+						info.push(temp[i]);
 					}
 				}
 				var targetId:String;
@@ -412,7 +413,7 @@
           
          if(selectedObject is Edge)
          {
-           var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer;
+           var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer; //TODO REMOCVE
            currentRenderer.draw();
          }
          else

@@ -25,31 +25,40 @@
 
 			[Bindable]
 			private var ImageClass:Class;
-      
-      [Bindable]
-      public var idVisible:Boolean;
-      
-      [Embed('/img/NEW/target_16.png')]
-      private static const targetIcon:Class;
+
+			[Bindable]
+			public var idVisible:Boolean;
+
+			[Embed('/img/NEW/target_16.png')]
+			private static const targetIcon:Class;
 
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
 				_evidence=value;
-        if(evidence.data.program)
-				ImageClass=ChatIcons[evidence.data.program.toLowerCase()]
+				if (evidence.data.program)
+					ImageClass=ChatIcons[evidence.data.program.toLowerCase()]
 
 				info=""
+
 				//contentTxt.textFlow.columnCount=3;
 				var infoRows:Array=evidence.data.info.split("\n");
 				for (var i:int=0; i < infoRows.length; i++)
 				{
-					var infoRow:Array=infoRows[i].split(":", 2);
+					var infoRow:Array=infoRows[i].split(":");
+
 					if (infoRow[0] != "")
 					{
 						if (infoRow[1])
 						{
-							info+=("<b>" + infoRow[0] + ": </b>" + infoRow[1] + "<BR>");
+              info+=("<b>" + infoRow[0] + ": </b>")
+              for(var r:int=1;r<infoRow.length;r++)
+              {
+                info+=infoRow[r]
+                if(r<infoRow.length-1)
+                  info+=":";
+              }
+              info+="<BR>"
 						}
 						else
 						{
@@ -83,17 +92,24 @@
 									 x="1"
 									 y="1"/>
 	</s:BorderContainer>
-	<s:VGroup width="100%">
-    <s:RichText id="idTxt"
-                width="100%"
-                textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-                fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
-    <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
-      <s:stroke>
-        <s:SolidColorStroke color="0xCCCCCC"/>
-      </s:stroke>
-    </s:Line>
-      
+	<s:VGroup width="100%"
+						height="100%"
+						clipAndEnableScrolling="true">
+
+		<s:RichText id="idTxt"
+								width="100%"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{idVisible}"
+								includeInLayout="{idVisible}"/>
+		<s:Line width="100%"
+						visible="{idVisible}"
+						includeInLayout="{idVisible}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
 		<s:RichText id="NameTxt"
 								width="100%"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Name: &lt;/b&gt;'+evidence.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
@@ -103,48 +119,61 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<s:HGroup verticalAlign="middle" width="100%">
+		<s:HGroup verticalAlign="middle"
+							width="100%">
 			<s:BitmapImage width="16"
 										 height="16"
 										 source="{ImageClass}"
-                     visible="{evidence.data.program!=null}"
-                     includeInLayout="{evidence.data.program!=null}"
-                     />
-      <s:RichText id="programTxt"
-                  textFlow="{TextConverter.importToFlow('&lt;b&gt;'+evidence.data.program+'&lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-                  fontSize="12"
-                 
-                  visible="{evidence.data.program!=null}"
-                  includeInLayout="{evidence.data.program!=null}"
-                  />
-  
+										 visible="{evidence.data.program!=null}"
+										 includeInLayout="{evidence.data.program!=null}"/>
+			<s:RichText id="programTxt"
+									textFlow="{TextConverter.importToFlow('&lt;b&gt;'+evidence.data.program+'&lt;/b&gt;', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									fontSize="12"
+									visible="{evidence.data.program!=null}"
+									includeInLayout="{evidence.data.program!=null}"/>
+
 		</s:HGroup>
-    <s:HGroup verticalAlign="middle">
-      <s:Image width="16"
-               height="16"
-               source="{targetIcon}" visible="{evidence.data.type=='target'}" includeInLayout="{evidence.data.type=='target'}" toolTip="target"/>
-      <s:RichText id="typeTxt"
-                  width="100%"
-                  textFlow="{TextConverter.importToFlow(' ('+evidence.data.type+')', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-                  fontSize="12"
-                  
-                  visible="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"
-                  includeInLayout="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"/>
-    </s:HGroup>
+		<s:HGroup verticalAlign="middle">
+			<s:Image width="16"
+							 height="16"
+							 source="{targetIcon}"
+							 visible="{evidence.data.type=='target'}"
+							 includeInLayout="{evidence.data.type=='target'}"
+							 toolTip="target"/>
+			<s:RichText id="typeTxt"
+									width="100%"
+									textFlow="{TextConverter.importToFlow(' ('+evidence.data.type+')', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									fontSize="12"
+									visible="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"
+									includeInLayout="{evidence.data.type!='peer' &amp;&amp; evidence.data.type!=null}"/>
+		</s:HGroup>
 
 		<s:RichText id="serviceTxt"
 								width="100%"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Contact: &lt;/b&gt;'+evidence.data.contact, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 								fontSize="12"
-							
 								visible="{evidence.data.contact!='' &amp;&amp; evidence.data.contact!=null}"
 								includeInLayout="{evidence.data.contact!=''  &amp;&amp; evidence.data.contact!=null}"/>
-
-		<s:RichText lineHeight="18"
-								width="100%"
-								id="contentTxt"
-								textFlow="{TextConverter.importToFlow(info, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-								fontSize="12"/>
+    
+    <s:Line width="100%"
+            visible="{evidence.data.contact!='' &amp;&amp; evidence.data.contact!=null}"
+            includeInLayout="{evidence.data.contact!=''  &amp;&amp; evidence.data.contact!=null}">
+      <s:stroke>
+        <s:SolidColorStroke color="0xCCCCCC"/>
+      </s:stroke>
+    </s:Line>
+  <s:HGroup width="100%" height="100%">
+  <s:RichEditableText lineHeight="18"
+                      editable="false"
+                      clipAndEnableScrolling="true"
+                      width="100%"
+                      height="100%"
+                      id="contentTxt"
+                      textFlow="{TextConverter.importToFlow(info, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+                      fontSize="12"/>
+  <s:VScrollBar viewport="{contentTxt}" height="100%"/>
+</s:HGroup>
+	
 
 	</s:VGroup>
 </s:BorderContainer>

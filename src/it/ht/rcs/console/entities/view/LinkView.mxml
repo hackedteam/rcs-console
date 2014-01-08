@@ -406,7 +406,7 @@
 				info.selectedItems=null;
 				actionbar.selectedObject=null
 				actionbar.selectedObjects=null
-				linkEnabled=actionbar.linkEnabled=false;
+				linkEnabled=actionbar.linkEnabled=false; 
 				mergeEnabled=actionbar.mergeEnabled=false;
 				jumpEnabled=actionbar.jumpEnabled=false;
 			}
@@ -654,7 +654,18 @@
           if(!e)
             continue;
 					var name:String=HtmlEntities.encode(e.name)
-          name.replace("&nbsp;", " ")
+          trace(Capabilities.os)
+          if((Capabilities.os.indexOf("Windows") >= 0))
+          {
+            // in windows
+            name=name.split("&nbsp;").join(" ");
+          }
+          if((Capabilities.os.indexOf("Mac") >= 0))
+          {
+            // in windows
+            name=name.split("&nbsp;").join(" ");
+           
+          }
 					var desc:String=""
 					if (e.desc)
 						desc==HtmlEntities.encode(e.desc)

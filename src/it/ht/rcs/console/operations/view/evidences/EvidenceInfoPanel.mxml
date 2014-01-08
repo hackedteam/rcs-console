@@ -10,13 +10,15 @@
 
 	<fx:Script>
 		<![CDATA[
+			import it.ht.rcs.console.ObjectUtils;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.utils.TimeUtils;
-			import it.ht.rcs.console.ObjectUtils;
-
+			
 			import locale.R;
 
 			private var _evidence:Evidence;
+      [Bindable]
+      public var editing:Boolean;
 
 			[Embed('/img/NEW/gray_dot.png')]
 			private static const dot:Class;
@@ -38,6 +40,7 @@
 
 			private function saveNote():void
 			{
+        editing=false;
 				evidence.note=noteTxt.text;
 			}
 
@@ -156,7 +159,8 @@
 			<s:Label text="Note:"
 							 fontWeight="bold"/>
 			<s:TextArea editable="true"
-									text="{evidence.note}"
+									text="{evidence.note}" 
+                  focusIn="{editing=true}"
                   focusOut="saveNote()"
 									id="noteTxt"
 									keyDown="onKeyDown(event)"

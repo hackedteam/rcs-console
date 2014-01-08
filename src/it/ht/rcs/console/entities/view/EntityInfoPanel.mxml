@@ -9,37 +9,39 @@
 
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-
-			import it.ht.rcs.console.ObjectUtils;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.view.map.LastPositionMarker;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			import it.ht.rcs.console.target.model.Target;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.utils.TimeUtils;
-
-			import locale.R;
-
-			import mx.events.PropertyChangeEvent;
-
-			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.ObjectUtils;
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.events.PropertyChangeEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 
 			private var circleFillColor:uint=0x00CCFF;
 			private var circleFillAlpha:Number=0.2;
@@ -56,6 +58,10 @@
 
 			private var _selectedItem:*;
 			private var _selectedItems:Vector.<Object>;
+      
+      [Embed(source="img/stub/mapSmall.png")]
+      [Bindable]
+      public var fakeMap:Class;
 
 			[Bindable]
 			public function set selectedItem(value:*):void
@@ -307,6 +313,11 @@
 													 backgroundAlpha="0.5"
 													 visible="{!LicenseManager.instance.correlation}"
 													 includeInLayout="{!LicenseManager.instance.correlation}"/>
+        <s:BitmapImage source="{fakeMap}"
+                       width="100%"
+                       height="100%"
+                       visible="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"
+                       includeInLayout="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"/>
 			</s:BorderContainer>
 		</s:Form>
 	</s:Group>

@@ -18,7 +18,7 @@ package it.ht.rcs.console.operations.view.filesystem
 		public var attr:int;
 		public var scanning:Boolean;
 		public var path:String;
-		public var size:int;
+		public var size:Number;
 		public var date:int;
 		public var evidence:Evidence;
     [Bindable]
@@ -41,6 +41,8 @@ package it.ht.rcs.console.operations.view.filesystem
 			for (var i:int=0; i < event.result.length; i++)
 			{
 				var evidence:Evidence=event.result.getItemAt(i);
+        trace("ss: "+evidence.data.size)
+        trace("vv: "+event.result.getItemAt(i).data.size)
 				var child:FileSystemItem=new FileSystemItem();
 				//check if is a Folder
 				child.name=getName(evidence.data.path) //+" ("+evidence.data.attr+")";

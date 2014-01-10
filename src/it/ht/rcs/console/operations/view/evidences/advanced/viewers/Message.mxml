@@ -12,20 +12,22 @@
 									 xmlns:utils="it.ht.rcs.console.utils.*">
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-			
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
-			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import flash.utils.setTimeout;
+      
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
-			
-			import locale.R;
-			
-			import mx.rpc.Fault;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      
+      import locale.R;
+      
+      import mx.rpc.Fault;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			[Embed(source="/img/evidence/attachment16.png")]
@@ -58,40 +60,46 @@
 			[Bindable]
 			public function set evidence(value:Object):void
 			{
+        html.visible=false;
 				_evidence=value;
 				if (value.type == "message")
 				{
-					switch (value.data.type)
+					if (value.data.type=="mail")
 					{
-						case "mail":
 							var id:String=encodeURIComponent(value._id);
 							var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-							var url:String=DB.hostAutocomplete(Console.currentSession.server) + "evidence/body/" + id + "?target=" + target;
+							var host:String=DB.hostAutocomplete(Console.currentSession.server);
+              var params:String="evidence/body/" + id + "?target=" + target;
+               var url:String = host+params;
               //var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + value.data._grid + "?target_id=" + target;
-              html.visible=false;
-							loader.addEventListener(Event.COMPLETE, onContentLoaded);
-							loader.load(new URLRequest(url));
-							break;
+              
+              loader.addEventListener(Event.COMPLETE, onContentLoaded);
+							loader.load(new URLRequest(url))
+          }		
 
-						case "sms":
+          else if (value.data.type=="sms")
+          {
               fullHtml="";
               hasImages=false;
               html.visible=true;
 							content=value.data.content || "";
-							break;
+          }		
 
-						case "mms":
+          else if (value.data.type=="mms")
+          {
               fullHtml="";
               hasImages=false;
               html.visible=true;
 							content=value.data.content || "";
-							break
+          }		
 
-						default:
+          else
+          {
               fullHtml="";
               hasImages=false;
               html.visible=true;
 							content=value.data.content || "";
+              
 					}
 				}
 				html.reset()
@@ -112,7 +120,7 @@
 				content=fullHtml.replace(new RegExp("<\s*img[^>]*src=[\"|\'](.*?)[\"|\'][^>]*\/*>", "g"), "<img>");
 
 				html.htmlText=content || ("content not available");
-				onTranslate(null)
+				if(mainView) onTranslate(null)
         html.visible=true;
 				loader.removeEventListener(Event.COMPLETE, onContentLoaded);
 			}
@@ -134,6 +142,7 @@
 				var advancedViewer:EvidenceAdvancedViewer=container.owner as EvidenceAdvancedViewer;
 				mainView=advancedViewer.owner as EvidencesView;
 				mainView.addEventListener("translate", onTranslate);
+       
 			}
 
 			private function renderImages():void
@@ -153,7 +162,7 @@
 
 			private function onTranslate(e:Event):void
 			{
-				if (evidence)
+				if (evidence && mainView)
 				{
 					if (mainView.translation && LicenseManager.instance.translation)
 					{

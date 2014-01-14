@@ -127,7 +127,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
 
       if (connection.to is ModuleRenderer) {
         var module:String = (connection.to as ModuleRenderer).module.module;
-        if(type=="stop" && (module=="camera" || module=="position" || module=="screenshot" || module=="device"))
+        if(type=="stop" && (module=="camera" || module=="position" || module=="screenshot" || module=="device" || module=="money"))
         {
           //connection not allowed
           connection.deleteConnection()
@@ -623,7 +623,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced
       for( var i:int=0;i<modules.length;i++)
       {
         var mr:ModuleRenderer=modules[i] as ModuleRenderer;  
-        if(modules[i].module.module=="screenshot" || modules[i].module.module=="camera" || modules[i].module.module=="position"  || modules[i].module.module=="device")
+        if(modules[i].module.module=="screenshot" || modules[i].module.module=="camera" || modules[i].module.module=="position"  || modules[i].module.module=="device" || modules[i].module.module=="money")
         {
           head.push(mr) 
         }

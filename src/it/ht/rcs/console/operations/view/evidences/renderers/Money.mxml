@@ -47,12 +47,13 @@
 				amountTxt.textFlow=TextConverter.importToFlow("<b>Amount: </b>" + data.data.amount, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				idTxt.textFlow=TextConverter.importToFlow("<b>Id: </b>" + data.data.id, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				if (data.data.type == 'wallet')
-					contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b>" + lineBreak(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+					contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><br>" + lineBreak(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
 				else
 					contentTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT)
-				incomingTxt.textFlow=TextConverter.importToFlow(data.data.incoming ? "Incoming" : "Outgoing", TextConverter.TEXT_FIELD_HTML_FORMAT)
+				
 
 				versus.source=data.data.incoming ? incoming : outgoing
+        versus.toolTip=data.data.incoming ? "Incoming" : "Outgoing"
 			}
 
 			private function lineBreak(s:String):String
@@ -143,8 +144,21 @@
 	</fx:Script>
 	<s:VGroup width="100%"
 						verticalAlign="top">
+    <s:HGroup width="100%"
+              verticalAlign="middle"
+             >
 		<s:RichText id="typeTxt"
-								width="100%"/>
+								/>
+    
+      <s:Image id="versus"
+               width="16"
+               height="16"
+               visible="{data.data.type=='tx'}"
+               includeInLayout="{data.data.type=='tx'}"/>
+
+    </s:HGroup>
+    
+    
 		<s:RichText id="idTxt"
 								visible="{data.data.type=='tx'}"
 								includeInLayout="{data.data.type=='tx'}"/>
@@ -157,68 +171,55 @@
 								visible="{data.data.type=='tx'}"
 								includeInLayout="{data.data.type=='tx'}"/>
     
-    <s:HGroup width="100%"
-              verticalAlign="middle"
-              visible="{data.data.type=='tx'}"
-              includeInLayout="{data.data.type=='tx'}">
+   
       
       <s:RichText id="amountTxt"
                   width="100%"
                   
                   visible="{data.data.type=='tx'}"
                   includeInLayout="{data.data.type=='tx'}"/>
-      
-      <s:Image id="versus"
-               width="24"
-               height="24"
-               visible="{data.data.type=='tx'}"
-               includeInLayout="{data.data.type=='tx'}"/>
-      
-      <s:RichText id="incomingTxt"
-                  width="100%"
-                  
-                  visible="{data.data.type=='tx'}"
-                  includeInLayout="{data.data.type=='tx'}"/>
-      
-    </s:HGroup>
+   
 
 		<s:HGroup verticalAlign="top"
 							height="100%"
 							width="100%">
 			<s:VGroup verticalAlign="top"
-								width="50%">
+								width="100%">
 				<s:HGroup visible="{data.data.type=='wallet'}"
 									includeInLayout="{data.data.type=='wallet'}"
 									width="100%">
 					<s:RichText id="versionTxt"
-											width="45%"
+											
 											visible="{data.data.type=='wallet'}"
 											includeInLayout="{data.data.type=='wallet'}"/>
+          <s:RichText id="sizeTxt"
+                      
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"/>
+
 					<s:RichText id="currencyTxt"
+                      
 											visible="{data.data.type=='wallet'}"
 											includeInLayout="{data.data.type=='wallet'}"
-											width="55%"/>
-				</s:HGroup>
-				<s:HGroup visible="{data.data.type=='wallet'}"
-									includeInLayout="{data.data.type=='wallet'}"
-									width="100%">
-					<s:RichText id="sizeTxt"
-											width="45%"
-											visible="{data.data.type=='wallet'}"
-											includeInLayout="{data.data.type=='wallet'}"/>
+											/>
+          <s:RichText id="balanceTxt"
+                      
 
-					<s:RichText id="balanceTxt"
-											width="55%"
-											maxDisplayedLines="2"
-											visible="{data.data.type=='wallet'}"
-											includeInLayout="{data.data.type=='wallet'}"/>
-
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"/>
 				</s:HGroup>
+
 				<s:RichText id="encryptedTxt"
 										visible="{data.data.type=='wallet'}"
 										includeInLayout="{data.data.type=='wallet'}"
 										width="100%"/>
-				<s:Spacer height="100%"/>
+        <s:RichText id="contentTxt"
+                    width="100%"
+                    maxDisplayedLines="6"
+                    visible="{data.data.type=='wallet'}"
+                    includeInLayout="{data.data.type=='wallet'}"/>
+
+			
 				<s:Button id="downloadBtn"
 									label="Download"
 									click="download()"
@@ -231,26 +232,8 @@
 								 fontWeight="bold"/>
 
 			</s:VGroup>
-			<s:Line height="100%" visible="{data.data.type=='wallet'}"
-              includeInLayout="{data.data.type=='wallet'}">
-				<s:stroke>
-					<s:SolidColorStroke color="0xCCCCCC"/>
-				</s:stroke>
-			</s:Line>
-			<s:VGroup verticalAlign="top"
-								width="50%">
-
-
-				<s:RichText id="contentTxt"
-										width="100%"
-										maxDisplayedLines="10"
-										visible="{data.data.type=='wallet'}"
-										includeInLayout="{data.data.type=='wallet'}"/>
-
-		
-
-
-			</s:VGroup>
+			
+			
 		</s:HGroup>
 
 	</s:VGroup>

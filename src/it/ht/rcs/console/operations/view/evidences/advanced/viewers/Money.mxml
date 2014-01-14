@@ -189,11 +189,23 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-
+    <s:HGroup width="100%"
+            verticalAlign="middle">
 		<s:RichText id="typeTxt"
-								width="100%"
+								
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Type: &lt;/b&gt;'+evidence.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
 								fontSize="12"/>
+   
+      <s:Image id="versus"
+               width="16"
+               height="16"
+               source= "{evidence.data.incoming ? incoming : outgoing}"
+               toolTip="{evidence.data.incoming ? 'Incoming' : 'Outgoing'}"
+               visible="{evidence.data.type=='tx'}"
+               includeInLayout="{evidence.data.type=='tx'}"/>
+      
+     
+    </s:HGroup>
 		<s:Line width="100%">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
@@ -245,39 +257,9 @@
 								fontSize="12"
 								visible="{evidence.data.type=='tx'}"
 								includeInLayout="{evidence.data.type=='tx'}"/>
-		<s:Line width="100%"
-						visible="{evidence.data.type=='tx'}"
-						includeInLayout="{evidence.data.type=='tx'}">
-			<s:stroke>
-				<s:SolidColorStroke color="0xCCCCCC"/>
-			</s:stroke>
-		</s:Line>
+		
 
-		<s:HGroup width="100%"
-							verticalAlign="middle"
-							visible="{evidence.data.type=='tx'}"
-							includeInLayout="{evidence.data.type=='tx'}">
-			<s:Image id="versus"
-							 width="24"
-							 height="24"
-               source= "{evidence.data.incoming ? incoming : outgoing}"
-							 visible="{evidence.data.type=='tx'}"
-							 includeInLayout="{evidence.data.type=='tx'}"/>
-
-			<s:RichText id="incomingTxt"
-									textFlow="{TextConverter.importToFlow(evidence.data.incoming ? 'Incoming' : 'Outgoing', TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-									fontSize="12"
-									visible="{evidence.data.type=='tx'}"
-									includeInLayout="{evidence.data.type=='tx'}"/>
-		</s:HGroup>
-
-		<s:Line width="100%"
-						visible="{evidence.data.type=='tx'}"
-						includeInLayout="{evidence.data.type=='tx'}">
-			<s:stroke>
-				<s:SolidColorStroke color="0xCCCCCC"/>
-			</s:stroke>
-		</s:Line>
+	
 
 		<s:RichText id="versionTxt"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Version: &lt;/b&gt;'+evidence.data.version, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
@@ -346,7 +328,7 @@
 
 		<s:RichText id="contentTxt"
 								textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;'+'&lt;BR&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-								maxDisplayedLines="8"
+								maxDisplayedLines="6"
 								fontSize="12"
 								visible="{evidence.data.type=='wallet'}"
 								includeInLayout="{evidence.data.type=='wallet'}"/>

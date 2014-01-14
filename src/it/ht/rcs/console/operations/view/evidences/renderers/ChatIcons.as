@@ -64,6 +64,19 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     
     [Embed(source='/img/evidence/social/default_16.png')]
     public static const defaultIcon:Class;
+    
+    [Embed(source='/img/evidence/social/bitcoin_16.png')]
+    public static const bitcoin:Class;
+    
+    [Embed(source='/img/evidence/social/litecoin_16.png')]
+    public static const litecoin:Class;
+    
+    [Embed(source='/img/evidence/social/feathercoin_16.png')]
+    public static const feathercoin:Class;
+    
+    [Embed(source='/img/evidence/social/namecoin_16.png')]
+    public static const namecoin:Class;
+
 
   }
 }

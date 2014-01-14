@@ -46,10 +46,10 @@
 				toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				amountTxt.textFlow=TextConverter.importToFlow("<b>Amount: </b>" + data.data.amount, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				idTxt.textFlow=TextConverter.importToFlow("<b>Id: </b>" + data.data.id, TextConverter.TEXT_FIELD_HTML_FORMAT)
-				if (data.data.type == 'wallet')
+			/* 	if (data.data.type == 'wallet')
 					contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><br>" + lineBreak(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
 				else
-					contentTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT)
+					contentTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT) */
 				
 
 				versus.source=data.data.incoming ? incoming : outgoing
@@ -197,27 +197,34 @@
                       visible="{data.data.type=='wallet'}"
                       includeInLayout="{data.data.type=='wallet'}"/>
 
-					<s:RichText id="currencyTxt"
-                      
-											visible="{data.data.type=='wallet'}"
-											includeInLayout="{data.data.type=='wallet'}"
-											/>
-          <s:RichText id="balanceTxt"
-                      
+          
+          <s:RichText id="encryptedTxt"
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"
+                      />
+				</s:HGroup>
+        
+        <s:HGroup visible="{data.data.type=='wallet'}"
+                  includeInLayout="{data.data.type=='wallet'}"
+                  width="100%">
 
+          
+          <s:RichText id="currencyTxt"
+                      
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"
+                      />
+          <s:RichText id="balanceTxt"         
                       visible="{data.data.type=='wallet'}"
                       includeInLayout="{data.data.type=='wallet'}"/>
-				</s:HGroup>
+      
+        </s:HGroup>
 
-				<s:RichText id="encryptedTxt"
-										visible="{data.data.type=='wallet'}"
-										includeInLayout="{data.data.type=='wallet'}"
-										width="100%"/>
-        <s:RichText id="contentTxt"
+     <!--   <s:RichText id="contentTxt"
                     width="100%"
                     maxDisplayedLines="6"
                     visible="{data.data.type=='wallet'}"
-                    includeInLayout="{data.data.type=='wallet'}"/>
+                    includeInLayout="{data.data.type=='wallet'}"/>-->
 
 			
 				<s:Button id="downloadBtn"

@@ -163,6 +163,10 @@ package it.ht.rcs.console.operations.view.evidences
           exportText(evidence);
           break;
         
+        case "money":
+          exportText(evidence);
+          break;
+        
         case "position":
           exportText(evidence);
           break;
@@ -325,7 +329,31 @@ package it.ht.rcs.console.operations.view.evidences
     }
     
    
-    
+    private function getMoneyFormatting(evidence:Evidence):String
+    {
+    var info:String;
+    if(evidence.data.type=="wallet")
+    {
+      info="Type: "+evidence.data.type+"\n";
+      info+="Version: "+evidence.data.version+"\n";
+      info+="Encrypted: "+evidence.data.encrypted+"\n";
+      info+="Size: "+evidence.data.size+"\n";
+      info+="Currency: "+evidence.data.currency+"\n";
+      info+="Balance: "+evidence.data.balance+"\n";
+      info+="Content: "+evidence.data.content+"\n";
+    }
+      
+    else
+    {
+      info="Type: "+evidence.data.type+"\n";
+      info="Id: "+evidence.data.id+"\n";
+      info+="From: "+evidence.data.from+"\n";
+      info+="To: "+evidence.data.rcpt+"\n";
+      info+="Incoming: "+evidence.data.incoming+"\n";
+      info+="Amount: "+evidence.data.content+"\n";
+    }
+    return info;
+    }
     
     
     private function getInfo(evidence:Evidence):String
@@ -412,6 +440,10 @@ package it.ht.rcs.console.operations.view.evidences
           info+="To: "+evidence.data.rcpt+"\n";
           info+="Subject: "+evidence.data.subject+"\n";
           info+="Content: "+evidence.data.content+"\n";
+          break;
+        
+        case "money":
+          info=getMoneyFormatting(evidence);
           break;
         
         case "call":

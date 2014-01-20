@@ -10,7 +10,7 @@
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					height="100%"
-					width="100%">
+					width="100%" xmlns:diagrammer="fr.kapit.diagrammer.*">
 	<fx:Script>
 		<![CDATA[
       import com.adrianparr.utils.HtmlEntities;
@@ -20,6 +20,8 @@
       import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
       import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
       import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
+      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
+      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
       import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
       import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
       import fr.kapit.layouts.algorithms.radial.RadialLayout;
@@ -120,11 +122,15 @@
 			{
 				trace("LINK VIEW INIT")
 
-				var layout:SingleCycleCircularLayout=vis.layout as SingleCycleCircularLayout;
+		/* 		var layout:SingleCycleCircularLayout=vis.layout as SingleCycleCircularLayout;
 				var params:SingleCircularLayoutParams=new SingleCircularLayoutParams(layout);
 				params.nodesSpacing=100;
 				params.minimalRadius=100;
-				vis.circularLayout.params=params;
+				vis.circularLayout.params=params; */
+        
+        var layout:StaticGEMLayout=vis.layout as StaticGEMLayout
+        var params:StaticGemLayoutParams=new StaticGemLayoutParams(layout)
+        
 
 				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink)
 
@@ -149,7 +155,6 @@
 
 			private function onAddedToStage(e:Event=null):void
 			{
-
 				if (!entities)
 					return;
 
@@ -191,6 +196,8 @@
 						entitiesToShow.addItem(entity)
 					else if (entity.type == "virtual" && virtualCh.selected)
 						entitiesToShow.addItem(entity)
+          else if (entity.type == "group")
+            entitiesToShow.addItem(entity)
 				}
 
 				numEntitiesToShow=entitiesToShow.length; //????
@@ -221,10 +228,39 @@
 			{
 				entitiesToShow.sort=sort;
 				entitiesToShow.refresh();
+        
+        trace("BEFORE "+entitiesToShow.length)
 		
         var i:int=0;
         var e:Entity;
         var link:Link;
+        var groups:Array=new Array()
+        var id:String
+        var child:Entity
+        var index:int
+        //get groups
+        for(i=0;i<entities.length;i++)
+        {
+          e=entities.getItemAt(i) as Entity;
+          if(e.type=="group" && e.stand_for==null)
+          {
+            groups.push(e)
+          }
+        }
+        //remove items in local groups
+        for(i=0;i<groups.length;i++)
+        {
+          e=groups[i] as Entity;
+          for( var c:int=0;c<e.children.length;c++)
+          {
+            id=String(e.children.getItemAt(c));
+            child=EntityManager.instance.getItem(id) as Entity;
+            index=entitiesToShow.getItemIndex(child);
+            entitiesToShow.removeItemAt(index)
+          }
+        }
+        trace("AFTER "+entitiesToShow.length)
+        
         
 				var xmlStr:String="<graphml>"
 
@@ -240,8 +276,20 @@
 					var desc:String=""
 					if (e.desc) desc == HtmlEntities.encode(e.desc)
           desc=desc.split("&nbsp;").join(" ");
-					xmlStr+="<node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  type='" + e.type + "'  />"
-
+          
+          if(e.type=="group")
+          {
+					  xmlStr+="<node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  type='" + e.type + "'  >"
+            for( c=0;c<e.children.length;c++)
+            {
+              id=String(e.children.getItemAt(c));
+              child=EntityManager.instance.getItem(id) as Entity;
+              xmlStr+="<node   id='" +child._id + "'  name='" + child.name + "'   desc='" + child.desc + "'  type='" +child.type + "'  />"
+            }
+            xmlStr+="</node>"
+          }
+          else
+            xmlStr+="<node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  type='" + e.type + "'  />"
 				}
 
 				//edges
@@ -493,6 +541,7 @@
         //merging enabled?
         else if (vis.selection.length == 2)
         {
+          trace("linked: "+areLinked(vis.selection[0].data.id,vis.selection[1].data.id))
           actionbar.selectedObjects=new Vector.<Object>
           actionbar.selectedObjects.push(vis.selection[0].data)
           actionbar.selectedObjects.push(vis.selection[1].data)
@@ -520,6 +569,21 @@
           }
         }
 
+      }
+      
+      private function areLinked(source:String, target:String):Boolean
+      {
+        var edge:Edge;
+        var renderer:CustomLink
+        for(var i:int=0;i<vis.graph.edges.length;i++)
+        {
+          edge=vis.graph.edges[i] as Edge
+          renderer=edge.visualEdge as CustomLink
+            if((renderer.data.source==source && renderer.data.target==target) || (renderer.data.source==target && renderer.data.target==source) )
+              return true
+        }
+        
+        return false;
       }
       
       protected function onElementDoubleClick(event:VisualizerEvent):void
@@ -658,19 +722,19 @@
 								 verticalScrollPolicy="off">
 
 
-				<visualizer:Visualizer width="100%"
+				<diagrammer:Diagrammer width="100%"
 															 height="100%"
 															 id="vis"
-															 layout="singleCircular"
+															 
 															 creationComplete="init()"
 															 dataProvider="{dp}"
 															 groupLabelField="name"
 															 linkStyleFunction="{linkStyleFunction}"
-															 nodeRendererFunction="{nodeRendererFunction}"
-															 groupRendererClass="{CustomGroupRenderer}"
-															 showNodeExpandCollapseButton="false"
+															 nodeRendererFunction="{nodeRendererFunction}" 
+					
+															
 															 highlightLinksOnSelection="false"
-															 fitGroupsToContent="true"
+															 
                                elementsSelectionChanged="onSelectionChange()"
                                elementDoubleClicked="onElementDoubleClick(event)"/>
 

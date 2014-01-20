@@ -83,7 +83,7 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         var origin:Object = pin.parent;
         if (origin is ActionRenderer && ( pin.type == 'start' || pin.type == 'stop' )) { // Accept only inbound connections from actions
           
-          if (pin.type == 'stop' && (module.module=="screenshot" || module.module=="camera" || module.module=="position")) { // Deny stop actions on some modules
+          if (pin.type == 'stop' && (module.module=="screenshot" || module.module=="camera" || module.module=="position" || module.module=="money")) { // Deny stop actions on some modules
             graph.currentTarget = null;
             container.setStyle('backgroundColor', REJECT_COLOR);
             acceptDragIcon.source=noIcon;
@@ -184,7 +184,6 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
         
         addElement(container);
         //addElement(acceptDragIcon);
-        
       }
       
     }

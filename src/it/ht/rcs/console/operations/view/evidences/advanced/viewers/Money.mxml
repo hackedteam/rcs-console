@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="100%"
+									 width="100%"
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1" addedToStage="onAddedToStage()">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+			import it.ht.rcs.console.utils.StringUtils;
+
+			import mx.collections.ArrayCollection;
+
+			private var file:flash.filesystem.File;
+			private var stream:URLStream;
+			private var extension:String;
+			private var originalName:String;
+			private var request:URLRequest
+      
+      [Embed(source="img/NEW/outgoing.png")]
+      [Bindable]
+      public var outgoing:Class;
+      
+      [Embed(source="img/NEW/incoming.png")]
+      [Bindable]
+      public var incoming:Class;
+
+			private var _evidence:Object;
+
+			[Bindable]
+			private var info:String;
+
+
+			[Bindable]
+			public var idVisible:Boolean;
+
+
+
+			[Bindable]
+			public function set evidence(value:Object):void
+			{
+				_evidence=value;
+			
+        if (downloadStatusTxt)
+          downloadStatusTxt.text=""
+        if (downloadBtn)
+        {
+          downloadBtn.label="Download"
+          downloadBtn.enabled=true
+        }    
+
+
+			}
+
+			public function get evidence():Object
+			{
+				return _evidence; //name, contact, info
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+
+			private function download():void
+			{
+				if (downloadBtn.label == "Download")
+				{
+					var target:String=EvidenceManager.instance.evidenceFilter.target;
+					var url:String
+					if (DB.instance.demo)
+					{
+						url="grid/" + ""
+					}
+					else
+					{
+						url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+					}
+
+					originalName=StringUtils.getFilename(evidence.data.path)
+					extension=StringUtils.getExtension(evidence.data.path)
+					var fileName:String=evidence.data._grid + encodeURIComponent(target) + "_" + originalName;
+					if (DB.instance.demo)
+					{
+						fileName=evidence.data.path
+					}
+					request=new URLRequest(url);
+					stream=new URLStream();
+					file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+					file.browseForSave("Download " + fileName);
+					file.addEventListener(Event.SELECT, onSelect);
+				}
+				else if (downloadBtn.label == "Open")
+				{
+					try
+					{
+						file.openWithDefaultApplication()
+					}
+					catch (e:Error)
+					{
+						downloadStatusTxt.text="Unable to open with default application."
+					}
+
+				}
+			}
+
+
+
+			private function onSelect(e:Event):void
+			{
+				downloadBtn.enabled=false;
+				downloadStatusTxt.text="Downloading file..."
+				stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+				stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+				stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);
+				stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onDownloadError)
+				stream.load(request);
+			}
+
+			private function onDownloadProgress(e:ProgressEvent):void
+			{
+				var perc:int=int((e.bytesLoaded / e.bytesTotal) * 100)
+				downloadStatusTxt.text="Downloading file..." + perc + " % completed."
+			}
+
+			private function onDownloadError(e:*):void
+			{
+				downloadBtn.enabled=true;
+				downloadStatusTxt.text="Error downloading file. Try again"
+			}
+
+			private function onFileDownloaded(e:Event):void
+			{
+				//downloadBtn.label="Open"
+				downloadStatusTxt.text="File downloaded successfully."
+				downloadBtn.enabled=false;
+				var fileData:ByteArray=new ByteArray();
+				stream.readBytes(fileData, 0, stream.bytesAvailable);
+				var fileStream:FileStream=new FileStream();
+				fileStream.open(file, FileMode.WRITE);
+				fileStream.writeBytes(fileData, 0, fileData.length);
+				fileStream.close();
+
+			}
+      
+      protected function onAddedToStage():void
+      {
+        if (downloadStatusTxt)
+          downloadStatusTxt.text=""
+        if (downloadBtn)
+        {
+          downloadBtn.label="Download"
+          downloadBtn.enabled=true
+        }
+   
+      }
+      
+    ]]>
+	</fx:Script>
+	<s:layout>
+		<s:HorizontalLayout paddingBottom="10"
+												paddingLeft="10"
+												paddingRight="10"
+												paddingTop="20"/>
+	</s:layout>
+
+	<s:VGroup width="100%"
+						height="100%"
+						clipAndEnableScrolling="true">
+
+		<s:RichText id="idTxt"
+								width="100%"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{idVisible}"
+								includeInLayout="{idVisible}"/>
+		<s:Line width="100%"
+						visible="{idVisible}"
+						includeInLayout="{idVisible}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+    <s:HGroup width="100%"
+            verticalAlign="middle">
+		<s:RichText id="typeTxt"
+								
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Type: &lt;/b&gt;'+evidence.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"/>
+   
+      <s:Image id="versus"
+               width="16"
+               height="16"
+               source= "{evidence.data.incoming ? incoming : outgoing}"
+               toolTip="{evidence.data.incoming ? 'Incoming' : 'Outgoing'}"
+               visible="{evidence.data.type=='tx'}"
+               includeInLayout="{evidence.data.type=='tx'}"/>
+      
+     
+    </s:HGroup>
+		<s:Line width="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+
+		<s:RichText id="moneyIdTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence.data.id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='tx'}"
+								includeInLayout="{evidence.data.type=='tx'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='tx'}"
+						includeInLayout="{evidence.data.type=='tx'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="fromTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;From: &lt;/b&gt;'+evidence.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='tx'}"
+								includeInLayout="{evidence.data.type=='tx'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='tx'}"
+						includeInLayout="{evidence.data.type=='tx'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="toTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;To: &lt;/b&gt;'+evidence.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='tx'}"
+								includeInLayout="{evidence.data.type=='tx'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='tx'}"
+						includeInLayout="{evidence.data.type=='tx'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="amountTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Amount: &lt;/b&gt;'+evidence.data.amount, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='tx'}"
+								includeInLayout="{evidence.data.type=='tx'}"/>
+		
+
+	
+
+		<s:RichText id="versionTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Version: &lt;/b&gt;'+evidence.data.version, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='wallet'}"
+								includeInLayout="{evidence.data.type=='wallet'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='wallet'}"
+						includeInLayout="{evidence.data.type=='wallet'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="sizeTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Size: &lt;/b&gt;'+evidence.data.size, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='wallet'}"
+								includeInLayout="{evidence.data.type=='wallet'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='wallet'}"
+						includeInLayout="{evidence.data.type=='wallet'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="currencyTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Currency: &lt;/b&gt;'+evidence.data.currency, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='wallet'}"
+								includeInLayout="{evidence.data.type=='wallet'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='wallet'}"
+						includeInLayout="{evidence.data.type=='wallet'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="balanceTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Balance: &lt;/b&gt;'+evidence.data.balance, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='wallet'}"
+								includeInLayout="{evidence.data.type=='wallet'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='wallet'}"
+						includeInLayout="{evidence.data.type=='wallet'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="encryptedTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Encrypted: &lt;/b&gt;'+evidence.data.encrypted, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								fontSize="12"
+								visible="{evidence.data.type=='wallet'}"
+								includeInLayout="{evidence.data.type=='wallet'}"/>
+		<s:Line width="100%"
+						visible="{evidence.data.type=='wallet'}"
+						includeInLayout="{evidence.data.type=='wallet'}">
+			<s:stroke>
+				<s:SolidColorStroke color="0xCCCCCC"/>
+			</s:stroke>
+		</s:Line>
+
+		<s:RichText id="contentTxt"
+								textFlow="{TextConverter.importToFlow('&lt;b&gt;Content: &lt;/b&gt;'+'&lt;BR&gt;'+lineBreak(evidence.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+								maxDisplayedLines="6"
+								fontSize="12"
+								visible="{evidence.data.type=='wallet'}"
+								includeInLayout="{evidence.data.type=='wallet'}"/>
+
+		<s:Button id="downloadBtn"
+							label="Download"
+							click="download()"
+							visible="{evidence.data.type=='wallet'}"
+							includeInLayout="{evidence.data.type=='wallet'}"/>
+		<s:Label id="downloadStatusTxt"
+						 visible="{evidence.data.type=='wallet'}"
+						 includeInLayout="{evidence.data.type=='wallet'}"
+						 fontSize="10"
+						 fontWeight="bold"/>
+
+	</s:VGroup>
+</s:BorderContainer>

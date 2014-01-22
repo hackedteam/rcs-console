@@ -4,7 +4,7 @@
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																width="100%"
-																height="100%">
+																height="100%" >
 
 	<fx:Script>
 		<![CDATA[
@@ -19,14 +19,17 @@
 			[Embed('/img/NEW/target_16.png')]
 			private static const targetIcon:Class;
 
+
+
 			[Bindable]
 			override public function set data(value:*):void
 			{
 
 				super.data=value;
 				if (data.data.program != null)
+        {
 					ImageClass=ChatIcons[data.data.program.toLowerCase()]
-
+        }
 				// name, contact, info
 				nameTxt.textFlow=TextConverter.importToFlow("<b>Name: </b>" + data.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				if (data.data.contact != "")
@@ -38,8 +41,12 @@
 				{
 					contactTxt.visible=contactTxt.includeInLayout=false;
 				}
-				infoLabelTxt.textFlow=TextConverter.importToFlow("<b>Info: </b>", TextConverter.TEXT_FIELD_HTML_FORMAT)
-				infoTxt.textFlow=TextConverter.importToFlow(lineBreak(data.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT)
+				infoLabelTxt.textFlow=TextConverter.importToFlow("<b>Info: </b>", TextConverter.TEXT_FIELD_HTML_FORMAT);
+				infoTxt.textFlow=TextConverter.importToFlow(lineBreak(data.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT);
+          
+          
+
+				//typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>"+data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 
 			private function lineBreak(s:String):String
@@ -65,9 +72,11 @@
 				<s:Image width="16"
 								 height="16"
 								 source="{targetIcon}"
-								 visible="{data.data.type=='target'}"
-								 includeInLayout="{data.data.type=='target'}"
-								 toolTip="target"/>
+								 toolTip="target"
+								 id="target"
+                 visible="{data.data.type=='target'}"/>
+				<s:RichText id="typeTxt"
+										width="100%"/>
 			</s:HGroup>
 			<s:RichText id="nameTxt"
 									width="100%"/>

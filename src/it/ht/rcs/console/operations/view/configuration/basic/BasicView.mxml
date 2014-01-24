@@ -13,6 +13,7 @@
     <![CDATA[
       import it.ht.rcs.console.DefaultConfigBuilder;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.network.controller.CollectorManager;
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.operations.view.OperationsSectionStateManager;
@@ -79,14 +80,14 @@
         {
           trace("Show only non-good anon");
           entryPoints=CollectorManager.instance.getNonGoodAnon()
-          if(entryPoints.length<=0)
+          if(entryPoints.length<=0 && !LicenseManager.instance.scout)
             entryPoints=CollectorManager.instance.getNonGoodCollectors();
         }
         else
         {
           trace("Show only good anon");
           entryPoints=CollectorManager.instance.getGoodAnon()
-          if(entryPoints.length<=0)
+          if(entryPoints.length<=0 && !LicenseManager.instance.scout)
             entryPoints=CollectorManager.instance.getGoodCollectors()
         }
         

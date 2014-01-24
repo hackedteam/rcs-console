@@ -189,6 +189,20 @@
 					vis.enablePan=true;
 					vis.enableAutofitOnLayout=true; */
 				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
+        
+      /*   var item:ISprite;
+        
+        for each(item in vis.nodesMap){
+          if(item is GenericGroup ){
+            var group:GenericGroup = item as GenericGroup ;
+            var renderer:CustomGroupRenderer = group.itemRenderer as CustomGroupRenderer;
+            renderer.xStart=group.x;
+            renderer.yStart=group.y;
+          
+            //group.x=0
+            
+          }
+        } */
 			}
 
 			private function onAddedToStage(e:Event=null):void
@@ -390,9 +404,9 @@
 				//end
 				xmlStr+="</graphml>";
 
-				xmlStr=""
-				//xmlData=XML(xmlStr);
-				xmlData=<graphml>
+				//xmlStr=""
+				xmlData=XML(xmlStr);
+				/* xmlData=<graphml>
 
 						<node id="t1"
 							name="Michael"
@@ -481,7 +495,7 @@
 							type="know"
 							direction="in"
 							relevance="0"/>
-					</graphml>
+					</graphml> */
 				trace(xmlData)
 				dp=xmlData
 				vis.dataProvider=dp
@@ -763,12 +777,36 @@
 				return String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
 			}
 
+      protected function onPanBegin(event:VisualizerEvent):void
+      {
+        /* var item:ISprite;
+        for each(item in vis.nodesMap){
+          if(item is GenericGroup ){
+            var group:GenericGroup = item as GenericGroup ;
+            var renderer:CustomGroupRenderer=group.itemRenderer as CustomGroupRenderer
+            renderer.xStart=renderer.x
+            renderer.yStart=renderer.y
+              
+            //renderer.autoLayout=true;
+          
+            trace("================")
+            //group.x=renderer.xStart+event.data[0]
+            //group.y=renderer.yStart+event.data[1]
+            //group.x=0
+            
+          }
+        } */
+      }
+      
+      protected function onPanEnd(event:VisualizerEvent):void
+      {
+        
+      }
 
-
-			protected function vis_panProcessHandler(event:VisualizerEvent):void
+			protected function onPanProcess(event:VisualizerEvent):void
 			{
 				// TODO Auto-generated method stub
-				trace("PAN")
+				/* trace("PAN")
        
         //trace(event.data[0])
         //trace(event.data[1])
@@ -776,12 +814,19 @@
         for each(item in vis.nodesMap){
           if(item is GenericGroup ){
             var group:GenericGroup = item as GenericGroup ;
-            group.validateNow()
-           
-            //group.x=0
+            group.container.x=group.x
+            group.container.y=group.y
+            var renderer:CustomGroupRenderer=group.itemRenderer as CustomGroupRenderer
+     
+              trace(renderer.xStart)
+              trace(event.data[0])
+              trace("================")
+              //renderer.=renderer.xStart+event.data[0];
+              //renderer.y=renderer.yStart+event.data[1];
+            //group.x=0;
 
           }
-        }
+        } */
 
 			}
       
@@ -795,6 +840,12 @@
   //      vis.registerAction(CustomPan, false, panSettings);
    //     vis.activateAction(CustomPan.ID, customPan)
          
+      }
+      
+      private function group():void
+      {
+      
+      
       }
       
     ]]>
@@ -832,30 +883,8 @@
 																	popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
 																	width="100"/>
 
-				<s:CheckBox label="target"
-										selected="true"
-										id="targetCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-				<s:CheckBox label="person"
-										selected="true"
-										id="personCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-				<s:CheckBox label="position"
-										selected="true"
-										id="positionCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-				<s:CheckBox label="virtual"
-										selected="true"
-										id="virtualCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
+			<s:Button label="Group" id="groupBtn" click="group()"/>
+      <s:Button label="Ungroup" id="ungroupBtn"/>
 
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
@@ -894,7 +923,9 @@
 															 groupLabelField="name"
 															 linkStyleFunction="{linkStyleFunction}"
 															 nodeRendererFunction="{nodeRendererFunction}"
-															 panProcess="vis_panProcessHandler(event)"
+                               panBegin="onPanBegin(event)"
+                               panProcess="onPanProcess(event)" 
+                               panEnd="onPanEnd(event)" 
 															 enablePan="false"
 															 enableAnimation="false"
 															 groupRendererClass="{CustomGroupRenderer}"

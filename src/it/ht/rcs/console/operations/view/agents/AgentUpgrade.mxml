@@ -20,6 +20,9 @@
       
       [Bindable]
       public var agent:Agent;
+      
+      [Bindable]
+      public var level:String; //new level after upgrade
 
       [Bindable]
       private var upgradable:Boolean;
@@ -119,10 +122,10 @@
         <s:Label text="{agent.version}" id="currentVersionTxt"/>
       </s:FormItem>
       <s:FormItem label="{R.get('UPGRADE_TO')}" visible="{upgradable}">
-        <s:Label text="{CoreManager.instance.getLatestVersion(agent.platform)}" />
+        <s:Label text="{level=='soldier'?'Soldier': CoreManager.instance.getLatestVersion(agent.platform) +' Elite'}" />
       </s:FormItem>
     </s:Form>   
-<s:Label id="levelTxt" text="{agent.level} - (custom message TBD)"/>
+<s:Label id="msg" text="(custom message TBD)"/>
     <s:TextArea id="warning" fontWeight="bold" editable="false" borderVisible="false" text="{R.get('SCOUT_UPGRADE_WARNING')}"
                 width="100%" height="65" contentBackgroundAlpha="0" visible="{scout_warning}" includeInLayout="{scout_warning}" />
     

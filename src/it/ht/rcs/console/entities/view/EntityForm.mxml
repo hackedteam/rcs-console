@@ -47,8 +47,13 @@
 				if (currentState == EDIT)
 				{
 					types=new ArrayCollection(["PERSON", "TARGET"])
+            
+          if(!Console.currentSession.user.is_admin_targets())
+          {
+            types.removeItemAt(1)// no target
+          }
 
-					typeContainer.visible=typeContainer.includeInLayout=entity.type == "person";
+					typeContainer.visible=typeContainer.includeInLayout=entity.type == "person" && Console.currentSession.user.is_admin_targets();
 					type.selectedIndex=0;
 					if (entity.type == "position")
 					{
@@ -63,6 +68,10 @@
 					typeContainer.visible=typeContainer.includeInLayout=true;
 					type.selectedIndex=0;
 					types=new ArrayCollection(["PERSON", "POSITION", "TARGET", "VIRTUAL"])
+            if(!Console.currentSession.user.is_admin_targets())
+            {
+              types.removeItemAt(2)// no target
+            }
 					if (entity.type == "position")
 					{
 						positionEditor.visible=positionEditor.includeInLayout=true;

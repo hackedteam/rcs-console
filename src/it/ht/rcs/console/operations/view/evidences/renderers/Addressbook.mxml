@@ -4,7 +4,7 @@
 																xmlns:mx="library://ns.adobe.com/flex/mx"
 																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
 																width="100%"
-																height="100%" >
+																height="100%">
 
 	<fx:Script>
 		<![CDATA[
@@ -27,9 +27,9 @@
 
 				super.data=value;
 				if (data.data.program != null)
-        {
+				{
 					ImageClass=ChatIcons[data.data.program.toLowerCase()]
-        }
+				}
 				// name, contact, info
 				nameTxt.textFlow=TextConverter.importToFlow("<b>Name: </b>" + data.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				if (data.data.contact != "")
@@ -43,8 +43,22 @@
 				}
 				infoLabelTxt.textFlow=TextConverter.importToFlow("<b>Info: </b>", TextConverter.TEXT_FIELD_HTML_FORMAT);
 				infoTxt.textFlow=TextConverter.importToFlow(lineBreak(data.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT);
-          
-          
+
+
+				if (data.data.type == "target")
+				{
+					target.visible=true;
+				}
+        
+        else if (data.data.type == "peer")
+        {
+          target.visible=false;
+        }
+        
+        else
+        {
+          target.visible=false;
+        }
 
 				//typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>"+data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
@@ -74,7 +88,7 @@
 								 source="{targetIcon}"
 								 toolTip="target"
 								 id="target"
-                 visible="{data.data.type=='target'}"/>
+								 visible="false"/>
 				<s:RichText id="typeTxt"
 										width="100%"/>
 			</s:HGroup>

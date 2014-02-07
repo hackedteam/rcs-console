@@ -12,7 +12,8 @@
 					xmlns:utils="it.ht.rcs.console.utils.*"
 					height="100%"
 					width="100%"
-					xmlns:diagrammer="fr.kapit.diagrammer.*" creationComplete="onCreationComplete()">
+					xmlns:diagrammer="fr.kapit.diagrammer.*"
+					creationComplete="onCreationComplete()">
 	<fx:Script>
 		<![CDATA[
       import com.adrianparr.utils.HtmlEntities;
@@ -35,6 +36,7 @@
       import fr.kapit.visualizer.Visualizer;
       import fr.kapit.visualizer.actions.PanAction;
       import fr.kapit.visualizer.actions.data.PanActionData;
+      import fr.kapit.visualizer.base.IGroup;
       import fr.kapit.visualizer.base.ISprite;
       import fr.kapit.visualizer.base.uicomponent.GenericGroup;
       import fr.kapit.visualizer.events.VisualizerEvent;
@@ -182,27 +184,27 @@
 
 				vis.balloonLayout.params=params;
 
-		
-      
+
+
 				/*   vis.layout=layout;
 					vis.enableSelectionDrag=true
 					vis.enablePan=true;
 					vis.enableAutofitOnLayout=true; */
 				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
-        
-      /*   var item:ISprite;
-        
-        for each(item in vis.nodesMap){
-          if(item is GenericGroup ){
-            var group:GenericGroup = item as GenericGroup ;
-            var renderer:CustomGroupRenderer = group.itemRenderer as CustomGroupRenderer;
-            renderer.xStart=group.x;
-            renderer.yStart=group.y;
-          
-            //group.x=0
-            
-          }
-        } */
+
+			/*   var item:ISprite;
+
+				for each(item in vis.nodesMap){
+					if(item is GenericGroup ){
+						var group:GenericGroup = item as GenericGroup ;
+						var renderer:CustomGroupRenderer = group.itemRenderer as CustomGroupRenderer;
+						renderer.xStart=group.x;
+						renderer.yStart=group.y;
+
+						//group.x=0
+
+					}
+				} */
 			}
 
 			private function onAddedToStage(e:Event=null):void
@@ -260,9 +262,108 @@
 				jumpEnabled=actionbar.jumpEnabled=false;
 				exportEnabled=actionbar.exportEnabled=false;
 
-				parseItems()
+				//parseItems()
+
+				buildGraph()
 
 			}
+
+			private function buildGraph():void
+			{
+				vis.clearAll()
+				entitiesToShow.sort=sort;
+				entitiesToShow.refresh();
+
+				var i:int
+				var entity:Entity;
+				var link:Link
+
+				var source:ISprite;
+				var target:ISprite;
+        
+        
+        
+				//add Node Elements
+				for (i=0; i < entitiesToShow.length; i++)
+				{
+					entity=entitiesToShow.getItemAt(i) as Entity;
+					if (entity.type != "group")
+					{
+						vis.addNodeElement(entity, null, null, null, entity._id)
+					}
+
+				}
+
+       
+        //vis.reLayout()
+				//links
+				var links:Array=new Array()
+				for (i=0; i < entitiesToShow.length; i++)
+				{
+					entity=entitiesToShow.getItemAt(i) as Entity;
+					if (!entity)
+						continue;
+					if (entity.links)
+					{
+						for (var j:int=0; j < entity.links.length; j++)
+						{
+							link=entity.links.getItemAt(j) as Link;
+
+							if (alreadyLinked(links, entity._id, link.le))
+								continue;
+
+							if (link.versus == "out")
+							{
+								source=vis.nodesMap[entity._id];
+								target=vis.nodesMap[link.le];
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "out"}, source, target)
+								links.push({source: entity._id, target: link.le})
+
+							}
+							else if (link.versus == "in")
+							{
+
+								source=vis.nodesMap[entity._id];
+								target=vis.nodesMap[link.le];
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "in"}, source, target)
+								links.push({source: entity._id, target: link.le})
+							}
+							else if (link.versus == "both")
+							{
+
+								source=vis.nodesMap[entity._id];
+								target=vis.nodesMap[link.le];
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "both"}, source, target)
+								links.push({source: entity._id, target: link.le})
+							}
+
+
+						}
+					}
+				}
+        //groups
+       //callLater(addGroups)
+			vis.reLayout()
+      addGroups()
+			}
+      
+      public function addGroups():void
+      {
+        for (var i:int=0; i < entitiesToShow.length; i++)
+        {
+          var entity:Entity=entitiesToShow.getItemAt(i) as Entity;
+          if (entity.type == "group")
+          {
+            var elements:Array=new Array
+            for(var c:int=0;c<entity.children.length;c++)
+            {
+              elements.push(vis.nodesMap[entity.children[c]])
+            }
+            vis.groupElements(entity,elements,null,entity._id)
+          }
+          
+        }
+      }
 
 
 			private function alreadyLinked(links:Array, source:String, target:String):Boolean
@@ -270,9 +371,13 @@
 				for (var i:int=0; i < links.length; i++)
 				{
 					if ((links[i].target == target && links[i].source == source) || (links[i].target == source && links[i].source == target))
+					{
+						trace("already linked")
 						return true;
-				}
+					}
 
+				}
+				trace("NOT already linked")
 				return false;
 			}
 
@@ -290,13 +395,14 @@
 				var id:String
 				var child:Entity
 				var index:int
+
 				//get groups
 				for (i=0; i < entities.length; i++)
 				{
 					e=entities.getItemAt(i) as Entity;
 					if (e.type == "group" && e.stand_for == null)
 					{
-						groups.push(e)
+						groups.push(e);
 					}
 				}
 				//remove items in local groups
@@ -644,9 +750,11 @@
 				trace("UPDATE LINK LENGTH")
 			}
 
-			private function updateVScale(e:Event):void
+			private function updateVScale(e:Event=null):void
 			{
-				trace("UPDATE V SCALE")
+        trace(bzoom.value)  //1.1 - 0.9
+    
+        vis.scaleX=vis.scaleY=bzoom.value
 			}
 
 			protected function onSelectionChange():void
@@ -667,14 +775,14 @@
 				//Only 1 node 
 				if (vis.selection.length == 1 && vis.selection[0].data.name)
 				{
-					info.selectedItem=EntityManager.instance.getItem(String(vis.selection[0].data.id))
+					info.selectedItem=EntityManager.instance.getItem(String(vis.selection[0].data._id))
 					info.selectedItems=new <Object>[info.selectedItem];
 					actionbar.selectedObject=info.selectedItem;
 					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
 					actionbar.selectedObjects.push(actionbar.selectedObject)
 				}
 				//Only 1 edge 
-				else if (vis.selection.length == 1 && !vis.selection[0].data.name)
+				else if (vis.selection.length == 1 && vis.selection[0].data.versus!=null)
 				{
 					info.selectedItem=vis.selection[0].data
 					info.selectedItems=new <Object>[info.selectedItem];
@@ -688,7 +796,7 @@
 				//merging enabled?
 				else if (vis.selection.length == 2)
 				{
-					trace("linked: " + areLinked(vis.selection[0].data.id, vis.selection[1].data.id))
+					trace("linked: " + areLinked(vis.selection[0].data._id, vis.selection[1].data._id))
 					actionbar.selectedObjects=new Vector.<Object>
 					actionbar.selectedObjects.push(vis.selection[0].data)
 					actionbar.selectedObjects.push(vis.selection[1].data)
@@ -777,72 +885,36 @@
 				return String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
 			}
 
-      protected function onPanBegin(event:VisualizerEvent):void
-      {
-        /* var item:ISprite;
-        for each(item in vis.nodesMap){
-          if(item is GenericGroup ){
-            var group:GenericGroup = item as GenericGroup ;
-            var renderer:CustomGroupRenderer=group.itemRenderer as CustomGroupRenderer
-            renderer.xStart=renderer.x
-            renderer.yStart=renderer.y
-              
-            //renderer.autoLayout=true;
-          
-            trace("================")
-            //group.x=renderer.xStart+event.data[0]
-            //group.y=renderer.yStart+event.data[1]
-            //group.x=0
-            
-          }
-        } */
-      }
-      
-      protected function onPanEnd(event:VisualizerEvent):void
-      {
-        
-      }
+			
 
-			protected function onPanProcess(event:VisualizerEvent):void
+
+			
+
+			protected function onCreationComplete():void
 			{
-				// TODO Auto-generated method stub
-				/* trace("PAN")
-       
-        //trace(event.data[0])
-        //trace(event.data[1])
-        var item:ISprite;
-        for each(item in vis.nodesMap){
-          if(item is GenericGroup ){
-            var group:GenericGroup = item as GenericGroup ;
-            group.container.x=group.x
-            group.container.y=group.y
-            var renderer:CustomGroupRenderer=group.itemRenderer as CustomGroupRenderer
-     
-              trace(renderer.xStart)
-              trace(event.data[0])
-              trace("================")
-              //renderer.=renderer.xStart+event.data[0];
-              //renderer.y=renderer.yStart+event.data[1];
-            //group.x=0;
+				// var customPan:CustomPan=new CustomPan()
+				// var panSettings:PanActionData=new PanActionData("default","default","default",true)
 
-          }
-        } */
+				//vis.enablePan=true;
+				//       vis.deactivateAction(PanAction.ID)
+				//      vis.registerAction(CustomPan, false, panSettings);
+				//     vis.activateAction(CustomPan.ID, customPan)
 
 			}
-      
-      protected function onCreationComplete():void
-      {
-       // var customPan:CustomPan=new CustomPan()
-       // var panSettings:PanActionData=new PanActionData("default","default","default",true)
-          
-        vis.enablePan=true;
- //       vis.deactivateAction(PanAction.ID)
-  //      vis.registerAction(CustomPan, false, panSettings);
-   //     vis.activateAction(CustomPan.ID, customPan)
-         
-      }
-      
-    ]]>
+
+
+			private function group():void
+			{
+				trace("GROUP")
+				vis.groupElements({name: "friends"}, vis.selection)
+			}
+
+			private function ungroup():void
+			{
+				trace("GROUP")
+
+			}
+		]]>
 	</fx:Script>
 
 	<fx:Declarations>
@@ -873,9 +945,9 @@
 				<renderers:FilterRenderer label="Relevance"
 																	popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
 																	width="100"/>
-		<!--		<renderers:FilterRenderer label="Entities"
-																	popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
-																	width="100"/>-->
+				<!--		<renderers:FilterRenderer label="Entities"
+																			popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
+																			width="100"/>-->
 
 				<s:CheckBox label="target"
 										selected="true"
@@ -901,6 +973,11 @@
 										change="filter(event)"
 										visible="false"
 										includeInLayout="false"/>
+
+				<s:Button label="group"
+									click="group() "/>
+				<s:Button label="ungroup"
+									click="ungroup()"/>
 
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
@@ -939,10 +1016,8 @@
 															 groupLabelField="name"
 															 linkStyleFunction="{linkStyleFunction}"
 															 nodeRendererFunction="{nodeRendererFunction}"
-                               panBegin="onPanBegin(event)"
-                               panProcess="onPanProcess(event)" 
-                               panEnd="onPanEnd(event)" 
-															 enablePan="false"
+															 
+															 enablePan="true"
 															 enableAnimation="false"
 															 groupRendererClass="{CustomGroupRenderer}"
 															 highlightLinksOnSelection="false"

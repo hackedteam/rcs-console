@@ -4,15 +4,14 @@
 					xmlns:s="library://ns.adobe.com/flex/spark"
 					xmlns:mx="library://ns.adobe.com/flex/mx"
 					xmlns:maps="com.google.maps.*"
-					xmlns:components="it.ht.rcs.console.entities.view.components.*"
-					xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
-					xmlns:visualizer="fr.kapit.visualizer.*"
+          xmlns:graph="it.ht.rcs.console.entities.view.graph.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          xmlns:components="it.ht.rcs.console.entities.view.components.*"
 					xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					xmlns:utils="it.ht.rcs.console.utils.*"
 					height="100%"
 					width="100%"
-					xmlns:diagrammer="fr.kapit.diagrammer.*"
+					
 					creationComplete="onCreationComplete()">
 	<fx:Script>
 		<![CDATA[
@@ -49,9 +48,7 @@
       import it.ht.rcs.console.entities.model.Link;
       import it.ht.rcs.console.entities.view.actions.CustomPan;
       import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
-      import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
-      import it.ht.rcs.console.entities.view.renderers.CustomLink;
-      import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
+  
       import it.ht.rcs.console.events.RefreshEvent;
       
       import locale.R;
@@ -118,7 +115,9 @@
 
 			private var flows:ArrayCollection;
 
-			public var inited:Boolean;
+			public var inited:Boolean; //??
+      
+      private var drawing:Boolean
 
 			[Embed(source='/img/NEW/dottedLine.png')]
 			public static const dottedLine:Class;
@@ -129,800 +128,57 @@
 			[Embed(source='/img/NEW/fullLine.png')]
 			public static const fullLine:Class;
 
+      
+      private function onCreationComplete():void
+      {
+      trace("LINK VIEW CREATION COMPLETE")
+      
+      }
 
 			public function init():void
 			{
 				trace("LINK VIEW INIT")
-
-				/* 		var layout:SingleCycleCircularLayout=vis.layout as SingleCycleCircularLayout;
-						var params:SingleCircularLayoutParams=new SingleCircularLayoutParams(layout);
-						params.nodesSpacing=100;
-						params.minimalRadius=100;
-						vis.circularLayout.params=params; */
-
-				/* var layout:StaticGEMLayout=vis.layout as StaticGEMLayout
-				var params:StaticGemLayoutParams=new StaticGemLayoutParams(layout) */
-
-
-				initGraph()
-
-
-
-				if (!inited)
-				{
-					//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onAddedToStage);
-					sort=new Sort();
-					sort.fields=[new SortField("type", true), new SortField("name", false)]
-
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-					endDate=new Date();
-					if (fromDf)
-					{
-						fromDf.selectedDate=startDate;
-					}
-					timeline.reset()
-					inited=true;
-				}
-				onAddedToStage(null)
-			}
-
-
-
-			private function initGraph():void
-			{
-				var layout:BalloonLayout=vis.layout as BalloonLayout;
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
-				params.nodesSpacing=100;
-				params.loopMargin=100;
-				params.loopSpacing=100;
-				params.childAngularSector=360;
-				params.rootAngularSector=360;
-				params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
-				params.overlappingAvoidMethod=0;
-				params.packingSpacing=100
-
-				vis.balloonLayout.params=params;
-
-
-
-				/*   vis.layout=layout;
-					vis.enableSelectionDrag=true
-					vis.enablePan=true;
-					vis.enableAutofitOnLayout=true; */
-				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
-
-			/*   var item:ISprite;
-
-				for each(item in vis.nodesMap){
-					if(item is GenericGroup ){
-						var group:GenericGroup = item as GenericGroup ;
-						var renderer:CustomGroupRenderer = group.itemRenderer as CustomGroupRenderer;
-						renderer.xStart=group.x;
-						renderer.yStart=group.y;
-
-						//group.x=0
-
-					}
-				} */
-			}
-
-			private function onAddedToStage(e:Event=null):void
-			{
-				if (!entities)
-					return;
-
-				info.selectedItem=null;
-				info.selectedItems=null;
-				actionbar.selectedObject=null; //SELECTION
-				actionbar.selectedObjects=null;
-
-				selectedEdge=null;
-
-				//ad links entity - depth=1
-
-				flows=new ArrayCollection
-				//numEntitiesToShow=entities.length; //????
-
-				selectedNodes=new ArrayCollection();
-
-				/*  if (vgraph)
-				 {
-					 vgraph.graph=new Graph("XMLAsDocsGraph", false, null);
-					 vgraph.visible=false;
-				 }
-				 if (g)
-				 {
-					 g.purgeGraph();
-				 } */
-
-				entitiesToShow=new ArrayCollection()
-
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var entity:Entity=entities.getItemAt(i) as Entity;
-
-					if (entity.type == "target" && targetCh.selected)
-						entitiesToShow.addItem(entity)
-					else if (entity.type == "person" && personCh.selected)
-						entitiesToShow.addItem(entity)
-					else if (entity.type == "position" && positionCh.selected)
-						entitiesToShow.addItem(entity)
-					else if (entity.type == "virtual" && virtualCh.selected)
-						entitiesToShow.addItem(entity)
-					else if (entity.type == "group")
-						entitiesToShow.addItem(entity)
-				}
-
-				numEntitiesToShow=entitiesToShow.length; //????
-
-
-				mergeEnabled=actionbar.mergeEnabled=false;
-				linkEnabled=actionbar.linkEnabled=false;
-				jumpEnabled=actionbar.jumpEnabled=false;
-				exportEnabled=actionbar.exportEnabled=false;
-
-				//parseItems()
-
-				buildGraph()
-
-			}
-
-			private function buildGraph():void
-			{
-				vis.clearAll()
-				entitiesToShow.sort=sort;
-				entitiesToShow.refresh();
-
-				var i:int
-				var entity:Entity;
-				var link:Link
-
-				var source:ISprite;
-				var target:ISprite;
         
-        
-        
-				//add Node Elements
-				for (i=0; i < entitiesToShow.length; i++)
-				{
-					entity=entitiesToShow.getItemAt(i) as Entity;
-					if (entity.type != "group")
-					{
-						vis.addNodeElement(entity, null, null, null, entity._id)
-					}
+        if (!entities)
+          return;
 
-				}
-
-       
-        //vis.reLayout()
-				//links
-				var links:Array=new Array()
-				for (i=0; i < entitiesToShow.length; i++)
-				{
-					entity=entitiesToShow.getItemAt(i) as Entity;
-					if (!entity)
-						continue;
-					if (entity.links)
-					{
-						for (var j:int=0; j < entity.links.length; j++)
-						{
-							link=entity.links.getItemAt(j) as Link;
-
-							if (alreadyLinked(links, entity._id, link.le))
-								continue;
-
-							if (link.versus == "out")
-							{
-								source=vis.nodesMap[entity._id];
-								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "out"}, source, target)
-								links.push({source: entity._id, target: link.le})
-
-							}
-							else if (link.versus == "in")
-							{
-
-								source=vis.nodesMap[entity._id];
-								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "in"}, source, target)
-								links.push({source: entity._id, target: link.le})
-							}
-							else if (link.versus == "both")
-							{
-
-								source=vis.nodesMap[entity._id];
-								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "both"}, source, target)
-								links.push({source: entity._id, target: link.le})
-							}
-
-
-						}
-					}
-				}
-        //groups
-       //callLater(addGroups)
-			vis.reLayout()
-      addGroups()
 			}
-      
-      public function addGroups():void
+
+   
+
+		
+      private function onTimelineChange():void
       {
-        for (var i:int=0; i < entitiesToShow.length; i++)
-        {
-          var entity:Entity=entitiesToShow.getItemAt(i) as Entity;
-          if (entity.type == "group")
-          {
-            var elements:Array=new Array
-            for(var c:int=0;c<entity.children.length;c++)
-            {
-              elements.push(vis.nodesMap[entity.children[c]])
-            }
-            vis.groupElements(entity,elements,null,entity._id)
-          }
-          
-        }
+        trace("TIMELINE CHANGE")
       }
 
-
-			private function alreadyLinked(links:Array, source:String, target:String):Boolean
-			{
-				for (var i:int=0; i < links.length; i++)
-				{
-					if ((links[i].target == target && links[i].source == source) || (links[i].target == source && links[i].source == target))
-					{
-						trace("already linked")
-						return true;
-					}
-
-				}
-				trace("NOT already linked")
-				return false;
-			}
-
-			private function parseItems():void
-			{
-				entitiesToShow.sort=sort;
-				entitiesToShow.refresh();
-
-				trace("BEFORE " + entitiesToShow.length)
-
-				var i:int=0;
-				var e:Entity;
-				var link:Link;
-				var groups:Array=new Array()
-				var id:String
-				var child:Entity
-				var index:int
-
-				//get groups
-				for (i=0; i < entities.length; i++)
-				{
-					e=entities.getItemAt(i) as Entity;
-					if (e.type == "group" && e.stand_for == null)
-					{
-						groups.push(e);
-					}
-				}
-				//remove items in local groups
-				for (i=0; i < groups.length; i++)
-				{
-					e=groups[i] as Entity;
-					for (var c:int=0; c < e.children.length; c++)
-					{
-						id=String(e.children.getItemAt(c));
-						child=EntityManager.instance.getItem(id) as Entity;
-						index=entitiesToShow.getItemIndex(child);
-						entitiesToShow.removeItemAt(index)
-					}
-				}
-				trace("AFTER " + entitiesToShow.length)
-
-
-				var xmlStr:String="<graphml>"
-
-				//nodes
-				for (i=0; i < entitiesToShow.length; i++)
-				{
-					e=entitiesToShow.getItemAt(i) as Entity;
-					if (!e)
-						continue;
-					var name:String=HtmlEntities.encode(e.name)
-					name=name.split("&nbsp;").join(" ");
-
-					var desc:String=""
-					if (e.desc)
-						desc == HtmlEntities.encode(e.desc)
-					desc=desc.split("&nbsp;").join(" ");
-
-					if (e.type == "group")
-					{
-						xmlStr+="<node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  type='" + e.type + "'  >"
-						for (c=0; c < e.children.length; c++)
-						{
-							id=String(e.children.getItemAt(c));
-							child=EntityManager.instance.getItem(id) as Entity;
-							if (child)
-								xmlStr+="<node   id='" + child._id + "'  name='" + child.name + "'   desc='" + child.desc + "'  type='" + child.type + "'  />"
-						}
-						xmlStr+="</node>"
-					}
-					else
-						xmlStr+="<node   id='" + e._id + "'  name='" + name + "'   desc='" + desc + "'  type='" + e.type + "'  />"
-				}
-
-				//edges
-				var links:Array=new Array()
-				for (i=0; i < entitiesToShow.length; i++)
-				{
-					e=entitiesToShow.getItemAt(i) as Entity;
-					if (!e)
-						continue;
-					if (e.links)
-					{
-						for (var j:int=0; j < e.links.length; j++)
-						{
-							link=e.links.getItemAt(j) as Link;
-							if (!alreadyLinked(links, e._id, link.le))
-							{
-
-								if (link.versus == "out")
-								{
-									xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='out'";
-									links.push({source: e._id, target: link.le})
-								}
-								else if (link.versus == "in")
-								{
-									xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='in'";
-									links.push({source: link.le, target: e._id})
-								}
-								else if (link.versus == "both")
-								{
-									xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'";
-									links.push({source: e._id, target: link.le})
-								}
-								/*  else
-								{
-								xmlStr+="<edge source='" + e._id + "' target='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "' versus='both'>";
-								links.push({source:e._id, target:link.le})
-								}
-								*/
-								//add links
-								if (link.info.length > 0)
-								{
-									xmlStr+=" info='"
-									for (var k:int=0; k < link.info.length; k++)
-									{
-										xmlStr+=String(link.info.getItemAt(k))
-										if (k < link.info.length - 1)
-											xmlStr+=","
-									}
-									xmlStr+="'";
-								}
-
-								xmlStr+="/>"
-							}
-						}
-					}
-				}
-
-				//end
-				xmlStr+="</graphml>";
-
-				//xmlStr=""
-				xmlData=XML(xmlStr);
-				/* xmlData=<graphml>
-
-						<node id="t1"
-							name="Michael"
-							type="target"/>
-						<node id="t2"
-							name="Jack"
-							type="target"/>
-						<node id="t3"
-							name="Steve"
-							type="target"/>
-						<node id="l1"
-							name="Office"
-							type="position"/>
-						<node id="l2"
-							name="Home"
-							type="position"/>
-						<node id="v1"
-							name="Forum"
-							type="virtual"/>
-						<node id="g1" name="Friends">
-
-							<node id="p1"
-								name="John"
-								type="person"/>
-							<node id="p2"
-								name="Jimmy"
-								type="person"/>
-
-						</node>
-						<node id="g2" name="Colleagues">
-
-
-							<node id="p3"
-								name="Jane"
-								type="person"/>
-							<node id="p4"
-								name="Peter"
-								type="person"/>
-
-						</node>
-						<edge id="e1"
-							source="t1"
-							target="t2"
-							type="know"
-							direction="both"
-							relevance="0"/>
-						<edge id="e2"
-							source="t1"
-							target="t3"
-							type="peer"
-							direction="out"
-							relevance="0"/>
-						<edge id="e3"
-							source="t3"
-							target="l1"
-							type="peer"
-							direction="out"
-							relevance="2"/>
-						<edge id="e4"
-							source="t1"
-							target="l1"
-							type="peer"
-							direction="in"
-							relevance="3"/>
-						<edge id="e5"
-							source="t1"
-							target="p1"
-							type="know"
-							direction="in"
-							relevance="0"/>
-						<edge id="e6"
-							source="t3"
-							target="p1"
-							type="peer"
-							direction="out"
-							relevance="1"/>
-						<edge id="e7"
-							source="t1"
-							target="p3"
-							type="peer"
-							direction="out"
-							relevance="1"/>
-						<edge id="e8"
-							source="t2"
-							target="p4"
-							type="know"
-							direction="in"
-							relevance="0"/>
-					</graphml> */
-				trace(xmlData)
-				dp=xmlData
-				vis.dataProvider=dp
-				vis.reLayout()
-				//
-				trace("GETTING FLOWS")
-				getFlows(entities)
-			}
-
-			private function nodeRendererFunction(data:Object):CustomNodeRenderer
-			{
-				var renderer:CustomNodeRenderer=new CustomNodeRenderer();
-				if (data['type'] == "target")
-					renderer.icon.source=renderer.TargetIcon;
-				else if (data['type'] == "person")
-					renderer.icon.source=renderer.PersonIcon;
-				else if (data['type'] == "position")
-					renderer.icon.source=renderer.PositionIcon;
-				else if (data['type'] == "virtual")
-					renderer.icon.source=renderer.VirtualIcon;
-
-				renderer.label.text=data['name'];
-				return renderer
-			}
-
-			private function linkStyleFunction(data:Object):LinkStyle
-			{
-				var linkStyle:LinkStyle=new LinkStyle();
-
-				linkStyle.arrowWidth=10
-				linkStyle.arrowHeight=20
-				linkStyle.arrowRadius=10
-				linkStyle.thickness=2
-				//relevance
-
-				if (data['rel'] == '0')
-					linkStyle.lineColor=0x333333
-				else if (data['rel'] == '1')
-					linkStyle.lineColor=0x999999
-				else if (data['rel'] == '2')
-					linkStyle.lineColor=0x5DE35F
-				else if (data['rel'] == '3')
-					linkStyle.lineColor=0xFFDC42
-				else if (data['rel'] == '4')
-					linkStyle.lineColor=0xFF4034
-
-
-				//direction
-				if (data['versus'] == 'in')
-				{
-					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
-					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_NONE_TYPE
-
-				}
-				else if (data['versus'] == 'out')
-				{
-					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_NONE_TYPE
-					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
-				}
-				else if (data['versus'] == 'both')
-				{
-					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
-					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
-				}
-
-				//type
-				if (data['type'] == 'peer')
-					linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_SOLID;
-				else if (data['type'] == 'know')
-					linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_DASH;
-
-				return linkStyle;
-			}
-
-
-			private function filter(e:Event):void
-			{
-				trace("FILTER")
-				startDate=fromDf.selectedDate;
-				endDate=toDf.selectedDate;
-				timeline.stop()
-				timeline.startDate=startDate
-				timeline.endDate=endDate
-				timeline.update()
-				onAddedToStage(null);
-			}
-
-			private function onTimelineChange():void
-			{
-				trace("TIMELINE CHANGE")
-				var d:Date=new Date();
-				d.time=timeline.slider.value;
-				var formattedDate:String=String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
-
-				//reset
-				var currentEdge:Edge;
-				var currentRenderer:CustomLink;
-
-				if (vis)
-				{
-					for (var r:int=0; r < vis.graph.edges.length; r++)
-					{
-						currentEdge=vis.graph.edges[r] as Edge;
-						currentRenderer=currentEdge.visualEdge as CustomLink
-						currentRenderer.reset()
-
-					}
-				}
-
-				if (flows)
-				{
-					for (var i:int=0; i < flows.length; i++)
-					{
-						var flow:Flow=flows[i] as Flow;
-
-						if (flow.date == formattedDate)
-						{
-
-							for (var j:int=0; j < flow.flows.length; j++)
-							{
-								var f:Flows=flow.flows.getItemAt(j) as Flows;
-
-								if (vis)
-								{
-									for (var k:int=0; k < vis.graph.edges.length; k++)
-									{
-										currentEdge=vis.graph.edges[k] as Edge;
-										currentRenderer=currentEdge.visualEdge as CustomLink
-
-										if (currentRenderer.data.source == f.from && currentRenderer.data.target == f.rcpt || currentRenderer.data.source == f.rcpt && currentRenderer.data.target == f.from)
-										{
-
-											currentRenderer.showFlow(f.from, f.rcpt, f.count);
-												//currentRenderer.flow()
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
-			private function updateLinkLength():void
-			{
-				trace("UPDATE LINK LENGTH")
-			}
-
-			private function updateVScale(e:Event=null):void
-			{
-        trace(bzoom.value)  //1.1 - 0.9
-    
-        vis.scaleX=vis.scaleY=bzoom.value
-			}
-
-			protected function onSelectionChange():void
-			{
-				trace("VIS SELECTION CHANGED")
-				trace(vis.selection.length)
-
-				actionbar.selectedObject=null
-				actionbar.selectedObjects=null;
-				info.selectedItem=null;
-				info.selectedItems=null;
-
-				linkEnabled=actionbar.linkEnabled=false;
-				mergeEnabled=actionbar.mergeEnabled=false;
-				jumpEnabled=actionbar.jumpEnabled=false;
-				exportEnabled=actionbar.exportEnabled=true;
-
-				//Only 1 node 
-				if (vis.selection.length == 1 && vis.selection[0].data.name)
-				{
-					info.selectedItem=EntityManager.instance.getItem(String(vis.selection[0].data._id))
-					info.selectedItems=new <Object>[info.selectedItem];
-					actionbar.selectedObject=info.selectedItem;
-					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-					actionbar.selectedObjects.push(actionbar.selectedObject)
-				}
-				//Only 1 edge 
-				else if (vis.selection.length == 1 && vis.selection[0].data.versus!=null)
-				{
-					info.selectedItem=vis.selection[0].data
-					info.selectedItems=new <Object>[info.selectedItem];
-					actionbar.selectedObject=info.selectedItem;
-					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-					actionbar.selectedObjects.push(actionbar.selectedObject)
-
-					if (vis.selection[0].data.info && (vis.selection[0].data.type == "peer" || vis.selection[0].data.type == "know") && vis.selection[0].data.level == "automatic")
-						jumpEnabled=actionbar.jumpEnabled=true;
-				}
-				//merging enabled?
-				else if (vis.selection.length == 2)
-				{
-					trace("linked: " + areLinked(vis.selection[0].data._id, vis.selection[1].data._id))
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(vis.selection[0].data)
-					actionbar.selectedObjects.push(vis.selection[1].data)
-					if (vis.selection[0].data.name && vis.selection[1].data.name)
-						linkEnabled=actionbar.linkEnabled=true;
-
-					if ((vis.selection[0].data.type == "person" && vis.selection[1].data.type == "person") || (vis.selection[0].data.type == "target" && vis.selection[1].data.type == "person") || (vis.selection[0].data.type == "person" && vis.selection[1].data.type == "target"))
-					{
-						mergeEnabled=actionbar.mergeEnabled=true;
-					}
-				}
-				else if (vis.selection.length > 1)
-				{
-
-				}
-				//no selection do not enable export
-				if (vis.selection.length < 1)
-					exportEnabled=actionbar.exportEnabled=false;
-				else
-				{ //check if there is a link object in  selection
-					for (var i:int=0; i < vis.selection.length; i++)
-					{
-						if (!vis.selection[i].data.name) //link has no name
-							exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
-					}
-				}
-
-			}
-
-			private function areLinked(source:String, target:String):Boolean
-			{
-				var edge:Edge;
-				var renderer:CustomLink
-				for (var i:int=0; i < vis.graph.edges.length; i++)
-				{
-					edge=vis.graph.edges[i] as Edge
-					renderer=edge.visualEdge as CustomLink
-					if ((renderer.data.source == source && renderer.data.target == target) || (renderer.data.source == target && renderer.data.target == source))
-						return true
-				}
-
-				return false;
-			}
-
-			protected function onElementDoubleClick(event:VisualizerEvent):void
-			{
-				var item:*=EntityManager.instance.getItem(vis.selection[vis.selection.length - 1].data.id) //last selected
-
-				if (item)
-					section.stateManager.manageItemSelection(item);
-
-			}
-
-			private function getFlows(entities:ListCollectionView):void
-			{
-				if (!entities)
-					return;
-
-				var ids:Array=new Array();
-				flows=new ArrayCollection
-
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var e:Entity=entities.getItemAt(i) as Entity;
-					ids.push(e._id)
-				}
-				EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
-			}
-
-			private function onFlowResult(e:ResultEvent):void
-			{
-				//trace("flow result")
-				flows=e.result as ArrayCollection;
-				timeline.highlight(flows);
-			}
-
-			private function onFlowFault(e:FaultEvent):void
-			{
-				//trace("flow fault")
-			}
-
-			private function formatDate(d:Date):String
-			{
-				if (!d)
-					return "";
-				return String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
-			}
-
-			
-
-
-			
-
-			protected function onCreationComplete():void
-			{
-				// var customPan:CustomPan=new CustomPan()
-				// var panSettings:PanActionData=new PanActionData("default","default","default",true)
-
-				//vis.enablePan=true;
-				//       vis.deactivateAction(PanAction.ID)
-				//      vis.registerAction(CustomPan, false, panSettings);
-				//     vis.activateAction(CustomPan.ID, customPan)
-
-			}
-
-
-			private function group():void
-			{
-				trace("GROUP")
-				vis.groupElements({name: "friends"}, vis.selection)
-			}
-
-			private function ungroup():void
-			{
-				trace("GROUP")
-
-			}
+      private function filter(e:Event):void
+      {
+        trace("FILTER")
+      }
+      
+      public function draw():void
+      { 
+        trace("LINK MAP DRAW")
+        
+        entitiesToShow=new ArrayCollection()
+        
+        for (var i:int=0; i < entities.length; i++)
+        {
+          var entity:Entity=entities.getItemAt(i) as Entity; //TODO : ADD FILTERS
+           entitiesToShow.addItem(entity)
+        }
+        
+        graph.draw()
+      }
+	
+
+		
+	
 		]]>
 	</fx:Script>
 
-	<fx:Declarations>
-		<fx:XML id="dp"
-						xmlns="">
-
-		</fx:XML>
-	</fx:Declarations>
+	
 
 
 	<s:HGroup width="100%"
@@ -936,49 +192,9 @@
 								width="100%"
 								paddingTop="6">
 
-				<renderers:FilterRenderer label="Time"
-																	popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
-																	width="100"/>
-				<renderers:FilterRenderer label="Type"
-																	popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
-																	width="100"/>
-				<renderers:FilterRenderer label="Relevance"
-																	popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
-																	width="100"/>
-				<!--		<renderers:FilterRenderer label="Entities"
-																			popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
-																			width="100"/>-->
+		
 
-				<s:CheckBox label="target"
-										selected="true"
-										id="targetCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-				<s:CheckBox label="person"
-										selected="true"
-										id="personCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-				<s:CheckBox label="position"
-										selected="true"
-										id="positionCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-				<s:CheckBox label="virtual"
-										selected="true"
-										id="virtualCh"
-										change="filter(event)"
-										visible="false"
-										includeInLayout="false"/>
-
-				<s:Button label="group"
-									click="group() "/>
-				<s:Button label="ungroup"
-									click="ungroup()"/>
-
+		
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
@@ -1008,98 +224,9 @@
 
 
 
-				<diagrammer:Diagrammer width="100%"
-															 height="100%"
-															 id="vis"
-															 layout="balloon"
-															 creationComplete="init()"
-															 groupLabelField="name"
-															 linkStyleFunction="{linkStyleFunction}"
-															 nodeRendererFunction="{nodeRendererFunction}"
-															 
-															 enablePan="true"
-															 enableAnimation="false"
-															 groupRendererClass="{CustomGroupRenderer}"
-															 highlightLinksOnSelection="false"
-															 showNodeExpandCollapseButton="false"
-															 elementsSelectionChanged="onSelectionChange()"
-															 elementDoubleClicked="onElementDoubleClick(event)"/>
+		
+<graph:LinkGraph id="graph"/>
 
-
-				<s:HGroup x="6"
-									y="10"
-									verticalAlign="middle"
-									horizontalAlign="center">
-					<s:Label text="Zoom:"
-									 width="60"
-									 fontWeight="normal"
-									 textAlign="right"
-									 fontSize="10"/>
-					<s:Label text="-"/>
-					<s:HSlider stepSize=".1"
-										 x="6"
-										 y="6"
-										 id="bzoom"
-										 value="1"
-										 minimum=".25"
-										 maximum="2"
-										 liveDragging="true"
-										 change="updateVScale(null)"/>
-					<s:Label text="+"/>
-
-				</s:HGroup>
-
-				<s:HGroup x="6"
-									y="40"
-									verticalAlign="middle"
-									horizontalAlign="center">
-					<s:Label text="Link length:"
-									 width="60"
-									 fontWeight="normal"
-									 textAlign="right"
-									 fontSize="10"/>
-					<s:Label text="-"/>
-					<s:HSlider stepSize="25"
-										 x="6"
-										 y="6"
-										 id="lslider"
-										 value="80"
-										 liveDragging="true"
-										 change="updateLinkLength()"
-										 minimum="0"
-										 maximum="600"/>
-					<s:Label text="+"/>
-
-				</s:HGroup>
-
-
-				<s:HGroup y="6"
-									right="6"
-									verticalAlign="middle">
-					<s:VGroup horizontalAlign="center"
-										gap="0">
-						<s:Image source="{fullLine}"/>
-						<s:Label text="Peer"
-										 fontWeight="normal"
-										 fontSize="10"/>
-					</s:VGroup>
-					<s:Spacer width="10"/>
-					<s:VGroup horizontalAlign="center"
-										gap="0">
-						<s:Image source="{dashedLine}"/>
-						<s:Label text="Identity"
-										 fontWeight="normal"
-										 fontSize="10"/>
-					</s:VGroup>
-					<s:Spacer width="10"/>
-					<s:VGroup horizontalAlign="center"
-										gap="0">
-						<s:Image source="{dottedLine}"/>
-						<s:Label text="Know"
-										 fontWeight="normal"
-										 fontSize="10"/>
-					</s:VGroup>
-				</s:HGroup>
 			</s:BorderContainer>
 			<s:Line width="100%">
 				<s:stroke>

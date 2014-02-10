@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="350" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="100%" 
          close="closeMe(event)" title="{R.get('EVIDENCE_EXPORT')}"
          creationComplete="init()"
-         xmlns:view="it.ht.rcs.console.utils.*">
+         xmlns:view="it.ht.rcs.console.utils.*"
+         xmlns:filters="it.ht.rcs.console.operations.view.evidences.filters.*" xmlns:skin="com.flexpad.skin.*">
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.operations.view.evidences.filters.TypeFilterPopup;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -42,6 +45,7 @@
         setToTimestamp(today);
         
         exportname.text = defaultName();
+            
       }
       
       private function adjust():void
@@ -111,22 +115,31 @@
       protected function export(event:MouseEvent):void
       {
         var filter:Object = {};
-        
+       
         filter.from = getFromTimestamp();
         filter.to = getToTimestamp();
         
         filter.rel = getTags();
         
         filter.date = (date_da.selected == true) ? 'da' : 'dr'
+          
+          
+          if(filtered_rb.selected)
+          {
+            filter.type=[]
+           for(var i:int=0;i<types.checks.length;i++)
+           {
+             if(types.checks[i].selected) 
+               filter.type.push(types.checks[i].id);
+           }
+          }
+          
+          else
+          {
+            filter.type=null
+          }
         
-        if (types.selectedItems.length > 0) {
-          filter.type = new Array();
-        
-          for (var i:int = 0; i < types.selectedItems.length; i++) {
-            filter.type.push(types.selectedItems[i]);
-         }
-        }
-
+ 
         filter.blo = [blotter.selected];
         
         filter.target = target._id;
@@ -135,7 +148,7 @@
           filter.agent = agent._id;
         }
         
-        DownloadManager.instance.createTask("evidence", exportname.text, {note: note.selected, filter: filter}); 
+        DownloadManager.instance.createTask("evidence", exportname.text, {note: note.selected, filter: filter, connector:event.currentTarget.label==R.get('EXPORT_CONNECTOR')?true:false}); //check for license
         
         PopUpManager.removePopUp(this);
       }
@@ -155,17 +168,31 @@
         return export_file;
       }
       
+      private function cancel():void
+      {
+        closeMe(null);
+      }
+      
+      private function filterTypes():void
+      {
+        popup.displayPopUp=true
+      }
+      
+
+      
     ]]>
   </fx:Script>
 
   <fx:Declarations>
     <s:RadioButtonGroup id="date"/>
+    <s:RadioButtonGroup id="filter"/>
   </fx:Declarations>
   
-  <s:VGroup left="15" top="15" horizontalAlign="center">
+  <s:VGroup left="15" top="15" horizontalAlign="center" paddingBottom="15">
 
     <s:HGroup>
       <s:VGroup>
+      
         <s:HGroup verticalAlign="middle">
           <s:Label width="40" text="{R.get('FROM')}" fontWeight="bold"/>
           <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD" showToday="false" yearNavigationEnabled="true"/>
@@ -188,9 +215,9 @@
         <s:RadioButton id="date_dr" label="{R.get('DATE_RECEIVED')}" group="{date}"/>  
       </s:VGroup>
     </s:HGroup>
-    
+   
 
-    <s:HGroup paddingTop="15" gap="10">
+    <s:HGroup paddingTop="10" gap="10" >
       
       <s:VGroup horizontalAlign="left" height="100%">
         <s:Label text="{R.get('RELEVANCE')}:" fontWeight="bold"/>
@@ -220,38 +247,23 @@
       
       <s:VGroup height="100%">
         <s:Label text="{R.get('TYPE')}:" fontWeight="bold"/>
-        <s:VGroup paddingLeft="0" width="135" height="100%">
-          <s:List id="types" allowMultipleSelection="true" width="100%" height="150" >
-            <s:ArrayList>
-              <fx:String>addressbook</fx:String>
-              <fx:String>application</fx:String>
-              <fx:String>calendar</fx:String>
-              <fx:String>call</fx:String>
-              <fx:String>camera</fx:String>
-              <fx:String>command</fx:String>
-              <fx:String>chat</fx:String>
-              <fx:String>clipboard</fx:String>
-              <fx:String>device</fx:String>
-              <fx:String>file</fx:String>
-              <fx:String>keylog</fx:String>
-              <fx:String>ip</fx:String>
-              <fx:String>message</fx:String>
-              <fx:String>mic</fx:String>
-              <fx:String>money</fx:String>
-              <fx:String>mouse</fx:String>
-              <fx:String>password</fx:String>
-              <fx:String>position</fx:String>
-              <fx:String>print</fx:String>
-              <fx:String>screenshot</fx:String>
-              <fx:String>url</fx:String>
-            </s:ArrayList>
-          </s:List>
+        <s:VGroup width="100%" >
+          <s:RadioButton id="all_rb" label="{R.get('ALL')}" selected="true" group="{filter}"/>
+          <s:RadioButton id="filtered_rb" label="{R.get('FILTERED')}" group="{filter}" click="filterTypes()"/>  
+          <s:PopUpAnchor id="popup">
+           <s:BorderContainer backgroundAlpha=".90" backgroundColor="#333333" width="140" height="140" right="10" bottom="10" mouseDownOutside="{popup.displayPopUp=false}">
+             <s:Scroller width="100%" height="100%">
+              <filters:ExportTypeFilterPopup height="130" id="types"/>
+             </s:Scroller>  
+           </s:BorderContainer>
+          </s:PopUpAnchor>
         </s:VGroup>
+ 
       </s:VGroup>
  
       <s:VGroup height="100%">
         <s:Label text="{R.get('REPORT')}:" fontWeight="bold"/>
-        <s:VGroup paddingLeft="15" width="135" height="100%">
+        <s:VGroup paddingLeft="0" width="135" height="100%">
           <s:HGroup verticalAlign="top">
             <s:CheckBox id="blotter"/>
             <s:Label text="{R.get('REPORT_INCLUDED')}" width="100" />            
@@ -269,9 +281,14 @@
     <s:HGroup horizontalAlign="right" width="100%">
       <s:HGroup verticalAlign="middle" width="100%" horizontalAlign="left">
         <s:Label text="{R.get('REPORT_NAME')}:" fontWeight="bold"/>
-        <s:TextInput id="exportname" width="250"/>
+        <s:TextInput id="exportname" width="100%"/>
       </s:HGroup>
-      <s:Button label="{R.get('EXPORT')}" click="export(event)"/>
+      <s:Spacer height="20"/>
+    </s:HGroup>
+    <s:HGroup verticalAlign="middle" width="100%" horizontalAlign="center" paddingTop="10">
+      <s:Button label="{R.get('EXPORT_FILE')}" click="export(event)"/>
+      <s:Button label="{R.get('EXPORT_CONNECTOR')}" click="export(event)"/>
+      <s:Button label="{R.get('CANCEL')}" click="cancel()"/>
     </s:HGroup>
   </s:VGroup>
   

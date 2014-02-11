@@ -4,64 +4,63 @@
 					xmlns:s="library://ns.adobe.com/flex/spark"
 					xmlns:mx="library://ns.adobe.com/flex/mx"
 					xmlns:maps="com.google.maps.*"
-          xmlns:graph="it.ht.rcs.console.entities.view.graph.*"
+					xmlns:graph="it.ht.rcs.console.entities.view.graph.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
-          xmlns:components="it.ht.rcs.console.entities.view.components.*"
+					xmlns:components="it.ht.rcs.console.entities.view.components.*"
 					xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					xmlns:utils="it.ht.rcs.console.utils.*"
 					height="100%"
 					width="100%"
-					
 					creationComplete="onCreationComplete()">
 	<fx:Script>
 		<![CDATA[
-      import com.adrianparr.utils.HtmlEntities;
-      import com.greensock.TweenMax;
-      
-      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-      import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
-      import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
-      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
-      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
-      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
-      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
-      import fr.kapit.layouts.algorithms.radial.RadialLayout;
-      import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
-      import fr.kapit.layouts.algorithms.sugiyama.SugiyamaLayoutParams;
-      import fr.kapit.layouts.constants.EdgeDrawType;
-      import fr.kapit.layouts.constants.RootSelectionType;
-      import fr.kapit.layouts.model.Edge;
-      import fr.kapit.visualizer.Visualizer;
-      import fr.kapit.visualizer.actions.PanAction;
-      import fr.kapit.visualizer.actions.data.PanActionData;
-      import fr.kapit.visualizer.base.IGroup;
-      import fr.kapit.visualizer.base.ISprite;
-      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-      import fr.kapit.visualizer.events.VisualizerEvent;
-      import fr.kapit.visualizer.styles.LinkStyle;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Flow;
-      import it.ht.rcs.console.entities.model.Flows;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.entities.view.actions.CustomPan;
-      import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
-  
-      import it.ht.rcs.console.events.RefreshEvent;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.core.FlexGlobals;
-      import mx.events.FlexEvent;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import com.adrianparr.utils.HtmlEntities;
+			import com.greensock.TweenMax;
+
+			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+			import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
+			import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
+			import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
+			import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
+			import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
+			import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
+			import fr.kapit.layouts.algorithms.radial.RadialLayout;
+			import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
+			import fr.kapit.layouts.algorithms.sugiyama.SugiyamaLayoutParams;
+			import fr.kapit.layouts.constants.EdgeDrawType;
+			import fr.kapit.layouts.constants.RootSelectionType;
+			import fr.kapit.layouts.model.Edge;
+			import fr.kapit.visualizer.Visualizer;
+			import fr.kapit.visualizer.actions.PanAction;
+			import fr.kapit.visualizer.actions.data.PanActionData;
+			import fr.kapit.visualizer.base.IGroup;
+			import fr.kapit.visualizer.base.ISprite;
+			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+			import fr.kapit.visualizer.events.VisualizerEvent;
+			import fr.kapit.visualizer.styles.LinkStyle;
+
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Flow;
+			import it.ht.rcs.console.entities.model.Flows;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.view.actions.CustomPan;
+			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
+			import it.ht.rcs.console.entities.view.renderers.CustomLink;
+			import it.ht.rcs.console.events.RefreshEvent;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ListCollectionView;
@@ -116,8 +115,8 @@
 			private var flows:ArrayCollection;
 
 			public var inited:Boolean; //??
-      
-      private var drawing:Boolean
+
+			private var drawing:Boolean
 
 			[Embed(source='/img/NEW/dottedLine.png')]
 			public static const dottedLine:Class;
@@ -128,58 +127,162 @@
 			[Embed(source='/img/NEW/fullLine.png')]
 			public static const fullLine:Class;
 
-      
-      private function onCreationComplete():void
-      {
-      trace("LINK VIEW CREATION COMPLETE")
-      
-      }
+
+			private function onCreationComplete():void
+			{
+				trace("LINK VIEW CREATION COMPLETE")
+			}
 
 			public function init():void
 			{
 				trace("LINK VIEW INIT")
-        
-        if (!entities)
-          return;
+
+				if (!entities)
+					return;
 
 			}
 
-   
+			private function onTimelineChange():void
+			{
+				trace("TIMELINE CHANGE")
+			}
 
-		
-      private function onTimelineChange():void
-      {
-        trace("TIMELINE CHANGE")
-      }
+			private function filter(e:Event):void
+			{
+				trace("FILTER")
+			}
 
-      private function filter(e:Event):void
-      {
-        trace("FILTER")
-      }
-      
-      public function draw():void
-      { 
-        trace("LINK MAP DRAW")
-        
-        entitiesToShow=new ArrayCollection()
-        
-        for (var i:int=0; i < entities.length; i++)
-        {
-          var entity:Entity=entities.getItemAt(i) as Entity; //TODO : ADD FILTERS
-           entitiesToShow.addItem(entity)
-        }
-        
-        graph.draw()
-      }
-	
+			public function draw():void
+			{
+				trace("LINK MAP DRAW")
 
-		
-	
+				entitiesToShow=new ArrayCollection()
+
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var entity:Entity=entities.getItemAt(i) as Entity; //TODO : ADD FILTERS
+					entitiesToShow.addItem(entity)
+				}
+				graph.draw(entitiesToShow)
+			}
+
+			protected function onElementDoubleClick():void
+			{
+				var item:*=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data._id) //last selected
+
+				if (item)
+					section.stateManager.manageItemSelection(item);
+
+			}
+
+			protected function onSelectionChange():void
+			{
+				trace("VIS SELECTION CHANGED")
+				trace(graph.selection.length)
+
+				actionbar.selectedObject=null
+				actionbar.selectedObjects=null;
+				info.selectedItem=null;
+				info.selectedItems=null;
+
+				linkEnabled=actionbar.linkEnabled=false;
+				mergeEnabled=actionbar.mergeEnabled=false;
+				jumpEnabled=actionbar.jumpEnabled=false;
+				exportEnabled=actionbar.exportEnabled=true;
+
+				//Only 1 node 
+				if (graph.selection.length == 1 && graph.selection[0].data.name)
+				{
+					info.selectedItem=EntityManager.instance.getItem(String(graph.selection[0].data._id))
+					info.selectedItems=new <Object>[info.selectedItem];
+					actionbar.selectedObject=info.selectedItem;
+					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+					actionbar.selectedObjects.push(actionbar.selectedObject)
+				}
+				//Only 1 edge 
+				else if (graph.selection.length == 1 && graph.selection[0].data.versus != null)
+				{
+					info.selectedItem=graph.selection[0].data
+					info.selectedItems=new <Object>[info.selectedItem];
+					actionbar.selectedObject=info.selectedItem;
+					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+					actionbar.selectedObjects.push(actionbar.selectedObject)
+
+					if (graph.selection[0].data.info && (graph.selection[0].data.type == "peer" || graph.selection[0].data.type == "know") && graph.selection[0].data.level == "automatic")
+						jumpEnabled=actionbar.jumpEnabled=true;
+				}
+				//merging enabled?
+				else if (graph.selection.length == 2)
+				{
+					trace("linked: " + areLinked(graph.selection[0].data._id, graph.selection[1].data._id))
+					actionbar.selectedObjects=new Vector.<Object>
+					actionbar.selectedObjects.push(graph.selection[0].data)
+					actionbar.selectedObjects.push(graph.selection[1].data)
+					if (graph.selection[0].data.name && graph.selection[1].data.name)
+						linkEnabled=actionbar.linkEnabled=true;
+
+					if ((graph.selection[0].data.type == "person" && graph.selection[1].data.type == "person") || (graph.selection[0].data.type == "target" && graph.selection[1].data.type == "person") || (graph.selection[0].data.type == "person" && graph.selection[1].data.type == "target"))
+					{
+						mergeEnabled=actionbar.mergeEnabled=true;
+					}
+				}
+				else if (graph.selection.length > 1)
+				{
+
+				}
+				//no selection do not enable export
+				if (graph.selection.length < 1)
+					exportEnabled=actionbar.exportEnabled=false;
+				else
+				{ //check if there is a link object in  selection
+					for (var i:int=0; i < graph.selection.length; i++)
+					{
+						if (!graph.selection[i].data.name) //link has no name
+							exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
+					}
+				}
+
+			}
+
+			private function areLinked(source:String, target:String):Boolean
+			{
+				var edge:Edge;
+				var renderer:CustomLink
+				for (var i:int=0; i < graph.vis.graph.edges.length; i++)
+				{
+					edge=graph.vis.graph.edges[i] as Edge
+					renderer=edge.visualEdge as CustomLink
+					if ((renderer.data.source == source && renderer.data.target == target) || (renderer.data.source == target && renderer.data.target == source))
+						return true
+				}
+
+				return false;
+			}
+
+			private function updateLinkLength():void
+			{
+				trace("UPDATE LINK LENGTH")
+				var layout:BalloonLayout=graph.vis.layout as BalloonLayout;
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
+
+				params.nodesSpacing=50;
+				params.loopMargin=50;
+				params.loopSpacing=50;
+				params.childAngularSector=360;
+				params.rootAngularSector=360;
+				params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
+				params.overlappingAvoidMethod=0;
+				params.packingSpacing=50
+				graph.vis.balloonLayout.params=params;
+			}
+
+			private function zoom():void
+			{
+				trace("ZOOM")
+				graph.vis.zoomContent(bzoom.value, null, false)
+			}
 		]]>
 	</fx:Script>
-
-	
-
 
 	<s:HGroup width="100%"
 						height="100%"
@@ -192,9 +295,6 @@
 								width="100%"
 								paddingTop="6">
 
-		
-
-		
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
 								 fontWeight="bold"/>
@@ -222,11 +322,55 @@
 												 width="100%"
 												 height="100%">
 
+				<graph:LinkGraph id="graph"
+												 selectionChange="onSelectionChange()"
+												 elementDoubleClick="onElementDoubleClick()"/>
 
+				<s:HGroup x="6"
+									y="10"
+									verticalAlign="middle"
+									horizontalAlign="center">
+					<s:Label text="Zoom:"
+									 width="60"
+									 fontWeight="normal"
+									 textAlign="right"
+									 fontSize="10"/>
+					<s:Label text="-"/>
+					<s:HSlider stepSize=".1"
+										 x="6"
+										 y="6"
+										 id="bzoom"
+										 value="1"
+										 minimum=".8"
+										 maximum="1.2"
+										 liveDragging="true"
+										 change="zoom()"/>
+					<s:Label text="+"/>
 
-		
-<graph:LinkGraph id="graph"/>
+				</s:HGroup>
 
+				<s:HGroup x="6"
+									y="40"
+									verticalAlign="middle"
+									horizontalAlign="center">
+					<s:Label text="Link length:"
+									 width="60"
+									 fontWeight="normal"
+									 textAlign="right"
+									 fontSize="10"/>
+					<s:Label text="-"/>
+					<s:HSlider stepSize="25"
+										 x="6"
+										 y="6"
+										 id="lslider"
+										 value="80"
+										 liveDragging="true"
+										 change="updateLinkLength()"
+										 minimum="0"
+										 maximum="600"/>
+					<s:Label text="+"/>
+
+				</s:HGroup>
 			</s:BorderContainer>
 			<s:Line width="100%">
 				<s:stroke>

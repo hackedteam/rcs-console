@@ -1,145 +1,292 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" 
-         xmlns:diagrammer="fr.kapit.diagrammer.*" 
-         width="100%"
-         height="100%">
-  
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:diagrammer="fr.kapit.diagrammer.*"
+				 width="100%"
+				 height="100%">
+	<fx:Metadata> 
+    [Event(name="selectionChange", type="flash.events.Event")] 
+    [Event(name="elementDoubleClick", type="flash.events.Event")] 
+  </fx:Metadata>
 
 
-<fx:Script>
-  <![CDATA[
-    import flash.net.dns.AAAARecord;
-    
-    import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-    import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-    import fr.kapit.layouts.constants.RootSelectionType;
-    import fr.kapit.visualizer.events.VisualizerEvent;
-    import fr.kapit.visualizer.styles.LinkStyle;
-    
-    import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
-    import it.ht.rcs.console.entities.view.renderers.CustomLink;
-    import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
-    
-    protected function onElementDoubleClick(event:VisualizerEvent):void
-    {
+	<fx:Script>
+		<![CDATA[
+			import flash.net.dns.AAAARecord;
+
+			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+			import fr.kapit.layouts.constants.RootSelectionType;
+			import fr.kapit.visualizer.base.ISprite;
+			import fr.kapit.visualizer.events.VisualizerEvent;
+			import fr.kapit.visualizer.styles.LinkStyle;
+
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
+			import it.ht.rcs.console.entities.view.renderers.CustomLink;
+			import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
+
+			import mx.collections.ArrayCollection;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
+
+			private var sort:Sort;
+			private var entities:ArrayCollection
+      
+      
+      public var selection:Array;
+
+			protected function onElementDoubleClick(event:VisualizerEvent):void
+			{
+        dispatchEvent(new Event("elementDoubleClick"))
+       
+			}
+
+			protected function onSelectionChange(event:VisualizerEvent):void
+			{
+        selection= vis.selection
+				dispatchEvent(new Event("selectionChange"))
+			}
+
+			private function initGraph():void
+			{
+				trace("GRAPH INIT")
+
+				sort=new Sort();
+				sort.fields=[new SortField("type", true), new SortField("name", false)]
+
+
+				var layout:BalloonLayout=vis.layout as BalloonLayout;
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
+
+				params.nodesSpacing=100;
+				params.loopMargin=100;
+				params.loopSpacing=100;
+				params.childAngularSector=360;
+				params.rootAngularSector=360;
+				params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
+				params.overlappingAvoidMethod=0;
+				params.packingSpacing=100
+				vis.balloonLayout.params=params;
+				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
+
+			}
+
+
+			private function linkStyleFunction(data:Object):LinkStyle
+			{
+				var linkStyle:LinkStyle=new LinkStyle();
+
+				linkStyle.arrowWidth=10
+				linkStyle.arrowHeight=20
+				linkStyle.arrowRadius=10
+				linkStyle.thickness=2
+				//relevance
+
+				if (data['rel'] == '0')
+					linkStyle.lineColor=0x333333
+				else if (data['rel'] == '1')
+					linkStyle.lineColor=0x999999
+				else if (data['rel'] == '2')
+					linkStyle.lineColor=0x5DE35F
+				else if (data['rel'] == '3')
+					linkStyle.lineColor=0xFFDC42
+				else if (data['rel'] == '4')
+					linkStyle.lineColor=0xFF4034
+
+
+				//direction
+				if (data['versus'] == 'in')
+				{
+					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
+					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_NONE_TYPE
+
+				}
+				else if (data['versus'] == 'out')
+				{
+					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_NONE_TYPE
+					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
+				}
+				else if (data['versus'] == 'both')
+				{
+					linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE;
+					linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE;
+				}
+
+				//type
+				if (data['type'] == 'peer')
+					linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_SOLID;
+				else if (data['type'] == 'know')
+					linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_DASH;
+
+				return linkStyle;
+			}
+
+			private function nodeRendererFunction(data:Object):CustomNodeRenderer
+			{
+				var renderer:CustomNodeRenderer=new CustomNodeRenderer();
+				if (data['type'] == "target")
+					renderer.icon.source=renderer.TargetIcon;
+				else if (data['type'] == "person")
+					renderer.icon.source=renderer.PersonIcon;
+				else if (data['type'] == "position")
+					renderer.icon.source=renderer.PositionIcon;
+				else if (data['type'] == "virtual")
+					renderer.icon.source=renderer.VirtualIcon;
+
+				renderer.label.text=data['name'];
+				return renderer
+			}
+
+			public function draw(entities:ArrayCollection):void
+			{
 
       
-    }
-    
-    protected function onSelectionChange(event:VisualizerEvent):void
-    {
- 
-      
-    }
-    
-    private function initGraph():void
-    {
-      trace("GRAPH INIT")
-      var layout:BalloonLayout=vis.layout as BalloonLayout;
-      var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
-      params.nodesSpacing=100;
-      params.loopMargin=100;
-      params.loopSpacing=100;
-      params.childAngularSector=360;
-      params.rootAngularSector=360;
-      params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
-      params.overlappingAvoidMethod=0;
-      params.packingSpacing=100
-      vis.balloonLayout.params=params;
-      vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
-    
-    }
-    
-    
-    private function linkStyleFunction(data:Object):LinkStyle
-    {
-      var linkStyle:LinkStyle=new LinkStyle();
-      
-      linkStyle.arrowWidth=10
-      linkStyle.arrowHeight=20
-      linkStyle.arrowRadius=10
-      linkStyle.thickness=2
-      //relevance
-      
-      if (data['rel'] == '0')
-        linkStyle.lineColor=0x333333
-      else if (data['rel'] == '1')
-        linkStyle.lineColor=0x999999
-      else if (data['rel'] == '2')
-        linkStyle.lineColor=0x5DE35F
-      else if (data['rel'] == '3')
-        linkStyle.lineColor=0xFFDC42
-      else if (data['rel'] == '4')
-        linkStyle.lineColor=0xFF4034
-      
-      
-      //direction
-      if (data['versus'] == 'in')
-      {
-        linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
-        linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_NONE_TYPE
-        
-      }
-      else if (data['versus'] == 'out')
-      {
-        linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_NONE_TYPE
-        linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
-      }
-      else if (data['versus'] == 'both')
-      {
-        linkStyle.arrowSourceType=LinkStyle.LINK_ARROW_ARROW_TYPE
-        linkStyle.arrowTargetType=LinkStyle.LINK_ARROW_ARROW_TYPE
-      }
-      
-      //type
-      if (data['type'] == 'peer')
-        linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_SOLID;
-      else if (data['type'] == 'know')
-        linkStyle.renderingPolicy=LinkStyle.LINK_RENDERING_DASH;
-      
-      return linkStyle;
-    }
-    
-    private function nodeRendererFunction(data:Object):CustomNodeRenderer
-    {
-      var renderer:CustomNodeRenderer=new CustomNodeRenderer();
-      if (data['type'] == "target")
-        renderer.icon.source=renderer.TargetIcon;
-      else if (data['type'] == "person")
-        renderer.icon.source=renderer.PersonIcon;
-      else if (data['type'] == "position")
-        renderer.icon.source=renderer.PositionIcon;
-      else if (data['type'] == "virtual")
-        renderer.icon.source=renderer.VirtualIcon;
-      
-      renderer.label.text=data['name'];
-      return renderer
-    }
-    
-    public function draw():void
-    {
-      trace("DRAW GRAPH")
-      vis.clearAll()
-    }
-  ]]>
-</fx:Script>
-  
-  <diagrammer:Diagrammer 
-    width="100%"
-    height="100%"
-    id="vis"
-    layout="balloon"
-    creationComplete="initGraph()"
-    groupLabelField="name"
-    linkStyleFunction="{linkStyleFunction}"
-    nodeRendererFunction="{nodeRendererFunction}"
-    enablePan="true"
-    enableAnimation="false"
-    groupRendererClass="{CustomGroupRenderer}"
-    highlightLinksOnSelection="false"
-    showNodeExpandCollapseButton="false"
-    elementsSelectionChanged="onSelectionChange(event)"
-    elementDoubleClicked="onElementDoubleClick(event)"/>
+				trace("DRAW GRAPH")
+
+
+
+				this.entities=entities;
+
+				if (entities.length == 0 || !entities)
+				{
+					vis.visible=false;
+					return;
+				}
+				vis.visible=true;
+				vis.enablePan=false;
+				vis.enableSelectionDrag=false; //??
+
+				vis.removeAll()
+				vis.clearAll()
+
+				entities.sort=sort;
+				entities.refresh();
+
+				var i:int;
+				var entity:Entity;
+				var link:Link;
+
+				var source:ISprite;
+				var target:ISprite;
+
+
+
+				//add Node Elements
+				for (i=0; i < entities.length; i++)
+				{
+					entity=entities.getItemAt(i) as Entity;
+					if (entity.type != "group")
+					{
+						vis.addNodeElement(entity, null, null, null, entity._id)
+					}
+
+				}
+
+
+				//vis.reLayout()
+				//links
+				var links:Array=new Array()
+				for (i=0; i < entities.length; i++)
+				{
+					entity=entities.getItemAt(i) as Entity;
+					if (!entity)
+						continue;
+					if (entity.links)
+					{
+						for (var j:int=0; j < entity.links.length; j++)
+						{
+							link=entity.links.getItemAt(j) as Link;
+
+							if (alreadyLinked(links, entity._id, link.le))
+								continue;
+
+							if (link.versus == "out")
+							{
+								source=vis.nodesMap[entity._id];
+								target=vis.nodesMap[link.le];
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "out", info:link.info, source:entity._id,target:link.le }, source, target)
+								links.push({source: entity._id, target: link.le})
+
+							}
+							else if (link.versus == "in")
+							{
+
+								source=vis.nodesMap[entity._id];
+								target=vis.nodesMap[link.le];
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "in",  info:link.info, source:entity._id,target:link.le}, source, target)
+								links.push({source: entity._id, target: link.le})
+							}
+							else if (link.versus == "both")
+							{
+
+								source=vis.nodesMap[entity._id];
+								target=vis.nodesMap[link.le];
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "both", info:link.info, source:entity._id,target:link.le}, source, target)
+								links.push({source: entity._id, target: link.le})
+							}
+
+
+						}
+					}
+				}
+				//groups
+
+				vis.reLayout(); //??
+				addGroups();
+			}
+
+			public function addGroups():void
+			{
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var entity:Entity=entities.getItemAt(i) as Entity;
+					if (entity.type == "group")
+					{
+						var elements:Array=new Array();
+						for (var c:int=0; c < entity.children.length; c++)
+						{
+							elements.push(vis.nodesMap[entity.children[c]]);
+						}
+						vis.groupElements(entity, elements, null, entity._id);
+					}
+
+				}
+				vis.reLayout();
+				vis.enableSelectionDrag=true;
+				vis.enablePan=true;
+        //vis.setFocus()
+			}
+
+			private function alreadyLinked(links:Array, source:String, target:String):Boolean
+			{
+				for (var i:int=0; i < links.length; i++)
+				{
+					if ((links[i].target == target && links[i].source == source) || (links[i].target == source && links[i].source == target))
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+		]]>
+	</fx:Script>
+
+	<diagrammer:Diagrammer width="100%"
+												 height="100%"
+												 id="vis"
+												 layout="balloon"
+												 creationComplete="initGraph()"
+												 groupLabelField="name"
+												 linkStyleFunction="{linkStyleFunction}"
+												 nodeRendererFunction="{nodeRendererFunction}"
+												 enableAnimation="false"
+												 groupRendererClass="{CustomGroupRenderer}"
+												 highlightLinksOnSelection="false"
+												 showNodeExpandCollapseButton="false"
+												 elementsSelectionChanged="onSelectionChange(event)"
+												 elementDoubleClicked="onElementDoubleClick(event)"/>
 </s:Group>

@@ -1,151 +1,306 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
-				 xmlns:s="library://ns.adobe.com/flex/spark"
-				 xmlns:mx="library://ns.adobe.com/flex/mx"
-				 implements="fr.kapit.visualizer.renderers.IGroupRenderer,mx.core.IDataRenderer, fr.kapit.visualizer.renderers.ISelectable"
-				 resize="onResize()"
-				 useHandCursor="true"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         xmlns:renderers="fr.kapit.lab.demo.ui.renderers.*"
+         xmlns:util="fr.kapit.lab.demo.util.*"
+         xmlns:ns="http://www.kapit.fr/flex4/ui"
+         implements="fr.kapit.visualizer.renderers.IGroupRenderer, fr.kapit.visualizer.renderers.IRenderer, fr.kapit.visualizer.renderers.ISelectable, fr.kapit.visualizer.renderers.IAnchorable"
+         width="500" height="500" 
+         currentState="expandedAndEdited"
+         creationComplete="this_creationCompleteHandler(event)" xmlns:data="fr.kapit.visualizer.utils.data.*"  useHandCursor="true"
 				 buttonMode="true">
-  
-  
-	<fx:Script>
-		<![CDATA[
-      import fr.kapit.visualizer.renderers.IGroupRenderer;
+  <fx:Script>
+    <![CDATA[
+      import fr.kapit.visualizer.base.IItem;
+      import fr.kapit.visualizer.utils.data.AnchorsDescriptor;
       
-      import mx.core.IDataRenderer;
+      import mx.events.FlexEvent;
       
+      import spark.events.TextOperationEvent;
       import spark.filters.GlowFilter;
-
-
-			[Embed(source="/img/NEW/entity_operation_50.png")]
-			[Bindable]
-			public var OperationIcon:Class;
-
-			[Bindable]
-			private var _data:Object;
-
-			[Bindable]
-			private var _isGroupExpanded:Boolean;
       
-      private var filter:spark.filters.GlowFilter=new GlowFilter(0x0099FF, 1,10,10,1,1)
-        
-        
-      public var xStart:Number=0;
-      public var yStart:Number=0;
+      /* *******
+      * Internal Getters/Setters
+      *************/
       
+      protected var _isEditionRequested:Boolean=false;
+      protected var _rendererStateChanged:Boolean;
+
+      private var filter:spark.filters.GlowFilter=new GlowFilter(0x0099FF, 1,10,10,1,1) //selection filter
+      public function get isEditionRequested():Boolean
+      {
+        return _isEditionRequested;
+      }
       
-
-
-			public function set data(value:Object):void
-			{
-				_data=value;
-				//icon.source=OperationIcon
-				label.text=value.name;
-			}
-
-			public function get data():Object
-			{
-				return _data;
-			}
-
-			public function get groupPaddingTop():Number
-			{
-				return 40;
-			}
-
-			public function get groupPaddingBottom():Number
-			{
-				return 5;
-			}
-
-			public function get groupPaddingLeft():Number
-			{
-				return 5;
-			}
-
-			public function get groupPaddingRight():Number
-			{
-				return 5;
-			}
-
-			public function get groupMinWidth():Number
-			{
-				return 100;
-			}
-
-			public function get groupMinHeight():Number
-			{
-				return 30;
-			}
-
-			public function set isGroupExpanded(value:Boolean):void
-			{
-				_isGroupExpanded=value
-
-			}
-
-			public function get isGroupExpanded():Boolean
-			{
-				return _isGroupExpanded;
-			}
-
-			private function onResize():void
-			{
-				trace("resizing")
-			}
-
+      public function set isEditionRequested(value:Boolean):void
+      {
+        _isEditionRequested = value;
+        _rendererStateChanged = true;
+        invalidateProperties();
+      }
+      
+      [Bindable]
+      protected var _label:String;
+      
+      public function get label():String
+      {
+        return _label;
+      }
+      
+      public function set label(value:String):void
+      {
+        _label = value;
+      }
+      
+      /* *******
+      * ISelectable impl
+      *************/
+      
       private var _isSelected:Boolean;
-      
+      [Bindable]
       public function get isSelected():Boolean
       {
         return _isSelected;
       }
+      
       public function set isSelected(value:Boolean):void
       {
         _isSelected = value;
-        if(value)
+        _rendererStateChanged = true;
+        invalidateProperties();
+        
+  
+      
+      }
+      
+      protected var _isHighlighted:Boolean;
+      public function get isHighlighted():Boolean
+      {
+        return _isHighlighted;
+      } 
+      public function set isHighlighted(value:Boolean):void
+      {
+        _isHighlighted=value;
+        invalidateDisplayList();
+      }
+      
+      /* *******
+      * IGroupRenderer impl
+      *************/
+      
+      protected var _groupMinHeight:Number=50;
+      public function get groupMinHeight():Number
+      {
+        return groupbl.height;
+      }
+      protected var _groupMinWidth:Number=40;
+      public function get groupMinWidth():Number
+      {
+        return groupbl.width+30;
+      }
+      
+      protected var _groupPaddingBottom:Number=5;
+      public function get groupPaddingBottom():Number
+      {
+        return _groupPaddingBottom;
+      }
+      
+      protected var _groupPaddingLeft:Number=5;
+      public function get groupPaddingLeft():Number
+      {
+        return _groupPaddingLeft;
+      }
+      
+      protected var _groupPaddingRight:Number=5;
+      public function get groupPaddingRight():Number
+      {
+        return _groupPaddingRight;
+      }
+      
+      protected var _groupPaddingTop:Number=35;
+      public function get groupPaddingTop():Number
+      {
+        return _groupPaddingTop;
+      }
+      
+      
+      protected var _isGroupExpanded:Boolean=true;
+      public function set isGroupExpanded(value:Boolean):void
+      {
+        _isGroupExpanded = value;
+        _rendererStateChanged = true;
+        invalidateProperties();
+      }
+      
+      /* *******
+      * IRenderer impl
+      *************/
+      
+      protected var _data:Object;
+      public function get data():Object
+      {
+        return _data;
+      }
+      public function set data(value:Object):void
+      {
+        _data = value;
+        _label=_data.name as String;
+      }
+      
+      protected var _isFixed:Boolean;
+      
+      public function get isFixed():Boolean
+      {
+        return _isFixed;
+      }
+      public function set isFixed(value:Boolean):void
+      {
+        _isFixed = value;
+      }
+      
+      protected var _item:IItem
+      public function get item():IItem
+      {
+        return _item;
+      }
+      public function set item(value:IItem):void
+      {
+        _item = value;
+      }
+      
+      
+      /* *******
+      * Overriden Methods
+      *************/
+      
+      protected override function commitProperties():void
+      {
+        super.commitProperties();
+        if(_rendererStateChanged)
+        {
+          commitRendererStates();
+          _rendererStateChanged = false;
+        }
+      }
+      
+      /* *******
+      * Helper Methods
+      *************/
+      
+      protected function commitRendererStates():void
+      {
+        if(!_isSelected && _isEditionRequested)
+          _isEditionRequested = false;
+        currentState = (_isGroupExpanded ? "expanded":"collapsed") + 
+          (_isEditionRequested ? "AndEditing" : "AndEdited");
+        isFixed = _isEditionRequested;
+        
+      }
+      /* *********
+      * IAnchorable interface
+      **************/
+      
+      [Bindable]
+      private var anchorPoints:Vector.<Number> = Vector.<Number>([0,0.5,0.5,0,1,0.5,0.5,1]);
+      public function get anchors():AnchorsDescriptor
+      {
+        return anchorsDescriptor; 	// Can be extracted from data also if 
+        // a ports property is set
+      }
+      public function set anchors(value:AnchorsDescriptor):void
+      {
+        anchorsDescriptor = value;
+      }
+      
+      public function get useStrictAnchoring():Boolean
+      {
+        return false;
+      }
+      public function set useStrictAnchoring(value:Boolean):void
+      {
+        //No need for settings
+      }
+      
+      /* *******
+      * Event Handlers
+      *************/
+      
+      protected function this_creationCompleteHandler(event:FlexEvent):void
+      {
+        addEventListener(MouseEvent.DOUBLE_CLICK, this_doubleClickHandler);
+      }
+      protected function this_doubleClickHandler(event:MouseEvent):void
+      {
+        
+        isEditionRequested=true;
+      }
+      protected function groupTxt_changeHandler(event:TextOperationEvent):void
+      {
+        _data.label = _label = groupTxt.text;
+      }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+      {
+        super.updateDisplayList(unscaledWidth,unscaledHeight);
+        if (_isHighlighted)
+          filters=[new spark.filters.GlowFilter(0x0C71B3,0.7,4,4)];
+        else
+          filters=null;
+        
+        if(_isSelected)
           this.filters=[filter]
         else
           this.filters=null
       }
       
-      private var _isHighlighted:Boolean;
       
-      public function get isHighlighted():Boolean
-      {
-        return _isHighlighted;
-      }
-      
-      public function set isHighlighted(value:Boolean):void
-      {
-        _isHighlighted = value;
-      }
-      
-		]]>
-	</fx:Script>
-	<!--<s:VGroup paddingBottom="0"
-						paddingLeft="0"
-						paddingRight="0"
-						paddingTop="0"
-						width="100%"
-						verticalAlign="middle"
-						horizontalAlign="center">
-		<s:Label id="label"
-						 width="100"
-						 maxDisplayedLines="2"
-						 textAlign="center"
-						 fontWeight="bold"/>
-		<s:Image id="icon"
-						 width="50"
-						 height="50"/>
-
-	</s:VGroup>-->
-	<s:BorderContainer width="100%"
-										 height="100%"
-										 id="frame"
-                     alpha="0.7"/>
-	<s:Label id="label"
-					 x="30"
-					 y="10"
-					 fontWeight="bold"/>
+    ]]>
+  </fx:Script>
+  <fx:Declarations>
+    <data:AnchorsDescriptor id="anchorsDescriptor" type="{AnchorsDescriptor.ANCHORS_TYPE_LIST}" anchorPoints="{anchorPoints}"/>
+  </fx:Declarations>
+  <s:states>
+    <s:State name="expandedAndEdited" stateGroups="edited,expanded"/>
+    <s:State name="collapsedAndEdited" stateGroups="edited,collapsed"/>
+    <s:State name="expandedAndEditing" stateGroups="editing,expanded"/>
+    <s:State name="collapsedAndEditing" stateGroups="editing,collapsed"/>
+  </s:states>
+  
+  
+  <!--Content Background -->
+  <s:Group includeIn="collapsed" width="100%" height="100%">
+    <s:Rect left="1" right="1" top="1" bottom="1" width="100%" height="100%">
+      <s:fill>
+        <s:LinearGradient rotation="90">
+          <s:GradientEntry color="0xFEFEFE"/>
+          <s:GradientEntry color="0xEFEFEF"/>
+        </s:LinearGradient>
+      </s:fill>
+    </s:Rect>
+    <s:BorderContainer width="100%" height="100%" borderColor="0x646464" 
+                     />
+  </s:Group>
+  <s:VGroup width="100%" height="100%" gap="0">
+    <s:Group includeIn="expanded" width="100%" height="100%">
+      <s:Rect left="1" right="1" top="1" bottom="1">
+        <s:fill>
+          <s:SolidColor alpha="0.5" color="0xFCFCFC"/>
+        </s:fill>
+      </s:Rect> 
+      <s:BorderContainer width="100%" height="100%" borderColor="0x646464" /> 
+    </s:Group>
+  </s:VGroup>
+  <!--Label-->
+  <s:Label id="groupbl" includeIn="edited" height="30" 
+           paddingLeft.collapsed="30" paddingLeft.expanded="0" paddingRight="10"
+           text="{_label}" verticalAlign="middle"
+           paddingTop.collapsed="5"
+           paddingTop.expanded="-45" fontWeight="bold"/>
+  <ns:AdvancedTextInput id="groupTxt" includeIn="editing" height="20"
+                        change="groupTxt_changeHandler(event)"
+                        paddingLeft.collapsed="5" paddingLeft.expanded="0" paddingRight="5"
+                        prompt="Group" text="{_label}"
+                        top.collapsed="5"
+                        top.expanded="-25"/>
 </s:Group>

@@ -3,9 +3,19 @@
 										 xmlns:s="library://ns.adobe.com/flex/spark"
 										 xmlns:mx="library://ns.adobe.com/flex/mx"
 										 xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+                     
 										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
 										 xmlns:view="it.ht.rcs.console.entities.view.*">
+  <fx:Declarations>
+    <s:Parallel id="fadeIn" duration="200">
+      <s:Fade alphaFrom="0" alphaTo="1"/>
   
+    </s:Parallel>
+    <s:Parallel id="fadeOut" duration="200">
+      <s:Fade alphaFrom="1" alphaTo="0"/>
+    
+    </s:Parallel>
+  </fx:Declarations>
   <fx:Metadata>
     [Event(name="update", type="flash.events.Event")]
     [Event(name="linkAdded", type="flash.events.Event")]
@@ -15,6 +25,8 @@
     [Event(name="entityCreated", type="flash.events.Event")]
     [Event(name="entityUpdated", type="flash.events.Event")]
     [Event(name="entityMerged", type="flash.events.Event")]
+    [Event(name="group", type="flash.events.Event")]
+    [Event(name="ungroup", type="flash.events.Event")]
     
   </fx:Metadata>
 
@@ -82,7 +94,68 @@
 
 	<actionbar:Separator width="20"/>
 
-	<s:Button label="{R.get('LINK_ADD')}"
+  <s:VGroup includeIn="linkmap, geomap" horizontalAlign="center" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+    
+  <s:HGroup verticalAlign="bottom" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" gap="0" buttonMode="true" useHandCursor="true"  click="{popup.displayPopUp=true}">
+  <s:Button label="{R.get('LINK')}"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles()}"
+            icon="@Embed('/img/NEW/link32.png')"
+            click="{popup.displayPopUp=true}"
+            includeIn="linkmap, geomap"/>
+    <s:Image source="@Embed('/img/NEW/downArrow.png')"/>
+  </s:HGroup>
+  <s:PopUpAnchor id="popup" includeIn="linkmap, geomap">
+    <s:BorderContainer backgroundAlpha="1" backgroundColor="#E6E9EE" right="0" bottom="0" mouseDownOutside="{popup.displayPopUp=false}" borderColor="0x333333" borderAlpha="0.5" cornerRadius="6" dropShadowVisible="true">
+      <s:HGroup paddingBottom="4" paddingLeft="4" paddingTop="4" paddingRight="4" horizontalAlign="center" verticalAlign="middle">
+        
+ 
+      <s:Button label="{R.get('LINK_ADD')}"
+                visible="{LicenseManager.instance.intelligence}"
+                includeInLayout="{LicenseManager.instance.intelligence}"
+                enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.linkEnabled==true}" iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                icon="@Embed('/img/NEW/linkAdd.png')"
+                click="addLink()"
+                includeIn="linkmap, geomap" fontWeight="normal"/>
+        
+      
+      
+					<s:Button label="{R.get('LINK_EDIT')}"
+										visible="{LicenseManager.instance.intelligence}"
+										includeInLayout="{LicenseManager.instance.intelligence} "
+										enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.selectedObject  &amp;&amp; !this.selectedObject.name &amp;&amp; this.selectedObject.type!='identity'}"
+										iconPlacement="top"
+										skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+										icon="@Embed('/img/NEW/linkEdit.png')"
+										click="editLink()"
+										includeIn="linkmap, geomap"
+										fontWeight="normal"/>
+        
+      
+      
+      <s:Button label="{R.get('LINK_REMOVE')}"
+                visible="{LicenseManager.instance.intelligence}"
+                includeInLayout="{LicenseManager.instance.intelligence}"
+                enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.selectedObject &amp;&amp; !this.selectedObject.name}" iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                icon="@Embed('/img/NEW/linkRemove.png')"
+                click="onDeleteLinkClick()"
+                includeIn="linkmap, geomap" fontWeight="normal"/>
+        
+    
+        
+        <editors:TagEditor label="{R.get('RELEVANCE')}"
+                           id="tagEditor"
+                           width="80"
+                           enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.selectedObject &amp;&amp; !this.selectedObject.name}"
+                           change="updateRelevance(tagEditor.tag)"
+                           tag="{selectedObject.name ? 0: selectedObject.rel}"
+                           includeIn="linkmap, geomap"/>
+      </s:HGroup>
+    </s:BorderContainer>
+  </s:PopUpAnchor>
+  </s:VGroup>
+	<!--<s:Button label="{R.get('LINK_ADD')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; linkEnabled==true}"
@@ -112,26 +185,47 @@
 										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name}"
                      change="updateRelevance(tagEditor.tag)"
                      tag="{selectedObject.name ? 0: selectedObject.rel}"
-										 includeIn="linkmap, geomap"/>
+										 includeIn="linkmap, geomap"/>-->
 
 	<actionbar:Separator includeIn="linkmap"
 											 width="20"/>
-  <s:Button label="Group"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="{Console.currentSession.user.is_view_profiles() }"
-            icon="@Embed('/img/NEW/dogroup.png')"
+  
+  <s:VGroup includeIn="linkmap" horizontalAlign="center" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+  <s:HGroup verticalAlign="bottom" buttonMode="true" useHandCursor="true"  click="{groupPopup.displayPopUp=true}">
+    <s:Button label="Group"
+              visible="{LicenseManager.instance.intelligence}"
+              includeInLayout="{LicenseManager.instance.intelligence}"
+              enabled="{Console.currentSession.user.is_view_profiles() }"
+              icon="@Embed('/img/NEW/group32.png')"
+              click="{groupPopup.displayPopUp=true}"
+              includeIn="linkmap"/>
 
-            includeIn="linkmap"/>
+    <s:Image source="@Embed('/img/NEW/downArrow.png')" includeIn="linkmap"/>
+  </s:HGroup>
+   
   
-  <s:Button label="Ungroup"
-            visible="{LicenseManager.instance.intelligence}"
-            includeInLayout="{LicenseManager.instance.intelligence}"
-            enabled="{Console.currentSession.user.is_view_profiles()}"
-            icon="@Embed('/img/NEW/ungroup.png')"
-         
-            includeIn="linkmap"/>
   
+  <s:PopUpAnchor id="groupPopup" includeIn="linkmap">
+    <s:BorderContainer backgroundAlpha="1" backgroundColor="#E6E9EE" right="0" bottom="0" mouseDownOutside="{groupPopup.displayPopUp=false}" borderColor="0x333333" borderAlpha="0.5" cornerRadius="6" dropShadowVisible="true">
+      <s:HGroup paddingBottom="4" paddingLeft="4" paddingTop="4" paddingRight="4" horizontalAlign="center" verticalAlign="middle">
+        <s:Button label="Group"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}"
+                  enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.groupEnabled}"
+                  icon="@Embed('/img/NEW/dogroup.png')" click="onGroup(event)"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
+        <s:Button label="Ungroup"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}" click="onUngroup(event)"
+                  icon="@Embed('/img/NEW/ungroup.png')" enabled="{Console.currentSession.user.is_view_profiles()  &amp;&amp;  this.ungroupEnabled}"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+      </s:HGroup>
+    </s:BorderContainer>
+  </s:PopUpAnchor>
+  </s:VGroup>
   <actionbar:Separator includeIn="linkmap"
                        width="20"/>
 
@@ -164,10 +258,8 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.search.controller.SearchManager;
@@ -182,8 +274,7 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -208,6 +299,12 @@
       
       [Bindable]
       public var exportEnabled:Boolean; //Export entities
+      
+      [Bindable]
+      public var groupEnabled:Boolean; //Jump to evidence
+      
+      [Bindable]
+      public var ungroupEnabled:Boolean; //Jump to evidence
       
       private function exportGraph(event:MouseEvent):void
       {
@@ -432,7 +529,7 @@
         {
           selectedObject.rel=value;
           
-         if(selectedObject is Edge)
+        /*  if(selectedObject is Edge)
          {
            var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer; //TODO REMOCVE
            currentRenderer.draw();
@@ -440,7 +537,7 @@
          else
          {
          trace("update geoview")
-         }
+         } */
 
           var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
           var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
@@ -630,7 +727,19 @@
       }
 
 
-		]]>
+      protected function onGroup(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("group"));
+        
+      }
+      
+      protected function onUngroup(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("ungroup"));
+        
+      }
+      
+    ]]>
 	</fx:Script>
 
 </actionbar:ActionBar>

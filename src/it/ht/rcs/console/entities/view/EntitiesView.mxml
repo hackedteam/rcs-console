@@ -121,6 +121,8 @@
         {
           if (views.selectedIndex == 0) //links
           {
+            section.stateManager.view.filterFunction=null
+            section.stateManager.view.refresh()
             actionbar.currentState="linkmap"
             linkMap.entities=section.stateManager.tableView; 
             linkMap.draw()
@@ -128,6 +130,8 @@
             
           else if (views.selectedIndex == 1) //geo map
           {
+            section.stateManager.tableView.filterFunction=excludeGroups
+            section.stateManager.tableView.refresh()
             actionbar.currentState="geomap"
             /* entities.removeAll()
             for (i=0; i < section.stateManager.view.length; i++)
@@ -145,13 +149,17 @@
           else if (views.selectedIndex == 2) //list
           {
             actionbar.currentState="list"
+            section.stateManager.view.filterFunction=excludeGroups
+            section.stateManager.view.refresh()
             list.selectedItem=null;
-            list.selectedItems=null
+            list.selectedItems=null;
             
           }
           
           if (views.selectedIndex == 3) //table
           {
+            section.stateManager.view.filterFunction=excludeGroups
+            section.stateManager.view.refresh()
             actionbar.currentState="table"
             grid.selectedItem=null
             grid.selectedItems=null
@@ -159,6 +167,14 @@
           }
         }
 			}
+      
+      private function excludeGroups(item:Object):Boolean
+      {
+      if(item.type=="group")
+        return false
+        
+        return true
+      }
 
 			protected function onNewLink():void
 			{
@@ -206,7 +222,13 @@
         onChangeView()
       }
       
-		]]>
+      protected function onGroup():void
+      {
+        linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
+        
+      }
+      
+    ]]>
 	</fx:Script>
 
 	<entities:EntitiesActionBar section="{section}"
@@ -217,6 +239,7 @@
                               entityCreated="onEntityCreated(); list.selectedItem=null"
                               entityDeleted="onEntityDeleted(); list.selectedItem=null"
                               entityMerged="onEntityMerged(); list.selectedItem=null"
+                              group="onGroup()"
 															linkAdded="onNewLink()"
 															linkRemoved="onLinkRemoved()"
 															linkUpdated="onLinkUpdated()"

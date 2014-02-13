@@ -4,7 +4,7 @@
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:diagrammer="fr.kapit.diagrammer.*"
 				 width="100%"
-				 height="100%">
+				 height="100%" xmlns:visualizer="fr.kapit.visualizer.*" resize="onResize(event)">
 	<fx:Metadata> 
     [Event(name="selectionChange", type="flash.events.Event")] 
     [Event(name="elementDoubleClick", type="flash.events.Event")] 
@@ -13,41 +13,51 @@
 
 	<fx:Script>
 		<![CDATA[
-			import flash.net.dns.AAAARecord;
-
-			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-			import fr.kapit.layouts.constants.RootSelectionType;
-			import fr.kapit.visualizer.base.ISprite;
-			import fr.kapit.visualizer.events.VisualizerEvent;
-			import fr.kapit.visualizer.styles.LinkStyle;
-
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
-			import it.ht.rcs.console.entities.view.renderers.CustomLink;
-			import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
-
-			import mx.collections.ArrayCollection;
-
-			import spark.collections.Sort;
-			import spark.collections.SortField;
+      import flash.net.dns.AAAARecord;
+      
+      import fr.kapit.diagrammer.base.uicomponent.DiagramGroup;
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
+      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
+      import fr.kapit.layouts.algorithms.radial.RadialLayout;
+      import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
+      import fr.kapit.layouts.constants.RootSelectionType;
+      import fr.kapit.visualizer.base.ISprite;
+      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+      import fr.kapit.visualizer.events.VisualizerEvent;
+      import fr.kapit.visualizer.styles.LinkStyle;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
+      import it.ht.rcs.console.entities.view.renderers.CustomLink;
+      import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.UIComponent;
+      import mx.events.ResizeEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
 
 			private var sort:Sort;
 			private var entities:ArrayCollection
-      
-      
-      public var selection:Array;
+
+
+			public var selection:Array;
 
 			protected function onElementDoubleClick(event:VisualizerEvent):void
 			{
-        dispatchEvent(new Event("elementDoubleClick"))
-       
+				dispatchEvent(new Event("elementDoubleClick"))
+
 			}
 
 			protected function onSelectionChange(event:VisualizerEvent):void
 			{
-        selection= vis.selection
+				selection=vis.selection
 				dispatchEvent(new Event("selectionChange"))
 			}
 
@@ -58,19 +68,23 @@
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
 
-
 				var layout:BalloonLayout=vis.layout as BalloonLayout;
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);   //TRY RADIAL
 
-				params.nodesSpacing=100;
-				params.loopMargin=100;
-				params.loopSpacing=100;
+				params.nodesSpacing=50;
+				params.loopMargin=50;
+				params.loopSpacing=50;
 				params.childAngularSector=360;
+        params.useEvenAngles=false;
 				params.rootAngularSector=360;
-				params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
+				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
-				params.packingSpacing=100
-				vis.balloonLayout.params=params;
+				params.packingSpacing=50
+  
+				vis.balloonLayout.params=params;  
+       
+        vis.reLayout()
+       
 				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
 
 			}
@@ -144,7 +158,7 @@
 			public function draw(entities:ArrayCollection):void
 			{
 
-      
+
 				trace("DRAW GRAPH")
 
 
@@ -173,23 +187,125 @@
 				var source:ISprite;
 				var target:ISprite;
 
-
+        var child:Entity
+				var children:ArrayCollection=new ArrayCollection();
+        var c:int;
 
 				//add Node Elements
 				for (i=0; i < entities.length; i++)
 				{
 					entity=entities.getItemAt(i) as Entity;
+					//entity node
 					if (entity.type != "group")
 					{
 						vis.addNodeElement(entity, null, null, null, entity._id)
 					}
+					//
+					else if (entity.type == "group" && entity.stand_for) //other operation
+					{
+						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
+						if (hasPermission) //allowed operation
+						{
+							for ( c=0; c < entity.children.length; c++)
+							{
+								child=EntityManager.instance.getItem(String(entity.children.getItemAt(c)))
+								if (child)
+								{
+									children.addItem(child)
+									vis.addNodeElement(child, null, null, null, child._id)
+								}
+							}
+
+						}
+            else //! allowed operation
+            {
+              for (c=0; c < entity.children.length; c++)
+              {
+                child=new Entity({_id:entity.children.getItemAt(c), type:"person"})
+                if (child)
+                {
+                  children.addItem(child)
+                  vis.addNodeElement(child, null, null, null, child._id)
+                }
+              }
+            }
+					}
+        
+				}
+				//vis.reLayout()
+				//links
+        for(i=0;i<children.length;i++)
+        {
+          child=children.getItemAt(i) as Entity
+          entities.addItem(child)
+        }
+
+				drawLinks(entities)
+				//groups
+
+				vis.reLayout(); //??
+				addGroups();
+			}
+
+			public function addGroups():void
+			{
+				var elements:Array;
+				var c:int;
+        
+				for (var i:int=0; i < entities.length; i++)
+				{
+					var entity:Entity=entities.getItemAt(i) as Entity;
+					if (entity.type == "group" && !entity.stand_for) //same operation
+					{
+						elements=new Array();
+						for (c=0; c < entity.children.length; c++)
+						{
+							elements.push(vis.nodesMap[entity.children[c]]);
+						}
+						vis.groupElements(entity, elements, null, entity._id);
+					}
+          
+          if (entity.type == "group" && entity.stand_for) //same operation
+          {
+            elements=new Array();
+            for (c=0; c < entity.children.length; c++)
+            {
+              elements.push(vis.nodesMap[entity.children[c]]);
+            }
+            vis.groupElements(entity, elements, null, entity._id);
+            var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
+            if (!hasPermission) 
+            {
+              trace("close group renderer")
+              var s:GenericGroup=vis.nodesMap[entity._id] as GenericGroup;
+              if(s)
+              {
+                s.isGroupExpanded=false;
+     
+              }
+
+            }
+          }
+
 
 				}
 
+				vis.reLayout();
+				vis.enableSelectionDrag=true;
+				vis.enablePan=true;
+				dispatchEvent(new Event("selectionChange"))
+				//vis.setFocus()
+			}
 
-				//vis.reLayout()
-				//links
+			private function drawLinks(entities:ArrayCollection):void
+			{
+        var i:int;
+        var link:Link
+        var entity:Entity;
+        var source:ISprite;
+        var target:ISprite;
 				var links:Array=new Array()
+          
 				for (i=0; i < entities.length; i++)
 				{
 					entity=entities.getItemAt(i) as Entity;
@@ -204,62 +320,18 @@
 							if (alreadyLinked(links, entity._id, link.le))
 								continue;
 
-							if (link.versus == "out")
-							{
 								source=vis.nodesMap[entity._id];
 								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "out", info:link.info, source:entity._id,target:link.le }, source, target)
+								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target)
 								links.push({source: entity._id, target: link.le})
-
-							}
-							else if (link.versus == "in")
-							{
-
-								source=vis.nodesMap[entity._id];
-								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "in",  info:link.info, source:entity._id,target:link.le}, source, target)
-								links.push({source: entity._id, target: link.le})
-							}
-							else if (link.versus == "both")
-							{
-
-								source=vis.nodesMap[entity._id];
-								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: "both", info:link.info, source:entity._id,target:link.le}, source, target)
-								links.push({source: entity._id, target: link.le})
-							}
-
 
 						}
 					}
 				}
-				//groups
-
-				vis.reLayout(); //??
-				addGroups();
+        vis.reLayout();
 			}
-
-			public function addGroups():void
-			{
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var entity:Entity=entities.getItemAt(i) as Entity;
-					if (entity.type == "group")
-					{
-						var elements:Array=new Array();
-						for (var c:int=0; c < entity.children.length; c++)
-						{
-							elements.push(vis.nodesMap[entity.children[c]]);
-						}
-						vis.groupElements(entity, elements, null, entity._id);
-					}
-
-				}
-				vis.reLayout();
-				vis.enableSelectionDrag=true;
-				vis.enablePan=true;
-        //vis.setFocus()
-			}
+      
+      
 
 			private function alreadyLinked(links:Array, source:String, target:String):Boolean
 			{
@@ -272,19 +344,27 @@
 				}
 				return false;
 			}
-		]]>
+      
+      protected function onResize(event:ResizeEvent):void
+      {
+        // TODO Auto-generated method stub
+       //vis.autoFit();
+        
+      }
+      
+    ]]>
 	</fx:Script>
 
-	<diagrammer:Diagrammer width="100%"
+	<visualizer:Visualizer width="100%"
 												 height="100%"
 												 id="vis"
 												 layout="balloon"
 												 creationComplete="initGraph()"
-												 groupLabelField="name"
+												 groupLabelField="name" 
 												 linkStyleFunction="{linkStyleFunction}"
 												 nodeRendererFunction="{nodeRendererFunction}"
 												 enableAnimation="false"
-												 groupRendererClass="{CustomGroupRenderer}"
+											   groupRendererClass="{CustomGroupRenderer}"
 												 highlightLinksOnSelection="false"
 												 showNodeExpandCollapseButton="false"
 												 elementsSelectionChanged="onSelectionChange(event)"

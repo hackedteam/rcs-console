@@ -6,6 +6,7 @@
 					xmlns:maps="com.google.maps.*"
 					xmlns:graph="it.ht.rcs.console.entities.view.graph.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
 					xmlns:components="it.ht.rcs.console.entities.view.components.*"
 					xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
 					xmlns:utils="it.ht.rcs.console.utils.*"
@@ -16,7 +17,7 @@
 		<![CDATA[
 			import com.adrianparr.utils.HtmlEntities;
 			import com.greensock.TweenMax;
-
+			
 			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
 			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
 			import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
@@ -39,7 +40,7 @@
 			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
 			import fr.kapit.visualizer.events.VisualizerEvent;
 			import fr.kapit.visualizer.styles.LinkStyle;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Flow;
@@ -49,16 +50,16 @@
 			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
 			import it.ht.rcs.console.entities.view.renderers.CustomLink;
 			import it.ht.rcs.console.events.RefreshEvent;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
 			import mx.events.FlexEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
@@ -95,6 +96,12 @@
 
 			[Bindable]
 			public var exportEnabled:Boolean;
+      
+      [Bindable]
+      public var groupEnabled:Boolean;
+      
+      [Bindable]
+      public var ungroupEnabled:Boolean;
 
 			public var linkToHighLight:Object;
 			public var nodeToHighLight:Object;
@@ -170,15 +177,27 @@
 			{
 				var item:*=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data._id) //last selected
 
-				if (item)
+				if (item && item.type!="group")
 					section.stateManager.manageItemSelection(item);
 
 			}
+      
+      private function isGrouped(entityId:String):Boolean
+      {
+        for(var i:int=0;i<entities.length;i++)
+        {
+        var entity:Entity=entities.getItemAt(i) as Entity
+          if(entity.type=="group" && entity.children.source.indexOf(entityId)!=-1)
+            return true;
+        }
+        return false;
+
+      }
 
 			protected function onSelectionChange():void
 			{
 				trace("VIS SELECTION CHANGED")
-				trace(graph.selection.length)
+			
 
 				actionbar.selectedObject=null
 				actionbar.selectedObjects=null;
@@ -189,11 +208,16 @@
 				mergeEnabled=actionbar.mergeEnabled=false;
 				jumpEnabled=actionbar.jumpEnabled=false;
 				exportEnabled=actionbar.exportEnabled=true;
+        groupEnabled=actionbar.groupEnabled=false;
+        ungroupEnabled=actionbar.ungroupEnabled=false;
+        
+        if(!graph.selection)
+          return
 
 				//Only 1 node 
 				if (graph.selection.length == 1 && graph.selection[0].data.name)
 				{
-					info.selectedItem=EntityManager.instance.getItem(String(graph.selection[0].data._id))
+					info.selectedItem=EntityManager.instance.getItem(String(graph.selection[0].data._id)) || new Entity(graph.selection[0].data)
 					info.selectedItems=new <Object>[info.selectedItem];
 					actionbar.selectedObject=info.selectedItem;
 					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
@@ -226,16 +250,31 @@
 						mergeEnabled=actionbar.mergeEnabled=true;
 					}
 				}
-				else if (graph.selection.length > 1)
+        //grouping
+        var i:int
+				if (graph.selection.length > 1)
 				{
-
+          groupEnabled=actionbar.groupEnabled=true;
+          for(i=0;i<graph.selection.length;i++)
+          {
+          if(!graph.selection[i].data.name || (graph.selection[i].data.name && graph.selection[i].data.type=="group") || (graph.selection[i].data.name && isGrouped(graph.selection[i].data._id)))
+          {
+            groupEnabled=actionbar.groupEnabled=false;
+            break;
+          }
+          
+          }
 				}
+        if (graph.selection.length == 1 && graph.selection[0].data.type=="group" && !graph.selection[0].data.stand_for)
+        {
+          ungroupEnabled=actionbar.ungroupEnabled=true;
+        }
 				//no selection do not enable export
 				if (graph.selection.length < 1)
 					exportEnabled=actionbar.exportEnabled=false;
 				else
 				{ //check if there is a link object in  selection
-					for (var i:int=0; i < graph.selection.length; i++)
+					for ( i=0; i < graph.selection.length; i++)
 					{
 						if (!graph.selection[i].data.name) //link has no name
 							exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
@@ -262,9 +301,10 @@
 			private function updateLinkLength():void
 			{
 				trace("UPDATE LINK LENGTH")
-				var layout:BalloonLayout=graph.vis.layout as BalloonLayout;
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
 
+			/* 	var layout:BalloonLayout=graph.vis.layout as BalloonLayout;
+        
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
 				params.nodesSpacing=50;
 				params.loopMargin=50;
 				params.loopSpacing=50;
@@ -273,13 +313,14 @@
 				params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
 				params.packingSpacing=50
-				graph.vis.balloonLayout.params=params;
+				graph.vis.balloonLayout.params=params;  */
 			}
 
 			private function zoom():void
 			{
-				trace("ZOOM")
-				graph.vis.zoomContent(bzoom.value, null, false)
+				trace("ZOOM") //ratio
+        graph.vis.zoomContent(bzoom.value,null,false,false);
+				//graph.vis.zoomContent(bzoom.value, null, false)
 			}
 		]]>
 	</fx:Script>
@@ -287,13 +328,30 @@
 	<s:HGroup width="100%"
 						height="100%"
 						gap="5">
+    
+    
 		<s:VGroup width="100%"
 							height="100%">
 
 			<s:HGroup verticalAlign="middle"
 								horizontalAlign="right"
 								width="100%"
-								paddingTop="6">
+								paddingTop="6" gap="-1">
+        
+
+          
+          <renderers:FilterRenderer label="Time"
+                                    popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
+                                    width="150"/>
+          <renderers:FilterRenderer label="Type"
+                                    popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
+                                    width="150"/>
+          <renderers:FilterRenderer label="Relevance"
+                                    popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
+                                    width="150"/>
+          <!--		<renderers:FilterRenderer label="Entities"
+          popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
+          width="100"/>-->
 
 				<s:Spacer width="100%"/>
 				<s:Label text="{R.get('FILTER_DATA')} "
@@ -336,14 +394,13 @@
 									 textAlign="right"
 									 fontSize="10"/>
 					<s:Label text="-"/>
-					<s:HSlider stepSize=".1"
-										 x="6"
-										 y="6"
-										 id="bzoom"
-										 value="1"
-										 minimum=".8"
-										 maximum="1.2"
-										 liveDragging="true"
+					<s:HSlider 	id="bzoom"
+                       maximum="3"
+                       minimum="0.1" showDataTip="false"
+                   value="0.1"
+                       stepSize="0.1"
+                     
+                      
 										 change="zoom()"/>
 					<s:Label text="+"/>
 

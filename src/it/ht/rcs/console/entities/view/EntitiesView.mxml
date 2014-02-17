@@ -16,6 +16,7 @@
       import fr.kapit.visualizer.base.uicomponent.GenericGroup;
       
       import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.entities.view.EntitiesSection;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.RefreshEvent;
@@ -28,6 +29,7 @@
       import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -168,9 +170,9 @@
           section.stateManager.hideGroups=true;
           section.stateManager.view.refresh()
           section.stateManager.tableView.refresh()
-            actionbar.currentState="table"
-            grid.selectedItem=null
-            grid.selectedItems=null
+          actionbar.currentState="table"
+          grid.selectedItem=null
+          grid.selectedItems=null
            
           }
         }
@@ -226,7 +228,14 @@
       
       protected function onGroup():void
       {
-        linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
+        //linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
+        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+        popup.graph=linkMap.graph
+       // popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+        popup.operation=section.stateManager.selectedOperation;
+        popup.entity=new Entity({name: "group", type:"group"});
+        popup.currentState=EntityForm.CREATE;
+        PopUpManager.centerPopUp(popup);
         
       }
       

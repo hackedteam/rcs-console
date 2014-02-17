@@ -15,53 +15,54 @@
 					creationComplete="onCreationComplete()">
 	<fx:Script>
 		<![CDATA[
-			import com.adrianparr.utils.HtmlEntities;
-			import com.greensock.TweenMax;
-			
-			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-			import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
-			import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
-			import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
-			import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
-			import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
-			import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
-			import fr.kapit.layouts.algorithms.radial.RadialLayout;
-			import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
-			import fr.kapit.layouts.algorithms.sugiyama.SugiyamaLayoutParams;
-			import fr.kapit.layouts.constants.EdgeDrawType;
-			import fr.kapit.layouts.constants.RootSelectionType;
-			import fr.kapit.layouts.model.Edge;
-			import fr.kapit.visualizer.Visualizer;
-			import fr.kapit.visualizer.actions.PanAction;
-			import fr.kapit.visualizer.actions.data.PanActionData;
-			import fr.kapit.visualizer.base.IGroup;
-			import fr.kapit.visualizer.base.ISprite;
-			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-			import fr.kapit.visualizer.events.VisualizerEvent;
-			import fr.kapit.visualizer.styles.LinkStyle;
-			
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Flow;
-			import it.ht.rcs.console.entities.model.Flows;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.view.actions.CustomPan;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
-			import it.ht.rcs.console.entities.view.renderers.CustomLink;
-			import it.ht.rcs.console.events.RefreshEvent;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.ListCollectionView;
-			import mx.core.FlexGlobals;
-			import mx.events.FlexEvent;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			
-			import spark.collections.Sort;
-			import spark.collections.SortField;
+      import com.adrianparr.utils.HtmlEntities;
+      import com.greensock.TweenMax;
+      
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+      import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
+      import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
+      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
+      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
+      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
+      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
+      import fr.kapit.layouts.algorithms.radial.RadialLayout;
+      import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
+      import fr.kapit.layouts.algorithms.sugiyama.SugiyamaLayoutParams;
+      import fr.kapit.layouts.constants.EdgeDrawType;
+      import fr.kapit.layouts.constants.RootSelectionType;
+      import fr.kapit.layouts.model.Edge;
+      import fr.kapit.visualizer.Visualizer;
+      import fr.kapit.visualizer.actions.PanAction;
+      import fr.kapit.visualizer.actions.data.PanActionData;
+      import fr.kapit.visualizer.base.IGroup;
+      import fr.kapit.visualizer.base.ISprite;
+      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+      import fr.kapit.visualizer.events.VisualizerEvent;
+      import fr.kapit.visualizer.styles.LinkStyle;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Flow;
+      import it.ht.rcs.console.entities.model.Flows;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.view.actions.CustomPan;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
+      import it.ht.rcs.console.entities.view.renderers.CustomLink;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ListCollectionView;
@@ -177,8 +178,14 @@
 			{
 				var item:*=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data._id) //last selected
 
-				if (item && item.type!="group")
+				if (item)
+        {
+          var hasPermission:Boolean=SearchManager.instance.getItem(item.stand_for)
+          if(item.type=="group" && !hasPermission)
+            return;
 					section.stateManager.manageItemSelection(item);
+          
+        }
 
 			}
       
@@ -254,6 +261,7 @@
         var i:int
 				if (graph.selection.length > 1)
 				{
+          
           groupEnabled=actionbar.groupEnabled=true;
           for(i=0;i<graph.selection.length;i++)
           {
@@ -276,7 +284,7 @@
 				{ //check if there is a link object in  selection
 					for ( i=0; i < graph.selection.length; i++)
 					{
-						if (!graph.selection[i].data.name) //link has no name
+						if (!graph.selection[i].data.name || (graph.selection[i].data.type=="group" && !SearchManager.instance.getItem(graph.selection[i].data.stand_for))) //link has no name
 							exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
 					}
 				}

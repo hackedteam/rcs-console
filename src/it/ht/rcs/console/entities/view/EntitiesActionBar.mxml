@@ -49,13 +49,13 @@
 
 	<s:Button label="{R.get('EDIT')}"
 						click="onEditClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity} "
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; hasEditPermission} "
 						icon="@Embed('/img/NEW/edit.png')"
 						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; selectedObject.type!='target'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; selectedObject.type!='target' &amp;&amp; hasDeletePermission}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
@@ -66,7 +66,7 @@
 						visible="{LicenseManager.instance.intelligence}"
 						click="exportEntity(event)"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; exportEnabled}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; exportEnabled }"
 						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('MERGE')}"
@@ -295,6 +295,9 @@
 
 			[Bindable]
 			public var section:EntitiesSection;
+      
+      
+
 
 			[Bindable]
 			public var selectedEntities:ArrayCollection;
@@ -696,8 +699,8 @@
       
       private function onMergeClick():void
       {
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].id);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0]._id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1]._id);
         var msg:String;
         
         if (entity1.type == "person" && entity2.type == "target")
@@ -720,8 +723,8 @@
       
       private function merge():void
       {
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].id);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0]._id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1]._id);
         
         if (entity1.type == "person" && entity2.type == "target")
         {
@@ -766,6 +769,20 @@
       {
         dispatchEvent(new Event("collapseAll"));
         
+      }
+      
+      private function get  hasEditPermission():Boolean
+      {
+        if(selectedObject.type=="group" && selectedObject.stand_for && !SearchManager.instance.getItem(selectedObject.stand_for))
+          return false;
+        return true;
+      }
+      
+      private function get  hasDeletePermission():Boolean
+      {
+        if(selectedObject.type=="group" && selectedObject.stand_for)
+          return false;
+        return true;
       }
       
     ]]>

@@ -13,6 +13,8 @@
 
 	<fx:Script>
 		<![CDATA[
+      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+      
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.view.EntitiesSection;
       import it.ht.rcs.console.events.DataLoadedEvent;
@@ -234,6 +236,26 @@
         
       }
       
+      protected function onExpandAll(event:Event):void
+      {
+        for each(var node:Object in  linkMap.graph.vis.nodesMap)
+        {
+        if( node is GenericGroup && !GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+          GenericGroup(node).isGroupExpanded=true
+        }
+        
+      }
+      
+      protected function onCollapseAll(event:Event):void
+      {
+        for each(var node:Object in  linkMap.graph.vis.nodesMap)
+        {
+          if( node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+            GenericGroup(node).isGroupExpanded=false
+        }
+        
+      }
+      
     ]]>
 	</fx:Script>
 
@@ -245,7 +267,7 @@
                               entityCreated="onEntityCreated(); list.selectedItem=null"
                               entityDeleted="onEntityDeleted(); list.selectedItem=null"
                               entityMerged="onEntityMerged(); list.selectedItem=null"
-                              group="onGroup()" ungroup="onUnGroup()"
+                              group="onGroup()" ungroup="onUnGroup()" expandAll="onExpandAll(event)" collapseAll="onCollapseAll(event)"
 															linkAdded="onNewLink()"
 															linkRemoved="onLinkRemoved()"
 															linkUpdated="onLinkUpdated()"

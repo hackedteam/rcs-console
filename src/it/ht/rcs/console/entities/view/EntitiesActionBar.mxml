@@ -27,6 +27,8 @@
     [Event(name="entityMerged", type="flash.events.Event")]
     [Event(name="group", type="flash.events.Event")]
     [Event(name="ungroup", type="flash.events.Event")]
+    [Event(name="expandAll", type="flash.events.Event")]
+    [Event(name="collapseAll", type="flash.events.Event")]
     
   </fx:Metadata>
 
@@ -222,6 +224,21 @@
                   icon="@Embed('/img/NEW/ungroup.png')" enabled="{Console.currentSession.user.is_view_profiles()  &amp;&amp;  this.ungroupEnabled}"
                   iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
                   includeIn="linkmap"/>
+        
+        <s:Button label="Expand All"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}"  click="onExpandAll(event)"
+                  icon="@Embed('/img/NEW/expandAll.png')" enabled="{Console.currentSession.user.is_view_profiles()}"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
+        <s:Button label="Collapse All"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}" click="onCollapseAll(event)"
+                  icon="@Embed('/img/NEW/collapseAll.png')" enabled="{Console.currentSession.user.is_view_profiles()}"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
       </s:HGroup>
     </s:BorderContainer>
   </s:PopUpAnchor>
@@ -736,6 +753,18 @@
       protected function onUngroup(event:MouseEvent):void
       {
         dispatchEvent(new Event("ungroup"));
+        
+      }
+      
+      protected function onExpandAll(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("expandAll"));
+        
+      }
+      
+      protected function onCollapseAll(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("collapseAll"));
         
       }
       

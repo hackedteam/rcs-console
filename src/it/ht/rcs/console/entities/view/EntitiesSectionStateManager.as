@@ -51,6 +51,9 @@ package it.ht.rcs.console.entities.view
 		private var section:EntitiesSection;
 
 		private var sort:Sort;
+    
+    
+    public var hideGroups:Boolean;
 
 		public static var currInstance:EntitiesSectionStateManager;
 
@@ -300,6 +303,9 @@ package it.ht.rcs.console.entities.view
 			{
 				if (!(Console.currentSession.user.is_view_profiles()))
 					return false;
+        
+        if(hideGroups && item.type=="group")
+          return false;
 			}
       
      /* if (currentState=="links" && item.hasOwnProperty('type') && item.type=="group") //link view

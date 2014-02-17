@@ -24,6 +24,7 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
 
 			[Bindable]
@@ -121,8 +122,9 @@
         {
           if (views.selectedIndex == 0) //links
           {
-            section.stateManager.view.filterFunction=null
+            section.stateManager.hideGroups=false;
             section.stateManager.view.refresh()
+            section.stateManager.tableView.refresh()
             actionbar.currentState="linkmap"
             linkMap.entities=section.stateManager.tableView; 
             linkMap.draw()
@@ -130,7 +132,8 @@
             
           else if (views.selectedIndex == 1) //geo map
           {
-            section.stateManager.tableView.filterFunction=excludeGroups
+            section.stateManager.hideGroups=true;
+            section.stateManager.view.refresh()
             section.stateManager.tableView.refresh()
             actionbar.currentState="geomap"
             /* entities.removeAll()
@@ -148,9 +151,11 @@
             
           else if (views.selectedIndex == 2) //list
           {
-            actionbar.currentState="list"
-            section.stateManager.view.filterFunction=excludeGroups
+            section.stateManager.hideGroups=true;
             section.stateManager.view.refresh()
+            section.stateManager.tableView.refresh()
+            actionbar.currentState="list";
+
             list.selectedItem=null;
             list.selectedItems=null;
             
@@ -158,8 +163,9 @@
           
           if (views.selectedIndex == 3) //table
           {
-            section.stateManager.view.filterFunction=excludeGroups
-            section.stateManager.view.refresh()
+          section.stateManager.hideGroups=true;
+          section.stateManager.view.refresh()
+          section.stateManager.tableView.refresh()
             actionbar.currentState="table"
             grid.selectedItem=null
             grid.selectedItems=null
@@ -168,13 +174,7 @@
         }
 			}
       
-      private function excludeGroups(item:Object):Boolean
-      {
-      if(item.type=="group")
-        return false
-        
-        return true
-      }
+   
 
 			protected function onNewLink():void
 			{
@@ -228,6 +228,12 @@
         
       }
       
+      protected function onUnGroup():void
+      {
+        linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
+        
+      }
+      
     ]]>
 	</fx:Script>
 
@@ -239,7 +245,7 @@
                               entityCreated="onEntityCreated(); list.selectedItem=null"
                               entityDeleted="onEntityDeleted(); list.selectedItem=null"
                               entityMerged="onEntityMerged(); list.selectedItem=null"
-                              group="onGroup()"
+                              group="onGroup()" ungroup="onUnGroup()"
 															linkAdded="onNewLink()"
 															linkRemoved="onLinkRemoved()"
 															linkUpdated="onLinkUpdated()"

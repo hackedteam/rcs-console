@@ -7,8 +7,10 @@
 									 backgroundAlpha="0.6" 
                    creationComplete="init()" 
                    addedToStage="onAddedToStage(event)"
+                   click="clickHandler(event)"
                    removedFromStage="onRemovedFromStage(event)"
-                   click="clickHandler(event)" buttonMode="true" useHandCursor="true"
+                   useHandCursor="true"
+                   buttonMode="true"
                    >
 
 	<fx:Script>
@@ -25,11 +27,20 @@
 			public var label:String
       
       [Bindable]
+      public var mandatory:Boolean=false;
+      
+      [Bindable]
       private var popup:AbstractFilterPopup; //abstract filter popup
       
       private static var currentPopup:AbstractFilterPopup;
-      
+      [Bindable]
       public var popupFactory:IFactory;
+      
+      [Bindable]
+      public var filter:Object;
+      
+      [Bindable]
+      public var property:String=null;
       
       private function init():void
       {
@@ -42,7 +53,7 @@
         if (currentPopup && currentPopup.visible)
         {
           currentPopup.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
-          //currentPopup.commit(); // ...committalo...
+          currentPopup.commit(); // ...committalo...
           if (currentPopup === popup)
           { // ...e se il popup era quello dell'header cliccato nascondilo e basta
             currentPopup.visible=false;
@@ -56,15 +67,15 @@
         popup.visible=true;
         popup.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
         currentPopup=popup;
-       // showFilter.selected=popup.hasFilter;
+        showFilter.selected=popup.hasFilter;
       }
       
       protected function onAddedToStage(event:Event):void
       {
         popup=popupFactory.newInstance();
-       // popup.property=propertyName || column.dataField;
+        popup.property=property
         
-        //popup.filter=filter;
+        popup.filter=filter;
         
         PopUpManager.addPopUp(popup, this.parent, false);
         popup.visible=false;
@@ -95,6 +106,14 @@
         PopUpManager.removePopUp(popup);
       }
       
+      private function changeHandler(fireEvent:Boolean=true):void
+      {
+        popup.reset(fireEvent);
+        popup.visible=false;
+      }
+      
+     
+      
     ]]>
 	</fx:Script>
   <s:Rect width="100%" height="100%">
@@ -115,7 +134,10 @@
 												horizontalAlign="left"
 												gap="2">
 
-	<s:CheckBox skinClass="it.ht.rcs.console.skins.FilterCheckBoxSkin"/>
+	<s:CheckBox change="changeHandler()" id="showFilter"
+              enabled="{!mandatory &amp;&amp; showFilter.selected}"
+              selected="{ popup.hasFilter}"
+              skinClass="it.ht.rcs.console.skins.FilterCheckBoxSkin"/>
 	<s:Label text="{label}"
 					 fontWeight="bold"/>
 </s:HGroup>

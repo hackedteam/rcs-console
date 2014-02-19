@@ -64,12 +64,16 @@
       
       private function onEntityPush(e:PushEvent):void
       {
-        onChangeView()
+        if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
+          return;
+        onChangeView();
       }
       
       private function onRefresh(e:RefreshEvent):void
       {
-        onChangeView()
+        if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
+          return;
+        onChangeView();
       }
 
 			private function onKeyUp(event:KeyboardEvent):void
@@ -242,6 +246,7 @@
       protected function onUnGroup():void
       {
         linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
+        EntityManager.instance.removeItem(actionbar.selectedObject)
         
       }
       

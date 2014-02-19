@@ -14,6 +14,7 @@
 	<fx:Script>
 		<![CDATA[
       import flash.net.dns.AAAARecord;
+      import flash.utils.setTimeout;
       
       import fr.kapit.diagrammer.base.uicomponent.DiagramGroup;
       import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
@@ -76,7 +77,7 @@
 				params.loopSpacing=50;
 				params.childAngularSector=360;
         params.useEvenAngles=false;
-				params.rootAngularSector=360;
+				params.rootAngularSector=180;
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
 				params.packingSpacing=50
@@ -289,13 +290,25 @@
 
 
 				}
-
+     
+     
+        
 				vis.reLayout();
 				vis.enableSelectionDrag=true;
 				vis.enablePan=true;
 				dispatchEvent(new Event("selectionChange"))
 				//vis.setFocus()
+        setTimeout(collapseAll, 100)
 			}
+      
+      private function collapseAll():void
+      {
+        for each(var node:Object in  vis.nodesMap)
+        {
+          if( node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+            GenericGroup(node).isGroupExpanded=false
+        }
+      }
 
 			private function drawLinks(entities:ArrayCollection):void
 			{

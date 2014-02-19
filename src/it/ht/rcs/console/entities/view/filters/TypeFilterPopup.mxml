@@ -7,24 +7,84 @@
                              creationComplete="init()" show="show()">
 
 
-	<fx:Script>
-		<![CDATA[
-			import mx.managers.PopUpManager;
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
       
       private var checks:Array;
-
+      
       private function init():void
       {
+        checks = [target, person, position, virtual];
        
+      }
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+          //FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function getValues():Array
+      {
+        var toReturn:Array = [];
+        
+        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
+          if (item.selected)
+            toReturn.push(item.id);
+        });
+        
+        return toReturn;
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        deselectAll();
+        commit(fireEvent);
+      }
+      
+      private function deselectAll():void
+      {
+        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
+          item.selected = false;
+        });
       }
       
       private function show():void
       {
-      
+        if (!filter.hasOwnProperty(property)) return;
+        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
+          item.selected = filter[property].indexOf(item.id) != -1;
+        });
       }
-			
-		]]>
-	</fx:Script>
+      
+      private function applyAll(val:Boolean):void
+      {
+        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
+          item.selected = val;
+        });
+      }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        hasFilter = filter.hasOwnProperty(property);
+        deselectAll();
+        if (hasFilter && filter[property] is Array)
+          filter[property].forEach(function(item:String, index:int, array:Array):void {
+            this[item].checkbox.selected = true;
+          }, this);
+      }
+      
+     
+    ]]>
+  </fx:Script>
+  
 
 	<fx:Declarations>
 		<s:Parallel id="fadeIn"
@@ -45,35 +105,35 @@
 
   <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
     
-    <s:CheckBox selected="true"
-                id="allCh"
+    <s:CheckBox 
+                id="all"
                 label="all"
-                color="#FFFFFF"/>
+                color="#FFFFFF" change="{applyAll(all.selected)}"/>
    
     <s:Spacer height="2"/>
     
-      <s:CheckBox selected="true"
-                  id="targetCh"
+      <s:CheckBox 
+                  id="target"
                   label="target"
-                  color="0x00CCFF"/>
+                  color="0x00CCFF"  change="{all.selected=false}" />
     
    
-      <s:CheckBox selected="true"
-                  id="personCh"
+      <s:CheckBox 
+                  id="person"
                   label="person"
-                  color="0x00CCFF"/>
+                  color="0x00CCFF" change="{all.selected=false}"/>
     
   
-      <s:CheckBox selected="true"
-                  id="positionCh"
+      <s:CheckBox
+                  id="position"
                   label="position"
-                  color="0x00CCFF"/>
-    
+                  color="0x00CCFF" change="{all.selected=false}" />
+     
 
-      <s:CheckBox selected="true"
-                  id="virtualCh"
+      <s:CheckBox
+                  id="virtual"
                   label="virtual"
-                  color="0x00CCFF"/>
+                  color="0x00CCFF" change="{all.selected=false}"/>
      
   </s:VGroup>
 </filters:AbstractFilterPopup>

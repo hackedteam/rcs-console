@@ -296,6 +296,14 @@
 
 			protected function onElementDoubleClick():void
 			{
+        
+        if(graph.vis.selection[graph.vis.selection.length - 1] is CustomLink)
+        {
+          if (graph.vis.selection[graph.vis.selection.length - 1].data.info.length>0 && graph.vis.selection[graph.vis.selection.length - 1].data.level=="automatic")
+          actionbar.jumpToEvidence()
+          return;
+        }
+      
 				var item:*=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data._id) //last selected
 
 				if (item)

@@ -72,7 +72,7 @@ package it.ht.rcs.console.entities.view.renderers
     
     public function flow():void    
     {
-      trace("FLOW")
+     // trace("FLOW")
       
       flowRenderers=new Array()
       var numBalls:int=1;
@@ -201,7 +201,7 @@ package it.ht.rcs.console.entities.view.renderers
     
     public function reset():void
     {
-      trace("Custom Link Reset")
+     // trace("Custom Link Reset")
       while (this.numChildren > 0)
         this.removeChildAt(0)
       //this.addChild(dashed)

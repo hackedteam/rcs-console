@@ -156,7 +156,7 @@
 				return renderer
 			}
 
-			public function draw(entities:ArrayCollection):void
+			public function draw(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
 
 
@@ -241,7 +241,7 @@
           entities.addItem(child)
         }
 
-				drawLinks(entities)
+				drawLinks(entities, filterCriteria)
 				//groups
 
 				vis.reLayout(); //??
@@ -287,17 +287,14 @@
 
             }
           }
-
-
 				}
-     
-     
-        
+
 				vis.reLayout();
 				vis.enableSelectionDrag=true;
 				vis.enablePan=true;
 				dispatchEvent(new Event("selectionChange"))
 				//vis.setFocus()
+        vis.invalidateDisplayList()     
         setTimeout(collapseAll, 100)
 			}
       
@@ -310,7 +307,7 @@
         }
       }
 
-			private function drawLinks(entities:ArrayCollection):void
+			private function drawLinks(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
         var i:int;
         var link:Link
@@ -332,7 +329,8 @@
 
 							if (alreadyLinked(links, entity._id, link.le))
 								continue;
-
+              if(filterCriteria.relevance && filterCriteria.relevance.length>0 && filterCriteria.relevance.indexOf(link.rel)==-1)
+                continue;
 								source=vis.nodesMap[entity._id];
 								target=vis.nodesMap[link.le];
 								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target)

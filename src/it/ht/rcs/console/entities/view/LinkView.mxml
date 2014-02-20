@@ -160,8 +160,6 @@
         var d:Date=new Date();
         d.time=timeline.slider.value;
         var formattedDate:String=String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
-        
-        //reset
         var currentEdge:Edge;
         var currentRenderer:CustomLink;
         
@@ -181,14 +179,11 @@
           for (var i:int=0; i < flows.length; i++)
           {
             var flow:Flow=flows[i] as Flow;
-            
             if (flow.date == formattedDate)
             {
-              
               for (var j:int=0; j < flow.flows.length; j++)
               {
                 var f:Flows=flow.flows.getItemAt(j) as Flows;
-                
                 if (graph.vis)
                 {
                   for (var k:int=0; k < graph.vis.graph.edges.length; k++)
@@ -197,10 +192,8 @@
                     currentRenderer=currentEdge.visualEdge as CustomLink
                     
                     if (currentRenderer.data.source == f.from && currentRenderer.data.target == f.rcpt || currentRenderer.data.source == f.rcpt && currentRenderer.data.target == f.from)
-                    {
-                      
+                    {   
                       currentRenderer.showFlow(f.from, f.rcpt, f.count);
-                      //currentRenderer.flow()
                     }
                   }
                 }
@@ -224,12 +217,41 @@
 				for (var i:int=0; i < entities.length; i++)
 				{
 					var entity:Entity=entities.getItemAt(i) as Entity; //TODO : ADD FILTERS
+          if(filterEntity(entity))
+          
 					entitiesToShow.addItem(entity)
 				}
-				graph.draw(entitiesToShow)
+				graph.draw(entitiesToShow, filterCriteria)
           
         getFlows(entitiesToShow)
 			}
+      
+      private function filterEntity(entity:Entity):Boolean
+      {
+       if(entity.type=="group")
+         return true;
+        if(filterCriteria.type)
+        {
+        if(filterCriteria.type.length >0 && filterCriteria.type.indexOf(entity.type)==-1)
+          return false;
+        }
+        
+        return true;
+      }
+      
+      private function filterLink(entity:Entity):Boolean
+      {
+        if(entity.type=="group")
+          return true;
+        if(filterCriteria.type)
+        {
+          if(filterCriteria.type.length >0 && filterCriteria.type.indexOf(entity.type)==-1)
+            return false;
+        }
+        
+        return true;
+      }
+      
       
       private function getFlows(entities:ListCollectionView):void
       {
@@ -501,6 +523,8 @@
             timeline.endDate=endDate
             timeline.update()
             //onAddedToStage(null);
+              
+              draw()
       }
       
       private function resetFilter(e:FilterEvent):void

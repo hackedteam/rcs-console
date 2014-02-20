@@ -17,7 +17,9 @@
 		<![CDATA[
       import it.ht.rcs.console.entities.view.filters.AbstractFilterPopup;
       import it.ht.rcs.console.entities.view.filters.TypeFilterPopup;
+      import it.ht.rcs.console.events.FilterEvent;
       
+      import mx.core.FlexGlobals;
       import mx.core.IFlexDisplayObject;
       import mx.events.FlexMouseEvent;
       import mx.managers.PopUpManager;
@@ -44,8 +46,25 @@
       
       private function init():void
       {
-        
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, rebuild);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, reset);
       }
+      
+      
+      private function rebuild(e:FilterEvent):void
+      {
+        
+        popup.rebuild
+        showFilter.selected=popup.hasFilter;
+      }
+      
+      
+      private function reset(e:FilterEvent):void
+      {
+        popup.reset
+        showFilter.selected=popup.hasFilter;
+      }
+        
       
       protected function clickHandler(event:MouseEvent):void
       {

@@ -12,7 +12,7 @@
 					xmlns:utils="it.ht.rcs.console.utils.*"
 					height="100%"
 					width="100%"
-					creationComplete="onCreationComplete()">
+					creationComplete="onCreationComplete()" addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)">
 	<fx:Script>
 		<![CDATA[
       import com.adrianparr.utils.HtmlEntities;
@@ -49,6 +49,7 @@
       import it.ht.rcs.console.entities.view.actions.CustomPan;
       import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
       import it.ht.rcs.console.entities.view.renderers.CustomLink;
+      import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
       
@@ -136,7 +137,7 @@
 			public static const fullLine:Class;
       
       [Bindable]
-      public var filterCriteria:Object={type:["target", "person", "virtual", "position"]}
+      public var filterCriteria:Object={type:[], relevance:[], time:"time", from:"lastMonth", to:0};
 
 
 			private function onCreationComplete():void
@@ -155,7 +156,58 @@
 
 			private function onTimelineChange():void
 			{
-				trace("TIMELINE CHANGE")
+        trace("TIMELINE CHANGE")
+        var d:Date=new Date();
+        d.time=timeline.slider.value;
+        var formattedDate:String=String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
+        
+        //reset
+        var currentEdge:Edge;
+        var currentRenderer:CustomLink;
+        
+        if (graph.vis)
+        {
+          for (var r:int=0; r < graph.vis.graph.edges.length; r++)
+          {
+            currentEdge=graph.vis.graph.edges[r] as Edge;
+            currentRenderer=currentEdge.visualEdge as CustomLink
+            currentRenderer.reset()
+            
+          }
+        }
+        
+        if (flows)
+        {
+          for (var i:int=0; i < flows.length; i++)
+          {
+            var flow:Flow=flows[i] as Flow;
+            
+            if (flow.date == formattedDate)
+            {
+              
+              for (var j:int=0; j < flow.flows.length; j++)
+              {
+                var f:Flows=flow.flows.getItemAt(j) as Flows;
+                
+                if (graph.vis)
+                {
+                  for (var k:int=0; k < graph.vis.graph.edges.length; k++)
+                  {
+                    currentEdge=graph.vis.graph.edges[k] as Edge;
+                    currentRenderer=currentEdge.visualEdge as CustomLink
+                    
+                    if (currentRenderer.data.source == f.from && currentRenderer.data.target == f.rcpt || currentRenderer.data.source == f.rcpt && currentRenderer.data.target == f.from)
+                    {
+                      
+                      currentRenderer.showFlow(f.from, f.rcpt, f.count);
+                      //currentRenderer.flow()
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
 			}
 
 			private function filter(e:Event):void
@@ -175,7 +227,50 @@
 					entitiesToShow.addItem(entity)
 				}
 				graph.draw(entitiesToShow)
+          
+        getFlows(entitiesToShow)
 			}
+      
+      private function getFlows(entities:ListCollectionView):void
+      {
+        timeline.visible=false;
+        trace("get flows")
+        if (!entities)
+          return;
+        
+        var ids:Array=new Array();
+        flows=new ArrayCollection
+        
+        for (var i:int=0; i < entities.length; i++)
+        {
+          var e:Entity=entities.getItemAt(i) as Entity;
+          ids.push(e._id)
+        }
+        EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
+      }
+      
+      private function formatDate(d:Date):String
+      {
+        if (!d)
+          return "";
+        return String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
+      }
+
+      
+      private function onFlowResult(e:ResultEvent):void
+      {
+        //trace("flow result")
+        timeline.visible=true;
+        flows=e.result as ArrayCollection;
+        timeline.highlight(flows);
+      }
+      
+      private function onFlowFault(e:FaultEvent):void
+      {
+        timeline.visible=true;
+        //trace("flow fault")
+      }
+
 
 			protected function onElementDoubleClick():void
 			{
@@ -333,7 +428,90 @@
         graph.vis.zoomContent(bzoom.value,null,false,false);
 				//graph.vis.zoomContent(bzoom.value, null, false)
 			}
-		]]>
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        startDate=new Date();
+        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+        endDate=new Date();
+        
+        filterCriteria={type:[], relevance:[], time:"time", from:"lastMonth", to:0};
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        
+       if(timeline.initialized)
+       {
+         timeline.stop()
+         timeline.startDate=startDate
+         timeline.endDate=endDate
+         timeline.update() 
+       }
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+      private function onFilterChange(e:FilterEvent):void
+      { 
+          trace("==============================")
+          trace("FILTER HAS CHANGED")
+          trace("==============================")
+          trace("time: "+filterCriteria.time)
+          trace("from: "+filterCriteria.from)
+          trace("to: "+filterCriteria.to)
+          trace("type: "+filterCriteria.type)
+          trace("tag: "+filterCriteria.relevance)
+          
+          
+          if(filterCriteria.from=="lastMonth")
+          {
+            startDate=new Date();
+            startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+            endDate=new Date();
+          }
+          
+          else if(filterCriteria.from=="last3Months")
+          {
+            startDate=new Date();
+            startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+            endDate=new Date();
+          }
+          
+          else if(filterCriteria.from=="last6Months")
+          {
+            startDate=new Date();
+            startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+            endDate=new Date();
+          }
+          
+          else if(filterCriteria.from && filterCriteria.to)
+          {
+            startDate=new Date(filterCriteria.from*1000)
+            endDate=new Date(filterCriteria.from*1000);
+          }
+          
+            trace("from: "+startDate)
+            trace("to: "+endDate)
+            
+            timeline.stop()
+            timeline.startDate=startDate
+            timeline.endDate=endDate
+            timeline.update()
+            //onAddedToStage(null);
+      }
+      
+      private function resetFilter(e:FilterEvent):void
+      { 
+        trace("==============================")
+        trace("FILTER RESET")
+        trace("==============================")
+  
+      }
+      
+    ]]>
 	</fx:Script>
 
 	<s:HGroup width="100%"
@@ -351,13 +529,13 @@
         
 
           
-          <renderers:FilterRenderer label="Time" filter="{filterCriteria}" property="date"
+          <renderers:FilterRenderer label="Time" filter="{filterCriteria}" property="time"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
                                     width="150" />
           <renderers:FilterRenderer label="Type"  filter="{filterCriteria}" property="type"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
                                     width="150"/>
-          <renderers:FilterRenderer label="Relevance"
+          <renderers:FilterRenderer label="Relevance" property="relevance" filter="{filterCriteria}"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
                                     width="150"/>
           <!--		<renderers:FilterRenderer label="Entities"

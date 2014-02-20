@@ -14,40 +14,43 @@
       
       import mx.core.FlexGlobals;
       
-      public static const LAST_DAY:String="24h";
-      public static const LAST_WEEK:String="week";
-      public static const LAST_MONTH:String="month";
+      public static const LAST_MONTH:String="lastMonth";
+      public static const LAST_3_MONTHS:String="last3Months";
+      public static const LAST_6_MONTHS:String="last6Months";
       
       private function init():void
       {
         group.selection = null;
         rebuild();
         var today:int = new Date().time/1000;
-        setFromTimestamp(today - (60*60*24));
+        setFromTimestamp(today - (60*60*24*30));
         setToTimestamp(today);
       }
       
       override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
       {
         if (setProperty)
-          filter.date = property;
+          filter.time = property;
         
-        hasFilter = filter.date == property;
+        hasFilter = filter.time == property;
         
         if (fromTo.selected) {
           filter.from = getFromTimestamp();
           filter.to = getToTimestamp();
         } 
-        else if (last24.selected) {
-          filter.from = LAST_DAY;
+        else if (last3Months.selected) {
+          filter.from = LAST_3_MONTHS;
+          filter.to = 0;
           delete(filter.to);
         } 
-        else if (lastWeek.selected) {
-          filter.from = LAST_WEEK;
+        else if (last6Months.selected) {
+          filter.from = LAST_6_MONTHS;
+          filter.to=0
           delete(filter.to);
         } 
         else if (lastMonth.selected) {
           filter.from = LAST_MONTH;
+          filter.to = 0;
           delete(filter.to);
         } 
         else {
@@ -66,7 +69,6 @@
       {
         group.selection = null;
         
-        filter.date = 'da';
         filter.from = 0;
         filter.to = 0;
         
@@ -76,12 +78,11 @@
       private function show():void
       {
         rebuild();
-        fromH.setFocus();
       }
       
       override public function rebuild(e:Event=null):void
       {
-        hasFilter = filter.date == property;
+        hasFilter = true//filter.time == property;
         if (!hasFilter) {
           group.selection = null;
           return;
@@ -93,10 +94,10 @@
           fromTo.selected = true;
           setFromTimestamp(filter.from);
           setToTimestamp(filter.to);  
-        } else if (filter.from==LAST_WEEK && !filter.to)//TODO CHECK!!!
-          lastWeek.selected = true;
-        else if (filter.from==LAST_DAY && !filter.to)
-          last24.selected = true;
+        } else if (filter.from==LAST_3_MONTHS && !filter.to)
+          last3Months.selected = true;
+        else if (filter.from==LAST_6_MONTHS && !filter.to)
+          last6Months.selected = true;
         else if (filter.from==LAST_MONTH && !filter.to)
           lastMonth.selected = true;
       }
@@ -109,11 +110,11 @@
   
   <s:VGroup gap="10" styleName="evidenceFilter">
     
-    <s:RadioButton id="last24"   label="Last 24 Hours" group="{group}"/>
-    <s:RadioButton id="lastWeek" label="Last Week"     group="{group}"/>
-    <s:RadioButton id="lastMonth" label="Last Month"     group="{group}"/>
-    <!--s:RadioButton id="all"      label="All"           group="{group}"/-->
-    <s:RadioButton id="fromTo"   label="From / To"     group="{group}"/>
+    <s:RadioButton id="lastMonth"     label="Last Month"        group="{group}"/>
+    <s:RadioButton id="last3Months"   label="Last 3 Months"     group="{group}"/>
+    <s:RadioButton id="last6Months"   label="Last 6 Months"     group="{group}"/>
+    <!--s:RadioButton id="all"        label="All"               group="{group}"/-->
+    <s:RadioButton id="fromTo"        label="From / To"         group="{group}"/>
     
     <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
       
@@ -121,22 +122,14 @@
         <s:Label width="40" text="From"/>
         <mx:DateField id="from" width="120" change="adjust()" formatString="YYYY-MM-DD"
                       showToday="false" yearNavigationEnabled="true"/>
-        <s:NumericStepper id="fromH" change="adjust()" maximum="23" minimum="0" value="0"
-                          valueFormatFunction="pad"/>
-        <s:Label text=":"/>
-        <s:NumericStepper id="fromM" change="adjust()" maximum="59" minimum="0" value="0"
-                          valueFormatFunction="pad"/>
+
       </s:HGroup>
       
       <s:HGroup verticalAlign="middle">
         <s:Label width="40" text="To"/>
         <mx:DateField id="to" width="120" change="adjust()" formatString="YYYY-MM-DD"
                       showToday="false" yearNavigationEnabled="true"/>
-        <s:NumericStepper id="toH" change="adjust()" maximum="23" minimum="0" value="23"
-                          valueFormatFunction="pad"/>
-        <s:Label text=":"/>
-        <s:NumericStepper id="toM" change="adjust()" maximum="59" minimum="0" value="59"
-                          valueFormatFunction="pad"/>
+
       </s:HGroup>
       
     </s:VGroup>
@@ -156,14 +149,14 @@
       
       private function getFromTimestamp():int
       {
-        from.selectedDate.hours = fromH.value;
-        from.selectedDate.minutes = fromM.value;
+        from.selectedDate.hours = 0;
+        from.selectedDate.minutes = 0;
         return Clock.instance.toUTCTime(from.selectedDate) / 1000;
       }
       private function getToTimestamp():int
       {
-        to.selectedDate.hours = toH.value;
-        to.selectedDate.minutes = toM.value;
+        to.selectedDate.hours = 0;
+        to.selectedDate.minutes = 0;
         return Clock.instance.toUTCTime(to.selectedDate) / 1000;
       }
       
@@ -171,16 +164,14 @@
       {
         var fromDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
         from.selectedDate = fromDate;
-        fromH.value = fromDate.hours;
-        fromM.value = fromDate.minutes;
+
       }
       
       private function setToTimestamp(ts:int):void
       {
         var toDate:Date = Clock.instance.toConsoleDate(new Date(ts * 1000));
         to.selectedDate = toDate;
-        toH.value = toDate.hours;
-        toM.value = toDate.minutes;
+
       }
       
       private function getOneWeekAgo():int

@@ -8,6 +8,9 @@
   <s:Button label="{R.get('RULE_ADD')}" click="addRule()" enabled="{Console.currentSession.user.is_tech_ni_rules() &amp;&amp; selectedInjector != null}"
             icon="@Embed('/img/NEW/newRule.png')"/>
   
+  <s:Button label="{R.get('RULE_DUPLICATE')}"  click="duplicateRule()" enabled="{Console.currentSession.user.is_tech_ni_rules() &amp;&amp; selectedInjector != null &amp;&amp; selectedRule != null}"
+            icon="@Embed('/img/NEW/duplicateRule.png')"/>
+  
   <s:Button label="{R.get('EDIT')}" click="editRule()" enabled="{Console.currentSession.user.is_tech_ni_rules() &amp;&amp; selectedRule != null}"
             icon="@Embed('/img/NEW/edit.png')"/>
   
@@ -53,6 +56,15 @@
         popup.mode = 'edit';
         popup.injector = selectedInjector;
         popup.rule = selectedRule;
+        PopUpManager.centerPopUp(popup);
+      }
+      
+      private function duplicateRule():void
+      {
+        var popup:RuleForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, RuleForm, true) as RuleForm;
+        popup.mode = 'duplicate';
+        popup.injector = selectedInjector;
+        popup.rule = new InjectorRule(selectedRule);
         PopUpManager.centerPopUp(popup);
       }
       

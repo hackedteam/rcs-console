@@ -138,11 +138,14 @@
       
       [Bindable]
       public var filterCriteria:Object={type:[], relevance:[], time:"time", from:"lastMonth", to:0};
+      
+      
 
 
 			private function onCreationComplete():void
 			{
 				trace("LINK VIEW CREATION COMPLETE")
+     
 			}
 
 			public function init():void
@@ -211,7 +214,7 @@
 			public function draw():void
 			{
 				trace("LINK MAP DRAW")
-
+        inited=true;
 				entitiesToShow=new ArrayCollection()
 
 				for (var i:int=0; i < entities.length; i++)
@@ -476,6 +479,7 @@
          timeline.endDate=endDate
          timeline.update() 
        }
+       if(inited) onFilterChange(null)
       }
       
       protected function onRemovedFromStage(event:Event):void
@@ -525,13 +529,14 @@
           
             trace("from: "+startDate)
             trace("to: "+endDate)
-            
+            if(timeline.initialized)
+            {
             timeline.stop()
             timeline.startDate=startDate
             timeline.endDate=endDate
             timeline.update()
             //onAddedToStage(null);
-              
+            }
               draw()
       }
       

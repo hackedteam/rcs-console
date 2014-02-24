@@ -5,7 +5,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:itemfield="it.ht.rcs.console.utils.itemfield.*"
                              creationComplete="init()" creationPolicy="all" currentState="normal"
-                             save="save()" title="{R.get('EDIT_RULE')}">
+                             save="save()" title="{mode=='edit'? R.get('EDIT_RULE'): R.get('RULE_DUPLICATE')}">
   
   
   <fx:Script>
@@ -23,7 +23,7 @@
       [Bindable]
       public var rule:InjectorRule;
       public var injector:Injector;
-      
+      [Bindable]
       public var mode:String = 'edit';
       
       private var fileReference:FileReference;
@@ -39,7 +39,7 @@
           
           rule = new InjectorRule(InjectorRule.defaultInjectorRule());
           
-        } else if (mode == 'edit') {
+        } else if (mode == 'edit' || mode=="duplicate") {
           
           ident.selectedItem = rule.ident;
           action.selectedItem = rule.action;
@@ -209,7 +209,7 @@
       
       private function saveRule():void
       {
-        if (mode == 'create')
+        if (mode == 'create' || mode=="duplicate" )
           injector.rulesManager.addRule(injector._id, rule, function(rule:InjectorRule):void { close(); });
         else
           close();

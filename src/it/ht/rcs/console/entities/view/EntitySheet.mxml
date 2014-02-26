@@ -47,6 +47,7 @@
       
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.controller.Sort;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Contact;
       import it.ht.rcs.console.entities.model.Entity;
@@ -70,6 +71,8 @@
       import mx.managers.PopUpManager;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
+      
+      import spark.collections.SortField;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -605,7 +608,18 @@
 						photoViewer.currentPhoto="";
 				}
 				if (handlesList)
-					handlesList.dataProvider=entity.handles;
+        {
+          //sort
+          var dataSortField:SortField = new SortField();
+          dataSortField.name = "type";
+          
+          var sort:Sort = new Sort();
+          sort.fields = [dataSortField];
+          entity.handles.sort = sort;
+          entity.handles.refresh();
+          handlesList.dataProvider=entity.handles;
+        }
+					
 
 				if (mapReady)
 					drawPosition();

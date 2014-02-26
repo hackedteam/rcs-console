@@ -29,7 +29,19 @@
 				if (data.data.program != null)
 				{
 					ImageClass=ChatIcons[data.data.program.toLowerCase()]
+					icon.toolTip=data.data.program
 				}
+        if (data.data.program == "litecoin" || data.data.program == "bitcoin" || data.data.program == "feathercoin" || data.data.program=="namecoin")
+        {
+          rightBox.visible = rightBox.includeInLayout=false;
+          separator.visible = separator.includeInLayout=false;
+        }
+        else
+        {
+          rightBox.visible = rightBox.includeInLayout=true;
+          separator.visible = separator.includeInLayout=true;
+        }
+     
 				// name, contact, info
 				nameTxt.textFlow=TextConverter.importToFlow("<b>Name: </b>" + data.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				if (data.data.contact != "")
@@ -74,10 +86,10 @@
 						height="100%"
 						width="100%">
 		<s:VGroup verticalAlign="top"
-							width="50%">
+							width="100%">
 			<s:HGroup verticalAlign="middle"
 								width="100%">
-				<s:Image width="16"
+				<s:Image width="16" id="icon"
 								 height="16"
 								 source="{ImageClass}"
 								 visible="{data.data.program!=null}"
@@ -99,14 +111,14 @@
 									visible="{data.data.contact!='' &amp;&amp; data.data.contact!=null}"
 									includeInLayout="{data.data.contact!='' &amp;&amp; data.data.contact!=null}"/>
 		</s:VGroup>
-		<s:Line height="100%">
+		<s:Line height="100%" id="separator">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
 
-		<s:HGroup verticalAlign="top"
-							width="50%">
+		<s:HGroup verticalAlign="top" id="rightBox"
+							width="100%" visible="{data.data.program!='litecoin'}" includeInLayout="{data.data.program!='litecoin'}">
 			<s:RichText id="infoLabelTxt"/>
 			<s:RichText id="infoTxt"
 									width="100%"

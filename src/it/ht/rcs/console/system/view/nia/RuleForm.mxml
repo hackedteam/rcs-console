@@ -36,11 +36,13 @@
       {
         
         if (mode == 'create') {
-          
+          title=R.get('RULE_ADD')
           rule = new InjectorRule(InjectorRule.defaultInjectorRule());
           
         } else if (mode == 'edit' || mode=="duplicate") {
           
+          title=mode=='edit'? R.get('EDIT_RULE'): R.get('RULE_DUPLICATE')
+            
           ident.selectedItem = rule.ident;
           action.selectedItem = rule.action;
           scoutCh.selected=rule.scout;
@@ -89,6 +91,10 @@
           }
         
         }
+    /*     else if()
+        {
+        
+        } */
         
       }
       
@@ -128,6 +134,11 @@
           resource.errorString ='Please fill resource pattern'
           hasError = true;
         }
+        if (action.selectedItem == 'REPLACE' && mode=="create" && !fileChanged) {
+          browseBtn.errorString = 'Please select a file';
+          hasError = true;
+        }
+        
         
         return hasError;
       }
@@ -334,7 +345,7 @@
    
     <s:FormItem visible="{action.selectedItem == 'REPLACE' || action.selectedItem == 'INJECT-HTML-FILE'}" label="{R.get('FILE')}"
                 includeInLayout="{action.selectedItem == 'REPLACE' || action.selectedItem == 'INJECT-HTML-FILE'}">
-      <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
+      <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()" id="browseBtn"/>
       <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
                maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
                verticalAlign="middle"/>

@@ -107,6 +107,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/carrier.png')]
     public static const carrier32:Class;
     
+    [Embed(source='/img/NEW/money.png')]
+    public static const money32:Class;
+    
 
     [Embed(source='/img/NEW/device/mobile_android.png')]
     public static const mobile_android:Class;

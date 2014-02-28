@@ -51,6 +51,9 @@ package it.ht.rcs.console.entities.view
 		private var section:EntitiesSection;
 
 		private var sort:Sort;
+    
+    
+    public var hideGroups:Boolean;
 
 		public static var currInstance:EntitiesSectionStateManager;
 
@@ -58,7 +61,7 @@ package it.ht.rcs.console.entities.view
 		{
       selectedEntities=new ArrayCollection();
       
-			this.section=section;
+			this.section=section; 
 			currInstance=this;
 
 			sort=new Sort();
@@ -189,13 +192,13 @@ package it.ht.rcs.console.entities.view
 
         case 'links':
           CurrentManager = EntityManager;
-          section.currentState = 'singleOperation';
+          section.currentState = 'links';
           currentFilter=singleOperationFilterFunction;
           
           update();
           //link view
 
-          if(data)
+         /* if(data)
           {
             if(data.length==1)
             {
@@ -205,9 +208,10 @@ package it.ht.rcs.console.entities.view
             {
               section.view.linkMap.linkToHighLight={from:data[0], to:data[1]} // two entities: highlight link 
             }
-          }
-          section.view.views.selectedIndex=0;
-          section.view.onChangeView()
+          }*/
+          
+          // section.view.views.selectedIndex=0;
+          // section.view.onChangeView()
           break;
 				case 'map':
 					section.currentState='map';
@@ -299,16 +303,21 @@ package it.ht.rcs.console.entities.view
 			{
 				if (!(Console.currentSession.user.is_view_profiles()))
 					return false;
+        
+        if(hideGroups && item.type=="group")
+          return false;
 			}
-
+      
+     /* if (currentState=="links" && item.hasOwnProperty('type') && item.type=="group") //link view
+        return false;
+*/
 			if (!searchField || searchField.text == '')
 				return true;
 
 			var result:Boolean=false;
 			if (item && item.hasOwnProperty('name') && item.name)
 				result=result || String(item.name.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
-
-
+      
 			if (item && item.hasOwnProperty('desc') && item.desc)
 				result=result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
 

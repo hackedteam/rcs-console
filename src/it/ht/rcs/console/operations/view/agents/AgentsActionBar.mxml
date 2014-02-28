@@ -190,6 +190,7 @@
       import mx.core.FlexGlobals;
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			public var section:OperationsSection;
@@ -293,10 +294,19 @@
 
 			private function updateAgent(event:MouseEvent):void
 			{
-				var popup:AgentUpgrade=PopUpManager.createPopUp(root, AgentUpgrade, true) as AgentUpgrade;
-				popup.agent=section.stateManager.selectedAgent ? section.stateManager.selectedAgent : selectedObject as Agent;
-				PopUpManager.centerPopUp(popup);
+			/*  */
+        var agent:Agent=section.stateManager.selectedAgent ? section.stateManager.selectedAgent : selectedObject as Agent
+        AgentManager.instance.canUpgrade(agent, onCheckResult)
 			}
+      
+      private function onCheckResult(e:ResultEvent):void
+      {
+        var level:String=String(e.result)
+        var popup:AgentUpgrade=PopUpManager.createPopUp(root, AgentUpgrade, true) as AgentUpgrade;
+        popup.agent=section.stateManager.selectedAgent ? section.stateManager.selectedAgent : selectedObject as Agent;
+        popup.level=level
+        PopUpManager.centerPopUp(popup);
+      }
 
 			private function purgeAgent(event:MouseEvent):void
 			{

@@ -25,6 +25,9 @@
       [Embed(source='/img/NEW/device/compass.png')]
       private static const compassIcon:Class;
       
+      [Embed(source='/img/NEW/device/soldier.png')]
+      private static const soldierIcon:Class;
+      
       [Embed(source='/img/NEW/evidence_50.png')]
       private static const evidenceIcon:Class;
       
@@ -101,6 +104,8 @@
           return entityLocationIcon;
         else if (data is Entity && data.type=="virtual")
           return entityVirtualIcon;
+        else if (data is Entity && data.type=="group")
+          return null;
         // see addCustomTypes() in stateManager
         else if (data is Object && data.customType == 'evidence')
           return evidenceIcon;
@@ -134,7 +139,8 @@
   </fx:Declarations>
   <s:Group width="100%" horizontalCenter="0">
     <s:Image id="iconType" top="5" horizontalCenter="0"/>
-    <s:Image source="{compassIcon}" x="54" y="25" visible="{data &amp;&amp; data.hasOwnProperty('scout') &amp;&amp; data.scout}"/>
+    <s:Image source="{compassIcon}" x="54" y="25" visible="{data &amp;&amp; data.hasOwnProperty('level') &amp;&amp; data.level=='scout' &amp;&amp; data._kind=='agent'}" />
+    <s:Image source="{soldierIcon}" x="54" y="25" visible="{data &amp;&amp; data.hasOwnProperty('level') &amp;&amp; data.level=='soldier'}"/>
   </s:Group>
  
   

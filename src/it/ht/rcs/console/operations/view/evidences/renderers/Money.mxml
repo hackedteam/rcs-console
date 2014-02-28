@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																width="100%"
+																height="100%">
+
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+			import it.ht.rcs.console.utils.StringUtils;
+
+
+			private var file:flash.filesystem.File;
+			private var stream:URLStream;
+			private var extension:String;
+			private var originalName:String;
+			private var request:URLRequest
+
+			[Embed(source="img/NEW/outgoing.png")]
+			[Bindable]
+			public var outgoing:Class;
+
+			[Embed(source="img/NEW/incoming.png")]
+			[Bindable]
+			public var incoming:Class;
+
+			[Bindable]
+			override public function set data(value:*):void
+			{
+
+				super.data=value;
+
+				versionTxt.textFlow=TextConverter.importToFlow("<b>Version: </b>" + data.data.version, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				encryptedTxt.textFlow=TextConverter.importToFlow("<b>Encrypted: </b>" + data.data.encrypted, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				balanceTxt.textFlow=TextConverter.importToFlow("<b>Balance: </b>" + data.data.balance, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				sizeTxt.textFlow=TextConverter.importToFlow("<b>Size: </b>" + data.data.size, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>" + data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				currencyTxt.textFlow=TextConverter.importToFlow("<b>Currency: </b>" + data.data.currency, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				fromTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				toTxt.textFlow=TextConverter.importToFlow("<b>To: </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				amountTxt.textFlow=TextConverter.importToFlow("<b>Amount: </b>" + data.data.amount, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				idTxt.textFlow=TextConverter.importToFlow("<b>Id: </b>" + data.data.id, TextConverter.TEXT_FIELD_HTML_FORMAT)
+			/* 	if (data.data.type == 'wallet')
+					contentTxt.textFlow=TextConverter.importToFlow("<b>Content: </b><br>" + lineBreak(data.data.content), TextConverter.TEXT_FIELD_HTML_FORMAT)
+				else
+					contentTxt.textFlow=TextConverter.importToFlow("", TextConverter.TEXT_FIELD_HTML_FORMAT) */
+				
+
+				versus.source=data.data.incoming ? incoming : outgoing
+        versus.toolTip=data.data.incoming ? "Incoming" : "Outgoing"
+			}
+
+			private function lineBreak(s:String):String
+			{
+				var result:String=s.replace(new RegExp("\n", "g"), "<br>");
+				return result;
+			}
+
+			private function download():void
+			{
+				if (downloadBtn.label == "Download")
+				{
+					var target:String=EvidenceManager.instance.evidenceFilter.target;
+					var url:String
+					if (DB.instance.demo)
+					{
+						url="grid/" + ""
+					}
+					else
+					{
+						url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+					}
+
+					originalName=StringUtils.getFilename(data.data.path)
+					extension=StringUtils.getExtension(data.data.path)
+					var fileName:String=data.data._grid + encodeURIComponent(target) + "_" + originalName;
+					if (DB.instance.demo)
+					{
+						fileName=data.data.path
+					}
+					request=new URLRequest(url);
+					stream=new URLStream();
+					file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+					file.browseForSave("Download " + fileName);
+					file.addEventListener(Event.SELECT, onSelect);
+				}
+				else if (downloadBtn.label == "Open")
+				{
+					try
+					{
+						file.openWithDefaultApplication()
+					}
+					catch (e:Error)
+					{
+						downloadStatusTxt.text="Unable to open with default application."
+					}
+
+				}
+			}
+
+			private function onSelect(e:Event):void
+			{
+				downloadBtn.enabled=false;
+				downloadStatusTxt.text="Downloading file..."
+				stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+				stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+				stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);
+				stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onDownloadError)
+				stream.load(request);
+			}
+
+			private function onDownloadProgress(e:ProgressEvent):void
+			{
+				var perc:int=int((e.bytesLoaded / e.bytesTotal) * 100)
+				downloadStatusTxt.text="Downloading file..." + perc + " % completed."
+			}
+
+			private function onDownloadError(e:*):void
+			{
+				downloadBtn.enabled=true;
+				downloadStatusTxt.text="Error downloading file. Try again"
+			}
+
+			private function onFileDownloaded(e:Event):void
+			{
+				//downloadBtn.label="Open"
+				downloadStatusTxt.text="File downloaded successfully."
+				downloadBtn.enabled=false;
+				var fileData:ByteArray=new ByteArray();
+				stream.readBytes(fileData, 0, stream.bytesAvailable);
+				var fileStream:FileStream=new FileStream();
+				fileStream.open(file, FileMode.WRITE);
+				fileStream.writeBytes(fileData, 0, fileData.length);
+				fileStream.close();
+
+			}
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%"
+						verticalAlign="top">
+    <s:HGroup width="100%"
+              verticalAlign="middle"
+             >
+		<s:RichText id="typeTxt"
+								/>
+      <s:RichText id="currencyTxt"
+                  
+                  
+                  />
+      <s:Image id="versus"
+               width="16"
+               height="16"
+               visible="{data.data.type=='tx'}"
+               includeInLayout="{data.data.type=='tx'}"/>
+
+    </s:HGroup>
+    
+    
+		<s:RichText id="idTxt"
+								visible="{data.data.type=='tx'}"
+								includeInLayout="{data.data.type=='tx'}"/>
+		<s:RichText id="fromTxt"
+								width="100%"
+								visible="{data.data.type=='tx'}"
+								includeInLayout="{data.data.type=='tx'}"/>
+		<s:RichText id="toTxt"
+								width="100%"
+								visible="{data.data.type=='tx'}"
+								includeInLayout="{data.data.type=='tx'}"/>
+    
+   
+      
+      <s:RichText id="amountTxt"
+                  width="100%"
+                  
+                  visible="{data.data.type=='tx'}"
+                  includeInLayout="{data.data.type=='tx'}"/>
+   
+
+		<s:HGroup verticalAlign="top"
+							height="100%"
+							width="100%">
+			<s:VGroup verticalAlign="top"
+								width="100%">
+				<s:HGroup visible="{data.data.type=='wallet'}"
+									includeInLayout="{data.data.type=='wallet'}"
+									width="100%">
+					<s:RichText id="versionTxt"
+											
+											visible="{data.data.type=='wallet'}"
+											includeInLayout="{data.data.type=='wallet'}"/>
+        
+
+          
+          <s:RichText id="encryptedTxt"
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"
+                      />
+				</s:HGroup>
+        
+        <s:HGroup visible="{data.data.type=='wallet'}"
+                  includeInLayout="{data.data.type=='wallet'}"
+                  width="100%">
+
+          <s:RichText id="sizeTxt"
+                      
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"/>
+          
+          <s:RichText id="balanceTxt"         
+                      visible="{data.data.type=='wallet'}"
+                      includeInLayout="{data.data.type=='wallet'}"/>
+      
+        </s:HGroup>
+
+     <!--   <s:RichText id="contentTxt"
+                    width="100%"
+                    maxDisplayedLines="6"
+                    visible="{data.data.type=='wallet'}"
+                    includeInLayout="{data.data.type=='wallet'}"/>-->
+
+			
+				<s:Button id="downloadBtn"
+									label="Download"
+									click="download()"
+									visible="{data.data.type=='wallet'}"
+									includeInLayout="{data.data.type=='wallet'}"/>
+				<s:Label id="downloadStatusTxt"
+								 visible="{data.data.type=='wallet'}"
+								 includeInLayout="{data.data.type=='wallet'}"
+								 fontSize="10"
+								 fontWeight="bold"/>
+
+			</s:VGroup>
+			
+			
+		</s:HGroup>
+
+	</s:VGroup>
+</renderers:EvidenceDataRenderer>

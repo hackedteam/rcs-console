@@ -77,8 +77,18 @@
 				{
           currentAgent=section.stateManager.selectedAgent;
 					if (section.stateManager.selectedAgent == null)
-						return;        
-          isScout=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.scout==true;
+						return;   
+          
+          if(currentAgent.level=="soldier")
+          {
+          trace("it's a soldier: hide advanced view!")
+          
+          
+    
+          
+          
+          }
+          isScout=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.level=="scout";
 					configAsObject=JSON.parse(configAsConfig.config);
 					cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
 					addAgentMissingModules(section.stateManager.selectedAgent.platform, configAsObject);
@@ -130,6 +140,26 @@
 				}
 
 				currentState=configAsObject.globals.advanced ? "advanced" : "basic";
+        
+        var agent:Agent=section.stateManager.selectedAgent;
+        
+        if(agent && agent.level=="soldier" && configAsObject.globals.advanced) // a soldier with advanced configuration convert to basic
+        {
+          currentState="basic"
+        
+          var newConfig:Object = DefaultConfigBuilder.getDefaultConfig(agent);
+          if (agent._kind == 'agent')
+            DefaultConfigBuilder.cleanPlatformConfig(agent.platform, newConfig);
+          if (!basic)
+            return;
+          
+          basic.config = newConfig;
+          basic.displayConfig();
+          return;
+        
+        }
+        
+     
 				switch (currentState)
 				{
 					case "basic":

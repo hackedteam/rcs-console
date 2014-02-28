@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
-               xmlns:mx="library://ns.adobe.com/flex/mx" width="330" height="230" close="closeMe(event)" 
+               xmlns:mx="library://ns.adobe.com/flex/mx" width="330" height="260" close="closeMe(event)" 
                title="{R.get('UPDATE_AGENT')}" creationComplete="init(event)">
   <fx:Script>
     <![CDATA[
@@ -20,12 +20,16 @@
       
       [Bindable]
       public var agent:Agent;
+      
+      [Bindable]
+      public var level:String; //new level after upgrade
 
       [Bindable]
       private var upgradable:Boolean;
 
       [Bindable]
       private var scout_warning:Boolean = false;
+      
       
       protected function closeMe(event:*):void
       {
@@ -82,7 +86,7 @@
           upBtn.enabled = false;          
         }
         
-        if (agent.scout && agent.version >=3 ) {
+        if (agent.level=="scout" && agent.version >=3 ) {
           currentVersionTxt.text=agent.version+" (scout)";
           desc.text = R.get('UPDATE_AGENT_DESC_SCOUT');
           upBtn.enabled = true;
@@ -95,6 +99,16 @@
           scout_warning = true;
           upBtn.enabled = false;
         }
+        msg.visible=msg.includeInLayout=level=="\"soldier\""
+        if(level=="\"soldier\"") //UPDATE_AGENT_DESC_SOLDIER
+        {
+          upgradeTxt.text="Soldier";
+          msg.visible=msg.includeInLayout=true;
+        }
+      else if(level=="\"elite\"")
+      {
+        upgradeTxt.text="Elite (" +CoreManager.instance.getLatestVersion(agent.platform)+")";
+      }
         
       }
       
@@ -109,19 +123,19 @@
       
     ]]>
   </fx:Script>
-  <s:VGroup top="10" left="10" right="10" horizontalAlign="center" >
+  <s:VGroup top="10" left="10" right="10" horizontalAlign="center" width="300" >
     <s:TextArea id="desc" editable="false" borderVisible="false" 
-                width="100%" height="65" contentBackgroundAlpha="0" />
+                width="100%" height="65" contentBackgroundAlpha="0" includeInLayout="{desc.text!=''}"/>
 
     <s:Form>
       <s:FormItem label="{R.get('CURRENT_VERSION')}">
         <s:Label text="{agent.version}" id="currentVersionTxt"/>
       </s:FormItem>
       <s:FormItem label="{R.get('UPGRADE_TO')}" visible="{upgradable}">
-        <s:Label text="{CoreManager.instance.getLatestVersion(agent.platform)}" />
+        <s:Label id="upgradeTxt" />
       </s:FormItem>
     </s:Form>   
-
+<s:Label id="msg" text="{R.get('UPDATE_AGENT_DESC_SOLDIER')}" width="100%"/>
     <s:TextArea id="warning" fontWeight="bold" editable="false" borderVisible="false" text="{R.get('SCOUT_UPGRADE_WARNING')}"
                 width="100%" height="65" contentBackgroundAlpha="0" visible="{scout_warning}" includeInLayout="{scout_warning}" />
     

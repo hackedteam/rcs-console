@@ -31,6 +31,9 @@
       [Embed(source='/img/NEW/device/compass.png')]
       private static const compassIcon:Class;
       
+      [Embed(source='/img/NEW/device/soldier.png')]
+      private static const soldierIcon:Class;
+      
       private var tick:Timer = new Timer(1000);
       
       private function onAddedToStage():void
@@ -117,13 +120,22 @@
         } else {
           iconBig.filters = null;
         }
-        if(item.scout)
+        if(item.level=="scout" && item._kind=="agent")
         {
           scoutImg.visible=true;
         }
         else
         {
           scoutImg.visible=false;
+        }
+        
+        if(item.level=="soldier")
+        {
+          soldierImg.visible=true;
+        }
+        else
+        {
+          soldierImg.visible=false;
         }
           
         currentState = item._kind;
@@ -208,6 +220,7 @@
           <s:Group width="100%" horizontalCenter="0">
             <s:Image id="iconBig" buttonMode="true" click="onItemClick()" rollOut="onIconRoll(event)" rollOver="onIconRoll(event)"/>
             <s:Image source="{compassIcon}" x="25" y="25" id="scoutImg" visible="false"/>
+            <s:Image source="{soldierIcon}" x="25" y="25" id="soldierImg" visible="false"/>
           </s:Group>
          
           <s:Label id="iconBigText"/>          

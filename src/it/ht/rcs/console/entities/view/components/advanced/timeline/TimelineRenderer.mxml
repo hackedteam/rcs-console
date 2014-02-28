@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+                    xmlns:s="library://ns.adobe.com/flex/spark" 
+                    xmlns:mx="library://ns.adobe.com/flex/mx"
+                    clipAndEnableScrolling="true" 
+                    addedToStage="onAddedToStage(event)"
+                    mouseOver="onMouseOver(event)"
+                    mouseOut="onMouseOut(event)">
+
+  <fx:Script>
+    <![CDATA[
+      import mx.controls.ToolTip;
+      import mx.managers.ToolTipManager;
+      
+      import spark.components.Label;
+      import spark.core.SpriteVisualElement;
+      import spark.primitives.Rect;
+      
+      private var tip:ToolTip;
+      private var tiptext:String="";
+      private var marker:SpriteVisualElement;
+      private var counter:Label;
+      
+      override public function prepare(hasBeenRecycled:Boolean):void
+      {
+        var d:Date=new Date()
+        d.time=Number(data[column.dataField].date)
+        d.hours=Number(data[column.dataField].hours)
+        tiptext=TimelineUtils.doubleDigits(d.date)+" "+TimelineUtils.months[d.month]+" "+d.fullYear+" - "+TimelineUtils.doubleDigits(d.hours)+":"+TimelineUtils.doubleDigits(d.minutes);
+        marker.visible=data[column.dataField].value
+        /*   if(data[column.dataField].minutes)
+            
+        counter.text="1"
+          else
+        counter.text="0"
+          */
+      } 
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        this.useHandCursor=true;
+        this.buttonMode=true;
+        this.toolTip="";
+      }
+      
+      protected function onMouseOver(event:MouseEvent):void
+      {
+        var pt:Point = new Point(event.currentTarget.x, event.currentTarget.y);
+        pt = event.currentTarget.parent.contentToGlobal(pt);
+        tip = ToolTipManager.createToolTip(tiptext, pt.x, pt.y) as ToolTip;
+      
+        var yOffset:int =  tip.height + 5;
+        tip.y -= yOffset;
+        tip.x -= 5;
+      }
+      
+      protected function onMouseOut(event:MouseEvent):void
+      {
+        ToolTipManager.destroyToolTip(tip);
+      }
+      
+      override protected function createChildren():void
+      {
+        super.createChildren();
+        marker= new SpriteVisualElement();
+        marker.percentHeight=100;
+        marker.percentWidth=100;
+        marker.graphics.beginFill(0x00CCFF, 0.4);
+        marker.graphics.drawRect(0, 0, 100, 100);
+        this.addElement(marker);
+        
+        /* counter=new Label()
+        counter.setStyle("fontSize", 9)
+        counter.text="0"
+        this.addElement(counter) */
+      }
+      
+      protected function griditemrenderer1_clickHandler(event:MouseEvent):void
+      {
+        // TODO Auto-generated method stub
+        
+      }
+      
+    ]]>
+  </fx:Script>
+  
+<!--  <s:Label id="lblData" top="9" left="7"/>-->
+  
+</s:GridItemRenderer>
+ 

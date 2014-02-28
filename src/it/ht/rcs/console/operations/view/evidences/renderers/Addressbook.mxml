@@ -19,14 +19,29 @@
 			[Embed('/img/NEW/target_16.png')]
 			private static const targetIcon:Class;
 
+
+
 			[Bindable]
 			override public function set data(value:*):void
 			{
 
 				super.data=value;
 				if (data.data.program != null)
+				{
 					ImageClass=ChatIcons[data.data.program.toLowerCase()]
-
+					icon.toolTip=data.data.program
+				}
+        if (data.data.program == "litecoin" || data.data.program == "bitcoin" || data.data.program == "feathercoin" || data.data.program=="namecoin")
+        {
+          rightBox.visible = rightBox.includeInLayout=false;
+          separator.visible = separator.includeInLayout=false;
+        }
+        else
+        {
+          rightBox.visible = rightBox.includeInLayout=true;
+          separator.visible = separator.includeInLayout=true;
+        }
+     
 				// name, contact, info
 				nameTxt.textFlow=TextConverter.importToFlow("<b>Name: </b>" + data.data.name, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				if (data.data.contact != "")
@@ -38,8 +53,26 @@
 				{
 					contactTxt.visible=contactTxt.includeInLayout=false;
 				}
-				infoLabelTxt.textFlow=TextConverter.importToFlow("<b>Info: </b>", TextConverter.TEXT_FIELD_HTML_FORMAT)
-				infoTxt.textFlow=TextConverter.importToFlow(lineBreak(data.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT)
+				infoLabelTxt.textFlow=TextConverter.importToFlow("<b>Info: </b>", TextConverter.TEXT_FIELD_HTML_FORMAT);
+				infoTxt.textFlow=TextConverter.importToFlow(lineBreak(data.data.info), TextConverter.TEXT_FIELD_HTML_FORMAT);
+
+
+				if (data.data.type == "target")
+				{
+					target.visible=true;
+				}
+        
+        else if (data.data.type == "peer")
+        {
+          target.visible=false;
+        }
+        
+        else
+        {
+          target.visible=false;
+        }
+
+				//typeTxt.textFlow=TextConverter.importToFlow("<b>Type: </b>"+data.data.type, TextConverter.TEXT_FIELD_HTML_FORMAT)
 			}
 
 			private function lineBreak(s:String):String
@@ -53,10 +86,10 @@
 						height="100%"
 						width="100%">
 		<s:VGroup verticalAlign="top"
-							width="50%">
+							width="100%">
 			<s:HGroup verticalAlign="middle"
 								width="100%">
-				<s:Image width="16"
+				<s:Image width="16" id="icon"
 								 height="16"
 								 source="{ImageClass}"
 								 visible="{data.data.program!=null}"
@@ -65,9 +98,11 @@
 				<s:Image width="16"
 								 height="16"
 								 source="{targetIcon}"
-								 visible="{data.data.type=='target'}"
-								 includeInLayout="{data.data.type=='target'}"
-								 toolTip="target"/>
+								 toolTip="target"
+								 id="target"
+								 visible="false"/>
+				<s:RichText id="typeTxt"
+										width="100%"/>
 			</s:HGroup>
 			<s:RichText id="nameTxt"
 									width="100%"/>
@@ -76,14 +111,14 @@
 									visible="{data.data.contact!='' &amp;&amp; data.data.contact!=null}"
 									includeInLayout="{data.data.contact!='' &amp;&amp; data.data.contact!=null}"/>
 		</s:VGroup>
-		<s:Line height="100%">
+		<s:Line height="100%" id="separator">
 			<s:stroke>
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
 
-		<s:HGroup verticalAlign="top"
-							width="50%">
+		<s:HGroup verticalAlign="top" id="rightBox"
+							width="100%" visible="{data.data.program!='litecoin'}" includeInLayout="{data.data.program!='litecoin'}">
 			<s:RichText id="infoLabelTxt"/>
 			<s:RichText id="infoTxt"
 									width="100%"

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
+                             show="show()" creationPolicy="all">
+
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
+      import mx.events.FlexEvent;
+      import mx.utils.StringUtil;
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        var values:Array = getValues();
+        hasFilter = values.length > 0;
+        hasFilter ? filter[property] = values : delete(filter[property]);
+        visible = false;
+        if (fireEvent)
+         
+         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+      }
+      
+      private function getValues():Array
+      {
+        var checks:Array = [none, low, medium, high, critical];
+        var toReturn:Array = [];
+        
+        checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
+          if (item.checkbox.selected)
+            toReturn.push(item.relevance);
+        });
+        
+        return toReturn;
+      }
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+        deselectAll();
+        commit(fireEvent);
+      }
+      
+      private function checkboxClick(item:TagFilterItemRenderer):void
+      {
+        if (item === none) {
+          deselectAll();
+          select(item);
+        } else {
+          select(none, false);
+        }
+      }
+      
+      private function select(item:TagFilterItemRenderer, state:Boolean=true):void
+      {
+        item.checkbox.selected = state;
+      }
+      
+      private function deselectAll():void
+      {
+        var checks:Array = [none, low, medium, high, critical];
+        checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = false;
+        });
+      }
+      
+      private function show():void
+      {
+        if (!filter.hasOwnProperty(property)) return;
+        var checks:Array = [none, low, medium, high, critical];
+        checks.forEach(function(item:TagFilterItemRenderer, index:int, array:Array):void {
+          item.checkbox.selected = filter[property].indexOf(item.relevance) != -1;
+        });
+      }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        var checks:Array = [none, low, medium, high, critical];
+        
+        hasFilter = filter.hasOwnProperty(property);
+        deselectAll();
+        if (hasFilter && filter[property] is Array)
+          filter[property].forEach(function(item:int, index:int, array:Array):void {
+            checks[item].selected = true;
+          });
+      }
+    ]]>
+  </fx:Script>
+
+	<fx:Declarations>
+		<s:Parallel id="fadeIn"
+								duration="200">
+			<s:Fade alphaFrom="0"
+							alphaTo="1"/>
+			<s:Move yFrom="{y - 20}"
+							yTo="{y}"/>
+		</s:Parallel>
+		<s:Parallel id="fadeOut"
+								duration="200">
+			<s:Fade alphaFrom="1"
+							alphaTo="0"/>
+			<s:Move yFrom="{y}"
+							yTo="{y - 20}"/>
+		</s:Parallel>
+	</fx:Declarations>
+  <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" color="0xFFFFFF">
+    <filters:TagFilterItemRenderer id="none" label="{R.get('UNTAGGED')}" relevance="0" color="0xFFFFFF"/>
+    <s:Spacer height="2"/>
+    <filters:TagFilterItemRenderer id="low" label="{R.get('LOW')}" relevance="1" />
+    <filters:TagFilterItemRenderer id="medium" label="{R.get('MEDIUM')}" relevance="2" />
+    <filters:TagFilterItemRenderer id="high" label="{R.get('HIGH')}" relevance="3" />
+    <filters:TagFilterItemRenderer id="critical" label="{R.get('CRITICAL')}" relevance="4" />
+  </s:VGroup>
+</filters:AbstractFilterPopup>

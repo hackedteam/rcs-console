@@ -8,11 +8,9 @@
 					xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          removedFromStage="onRemovedFromStage()"
 					height="100%"
-					width="100%"
-					creationComplete="init()"
-					addedToStage="onAddedToStage()"
-					removedFromStage="onRemovedFromStage()">
+					width="100%">
 
 	<fx:Script>
 		<![CDATA[
@@ -47,6 +45,7 @@
 			import it.ht.rcs.console.entities.model.Positions;
 			import it.ht.rcs.console.entities.model.PositionsFlow;
 			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
 			import it.ht.rcs.console.entities.view.map.CustomMarker;
 			import it.ht.rcs.console.events.RefreshEvent;
 			import it.ht.rcs.console.events.SectionEvent;
@@ -58,6 +57,7 @@
 
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
+			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -89,59 +89,67 @@
 
 			private const ALPHA_RATIO:Number=100 / 60;
 
-
 			private var relevence0:uint=0x333333;
 			private var relevence1:uint=0x999999;
 			private var relevence2:uint=0x5DE35F;
 			private var relevence3:uint=0xFFDC42;
 			private var relevence4:uint=0xFF4034;
+
 			private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
 
 
 			[Bindable]
 			public var actionbar:EntitiesActionBar
-
 			[Bindable]
 			public var section:EntitiesSection;
 			[Bindable]
 			public var entities:ListCollectionView; //all entities
-			[Bindable]
+
 			private var startDate:Date;
-			[Bindable]
+
 			private var endDate:Date;
-			[Bindable]
+
 			private var currentDate:Date;
 
 			private var entitiesToShow:ArrayCollection //only targets and positions
 			private var positions:ArrayCollection; //only positions
 			private var targets:ArrayCollection; //only targets
 
+	    //TODO > CHECK MAP IS READY!
+			private function onMapReady(e:MapEvent):void
+			{
+				trace("GEO MAP >>>>>>>>>>>>>>>> MAP READY")
+				mapReady=true;
+				map.removeEventListener(MapEvent.MAP_READY, onMapReady);
+				map.addControl(new ZoomControl());
+				map.addControl(new PositionControl());
+				map.addControl(new MapTypeControl());
+				map.addEventListener(MapMouseEvent.CLICK, onMapClick);
+				mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
+				overlays=new Array()
+				circles=new Array()
+			}
 
 			private function clearMap():void
 			{
 				if (!mapReady || !overlays)
 					return;
-
 				for (var i:int=0; i < overlays.length; i++)
 				{
 					map.removeOverlay(overlays[i] as IOverlay);
 				}
-
 				overlays=new Array()
 				circles=new Array()
 				map.clearOverlays()
 				map.enabled=false;
 				map.setZoom(1);
 				map.setCenter(new LatLng(0, 0));
-
 			}
-
 
 			private function drawMap():void
 			{
-				if (!map.initialized)
+				if (!map.initialized) //!!! check
 					return;
-
 				var i:int=0;
 				var entity:Entity;
 				targetsMarkers=new Dictionary()
@@ -160,8 +168,8 @@
 
 				markers=new Array();
 				circles=new Array();
-				lines=new Array()
-				links=new Dictionary()
+				lines=new Array();
+				links=new Dictionary();
 
 				bounds=new LatLngBounds();
 
@@ -227,24 +235,21 @@
 						targetsMarkers[entity._id]=marker
 						marker.foreground.visible=false
 					}
-
-
 				}
 				if (!map.enabled)
 					map.enabled=true;
 				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-				onDateChange()
-				map.visible=true;
+				//map.visible=true;
 			}
 
 			private function onRemovedFromStage():void
 			{
-				tracker.doStop()
+        tracker.reset()
 			}
 
 			public function doStop():void
 			{
-				tracker.doStop()
+				//tracker.doStop()
 			}
 
 
@@ -281,7 +286,7 @@
 				overlays.push(circleOverlay);
 				circles.push(circleOverlay);
 
-				return bounds
+				return bounds;
 			}
 
 
@@ -340,21 +345,26 @@
 			public function init():void
 			{
 
-				trace("GEO MAP INIT")
+				trace("GEO MAP >>>>>>>>>>>>>>>> INIT")
 
-				map.addEventListener(MapEvent.MAP_READY, onMapReady)
+
 				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 
 				//default dates
-				startDate=new Date();
-				startDate.minutes=0
-				startDate.seconds=0
 
-				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30); //60 days
 				endDate=new Date();
 				endDate.hours=23
 				endDate.minutes=59
 				endDate.seconds=59;
+				endDate.milliseconds=0
+
+				startDate=new Date();
+				startDate.date-=30 //30 days
+				startDate.hours=0
+				startDate.minutes=0
+				startDate.seconds=0;
+				startDate.milliseconds=0;
+
 
 				//default filters settings
 				fitCh.selected=true;
@@ -363,55 +373,86 @@
 
 				overlays=new Array();
 
-
 				if (fromDf)
-					fromDf.selectedDate=startDate;
+					fromDf.selectedDate=new Date(startDate.time);
 				if (toDf)
-					toDf.selectedDate=endDate;
+					toDf.selectedDate=new Date(endDate.time);
 
 				tracker.visible=false;
 				loadingBox.visible=true;
+				tracker.addEventListener(Timeline.READY, onTrackerReady)
+				//tracker.draw(startDate, endDate) //add hours      
 
-				tracker.init()
-				//setTimeout(tracker.init, 100)
+			}
 
+			private function onDateRange(e:Event):void
+			{
+				e.stopImmediatePropagation()
+        tracker.reset();
+				if (fromDf.selectedDate > toDf.selectedDate)
+				{
+					fromDf.selectedDate=new Date()
+					fromDf.selectedDate.time=startDate.time
+					toDf.selectedDate=new Date()
+					toDf.selectedDate.time=endDate.time
+					Alert.show("Start date must be before end date")
+					return;
+				}
+				else if (toDf.selectedDate < fromDf.selectedDate)
+				{
+					fromDf.selectedDate=new Date(startDate.time)
+					toDf.selectedDate=new Date(endDate.time)
+					Alert.show("End date must be after start date")
+					return;
+				}
+				else if ((toDf.selectedDate.time - fromDf.selectedDate.time) > (TimelineUtils.DAY * 365))
+				{
+					fromDf.selectedDate=new Date(startDate.time)
+					toDf.selectedDate=new Date(endDate.time)
+					Alert.show("Selected range cannot exceed one year")
+					return;
+				}
+				setTimeout(onDateFilter, 100)
 			}
 
 			private function onDateFilter():void
 			{
-				startDate=fromDf.selectedDate;
-				startDate.minutes=0;
-				startDate.seconds=0;
 
-				endDate=toDf.selectedDate;
-				endDate.minutes=0;
-				endDate.seconds=0;
-				x
-				//TODO CHECK DATES CONSISTENCY
-				//("start date: " + startDate);
-				//trace("end date: " + endDate);
 				tracker.visible=false;
 				loadingBox.visible=true;
+
+				startDate=new Date(fromDf.selectedDate.time);
+				startDate.minutes=0;
+				startDate.seconds=0;
+				startDate.milliseconds=0
+
+				endDate=new Date(toDf.selectedDate.time);
+        endDate.hours=23
+				endDate.minutes=59;
+				endDate.seconds=59;
+				endDate.milliseconds=0;
+
 				clearMap()
-				setTimeout(tracker.draw, 100)
-
+				map.visible=false
 				refresh()
-
 			}
 
-			private function onTrackerReady():void
+
+
+			private function onTrackerReady(e:Event):void
 			{
 				trace("TRACKER READY")
-				clearMap()
+				tracker.removeEventListener(Timeline.READY, onTrackerReady)
+				//clearMap()
 				loadingBox.visible=false;
 				tracker.visible=true;
-
-				//	refresh()
+				setTimeout(getPositionsDetail, 100, targets)
+				//refresh()
 			}
 
 			private function onAddedToStage():void
 			{
-				trace("GEO MAP ADDED TO STAGE")
+				trace("GEO MAP >>>>>>>>>>>>>>>> ADDED TO STAGE")
 			}
 
 
@@ -419,30 +460,27 @@
 			{
 				clearMap()
 				refresh();
-
 			}
 
 			public function refresh():void
 			{
-
-				clearMap()
-
+        clearMap()
+        tracker.reset()
 				loadingBox.visible=true;
 				tracker.visible=false;
 				map.visible=false;
 
-				trace("REFRESH")
+				trace("GEO MAP >>>>>>>>>>>>>>>> REFRESH")
 				trace("TOTAL ENTITIES: " + entities.length)
 
 				//get details about entities
 				info.selectedItem=null;
 				info.selectedItems=null;
-        actionbar.selectedObject=null;
-        actionbar.selectedObjects=null;
-        actionbar.linkEnabled=false;
+				actionbar.selectedObject=null;
+				actionbar.selectedObjects=null;
+				actionbar.linkEnabled=false;
 
 				entitiesToShow=new ArrayCollection()
-
 
 				var entity:Entity;
 				var i:int;
@@ -452,8 +490,6 @@
 					if (entity.type == "position" || entity.type == "target")
 						entitiesToShow.addItem(entity);
 				}
-
-
 
 				positions=new ArrayCollection()
 				targets=new ArrayCollection()
@@ -470,22 +506,13 @@
 						targets.addItem(entity)
 					}
 				}
-				reset()
+
+				drawMap()
 				getPositionsSummary(targets)
 
 			}
 
-			private function onMapReady(e:MapEvent):void
-			{
-				trace("GOOGLE MAP IS READY")
-				mapReady=true;
-				map.removeEventListener(MapEvent.MAP_READY, onMapReady)
-				map.addControl(new ZoomControl());
-				map.addControl(new PositionControl());
-				map.addControl(new MapTypeControl());
-				map.addEventListener(MapMouseEvent.CLICK, onMapClick);
-				mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-			}
+
 
 			private function onMapClick(e:MapMouseEvent):void
 			{
@@ -497,7 +524,6 @@
 					polyline.foreground.filters=null;
 				}
 				e.stopImmediatePropagation()
-
 			}
 
 			private function getPositionsSummary(targets:ArrayCollection):void
@@ -519,6 +545,11 @@
 					var e:Entity=targets.getItemAt(i) as Entity;
 					ids.push(e._id)
 				}
+        startDate=fromDf.selectedDate
+          endDate=toDf.selectedDate
+          endDate.hours=23
+          endDate.minutes=59
+          endDate.seconds=59
 				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), false, onPositionsDetailResult, onPositionsFault)
 			}
 
@@ -531,28 +562,21 @@
 					d.time=pos.getItemAt(i).time * 1000;
 					trace(d)
 				}
+				tracker.fillMinutes(pos)
+				//tracker.populateMinutes(pos)
 
-				tracker.populateMinutes(pos)
-
-				tracker.visible=true;
-				loadingBox.visible=false;
-
-
-				reset()
-				drawMap()
 			}
 
 			private function onPositionsSummaryResult(e:ResultEvent):void
 			{
-				var pos:ArrayCollection=e.result as ArrayCollection;
-				for (var i:int=0; i < pos.length; i++)
-				{
-					var d:Date=new Date()
-					d.time=pos.getItemAt(i).time * 1000;
-					trace(d)
-				}
-				tracker.populate(pos)
-				getPositionsDetail(targets)
+				var hours:ArrayCollection=e.result as ArrayCollection;
+
+				trace(">>>>>>>>>>>>>>>>>>>>>>>>Position Summary result")
+				tracker.addEventListener("ready", onTrackerReady)
+				setTimeout(tracker.draw, 200, startDate, endDate)
+				setTimeout(tracker.fillHours, 300, hours)
+
+				map.visible=true;
 
 			}
 
@@ -584,8 +608,6 @@
 
 			private function onMarkerClick(e:MapMouseEvent):void
 			{
-
-
 				for (var l:int=0; l < lines.length; l++)
 				{
 					var polyline:Polyline=lines[l] as Polyline;
@@ -620,7 +642,7 @@
 						info.selectedItem=null
 						actionbar.selectedObject=null
 					}
-					if (selectedItems.length == 2 && ((selectedItems[0].type=="position" && selectedItems[1].type=="target") || (selectedItems[0].type=="target" && selectedItems[1].type=="position")))
+					if (selectedItems.length == 2 && ((selectedItems[0].type == "position" && selectedItems[1].type == "target") || (selectedItems[0].type == "target" && selectedItems[1].type == "position")))
 					{
 						actionbar.linkEnabled=true;
 					}
@@ -645,7 +667,7 @@
 					actionbar.selectedObject=icon.selected ? icon.entity : null;
 					actionbar.selectedObjects=new <Object>[info.selectedItem];
 					actionbar.selectedObjects.push(info.selectedItem)
-          actionbar.linkEnabled=false;
+					actionbar.linkEnabled=false;
 				}
 
 			}
@@ -663,7 +685,7 @@
 
 				actionbar.selectedObject=null
 				actionbar.selectedObjects=null
-        actionbar.linkEnabled=false;
+				actionbar.linkEnabled=false;
 			}
 
 			private function onMarkerDoubleClick(e:MapMouseEvent):void
@@ -676,16 +698,12 @@
 				event.subsection='entity';
 				event.item=new SearchItem(icon.entity) //SearchManager.instance.getItem(icon.entity._id);
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
-
 			}
 
 			private function onDateChange():void
 			{
-
-
 				var i:int;
-				//remove links
-				//draw links
+			
 				if (lines)
 				{
 					for (i=0; i < lines.length; i++)
@@ -697,11 +715,9 @@
 				lines=new Array()
 				links=new Dictionary()
 
-				trace("Geo Map > Date Change: " + tracker.currentDate)
-				currentDate=tracker.currentDate;
-
-
-
+				//		trace("Geo Map > Date Change: " + tracker.currentDate)
+				//		currentDate=tracker.currentDate;
+				if(tracker.selectedDate) currentDate=tracker.selectedDate
 
 				var marker:Marker
 				for (var tm:* in targetsMarkers)
@@ -722,54 +738,48 @@
 						marker.foreground.visible=false;
 					}
 				}
-				//
-				var key:String=String(currentDate.minutes)
 
-				var h:HourRenderer=tracker.currentItem;
-				if (!h)
-					return;
-				// trace("num positions: " + h.positions.length)
-				if (h.minutes[key] == null)
-					return;
 
-				for (i=0; i < h.minutes[key].length; i++)
+				if (tracker.currentFlow)
 				{
-					var log:Positions=h.minutes[key].getItemAt(i) as Positions;
-					/*  for (i=0; i < h.positions.length; i++)
-					 { */
-					//var log:Positions=h.positions.getItemAt(i) as Positions;
-					var entity:Entity=getTarget(log._id);
+					for (i=0; i < tracker.currentFlow.positions.length; i++)
+					{
+						var log:Positions=tracker.currentFlow.positions.getItemAt(i) as Positions;
+						/*  for (i=0; i < h.positions.length; i++)
+						{ */
+						//var log:Positions=h.positions.getItemAt(i) as Positions;
+						var entity:Entity=getTarget(log._id);
 
-					var p:Position=log.position;
-					/* 	trace("name: " + entity.name)
+						var p:Position=log.position;
+						/* 	trace("name: " + entity.name)
 						trace("lat: " + p.lat)
 						trace("long: " + p.lon)
 						trace("rad: " + p.rad)
 						trace("alpha: " + log.alpha)
 						trace("================") */
 
-					marker=targetsMarkers[entity._id] as Marker;
-					marker.foreground.visible=true;
-					marker.setLatLng(new LatLng(p.lat, p.lon))
+						marker=targetsMarkers[entity._id] as Marker;
+						marker.foreground.visible=true;
+						marker.setLatLng(new LatLng(p.lat, p.lon))
 
-					marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
+						marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
 
-
-					//marker.getLatLng().
-					//draw links
-					if (entity.links && linksCh.selected)
-					{
-						//draw connections
-						for (var l:int=0; l < entity.links.length; l++)
+						//marker.getLatLng().
+						//draw links
+						if (entity.links && linksCh.selected)
 						{
-							var link:Link=entity.links.getItemAt(l) as Link;
-							var entity2:Entity=EntityManager.instance.getItem(link.le);
-							// trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
-							if (entity && entity2)
+							//draw connections
+							for (var l:int=0; l < entity.links.length; l++)
 							{
-								if (entity.type == "target" && entity2.type == "position")
+								var link:Link=entity.links.getItemAt(l) as Link;
+								var entity2:Entity=EntityManager.instance.getItem(link.le);
+								// trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
+								if (entity && entity2)
 								{
-									drawLink(marker.getLatLng(), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude)), entity, link);
+									if (entity.type == "target" && entity2.type == "position")
+									{
+										drawLink(marker.getLatLng(), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude)), entity, link);
+									}
 								}
 							}
 						}
@@ -777,17 +787,17 @@
 				}
 
 				unselectAll();
-				for ( i=0; i < lines.length; i++)
+				for (i=0; i < lines.length; i++)
 				{
 					var polyline:Polyline=lines[i] as Polyline;
 					polyline.foreground.filters=null;
 				}
-        
+
 				actionbar.selectedObject=null;
 				actionbar.selectedObjects=null
 				info.selectedItem=null;
 				info.selectedItems=null
-        actionbar.linkEnabled=false;
+				actionbar.linkEnabled=false;
 				if (fitCh.selected)
 					zoomToBounds();
 			}
@@ -858,8 +868,8 @@
 				actionbar.selectedObject=link;
 				actionbar.selectedObjects=new <Object>[link];
 				actionbar.selectedObjects.push(link);
-        
-        actionbar.linkEnabled=false;
+
+				actionbar.linkEnabled=false;
 
 				info.selectedItem=link;
 				info.selectedItems=new <Object>[link];
@@ -869,7 +879,24 @@
 
 			public function reset():void
 			{
-				tracker.reset()
+				trace("GEO MAP >>>>>>>>>>>>>>>> RESET")
+				//tracker.reset()
+				endDate=new Date();
+				endDate.hours=0
+				endDate.minutes=0
+				endDate.seconds=0;
+				endDate.milliseconds=0
+
+				startDate=new Date();
+				startDate.date-=30 //30 days
+				startDate.hours=0
+				startDate.minutes=0
+				startDate.seconds=0;
+				startDate.milliseconds=0;
+
+				fromDf.selectedDate=new Date(startDate.time);
+				toDf.selectedDate=new Date(endDate.time);
+				clearMap()
 			}
 		]]>
 	</fx:Script>
@@ -908,15 +935,13 @@
 
 				<mx:DateField id="fromDf"
 											formatString="YYYY-MM-DD"
-											selectedDate="{startDate}"
-											change="onDateFilter()"/>
+											change="onDateRange(event)"/>
 
 				<s:Label text="{R.get('TO')}:"
 								 fontWeight="bold"/>
 				<mx:DateField id="toDf"
 											formatString="YYYY-MM-DD"
-											selectedDate="{endDate}"
-											change="onDateFilter()"/>
+											change="onDateRange(event)"/>
 
 			</s:HGroup>
 			<s:Line width="100%">
@@ -947,12 +972,22 @@
 				</s:stroke>
 			</s:Line>
 			<s:Group width="100%">
-				<timeline:Tracker width="100%"
-													startDate="{startDate}"
-													endDate="{endDate}"
-													dateChange="onDateChange()"
-													ready="onTrackerReady()"
-													id="tracker"/>
+				<s:Rect width="100%"
+								height="{6*28}">
+					<s:fill>
+						<s:BitmapFill source="@Embed('img/backgrounds/geomaptimeline.png')"
+													fillMode="repeat"/>
+					</s:fill>
+				</s:Rect>
+				<timeline:Timeline width="100%"
+													 id="tracker"
+													 dateChange="onDateChange()"/>
+				<!--	<timeline:Tracker width="100%"
+															startDate="{startDate}"
+															endDate="{endDate}"
+															dateChange="onDateChange()"
+															ready="onTrackerReady()"
+															id="t"/> -->
 				<s:HGroup verticalAlign="middle"
 									horizontalAlign="center"
 									id="loadingBox"

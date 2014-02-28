@@ -3,9 +3,19 @@
 										 xmlns:s="library://ns.adobe.com/flex/spark"
 										 xmlns:mx="library://ns.adobe.com/flex/mx"
 										 xmlns:editors="it.ht.rcs.console.operations.view.evidences.actionbar.editors.*"
+                     
 										 xmlns:actionbar="it.ht.rcs.console.main.actionbar.*"
 										 xmlns:view="it.ht.rcs.console.entities.view.*">
+  <fx:Declarations>
+    <s:Parallel id="fadeIn" duration="200">
+      <s:Fade alphaFrom="0" alphaTo="1"/>
   
+    </s:Parallel>
+    <s:Parallel id="fadeOut" duration="200">
+      <s:Fade alphaFrom="1" alphaTo="0"/>
+    
+    </s:Parallel>
+  </fx:Declarations>
   <fx:Metadata>
     [Event(name="update", type="flash.events.Event")]
     [Event(name="linkAdded", type="flash.events.Event")]
@@ -15,6 +25,10 @@
     [Event(name="entityCreated", type="flash.events.Event")]
     [Event(name="entityUpdated", type="flash.events.Event")]
     [Event(name="entityMerged", type="flash.events.Event")]
+    [Event(name="group", type="flash.events.Event")]
+    [Event(name="ungroup", type="flash.events.Event")]
+    [Event(name="expandAll", type="flash.events.Event")]
+    [Event(name="collapseAll", type="flash.events.Event")]
     
   </fx:Metadata>
 
@@ -35,13 +49,13 @@
 
 	<s:Button label="{R.get('EDIT')}"
 						click="onEditClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity} "
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; hasEditPermission} "
 						icon="@Embed('/img/NEW/edit.png')"
 						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('DELETE')}"
 						click="onDeleteClick()"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; selectedObject.type!='target'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length==1 &amp;&amp; selectedObject is Entity &amp;&amp; selectedObject.type!='target' &amp;&amp; hasDeletePermission}"
 						icon="@Embed('/img/NEW/delete_32.png')"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
@@ -52,14 +66,14 @@
 						visible="{LicenseManager.instance.intelligence}"
 						click="exportEntity(event)"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; selectedObjects.length>0}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; exportEnabled }"
 						includeIn="geomap, linkmap,list, table"/>
 
 	<s:Button label="{R.get('MERGE')}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mergeEnabled}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; mergeEnabled}" 
 						icon="@Embed('/img/NEW/merge32.png')"
 						visible="{LicenseManager.instance.intelligence}"
-						includeInLayout="{LicenseManager.instance.intelligence}"
+						includeInLayout="{LicenseManager.instance.intelligence}" 
             click="onMergeClick()"
 						includeIn="linkmap"/>
 
@@ -82,7 +96,68 @@
 
 	<actionbar:Separator width="20"/>
 
-	<s:Button label="{R.get('LINK_ADD')}"
+  <s:VGroup includeIn="linkmap, geomap" horizontalAlign="center" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+    
+  <s:HGroup verticalAlign="bottom" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" gap="0" buttonMode="true" useHandCursor="true"  click="{popup.displayPopUp=true}">
+  <s:Button label="{R.get('LINK')}"
+            visible="{LicenseManager.instance.intelligence}"
+            includeInLayout="{LicenseManager.instance.intelligence}"
+            enabled="{Console.currentSession.user.is_view_profiles()}"
+            icon="@Embed('/img/NEW/link32.png')"
+            click="{popup.displayPopUp=true}"
+            includeIn="linkmap, geomap"/>
+    <s:Image source="@Embed('/img/NEW/downArrow.png')"/>
+  </s:HGroup>
+  <s:PopUpAnchor id="popup" includeIn="linkmap, geomap">
+    <s:BorderContainer backgroundAlpha="1" backgroundColor="#E6E9EE" right="0" bottom="0" mouseDownOutside="{popup.displayPopUp=false}" borderColor="0x333333" borderAlpha="0.5" cornerRadius="6" dropShadowVisible="true">
+      <s:HGroup paddingBottom="4" paddingLeft="4" paddingTop="4" paddingRight="4" horizontalAlign="center" verticalAlign="middle">
+        
+ 
+      <s:Button label="{R.get('LINK_ADD')}"
+                visible="{LicenseManager.instance.intelligence}"
+                includeInLayout="{LicenseManager.instance.intelligence}"
+                enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.linkEnabled==true}" iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                icon="@Embed('/img/NEW/linkAdd.png')"
+                click="addLink()"
+                includeIn="linkmap, geomap" fontWeight="normal"/>
+        
+      
+      
+					<s:Button label="{R.get('LINK_EDIT')}"
+										visible="{LicenseManager.instance.intelligence}"
+										includeInLayout="{LicenseManager.instance.intelligence} "
+										enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.selectedObject  &amp;&amp; !this.selectedObject.name &amp;&amp; this.selectedObject.type!='identity'}"
+										iconPlacement="top"
+										skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+										icon="@Embed('/img/NEW/linkEdit.png')"
+										click="editLink()"
+										includeIn="linkmap, geomap"
+										fontWeight="normal"/>
+        
+      
+      
+      <s:Button label="{R.get('LINK_REMOVE')}"
+                visible="{LicenseManager.instance.intelligence}"
+                includeInLayout="{LicenseManager.instance.intelligence}"
+                enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.selectedObject &amp;&amp; !this.selectedObject.name}" iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                icon="@Embed('/img/NEW/linkRemove.png')"
+                click="onDeleteLinkClick()"
+                includeIn="linkmap, geomap" fontWeight="normal"/>
+        
+    
+        
+        <editors:TagEditor label="{R.get('RELEVANCE')}"
+                           id="tagEditor"
+                           width="80"
+                           enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.selectedObject &amp;&amp; !this.selectedObject.name}"
+                           change="updateRelevance(tagEditor.tag)"
+                           tag="{selectedObject.name ? 0: selectedObject.rel}"
+                           includeIn="linkmap, geomap"/>
+      </s:HGroup>
+    </s:BorderContainer>
+  </s:PopUpAnchor>
+  </s:VGroup>
+	<!--<s:Button label="{R.get('LINK_ADD')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
 						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; linkEnabled==true}"
@@ -93,7 +168,7 @@
 	<s:Button label="{R.get('LINK_EDIT')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence} "
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList) &amp;&amp; selectedObject.data.@type!='identity'}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name &amp;&amp; selectedObject.type!='identity'}"
 						icon="@Embed('/img/NEW/linkEdit.png')"
             click="editLink()"
 						includeIn="linkmap, geomap"/>
@@ -101,7 +176,7 @@
 	<s:Button label="{R.get('LINK_REMOVE')}"
 						visible="{LicenseManager.instance.intelligence}"
 						includeInLayout="{LicenseManager.instance.intelligence}"
-						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList)}"
+						enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name}"
 						icon="@Embed('/img/NEW/linkRemove.png')"
             click="onDeleteLinkClick()"
 						includeIn="linkmap, geomap"/>
@@ -109,13 +184,67 @@
 	<editors:TagEditor label="{R.get('RELEVANCE')}"
 										 id="tagEditor"
 										 width="80"
-										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; (selectedObject is Edge || selectedObject is XMLList)}"
+										 enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; !selectedObject.name}"
                      change="updateRelevance(tagEditor.tag)"
-                     tag="{(selectedObject is Edge || selectedObject is XMLList)? selectedObject.data.@rel: 0}"
-										 includeIn="linkmap, geomap"/>
+                     tag="{selectedObject.name ? 0: selectedObject.rel}"
+										 includeIn="linkmap, geomap"/>-->
 
 	<actionbar:Separator includeIn="linkmap"
 											 width="20"/>
+  
+  <s:VGroup includeIn="linkmap" horizontalAlign="center" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+  <s:HGroup verticalAlign="bottom" buttonMode="true" useHandCursor="true"  click="{groupPopup.displayPopUp=true}">
+    <s:Button label="Group"
+              visible="{LicenseManager.instance.intelligence}"
+              includeInLayout="{LicenseManager.instance.intelligence}"
+              enabled="{Console.currentSession.user.is_view_profiles() }"
+              icon="@Embed('/img/NEW/group32.png')"
+              click="{groupPopup.displayPopUp=true}"
+              includeIn="linkmap"/>
+
+    <s:Image source="@Embed('/img/NEW/downArrow.png')" includeIn="linkmap"/>
+  </s:HGroup>
+   
+  
+  
+  <s:PopUpAnchor id="groupPopup" includeIn="linkmap">
+    <s:BorderContainer backgroundAlpha="1" backgroundColor="#E6E9EE" right="0" bottom="0" mouseDownOutside="{groupPopup.displayPopUp=false}" borderColor="0x333333" borderAlpha="0.5" cornerRadius="6" dropShadowVisible="true">
+      <s:HGroup paddingBottom="4" paddingLeft="4" paddingTop="4" paddingRight="4" horizontalAlign="center" verticalAlign="middle">
+        <s:Button label="Group"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}"
+                  enabled="{Console.currentSession.user.is_view_profiles() &amp;&amp; this.groupEnabled}"
+                  icon="@Embed('/img/NEW/dogroup.png')" click="onGroup(event)"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
+        <s:Button label="Ungroup"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}" click="onUngroup(event)"
+                  icon="@Embed('/img/NEW/ungroup.png')" enabled="{Console.currentSession.user.is_view_profiles()  &amp;&amp;  this.ungroupEnabled}"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
+        <s:Button label="Expand All"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}"  click="onExpandAll(event)"
+                  icon="@Embed('/img/NEW/expandAll.png')" enabled="{Console.currentSession.user.is_view_profiles()}"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
+        <s:Button label="Collapse All"
+                  visible="{LicenseManager.instance.intelligence}"
+                  includeInLayout="{LicenseManager.instance.intelligence}" click="onCollapseAll(event)"
+                  icon="@Embed('/img/NEW/collapseAll.png')" enabled="{Console.currentSession.user.is_view_profiles()}"
+                  iconPlacement="top" skinClass="it.ht.rcs.console.main.actionbar.RCSActionBarButtonSkin"
+                  includeIn="linkmap"/>
+        
+      </s:HGroup>
+    </s:BorderContainer>
+  </s:PopUpAnchor>
+  </s:VGroup>
+  <actionbar:Separator includeIn="linkmap"
+                       width="20"/>
 
 	<s:Button label="{R.get('EXPORT_GRAPH')}"
 						icon="@Embed('/img/NEW/exportGraph.png')"
@@ -146,10 +275,8 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.dashboard.controller.DashboardController;
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.search.controller.SearchManager;
@@ -164,11 +291,13 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-      import org.un.cava.birdeye.ravis.graphLayout.visual.edgeRenderers.BidirectedArrowEdgeRenderer;
+
 
 			[Bindable]
 			public var section:EntitiesSection;
+      
+      
+
 
 			[Bindable]
 			public var selectedEntities:ArrayCollection;
@@ -181,9 +310,21 @@
       
       [Bindable]
       public var linkEnabled:Boolean; //Add a link
+      
+      [Bindable]
+      public var isLink:Boolean; 
 
 			[Bindable]
 			public var jumpEnabled:Boolean; //Jump to evidence
+      
+      [Bindable]
+      public var exportEnabled:Boolean; //Export entities
+      
+      [Bindable]
+      public var groupEnabled:Boolean; //Jump to evidence
+      
+      [Bindable]
+      public var ungroupEnabled:Boolean; //Jump to evidence
       
       private function exportGraph(event:MouseEvent):void
       {
@@ -326,12 +467,13 @@
 				PopUpManager.centerPopUp(popup);
 			}
 
-			private function jumpToEvidence():void
+			public function jumpToEvidence():void
 			{
-				var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
-				var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
-				var xml:XML=XML(selectedObject.data)
-				var info:Array=[];
+				var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
+				var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
+
+				var temp:Array=selectedObject.info.toString().split(",");
+        var info:Array=[]
 				if (entity1.type == "position" || entity2.type == "position")
 				{
 					var position:Entity=entity1.type == "position" ? entity1 : entity2;
@@ -339,9 +481,9 @@
 				}
 				else
 				{
-					for (var i:int=0; i < xml.Info.length(); i++)
+					for (var i:int=0; i <temp.length; i++)
 					{
-						info.push(String(selectedObject.data.Info[i]));
+						info.push(temp[i]);
 					}
 				}
 				var targetId:String;
@@ -374,7 +516,7 @@
         else if (entity1.type == "virtual" || entity2.type == "virtual")
           event.evidenceTypes=["url"];
 				else
-					event.evidenceTypes=["call", "chat", "message"];
+					event.evidenceTypes=["call", "chat", "message","money"];
 
 				event.info=info;
 				//event.from=getFromTimestamp();
@@ -403,28 +545,28 @@
       
       private function updateRelevance(value:int):void
       {
-        if (selectedObject  != null && (selectedObject is Edge || selectedObject is XMLList))
+        if (selectedObject  != null && !selectedObject.name)
         {
-          selectedObject.data.@rel=value;
+          selectedObject.rel=value;
           
-         if(selectedObject is Edge)
+        /*  if(selectedObject is Edge)
          {
-           var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer;
+           var currentRenderer:BidirectedArrowEdgeRenderer=selectedObject.vedge.edgeView as BidirectedArrowEdgeRenderer; //TODO REMOCVE
            currentRenderer.draw();
          }
          else
          {
          trace("update geoview")
-         }
+         } */
 
-          var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
-          var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+          var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
+          var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
           
           trace("1: " + entity1.name);
           trace("2: " + entity2.name);
           //
-          var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
-          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.data.@type, versus, value, onLinkUpdated, null);
+          var versus:String=selectedObject.versus == "both" ? "both" : "out";
+          EntityManager.instance.editLink(entity1._id, entity2._id, selectedObject.type, versus, value, onLinkUpdated, null);
         }
       }
       
@@ -434,16 +576,18 @@
         
         var entity1:Entity;
         var entity2:Entity;
-        if(selectedObjects[0].hasOwnProperty("data") && selectedObjects[1].hasOwnProperty("data")) //link view
-        {
-           entity1=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-           entity2=EntityManager.instance.getItem(selectedObjects[1].data.@id);
-        }
-        else //geo view
-        {
+        
+        if(selectedObjects[0] is Dictionary) //link view
+          entity1=EntityManager.instance.getItem(selectedObjects[0].id);
+        else  //geo view
           entity1=selectedObjects[0] as Entity;
+        
+        if(selectedObjects[1] is Dictionary)//link view
+          entity2=EntityManager.instance.getItem(selectedObjects[1].id);
+        else //geo view
           entity2=selectedObjects[1] as Entity;
-        }
+        
+      
         
         if (entity1.type == "position" && (entity2.type == "target" || entity2.type == "person"))
         {
@@ -499,7 +643,7 @@
         {
           if (e.detail == AlertPopUp.YES)
           {
-            EntityManager.instance.deleteLink(selectedObject.data.@fromID, selectedObject.data.@toID, onDeleteLinkResult, onFault)
+            EntityManager.instance.deleteLink(selectedObject.source, selectedObject.target, onDeleteLinkResult, onFault)
             
           }
         }, null, AlertPopUp.NO);
@@ -518,12 +662,12 @@
       private function editLink():void
       {
         var popup:LinkForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, LinkForm, true) as LinkForm;
-        var entity1:Entity=EntityManager.instance.getItem(selectedObject.data.@fromID);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObject.data.@toID);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
         
-        var versus:String=selectedObject.data.@versus == "both" ? "both" : "out";
-        var type:String=selectedObject.data.@type;
-        var relevance:int=selectedObject.data.@rel;
+        var versus:String=selectedObject.versus == "both" ? "both" : "out";
+        var type:String=selectedObject.type;
+        var relevance:int=selectedObject.rel;
         
         
         popup.entity1=entity1;
@@ -555,8 +699,8 @@
       
       private function onMergeClick():void
       {
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0]._id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1]._id);
         var msg:String;
         
         if (entity1.type == "person" && entity2.type == "target")
@@ -579,8 +723,8 @@
       
       private function merge():void
       {
-        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0].data.@id);
-        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1].data.@id);
+        var entity1:Entity=EntityManager.instance.getItem(selectedObjects[0]._id);
+        var entity2:Entity=EntityManager.instance.getItem(selectedObjects[1]._id);
         
         if (entity1.type == "person" && entity2.type == "target")
         {
@@ -603,7 +747,45 @@
       }
 
 
-		]]>
+      protected function onGroup(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("group"));
+        
+      }
+      
+      protected function onUngroup(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("ungroup"));
+        
+      }
+      
+      protected function onExpandAll(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("expandAll"));
+        
+      }
+      
+      protected function onCollapseAll(event:MouseEvent):void
+      {
+        dispatchEvent(new Event("collapseAll"));
+        
+      }
+      
+      private function get  hasEditPermission():Boolean
+      {
+        if(selectedObject.type=="group" && selectedObject.stand_for && !SearchManager.instance.getItem(selectedObject.stand_for))
+          return false;
+        return true;
+      }
+      
+      private function get  hasDeletePermission():Boolean
+      {
+        if(selectedObject.type=="group" && selectedObject.stand_for)
+          return false;
+        return true;
+      }
+      
+    ]]>
 	</fx:Script>
 
 </actionbar:ActionBar>

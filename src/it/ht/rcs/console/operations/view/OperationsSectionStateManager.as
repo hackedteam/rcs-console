@@ -299,6 +299,7 @@ package it.ht.rcs.console.operations.view
             agent = selectedAgent;
             selectedFactory = null;
           }
+
           selectedOperation = OperationManager.instance.getItem(agent.path[0]);
           if(agent.path.length>1)
             selectedTarget = TargetManager.instance.getItem(agent.path[1]);

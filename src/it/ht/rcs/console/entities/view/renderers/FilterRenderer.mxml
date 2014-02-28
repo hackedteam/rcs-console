@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 height="28" 
+									 backgroundColor="0xCCCCCC"
+									 backgroundAlpha="0.6" 
+                   creationComplete="init()" 
+                   addedToStage="onAddedToStage(event)"
+                   click="clickHandler(event)"
+                   removedFromStage="onRemovedFromStage(event)"
+                   useHandCursor="true"
+                   buttonMode="true"
+                   >
+
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.entities.view.filters.AbstractFilterPopup;
+      import it.ht.rcs.console.entities.view.filters.TypeFilterPopup;
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      import mx.core.IFlexDisplayObject;
+      import mx.events.FlexMouseEvent;
+      import mx.managers.PopUpManager;
+      
+      import spark.components.TitleWindow;
+			[Bindable]
+			public var label:String
+      
+      [Bindable]
+      public var mandatory:Boolean=false;
+      
+      [Bindable]
+      private var popup:AbstractFilterPopup; //abstract filter popup
+      
+      private static var currentPopup:AbstractFilterPopup;
+      [Bindable]
+      public var popupFactory:IFactory;
+      
+      [Bindable]
+      public var filter:Object;
+      
+      [Bindable]
+      public var property:String=null;
+      
+      private function init():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, rebuild);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, reset);
+      }
+      
+      
+      private function rebuild(e:FilterEvent):void
+      {
+        
+        popup.rebuild
+        showFilter.selected=popup.hasFilter;
+      }
+      
+      
+      private function reset(e:FilterEvent):void
+      {
+        popup.reset
+        showFilter.selected=popup.hasFilter;
+      }
+        
+      
+      protected function clickHandler(event:MouseEvent):void
+      {
+        // ...se gia' c'e' un popup visualizzato...
+        if (currentPopup && currentPopup.visible)
+        {
+          currentPopup.removeEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
+          currentPopup.commit(); // ...committalo...
+          if (currentPopup === popup)
+          { // ...e se il popup era quello dell'header cliccato nascondilo e basta
+            currentPopup.visible=false;
+            currentPopup=null;
+            return;
+          }
+        }
+        
+        // ...altrimenti posizionalo correttamente e visualizzalo
+        centerPopup();
+        popup.visible=true;
+        popup.addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, clickHandler);
+        currentPopup=popup;
+        showFilter.selected=popup.hasFilter;
+      }
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        popup=popupFactory.newInstance();
+        popup.property=property
+        
+        popup.filter=filter;
+        
+        PopUpManager.addPopUp(popup, this.parent, false);
+        popup.visible=false;
+        //showFilter.selected=filter.hasOwnProperty(popup.property) || mandatory;
+        //FlexGlobals.topLevelApplication.addEventListener(FilterEvent.REBUILD, popup.rebuild);
+        //FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+       
+      }
+      
+      override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+      {
+        super.updateDisplayList(unscaledWidth, unscaledHeight);
+        if (popup && popup.visible)
+          centerPopup();
+      }
+      
+      private function centerPopup():void
+      {
+        var center:Point=localToGlobal(new Point(x, y));
+        popup.x=center.x - x;
+        popup.y=center.y + height;
+        if (popup.x + popup.width > this.parent.width)
+          popup.x=center.x - x - popup.width + width + 1;
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        PopUpManager.removePopUp(popup);
+      }
+      
+      private function changeHandler(fireEvent:Boolean=true):void
+      {
+        popup.reset(fireEvent);
+        popup.visible=false;
+      }
+      
+     
+      
+    ]]>
+	</fx:Script>
+  <s:Rect width="100%" height="100%">
+    <s:fill>
+      <!-- gradient fill colors - default ratios are 0,1 -->
+      <s:LinearGradient rotation="90">
+        <s:GradientEntry color="#FFFFFF"
+                         />
+        <s:GradientEntry color="#CCCCCC"/>
+      </s:LinearGradient>
+    </s:fill>
+  </s:Rect>
+		<s:HGroup paddingBottom="4"
+												paddingLeft="4"
+												paddingTop="4"
+												paddingRight="6"
+												verticalAlign="middle"
+												horizontalAlign="left"
+												gap="2">
+
+	<s:CheckBox change="changeHandler()" id="showFilter"
+              enabled="{!mandatory &amp;&amp; showFilter.selected}"
+              selected="{ popup.hasFilter}"
+              skinClass="it.ht.rcs.console.skins.FilterCheckBoxSkin"/>
+	<s:Label text="{label}"
+					 fontWeight="bold"/>
+</s:HGroup>
+</s:BorderContainer>

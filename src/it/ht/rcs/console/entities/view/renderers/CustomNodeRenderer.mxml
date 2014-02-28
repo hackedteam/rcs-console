@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 implements="fr.kapit.visualizer.renderers.IAnchorable, fr.kapit.visualizer.renderers.IRenderer, fr.kapit.visualizer.renderers.ISelectable"
+				 width="60"
+				 height="70"
+				 useHandCursor="true"
+				 buttonMode="true"
+         doubleClickEnabled="true"
+         doubleClick="onDoubleClick()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+      import fr.kapit.visualizer.base.IItem;
+      import fr.kapit.visualizer.renderers.IAnchorable;
+      import fr.kapit.visualizer.renderers.ISelectable;
+      import fr.kapit.visualizer.utils.data.AnchorsDescriptor;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      
+      import spark.filters.GlowFilter;
+
+			[Embed(source="/img/NEW/entity_people_50.png")]
+			[Bindable]
+			public var PersonIcon:Class;
+
+			[Embed(source="/img/NEW/entity_target_50.png")]
+			[Bindable]
+			public var TargetIcon:Class;
+
+			[Embed(source="/img/NEW/entity_location_50.png")]
+			[Bindable]
+			public var PositionIcon:Class;
+
+			[Embed(source="/img/NEW/bookmark_50.png")]
+			[Bindable]
+			public var VirtualIcon:Class;
+
+
+			private var _data:Object;
+
+      private var filter:GlowFilter=new spark.filters.GlowFilter(0x0099FF, 1,10,10,1,1)
+
+			public function get data():Object
+			{
+				return _data;
+			}
+
+			public function set data(value:Object):void
+			{
+				_data=value;
+			}
+
+			private var _item:IItem;
+
+			public function get item():IItem
+			{
+				return _item;
+			}
+
+			public function set item(value:IItem):void
+			{
+				_item=value;
+			}
+
+			private var _isFixed:Boolean;
+
+			public function get isFixed():Boolean
+			{
+				return _isFixed;
+			}
+
+			public function set isFixed(value:Boolean):void
+			{
+				_isFixed=value;
+			}
+
+			private var _anchors:AnchorsDescriptor;
+
+			public function get anchors():AnchorsDescriptor
+			{
+				var anchorsList:Vector.<Number>=Vector.<Number>([0.5, 0, 1, 0.5, 0.5, 1, 0, 0.5]); //??
+				if (!_anchors)
+					_anchors=new AnchorsDescriptor();
+				_anchors.anchorPoints=anchorsList;
+				_anchors.type='list';
+				return _anchors;
+			}
+
+			public function set anchors(value:AnchorsDescriptor):void
+			{
+				_anchors=value;
+			}
+
+			private var _useStrictAnchoring:Boolean=false;
+
+			public function get useStrictAnchoring():Boolean
+			{
+				return _useStrictAnchoring;
+			}
+
+			public function set useStrictAnchoring(value:Boolean):void
+			{
+				_useStrictAnchoring=value;
+			}
+      
+   
+      
+      private var _isSelected:Boolean;
+      
+      public function get isSelected():Boolean
+      {
+        return _isSelected;
+      }
+      public function set isSelected(value:Boolean):void
+      {
+        _isSelected = value;
+        if(value)
+          icon.filters=[filter]
+        else
+          icon.filters=null
+      }
+      
+      private var _isHighlighted:Boolean;
+      
+      public function get isHighlighted():Boolean
+      {
+        return _isHighlighted;
+      }
+      
+      public function set isHighlighted(value:Boolean):void
+      {
+        _isHighlighted = value;
+      }
+      
+      private function onDoubleClick():void
+      {
+      
+      }
+      
+		]]>
+	</fx:Script>
+	<s:VGroup paddingBottom="0"
+						paddingLeft="0"
+						paddingRight="0"
+						paddingTop="0"
+						width="100%"
+						verticalAlign="middle"
+						horizontalAlign="center">
+		<s:Image id="icon"
+						 width="50"
+						 height="50"
+             smooth="true"/>
+		<s:Label id="label"
+						 width="50"
+						 maxDisplayedLines="2"
+						 textAlign="center" fontSize="10"/>
+	</s:VGroup>
+
+</s:Group>

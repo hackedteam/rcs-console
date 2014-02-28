@@ -8,13 +8,14 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.network.controller.CollectorManager;
-			import it.ht.rcs.console.network.model.Collector;
-
-			import locale.R;
-
-			import mx.collections.ListCollectionView;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.network.controller.CollectorManager;
+      import it.ht.rcs.console.network.model.Collector;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
 
 			[Bindable]
 			public var mobile:Boolean;
@@ -41,7 +42,7 @@
 				{
 					trace("Show only non-good anon");
 					entryPoints=CollectorManager.instance.getNonGoodAnon()
-          if(entryPoints.length<=0)
+          if(entryPoints.length<=0 && !LicenseManager.instance.scout)
             //if no anon show available collectors
             entryPoints=CollectorManager.instance.getNonGoodCollectors();
 				}
@@ -49,7 +50,7 @@
 				{
 					trace("Show only good anon");
 					entryPoints=CollectorManager.instance.getGoodAnon()
-            if(entryPoints.length<=0)
+            if(entryPoints.length<=0 && !LicenseManager.instance.scout)
               //if no anon show available collectors
               entryPoints=CollectorManager.instance.getGoodCollectors()
 				}

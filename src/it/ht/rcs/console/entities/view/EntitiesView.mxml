@@ -13,7 +13,10 @@
 
 	<fx:Script>
 		<![CDATA[
+      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+      
       import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.entities.view.EntitiesSection;
       import it.ht.rcs.console.events.DataLoadedEvent;
       import it.ht.rcs.console.events.RefreshEvent;
@@ -24,7 +27,9 @@
       import locale.R;
       
       import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
+      import mx.managers.PopUpManager;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -59,12 +64,16 @@
       
       private function onEntityPush(e:PushEvent):void
       {
-        onChangeView()
+        if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
+          return;
+        onChangeView();
       }
       
       private function onRefresh(e:RefreshEvent):void
       {
-        onChangeView()
+       // if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
+          //return;
+        onChangeView();
       }
 
 			private function onKeyUp(event:KeyboardEvent):void
@@ -90,6 +99,7 @@
 
 			public function onChangeView():void
 			{
+        trace(">>>CHANGE VIEW")
 				if (geoMap)
 					geoMap.doStop();
 
@@ -120,13 +130,19 @@
         {
           if (views.selectedIndex == 0) //links
           {
+            section.stateManager.hideGroups=false;
+            section.stateManager.view.refresh()
+            section.stateManager.tableView.refresh()
             actionbar.currentState="linkmap"
             linkMap.entities=section.stateManager.tableView; 
-            setTimeout(linkMap.init, 100)
+            linkMap.draw()
           }
             
           else if (views.selectedIndex == 1) //geo map
           {
+            section.stateManager.hideGroups=true;
+            section.stateManager.view.refresh()
+            section.stateManager.tableView.refresh()
             actionbar.currentState="geomap"
             /* entities.removeAll()
             for (i=0; i < section.stateManager.view.length; i++)
@@ -135,26 +151,38 @@
             }
             geoMap.entities=entities;
             geoMap.refresh() */
-            geoMap.entities=section.stateManager.tableView
+              
             geoMap.reset()
+            geoMap.entities=section.stateManager.tableView
             geoMap.refresh()
           }
             
           else if (views.selectedIndex == 2) //list
           {
-            actionbar.currentState="list"
+            section.stateManager.hideGroups=true;
+            section.stateManager.view.refresh()
+            section.stateManager.tableView.refresh()
+            actionbar.currentState="list";
+
             list.selectedItem=null;
-            list.selectedItems=null
+            list.selectedItems=null;
+            
           }
           
           if (views.selectedIndex == 3) //table
           {
-            actionbar.currentState="table"
-            grid.selectedItem=null
-            grid.selectedItems=null
+          section.stateManager.hideGroups=true;
+          section.stateManager.view.refresh()
+          section.stateManager.tableView.refresh()
+          actionbar.currentState="table"
+          grid.selectedItem=null
+          grid.selectedItems=null
+           
           }
         }
 			}
+      
+   
 
 			protected function onNewLink():void
 			{
@@ -202,7 +230,47 @@
         onChangeView()
       }
       
-		]]>
+      protected function onGroup():void
+      {
+        //linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
+        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+        popup.graph=linkMap.graph
+       // popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+        popup.operation=section.stateManager.selectedOperation;
+        popup.entity=new Entity({name: "group", type:"group"});
+        popup.currentState=EntityForm.CREATE;
+        PopUpManager.centerPopUp(popup);
+        
+      }
+      
+      protected function onUnGroup():void
+      {
+        linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
+        EntityManager.instance.removeItem(actionbar.selectedObject)
+        
+      }
+      
+      protected function onExpandAll(event:Event):void
+      {
+        for each(var node:Object in  linkMap.graph.vis.nodesMap)
+        {
+        if( node is GenericGroup && !GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+          GenericGroup(node).isGroupExpanded=true
+        }
+        
+      }
+      
+      protected function onCollapseAll(event:Event):void
+      {
+        for each(var node:Object in  linkMap.graph.vis.nodesMap)
+        {
+          if( node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+            GenericGroup(node).isGroupExpanded=false
+        }
+        
+      }
+      
+    ]]>
 	</fx:Script>
 
 	<entities:EntitiesActionBar section="{section}"
@@ -213,6 +281,7 @@
                               entityCreated="onEntityCreated(); list.selectedItem=null"
                               entityDeleted="onEntityDeleted(); list.selectedItem=null"
                               entityMerged="onEntityMerged(); list.selectedItem=null"
+                              group="onGroup()" ungroup="onUnGroup()" expandAll="onExpandAll(event)" collapseAll="onCollapseAll(event)"
 															linkAdded="onNewLink()"
 															linkRemoved="onLinkRemoved()"
 															linkUpdated="onLinkUpdated()"

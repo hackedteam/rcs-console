@@ -4,7 +4,9 @@
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:diagrammer="fr.kapit.diagrammer.*"
 				 width="100%"
-				 height="100%" xmlns:visualizer="fr.kapit.visualizer.*" resize="onResize(event)">
+				 height="100%"
+				 xmlns:visualizer="fr.kapit.visualizer.*"
+				 resize="onResize(event)">
 	<fx:Metadata> 
     [Event(name="selectionChange", type="flash.events.Event")] 
     [Event(name="elementDoubleClick", type="flash.events.Event")] 
@@ -26,6 +28,7 @@
       import fr.kapit.layouts.constants.RootSelectionType;
       import fr.kapit.visualizer.base.ISprite;
       import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+      import fr.kapit.visualizer.base.uicomponent.GenericSprite;
       import fr.kapit.visualizer.events.VisualizerEvent;
       import fr.kapit.visualizer.styles.LinkStyle;
       
@@ -39,6 +42,7 @@
       
       import mx.collections.ArrayCollection;
       import mx.core.UIComponent;
+      import mx.events.DragEvent;
       import mx.events.ResizeEvent;
       
       import spark.collections.Sort;
@@ -46,6 +50,8 @@
 
 			private var sort:Sort;
 			private var entities:ArrayCollection
+      
+      private var positions:Dictionary;
 
 
 			public var selection:Array;
@@ -64,30 +70,32 @@
 
 			private function initGraph():void
 			{
-				trace("GRAPH INIT")
+			
 
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
 
 				var layout:BalloonLayout=vis.layout as BalloonLayout;
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);   //TRY RADIAL
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout); //TRY RADIAL
 
-        //highlightLinksOnSelection="false"
+				//highlightLinksOnSelection="false"
 				params.nodesSpacing=50;
 				params.loopMargin=50;
 				params.loopSpacing=50;
 				params.childAngularSector=360;
-        params.useEvenAngles=false;
+				params.useEvenAngles=false;
 				params.rootAngularSector=180;
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
 				params.packingSpacing=50
-  
-				vis.balloonLayout.params=params;  
-       
-        vis.reLayout()
-       
+
+				vis.balloonLayout.params=params;
+
+				vis.reLayout()
+
 				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
+        
+        positions=new Dictionary()
 
 			}
 
@@ -154,16 +162,12 @@
 					renderer.icon.source=renderer.VirtualIcon;
 
 				renderer.label.text=data['name'];
+
 				return renderer
 			}
 
 			public function draw(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
-
-
-				trace("DRAW GRAPH")
-
-
 
 				this.entities=entities;
 
@@ -189,9 +193,9 @@
 				var source:ISprite;
 				var target:ISprite;
 
-        var child:Entity
+				var child:Entity
 				var children:ArrayCollection=new ArrayCollection();
-        var c:int;
+				var c:int;
 
 				//add Node Elements
 				for (i=0; i < entities.length; i++)
@@ -200,7 +204,19 @@
 					//entity node
 					if (entity.type != "group")
 					{
-						vis.addNodeElement(entity, null, null, null, entity._id)
+            var point:Point=new Point()
+            if(positions[entity._id])
+            {
+              point.x=positions[entity._id].x
+              point.y=positions[entity._id].y
+            }
+            else
+            {
+              point=null
+              positions[entity._id]=new Point()
+            }
+						vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
+            
 					}
 					//
 					else if (entity.type == "group" && entity.stand_for) //other operation
@@ -208,7 +224,7 @@
 						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
 						if (hasPermission) //allowed operation
 						{
-							for ( c=0; c < entity.children.length; c++)
+							for (c=0; c < entity.children.length; c++)
 							{
 								child=EntityManager.instance.getItem(String(entity.children.getItemAt(c)))
 								if (child)
@@ -219,33 +235,33 @@
 							}
 
 						}
-            else //! allowed operation
-            {
-              for (c=0; c < entity.children.length; c++)
-              {
-                child=new Entity({_id:entity.children.getItemAt(c), type:"person"})
-                if (child)
-                {
-                  children.addItem(child)
-                  vis.addNodeElement(child, null, null, null, child._id)
-                }
-              }
-            }
+						else //! allowed operation
+						{
+							for (c=0; c < entity.children.length; c++)
+							{
+								child=new Entity({_id: entity.children.getItemAt(c), type: "person"})
+								if (child)
+								{
+									children.addItem(child)
+									vis.addNodeElement(child, null, null, null, child._id)
+								}
+							}
+						}
 					}
-        
+
 				}
 				//vis.reLayout()
 				//links
-        for(i=0;i<children.length;i++)
-        {
-          child=children.getItemAt(i) as Entity
-          entities.addItem(child)
-        }
+				for (i=0; i < children.length; i++)
+				{
+					child=children.getItemAt(i) as Entity
+					entities.addItem(child)
+				}
 
 				drawLinks(entities, filterCriteria)
 				//groups
 
-				vis.reLayout(); //??
+				//vis.reLayout(); //??
 				addGroups();
 			}
 
@@ -253,7 +269,7 @@
 			{
 				var elements:Array;
 				var c:int;
-        
+
 				for (var i:int=0; i < entities.length; i++)
 				{
 					var entity:Entity=entities.getItemAt(i) as Entity;
@@ -266,57 +282,57 @@
 						}
 						vis.groupElements(entity, elements, null, entity._id);
 					}
-          
-          if (entity.type == "group" && entity.stand_for) //same operation
-          {
-            elements=new Array();
-            for (c=0; c < entity.children.length; c++)
-            {
-              elements.push(vis.nodesMap[entity.children[c]]);
-            }
-            vis.groupElements(entity, elements, null, entity._id);
-            var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
-            if (!hasPermission) 
-            {
-              trace("close group renderer")
-              var s:GenericGroup=vis.nodesMap[entity._id] as GenericGroup;
-              if(s)
-              {
-                s.isGroupExpanded=false;
-                s.forceNoExpandGroupButton=true;
-              }
 
-            }
-          }
+					if (entity.type == "group" && entity.stand_for) //same operation
+					{
+						elements=new Array();
+						for (c=0; c < entity.children.length; c++)
+						{
+							elements.push(vis.nodesMap[entity.children[c]]);
+						}
+						vis.groupElements(entity, elements, null, entity._id);
+						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
+						if (!hasPermission)
+						{
+							trace("close group renderer")
+							var s:GenericGroup=vis.nodesMap[entity._id] as GenericGroup;
+							if (s)
+							{
+								s.isGroupExpanded=false;
+								s.forceNoExpandGroupButton=true;
+							}
+
+						}
+					}
 				}
 
-				vis.reLayout();
+				//vis.reLayout();
 				vis.enableSelectionDrag=true;
 				vis.enablePan=true;
 				dispatchEvent(new Event("selectionChange"))
 				//vis.setFocus()
-        vis.invalidateDisplayList()     
-        setTimeout(collapseAll, 100)
+				vis.invalidateDisplayList()
+				setTimeout(collapseAll, 100)
 			}
-      
-      private function collapseAll():void
-      {
-        for each(var node:Object in  vis.nodesMap)
-        {
-          if( node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
-            GenericGroup(node).isGroupExpanded=false
-        }
-      }
+
+			private function collapseAll():void
+			{
+				for each (var node:Object in vis.nodesMap)
+				{
+					if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+						GenericGroup(node).isGroupExpanded=false
+				}
+			}
 
 			private function drawLinks(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
-        var i:int;
-        var link:Link
-        var entity:Entity;
-        var source:ISprite;
-        var target:ISprite;
+				var i:int;
+				var link:Link
+				var entity:Entity;
+				var source:ISprite;
+				var target:ISprite;
 				var links:Array=new Array()
-          
+
 				for (i=0; i < entities.length; i++)
 				{
 					entity=entities.getItemAt(i) as Entity;
@@ -330,20 +346,20 @@
 
 							if (alreadyLinked(links, entity._id, link.le))
 								continue;
-              if(filterCriteria.relevance && filterCriteria.relevance.length>0 && filterCriteria.relevance.indexOf(link.rel)==-1)
-                continue;
-								source=vis.nodesMap[entity._id];
-								target=vis.nodesMap[link.le];
-								vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target)
-								links.push({source: entity._id, target: link.le})
+							if (filterCriteria.relevance && filterCriteria.relevance.length > 0 && filterCriteria.relevance.indexOf(link.rel) == -1)
+								continue;
+							source=vis.nodesMap[entity._id];
+							target=vis.nodesMap[link.le];
+							vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target)
+							links.push({source: entity._id, target: link.le})
 
 						}
 					}
 				}
-        vis.reLayout();
+				//vis.reLayout();
 			}
-      
-      
+
+
 
 			private function alreadyLinked(links:Array, source:String, target:String):Boolean
 			{
@@ -356,15 +372,28 @@
 				}
 				return false;
 			}
-      
-      protected function onResize(event:ResizeEvent):void
-      {
-        // TODO Auto-generated method stub
-       //vis.autoFit();
+
+			protected function onResize(event:ResizeEvent):void
+			{
+				// TODO Auto-generated method stub
+				//vis.autoFit();
+
+			}
+
+			private function onDrag(e:VisualizerEvent):void
+			{
         
-      }
-      
-    ]]>
+        for each (var node:Object in vis.nodesMap)
+        {
+          if (node is GenericGroup || node is GenericSprite)
+          {
+            positions[node.data._id]=new Point(node.x, node.y)
+          }
+   
+        }
+
+			}
+		]]>
 	</fx:Script>
 
 	<visualizer:Visualizer width="100%"
@@ -372,13 +401,13 @@
 												 id="vis"
 												 layout="balloon"
 												 creationComplete="initGraph()"
-												 groupLabelField="name" 
+												 groupLabelField="name"
 												 linkStyleFunction="{linkStyleFunction}"
 												 nodeRendererFunction="{nodeRendererFunction}"
-												 enableAnimation="false"
-											   groupRendererClass="{CustomGroupRenderer}"
-												 
+												 enableAnimation="false" 
+												 groupRendererClass="{CustomGroupRenderer}"
+												 elementsDragging="onDrag(event)"
 												 showNodeExpandCollapseButton="false"
 												 elementsSelectionChanged="onSelectionChange(event)"
-												 elementDoubleClicked="onElementDoubleClick(event)"/>
+												 elementDoubleClicked="onElementDoubleClick(event)" />
 </s:Group>

@@ -47,7 +47,9 @@
 
 				// get the list of entry points 
 				CollectorManager.instance.refresh();
-				urls=CollectorManager.instance.getEntryPointsView();
+        CollectorManager.instance.getCustomRelay(onCustomRelayResponse, onCustomRelayFault)
+        //urls=CollectorManager.instance.getEntryPointsView();
+				//urls=CollectorManager.instance.getEntryPointsView();
 
 				if (value == null)
 					return;
@@ -80,6 +82,18 @@
 				}
 
 			}
+      
+      private function onCustomRelayResponse(e:ResultEvent):void
+      {
+      var url:*=JSON.parse(String(e.result))
+
+        urls=new ListCollectionView(new ArrayCollection([String(url)]))
+      }
+      
+      private function onCustomRelayFault(e:FaultEvent):void
+      {
+        urls=CollectorManager.instance.getEntryPointsView();
+      }
 
 			private var fileReference:FileReference;
 

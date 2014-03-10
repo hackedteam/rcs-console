@@ -44,8 +44,8 @@
 					currentState='all';
 
 				// get the list of entry points
-				CollectorManager.instance.refresh();
-				urls=CollectorManager.instance.getEntryPointsView();
+        CollectorManager.instance.refresh();
+        CollectorManager.instance.getCustomRelay(onCustomRelayResponse, onCustomRelayFault)
 
 				if (value == null)
 					return;
@@ -64,6 +64,19 @@
 				}
 
 			}
+      
+      private function onCustomRelayResponse(e:ResultEvent):void
+      {
+        var url:*=JSON.parse(String(e.result))
+
+        urls=new ListCollectionView(new ArrayCollection([String(url)]))
+      }
+      
+      private function onCustomRelayFault(e:FaultEvent):void
+      {
+        urls=CollectorManager.instance.getEntryPointsView();
+      }
+
       
       public function getSymbianConf():void
       {

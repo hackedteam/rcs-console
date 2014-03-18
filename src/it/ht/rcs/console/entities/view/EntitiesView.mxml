@@ -134,8 +134,10 @@
             section.stateManager.view.refresh()
             section.stateManager.tableView.refresh()
             actionbar.currentState="linkmap"
+            linkMap.addListeners()
             linkMap.entities=section.stateManager.tableView; 
             linkMap.draw()
+            geoMap.removeListeners()
           }
             
           else if (views.selectedIndex == 1) //geo map
@@ -151,10 +153,11 @@
             }
             geoMap.entities=entities;
             geoMap.refresh() */
-              
+            geoMap.addListeners()
             geoMap.reset()
             geoMap.entities=section.stateManager.tableView
             geoMap.refresh()
+            linkMap.removeListeners()
           }
             
           else if (views.selectedIndex == 2) //list
@@ -166,7 +169,8 @@
 
             list.selectedItem=null;
             list.selectedItems=null;
-            
+            linkMap.removeListeners()
+            geoMap.removeListeners()
           }
           
           if (views.selectedIndex == 3) //table
@@ -177,6 +181,9 @@
           actionbar.currentState="table"
           grid.selectedItem=null
           grid.selectedItems=null
+            
+          linkMap.removeListeners()
+          geoMap.removeListeners()
            
           }
         }

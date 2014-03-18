@@ -8,61 +8,64 @@
 					xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
+          xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
           removedFromStage="onRemovedFromStage()"
+          addedToStage="onAddedToStage()"
 					height="100%"
 					width="100%">
 
 	<fx:Script>
 		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapEvent;
-			import com.google.maps.MapMouseEvent;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-			import com.google.maps.overlays.Polyline;
-			import com.google.maps.overlays.PolylineOptions;
-			import com.google.maps.styles.StrokeStyle;
-			import com.greensock.TweenMax;
-
-			import flash.filters.GlowFilter;
-			import flash.utils.setTimeout;
-
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.model.Position;
-			import it.ht.rcs.console.entities.model.Positions;
-			import it.ht.rcs.console.entities.model.PositionsFlow;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
-			import it.ht.rcs.console.entities.view.map.CustomMarker;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.model.SearchItem;
-			import it.ht.rcs.console.target.model.Target;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.collections.ListCollectionView;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-
-			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      import com.google.maps.LatLng;
+      import com.google.maps.LatLngBounds;
+      import com.google.maps.Map;
+      import com.google.maps.MapEvent;
+      import com.google.maps.MapMouseEvent;
+      import com.google.maps.MapType;
+      import com.google.maps.PaneId;
+      import com.google.maps.controls.MapTypeControl;
+      import com.google.maps.controls.PositionControl;
+      import com.google.maps.controls.ZoomControl;
+      import com.google.maps.interfaces.IOverlay;
+      import com.google.maps.interfaces.IPane;
+      import com.google.maps.overlays.GroundOverlay;
+      import com.google.maps.overlays.GroundOverlayOptions;
+      import com.google.maps.overlays.Marker;
+      import com.google.maps.overlays.MarkerOptions;
+      import com.google.maps.overlays.Polyline;
+      import com.google.maps.overlays.PolylineOptions;
+      import com.google.maps.styles.StrokeStyle;
+      import com.greensock.TweenMax;
+      
+      import flash.filters.GlowFilter;
+      import flash.utils.setTimeout;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.Position;
+      import it.ht.rcs.console.entities.model.Positions;
+      import it.ht.rcs.console.entities.model.PositionsFlow;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
+      import it.ht.rcs.console.entities.view.map.CustomMarker;
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.model.SearchItem;
+      import it.ht.rcs.console.target.model.Target;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 
 			//map stuff
 			private var mapReady:Boolean;
@@ -110,6 +113,16 @@
 			private var endDate:Date;
 
 			private var currentDate:Date;
+      
+      [Bindable]
+      public var filterCriteria:Object=
+        {
+          type:[], 
+          relevance:[], 
+          time:"time", 
+          from:"lastMonth", 
+          to:0
+        };
 
 			private var entitiesToShow:ArrayCollection //only targets and positions
 			private var positions:ArrayCollection; //only positions
@@ -245,8 +258,55 @@
 			private function onRemovedFromStage():void
 			{
         tracker.reset()
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
 			}
+      
+      private function onFilterChange(e:FilterEvent):void
+      { 
+        trace("GEO MAP FILTER CHANGE")
+        if(filterCriteria.from=="lastMonth")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+          endDate=new Date();
+        }
+          
+        else if(filterCriteria.from=="last3Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+          endDate=new Date();
+        }
+          
+        else if(filterCriteria.from=="last6Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+          endDate=new Date();
+        }
+          
+        else if(filterCriteria.from && filterCriteria.to)
+        {
+          startDate=new Date(filterCriteria.from*1000)
+          endDate=new Date(filterCriteria.from*1000);
+        }
+        
+        trace("from: "+startDate)
+        trace("to: "+endDate)
+        
+        clearMap()
+        map.visible=false
+        refresh()
+      }
 
+      private function resetFilter(e:FilterEvent):void
+      { 
+       
+        trace("FILTER RESET")
+      
+        
+      }
 			public function doStop():void
 			{
 				//tracker.doStop()
@@ -452,7 +512,13 @@
 
 			private function onAddedToStage():void
 			{
-				trace("GEO MAP >>>>>>>>>>>>>>>> ADDED TO STAGE")
+        startDate=new Date();
+        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+        endDate=new Date();
+        
+        filterCriteria={type:[], relevance:[], time:"time", from:"lastMonth", to:0};
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
 			}
 
 
@@ -898,7 +964,20 @@
 				toDf.selectedDate=new Date(endDate.time);
 				clearMap()
 			}
-		]]>
+      
+      public function addListeners():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+      public function removeListeners():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+    ]]>
 	</fx:Script>
 
 	<s:HGroup width="100%"
@@ -942,6 +1021,10 @@
 				<mx:DateField id="toDf"
 											formatString="YYYY-MM-DD"
 											change="onDateRange(event)"/>
+        
+        <renderers:FilterRenderer label="Time" filter="{filterCriteria}" property="time"
+                                  popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
+                                  width="150" />
 
 			</s:HGroup>
 			<s:Line width="100%">

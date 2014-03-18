@@ -87,7 +87,7 @@
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
 				params.packingSpacing=50;
-        //vis.enableAutofitOnLayout=false;
+      
 				vis.balloonLayout.params=params;
         
 				//vis.reLayout()
@@ -237,7 +237,8 @@
 								if (child)
 								{
 									children.addItem(child)
-									vis.addNodeElement(child, null, null, null, child._id)
+                  node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
+                  node.includeInGraphLayout=true
 								}
 							}
 
@@ -250,7 +251,8 @@
 								if (child)
 								{
 									children.addItem(child)
-									vis.addNodeElement(child, null, null, null, child._id)
+                  node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
+                  node.includeInGraphLayout=true
 								}
 							}
 						}
@@ -277,7 +279,7 @@
 			{
 				var elements:Array;
 				var c:int;
-
+        var group:GenericGroup
 				for (var i:int=0; i < entities.length; i++)
 				{
 					var entity:Entity=entities.getItemAt(i) as Entity;
@@ -288,7 +290,8 @@
 						{
 							elements.push(vis.nodesMap[entity.children[c]]);
 						}
-						vis.groupElements(entity, elements, null, entity._id);
+						group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+            group.includeInGraphLayout=true;
 					}
 
 					if (entity.type == "group" && entity.stand_for) //same operation
@@ -298,7 +301,8 @@
 						{
 							elements.push(vis.nodesMap[entity.children[c]]);
 						}
-						vis.groupElements(entity, elements, null, entity._id);
+						group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+            group.includeInGraphLayout=true;
 						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
 						if (!hasPermission)
 						{
@@ -320,6 +324,7 @@
 				dispatchEvent(new Event("selectionChange"))
 				//vis.setFocus()
 				vis.invalidateDisplayList()
+       
 				setTimeout(collapseAll, 10)
 			}
 
@@ -330,6 +335,7 @@
 					if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
 						GenericGroup(node).isGroupExpanded=false
 				}
+        //vis.reLayout();
 			}
 
 
@@ -422,9 +428,10 @@
 												 linkStyleFunction="{linkStyleFunction}"
 												 nodeRendererFunction="{nodeRendererFunction}"
 												 enableAnimation="false" 
+                         enableAutofitOnLayout="true"
 												 groupRendererClass="{CustomGroupRenderer}"
 												 elementsDragging="onDrag(event)"
 												 showNodeExpandCollapseButton="false"
 												 elementsSelectionChanged="onSelectionChange(event)"
-												 elementDoubleClicked="onElementDoubleClick(event)" />
+												 elementDoubleClicked="onElementDoubleClick(event)"/>
 </s:Group>

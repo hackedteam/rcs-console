@@ -8,17 +8,18 @@
 							 addedToStage="onAddedToStage()" title="{R.get('TEMPLATES')}">
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.build.controller.BuildManager;
-			import it.ht.rcs.console.build.model.Template;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.DefaultConfigBuilder;
+      import it.ht.rcs.console.build.controller.BuildManager;
+      import it.ht.rcs.console.build.model.Template;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
       public static const TEMPLATE_LOAD:String="templateLoad";
       
@@ -113,6 +114,7 @@
       private function onLoad():void
       {
         config=JSON.parse(templatesDg.selectedItem.config);
+        DefaultConfigBuilder.addFactoryMissingModules(config.globals.type.toLowerCase(), config);
         dispatchEvent(new Event(TEMPLATE_LOAD));
         close();
         

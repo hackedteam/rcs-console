@@ -5,8 +5,8 @@
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
                              creationComplete="init()" show="show()">
-
-
+  
+  
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
@@ -17,7 +17,7 @@
       
       private function init():void
       {
-        checks = [target, person, position, virtual];
+        checks = [boundsCh, placesCh, linksCh];
       }
       
       override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
@@ -80,59 +80,47 @@
           }, this);
       }
       
-     
+      
     ]]>
   </fx:Script>
   
-
-	<fx:Declarations>
-		<s:Parallel id="fadeIn"
-								duration="200">
-			<s:Fade alphaFrom="0"
-							alphaTo="1"/>
-			<s:Move yFrom="{y - 20}"
-							yTo="{y}"/>
-		</s:Parallel>
-		<s:Parallel id="fadeOut"
-								duration="200">
-			<s:Fade alphaFrom="1"
-							alphaTo="0"/>
-			<s:Move yFrom="{y}"
-							yTo="{y - 20}"/>
-		</s:Parallel>
-	</fx:Declarations>
-
+  
+  <fx:Declarations>
+    <s:Parallel id="fadeIn"
+                duration="200">
+      <s:Fade alphaFrom="0"
+              alphaTo="1"/>
+      <s:Move yFrom="{y - 20}"
+              yTo="{y}"/>
+    </s:Parallel>
+    <s:Parallel id="fadeOut"
+                duration="200">
+      <s:Fade alphaFrom="1"
+              alphaTo="0"/>
+      <s:Move yFrom="{y}"
+              yTo="{y - 20}"/>
+    </s:Parallel>
+  </fx:Declarations>
+  
   <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+
     
     <s:CheckBox 
-                id="all"
-                label="all"
-                color="#FFFFFF" change="{applyAll(all.selected)}"/>
-   
-    <s:Spacer height="2"/>
+      id="boundsCh"
+      label="fit bounds"
+      color="0x00CCFF"  />
     
-      <s:CheckBox 
-                  id="target"
-                  label="target"
-                  color="0x00CCFF"  change="{all.selected=false}" />
     
-   
-      <s:CheckBox 
-                  id="person"
-                  label="person"
-                  color="0x00CCFF" change="{all.selected=false}"/>
+    <s:CheckBox 
+      id="placesCh"
+      label="show places"
+      color="0x00CCFF" />
     
-  
-      <s:CheckBox
-                  id="position"
-                  label="position"
-                  color="0x00CCFF" change="{all.selected=false}" />
-     
-
-      <s:CheckBox
-                  id="virtual"
-                  label="virtual"
-                  color="0x00CCFF" change="{all.selected=false}"/>
-     
+    
+    <s:CheckBox
+      id="linksCh"
+      label="draw links"
+      color="0x00CCFF"  />
+ 
   </s:VGroup>
 </filters:AbstractFilterPopup>

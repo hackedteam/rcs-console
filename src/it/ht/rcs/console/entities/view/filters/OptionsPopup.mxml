@@ -18,66 +18,74 @@
       private function init():void
       {
         checks = [boundsCh, placesCh, linksCh];
+        hasFilter = true;
+        linksCh.selected=filter.links;
+        placesCh.selected=filter.places;
+        boundsCh.selected=filter.fit;
       }
       
       override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
       {
-        var values:Array = getValues();
-        hasFilter = values.length > 0;
-        hasFilter ? filter[property] = values : delete(filter[property]);
+        //trace("options commit")
+        hasFilter = true;
+        
+        filter.fit=boundsCh.selected;
+        filter.places=placesCh.selected;
+        filter.links=linksCh.selected;
+      
         visible = false;
         if (fireEvent)
-          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+          FlexGlobals.topLevelApplication.dispatchEvent(new Event("optionsChange"));
       }
       
-      private function getValues():Array
-      {
-        var toReturn:Array = [];
-        
-        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
-          if (item.selected)
-            toReturn.push(item.id);
-        });
-        
-        return toReturn;
-      }
+     
       
       override public function reset(fireEvent:Boolean=true):void
       {
-        deselectAll();
+
         commit(fireEvent);
       }
       
       private function deselectAll():void
       {
-        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
-          item.selected = false;
-        });
+      
       }
       
       private function show():void
       {
-        if (!filter.hasOwnProperty(property)) return;
-        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
-          item.selected = filter[property].indexOf(item.id) != -1;
-        });
+       
       }
       
       private function applyAll(val:Boolean):void
       {
-        checks.forEach(function(item:CheckBox, index:int, array:Array):void {
-          item.selected = val;
-        });
+        
       }
       
       override public function rebuild(e:Event=null):void
       {
-        hasFilter = filter.hasOwnProperty(property);
-        deselectAll();
-        if (hasFilter && filter[property] is Array)
-          filter[property].forEach(function(item:String, index:int, array:Array):void {
-            this[item].selected = true;
-          }, this);
+        
+        trace("options rebuild")
+        hasFilter = true//filter.time == property;
+       
+        
+    /*     if (filter.from == 0 && filter.to == 0)
+          hasFilter = false;
+        else if (filter.from && filter.to) {
+          fromTo.selected = true;
+          setFromTimestamp(filter.from);
+          setToTimestamp(filter.to);  
+        } else if (filter.from==LAST_3_MONTHS && !filter.to)
+          last3Months.selected = true;
+        else if (filter.from==LAST_6_MONTHS && !filter.to)
+          last6Months.selected = true;
+        else if (filter.from==LAST_MONTH && !filter.to)
+          lastMonth.selected = true; */
+          
+
+            linksCh.selected=filter.links;
+            placesCh.selected=filter.places;
+            boundsCh.selected=filter.fit;
+          
       }
       
       

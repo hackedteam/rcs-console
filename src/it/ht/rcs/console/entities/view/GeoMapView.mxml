@@ -8,64 +8,64 @@
 					xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
 					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
-          xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
-          removedFromStage="onRemovedFromStage()"
-          addedToStage="onAddedToStage()"
+					xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
+					removedFromStage="onRemovedFromStage()"
+					addedToStage="onAddedToStage()"
 					height="100%"
 					width="100%">
 
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapEvent;
-      import com.google.maps.MapMouseEvent;
-      import com.google.maps.MapType;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      import com.google.maps.overlays.Polyline;
-      import com.google.maps.overlays.PolylineOptions;
-      import com.google.maps.styles.StrokeStyle;
-      import com.greensock.TweenMax;
-      
-      import flash.filters.GlowFilter;
-      import flash.utils.setTimeout;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.entities.model.Position;
-      import it.ht.rcs.console.entities.model.Positions;
-      import it.ht.rcs.console.entities.model.PositionsFlow;
-      import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
-      import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
-      import it.ht.rcs.console.entities.view.map.CustomMarker;
-      import it.ht.rcs.console.events.FilterEvent;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.model.SearchItem;
-      import it.ht.rcs.console.target.model.Target;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.controls.Alert;
-      import mx.core.FlexGlobals;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import com.google.maps.LatLng;
+			import com.google.maps.LatLngBounds;
+			import com.google.maps.Map;
+			import com.google.maps.MapEvent;
+			import com.google.maps.MapMouseEvent;
+			import com.google.maps.MapType;
+			import com.google.maps.PaneId;
+			import com.google.maps.controls.MapTypeControl;
+			import com.google.maps.controls.PositionControl;
+			import com.google.maps.controls.ZoomControl;
+			import com.google.maps.interfaces.IOverlay;
+			import com.google.maps.interfaces.IPane;
+			import com.google.maps.overlays.GroundOverlay;
+			import com.google.maps.overlays.GroundOverlayOptions;
+			import com.google.maps.overlays.Marker;
+			import com.google.maps.overlays.MarkerOptions;
+			import com.google.maps.overlays.Polyline;
+			import com.google.maps.overlays.PolylineOptions;
+			import com.google.maps.styles.StrokeStyle;
+			import com.greensock.TweenMax;
+
+			import flash.filters.GlowFilter;
+			import flash.utils.setTimeout;
+
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.model.Position;
+			import it.ht.rcs.console.entities.model.Positions;
+			import it.ht.rcs.console.entities.model.PositionsFlow;
+			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
+			import it.ht.rcs.console.entities.view.map.CustomMarker;
+			import it.ht.rcs.console.events.FilterEvent;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.search.model.SearchItem;
+			import it.ht.rcs.console.target.model.Target;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
 
 			//map stuff
 			private var mapReady:Boolean;
@@ -113,22 +113,20 @@
 			private var endDate:Date;
 
 			private var currentDate:Date;
-      
-      [Bindable]
-      public var filterCriteria:Object=
-        {
-          type:[], 
-          relevance:[], 
-          time:"time", 
-          from:"lastMonth", 
-          to:0
-        };
+
+			[Bindable]
+			public var filterCriteria:Object={type: [], relevance: [], time: "time", from: "lastMonth", to: 0
+
+				};
+
+			[Bindable]
+			public var options:Object={links: false, fit: true, places: false};
 
 			private var entitiesToShow:ArrayCollection //only targets and positions
 			private var positions:ArrayCollection; //only positions
 			private var targets:ArrayCollection; //only targets
 
-	    //TODO > CHECK MAP IS READY!
+			//TODO > CHECK MAP IS READY!
 			private function onMapReady(e:MapEvent):void
 			{
 				trace("GEO MAP >>>>>>>>>>>>>>>> MAP READY")
@@ -161,7 +159,7 @@
 
 			private function drawMap():void
 			{
-				if (!map.initialized) //!!! check
+				if (!map.isLoaded()) //!!! check
 					return;
 				var i:int=0;
 				var entity:Entity;
@@ -245,8 +243,8 @@
 						overlays.push(marker);
 						markers.push(marker);
 						map.addOverlay(marker);
-						targetsMarkers[entity._id]=marker
-						marker.foreground.visible=false
+						targetsMarkers[entity._id]=marker;
+						marker.foreground.visible=false;
 					}
 				}
 				if (!map.enabled)
@@ -257,56 +255,66 @@
 
 			private function onRemovedFromStage():void
 			{
-        tracker.reset();
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-			}
-      
-      private function onFilterChange(e:FilterEvent):void
-      { 
-        trace("GEO MAP FILTER CHANGE")
-        if(filterCriteria.from=="lastMonth")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from=="last3Months")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from=="last6Months")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from && filterCriteria.to)
-        {
-          startDate=new Date(filterCriteria.from*1000)
-          endDate=new Date(filterCriteria.to*1000);
-        }
-        
-        trace("from: "+startDate)
-        trace("to: "+endDate)
-        
-        clearMap()
-        map.visible=false
-        refresh()
-      }
+				tracker.reset();
+				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
+				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+				FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
 
-      private function resetFilter(e:FilterEvent):void
-      { 
-       
-        trace("FILTER RESET")
-      
-      
-      }
+			}
+
+			private function onOptionsChange(e:Event):void
+			{
+				trace("options change")
+				onDateChange()
+			}
+
+
+			private function onFilterChange(e:FilterEvent):void
+			{
+				trace("GEO MAP FILTER CHANGE")
+				if (filterCriteria.from == "lastMonth")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from == "last3Months")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from == "last6Months")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from && filterCriteria.to)
+				{
+					startDate=new Date(filterCriteria.from * 1000)
+					endDate=new Date(filterCriteria.to * 1000);
+				}
+
+				trace("from: " + startDate)
+				trace("to: " + endDate)
+
+				clearMap()
+				map.visible=false
+				refresh()
+			}
+
+			private function resetFilter(e:FilterEvent):void
+			{
+
+				trace("FILTER RESET")
+
+
+			}
+
 			public function doStop():void
 			{
 				//tracker.doStop()
@@ -359,7 +367,8 @@
 				var coordinates:LatLng
 				var marker:Marker
 
-				if (positionsCh.selected)
+				//if (positionsCh.selected)
+				if (options.places)
 				{
 					//targets
 					for (var p:* in placesMarkers)
@@ -427,16 +436,21 @@
 
 
 				//default filters settings
-				fitCh.selected=true;
+		/* 		fitCh.selected=true;
 				positionsCh.selected=false;
-				linksCh.selected=false;
+				linksCh.selected=false; */
+
+
+				options.fit=true;
+				options.places=false
+				options.links=false;
 
 				overlays=new Array();
 
-		/* 		if (fromDf)
-					fromDf.selectedDate=new Date(startDate.time);
-				if (toDf)
-					toDf.selectedDate=new Date(endDate.time); */
+				/* 		if (fromDf)
+							fromDf.selectedDate=new Date(startDate.time);
+						if (toDf)
+							toDf.selectedDate=new Date(endDate.time); */
 
 				tracker.visible=false;
 				loadingBox.visible=true;
@@ -445,106 +459,107 @@
 
 			}
 
-      
-      //not used - remove
-			private function onDateRange(e:Event):void  
+
+			//not used - remove
+			private function onDateRange(e:Event):void
 			{
 				e.stopImmediatePropagation()
-        tracker.reset();
-        
-        if(filterCriteria.from && filterCriteria.to)
-        {
-         //TODO CHECK DATES!
-        }
-        
-			/* 	if (fromDf.selectedDate > toDf.selectedDate)
+				tracker.reset();
+
+				if (filterCriteria.from && filterCriteria.to)
 				{
-					fromDf.selectedDate=new Date()
-					fromDf.selectedDate.time=startDate.time
-					toDf.selectedDate=new Date()
-					toDf.selectedDate.time=endDate.time
-					Alert.show("Start date must be before end date")
-					return;
+					//TODO CHECK DATES!
 				}
-				else if (toDf.selectedDate < fromDf.selectedDate)
-				{
-					fromDf.selectedDate=new Date(startDate.time)
-					toDf.selectedDate=new Date(endDate.time)
-					Alert.show("End date must be after start date")
-					return;
-				}
-				else if ((toDf.selectedDate.time - fromDf.selectedDate.time) > (TimelineUtils.DAY * 365))
-				{
-					fromDf.selectedDate=new Date(startDate.time)
-					toDf.selectedDate=new Date(endDate.time)
-					Alert.show("Selected range cannot exceed one year")
-					return;
-				} */
-        
+
+				/* 	if (fromDf.selectedDate > toDf.selectedDate)
+					{
+						fromDf.selectedDate=new Date()
+						fromDf.selectedDate.time=startDate.time
+						toDf.selectedDate=new Date()
+						toDf.selectedDate.time=endDate.time
+						Alert.show("Start date must be before end date")
+						return;
+					}
+					else if (toDf.selectedDate < fromDf.selectedDate)
+					{
+						fromDf.selectedDate=new Date(startDate.time)
+						toDf.selectedDate=new Date(endDate.time)
+						Alert.show("End date must be after start date")
+						return;
+					}
+					else if ((toDf.selectedDate.time - fromDf.selectedDate.time) > (TimelineUtils.DAY * 365))
+					{
+						fromDf.selectedDate=new Date(startDate.time)
+						toDf.selectedDate=new Date(endDate.time)
+						Alert.show("Selected range cannot exceed one year")
+						return;
+					} */
+
 				setTimeout(onDateFilter, 100)
 			}
-      //not used - remove
+
+			//not used - remove
 			private function onDateFilter():void
 			{
 
 				tracker.visible=false;
 				loadingBox.visible=true;
-        
-        if (filterCriteria.from > filterCriteria.to)
-        {
-         /*  fromDf.selectedDate=new Date()
-          fromDf.selectedDate.time=startDate.time
-          toDf.selectedDate=new Date()
-          toDf.selectedDate.time=endDate.time */
-          Alert.show("Start date must be before end date")
-          return;
-        }
-        
-        else if ((filterCriteria.to - filterCriteria.from) > (TimelineUtils.DAY * 365))
-        {
-          /* fromDf.selectedDate=new Date(startDate.time)
-          toDf.selectedDate=new Date(endDate.time) */
-          Alert.show("Selected range cannot exceed one year")
-          return;
-        } 
 
-		/* 		startDate=new Date(fromDf.selectedDate.time);
-				startDate.minutes=0;
-				startDate.seconds=0;
-				startDate.milliseconds=0
+				if (filterCriteria.from > filterCriteria.to)
+				{
+					/*  fromDf.selectedDate=new Date()
+					 fromDf.selectedDate.time=startDate.time
+					 toDf.selectedDate=new Date()
+					 toDf.selectedDate.time=endDate.time */
+					Alert.show("Start date must be before end date")
+					return;
+				}
 
-				endDate=new Date(toDf.selectedDate.time);
-        endDate.hours=23
-				endDate.minutes=59;
-				endDate.seconds=59;
-				endDate.milliseconds=0; */
-        
-        if(filterCriteria.from=="lastMonth")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from=="last3Months")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from=="last6Months")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from && filterCriteria.to)
-        {
-          startDate=new Date(filterCriteria.from*1000)
-          endDate=new Date(filterCriteria.to*1000);
-        }
+				else if ((filterCriteria.to - filterCriteria.from) > (TimelineUtils.DAY * 365))
+				{
+					/* fromDf.selectedDate=new Date(startDate.time)
+					toDf.selectedDate=new Date(endDate.time) */
+					Alert.show("Selected range cannot exceed one year")
+					return;
+				}
+
+				/* 		startDate=new Date(fromDf.selectedDate.time);
+						startDate.minutes=0;
+						startDate.seconds=0;
+						startDate.milliseconds=0
+
+						endDate=new Date(toDf.selectedDate.time);
+						endDate.hours=23
+						endDate.minutes=59;
+						endDate.seconds=59;
+						endDate.milliseconds=0; */
+
+				if (filterCriteria.from == "lastMonth")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from == "last3Months")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from == "last6Months")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from && filterCriteria.to)
+				{
+					startDate=new Date(filterCriteria.from * 1000)
+					endDate=new Date(filterCriteria.to * 1000);
+				}
 
 				clearMap()
 				map.visible=false
@@ -566,13 +581,14 @@
 
 			private function onAddedToStage():void
 			{
-        startDate=new Date();
-        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-        endDate=new Date();
-        
-        filterCriteria={type:[], relevance:[], time:"time", from:"lastMonth", to:0};
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+				startDate=new Date();
+				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+				endDate=new Date();
+
+				filterCriteria={type: [], relevance: [], time: "time", from: "lastMonth", to: 0};
+				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+				FlexGlobals.topLevelApplication.addEventListener("optionsChange", onOptionsChange);
+				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
 			}
 
 
@@ -584,8 +600,8 @@
 
 			public function refresh():void
 			{
-        clearMap()
-        tracker.reset()
+				clearMap()
+				tracker.reset()
 				loadingBox.visible=true;
 				tracker.visible=false;
 				map.visible=false;
@@ -665,38 +681,38 @@
 					var e:Entity=targets.getItemAt(i) as Entity;
 					ids.push(e._id)
 				}
-      /*   startDate=fromDf.selectedDate
-          endDate=toDf.selectedDate */
-        if(filterCriteria.from=="lastMonth")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from=="last3Months")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from=="last6Months")
-        {
-          startDate=new Date();
-          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-          endDate=new Date();
-        }
-          
-        else if(filterCriteria.from && filterCriteria.to)
-        {
-          startDate=new Date(filterCriteria.from*1000)
-          endDate=new Date(filterCriteria.to*1000);
-        }
-          endDate.hours=23
-          endDate.minutes=59
-          endDate.seconds=59
-				  EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), false, onPositionsDetailResult, onPositionsFault)
+				/*   startDate=fromDf.selectedDate
+						endDate=toDf.selectedDate */
+				if (filterCriteria.from == "lastMonth")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from == "last3Months")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from == "last6Months")
+				{
+					startDate=new Date();
+					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+					endDate=new Date();
+				}
+
+				else if (filterCriteria.from && filterCriteria.to)
+				{
+					startDate=new Date(filterCriteria.from * 1000)
+					endDate=new Date(filterCriteria.to * 1000);
+				}
+				endDate.hours=23
+				endDate.minutes=59
+				endDate.seconds=59
+				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), false, onPositionsDetailResult, onPositionsFault)
 			}
 
 			private function onPositionsDetailResult(e:ResultEvent):void
@@ -849,7 +865,7 @@
 			private function onDateChange():void
 			{
 				var i:int;
-			
+
 				if (lines)
 				{
 					for (i=0; i < lines.length; i++)
@@ -863,7 +879,8 @@
 
 				//		trace("Geo Map > Date Change: " + tracker.currentDate)
 				//		currentDate=tracker.currentDate;
-				if(tracker.selectedDate) currentDate=tracker.selectedDate
+				if (tracker.selectedDate)
+					currentDate=tracker.selectedDate
 
 				var marker:Marker
 				for (var tm:* in targetsMarkers)
@@ -875,7 +892,8 @@
 				for (var pm:* in placesMarkers)
 				{
 					marker=placesMarkers[pm] as Marker;
-					if (positionsCh.selected)
+					//if (positionsCh.selected)
+					if (options.places)
 					{
 						marker.foreground.visible=true;
 					}
@@ -904,15 +922,17 @@
 						trace("alpha: " + log.alpha)
 						trace("================") */
 
-						marker=targetsMarkers[entity._id] as Marker;
-						marker.foreground.visible=true;
-						marker.setLatLng(new LatLng(p.lat, p.lon))
-
-						marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
-
+						if (targetsMarkers[entity._id])
+						{
+							marker=targetsMarkers[entity._id] as Marker;
+					
+						}
+            marker.foreground.visible=true;
+            marker.setLatLng(new LatLng(p.lat, p.lon)) 
+            marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
 						//marker.getLatLng().
 						//draw links
-						if (entity.links && linksCh.selected)
+						if (entity.links && options.links) //linksCh.selected)
 						{
 							//draw connections
 							for (var l:int=0; l < entity.links.length; l++)
@@ -944,7 +964,8 @@
 				info.selectedItem=null;
 				info.selectedItems=null
 				actionbar.linkEnabled=false;
-				if (fitCh.selected)
+				//if (fitCh.selected)
+				if (options.fit)
 					zoomToBounds();
 			}
 
@@ -1044,20 +1065,19 @@
 				//toDf.selectedDate=new Date(endDate.time);
 				clearMap()
 			}
-      
-      public function addListeners():void
-      {
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-      }
-      
-      public function removeListeners():void
-      {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
-      }
-      
-    ]]>
+
+			public function addListeners():void
+			{
+				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+			}
+
+			public function removeListeners():void
+			{
+				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+			}
+		]]>
 	</fx:Script>
 
 	<s:HGroup width="100%"
@@ -1069,8 +1089,9 @@
 			<s:HGroup verticalAlign="middle"
 								horizontalAlign="left"
 								width="100%"
-								paddingTop="6" gap="0">
-				<s:CheckBox id="fitCh"
+								paddingTop="6"
+								gap="0">
+<!--				<s:CheckBox id="fitCh"
 										label="Fit bounds"
 										change="onDateChange()"
 										selected="true"/>
@@ -1085,30 +1106,34 @@
 										selected="false"
 										change="onDateChange()"/>
 				<s:Spacer width="8"/>
-				<s:Spacer width="100%"/>
-	<!--			<s:Label text="{R.get('FILTER_DATA')} "
-								 fontWeight="bold"/>
-				<s:Label text="{R.get('FROM')}:"
-								 fontWeight="bold"/>
+				<s:Spacer width="100%"/>-->
+				<!--			<s:Label text="{R.get('FILTER_DATA')} "
+											 fontWeight="bold"/>
+							<s:Label text="{R.get('FROM')}:"
+											 fontWeight="bold"/>
 
 
-				<mx:DateField id="fromDf"
-											formatString="YYYY-MM-DD"
-											change="onDateRange(event)"/>
+							<mx:DateField id="fromDf"
+														formatString="YYYY-MM-DD"
+														change="onDateRange(event)"/>
 
-				<s:Label text="{R.get('TO')}:"
-								 fontWeight="bold"/>
-				<mx:DateField id="toDf"
-											formatString="YYYY-MM-DD"
-											change="onDateRange(event)"/>-->
-        
-     <!--   <renderers:FilterRenderer label="Options" filter="{filterCriteria}" property="options"
-                                  popupFactory="it.ht.rcs.console.entities.view.filters.OptionsPopup"
-                                  width="150" />-->
-        
-        <renderers:FilterRenderer label="Time" filter="{filterCriteria}" property="time"
-                                  popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
-                                  width="150" />
+							<s:Label text="{R.get('TO')}:"
+											 fontWeight="bold"/>
+							<mx:DateField id="toDf"
+														formatString="YYYY-MM-DD"
+														change="onDateRange(event)"/>-->
+
+				<renderers:FilterRenderer label="Options"
+																	filter="{options}"
+																	property="options"
+																	popupFactory="it.ht.rcs.console.entities.view.filters.OptionsPopup"
+																	width="150"/>
+
+				<renderers:FilterRenderer label="Time"
+																	filter="{filterCriteria}"
+																	property="time"
+																	popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
+																	width="150"/>
 
 			</s:HGroup>
 			<s:Line width="100%">

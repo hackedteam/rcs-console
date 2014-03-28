@@ -14,58 +14,27 @@
 					width="100%"
 					creationComplete="onCreationComplete()" 
           addedToStage="onAddedToStage(event)" 
-          removedFromStage="onRemovedFromStage(event)">
+          removedFromStage="onRemovedFromStage(event)" >
 	<fx:Script>
 		<![CDATA[
-      import com.adrianparr.utils.HtmlEntities;
-      import com.greensock.TweenMax;
-      
-      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-      import fr.kapit.layouts.algorithms.circular.SingleCircularLayoutParams;
-      import fr.kapit.layouts.algorithms.circular.SingleCycleCircularLayout;
-      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
-      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
-      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayout;
-      import fr.kapit.layouts.algorithms.hierarchical.HierarchicalLayoutParams;
-      import fr.kapit.layouts.algorithms.radial.RadialLayout;
-      import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
-      import fr.kapit.layouts.algorithms.sugiyama.SugiyamaLayoutParams;
-      import fr.kapit.layouts.constants.EdgeDrawType;
-      import fr.kapit.layouts.constants.RootSelectionType;
       import fr.kapit.layouts.model.Edge;
-      import fr.kapit.visualizer.Visualizer;
-      import fr.kapit.visualizer.actions.PanAction;
-      import fr.kapit.visualizer.actions.data.PanActionData;
-      import fr.kapit.visualizer.base.IGroup;
-      import fr.kapit.visualizer.base.ISprite;
-      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-      import fr.kapit.visualizer.events.VisualizerEvent;
-      import fr.kapit.visualizer.styles.LinkStyle;
       
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.entities.model.Flow;
       import it.ht.rcs.console.entities.model.Flows;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.entities.view.actions.CustomPan;
       import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
       import it.ht.rcs.console.entities.view.renderers.CustomLink;
       import it.ht.rcs.console.events.FilterEvent;
-      import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
-      
-      import locale.R;
       
       import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
       import mx.core.FlexGlobals;
-      import mx.events.FlexEvent;
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
       import spark.collections.Sort;
-      import spark.collections.SortField;
 
 			[Bindable]
 			public var entities:ListCollectionView;
@@ -122,7 +91,7 @@
 
 			[Bindable]
 			public var actionbar:EntitiesActionBar;
-
+      
 			private var flows:ArrayCollection;
 
 			public var inited:Boolean; //??
@@ -222,6 +191,7 @@
 
 			public function draw():void
 			{
+        graph.visible=false;
 				trace("LINK MAP DRAW")
         inited=true;
 				entitiesToShow=new ArrayCollection()
@@ -297,11 +267,13 @@
         timeline.visible=true;
         flows=e.result as ArrayCollection;
         timeline.highlight(flows);
+        graph.visible=true;
       }
       
       private function onFlowFault(e:FaultEvent):void
       {
         timeline.visible=true;
+        graph.visible=true;
         //trace("flow fault")
       }
 
@@ -338,7 +310,6 @@
             return true;
         }
         return false;
-
       }
 
 			protected function onSelectionChange():void
@@ -473,14 +444,18 @@
       
       protected function onAddedToStage(event:Event):void
       {
+        addListeners()
         startDate=new Date();
         startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
         endDate=new Date();
         
-        filterCriteria={type:[], relevance:[], time:"time", from:"lastMonth", to:0};
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-        
+        filterCriteria={
+          type:[], 
+          relevance:[], 
+          time:"time", 
+          from:"lastMonth", 
+          to:0};
+      
        if(timeline.initialized)
        {
          timeline.stop()
@@ -493,20 +468,21 @@
       
       protected function onRemovedFromStage(event:Event):void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+       removeListeners()
       }
       
       private function onFilterChange(e:FilterEvent):void
       { 
-       /*    trace("==============================")
+       /* 
+          trace("==============================")
           trace("FILTER HAS CHANGED")
           trace("==============================")
           trace("time: "+filterCriteria.time)
           trace("from: "+filterCriteria.from)
           trace("to: "+filterCriteria.to)
           trace("type: "+filterCriteria.type)
-          trace("tag: "+filterCriteria.relevance) */
+          trace("tag: "+filterCriteria.relevance) 
+        */
           
           
           if(filterCriteria.from=="lastMonth")
@@ -550,12 +526,24 @@
       }
       
       private function resetFilter(e:FilterEvent):void
-      { 
-        trace("==============================")
-        trace("FILTER RESET")
-        trace("==============================")
-  
+      {
+        trace("FILTER RESET") //useful?
       }
+      
+      
+      public function addListeners():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+      public function removeListeners():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+
       
     ]]>
 	</fx:Script>
@@ -635,20 +623,7 @@
           <s:Label text="+"/>
           
         </s:HGroup>
-				<s:Label text="{R.get('FILTER_DATA')} "
-								 fontWeight="bold" visible="false" includeInLayout="false"/>
-				<s:Label text="{R.get('FROM')}:"
-								 fontWeight="bold" visible="false" includeInLayout="false"/>
-				<mx:DateField id="fromDf"
-											formatString="YYYY-MM-DD"
-											selectedDate="{startDate}"
-											change="filter(event)" visible="false" includeInLayout="false"/>
-				<s:Label text="{R.get('TO')}:" 
-								 fontWeight="bold" visible="false" includeInLayout="false"/>
-				<mx:DateField id="toDf"
-											formatString="YYYY-MM-DD"
-											selectedDate="{endDate}"
-											change="filter(event)" visible="false" includeInLayout="false"/>
+			
 			</s:HGroup>
 			<s:Line width="100%">
 				<s:stroke>
@@ -662,7 +637,7 @@
 												 height="100%">
 
 				<graph:LinkGraph id="graph"
-												 selectionChange="onSelectionChange()"
+												 selectionChange="onSelectionChange()" 
 												 elementDoubleClick="onElementDoubleClick()"/>
 
 			</s:BorderContainer>

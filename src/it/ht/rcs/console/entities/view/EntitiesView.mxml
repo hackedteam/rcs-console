@@ -35,7 +35,7 @@
 			public var section:EntitiesSection;
 
 			[Bindable]
-			public var selcetdObjects:Vector.<Object>;
+			public var selectedObjects:Vector.<Object>;
 
 			[Bindable]
 			public var entities:ArrayCollection=new ArrayCollection()
@@ -134,8 +134,10 @@
             section.stateManager.view.refresh()
             section.stateManager.tableView.refresh()
             actionbar.currentState="linkmap"
+            linkMap.addListeners()
             linkMap.entities=section.stateManager.tableView; 
             linkMap.draw()
+            geoMap.removeListeners()
           }
             
           else if (views.selectedIndex == 1) //geo map
@@ -151,10 +153,11 @@
             }
             geoMap.entities=entities;
             geoMap.refresh() */
-              
+            geoMap.addListeners()
             geoMap.reset()
             geoMap.entities=section.stateManager.tableView
             geoMap.refresh()
+            linkMap.removeListeners()
           }
             
           else if (views.selectedIndex == 2) //list
@@ -166,17 +169,21 @@
 
             list.selectedItem=null;
             list.selectedItems=null;
-            
+            linkMap.removeListeners()
+            geoMap.removeListeners()
           }
           
           if (views.selectedIndex == 3) //table
           {
-          section.stateManager.hideGroups=true;
-          section.stateManager.view.refresh()
-          section.stateManager.tableView.refresh()
-          actionbar.currentState="table"
-          grid.selectedItem=null
-          grid.selectedItems=null
+            section.stateManager.hideGroups=true;
+            section.stateManager.view.refresh()
+            section.stateManager.tableView.refresh()
+            actionbar.currentState="table"
+            grid.selectedItem=null
+            grid.selectedItems=null
+              
+            linkMap.removeListeners()
+            geoMap.removeListeners()
            
           }
         }
@@ -277,11 +284,14 @@
 															selectedObjects="{list.selectedItems}"
 															viewStack="{views}"
 															selectedObject="{list.selectedItem}"
-															entityUpdated="onEntityUpdated();list.selectedItem=null"
+															entityUpdated="onEntityUpdated(); list.selectedItem=null"
                               entityCreated="onEntityCreated(); list.selectedItem=null"
                               entityDeleted="onEntityDeleted(); list.selectedItem=null"
-                              entityMerged="onEntityMerged(); list.selectedItem=null"
-                              group="onGroup()" ungroup="onUnGroup()" expandAll="onExpandAll(event)" collapseAll="onCollapseAll(event)"
+                              entityMerged="onEntityMerged();   list.selectedItem=null"
+                              group="onGroup()" 
+                              ungroup="onUnGroup()" 
+                              expandAll="onExpandAll(event)" 
+                              collapseAll="onCollapseAll(event)"
 															linkAdded="onNewLink()"
 															linkRemoved="onLinkRemoved()"
 															linkUpdated="onLinkUpdated()"
@@ -304,7 +314,7 @@
 			<entities:LinkView section="{this.section}"
 												 id="linkMap"
 												 entities="{section.stateManager.tableView}"
-												 actionbar="{actionbar}"/>
+												 actionbar="{actionbar}" />
 
 		</s:NavigatorContent>
 		<s:NavigatorContent label="{R.get('POSITION_MAP')}"
@@ -347,8 +357,7 @@
 												hideEffect="{fadeOut}"
 												icon="@Embed('/img/windows/list.png')"
 												showEffect="{fadeIn}">
-
-
+      
 			<entities:EntitiesGrid id="grid"
 														 dataProvider="{section.stateManager.tableView}"
 														 selectedItems="{list.selectedItems}"

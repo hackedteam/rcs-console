@@ -15,16 +15,8 @@
 
 	<fx:Script>
 		<![CDATA[
-      import flash.net.dns.AAAARecord;
-      import flash.utils.setTimeout;
-      
-      import fr.kapit.diagrammer.base.uicomponent.DiagramGroup;
       import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
       import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGEMLayout;
-      import fr.kapit.layouts.algorithms.forcedirected.gem.StaticGemLayoutParams;
-      import fr.kapit.layouts.algorithms.radial.RadialLayout;
-      import fr.kapit.layouts.algorithms.radial.RadialLayoutParams;
       import fr.kapit.layouts.constants.RootSelectionType;
       import fr.kapit.visualizer.base.ISprite;
       import fr.kapit.visualizer.base.uicomponent.GenericGroup;
@@ -41,19 +33,16 @@
       import it.ht.rcs.console.search.controller.SearchManager;
       
       import mx.collections.ArrayCollection;
-      import mx.core.UIComponent;
-      import mx.events.DragEvent;
       import mx.events.ResizeEvent;
       
       import spark.collections.Sort;
       import spark.collections.SortField;
 
 			private var sort:Sort;
-			private var entities:ArrayCollection
+			private var entities:ArrayCollection;
       
-      private var positions:Dictionary;
-
-
+      private var positions_so:SharedObject;
+    
 			public var selection:Array;
 
 			protected function onElementDoubleClick(event:VisualizerEvent):void
@@ -70,33 +59,28 @@
 
 			private function initGraph():void
 			{
-			
-
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
 
 				var layout:BalloonLayout=vis.layout as BalloonLayout;
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout); //TRY RADIAL
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout); 
 
 				//highlightLinksOnSelection="false"
 				params.nodesSpacing=50;
 				params.loopMargin=50;
 				params.loopSpacing=50;
 				params.childAngularSector=360;
+   
 				params.useEvenAngles=false;
 				params.rootAngularSector=180;
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
-				params.packingSpacing=50
-
+				params.packingSpacing=50;
+      
 				vis.balloonLayout.params=params;
-
-				vis.reLayout()
-
-				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
         
-        positions=new Dictionary()
-
+				//vis.reLayout()
+				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
 			}
 
 
@@ -168,7 +152,14 @@
 
 			public function draw(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
-
+        positions_so = SharedObject.getLocal("entityPositions");
+        //positions_so.clear()
+        if(positions_so.data.positions==null)
+        {
+          positions_so.data.positions=new Dictionary();
+        }
+        
+    
 				this.entities=entities;
 
 				if (entities.length == 0 || !entities)
@@ -179,7 +170,6 @@
 				vis.visible=true;
 				vis.enablePan=false;
 				vis.enableSelectionDrag=false; //??
-
 				vis.removeAll()
 				vis.clearAll()
 
@@ -198,6 +188,7 @@
 				var c:int;
 
 				//add Node Elements
+        var node:GenericSprite;
 				for (i=0; i < entities.length; i++)
 				{
 					entity=entities.getItemAt(i) as Entity;
@@ -205,17 +196,22 @@
 					if (entity.type != "group")
 					{
             var point:Point=new Point()
-            if(positions[entity._id])
+            if(positions_so.data.positions[entity._id])
             {
-              point.x=positions[entity._id].x
-              point.y=positions[entity._id].y
+              point.x=positions_so.data.positions[entity._id].x
+              point.y=positions_so.data.positions[entity._id].y
+              node=vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
+              node.includeInGraphLayout=false;
             }
             else
             {
               point=null
-              positions[entity._id]=new Point()
+              //positions_so.data.positions[entity._id]=new Point()
+              node=vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
+              node.includeInLayout=true
             }
-						vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
+        
+					
             
 					}
 					//
@@ -230,7 +226,8 @@
 								if (child)
 								{
 									children.addItem(child)
-									vis.addNodeElement(child, null, null, null, child._id)
+                  node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
+                  node.includeInGraphLayout=true
 								}
 							}
 
@@ -243,7 +240,8 @@
 								if (child)
 								{
 									children.addItem(child)
-									vis.addNodeElement(child, null, null, null, child._id)
+                  node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
+                  node.includeInGraphLayout=true
 								}
 							}
 						}
@@ -263,13 +261,14 @@
 
 				//vis.reLayout(); //??
 				addGroups();
+        //vis.zoomContent(1);
 			}
 
 			public function addGroups():void
 			{
 				var elements:Array;
 				var c:int;
-
+        var group:GenericGroup
 				for (var i:int=0; i < entities.length; i++)
 				{
 					var entity:Entity=entities.getItemAt(i) as Entity;
@@ -280,7 +279,8 @@
 						{
 							elements.push(vis.nodesMap[entity.children[c]]);
 						}
-						vis.groupElements(entity, elements, null, entity._id);
+						group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+            group.includeInGraphLayout=true;
 					}
 
 					if (entity.type == "group" && entity.stand_for) //same operation
@@ -290,7 +290,8 @@
 						{
 							elements.push(vis.nodesMap[entity.children[c]]);
 						}
-						vis.groupElements(entity, elements, null, entity._id);
+						group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+            group.includeInGraphLayout=true;
 						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
 						if (!hasPermission)
 						{
@@ -306,13 +307,14 @@
 					}
 				}
 
-				//vis.reLayout();
+				vis.reLayout();
 				vis.enableSelectionDrag=true;
 				vis.enablePan=true;
 				dispatchEvent(new Event("selectionChange"))
 				//vis.setFocus()
 				vis.invalidateDisplayList()
-				setTimeout(collapseAll, 100)
+       
+				setTimeout(collapseAll, 10)
 			}
 
 			private function collapseAll():void
@@ -322,7 +324,9 @@
 					if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
 						GenericGroup(node).isGroupExpanded=false
 				}
+        //vis.reLayout();
 			}
+
 
 			private function drawLinks(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
@@ -356,10 +360,8 @@
 						}
 					}
 				}
-				//vis.reLayout();
+				vis.reLayout();
 			}
-
-
 
 			private function alreadyLinked(links:Array, source:String, target:String):Boolean
 			{
@@ -379,20 +381,30 @@
 				//vis.autoFit();
 
 			}
+      
+      private function isGrouped(entity:Entity):Boolean
+      {
+        for(var i:int=0;i<entities.length;i++)
+        {
+          if(entities.getItemAt(i).type=="group" && entities.getItemAt(i).children.contains(entity._id))
+          {
+            return true;
+          }
+        }
+      return false;
+      }
 
 			private function onDrag(e:VisualizerEvent):void
-			{
-        
+			{  
         for each (var node:Object in vis.nodesMap)
         {
           if (node is GenericGroup || node is GenericSprite)
           {
-            positions[node.data._id]=new Point(node.x, node.y)
+            positions_so.data.positions[node.data._id]=new Point(node.x, node.y)
           }
-   
         }
-
 			}
+
 		]]>
 	</fx:Script>
 
@@ -405,9 +417,10 @@
 												 linkStyleFunction="{linkStyleFunction}"
 												 nodeRendererFunction="{nodeRendererFunction}"
 												 enableAnimation="false" 
+                         enableAutofitOnLayout="true"
 												 groupRendererClass="{CustomGroupRenderer}"
 												 elementsDragging="onDrag(event)"
 												 showNodeExpandCollapseButton="false"
 												 elementsSelectionChanged="onSelectionChange(event)"
-												 elementDoubleClicked="onElementDoubleClick(event)" />
+												 elementDoubleClicked="onElementDoubleClick(event)"/>
 </s:Group>

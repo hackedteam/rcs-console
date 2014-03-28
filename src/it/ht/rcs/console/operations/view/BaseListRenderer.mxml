@@ -67,7 +67,7 @@
       override public function set data(value:Object):void
       {
         super.data = value;
-        
+        this.enabled=true;
         bottomLabel.text = data ? data.name : '';
         iconType.source = data ? getTypeIcon() : null;
         
@@ -79,6 +79,31 @@
           iconType.filters = null;
         else
           iconType.filters = null;
+        
+        var operationSection:OperationsSection=(this.owner as BaseList).section as OperationsSection;
+        if(operationSection)
+        {
+          var stateManager:OperationsSectionStateManager=operationSection.stateManager as OperationsSectionStateManager;
+          if(stateManager.selectedAgent)
+          {
+          
+            if(
+              (stateManager.selectedAgent.level=="soldier" || stateManager.selectedAgent.level=="scout") 
+              && (
+                (data is Object && data.customType == 'filesystem') || 
+                (data is Object && data.customType == 'filetransfer') || 
+                (data is Object && data.customType == 'commands')
+              )
+             
+            )
+            {
+              this.enabled=false;
+            }
+            
+          }
+         
+        }
+      
       }
       
       private function getTypeIcon():Class

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+                             xmlns:s="library://ns.adobe.com/flex/spark"
+                             xmlns:mx="library://ns.adobe.com/flex/mx"
+                             xmlns:xt="library://ns.tink.ws/flex/mx"
+                             xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
+                             creationComplete="init()" show="show()">
+  
+  
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.events.FilterEvent;
+      
+      import mx.core.FlexGlobals;
+      
+      private var checks:Array;
+      
+      private function init():void
+      {
+        checks = [boundsCh, placesCh, linksCh];
+        hasFilter = true;
+        linksCh.selected=filter.links;
+        placesCh.selected=filter.places;
+        boundsCh.selected=filter.fit;
+      }
+      
+      override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+      {
+        //trace("options commit")
+        hasFilter = true;
+        
+        filter.fit=boundsCh.selected;
+        filter.places=placesCh.selected;
+        filter.links=linksCh.selected;
+      
+        visible = false;
+        if (fireEvent)
+          FlexGlobals.topLevelApplication.dispatchEvent(new Event("optionsChange"));
+      }
+      
+     
+      
+      override public function reset(fireEvent:Boolean=true):void
+      {
+
+        commit(fireEvent);
+      }
+      
+      private function deselectAll():void
+      {
+      
+      }
+      
+      private function show():void
+      {
+       
+      }
+      
+      private function applyAll(val:Boolean):void
+      {
+        
+      }
+      
+      override public function rebuild(e:Event=null):void
+      {
+        
+        trace("options rebuild")
+        hasFilter = true//filter.time == property;
+       
+        
+    /*     if (filter.from == 0 && filter.to == 0)
+          hasFilter = false;
+        else if (filter.from && filter.to) {
+          fromTo.selected = true;
+          setFromTimestamp(filter.from);
+          setToTimestamp(filter.to);  
+        } else if (filter.from==LAST_3_MONTHS && !filter.to)
+          last3Months.selected = true;
+        else if (filter.from==LAST_6_MONTHS && !filter.to)
+          last6Months.selected = true;
+        else if (filter.from==LAST_MONTH && !filter.to)
+          lastMonth.selected = true; */
+          
+
+            linksCh.selected=filter.links;
+            placesCh.selected=filter.places;
+            boundsCh.selected=filter.fit;
+          
+      }
+      
+      
+    ]]>
+  </fx:Script>
+  
+  
+  <fx:Declarations>
+    <s:Parallel id="fadeIn"
+                duration="200">
+      <s:Fade alphaFrom="0"
+              alphaTo="1"/>
+      <s:Move yFrom="{y - 20}"
+              yTo="{y}"/>
+    </s:Parallel>
+    <s:Parallel id="fadeOut"
+                duration="200">
+      <s:Fade alphaFrom="1"
+              alphaTo="0"/>
+      <s:Move yFrom="{y}"
+              yTo="{y - 20}"/>
+    </s:Parallel>
+  </fx:Declarations>
+  
+  <s:VGroup paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+
+    
+    <s:CheckBox 
+      id="boundsCh"
+      label="fit bounds"
+      color="0x00CCFF"  />
+    
+    
+    <s:CheckBox 
+      id="placesCh"
+      label="show places"
+      color="0x00CCFF" />
+    
+    
+    <s:CheckBox
+      id="linksCh"
+      label="draw links"
+      color="0x00CCFF"  />
+ 
+  </s:VGroup>
+</filters:AbstractFilterPopup>

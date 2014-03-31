@@ -194,7 +194,9 @@
         graph.visible=false;
 				trace("LINK MAP DRAW")
         inited=true;
-				entitiesToShow=new ArrayCollection()
+				if(!entitiesToShow) 
+          entitiesToShow=new ArrayCollection()
+        entitiesToShow.removeAll()
 
 				for (var i:int=0; i < entities.length; i++)
 				{
@@ -444,6 +446,7 @@
       
       protected function onAddedToStage(event:Event):void
       {
+        trace("LINK MAP ADDED TO STAGE")
         addListeners()
         startDate=new Date();
         startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
@@ -468,6 +471,7 @@
       
       protected function onRemovedFromStage(event:Event):void
       {
+        trace("LINK MAP REMOVED FROM STAGE")
        removeListeners()
       }
       
@@ -594,8 +598,6 @@
                       minimum="0.1" showDataTip="false"
                       value="0.1"
                       stepSize="0.1"
-                      
-                      
                       change="zoom()"/>
           <s:Label text="+"/>
           

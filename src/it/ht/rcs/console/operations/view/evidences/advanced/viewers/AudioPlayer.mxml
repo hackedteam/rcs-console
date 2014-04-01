@@ -40,6 +40,21 @@
 			private var _pan:Number=0;
 			[Bindable]
 			private var _url:String;
+      
+      
+    
+      private var _date:int; //TimeUtils.timestampFormatter(evidence.da * 1000)
+
+      [Bindable]
+      public function get date():int
+      {
+        return _date;
+      }
+
+      public function set date(value:int):void
+      {
+        _date = value;
+      }
 
 			public function set url(value:String):void
 			{
@@ -93,7 +108,7 @@
 				panControl.value=0;
 				durationTxt.text="00:00:00";
         timeTracker.reset()
-        
+        dateTxt.text=TimeUtils.timestampFormatter(date * 1000)
        
 			}
 
@@ -102,6 +117,7 @@
 				trace("sound error");
 				_sound.removeEventListener(IOErrorEvent.IO_ERROR, onSoundError);
 				timeTxt.text="Unable to load sound data";
+        dateTxt.text=TimeUtils.timestampFormatter(date * 1000)
 			}
 
 			private function onSoundLoading(e:ProgressEvent):void
@@ -110,6 +126,7 @@
 				//trace(e.bytesTotal)
 				var perc:int=(e.bytesLoaded / e.bytesTotal) * 100;
 				timeTxt.text="Loading sound data..." + perc + "%";
+        dateTxt.text=TimeUtils.timestampFormatter(date * 1000)
 			}
 
 			private function onSoundLoaded(e:Event):void
@@ -122,6 +139,7 @@
 				spectrumMonitor.addEventListener(SpectrumMonitor.READY, onSpectrumReady)
 				spectrumMonitor.draw(_sound);
 				timeTxt.text="00:00:00"
+          dateTxt.text=TimeUtils.timestampFormatter(date * 1000)
           
         timeTracker.totalTime=_sound.length
         timeTracker.draw()
@@ -161,6 +179,8 @@
 				_soundTransform.volume=_volume;
 				_soundTransform.pan=_pan;
 				_channel.soundTransform=_soundTransform;
+        
+        dateTxt.text=TimeUtils.timestampFormatter((date * 1000)+_channel.position)
 			}
 
 			private function onSpectrumSelection(e:Event):void
@@ -227,6 +247,8 @@
 				_looper.stop();
 				timeTxt.text="00:00:00";
 				spectrumMonitor.clearSelection();
+        
+        dateTxt.text=TimeUtils.timestampFormatter(date * 1000)
 			}
 
 			private function onVolumeChange():void
@@ -366,8 +388,11 @@
 		<s:Spacer width="10"/>
 		<s:RichText id="durationTxt"
 								text="00:00:00"
-								fontSize="24"/>
-
+								fontSize="24" />
+    <s:Spacer width="100%"/>
+    <s:RichText id="dateTxt"
+                
+                fontSize="24" color="0xCCCCCC"/>
 	</s:BorderContainer>
 	<s:HGroup verticalAlign="middle"
 						width="100%"

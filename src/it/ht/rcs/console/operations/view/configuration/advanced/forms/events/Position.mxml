@@ -6,11 +6,13 @@
                     xmlns:utils="it.ht.rcs.console.utils.*"
                     creationComplete="init()">
   
+  
   <fx:Script>
     <![CDATA[
       import locale.R;
       
       import spark.events.IndexChangeEvent;
+      import spark.events.TextOperationEvent;
 
       private function init():void
       {
@@ -81,6 +83,9 @@
       {
         return currentState == 'gps' ? gpsVal.isValid() : cellVal.isValid();
       }
+      
+     
+      
     ]]>
   </fx:Script>
   
@@ -107,13 +112,13 @@
     
     <s:FormItem includeIn="gps" label="{R.get('LATITUDE')}">
       <s:HGroup>
-        <s:TextInput id="latitude" restrict="0-9." textAlign="center" widthInChars="5"/>
+        <s:TextInput id="latitude" restrict="0-9.\-" textAlign="center" widthInChars="5" />
       </s:HGroup>
     </s:FormItem>
     
     <s:FormItem includeIn="gps" label="{R.get('LONGITUDE')}">
       <s:HGroup>
-        <s:TextInput id="longitude" restrict="0-9." textAlign="center" widthInChars="5"/>
+        <s:TextInput id="longitude" restrict="0-9.\-" textAlign="center" widthInChars="5" />
       </s:HGroup>
     </s:FormItem>
     
@@ -153,8 +158,8 @@
   
   <fx:Declarations>
     <fx:Array id="gpsVals">
-      <mx:NumberValidator property="text" required="true" source="{latitude}" triggerEvent="" domain="real"/>
-      <mx:NumberValidator property="text" required="true" source="{longitude}" triggerEvent="" domain="real"/>
+      <mx:NumberValidator property="text" required="true" source="{latitude}" triggerEvent="" domain="real" minValue="-90" maxValue="90"/>
+      <mx:NumberValidator property="text" required="true" source="{longitude}" triggerEvent="" domain="real" minValue="-180" maxValue="180"/>
       <mx:NumberValidator property="text" required="true" source="{distance}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="gpsVal" validators="{gpsVals}"/>
@@ -165,6 +170,9 @@
       <mx:StringValidator property="text" required="true" source="{cellId}" triggerEvent=""/>
     </fx:Array>
     <utils:MetaValidator id="cellVal" validators="{cellVals}"/>
+    
+  
+    
   </fx:Declarations>
 
 </events:EventFields>

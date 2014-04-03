@@ -10,15 +10,16 @@
   
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.network.model.Injector;
       import it.ht.rcs.console.network.model.InjectorRule;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
       import mx.managers.PopUpManager;
+      import mx.utils.StringUtil;
       
       [Bindable]
       public var rule:InjectorRule;
@@ -193,7 +194,7 @@
         
         populateCommonProperties();
         rule.action_param = event.data;
-        rule.action_param_name = fileReference.name;
+        rule.action_param_name = StringUtil.trim( fileReference.name)//fileReference.name;
 
         saveRule();
       }

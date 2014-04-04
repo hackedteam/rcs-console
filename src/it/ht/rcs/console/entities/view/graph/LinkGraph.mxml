@@ -59,6 +59,8 @@
 
 			private function initGraph():void
 			{
+        
+        trace("GRAPH INIT")
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
 
@@ -152,14 +154,20 @@
 
 			public function draw(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
+        
+        
+        trace("GRAPH DRAW")
         positions_so = SharedObject.getLocal("entityPositions");
         //positions_so.clear()
         if(positions_so.data.positions==null)
         {
           positions_so.data.positions=new Dictionary();
         }
-        
-    
+        if(this.entities==entities) //data not changed no need to redraw()
+        {
+          //return;
+        }
+
 				this.entities=entities;
 
 				if (entities.length == 0 || !entities)

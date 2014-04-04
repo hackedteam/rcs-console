@@ -3,7 +3,7 @@
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:components="it.ht.rcs.console.accounting.view.components.*"
-          creationComplete="init()" gap="-1">
+          creationComplete="init()" gap="-1" addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)">
   
   <fx:Script>
     <![CDATA[
@@ -33,6 +33,7 @@
         availableDP = GroupManager.instance.getView(null, listFilterFunction);
         if (selectedDP == null)
           selectedDP = new ArrayCollection();
+        
       }
       
       public function set dataProvider(dp:ArrayCollection):void { selectedDP = new ArrayCollection(dp.toArray()); } // Work on copy, otherwise changes are commited immediately!
@@ -105,6 +106,26 @@
         if (event.keyCode == Keyboard.DELETE && selectedGroups.selectedItem)
           removeGroup();
       }
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        stage.addEventListener(MouseEvent.CLICK, onStageClick)
+        
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        popup.displayPopUp=false;
+        stage.removeEventListener(MouseEvent.CLICK, onStageClick)
+        
+      }
+      
+      private function onStageClick(e:MouseEvent):void
+      {
+        if(e.target!=addBtn)
+          popup.displayPopUp=false;
+      }
+      
     ]]>
   </fx:Script>
   
@@ -115,13 +136,12 @@
 
     <s:Button width="30" label="-" click="removeGroup(event)" cornerRadius="0"
               enabled="{selectedGroups.selectedItem != null}"/>
-    
-    <components:SimplePopUpButton width="48" label="+" cornerRadius="0" openAlways="true" id="addBtn">
-      <components:popUp>
+    <s:Button width="30" label="+"  cornerRadius="0" id="addBtn" click="{popup.displayPopUp=true}"/>
+      <s:PopUpAnchor id="popup" popUpPosition="above">
         <s:List id="availableGroups" click="addGroup(event)" dataProvider="{availableDP}"
                 labelField="name" textAlign="left" filters="{[dropShadow]}" maxHeight="200" maxWidth="200" width="200" height="200"/>
-      </components:popUp>
-    </components:SimplePopUpButton>
+      </s:PopUpAnchor>
+
     
   </s:HGroup>
   

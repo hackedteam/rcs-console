@@ -12,10 +12,12 @@
   <fx:Script>
     <![CDATA[
       import flashx.textLayout.conversion.TextConverter;
-       
+      
       import it.ht.rcs.console.DB;
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.utils.ImageCache;
+      
+      import mx.utils.Base64Decoder;
       
       private var _loader:Loader=new Loader();
       private var _maxWidth:Number=80;
@@ -32,6 +34,9 @@
       [Bindable]
       [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
       public var BrokenImage:Class;
+      
+      
+      private var decoder:Base64Decoder=new Base64Decoder();
       
       [Bindable]
       override public function set data(value:*):void
@@ -50,18 +55,31 @@
         img.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
         if(data)
         {
-          if(data.data._grid!=null && data.type=="camera")
+          if(data.data.thumb)
           {
-            if(DB.instance.demo)
-            {
-              url="grid/"+ data.data._grid;
-            }
-            else
-            {
-              url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-            }
-            img.source=url;
+            decoder.decode(data.data.thumb)
+            var ba:ByteArray=decoder.toByteArray()
+            img.source=ba;
+            spinner.visible=false;
+            img.visible=true;
+            fadeIn.play([img]);
+            
           }
+         else
+         {
+           if(data.data._grid!=null && data.type=="camera")
+           {
+             if(DB.instance.demo)
+             {
+               url="grid/"+ data.data._grid;
+             }
+             else
+             {
+               url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+             }
+             img.source=url;
+           }
+         }
         }
       }
       

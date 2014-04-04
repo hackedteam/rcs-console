@@ -2,7 +2,7 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
           xmlns:s="library://ns.adobe.com/flex/spark"
           xmlns:mx="library://ns.adobe.com/flex/mx"
-          width="100%" height="100%" creationComplete="init()" gap="-1">
+          width="100%" height="100%" creationComplete="init()" gap="-1" addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)">
   
   <fx:Script>
     <![CDATA[
@@ -74,6 +74,25 @@
           selectedUsers.selectedItem = null;
         });
       }
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        stage.addEventListener(MouseEvent.CLICK, onStageClick)
+        
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        popup.displayPopUp=false;
+        stage.removeEventListener(MouseEvent.CLICK, onStageClick)
+        
+      }
+      
+      private function onStageClick(e:MouseEvent):void
+      {
+        if(e.target!=addBtn)
+          popup.displayPopUp=false;
+      }
     ]]>
   </fx:Script>
 
@@ -81,13 +100,13 @@
     
     <s:Button width="30" label="-" click="removeUser()" cornerRadius="0" enabled="{selectedUsers.selectedItem!=null}"/>
     
-    <mx:PopUpButton width="48" label="+" cornerRadius="0" openAlways="true">
-      <mx:popUp>
+    <s:Button id="addBtn" width="30" label="+" cornerRadius="0" click="{popup.displayPopUp=true}"/>
+    <s:PopUpAnchor id="popup" popUpPosition="above">
         <s:List id="availableUsers" minWidth="150" height="200" click="addUser()"
                 dataProvider="{availableDP}" filters="{[dropShadow]}" labelField="name"
                 textAlign="left"/>
-      </mx:popUp>
-    </mx:PopUpButton>
+      </s:PopUpAnchor>
+
     
   </s:HGroup>
   

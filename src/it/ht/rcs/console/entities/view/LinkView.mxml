@@ -122,22 +122,311 @@
 
 			private function onCreationComplete():void
 			{
-				trace("LINK VIEW CREATION COMPLETE")
-     
+				trace("LINK MAP: CREATION COMPLETE")
 			}
 
-			public function init():void
-			{
-				trace("LINK VIEW INIT")
 
-				if (!entities)
-					return;
+			
 
+			public function draw():void
+			{ 
+			
+        graph.visible=false;
+       
+        if(!entitiesToShow) 
+          entitiesToShow=new ArrayCollection()
+        entitiesToShow.removeAll()
+        
+        for (var i:int=0; i < entities.length; i++)
+        {
+          var entity:Entity=entities.getItemAt(i) as Entity; //TODO : ADD FILTERS
+          if(meetsCriteria(entity))
+            
+            entitiesToShow.addItem(entity)
+        }
+        graph.draw(entitiesToShow, filterCriteria)
+        graph.visible=true; //event listener?
+        
+        trace("Drawing Graph > Entities to show: "+entitiesToShow.length)
+        
+        getFlows(entitiesToShow) //TODO 
 			}
+      
+      
+      private function meetsCriteria(entity:Entity):Boolean
+      {
+        if(entity.type=="group")
+          return true;
+        if(filterCriteria.type)
+        {
+          if(filterCriteria.type.length >0 && filterCriteria.type.indexOf(entity.type)==-1)
+            return false;
+        }
+        
+        return true;
+      }
+      
+      protected function onAddedToStage(event:Event):void
+      {
+        trace("LINK MAP: ADDED TO STAGE")
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        trace("LINK MAP: REMOVED FROM STAGE")
+      }
+      
+      public function addListeners():void
+      {
+        trace("LINK MAP: ADD LISTENERS")
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+      }
+      
+      public function removeListeners():void
+      {
+        trace("LINK MAP: REMOVE LISTENERS")
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+      }
+      
+      
+      protected function onElementDoubleClick():void
+      {
+        
+        if(graph.vis.selection[graph.vis.selection.length - 1] is CustomLink)
+        {
+          if (graph.vis.selection[graph.vis.selection.length - 1].data.info.length>0 && graph.vis.selection[graph.vis.selection.length - 1].data.level=="automatic")
+            actionbar.jumpToEvidence()
+          return;
+        }
+        
+        var item:*=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data._id) //last selected
+        
+        if (item)
+        {
+          var hasPermission:Boolean=SearchManager.instance.getItem(item.stand_for)
+          if(item.type=="group") // && !hasPermission) uncomment to jump to other operation graph (update the EntitiesSectionStateManager)
+            return;
+          section.stateManager.manageItemSelection(item);
+          
+        }
+        
+      }
+      
+      protected function onSelectionChange():void
+      {
+        trace("VIS SELECTION CHANGED")
+        
+        
+        actionbar.selectedObject=null
+        actionbar.selectedObjects=null;
+        info.selectedItem=null;
+        info.selectedItems=null;
+        
+        linkEnabled=actionbar.linkEnabled=false;
+        mergeEnabled=actionbar.mergeEnabled=false;
+        jumpEnabled=actionbar.jumpEnabled=false;
+        exportEnabled=actionbar.exportEnabled=true;
+        groupEnabled=actionbar.groupEnabled=false;
+        ungroupEnabled=actionbar.ungroupEnabled=false;
+        
+        if(!graph.selection)
+          return
+        
+        //Only 1 node 
+        if (graph.selection.length == 1 && graph.selection[0].data.name)
+        {
+          info.selectedItem=EntityManager.instance.getItem(String(graph.selection[0].data._id)) || new Entity(graph.selection[0].data)
+          info.selectedItems=new <Object>[info.selectedItem];
+          actionbar.selectedObject=info.selectedItem;
+          actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+          actionbar.selectedObjects.push(actionbar.selectedObject)
+        }
+          //Only 1 edge 
+        else if (graph.selection.length == 1 && graph.selection[0].data.versus != null)
+        {
+          info.selectedItem=graph.selection[0].data
+          info.selectedItems=new <Object>[info.selectedItem];
+          actionbar.selectedObject=info.selectedItem;
+          actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
+          actionbar.selectedObjects.push(actionbar.selectedObject)
+          
+          if (graph.selection[0].data.info && (graph.selection[0].data.type == "peer" || graph.selection[0].data.type == "know" || graph.selection[0].data.type == "position") && graph.selection[0].data.level == "automatic")
+            jumpEnabled=actionbar.jumpEnabled=true;
+        }
+          //merging enabled?
+        else if (graph.selection.length == 2)
+        {
+          trace("linked: " + areLinked(graph.selection[0].data._id, graph.selection[1].data._id))
+          actionbar.selectedObjects=new Vector.<Object>
+          actionbar.selectedObjects.push(graph.selection[0].data)
+          actionbar.selectedObjects.push(graph.selection[1].data)
+          if (graph.selection[0].data.name && graph.selection[1].data.name)
+            linkEnabled=actionbar.linkEnabled=true;
+          
+          if ((graph.selection[0].data.type == "person" && graph.selection[1].data.type == "person") || (graph.selection[0].data.type == "target" && graph.selection[1].data.type == "person") || (graph.selection[0].data.type == "person" && graph.selection[1].data.type == "target"))
+          {
+            mergeEnabled=actionbar.mergeEnabled=true;
+          }
+        }
+        //grouping
+        var i:int
+        if (graph.selection.length > 1)
+        {
+          
+          groupEnabled=actionbar.groupEnabled=true;
+          for(i=0;i<graph.selection.length;i++)
+          {
+            if(!graph.selection[i].data.name || (graph.selection[i].data.name && graph.selection[i].data.type=="group") || (graph.selection[i].data.name && isGrouped(graph.selection[i].data._id)))
+            {
+              groupEnabled=actionbar.groupEnabled=false;
+              break;
+            }
+            
+          }
+        }
+        if (graph.selection.length == 1 && graph.selection[0].data.type=="group" && !graph.selection[0].data.stand_for)
+        {
+          ungroupEnabled=actionbar.ungroupEnabled=true;
+        }
+        //no selection do not enable export
+        if (graph.selection.length < 1)
+          exportEnabled=actionbar.exportEnabled=false;
+        else
+        { //check if there is a link object in  selection
+          for ( i=0; i < graph.selection.length; i++)
+          {
+            if (!graph.selection[i].data.name || (graph.selection[i].data.type=="group" && !SearchManager.instance.getItem(graph.selection[i].data.stand_for))) //link has no name
+              exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
+          }
+        }
+        
+      }
 
-			private function onTimelineChange():void
-			{
-        trace("TIMELINE CHANGE")
+      private function onFilterChange(e:FilterEvent):void
+      { 
+        /* 
+        trace("==============================")
+        trace("FILTER HAS CHANGED")
+        trace("==============================")
+        trace("time: "+filterCriteria.time)
+        trace("from: "+filterCriteria.from)
+        trace("to: "+filterCriteria.to)
+        trace("type: "+filterCriteria.type)
+        trace("tag: "+filterCriteria.relevance) 
+        */
+        
+        
+        if(filterCriteria.from=="lastMonth")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+          endDate=new Date();
+        }
+          
+        else if(filterCriteria.from=="last3Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+          endDate=new Date();
+        }
+          
+        else if(filterCriteria.from=="last6Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+          endDate=new Date();
+        }
+          
+        else if(filterCriteria.from && filterCriteria.to)
+        {
+          startDate=new Date(filterCriteria.from*1000)
+          endDate=new Date(filterCriteria.from*1000);
+        }
+        
+        trace("from: "+startDate)
+        trace("to: "+endDate)
+        if(timeline.initialized)
+        {
+          timeline.stop()
+          timeline.startDate=startDate
+          timeline.endDate=endDate
+          timeline.update()
+          //onAddedToStage(null);
+        }
+        draw()
+      }
+      
+      private function isGrouped(entityId:String):Boolean
+      {
+        for(var i:int=0;i<entities.length;i++)
+        {
+          var entity:Entity=entities.getItemAt(i) as Entity
+          if(entity.type=="group" && entity.children.source.indexOf(entityId)!=-1)
+            return true;
+        }
+        return false;
+      }
+      
+      private function areLinked(source:String, target:String):Boolean
+      {
+        var edge:Edge;
+        var renderer:CustomLink
+        for (var i:int=0; i < graph.vis.graph.edges.length; i++)
+        {
+          edge=graph.vis.graph.edges[i] as Edge
+          renderer=edge.visualEdge as CustomLink
+          if ((renderer.data.source == source && renderer.data.target == target) || (renderer.data.source == target && renderer.data.target == source))
+            return true
+        }
+        
+        return false;
+      }
+      
+      private function getFlows(entities:ListCollectionView):void
+      {
+        timeline.visible=false;
+        trace("get flows")
+        if (!entities)
+          return;
+        
+        var ids:Array=new Array();
+        flows=new ArrayCollection
+        
+        for (var i:int=0; i < entities.length; i++)
+        {
+          var e:Entity=entities.getItemAt(i) as Entity;
+          ids.push(e._id)
+        }
+        EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
+      }
+      
+      private function formatDate(d:Date):String
+      {
+        if (!d)
+          return "";
+        return String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
+      }
+      
+      
+      private function onFlowResult(e:ResultEvent):void
+      {
+        //trace("flow result")
+        timeline.visible=true;
+        flows=e.result as ArrayCollection;
+        timeline.highlight(flows);
+        graph.visible=true;
+      }
+      
+      private function onFlowFault(e:FaultEvent):void
+      {
+        timeline.visible=true;
+        graph.visible=true;
+        //trace("flow fault")
+      }
+      
+      private function onTimelineChange():void
+      {
+        trace("LINK MAP: TIMELINE CHANGE")
         var d:Date=new Date();
         d.time=timeline.slider.value;
         var formattedDate:String=String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
@@ -182,373 +471,8 @@
             }
           }
         }
-			}
-
-			private function filter(e:Event):void
-			{
-				trace("FILTER")
-			}
-
-			public function draw():void
-			{
-        graph.visible=false;
-				trace("LINK MAP DRAW")
-        inited=true;
-				if(!entitiesToShow) 
-          entitiesToShow=new ArrayCollection()
-        entitiesToShow.removeAll()
-
-				for (var i:int=0; i < entities.length; i++)
-				{
-					var entity:Entity=entities.getItemAt(i) as Entity; //TODO : ADD FILTERS
-          if(filterEntity(entity))
-          
-					entitiesToShow.addItem(entity)
-				}
-				graph.draw(entitiesToShow, filterCriteria)
-          
-        getFlows(entitiesToShow)
-			}
-      
-      private function filterEntity(entity:Entity):Boolean
-      {
-       if(entity.type=="group")
-         return true;
-        if(filterCriteria.type)
-        {
-        if(filterCriteria.type.length >0 && filterCriteria.type.indexOf(entity.type)==-1)
-          return false;
-        }
-        
-        return true;
-      }
-      
-      private function filterLink(entity:Entity):Boolean
-      {
-        if(entity.type=="group")
-          return true;
-        if(filterCriteria.type)
-        {
-          if(filterCriteria.type.length >0 && filterCriteria.type.indexOf(entity.type)==-1)
-            return false;
-        }
-        
-        return true;
-      }
-      
-      
-      private function getFlows(entities:ListCollectionView):void
-      {
-        timeline.visible=false;
-        trace("get flows")
-        if (!entities)
-          return;
-        
-        var ids:Array=new Array();
-        flows=new ArrayCollection
-        
-        for (var i:int=0; i < entities.length; i++)
-        {
-          var e:Entity=entities.getItemAt(i) as Entity;
-          ids.push(e._id)
-        }
-        EntityManager.instance.flow(ids, formatDate(startDate), formatDate(endDate), onFlowResult, onFlowFault)
-      }
-      
-      private function formatDate(d:Date):String
-      {
-        if (!d)
-          return "";
-        return String(d.fullYear) + TimelineUtils.doubleDigits(d.month + 1) + TimelineUtils.doubleDigits(d.date);
       }
 
-      
-      private function onFlowResult(e:ResultEvent):void
-      {
-        //trace("flow result")
-        timeline.visible=true;
-        flows=e.result as ArrayCollection;
-        timeline.highlight(flows);
-        graph.visible=true;
-      }
-      
-      private function onFlowFault(e:FaultEvent):void
-      {
-        timeline.visible=true;
-        graph.visible=true;
-        //trace("flow fault")
-      }
-
-
-			protected function onElementDoubleClick():void
-			{
-        
-        if(graph.vis.selection[graph.vis.selection.length - 1] is CustomLink)
-        {
-          if (graph.vis.selection[graph.vis.selection.length - 1].data.info.length>0 && graph.vis.selection[graph.vis.selection.length - 1].data.level=="automatic")
-          actionbar.jumpToEvidence()
-          return;
-        }
-      
-				var item:*=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data._id) //last selected
-
-				if (item)
-        {
-         // var hasPermission:Boolean=SearchManager.instance.getItem(item.stand_for)
-          if(item.type=="group")// && !hasPermission)
-            return;
-					section.stateManager.manageItemSelection(item);
-          
-        }
-
-			}
-      
-      private function isGrouped(entityId:String):Boolean
-      {
-        for(var i:int=0;i<entities.length;i++)
-        {
-        var entity:Entity=entities.getItemAt(i) as Entity
-          if(entity.type=="group" && entity.children.source.indexOf(entityId)!=-1)
-            return true;
-        }
-        return false;
-      }
-
-			protected function onSelectionChange():void
-			{
-				trace("VIS SELECTION CHANGED")
-			
-
-				actionbar.selectedObject=null
-				actionbar.selectedObjects=null;
-				info.selectedItem=null;
-				info.selectedItems=null;
-
-				linkEnabled=actionbar.linkEnabled=false;
-				mergeEnabled=actionbar.mergeEnabled=false;
-				jumpEnabled=actionbar.jumpEnabled=false;
-				exportEnabled=actionbar.exportEnabled=true;
-        groupEnabled=actionbar.groupEnabled=false;
-        ungroupEnabled=actionbar.ungroupEnabled=false;
-        
-        if(!graph.selection)
-          return
-
-				//Only 1 node 
-				if (graph.selection.length == 1 && graph.selection[0].data.name)
-				{
-					info.selectedItem=EntityManager.instance.getItem(String(graph.selection[0].data._id)) || new Entity(graph.selection[0].data)
-					info.selectedItems=new <Object>[info.selectedItem];
-					actionbar.selectedObject=info.selectedItem;
-					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-					actionbar.selectedObjects.push(actionbar.selectedObject)
-				}
-				//Only 1 edge 
-				else if (graph.selection.length == 1 && graph.selection[0].data.versus != null)
-				{
-					info.selectedItem=graph.selection[0].data
-					info.selectedItems=new <Object>[info.selectedItem];
-					actionbar.selectedObject=info.selectedItem;
-					actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
-					actionbar.selectedObjects.push(actionbar.selectedObject)
-
-					if (graph.selection[0].data.info && (graph.selection[0].data.type == "peer" || graph.selection[0].data.type == "know") && graph.selection[0].data.level == "automatic")
-						jumpEnabled=actionbar.jumpEnabled=true;
-				}
-				//merging enabled?
-				else if (graph.selection.length == 2)
-				{
-					trace("linked: " + areLinked(graph.selection[0].data._id, graph.selection[1].data._id))
-					actionbar.selectedObjects=new Vector.<Object>
-					actionbar.selectedObjects.push(graph.selection[0].data)
-					actionbar.selectedObjects.push(graph.selection[1].data)
-					if (graph.selection[0].data.name && graph.selection[1].data.name)
-						linkEnabled=actionbar.linkEnabled=true;
-
-					if ((graph.selection[0].data.type == "person" && graph.selection[1].data.type == "person") || (graph.selection[0].data.type == "target" && graph.selection[1].data.type == "person") || (graph.selection[0].data.type == "person" && graph.selection[1].data.type == "target"))
-					{
-						mergeEnabled=actionbar.mergeEnabled=true;
-					}
-				}
-        //grouping
-        var i:int
-				if (graph.selection.length > 1)
-				{
-          
-          groupEnabled=actionbar.groupEnabled=true;
-          for(i=0;i<graph.selection.length;i++)
-          {
-          if(!graph.selection[i].data.name || (graph.selection[i].data.name && graph.selection[i].data.type=="group") || (graph.selection[i].data.name && isGrouped(graph.selection[i].data._id)))
-          {
-            groupEnabled=actionbar.groupEnabled=false;
-            break;
-          }
-          
-          }
-				}
-        if (graph.selection.length == 1 && graph.selection[0].data.type=="group" && !graph.selection[0].data.stand_for)
-        {
-          ungroupEnabled=actionbar.ungroupEnabled=true;
-        }
-				//no selection do not enable export
-				if (graph.selection.length < 1)
-					exportEnabled=actionbar.exportEnabled=false;
-				else
-				{ //check if there is a link object in  selection
-					for ( i=0; i < graph.selection.length; i++)
-					{
-						if (!graph.selection[i].data.name || (graph.selection[i].data.type=="group" && !SearchManager.instance.getItem(graph.selection[i].data.stand_for))) //link has no name
-							exportEnabled=actionbar.exportEnabled=false; //link in selection do not enable export
-					}
-				}
-
-			}
-
-			private function areLinked(source:String, target:String):Boolean
-			{
-				var edge:Edge;
-				var renderer:CustomLink
-				for (var i:int=0; i < graph.vis.graph.edges.length; i++)
-				{
-					edge=graph.vis.graph.edges[i] as Edge
-					renderer=edge.visualEdge as CustomLink
-					if ((renderer.data.source == source && renderer.data.target == target) || (renderer.data.source == target && renderer.data.target == source))
-						return true
-				}
-
-				return false;
-			}
-
-			private function updateLinkLength():void
-			{
-				trace("UPDATE LINK LENGTH")
-
-			/* 	var layout:BalloonLayout=graph.vis.layout as BalloonLayout;
-        
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
-				params.nodesSpacing=50;
-				params.loopMargin=50;
-				params.loopSpacing=50;
-				params.childAngularSector=360;
-				params.rootAngularSector=360;
-				params.rootSelectionPolicy=RootSelectionType.MOST_WEIGHTED_ROOT_SELECTION; //avoid overlap in a pile
-				params.overlappingAvoidMethod=0;
-				params.packingSpacing=50
-				graph.vis.balloonLayout.params=params;  */
-			}
-
-			private function zoom():void
-			{
-				trace("ZOOM") //ratio
-        graph.vis.zoomContent(bzoom.value,null,false,false);
-				//graph.vis.zoomContent(bzoom.value, null, false)
-			}
-      
-      protected function onAddedToStage(event:Event):void
-      {
-        trace("LINK MAP ADDED TO STAGE")
-        addListeners()
-        startDate=new Date();
-        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-        endDate=new Date();
-        
-        filterCriteria={
-          type:[], 
-          relevance:[], 
-          time:"time", 
-          from:"lastMonth", 
-          to:0};
-      
-       if(timeline.initialized)
-       {
-         timeline.stop()
-         timeline.startDate=startDate
-         timeline.endDate=endDate
-         timeline.update() 
-       }
-       if(inited) onFilterChange(null)
-      }
-      
-      protected function onRemovedFromStage(event:Event):void
-      {
-        trace("LINK MAP REMOVED FROM STAGE")
-       removeListeners()
-      }
-      
-      private function onFilterChange(e:FilterEvent):void
-      { 
-       /* 
-          trace("==============================")
-          trace("FILTER HAS CHANGED")
-          trace("==============================")
-          trace("time: "+filterCriteria.time)
-          trace("from: "+filterCriteria.from)
-          trace("to: "+filterCriteria.to)
-          trace("type: "+filterCriteria.type)
-          trace("tag: "+filterCriteria.relevance) 
-        */
-          
-          
-          if(filterCriteria.from=="lastMonth")
-          {
-            startDate=new Date();
-            startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-            endDate=new Date();
-          }
-          
-          else if(filterCriteria.from=="last3Months")
-          {
-            startDate=new Date();
-            startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-            endDate=new Date();
-          }
-          
-          else if(filterCriteria.from=="last6Months")
-          {
-            startDate=new Date();
-            startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-            endDate=new Date();
-          }
-          
-          else if(filterCriteria.from && filterCriteria.to)
-          {
-            startDate=new Date(filterCriteria.from*1000)
-            endDate=new Date(filterCriteria.from*1000);
-          }
-          
-            trace("from: "+startDate)
-            trace("to: "+endDate)
-            if(timeline.initialized)
-            {
-              timeline.stop()
-              timeline.startDate=startDate
-              timeline.endDate=endDate
-              timeline.update()
-            //onAddedToStage(null);
-            }
-              draw()
-      }
-      
-      private function resetFilter(e:FilterEvent):void
-      {
-        trace("FILTER RESET") //useful?
-      }
-      
-      
-      public function addListeners():void
-      {
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-      }
-      
-      public function removeListeners():void
-      {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
-      }
-      
-
-      
     ]]>
 	</fx:Script>
 
@@ -576,55 +500,12 @@
           <renderers:FilterRenderer label="Relevance" property="relevance" filter="{filterCriteria}"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
                                     width="150"/>
-          <!--		<renderers:FilterRenderer label="Entities"
-          popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
-          width="100"/>-->
+      
 
 				<s:Spacer width="100%"/>
         
         
-        <s:HGroup x="6"
-                  y="10"
-                  verticalAlign="middle"
-                  horizontalAlign="center">
-          <s:Label text="Zoom:"
-                   width="60"
-                   fontWeight="normal"
-                   textAlign="right"
-                   fontSize="10"/>
-          <s:Label text="-"/>
-          <s:HSlider 	id="bzoom"
-                      maximum="3"
-                      minimum="0.1" showDataTip="false"
-                      value="0.1"
-                      stepSize="0.1"
-                      change="zoom()"/>
-          <s:Label text="+"/>
-          
-        </s:HGroup>
-        
-        <s:HGroup x="6"
-                  y="40"
-                  verticalAlign="middle"
-                  horizontalAlign="center" visible="false" includeInLayout="false">
-          <s:Label text="Link length:"
-                   width="60"
-                   fontWeight="normal"
-                   textAlign="right"
-                   fontSize="10"/>
-          <s:Label text="-"/>
-          <s:HSlider stepSize="25"
-                     x="6"
-                     y="6"
-                     id="lslider"
-                     value="80"
-                     liveDragging="true"
-                     change="updateLinkLength()"
-                     minimum="0"
-                     maximum="600"/>
-          <s:Label text="+"/>
-          
-        </s:HGroup>
+       
 			
 			</s:HGroup>
 			<s:Line width="100%">

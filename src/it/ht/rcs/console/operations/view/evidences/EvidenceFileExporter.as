@@ -168,7 +168,7 @@ package it.ht.rcs.console.operations.view.evidences
           break;
         
         case "position":
-          exportText(evidence);
+          exportMap(evidence);
           break;
         
         case "print":
@@ -251,6 +251,25 @@ package it.ht.rcs.console.operations.view.evidences
     }
     
     private function exportImage(evidence:Evidence):void
+    {
+      
+      var target:String=EvidenceManager.instance.evidenceFilter.target;
+      var url:String=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+      extension="jpg";
+      var fileName:String=evidence.type+"_"+evidence._id + "." + extension;
+      request=new URLRequest(url);
+      stream=new URLStream();
+      file=new File(directory.nativePath +"/"+fileName);
+      stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+      stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+      stream.addEventListener(IOErrorEvent.IO_ERROR,onDownloadError);
+      stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR ,onDownloadError)
+      stream.load(request);
+      
+    }
+    
+    
+    private function exportMap(evidence:Evidence):void
     {
       
       var target:String=EvidenceManager.instance.evidenceFilter.target;

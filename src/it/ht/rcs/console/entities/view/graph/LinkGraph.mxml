@@ -15,34 +15,37 @@
 
 	<fx:Script>
 		<![CDATA[
-      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-      import fr.kapit.layouts.constants.RootSelectionType;
-      import fr.kapit.visualizer.base.ISprite;
-      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-      import fr.kapit.visualizer.base.uicomponent.GenericSprite;
-      import fr.kapit.visualizer.events.VisualizerEvent;
-      import fr.kapit.visualizer.styles.LinkStyle;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Link;
-      import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
-      import it.ht.rcs.console.entities.view.renderers.CustomLink;
-      import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      
-      import mx.collections.ArrayCollection;
-      import mx.events.ResizeEvent;
-      
-      import spark.collections.Sort;
-      import spark.collections.SortField;
+			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+			import fr.kapit.layouts.constants.RootSelectionType;
+			import fr.kapit.visualizer.base.ISprite;
+			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+			import fr.kapit.visualizer.base.uicomponent.GenericSprite;
+			import fr.kapit.visualizer.events.VisualizerEvent;
+			import fr.kapit.visualizer.styles.LinkStyle;
+
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Link;
+			import it.ht.rcs.console.entities.view.graph.utils.GraphUtils;
+			import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
+			import it.ht.rcs.console.entities.view.renderers.CustomLink;
+			import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
+			import it.ht.rcs.console.search.controller.SearchManager;
+
+			import mx.collections.ArrayCollection;
+			import mx.events.ResizeEvent;
+
+			import spark.collections.Sort;
+			import spark.collections.SortField;
 
 			private var sort:Sort;
 			private var entities:ArrayCollection;
-      
-      private var positions_so:SharedObject;
-    
+			private var groups:ArrayCollection;
+			private var filterCriteria:Object;
+
+			private var positions_so:SharedObject;
+
 			public var selection:Array;
 
 			protected function onElementDoubleClick(event:VisualizerEvent):void
@@ -59,28 +62,28 @@
 
 			private function initGraph():void
 			{
-        
-        trace("GRAPH INIT")
+
+				trace("GRAPH INIT")
 				sort=new Sort();
 				sort.fields=[new SortField("type", true), new SortField("name", false)]
 
 				var layout:BalloonLayout=vis.layout as BalloonLayout;
-				var params:BalloonLayoutParams=new BalloonLayoutParams(layout); 
+				var params:BalloonLayoutParams=new BalloonLayoutParams(layout);
 
 				//highlightLinksOnSelection="false"
 				params.nodesSpacing=50;
 				params.loopMargin=50;
 				params.loopSpacing=50;
 				params.childAngularSector=360;
-   
+
 				params.useEvenAngles=false;
 				params.rootAngularSector=180;
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
 				params.packingSpacing=50;
-      
+
 				vis.balloonLayout.params=params;
-        
+
 				//vis.reLayout()
 				vis.itemsFactory.addOrReplaceClassReference('link', CustomLink);
 			}
@@ -154,176 +157,167 @@
 
 			public function draw(entities:ArrayCollection, filterCriteria:Object=null):void
 			{
-        
-        
-        trace("GRAPH DRAW")
-        positions_so = SharedObject.getLocal("entityPositions");
-        //positions_so.clear()
-        if(positions_so.data.positions==null)
-        {
-          positions_so.data.positions=new Dictionary();
-        }
-        if(this.entities==entities) //data not changed no need to redraw()
-        {
-          //return;
-        }
+				vis.removeAll()
+				vis.clearAll()
+				//initGraph()
 
 				this.entities=entities;
+				this.filterCriteria=filterCriteria
 
 				if (entities.length == 0 || !entities)
 				{
 					vis.visible=false;
 					return;
 				}
-				vis.visible=true;
-				vis.enablePan=false;
-				vis.enableSelectionDrag=false; //??
-				vis.removeAll()
-				vis.clearAll()
+				trace("Drawing Inside Graph > Entities to show: " + entities.length)
 
-				entities.sort=sort;
-				entities.refresh();
-
-				var i:int;
-				var entity:Entity;
-				var link:Link;
-
-				var source:ISprite;
-				var target:ISprite;
-
-				var child:Entity
-				var children:ArrayCollection=new ArrayCollection();
-				var c:int;
-
-				//add Node Elements
-        var node:GenericSprite;
-				for (i=0; i < entities.length; i++)
-				{
-					entity=entities.getItemAt(i) as Entity;
-					//entity node
-					if (entity.type != "group")
-					{
-            var point:Point=new Point()
-            if(positions_so.data.positions[entity._id])
-            {
-              point.x=positions_so.data.positions[entity._id].x
-              point.y=positions_so.data.positions[entity._id].y
-              node=vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
-              node.includeInGraphLayout=false;
-            }
-            else
-            {
-              point=null
-              //positions_so.data.positions[entity._id]=new Point()
-              node=vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
-              node.includeInLayout=true
-            }
-        
-					
-            
-					}
-					//
-					else if (entity.type == "group" && entity.stand_for) //other operation
-					{
-						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
-						if (hasPermission) //allowed operation
-						{
-							for (c=0; c < entity.children.length; c++)
-							{
-								child=EntityManager.instance.getItem(String(entity.children.getItemAt(c)))
-								if (child)
-								{
-									children.addItem(child)
-                  node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
-                  node.includeInGraphLayout=true
-								}
-							}
-
-						}
-						else //! allowed operation
-						{
-							for (c=0; c < entity.children.length; c++)
-							{
-								child=new Entity({_id: entity.children.getItemAt(c), type: "person"})
-								if (child)
-								{
-									children.addItem(child)
-                  node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
-                  node.includeInGraphLayout=true
-								}
-							}
-						}
-					}
-
-				}
-				//vis.reLayout()
-				//links
-				for (i=0; i < children.length; i++)
-				{
-					child=children.getItemAt(i) as Entity
-					entities.addItem(child)
-				}
-
-				drawLinks(entities, filterCriteria)
-				//groups
-
-				//vis.reLayout(); //??
-				addGroups();
-        //vis.zoomContent(1);
+				addEntities()
+				addGroups()
+				addLinks()
+				vis.reLayout()
 			}
 
-			public function addGroups():void
+			private function addEntities():void
+			{
+				var node:GenericSprite;
+				var entity:Entity;
+				var hasPermission:Boolean;
+				var _id:String;
+				var child:Entity
+
+				groups=new ArrayCollection()
+
+				for (var i:int=0; i < entities.length; i++)
+				{
+					entity=entities.getItemAt(i) as Entity;
+					if (entity.type != "group")
+					{
+						node=vis.addNodeElement(entity, null, null, null, entity._id) as GenericSprite
+					}
+					else
+					{
+						groups.addItem(entity)
+					}
+
+					if (entity.type == "group" && entity.stand_for) //draw entities from other operations/groups
+					{
+						hasPermission=SearchManager.instance.getItem(entity.stand_for)
+
+						for each (_id in entity.children)
+						{
+							if (hasPermission)
+								child=EntityManager.instance.getItem(_id)
+							else
+								child=new Entity({_id: _id, type: "person"}); //draw just a fake entity in a closed group
+							if (child)
+							{
+								node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
+								//node.includeInGraphLayout=true;
+								entities.addItem(child)
+							}
+						}
+					}
+				}
+
+			}
+
+
+			private function addGroups():void
 			{
 				var elements:Array;
 				var c:int;
-        var group:GenericGroup
-				for (var i:int=0; i < entities.length; i++)
+				var entity:Entity
+				var group:GenericGroup
+				var hasPermission:Boolean;
+
+				for (var i:int=0; i < groups.length; i++)
 				{
-					var entity:Entity=entities.getItemAt(i) as Entity;
-					if (entity.type == "group" && !entity.stand_for) //same operation
+					entity=groups.getItemAt(i) as Entity;
+
+					if (entity.type != "group")
+						continue;
+
+					trace("GROUP: " + entity.stand_for)
+					elements=new Array();
+
+					for (c=0; c < entity.children.length; c++)
 					{
-						elements=new Array();
-						for (c=0; c < entity.children.length; c++)
-						{
-							elements.push(vis.nodesMap[entity.children[c]]);
-						}
-						group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
-            group.includeInGraphLayout=true;
+						elements.push(vis.nodesMap[entity.children[c]]);
 					}
 
-					if (entity.type == "group" && entity.stand_for) //same operation
-					{
-						elements=new Array();
-						for (c=0; c < entity.children.length; c++)
-						{
-							elements.push(vis.nodesMap[entity.children[c]]);
-						}
-						group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
-            group.includeInGraphLayout=true;
-						var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
-						if (!hasPermission)
-						{
-							trace("close group renderer")
-							var s:GenericGroup=vis.nodesMap[entity._id] as GenericGroup;
-							if (s)
-							{
-								s.isGroupExpanded=false;
-								s.forceNoExpandGroupButton=true;
-							}
-
-						}
-					}
+					group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+					hasPermission=SearchManager.instance.getItem(entity.stand_for)
+            if(!hasPermission)
+            {
+              group.isGroupExpanded=false;
+              group.forceNoExpandGroupButton=true;
+            }
 				}
 
-				vis.reLayout();
-				vis.enableSelectionDrag=true;
-				vis.enablePan=true;
-				dispatchEvent(new Event("selectionChange"))
-				//vis.setFocus()
-				vis.invalidateDisplayList()
-       
-				setTimeout(collapseAll, 10)
+
 			}
+
+			/* 	public function addGroups():void
+				{
+					var elements:Array;
+					var c:int;
+					var entity:Entity
+					var group:GenericGroup
+
+					for (var i:int=0; i < entities.length; i++)
+					{
+						entity=entities.getItemAt(i) as Entity;
+
+						if(entity.type!="group")
+							continue;
+
+						//current operation
+						if (!entity.stand_for)
+						{
+							elements=new Array();
+							for (c=0; c < entity.children.length; c++)
+							{
+								elements.push(vis.nodesMap[entity.children[c]]);
+							}
+							group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+
+						}
+
+						//external operation
+						else if (entity.stand_for)
+						{
+							elements=new Array();
+							for (c=0; c < entity.children.length; c++)
+							{
+								elements.push(vis.nodesMap[entity.children[c]]);
+							}
+							group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+							// group.includeInGraphLayout=true;
+
+
+							var hasPermission:Boolean=SearchManager.instance.getItem(entity.stand_for)
+							if (!hasPermission)
+							{
+								//group renderer is collapsed and not expandible
+								var s:GenericGroup=vis.nodesMap[entity._id] as GenericGroup;
+								if (s)
+								{
+									s.isGroupExpanded=false;
+									s.forceNoExpandGroupButton=true;
+								}
+
+							}
+						}
+					}
+
+					vis.reLayout();
+
+					dispatchEvent(new Event("selectionChange"))
+					//vis.setFocus()
+					vis.invalidateDisplayList()
+
+					//setTimeout(collapseAll, 10)
+				} */
 
 			private function collapseAll():void
 			{
@@ -332,18 +326,18 @@
 					if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
 						GenericGroup(node).isGroupExpanded=false
 				}
-        //vis.reLayout();
+				//vis.reLayout();
 			}
 
 
-			private function drawLinks(entities:ArrayCollection, filterCriteria:Object=null):void
+			private function addLinks():void
 			{
 				var i:int;
-				var link:Link
+				var link:Link;
 				var entity:Entity;
 				var source:ISprite;
 				var target:ISprite;
-				var links:Array=new Array()
+				var links:Array=new Array();
 
 				for (i=0; i < entities.length; i++)
 				{
@@ -356,32 +350,22 @@
 						{
 							link=entity.links.getItemAt(j) as Link;
 
-							if (alreadyLinked(links, entity._id, link.le))
+							if (GraphUtils.alreadyLinked(links, entity._id, link.le))
 								continue;
 							if (filterCriteria.relevance && filterCriteria.relevance.length > 0 && filterCriteria.relevance.indexOf(link.rel) == -1)
 								continue;
 							source=vis.nodesMap[entity._id];
 							target=vis.nodesMap[link.le];
-							vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target)
+							vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target);
 							links.push({source: entity._id, target: link.le})
 
 						}
 					}
 				}
-				vis.reLayout();
+				//vis.reLayout();
 			}
 
-			private function alreadyLinked(links:Array, source:String, target:String):Boolean
-			{
-				for (var i:int=0; i < links.length; i++)
-				{
-					if ((links[i].target == target && links[i].source == source) || (links[i].target == source && links[i].source == target))
-					{
-						return true;
-					}
-				}
-				return false;
-			}
+
 
 			protected function onResize(event:ResizeEvent):void
 			{
@@ -389,30 +373,19 @@
 				//vis.autoFit();
 
 			}
-      
-      private function isGrouped(entity:Entity):Boolean
-      {
-        for(var i:int=0;i<entities.length;i++)
-        {
-          if(entities.getItemAt(i).type=="group" && entities.getItemAt(i).children.contains(entity._id))
-          {
-            return true;
-          }
-        }
-      return false;
-      }
+
+
 
 			private function onDrag(e:VisualizerEvent):void
-			{  
-        for each (var node:Object in vis.nodesMap)
-        {
-          if (node is GenericGroup || node is GenericSprite)
-          {
-            positions_so.data.positions[node.data._id]=new Point(node.x, node.y)
-          }
-        }
+			{
+				for each (var node:Object in vis.nodesMap)
+				{
+					if (node is GenericGroup || node is GenericSprite)
+					{
+						//positions_so.data.positions[node.data._id]=new Point(node.x, node.y)
+					}
+				}
 			}
-
 		]]>
 	</fx:Script>
 
@@ -424,8 +397,8 @@
 												 groupLabelField="name"
 												 linkStyleFunction="{linkStyleFunction}"
 												 nodeRendererFunction="{nodeRendererFunction}"
-												 enableAnimation="false" 
-                         enableAutofitOnLayout="true"
+												 enableAnimation="false"
+												 enableAutofitOnLayout="true"
 												 groupRendererClass="{CustomGroupRenderer}"
 												 elementsDragging="onDrag(event)"
 												 showNodeExpandCollapseButton="false"

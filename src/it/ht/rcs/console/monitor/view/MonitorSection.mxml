@@ -29,11 +29,15 @@
 			[Bindable]
 			private var view:ListCollectionView;
 
+
+
+
 			private function init():void
 			{
 				var sort:Sort=new Sort();
 				sort.fields=[new SortField('status', true, true, true), new SortField('_id', true)];
 				view=MonitorManager.instance.getView(sort, searchFilterFunction);
+				currentState="collapsed"
 			}
 
 			private function onAddedToStage():void
@@ -61,19 +65,44 @@
 				}
 				return true;
 			}
+      
+      private function onStateChange():void
+      {
+        currentState=actionBar.currentState
+      }
 		]]>
 	</fx:Script>
+  
+  <fx:Declarations>
+    <mx:Sequence id="expand" >
+      <mx:AnimateProperty 
+        property="height" 
+        fromValue="0" 
+        toValue="300"/>
+ 
+    </mx:Sequence>
+    
+
+  </fx:Declarations>
 
 	<monitor:MonitorActionBar id="actionBar"
 														selectedObject="{grid.selectedItem}"
-														view="{view}"/>
+														view="{view}"  stateChangeComplete="onStateChange()"/>
 
 	<monitor:StatusGrid id="grid"
-											dataProvider="{view}"/>
+											dataProvider="{view}"
+											height="100%"/>
+
 
 	<s:Spacer height="10"/>
-	<s:Scroller verticalScrollPolicy="off"
-							width="100%">
+
+
+	<s:Scroller verticalScrollPolicy="off" id="scroller"
+							width="100%"
+							visible.collapsed="false"
+							includeInLayout.collapsed="false"
+							visible.expanded="true"
+							includeInLayout.expanded="true"  showEffect="{expand}">
 		<s:Group width="100%">
 			<s:HGroup id="licenseAndVersion"
 								horizontalAlign="center"
@@ -84,4 +113,11 @@
 			</s:HGroup>
 		</s:Group>
 	</s:Scroller>
+	<main:states>
+
+		<s:State name="collapsed"/>
+		<s:State name="expanded"/>
+
+	</main:states>
+
 </main:Section>

@@ -14,13 +14,24 @@
   
   <actionbar:Separator/>
   
+  <s:Button label.collapsed="{R.get('LICENSE_SHOW')}" label.expanded="{R.get('LICENSE_HIDE')}" click="onLicenseHideShow()" enabled="{Console.currentSession.user.is_admin_license()}"
+            icon="@Embed('/img/NEW/certificate.png')"/>
+  
+  
   <s:Button label="{R.get('LICENSE_UPDATE')}" click="onLicenseUpdate()" enabled="{Console.currentSession.user.is_admin_license()}"
             icon="@Embed('/img/NEW/key.png')"/>
-  
+
   
   <s:Spacer width="100%"/>
   
   <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
+  
+  <actionbar:states>
+    
+    <s:State name="collapsed"/>
+    <s:State name="expanded"/>
+    
+  </actionbar:states>
   
   <fx:Script>
     <![CDATA[
@@ -89,6 +100,14 @@
       private function onLicenseError(e:*):void
       {
         AlertPopUp.show(R.get('LICENSE_UPDATE_FAILED'));
+      }
+      
+      private function onLicenseHideShow():void
+      {
+      if(currentState=="collapsed")
+        currentState="expanded"
+      else if(currentState=="expanded")
+        currentState="collapsed"
       }
       
     ]]>

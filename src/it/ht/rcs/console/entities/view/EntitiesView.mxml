@@ -14,7 +14,7 @@
 	<fx:Script>
 		<![CDATA[
 			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.view.EntitiesSection;
@@ -23,9 +23,9 @@
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.push.PushController;
 			import it.ht.rcs.console.push.PushEvent;
-
+			
 			import locale.R;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
@@ -236,6 +236,12 @@
 				EntityManager.instance.refresh()
 				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
 			}
+      
+      protected function onGroupCreated(e:Event):void
+      {
+       trace("GROUP CREATED")
+       //linkMap.graph.vis.selection=null
+      }
 
 			protected function onEntityMerged():void
 			{
@@ -264,7 +270,7 @@
 				//linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				popup.graph=linkMap.graph
-				// popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
+				popup.addEventListener(EntityForm.CLOSE, onGroupCreated)
 				popup.operation=section.stateManager.selectedOperation;
 				popup.entity=new Entity({name: "group", type: "group"});
 				popup.currentState=EntityForm.CREATE;
@@ -275,7 +281,9 @@
 			protected function onUnGroup():void
 			{
 				linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
+        
 				EntityManager.instance.removeItem(actionbar.selectedObject)
+        linkMap.onSelectionChange()
 
 			}
 

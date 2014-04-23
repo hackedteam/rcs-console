@@ -1,128 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
 <main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
-              xmlns:s="library://ns.adobe.com/flex/spark"
-              xmlns:mx="library://ns.adobe.com/flex/mx"
-              xmlns:main="it.ht.rcs.console.main.*"
-              xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
-              xmlns:backend="it.ht.rcs.console.system.view.backend.*"
-              xmlns:nia="it.ht.rcs.console.system.view.nia.*"
-              xmlns:rmi="it.ht.rcs.console.system.view.rmi.*"
-              creationComplete="init()" xmlns:connectors="it.ht.rcs.console.system.view.connectors.*" xmlns:backup="it.ht.rcs.console.system.view.backup.*">
-  
-  <main:layout>
-    <s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
-  </main:layout>
-  
-  <fx:Script>
-    <![CDATA[
+							xmlns:s="library://ns.adobe.com/flex/spark"
+							xmlns:mx="library://ns.adobe.com/flex/mx"
+							xmlns:main="it.ht.rcs.console.main.*"
+							xmlns:frontend="it.ht.rcs.console.system.view.frontend.*"
+							xmlns:backend="it.ht.rcs.console.system.view.backend.*"
+							xmlns:nia="it.ht.rcs.console.system.view.nia.*"
+							xmlns:rmi="it.ht.rcs.console.system.view.rmi.*"
+							creationComplete="init()"
+							xmlns:connectors="it.ht.rcs.console.system.view.connectors.*"
+							xmlns:backup="it.ht.rcs.console.system.view.backup.*"
+							addedToStage="onAddedToStage()"
+							removedFromStage="onRemovedFromStage()">
+
+	<main:layout>
+		<s:VerticalLayout paddingBottom="5"
+											paddingLeft="5"
+											paddingRight="5"
+											paddingTop="5"/>
+	</main:layout>
+
+	<fx:Script>
+		<![CDATA[
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.history.HistoryItem;
+      import it.ht.rcs.console.history.HistoryManager;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       import locale.R;
       
-      private function init():void
-      {
-        //0 FRONTEND
-        //1 BACKEND
-        //2 BACKUP
-        //3 NETWORK_INJECTORS
-        //4 CONNECTORS
-        
-        //Keep the remove order from higher to lower index to prevent runtime errors
-        
-        if(!Console.currentSession.user.is_sys_connectors() || !LicenseManager.instance.connectors)
-        {
-          subSections.removeElementAt(4); // Connectors section 
-        }
-        if(!Console.currentSession.user.is_sys_injectors() && !Console.currentSession.user.is_tech_ni_rules())
-        {
-          subSections.removeElementAt(3)
-        }
-        if(!Console.currentSession.user.is_sys_backup())
-        {
-          subSections.removeElementAt(2)
-        }
-        if(!Console.currentSession.user.is_sys_backend())
-        {
-          subSections.removeElementAt(1)
-        }
-        if(!Console.currentSession.user.is_sys_frontend())
-        {
-          subSections.removeElementAt(0)
-        }
-        
-        if (LicenseManager.instance.archive) {
-          // move backward to avoid problems with index after remove
-          for (var i:int = subSections.length - 1; i >= 0; i--) {
-            var e:Object = subSections.getItemAt(i);
-            if (e.label == R.get('FRONTEND') || e.label == R.get('NETWORK_INJECTORS'))
-              subSections.removeItemAt(i);
-          }
-        }
-        //OLD BODY
-     /*    currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
+      import mx.events.IndexChangedEvent;
 
-        if (currentState == 'sys' && LicenseManager.instance.connectors == false)
-          subSections.removeElementAt(4); // Connectors section 
+			private function init():void
+			{
+				//0 FRONTEND
+				//1 BACKEND
+				//2 BACKUP
+				//3 NETWORK_INJECTORS
+				//4 CONNECTORS
+
+				//Keep the remove order from higher to lower index to prevent runtime errors
+
+				if (!Console.currentSession.user.is_sys_connectors() || !LicenseManager.instance.connectors)
+				{
+					subSections.removeElementAt(4); // Connectors section 
+				}
+				if (!Console.currentSession.user.is_sys_injectors() && !Console.currentSession.user.is_tech_ni_rules())
+				{
+					subSections.removeElementAt(3)
+				}
+				if (!Console.currentSession.user.is_sys_backup())
+				{
+					subSections.removeElementAt(2)
+				}
+				if (!Console.currentSession.user.is_sys_backend())
+				{
+					subSections.removeElementAt(1)
+				}
+				if (!Console.currentSession.user.is_sys_frontend())
+				{
+					subSections.removeElementAt(0)
+				}
+
+				if (LicenseManager.instance.archive)
+				{
+					// move backward to avoid problems with index after remove
+					for (var i:int=subSections.length - 1; i >= 0; i--)
+					{
+						var e:Object=subSections.getItemAt(i);
+						if (e.label == R.get('FRONTEND') || e.label == R.get('NETWORK_INJECTORS'))
+							subSections.removeItemAt(i);
+					}
+				}
+				//OLD BODY
+			/*    currentState = Console.currentSession.user.is_sys() ? 'sys' : 'tech';
+
+				 if (currentState == 'sys' && LicenseManager.instance.connectors == false)
+					 subSections.removeElementAt(4); // Connectors section
+
+
+
+				 // Bestiality: using "includeIn" on NavigationContent elements will cause the menu to be out of sync with the view
+				 if (currentState == 'tech') {
+					 subSections.removeElementAt(4);
+					 subSections.removeElementAt(2);
+					 subSections.removeElementAt(1);
+					 //subSections.removeElementAt(0);
+				 }
+
+				 // if we are in "archve" mode, remove unneeded sections
+				 if (LicenseManager.instance.archive) {
+					 // move backward to avoid problems with index after remove
+					 for (var i:int = subSections.length - 1; i >= 0; i--) {
+						 var e:Object = subSections.getItemAt(i);
+						 if (e.label == R.get('FRONTEND') || e.label == R.get('NETWORK_INJECTORS') || e.label == R.get('CONNECTORS'))
+							 subSections.removeItemAt(i);
+					 }
+				 } */
+
+			}
+      
+      
+      private function onAddedToStage():void
+      {
+      
         
+        subSections.addEventListener(IndexChangedEvent.CHANGE, onNavigation);
+        HistoryManager.instance.addEventListener("change", onHistory)
+      }
+      
+      private function onRemovedFromStage():void
+      {
        
-        
-        // Bestiality: using "includeIn" on NavigationContent elements will cause the menu to be out of sync with the view
-        if (currentState == 'tech') {
-          subSections.removeElementAt(4);
-          subSections.removeElementAt(2);
-          subSections.removeElementAt(1);
-          //subSections.removeElementAt(0);
+        subSections.removeEventListener(IndexChangedEvent.CHANGE, onNavigation);
+        HistoryManager.instance.removeEventListener("change", onHistory)
+      }
+      
+
+			public function changeSection(e:SectionEvent):void
+			{
+				if (e.subsection)
+        {
+					subSections.selectedChild=this[e.subsection];
+          HistoryManager.instance.currentItem.subSection=subSections.selectedIndex
         }
-        
-        // if we are in "archve" mode, remove unneeded sections
-        if (LicenseManager.instance.archive) {
-          // move backward to avoid problems with index after remove
-          for (var i:int = subSections.length - 1; i >= 0; i--) {
-            var e:Object = subSections.getItemAt(i);
-            if (e.label == R.get('FRONTEND') || e.label == R.get('NETWORK_INJECTORS') || e.label == R.get('CONNECTORS'))
-              subSections.removeItemAt(i);
-          }
-        } */
-        
-      }
+			}
       
-      public function changeSection(e:SectionEvent):void
+      private function onHistory(e:Event):void
       {
-        if (e.subsection)
-          subSections.selectedChild = this[e.subsection];
+        trace("ON HISTORY")
+        if(HistoryManager.instance.currentItem.section=="System")
+        {
+          subSections.removeEventListener(IndexChangedEvent.CHANGE, onNavigation);
+          subSections.selectedIndex=HistoryManager.instance.currentItem.subSection;
+          this.callLater(subSections.addEventListener,[IndexChangedEvent.CHANGE, onNavigation])
+          
+        } 
       }
       
-    ]]>
-  </fx:Script>
-  
-  <main:states>
-    <s:State name="sys"/>
-    <s:State name="tech"/>
-  </main:states>
+      private function onNavigation(e:Event):void
+      {
+        trace("SYSTEM SECTION SUBMENU NAVIGATION")
+        var item: HistoryItem=new HistoryItem();
+        item.section="System";
+        item.subSection=subSections.selectedIndex;
+        HistoryManager.instance.addItem(item);
+      }
+      
+      
+		]]>
+	</fx:Script>
 
-  <mx:ViewStack id="subSections" width="100%" height="100%" selectedIndex="0">
-    
-    <s:NavigatorContent label="{R.get('FRONTEND')}" >
-      <frontend:Frontend/>
-    </s:NavigatorContent>
-    
-    <s:NavigatorContent label="{R.get('BACKEND')}" >
-      <backend:Backend/>
-    </s:NavigatorContent>
+	<main:states>
+		<s:State name="sys"/>
+		<s:State name="tech"/>
+	</main:states>
 
-    <s:NavigatorContent label="{R.get('BACKUP')}" >
-      <backup:Backup/>
-    </s:NavigatorContent>
-    
-    <s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}" id="nia" >
-      <nia:NIA/>
-    </s:NavigatorContent>
+	<mx:ViewStack id="subSections"
+								width="100%"
+								height="100%"
+								selectedIndex="0">
 
-    <s:NavigatorContent label="{R.get('CONNECTORS')}" >
-      <connectors:Connectors/>
-    </s:NavigatorContent>
+		<s:NavigatorContent label="{R.get('FRONTEND')}">
+			<frontend:Frontend/>
+		</s:NavigatorContent>
 
-  </mx:ViewStack>
+		<s:NavigatorContent label="{R.get('BACKEND')}">
+			<backend:Backend/>
+		</s:NavigatorContent>
+
+		<s:NavigatorContent label="{R.get('BACKUP')}">
+			<backup:Backup/>
+		</s:NavigatorContent>
+
+		<s:NavigatorContent label="{R.get('NETWORK_INJECTORS')}"
+												id="nia">
+			<nia:NIA/>
+		</s:NavigatorContent>
+
+		<s:NavigatorContent label="{R.get('CONNECTORS')}">
+			<connectors:Connectors/>
+		</s:NavigatorContent>
+
+	</mx:ViewStack>
 
 </main:Section>

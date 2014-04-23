@@ -7,29 +7,29 @@
 					xmlns:entities="it.ht.rcs.console.entities.view.*"
 					width="100%"
 					height="100%"
-          creationComplete="init()"
+					creationComplete="init()"
 					addedToStage="onAddedToStage()"
-          removedFromStage="onRemovedFromStage()">
+					removedFromStage="onRemovedFromStage()">
 
 	<fx:Script>
 		<![CDATA[
-      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-      
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.view.EntitiesSection;
-      import it.ht.rcs.console.events.DataLoadedEvent;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.push.PushController;
-      import it.ht.rcs.console.push.PushEvent;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.collections.ListCollectionView;
-      import mx.core.FlexGlobals;
-      import mx.managers.PopUpManager;
+			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+			
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.view.EntitiesSection;
+			import it.ht.rcs.console.events.DataLoadedEvent;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.push.PushController;
+			import it.ht.rcs.console.push.PushEvent;
+			
+			import locale.R;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
 
 			[Bindable]
 			public var section:EntitiesSection;
@@ -38,7 +38,13 @@
 			public var selectedObjects:Vector.<Object>;
 
 			[Bindable]
-			public var entities:ArrayCollection=new ArrayCollection()
+			public var entities:ArrayCollection=new ArrayCollection();
+      
+      //states
+      private const LIST:String     =      "list";
+      private const TABLE:String    =     "table";
+      private const LINKMAP:String  =   "linkmap";
+      private const GEOMAP:String   =    "geomap";
 
 			private function onDoubleClick(event:MouseEvent):void
 			{
@@ -47,59 +53,63 @@
 					section.stateManager.manageItemSelection(item);
 
 			}
-      
-      private function init():void
-      {
-        if(!LicenseManager.instance.intelligence)
-        {
-          while(views.numChildren>2)
-          {
-            views.removeChildAt(0) //remove link view and map view if not in License 
-          }
- 
-        }
-      /*   FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush); */
-      }
-      
-      private function onEntityPush(e:PushEvent):void
-      {
-        if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
-          return;
-        onChangeView();
-      }
-      
-      private function onRefresh(e:RefreshEvent):void
-      {
-       // if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
-          //return;
-        onChangeView();
-      }
+
+			private function init():void
+			{
+				if (!LicenseManager.instance.intelligence)
+				{
+					while (views.numChildren > 2)
+					{
+						views.removeChildAt(0) //remove link view and map view if not in License 
+					}
+
+				}
+			  FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush); 
+			}
+
+			private function onEntityPush(e:PushEvent):void
+			{
+				if (LicenseManager.instance.intelligence && views.selectedIndex == 0)
+					return;
+				onChangeView();
+			}
+
+			private function onRefresh(e:RefreshEvent):void
+			{
+				// if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
+				//return;
+				onChangeView();
+			}
 
 			private function onKeyUp(event:KeyboardEvent):void
 			{
-        
+
 			}
 
 			protected function onAddedToStage():void
 			{
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush);
+				trace("Entities View Added to Stage");
+
+				/* FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush);
 				EntityManager.instance.refresh();
-        
-        if(linkMap) linkMap.inited=false;
-				onChangeView();
+ */
+			/* 	if (linkMap)
+					linkMap.inited=false;
+				onChangeView(); */
+        onChangeView()
 			}
-      
-      protected function onRemovedFromStage():void
-      {
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
-        PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush);
-      }
+
+			protected function onRemovedFromStage():void
+			{
+				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+				PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush);
+			}
 
 			public function onChangeView():void
 			{
-        trace(">>>CHANGE VIEW")
+				trace("Entities >> CHANGE VIEW")
 				if (geoMap)
 					geoMap.doStop();
 
@@ -109,177 +119,194 @@
 
 				var i:int;
 
-        if(!LicenseManager.instance.intelligence)
-        {
-           if (views.selectedIndex == 0) //list
-          {
-            actionbar.currentState="list"
-            list.selectedItem=null;
-            list.selectedItems=null;
-          }
-          
-          if (views.selectedIndex == 1) //table
-          {
-            actionbar.currentState="table";
-            grid.selectedItem=null;
-            grid.selectedItems=null;
-          }
-        }
+				if (!LicenseManager.instance.intelligence)
+				{
+					if (views.selectedIndex == 0) //list
+					{
+						actionbar.currentState=LIST;
+						list.selectedItem=null;
+						list.selectedItems=null;
+					}
 
-        else //License has intelligence
-        {
-          if (views.selectedIndex == 0) //links
-          {
-            geoMap.removeListeners()
-              
-            section.stateManager.hideGroups=false;
-            //section.stateManager.view.refresh()
-            //section.stateManager.tableView.refresh()
-            actionbar.currentState="linkmap"
-            linkMap.addListeners()
-            linkMap.entities=section.stateManager.view; 
-            linkMap.draw()
-           
-          }
-            
-          else if (views.selectedIndex == 1) //geo map
-          {
-            section.stateManager.hideGroups=true;
-            section.stateManager.view.refresh()
-            section.stateManager.tableView.refresh()
-            actionbar.currentState="geomap"
-            /* entities.removeAll()
-            for (i=0; i < section.stateManager.view.length; i++)
-            {
-            entities.addItem(section.stateManager.view.getItemAt(i));
-            }
-            geoMap.entities=entities;
-            geoMap.refresh() */
-            geoMap.addListeners()
-            geoMap.reset()
-            geoMap.entities=section.stateManager.tableView
-            geoMap.refresh()
-            linkMap.removeListeners()
-          }
-            
-          else if (views.selectedIndex == 2) //list
-          {
-            section.stateManager.hideGroups=true;
-            section.stateManager.view.refresh()
-            section.stateManager.tableView.refresh()
-            actionbar.currentState="list";
+					if (views.selectedIndex == 1) //table
+					{
+						actionbar.currentState=TABLE;
+						grid.selectedItem=null;
+						grid.selectedItems=null;
+					}
+				}
 
-            list.selectedItem=null;
-            list.selectedItems=null;
-            linkMap.removeListeners()
-            geoMap.removeListeners()
-          }
-          
-          if (views.selectedIndex == 3) //table
-          {
-            section.stateManager.hideGroups=true;
-            section.stateManager.view.refresh()
-            section.stateManager.tableView.refresh()
-            actionbar.currentState="table"
-            grid.selectedItem=null
-            grid.selectedItems=null
-              
-            linkMap.removeListeners()
-            geoMap.removeListeners()
-           
-          }
-        }
+				else //License has intelligence
+				{
+					if (views.selectedIndex == 0) //links
+					{
+						if (geoMap)
+							geoMap.removeListeners();
+
+						section.stateManager.hideGroups=false;
+						section.stateManager.view.refresh();
+						section.stateManager.tableView.refresh();
+						actionbar.currentState=LINKMAP;
+						if (linkMap)
+						{
+							linkMap.addListeners();
+							linkMap.entities=section.stateManager.tableView;
+							linkMap.draw();
+						}
+
+					}
+
+					else if (views.selectedIndex == 1) //geo map
+					{
+						section.stateManager.hideGroups=true;
+						section.stateManager.view.refresh();
+						section.stateManager.tableView.refresh();
+						actionbar.currentState=GEOMAP;
+					
+						if (linkMap)
+							linkMap.removeListeners();
+						if (geoMap)
+						{
+							geoMap.addListeners();
+							geoMap.reset();
+							geoMap.entities=section.stateManager.tableView;
+							geoMap.refresh();
+						}
+					}
+
+					else if (views.selectedIndex == 2) //list
+					{
+						section.stateManager.hideGroups=true;
+						section.stateManager.view.refresh();
+						section.stateManager.tableView.refresh();
+						actionbar.currentState=LIST;
+						if (list)
+						{
+							list.selectedItem=null;
+							list.selectedItems=null;
+						}
+
+						if (linkMap)
+							linkMap.removeListeners();
+						if (geoMap)
+							geoMap.removeListeners();
+					}
+
+					if (views.selectedIndex == 3) //table
+					{
+						section.stateManager.hideGroups=true;
+						section.stateManager.view.refresh();
+						section.stateManager.tableView.refresh();
+						actionbar.currentState=TABLE;
+						if (grid)
+						{
+							grid.selectedItem=null;
+							grid.selectedItems=null;
+						}
+						if (linkMap)
+							linkMap.removeListeners();
+						if (geoMap)
+							geoMap.removeListeners();
+					}
+				}
 			}
-      
-   
+
+
 
 			protected function onNewLink():void
 			{
-        EntityManager.instance.refresh()
-        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+				EntityManager.instance.refresh()
+				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
 			}
-      
-      private function onDataLoaded(e:DataLoadedEvent):void
-      {
-        EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
-        onChangeView()
-      }
+
+			private function onDataLoaded(e:DataLoadedEvent):void
+			{
+				EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+				onChangeView()
+			}
 
 			protected function onLinkRemoved():void
 			{
-        EntityManager.instance.refresh()
-        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+				EntityManager.instance.refresh()
+				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
 			}
 
 			protected function onLinkUpdated():void
 			{
-        EntityManager.instance.refresh()
-        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+				EntityManager.instance.refresh()
+				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
 			}
       
-      protected function onEntityMerged():void
+      protected function onGroupCreated(e:Event):void
       {
-        EntityManager.instance.refresh()
-        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+       trace("GROUP CREATED")
+       //linkMap.graph.vis.selection=null
       }
-      
-      
-      protected function onEntityCreated():void
-      { 
-        onChangeView()
-      }
-      
-      protected function onEntityDeleted():void
-      {
-        onChangeView()
-      }
-      
-      protected function onEntityUpdated():void
-      {
-        onChangeView()
-      }
-      
-      protected function onGroup():void
-      {
-        //linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
-        var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
-        popup.graph=linkMap.graph
-       // popup.addEventListener(EntityForm.CLOSE, onEntityAdded)
-        popup.operation=section.stateManager.selectedOperation;
-        popup.entity=new Entity({name: "group", type:"group"});
-        popup.currentState=EntityForm.CREATE;
-        PopUpManager.centerPopUp(popup);
+
+			protected function onEntityMerged():void
+			{
+				EntityManager.instance.refresh()
+				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
+			}
+
+
+			protected function onEntityCreated():void
+			{
+				onChangeView()
+			}
+
+			protected function onEntityDeleted():void
+			{
+				onChangeView()
+			}
+
+			protected function onEntityUpdated():void
+			{
+				onChangeView()
+			}
+
+			protected function onGroup():void
+			{
+				//linkMap.graph.vis.groupElements({name: "group", type:"group"}, linkMap.graph.vis.selection)
+				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
+				popup.graph=linkMap.graph
+				popup.addEventListener(EntityForm.CLOSE, onGroupCreated)
+				popup.operation=section.stateManager.selectedOperation;
+				popup.entity=new Entity({name: "group", type: "group"});
+				popup.currentState=EntityForm.CREATE;
+				PopUpManager.centerPopUp(popup);
+
+			}
+
+			protected function onUnGroup():void
+			{
+				linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
         
-      }
-      
-      protected function onUnGroup():void
-      {
-        linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
-        EntityManager.instance.removeItem(actionbar.selectedObject)
-        
-      }
-      
-      protected function onExpandAll(event:Event):void
-      {
-        for each(var node:Object in  linkMap.graph.vis.nodesMap)
-        {
-        if( node is GenericGroup && !GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
-          GenericGroup(node).isGroupExpanded=true
-        }
-        
-      }
-      
-      protected function onCollapseAll(event:Event):void
-      {
-        for each(var node:Object in  linkMap.graph.vis.nodesMap)
-        {
-          if( node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
-            GenericGroup(node).isGroupExpanded=false
-        }
-        
-      }
-      
-    ]]>
+				EntityManager.instance.removeItem(actionbar.selectedObject)
+        linkMap.onSelectionChange()
+
+			}
+
+			protected function onExpandAll(event:Event):void
+			{
+				for each (var node:Object in linkMap.graph.vis.nodesMap)
+				{
+					if (node is GenericGroup && !GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+						GenericGroup(node).isGroupExpanded=true
+				}
+
+			}
+
+			protected function onCollapseAll(event:Event):void
+			{
+				for each (var node:Object in linkMap.graph.vis.nodesMap)
+				{
+					if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+						GenericGroup(node).isGroupExpanded=false
+				}
+
+			}
+		]]>
 	</fx:Script>
 
 	<entities:EntitiesActionBar section="{section}"
@@ -287,13 +314,13 @@
 															viewStack="{views}"
 															selectedObject="{list.selectedItem}"
 															entityUpdated="onEntityUpdated(); list.selectedItem=null"
-                              entityCreated="onEntityCreated(); list.selectedItem=null"
-                              entityDeleted="onEntityDeleted(); list.selectedItem=null"
-                              entityMerged="onEntityMerged();   list.selectedItem=null"
-                              group="onGroup()" 
-                              ungroup="onUnGroup()" 
-                              expandAll="onExpandAll(event)" 
-                              collapseAll="onCollapseAll(event)"
+															entityCreated="onEntityCreated(); list.selectedItem=null"
+															entityDeleted="onEntityDeleted(); list.selectedItem=null"
+															entityMerged="onEntityMerged();   list.selectedItem=null"
+															group="onGroup()"
+															ungroup="onUnGroup()"
+															expandAll="onExpandAll(event)"
+															collapseAll="onCollapseAll(event)"
 															linkAdded="onNewLink()"
 															linkRemoved="onLinkRemoved()"
 															linkUpdated="onLinkUpdated()"
@@ -310,19 +337,19 @@
 		<s:NavigatorContent label="{R.get('LINK_MAP')}"
 												hideEffect="{fadeOut}"
 												icon="@Embed('/img/NEW/link16.png')"
-												showEffect="{fadeIn}" >
+												showEffect="{fadeIn}">
 
 
 			<entities:LinkView section="{this.section}"
 												 id="linkMap"
 												 entities="{section.stateManager.tableView}"
-												 actionbar="{actionbar}" />
+												 actionbar="{actionbar}"/>
 
 		</s:NavigatorContent>
 		<s:NavigatorContent label="{R.get('POSITION_MAP')}"
 												hideEffect="{fadeOut}"
 												icon="@Embed('/img/NEW/position16.png')"
-												showEffect="{fadeIn}" >
+												showEffect="{fadeIn}">
 
 
 			<entities:GeoMapView id="geoMap"
@@ -359,7 +386,7 @@
 												hideEffect="{fadeOut}"
 												icon="@Embed('/img/windows/list.png')"
 												showEffect="{fadeIn}">
-      
+
 			<entities:EntitiesGrid id="grid"
 														 dataProvider="{section.stateManager.tableView}"
 														 selectedItems="{list.selectedItems}"

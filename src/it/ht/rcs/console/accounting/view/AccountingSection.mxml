@@ -17,8 +17,12 @@
       import it.ht.rcs.console.accounting.controller.GroupManager;
       import it.ht.rcs.console.accounting.controller.OperationManager;
       import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.history.HistoryItem;
+      import it.ht.rcs.console.history.HistoryManager;
       
       import locale.R;
+      
+      import mx.events.IndexChangedEvent;
       
       private function onAddedToStage():void
       {
@@ -28,6 +32,9 @@
         GroupManager.instance.refresh();
         OperationManager.instance.listenRefresh();
         OperationManager.instance.refresh();
+        
+        subSections.addEventListener(IndexChangedEvent.CHANGE, onNavigation);
+        HistoryManager.instance.addEventListener("change", onHistory)
       }
       
       private function onRemovedFromStage():void
@@ -35,11 +42,34 @@
         UserManager.instance.unlistenRefresh();
         GroupManager.instance.unlistenRefresh();
         OperationManager.instance.unlistenRefresh();
+        subSections.removeEventListener(IndexChangedEvent.CHANGE, onNavigation);
+        HistoryManager.instance.removeEventListener("change", onHistory)
+      }
+      
+      private function onHistory(e:Event):void
+      {
+        trace("ON HISTORY")
+        if(HistoryManager.instance.currentItem.section=="Accounting")
+        {
+         
+          subSections.removeEventListener(IndexChangedEvent.CHANGE, onNavigation);
+          subSections.selectedIndex=HistoryManager.instance.currentItem.subSection;
+          this.callLater(subSections.addEventListener,[IndexChangedEvent.CHANGE, onNavigation]); 
+        } 
+      }
+      
+      private function onNavigation(e:Event):void
+      {
+        trace("ACCOUNTING SECTION SUBMENU NAVIGATION")
+        var item:HistoryItem=new HistoryItem();
+        item.section="Accounting";
+        item.subSection=subSections.selectedIndex;
+        HistoryManager.instance.addItem(item);
       }
     ]]>
   </fx:Script>
 
-  <mx:ViewStack id="subSections" width="100%" height="100%">
+  <mx:ViewStack id="subSections" width="100%" height="100%" >
     
     <s:NavigatorContent label="{R.get('USERS')}">
       <users:UserView/>

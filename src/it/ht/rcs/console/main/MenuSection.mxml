@@ -7,6 +7,7 @@
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.history.HistoryManager;
       
       import locale.R;
       
@@ -25,6 +26,7 @@
         var sectionEvent:SectionEvent = new SectionEvent(SectionEvent.CHANGE_SECTION);
         sectionEvent.section = sections.getItemAt(event.newIndex).label as String;
         FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
+     
       }
       
       private var toChange:int;
@@ -53,7 +55,27 @@
     <s:HorizontalLayout gap="0" horizontalAlign="left" paddingBottom="12" paddingLeft="5"
                         paddingRight="5" paddingTop="12" verticalAlign="middle"/>
   </s:layout>
-  
+ 
+  <!--
+  <s:Button id="backButton" buttonMode="true"
+            visible="{parentApplication.currentState == 'loggedIn'}"
+            includeInLayout="{parentApplication.currentState == 'loggedIn'}"
+            icon="@Embed('/img/NEW/back.png')" toolTip="{R.get('BACK')}"
+            skinClass="it.ht.rcs.console.main.skins.chrome.RCSBackButtonSkin"
+            mouseDown="event.stopPropagation()" enabled="{HistoryManager.instance.currentIndex>0}"
+            click="HistoryManager.instance.back()"
+            top="2" bottom="2" verticalCenter="0" />
+  <s:Spacer width="10"/>
+  <s:Button id="forwardButton" buttonMode="true"
+            visible="{parentApplication.currentState == 'loggedIn'}"
+            includeInLayout="{parentApplication.currentState == 'loggedIn'}"
+            icon="@Embed('/img/NEW/forward.png')" toolTip="{R.get('FORWARD')"
+            skinClass="it.ht.rcs.console.main.skins.chrome.RCSForwardButtonSkin"
+            mouseDown="event.stopPropagation()" enabled="{HistoryManager.instance.currentIndex &lt;  HistoryManager.instance.length-1}"
+            click="HistoryManager.instance.forward()"
+            top="2" bottom="2" verticalCenter="0" />
+  <s:Spacer width="10"/>
+  -->
   <s:ButtonBar id="bar" change="onButtonClick(event)" changing="onChanging(event)"
                dataProvider="{sections}" labelField="label" requireSelection="true"
                skinClass="it.ht.rcs.console.main.skins.chrome.RCSMenuSectionSkin"/>

@@ -16,6 +16,7 @@ package it.ht.rcs.console.entities.view
 	import it.ht.rcs.console.monitor.controller.LicenseManager;
 	import it.ht.rcs.console.operation.controller.OperationManager;
 	import it.ht.rcs.console.operation.model.Operation;
+	import it.ht.rcs.console.search.controller.SearchManager;
 	import it.ht.rcs.console.search.model.SearchItem;
 	
 	import locale.R;
@@ -116,12 +117,17 @@ package it.ht.rcs.console.entities.view
 				setState("links", data)
 			}
       
-      if (item is Operation)
+      if (item is Operation || (item is Entity && item.type=="group"))
       {
-        selectedOperation=item;
+        if(item is Operation)
+          selectedOperation=item;
+        else if(item is Entity)
+          selectedOperation=OperationManager.instance.getItem(item.stand_for);
         setState('singleOperation');
         UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type: "operation", section: "intelligence"});
       }
+      
+     
 
 			else if (item is Entity)
 			{
@@ -167,8 +173,9 @@ package it.ht.rcs.console.entities.view
 					//selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
 					CurrentManager=EntityManager;
 					currentFilter=singleOperationFilterFunction;
-					update();
+          update();
           section.currentState='singleOperation';
+         
 					break;
 
 				case 'singleEntity':

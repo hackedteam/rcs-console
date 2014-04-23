@@ -1,5 +1,6 @@
 package it.ht.rcs.console.history
 {
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
 	import it.ht.rcs.console.events.SectionEvent;
@@ -17,6 +18,7 @@ package it.ht.rcs.console.history
 
 		public var currentIndex:int=0;
     public var currentItem:HistoryItem;
+    public var currentSection:String; //???
 
 
 		public function HistoryManager()
@@ -32,6 +34,7 @@ package it.ht.rcs.console.history
         return 0;
 			return history.length
 		}
+    
 
 		public function init():void
 		{
@@ -50,6 +53,15 @@ package it.ht.rcs.console.history
       currentItem=history[currentIndex] as HistoryItem
 			dumpHistory()
 		}
+    
+    public function addItem(item:HistoryItem):void
+    {
+      history.push(item);
+      currentIndex=history.length - 1;
+      numItems=history.length;
+      currentItem=history[currentIndex] as HistoryItem;
+      dumpHistory()
+    }
 
 		private function onSectionChange(e:SectionEvent):void
 		{
@@ -63,12 +75,9 @@ package it.ht.rcs.console.history
 
 			trace("SECTION CHANGE: " + e.section);
 			var item:HistoryItem=new HistoryItem();
-			item.section=e.section
+			item.section=e.section;
 			item.subSection=0;
-			history.push(item);
-			currentIndex=history.length - 1
-			numItems=history.length
-      currentItem=history[currentIndex] as HistoryItem
+		  addItem(item)
 			//dump history for debugging
 
 			//put at the end of array
@@ -80,17 +89,18 @@ package it.ht.rcs.console.history
 
 		public function back():void
 		{
-			trace("BACK")
-			currentIndex--
-			FlexGlobals.topLevelApplication.removeEventListener(SectionEvent.CHANGE_SECTION, onSectionChange)
+			trace("BACK");
+			currentIndex--;
+			FlexGlobals.topLevelApplication.removeEventListener(SectionEvent.CHANGE_SECTION, onSectionChange);
 			var sectionEvent:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
 			sectionEvent.section=history[currentIndex].section;
 			//history.pop()
 			FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
-			FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, onSectionChange)
-			numItems=history.length
-      currentItem=history[currentIndex] as HistoryItem
-			dumpHistory()
+			FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, onSectionChange);
+			numItems=history.length;
+      currentItem=history[currentIndex] as HistoryItem;
+			dumpHistory();
+      dispatchEvent(new Event("change"))
 		}
 
 
@@ -116,14 +126,15 @@ package it.ht.rcs.console.history
 		{
 			trace("FORWARD")
       currentIndex++
-      FlexGlobals.topLevelApplication.removeEventListener(SectionEvent.CHANGE_SECTION, onSectionChange)
+      FlexGlobals.topLevelApplication.removeEventListener(SectionEvent.CHANGE_SECTION, onSectionChange);
       var sectionEvent:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
       sectionEvent.section=history[currentIndex].section;
       FlexGlobals.topLevelApplication.dispatchEvent(sectionEvent);
-      FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, onSectionChange)
-      numItems=history.length
-      currentItem=history[currentIndex] as HistoryItem
-			dumpHistory()
+      FlexGlobals.topLevelApplication.addEventListener(SectionEvent.CHANGE_SECTION, onSectionChange);
+      numItems=history.length;
+      currentItem=history[currentIndex] as HistoryItem;
+			dumpHistory();
+      dispatchEvent(new Event("change"))
 		}
 
 

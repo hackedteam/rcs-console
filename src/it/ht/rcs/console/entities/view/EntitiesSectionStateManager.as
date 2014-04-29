@@ -1,8 +1,9 @@
 package it.ht.rcs.console.entities.view
 {
+	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import flash.utils.setTimeout;
-	
+
 	import it.ht.rcs.console.accounting.controller.UserManager;
 	import it.ht.rcs.console.agent.controller.AgentManager;
 	import it.ht.rcs.console.agent.model.Agent;
@@ -13,19 +14,21 @@ package it.ht.rcs.console.entities.view
 	import it.ht.rcs.console.events.DataLoadedEvent;
 	import it.ht.rcs.console.events.SectionEvent;
 	import it.ht.rcs.console.evidence.controller.EvidenceManager;
+	import it.ht.rcs.console.history.HistoryItem;
+	import it.ht.rcs.console.history.HistoryManager;
 	import it.ht.rcs.console.monitor.controller.LicenseManager;
 	import it.ht.rcs.console.operation.controller.OperationManager;
 	import it.ht.rcs.console.operation.model.Operation;
 	import it.ht.rcs.console.search.controller.SearchManager;
 	import it.ht.rcs.console.search.model.SearchItem;
-	
+
 	import locale.R;
-	
+
 	import mx.collections.ArrayCollection;
 	import mx.collections.ArrayList;
 	import mx.collections.ListCollectionView;
 	import mx.managers.CursorManager;
-	
+
 	import spark.collections.Sort;
 	import spark.collections.SortField;
 	import spark.components.TextInput;
@@ -52,29 +55,76 @@ package it.ht.rcs.console.entities.view
 		private var section:EntitiesSection;
 
 		private var sort:Sort;
-    
-    
-    public var hideGroups:Boolean;
+
+
+		public var hideGroups:Boolean;
+
+		private var previousState:String;
 
 		public static var currInstance:EntitiesSectionStateManager;
 
 		public function EntitiesSectionStateManager(section:EntitiesSection)
 		{
-      selectedEntities=new ArrayCollection();
-      
-			this.section=section; 
+			selectedEntities=new ArrayCollection();
+
+			this.section=section;
 			currInstance=this;
 
 			sort=new Sort();
 			sort.fields=[new SortField("type", true), new SortField("name", false)]
 
+
+			HistoryManager.instance.addEventListener("change", onHistory)
+
+		}
+
+		private function saveHistoryItem():void
+		{
+			var currentItem:HistoryItem=HistoryManager.instance.currentItem;
+			//if is different add a new item in HM
+			if (HistoryManager.instance.currentItem.section == "Intelligence" && (HistoryManager.instance.currentItem.state == null || HistoryManager.instance.currentItem.state != previousState))
+			{
+				HistoryManager.instance.currentItem.state=section.currentState;
+				HistoryManager.instance.currentItem.operation=selectedOperation;
+				HistoryManager.instance.currentItem.entity=selectedEntity;
+
+			}
+			else if (HistoryManager.instance.currentItem.section == "Intelligence" && (HistoryManager.instance.currentItem.state != null || HistoryManager.instance.currentItem.state == previousState))
+			{
+				var item:HistoryItem=new HistoryItem;
+				item.section="Intelligence";
+				item.subSection=0;
+				item.state=section.currentState;
+				item.operation=selectedOperation;
+				item.entity=selectedEntity;
+				HistoryManager.instance.addItem(item);
+			}
+			HistoryManager.instance.dumpHistory();
+		}
+
+		private function onHistory(e:Event):void
+		{
+			trace("ON HISTORY")
+			if (HistoryManager.instance.currentItem.section == "Intelligence")
+			{
+				var hi:HistoryItem=HistoryManager.instance.currentItem;
+				selectedOperation=HistoryManager.instance.currentItem.operation;
+				selectedEntity=HistoryManager.instance.currentItem.entity;
+
+				if (!HistoryManager.instance.currentItem.state)
+					HistoryManager.instance.currentItem.state="allOperations"
+
+
+					setState(HistoryManager.instance.currentItem.state, null, false)
+
+			}
 		}
 
 		private function getItemFromEvent(event:SectionEvent):*
 		{
-    
+
 			var item:SearchItem=event ? event.item : null;
-      CursorManager.removeBusyCursor()
+			CursorManager.removeBusyCursor()
 			if (!item)
 				return null;
 
@@ -92,10 +142,10 @@ package it.ht.rcs.console.entities.view
 				default:
 					return null;
 			}
-      
+
 		}
-    
-   
+
+
 		public function manageItemSelection(i:*, event:SectionEvent=null):void
 		{
 			var item:*=i || getItemFromEvent(event);
@@ -108,26 +158,26 @@ package it.ht.rcs.console.entities.view
 				CurrentManager.instance.unlistenRefresh();
 			}
 
-			
-      if (item is Operation && event && event.subsection == "links") //event can be null
+
+			if (item is Operation && event && event.subsection == "links") //event can be null
 			{
 				trace("is a link")
-        var data:Array=event.info;
-			  selectedOperation=item
+				var data:Array=event.info;
+				selectedOperation=item
 				setState("links", data)
 			}
-      
-      if (item is Operation || (item is Entity && item.type=="group"))
-      {
-        if(item is Operation)
-          selectedOperation=item;
-        else if(item is Entity)
-          selectedOperation=OperationManager.instance.getItem(item.stand_for);
-        setState('singleOperation');
-        UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type: "operation", section: "intelligence"});
-      }
-      
-     
+
+			if (item is Operation || (item is Entity && item.type == "group"))
+			{
+				if (item is Operation)
+					selectedOperation=item;
+				else if (item is Entity)
+					selectedOperation=OperationManager.instance.getItem(item.stand_for);
+				setState('singleOperation');
+				UserManager.instance.add_recent(Console.currentSession.user, {id: selectedOperation._id, type: "operation", section: "intelligence"});
+			}
+
+
 
 			else if (item is Entity)
 			{
@@ -144,14 +194,16 @@ package it.ht.rcs.console.entities.view
 			selectedOperation=null;
 			selectedEntity=null;
 		}
+    [Bindable]
+		public var currentState:String;
 
-		private var currentState:String;
-
-		public function setState(state:String, data:*=null):void
+		public function setState(state:String, data:*=null, bookmark:Boolean=true):void
 		{
 			if (!state)
 				return;
+      previousState=currentState;
 			currentState=state;
+      
 			if (CurrentManager)
 			{
 				CurrentManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -173,9 +225,9 @@ package it.ht.rcs.console.entities.view
 					//selectedTarget = null; selectedAgent = null; selectedFactory = null; selectedConfig = null;
 					CurrentManager=EntityManager;
 					currentFilter=singleOperationFilterFunction;
-          update();
-          section.currentState='singleOperation';
-         
+					update();
+					section.currentState='singleOperation';
+
 					break;
 
 				case 'singleEntity':
@@ -191,35 +243,36 @@ package it.ht.rcs.console.entities.view
 					clearVars();
 					section.currentState='allEntities';
 					CurrentManager=EntityManager;
-					if (searchField) searchField.text='';
+					if (searchField)
+						searchField.text='';
 					currentFilter=searchFilterFunction;
 					update();
 					break;
-        
 
-        case 'links':
-          CurrentManager = EntityManager;
-          section.currentState = 'links';
-          currentFilter=singleOperationFilterFunction;
-          
-          update();
-          //link view
 
-         /* if(data)
-          {
-            if(data.length==1)
-            {
-              section.view.linkMap.nodeToHighLight={id:data[0]} //single entity: highlight node
-            }
-            else if (data.length==2)
-            {
-              section.view.linkMap.linkToHighLight={from:data[0], to:data[1]} // two entities: highlight link 
-            }
-          }*/
-          
-          // section.view.views.selectedIndex=0;
-          // section.view.onChangeView()
-          break;
+				case 'links':
+					CurrentManager=EntityManager;
+					section.currentState='links';
+					currentFilter=singleOperationFilterFunction;
+
+					update();
+					//link view
+
+					/* if(data)
+					 {
+						 if(data.length==1)
+						 {
+							 section.view.linkMap.nodeToHighLight={id:data[0]} //single entity: highlight node
+						 }
+						 else if (data.length==2)
+						 {
+							 section.view.linkMap.linkToHighLight={from:data[0], to:data[1]} // two entities: highlight link
+						 }
+					 }*/
+
+					// section.view.views.selectedIndex=0;
+					// section.view.onChangeView()
+					break;
 				case 'map':
 					section.currentState='map';
 					CurrentManager=EntityManager;
@@ -228,6 +281,14 @@ package it.ht.rcs.console.entities.view
 				default:
 					break;
 			}
+      
+      if (bookmark)
+      {
+        saveHistoryItem()
+      }
+
+      
+      
 			if (CurrentManager)
 			{
 				CurrentManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded);
@@ -293,7 +354,7 @@ package it.ht.rcs.console.entities.view
 
 			lcv.filterFunction=currentFilter;
 			lcv.sort=sort;
-			lcv.refresh()
+			lcv.refresh();
 			return lcv;
 		}
 
@@ -310,21 +371,21 @@ package it.ht.rcs.console.entities.view
 			{
 				if (!(Console.currentSession.user.is_view_profiles()))
 					return false;
-        
-        if(hideGroups && item.type=="group")
-          return false;
+
+				if (hideGroups && item.type == "group")
+					return false;
 			}
-      
-     /* if (currentState=="links" && item.hasOwnProperty('type') && item.type=="group") //link view
-        return false;
-*/
+
+			/* if (currentState=="links" && item.hasOwnProperty('type') && item.type=="group") //link view
+				 return false;
+ */
 			if (!searchField || searchField.text == '')
 				return true;
 
 			var result:Boolean=false;
 			if (item && item.hasOwnProperty('name') && item.name)
 				result=result || String(item.name.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
-      
+
 			if (item && item.hasOwnProperty('desc') && item.desc)
 				result=result || String(item.desc.toLowerCase()).indexOf(searchField.text.toLowerCase()) >= 0;
 

@@ -103,26 +103,23 @@
 						 rollOver="onRoll(event)"
 						 rollOut="onRoll(event)"
 						 toolTip="{R.get('UP_ONE_LEVEL')}"
-						 enabled="{section.currentState != 'allOperations'}"/>
+						 enabled="{section.currentState != 'allOperations' &amp;&amp; section.currentState != 'allEntities'}"/>
 
 		<mx:LinkButton visible="{section.currentState != 'allEntities' }"
 									 label="{R.get('ALL_OPERATIONS')}"
 									 click="section.stateManager.setState('allOperations')"
 									 includeInLayout="{section.currentState != 'allEntities'}"
+                   enabled="{section.currentState != 'allOperations'}"
 									 paddingLeft="0"
 									 paddingRight="0"/>
 
 		<mx:LinkButton visible="{section.currentState == 'allEntities'}"
 									 label="{R.get('ALL_ENTITIES')}"
+									 enabled="{section.currentState != 'allEntities'}"
 									 includeInLayout="{section.currentState == 'allEntities'}"
 									 paddingLeft="0"
 									 paddingRight="0"/>
 
-		<mx:LinkButton visible="{section.currentState == 'allAgents'}"
-									 label="{R.get('ALL_AGENTS')}"
-									 includeInLayout="{section.currentState == 'allAgents'}"
-									 paddingLeft="0"
-									 paddingRight="0"/>
 
 
 		<s:HGroup visible="{section.stateManager.selectedOperation != null}"
@@ -132,6 +129,7 @@
 			<s:BitmapImage source="{arrow}"/>
 			<s:Spacer width="6"/>
 			<mx:LinkButton label="{section.stateManager.selectedOperation.name}"
+										 enabled="{section.currentState != 'singleOperation'}"
 										 click="section.stateManager.setState('singleOperation')"
 										 paddingLeft="3"
 										 paddingRight="0"
@@ -147,6 +145,7 @@
 			<s:Spacer width="5"/>
 			<mx:LinkButton label="{section.stateManager.selectedEntity.name}"
 										 click="section.stateManager.setState('singleEntity')"
+										 enabled="{section.currentState != 'singleEntity'}"
 										 paddingLeft="2"
 										 paddingRight="0"
 										 icon="@Embed('/img/NEW/entity_16.png')"/>

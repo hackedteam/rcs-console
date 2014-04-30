@@ -91,6 +91,8 @@ package it.ht.rcs.console.history
 			if (e.section == "Operations")
 			{
 				var section:OperationsSection=sections.Operations
+          if(!section)
+            return;
 				item.state="allOperations"
 				if (section.stateManager)
 				{

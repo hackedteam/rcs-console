@@ -30,7 +30,7 @@
 					return;
 				}
 
-				section.stateManager.setState(getUpState(),false);
+				section.stateManager.setState(getUpState());
 			}
 
 			private function getUpState():String
@@ -126,24 +126,24 @@
 						 rollOver="onRoll(event)"
 						 rollOut="onRoll(event)"
 						 toolTip="{R.get('UP_ONE_LEVEL')}"
-						 enabled="{section.currentState != 'allOperations'}"/>
+						 enabled="{section.currentState != 'allOperations' &amp;&amp; section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"/>
 
 		<mx:LinkButton visible="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
 									 label="{R.get('ALL_OPERATIONS')}"
-									 click="section.stateManager.setState('allOperations')"
+									 click="section.stateManager.setState('allOperations')" enabled="{section.currentState != 'allOperations'}"
 									 includeInLayout="{section.currentState != 'allTargets' &amp;&amp; section.currentState != 'allAgents'}"
 									 paddingLeft="0"
 									 paddingRight="0"/>
 
 		<mx:LinkButton visible="{section.currentState == 'allTargets'}"
-									 label="{R.get('ALL_TARGETS')}"
+									 label="{R.get('ALL_TARGETS')}" enabled="{section.currentState != 'allTargets'}"
 									 includeInLayout="{section.currentState == 'allTargets'}"
 									 paddingLeft="0"
 									 paddingRight="0"/>
 
 		<mx:LinkButton visible="{section.currentState == 'allAgents'}"
 									 label="{R.get('ALL_AGENTS')}"
-									 includeInLayout="{section.currentState == 'allAgents'}"
+									 includeInLayout="{section.currentState == 'allAgents'}"  enabled="{section.currentState != 'allAgents'}"
 									 paddingLeft="0"
 									 paddingRight="0"/>
 
@@ -154,8 +154,8 @@
 							verticalAlign="middle">
 			<s:BitmapImage source="{arrow}"/>
 			<s:Spacer width="6"/>
-			<mx:LinkButton label="{section.stateManager.selectedOperation.name}"
-										 click="section.stateManager.setState('singleOperation')"
+			<mx:LinkButton label="{section.stateManager.selectedOperation.name}" 
+										 click="section.stateManager.setState('singleOperation')" enabled="{section.currentState != 'singleOperation'}"
 										 paddingLeft="3"
 										 paddingRight="0"
 										 icon="@Embed('/img/NEW/operation_16.png')"/>
@@ -169,7 +169,7 @@
 			<s:BitmapImage source="{arrow}"/>
 			<s:Spacer width="5"/>
 			<mx:LinkButton label="{section.stateManager.selectedTarget.name}"
-										 click="section.stateManager.setState('singleTarget')"
+										 click="section.stateManager.setState('singleTarget')" enabled="{section.currentState != 'singleTarget'}"
 										 paddingLeft="2"
 										 paddingRight="0"
 										 icon="@Embed('/img/NEW/target_16.png')"/>
@@ -183,7 +183,7 @@
 			<s:BitmapImage source="{arrow}"/>
 			<s:Spacer width="5"/>
 			<mx:LinkButton label="{section.stateManager.selectedAgent.name}"
-										 click="section.stateManager.setState('singleAgent')"
+										 click="section.stateManager.setState('singleAgent')" enabled="{section.currentState != 'singleAgent'}"
 										 paddingLeft="2"
 										 paddingRight="0"
 										 icon="@Embed('/img/NEW/agent_16.png')"/>
@@ -228,7 +228,7 @@
 										 icon="@Embed('/img/NEW/detail_16.png')"/>
 		</s:HGroup>
 
-		<s:HGroup visible="{section.currentState == 'info'}"
+		<s:HGroup visible="{section.currentState == 'info'}" enabled="{section.currentState != 'info'}"
 							gap="3"
 							includeInLayout="{section.currentState == 'info'}"
 							verticalAlign="middle">
@@ -240,7 +240,7 @@
 										 icon="@Embed('/img/NEW/info_16.png')"/>
 		</s:HGroup>
 
-		<s:HGroup visible="{section.currentState == 'commands'}"
+		<s:HGroup visible="{section.currentState == 'commands'}" enabled="{section.currentState != 'commands'}"
 							gap="3"
 							includeInLayout="{section.currentState == 'commands'}"
 							verticalAlign="middle">
@@ -252,7 +252,7 @@
 										 icon="@Embed('/img/NEW/commands_16.png')"/>
 		</s:HGroup>
 
-		<s:HGroup visible="{section.currentState == 'ipaddresses'}"
+		<s:HGroup visible="{section.currentState == 'ipaddresses'}" enabled="{section.currentState != 'ipaddresses'}"
 							gap="3"
 							includeInLayout="{section.currentState == 'ipaddresses'}"
 							verticalAlign="middle">
@@ -264,7 +264,7 @@
 										 icon="@Embed('/img/NEW/ipaddresses_16.png')"/>
 		</s:HGroup>
 
-		<s:HGroup visible="{section.currentState == 'agentConfigList' || section.stateManager.selectedConfig != null}"
+		<s:HGroup visible="{section.currentState == 'agentConfigList' || section.stateManager.selectedConfig != null}" enabled="{section.stateManager.selectedConfig != null}"
 							gap="3"
 							includeInLayout="{section.currentState == 'agentConfigList' || section.stateManager.selectedConfig != null}"
 							verticalAlign="middle">
@@ -277,7 +277,7 @@
 										 icon="@Embed('/img/NEW/config_16.png')"/>
 		</s:HGroup>
 
-		<s:HGroup visible="{section.stateManager.selectedConfig != null}"
+		<s:HGroup visible="{section.stateManager.selectedConfig != null}"  enabled="{section.stateManager.selectedConfig == null}"
 							gap="3"
 							includeInLayout="{section.stateManager.selectedConfig != null}"
 							verticalAlign="middle">
@@ -291,7 +291,7 @@
 
 		<s:HGroup visible="{section.currentState == 'filetransfer'}"
 							gap="3"
-							includeInLayout="{section.currentState == 'filetransfer'}"
+							includeInLayout="{section.currentState == 'filetransfer'}" enabled="{section.currentState != 'filetransfer'}"
 							verticalAlign="middle">
 			<s:BitmapImage source="{arrow}"/>
 			<s:Spacer width="5"/>
@@ -301,7 +301,7 @@
 										 icon="@Embed('/img/NEW/filetransfer_16.png')"/>
 		</s:HGroup>
 
-		<s:HGroup visible="{section.currentState == 'filesystem'}"
+		<s:HGroup visible="{section.currentState == 'filesystem'}" enabled="{section.currentState != 'filesystem'}"
 							gap="3"
 							includeInLayout="{section.currentState == 'filesystem'}"
 							verticalAlign="middle">

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:UIComponent xmlns:fx="http://ns.adobe.com/mxml/2009"
+								xmlns:s="library://ns.adobe.com/flex/spark"
+								xmlns:mx="library://ns.adobe.com/flex/mx"
+								creationComplete="init()"
+								addedToStage="onAddedToStage(event)"
+								resize="onResize(event)" >
+	<fx:Script>
+		<![CDATA[
+      import es.xperiments.media.StageWebViewBridge;
+      import es.xperiments.media.StageWebViewDisk;
+      import es.xperiments.media.StageWebviewDiskEvent;
+      
+      import mx.events.FlexEvent;
+      import mx.events.ResizeEvent;
+
+			public var webView:StageWebViewBridge;
+      private var inited:Boolean;
+			private var frame:Sprite;
+
+
+			protected function init():void
+			{
+		 		
+			}
+      
+      public function update():void
+      {
+        trace("MAP VIEWR UPDATE CALLED!!!!")
+       if(stage) onAddedToStage(null)
+      }
+      
+      public function clearOverlays():void
+      {
+        webView.call("clearOverlays", null)
+      }
+
+      
+      public function setCenter(lat:Number, lng:Number):void
+      {
+        webView.call("setCenter", null, lat, lng)
+      }
+
+			public function addCircle(center:Object, radius:Number):void
+			{
+				webView.call("addCircle", null, center, radius)
+			}
+
+      
+      public function onSelection(data:String):void
+      {
+      trace(data)
+      }
+
+			public function addMarker(lat:Number, lng:Number, icon:String):void
+			{
+				var dir:File=File.applicationDirectory;
+				dir=dir.resolvePath("maps/icons");
+				webView.call("addMarker", null, lat, lng, "file:///" + dir.nativePath + "/" + icon);
+			}
+
+			protected function onAddedToStage(event:Event):void
+			{
+        if(webView)
+          this.removeChild(webView);
+				StageWebViewDisk.addEventListener(StageWebviewDiskEvent.START_DISK_PARSING, onDiskCacheStart);
+				StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDiskCacheEnd);
+				StageWebViewDisk.initialize(this.stage);
+      
+			}
+
+			protected function onDiskCacheStart(e:StageWebviewDiskEvent):void
+			{
+				trace("SWVD parsing started");
+			}
+
+			protected function onDiskCacheEnd(e:StageWebviewDiskEvent):void
+			{
+				trace("SWVD parsing ended");
+        
+  				webView=new StageWebViewBridge(0, 0, this.height, this.height, true, true);
+          
+          webView.addCallback("onSelection", onSelection );
+  				webView.addEventListener(Event.ADDED_TO_STAGE, onWebViewAddedToStage);
+  				this.addChild(webView);
+			}
+
+			protected function onWebViewAddedToStage(e:Event):void
+			{
+				var fPath:String=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
+				webView.loadURL(fPath);
+        onResize(null)
+			}
+
+			protected function onResize(event:ResizeEvent):void
+			{
+				var pos:Point=this.localToGlobal(new Point(this.x, this.y))
+       
+     
+			 	if (webView)
+        {
+          webView.x=pos.x;
+          webView.y=pos.y;
+          webView.width= this.width;  
+          webView.height= this.height;
+					webView.viewPort=new Rectangle(pos.x,pos.y, this.width, this.height); 
+        }
+			}
+      
+
+      
+    ]]>
+	</fx:Script>
+
+</mx:UIComponent>

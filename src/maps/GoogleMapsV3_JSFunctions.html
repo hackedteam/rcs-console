@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+	<!-- THIS FILE IS LOADED INTO THE APPLICATION AND THEN RENDERED BY THE ADOBE AIR -->
+	<!-- HTMLLOADER IN ORDER TO PROVIDE ACCESS TO THE GOOGLE MAPS JAVASCRIPT V3 LIB -->
+	<!-- THE FLASH API WAS DEPRECIATED, SO THIS METHOD MUST BE USED -->
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+  html { height: 100%  }
+  body { height: 100%;  margin: 0; padding: 0 }
+  #map_canvas { height: 100%}
+</style>
+
+<script type="text/javascript"
+    src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAmG3O2wuA9Hj2L5an-ofRndUwVSrqElLM&sensor=false&language=en">
+</script>
+
+<script type="text/javascript"
+    src="StageWebViewBridge.js">
+</script>
+
+<script type="text/javascript">
+  var map = null;
+  var geoCoder = null;
+  var directionService = null;
+  var directionsDisplay = null;
+  var overlays =[]
+  
+  // First, make a request using the cool geocoding service to get the latitude and longitude
+  function initialize() 
+  {
+	initializeMap(new google.maps.LatLng(20, 70));
+  }
+
+  function initializeMap(_LatLon) 
+  {
+	var myOptions = 
+	{
+	  zoom: 8,
+	  center: _LatLon,
+	  mapTypeId: google.maps.MapTypeId.ROADMAP
+	};		
+	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);		
+  }
+  
+  <!-- Handles the result of a geocode -->
+  function handleGeocodeResult(results, status) {
+  
+      if (status == google.maps.GeocoderStatus.OK) {
+		
+			try {
+				// This calls flash with the resuls check your traces
+				window.JSnewGeocodeData(results);
+				// Call this so we get a map going
+				initializeMap( results[0].geometry.location );
+			} catch (err) {
+				// Sink the error that was trying to call an AIR function
+			}
+      } else {
+			try {
+				// Calls a function in AS3 that references the error
+				window.JSgeocodeError(status);
+			} catch (err) {
+				// Sink it
+			}
+      }
+  }
+  
+  <!-- Can call this from AIR using the DOM for geocoding stuff..weeeeee -->
+  function geocodeStringAddress(_stringAddress) {
+	if(geoCoder == null) {
+		geoCoder = new google.maps.Geocoder();
+	}
+	geoCoder.geocode( { 'address': _stringAddress}, handleGeocodeResult );
+  }
+  
+  <!-- Pass in an array of strings in the order you want the directions generated -->
+  function calculateEntireRoute(_RouteStringArr) {
+    if(_RouteStringArr.length > 0) {
+	
+		if(directionService == null) {
+		directionService = new google.maps.DirectionsService();
+		}
+	
+	   var startLoc = String(_RouteStringArr.splice(0,1));
+	   var endLoc = String(_RouteStringArr.splice( (_RouteStringArr.length - 1) ,1));
+	   
+	   // Now create the waypoints between start and end
+	   var _wpArr = new Array();
+	   
+	   for(var i=0; i < _RouteStringArr.length; i++) {
+			_wpArr.push(
+				{ 
+				location:String(_RouteStringArr[i]), 
+				stopover:true
+				}
+			);
+	   }
+	   
+	   
+	   var directionRequest = {
+		  origin:startLoc,
+		  destination:endLoc,
+		  waypoints: _wpArr,
+		  provideRouteAlternatives: false,
+		  travelMode: google.maps.TravelMode.DRIVING,
+		  unitSystem: google.maps.UnitSystem.IMPERIAL
+		};
+		
+		directionService.route(directionRequest,handleAddressResults);
+	}
+  }
+  
+  <!-- Result is a DirectionsRoute http://code.google.com/apis/maps/documentation/javascript/reference.html#DirectionsRoute -->
+  <!-- This thing contains nexted javascript in its object. I think we should decode what we need here and pass it to AS3 because -->
+  <!-- AS has issues with this object. -->
+  function handleAddressResults(_result,_status) {
+	 
+	  if (_status == google.maps.DirectionsStatus.OK) {
+			try {
+				window.JSnewDirectionData(_result, _result.routes[0].copyrights, _result.routes[0].legs[0].distance.text, _result.routes[0].legs[0].duration.text );
+			} catch (err) { 
+				// Sink the error that was trying to call an AIR function
+				window.JSnewDirectionDataError(err);
+			}
+	  } else {
+			try {
+				window.JSnewDirectionDataError(_status);
+			} catch (err) {
+				// Sink the error that was trying to call an AIR function
+			}
+	  }
+  
+  }
+  <!-- MUST SHOW COPYRIGHT FOR THE ROUTE!!!! -->
+  function setDirectionsOnMap(_DirectionsRouteObj) {
+	 if(directionsDisplay == null) 
+	 {
+	   directionsDisplay = new google.maps.DirectionsRenderer();
+	   directionsDisplay.setMap(map);	  
+	 }
+	 
+	 directionsDisplay.setDirections(_DirectionsRouteObj);
+  }
+  
+  function addMarker(lat, lng, icon) 
+  {
+	if(map != null) {
+		var position = new google.maps.LatLng(lat, lng);
+		var marker = new google.maps.Marker(
+			{
+				position:position,
+				map:map,
+				icon:
+				{
+					url:icon, 
+					size: new google.maps.Size(24, 24),
+    				origin: new google.maps.Point(0,0),
+					anchor:new google.maps.Point(12, 22)
+				},
+				animation:google.maps.Animation.DROP
+			}
+		
+		);
+		marker.data={name:'AA'};
+		google.maps.event.addListener
+		(
+			marker, 
+			'click', 
+			function() 
+				{
+				    //window.alert(marker.getIcon().url)
+				    window.alert(marker.data.name);
+					marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker_glow.png');
+					StageWebViewBridge.call('onSelection', null, 'BOB' );
+  				}
+  		);
+		overlays.push(marker);
+	}
+  }
+  
+  function addCircle(center, radius) 
+  {
+	if(map != null) 
+	{
+		var center = new google.maps.LatLng(center.lat, center.lng);
+		var options = 
+		{
+	      strokeColor: '#FF0000',
+	      strokeOpacity: 0.8,
+	      strokeWeight: 1,
+	      fillColor: '#FF0000',
+	      fillOpacity: 0.35,
+	      map: map,
+	      center: center,
+	      radius: radius
+      	};
+		var circle = new google.maps.Circle(options);
+		overlays.push(circle)
+	}
+  }
+  
+  function setCenter(lat, lng) 
+  {
+	if(map != null) 
+	{
+		var center = new google.maps.LatLng(lat, lng);
+		map.setCenter(center);
+     }
+  }
+  
+  function clearOverlays()
+  {
+  	if (overlays) 
+  	{
+    	for (var i = 0; i < overlays.length; i++ ) 
+    	{
+    		overlays[i].setMap(null);
+    	}
+    	overlays.length=0;
+	}
+  }
+  
+</script>
+</head>
+<body onload="initialize();">
+  <div id="map_canvas" style="width:100%; height:100%"></div>
+</body>
+</html>

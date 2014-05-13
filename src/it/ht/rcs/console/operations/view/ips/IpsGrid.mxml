@@ -7,103 +7,127 @@
 						height="100%"
 						sortableColumns="false"
 						variableRowHeight="true"
-            doubleClickEnabled="true"
-            gridClick="onGridClick(event)"
-            gridDoubleClick="onGridDoubleClick(event)"
-            >
-  <fx:Metadata> 
+						doubleClickEnabled="true"
+						gridClick="onGridClick(event)"
+						gridDoubleClick="onGridDoubleClick(event)">
+	<fx:Metadata> 
     [Event(name="dataChange", type="flash.events.Event")]
     [Event(name="itemDoubleClick", type="spark.events.GridEvent")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import spark.events.GridEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import spark.events.GridEvent;
 
 			[Bindable]
 			public var filter:Object=EvidenceManager.instance.ipsFilter;
-      
-      private var lastColumnIndex:int = -1;
-      private var lastRowIndex:int = -1;
+
+			private var lastColumnIndex:int=-1;
+			private var lastRowIndex:int=-1;
 
 			private function dateLabelFunction(item:Object, column:GridColumn):String
 			{
-				return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+				if (column.dataField == "da")
+					return TimeUtils.timestampFormatter(item[column.dataField] * 1000);
+				else if (column.dataField == "data.begin")
+					return TimeUtils.timestampFormatter(item.data.begin * 1000);
+				else if (column.dataField == "data.end")
+					return TimeUtils.timestampFormatter(item.data.end * 1000);
+				else
+
+					return "Unknown"
 			}
       
-      private function formatContent(item:Object, column:GridColumn):String
+      private function formatCountTotal(item:Object, column:GridColumn):String
       {
-        var address:String;
-        var city:String;
-        var country:String;
-        var street_number:String;
-        var street:String;
-        var postal_code:String;
-        
-        if (item.data.address == null)
-        {
-          address='(unknown)';
-        }
-        else
-        {
-          city=item.data.address.city || "";
-          country=item.data.address.country || "";
-          street_number=item.data.address.street_number || "";
-          street=item.data.address.street || "";
-          postal_code=item.data.address.postal_code || "";
-          
-          address=city;
-          if (country != "")
-            address+=" (" + country + ") ";
-          if (street_number != "")
-            address+=street_number + " ";
-          if (street != "")
-            address+=street + " ";
-          if (postal_code != "")
-            address+=postal_code;
-        }
-        return address
+        return String(item.data.count)+"/"+String(item.data.total)
       }
       
-      private function onGridClick(e:GridEvent):void
+      private function formatSize(item:Object, column:GridColumn):String
       {
-        lastRowIndex = e.rowIndex;
-        lastColumnIndex = e.columnIndex;
+        return Size.toHumanBytes(item.data.size)
       }
       
-      private function onGridDoubleClick(e:GridEvent):void
+      private function formatSpeed(item:Object, column:GridColumn):String
       {
-        if (e.rowIndex == lastRowIndex && e.columnIndex == lastColumnIndex)
-        {
-          var ge:GridEvent=new GridEvent("itemDoubleClick",true);
-          ge.columnIndex=e.columnIndex;
-          ge.column=e.column;
-          ge.rowIndex=e.rowIndex
-          ge.item=e.item;
-          dispatchEvent(ge);
-        }
-        
-        lastRowIndex = e.rowIndex;
-        lastColumnIndex = e.columnIndex;
+        return Size.toHumanBytes(item.data.size)+"/s";
       }
+      
+      
+      
+			private function formatContent(item:Object, column:GridColumn):String
+			{
+				var address:String;
+				var city:String;
+				var country:String;
+				var street_number:String;
+				var street:String;
+				var postal_code:String;
 
-      public function scrollDown():void
-      {
-        if(this.grid)
-        this.grid.ensureCellIsVisible(this.dataProvider.length-1);
-      }
+				if (item.data.address == null)
+				{
+					address='(unknown)';
+				}
+				else
+				{
+					city=item.data.address.city || "";
+					country=item.data.address.country || "";
+					street_number=item.data.address.street_number || "";
+					street=item.data.address.street || "";
+					postal_code=item.data.address.postal_code || "";
+
+					address=city;
+					if (country != "")
+						address+=" (" + country + ") ";
+					if (street_number != "")
+						address+=street_number + " ";
+					if (street != "")
+						address+=street + " ";
+					if (postal_code != "")
+						address+=postal_code;
+				}
+				return address
+			}
+
+			private function onGridClick(e:GridEvent):void
+			{
+				lastRowIndex=e.rowIndex;
+				lastColumnIndex=e.columnIndex;
+			}
+
+			private function onGridDoubleClick(e:GridEvent):void
+			{
+				if (e.rowIndex == lastRowIndex && e.columnIndex == lastColumnIndex)
+				{
+					var ge:GridEvent=new GridEvent("itemDoubleClick", true);
+					ge.columnIndex=e.columnIndex;
+					ge.column=e.column;
+					ge.rowIndex=e.rowIndex
+					ge.item=e.item;
+					dispatchEvent(ge);
+				}
+
+				lastRowIndex=e.rowIndex;
+				lastColumnIndex=e.columnIndex;
+			}
+
+			public function scrollDown():void
+			{
+				if (this.grid)
+					this.grid.ensureCellIsVisible(this.dataProvider.length - 1);
+			}
 		]]>
 	</fx:Script>
 	<s:columns>
 		<s:ArrayList>
 
-			<s:GridColumn width="130"
-										dataField="da"
-										headerText="{R.get('DATE_ACQUIRED')}"
+			<s:GridColumn dataField="da"
+										headerText="{R.get('SYNC_START')}"
 										labelFunction="dateLabelFunction"
 										resizable="false">
 				<s:headerRenderer>
@@ -129,28 +153,35 @@
 					</fx:Component>
 				</s:itemRenderer>
 			</s:GridColumn>
-			<s:GridColumn dataField="data.content"
-										headerText="Ip"
-										resizable="false" width="100">
-        <s:itemRenderer>
-          
-          <fx:Component>
-            <s:GridItemRenderer>
-              <s:layout>
-                <s:HorizontalLayout verticalAlign="middle"
-                                    horizontalAlign="left"
-                                    paddingLeft="6"
-                                    paddingRight="6"
-                                    paddingTop="4"/>
-              </s:layout>
-              <s:Label id="labelDisplay"/>
-            </s:GridItemRenderer>
-          </fx:Component>
-        </s:itemRenderer>
-			</s:GridColumn>
-			<s:GridColumn dataField="data.data.address"
-										headerText="Address"
-										resizable="false" labelFunction="formatContent">
+
+<!--			<s:GridColumn dataField="data.begin"
+										width="130"
+										labelFunction="dateLabelFunction"
+										headerText="Begin"
+										resizable="false">
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout horizontalAlign="left"
+																		verticalAlign="top"
+																		paddingBottom="8"
+																		paddingLeft="4"
+																		paddingRight="4"
+																		paddingTop="8"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 maxDisplayedLines="4"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>-->
+
+			<s:GridColumn dataField="data.end"
+										labelFunction="dateLabelFunction"
+                    headerText="{R.get('SYNC_END')}"
+										resizable="false">
 				<s:itemRenderer>
 
 					<fx:Component>
@@ -169,6 +200,116 @@
 					</fx:Component>
 				</s:itemRenderer>
 			</s:GridColumn>
+
+
+			<s:GridColumn dataField="data.ip"
+										headerText="Ip"
+										resizable="false"
+										>
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="middle"
+																		horizontalAlign="left"
+																		paddingLeft="6"
+																		paddingRight="6"
+																		paddingTop="4"/>
+							</s:layout>
+							<s:Label id="labelDisplay"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+
+			<s:GridColumn dataField="data.count"
+                    labelFunction="formatCountTotal"
+										headerText="{R.get('EVIDENCE')}"
+										resizable="false">
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout horizontalAlign="left"
+																		verticalAlign="top"
+																		paddingBottom="8"
+																		paddingLeft="4"
+																		paddingRight="4"
+																		paddingTop="8"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 maxDisplayedLines="4"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+
+
+		
+			<s:GridColumn dataField="data.size"
+                    headerText="{R.get('SIZE')}"
+										resizable="false" 
+                    labelFunction="formatSize">
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout horizontalAlign="left"
+																		verticalAlign="top"
+																		paddingBottom="8"
+																		paddingLeft="4"
+																		paddingRight="4"
+																		paddingTop="8"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 maxDisplayedLines="4"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+			<s:GridColumn dataField="data.speed"
+                    labelFunction="formatSpeed"
+                    headerText="{R.get('SPEED')}"
+										>
+				<s:itemRenderer>
+
+					<fx:Component>
+						<s:GridItemRenderer>
+							<s:layout>
+								<s:HorizontalLayout horizontalAlign="left"
+																		verticalAlign="top"
+																		paddingBottom="8"
+																		paddingLeft="4"
+																		paddingRight="4"
+																		paddingTop="8"/>
+							</s:layout>
+							<s:Label id="labelDisplay"
+											 maxDisplayedLines="4"/>
+						</s:GridItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>
+			</s:GridColumn>
+
+
+
+
+			<s:GridColumn dataField="data.timeout" width="70"
+                    itemRenderer="it.ht.rcs.console.operations.view.evidences.renderers.TimeoutRenderer"
+                    headerText="{R.get('TIMEOUT')}"
+										resizable="false">
+			
+			</s:GridColumn>
+
+
+
+
+
 
 		</s:ArrayList>
 	</s:columns>

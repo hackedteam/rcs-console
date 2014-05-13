@@ -3,7 +3,6 @@
 								xmlns:s="library://ns.adobe.com/flex/spark"
 								xmlns:mx="library://ns.adobe.com/flex/mx"
 								creationComplete="init()"
-								addedToStage="onAddedToStage(event)"
 								resize="onResize(event)" >
 	<fx:Script>
 		<![CDATA[
@@ -11,12 +10,15 @@
       import es.xperiments.media.StageWebViewDisk;
       import es.xperiments.media.StageWebviewDiskEvent;
       
+      import it.ht.rcs.console.evidence.model.Evidence;
+      
       import mx.events.FlexEvent;
       import mx.events.ResizeEvent;
 
 			public var webView:StageWebViewBridge;
       private var inited:Boolean;
 			private var frame:Sprite;
+      public var positions:Vector.<Object>
 
 
 			protected function init():void
@@ -27,7 +29,10 @@
       public function update():void
       {
         trace("MAP VIEWR UPDATE CALLED!!!!")
-       if(stage) onAddedToStage(null)
+       if(stage)
+         onAddedToStage(null)
+       else
+         this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
       }
       
       public function clearOverlays():void
@@ -49,14 +54,14 @@
       
       public function onSelection(data:String):void
       {
-      trace(data)
+          trace(data)
       }
 
-			public function addMarker(lat:Number, lng:Number, icon:String):void
+			public function addMarker(lat:Number, lng:Number, icon:String, data:String):void
 			{
 				var dir:File=File.applicationDirectory;
 				dir=dir.resolvePath("maps/icons");
-				webView.call("addMarker", null, lat, lng, "file:///" + dir.nativePath + "/" + icon);
+				webView.call("addMarker", null, lat, lng, "file:///" + dir.nativePath + "/" + icon, data);
 			}
 
 			protected function onAddedToStage(event:Event):void
@@ -88,9 +93,24 @@
 			protected function onWebViewAddedToStage(e:Event):void
 			{
 				var fPath:String=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
+        webView.addEventListener(Event.COMPLETE, onMapLoaded)
 				webView.loadURL(fPath);
         onResize(null)
 			}
+      
+      protected function onMapLoaded(e:Event):void
+      {
+      clearOverlays();
+      for(var i:int=0;i<positions.length;i++)
+      {
+        var pos:Evidence=positions[i] as Evidence;
+        addMarker(pos.data.latitude,pos.data.longitude, "mapMarker.png", pos._id);
+        //setCenter(pos.data.latitude,pos.data.longitude);
+        //addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) // /1000
+      }
+      //loop over positions
+      //addMarker(50,70, "mapMarker.png")
+      }
 
 			protected function onResize(event:ResizeEvent):void
 			{

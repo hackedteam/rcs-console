@@ -29,7 +29,7 @@
   // First, make a request using the cool geocoding service to get the latitude and longitude
   function initialize() 
   {
-	initializeMap(new google.maps.LatLng(20, 70));
+	initializeMap(new google.maps.LatLng(0, 0));
   }
 
   function initializeMap(_LatLon) 
@@ -143,7 +143,7 @@
 	 directionsDisplay.setDirections(_DirectionsRouteObj);
   }
   
-  function addMarker(lat, lng, icon) 
+  function addMarker(lat, lng, icon, data) 
   {
 	if(map != null) {
 		var position = new google.maps.LatLng(lat, lng);
@@ -162,7 +162,7 @@
 			}
 		
 		);
-		marker.data={name:'AA'};
+		marker.data=data;
 		google.maps.event.addListener
 		(
 			marker, 
@@ -170,11 +170,17 @@
 			function() 
 				{
 				    //window.alert(marker.getIcon().url)
-				    window.alert(marker.data.name);
+				    //window.alert(marker.data.name);
 					marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker_glow.png');
 					StageWebViewBridge.call('onSelection', null, 'BOB' );
   				}
   		);
+  		
+  
+		map.bounds.extend(position);
+		map.setCenter(map.bounds.getCenter());
+		map.fitBounds(map.bounds);
+
 		overlays.push(marker);
 	}
   }
@@ -196,6 +202,7 @@
 	      radius: radius
       	};
 		var circle = new google.maps.Circle(options);
+		map.fitBounds(circle.getBounds());
 		overlays.push(circle)
 	}
   }

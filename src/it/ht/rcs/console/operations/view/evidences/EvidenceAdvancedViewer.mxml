@@ -121,20 +121,23 @@
 					//TODO
 					if (currentState == "position")
 					{
-            //positionViewer.evidences=currentItems;
+						//positionViewer.evidences=currentItems;
 						//positionViewer.isUpdated=false;
 						//positionViewer.evidences=currentItems;
 
 						if (currentItems.length > 1 && sameType("position", currentItems))
 						{
-							positionViewer.evidences=currentItems;
+							//positionViewer.evidences=currentItems;
+              positionViewer.setPositions(currentItems)
 						}
 						else
 						{
 							var pos:Object={lat: currentItem.data.latitude, lng: currentItem.data.longitude, range: currentItem.data.accuracy, evidence: currentItem as Evidence};
-						/* 	if (positionViewer.mapViewer.ready)
-								positionViewer.mapViewer.positions=[pos] */;
-							positionViewer.evidences = Vector.<Object>([currentItem]);
+							/* 	if (positionViewer.mapViewer.ready)
+									positionViewer.mapViewer.positions=[pos] */
+				
+							//positionViewer.evidences=Vector.<Object>([currentItem]);
+              positionViewer.setPositions(Vector.<Object>([currentItem]))
 						}
 					}
 					if (currentState == "keylog")
@@ -145,10 +148,10 @@
 					{
 						passwordViewer.evidence=currentItem;
 					}
-          if (currentState == "money")
-          {
-            moneyViewer.evidence=currentItem;
-          }
+					if (currentState == "money")
+					{
+						moneyViewer.evidence=currentItem;
+					}
 					if (currentState == "addressbook")
 					{
 						addressbookViewer.evidence=currentItem;
@@ -229,9 +232,9 @@
 
 			private function onKeyPress(e:KeyboardEvent):void
 			{
-        if(infoPanel.editing)
-          return;
-        
+				if (infoPanel.editing)
+					return;
+
 				switch (e.keyCode)
 				{
 					case 39:
@@ -358,7 +361,7 @@
 		<s:State name="position"/>
 		<s:State name="print"/>
 		<s:State name="screenshot"/>
-    <s:State name="money"/>
+		<s:State name="money"/>
 		<s:State name="url"/>
 	</s:states>
 
@@ -373,17 +376,18 @@
 			<s:Image source="{prevIcon}"
 							 buttonMode="true"
 							 useHandCursor="true"
-							 click="prev()" enabled="{!infoPanel.editing}"/>
+							 click="prev()"
+							 enabled="{!infoPanel.editing}"/>
 		</s:VGroup>
 		<viewers:Addressbook evidence="{currentItem}"
 												 includeIn="addressbook"
 												 id="addressbookViewer"
 												 idVisible="{idVisible}"/>
-    <viewers:Money evidence="{currentItem}"
-                         includeIn="money"
-                         id="moneyViewer"
-                         idVisible="{idVisible}"/>
-    
+		<viewers:Money evidence="{currentItem}"
+									 includeIn="money"
+									 id="moneyViewer"
+									 idVisible="{idVisible}"/>
+
 		<viewers:Application evidence="{currentItem}"
 												 includeIn="application"
 												 id="applicationViewer"
@@ -437,12 +441,10 @@
 											includeIn="password"
 											id="passwordViewer"
 											idVisible="{idVisible}"/>
-		<viewers:Position evidences="{currentItems}"
-											includeIn="position"
+		<viewers:Position includeIn="position"
 											id="positionViewer"
 											change="onMapChange()"
 											update="onMapUpdate()"
-											evidence="{currentItem}"
 											idVisible="{idVisible}"/>
 		<viewers:Print evidence="{currentItem}"
 									 includeIn="print"
@@ -464,7 +466,7 @@
 							 buttonMode="true"
 							 useHandCursor="true"
 							 click="next()"
-               enabled="{!infoPanel.editing}"/>
+							 enabled="{!infoPanel.editing}"/>
 		</s:VGroup>
 		<evidences:EvidenceInfoPanel evidence="{currentItem}"
 																 id="infoPanel"

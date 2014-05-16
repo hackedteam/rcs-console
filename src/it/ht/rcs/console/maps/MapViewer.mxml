@@ -28,7 +28,7 @@
       
       public function update():void
       {
-        trace("MAP VIEWR UPDATE CALLED!!!!")
+        //trace("MAP VIEWR UPDATE CALLED!!!!")
        if(stage)
          onAddedToStage(null)
        else
@@ -55,6 +55,11 @@
       public function onSelection(data:String):void
       {
           trace(data)
+      }
+      
+      public function onBounds(data:*):void
+      {
+        trace(data)
       }
 
 			public function addMarker(lat:Number, lng:Number, icon:String, data:String):void
@@ -104,6 +109,7 @@
       for(var i:int=0;i<positions.length;i++)
       {
         var pos:Evidence=positions[i] as Evidence;
+        addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) 
         addMarker(pos.data.latitude,pos.data.longitude, "mapMarker.png", pos._id);
         //setCenter(pos.data.latitude,pos.data.longitude);
         //addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) // /1000
@@ -114,9 +120,8 @@
 
 			protected function onResize(event:ResizeEvent):void
 			{
-				var pos:Point=this.localToGlobal(new Point(this.x, this.y))
-       
-     
+				var pos:Point=this.localToGlobal(new Point(this.x, this.y));
+
 			 	if (webView)
         {
           webView.x=pos.x;
@@ -128,7 +133,7 @@
 			}
       
 
-      
+
     ]]>
 	</fx:Script>
 

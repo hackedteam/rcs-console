@@ -25,11 +25,12 @@
   var directionService = null;
   var directionsDisplay = null;
   var overlays =[]
-  
+  var bounds = null;
   // First, make a request using the cool geocoding service to get the latitude and longitude
   function initialize() 
   {
 	initializeMap(new google.maps.LatLng(0, 0));
+	bounds = new google.maps.LatLngBounds();
   }
 
   function initializeMap(_LatLon) 
@@ -145,6 +146,7 @@
   
   function addMarker(lat, lng, icon, data) 
   {
+  
 	if(map != null) {
 		var position = new google.maps.LatLng(lat, lng);
 		var marker = new google.maps.Marker(
@@ -172,14 +174,14 @@
 				    //window.alert(marker.getIcon().url)
 				    //window.alert(marker.data.name);
 					marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker_glow.png');
-					StageWebViewBridge.call('onSelection', null, 'BOB' );
+					StageWebViewBridge.call('onSelection', null, marker.data );
   				}
   		);
   		
-  
-		map.bounds.extend(position);
-		map.setCenter(map.bounds.getCenter());
-		map.fitBounds(map.bounds);
+  		bounds.extend(position);
+		//map.getBounds().extend(position);
+		map.setCenter(bounds.getCenter());
+		map.fitBounds(bounds);
 
 		overlays.push(marker);
 	}
@@ -202,8 +204,12 @@
 	      radius: radius
       	};
 		var circle = new google.maps.Circle(options);
-		map.fitBounds(circle.getBounds());
-		overlays.push(circle)
+		
+		bounds.union(circle.getBounds());
+
+		map.setCenter(bounds.getCenter());
+		map.fitBounds(bounds);
+		overlays.push(circle);
 	}
   }
   

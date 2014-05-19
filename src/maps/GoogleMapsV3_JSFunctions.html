@@ -25,7 +25,9 @@
   var directionService = null;
   var directionsDisplay = null;
   var overlays =[]
+  var markers =[]
   var bounds = null;
+  var iconPath="";
   // First, make a request using the cool geocoding service to get the latitude and longitude
   function initialize() 
   {
@@ -33,6 +35,11 @@
 	bounds = new google.maps.LatLngBounds();
   }
 
+	function setIconPath(path)
+	{
+		iconPath=path;
+		
+	}
   function initializeMap(_LatLon) 
   {
 	var myOptions = 
@@ -144,6 +151,19 @@
 	 directionsDisplay.setDirections(_DirectionsRouteObj);
   }
   
+  
+  function setSelectedMarker(marker)
+  {
+  	for (var i = 0; i < markers.length; i++ ) 
+    	{
+    		markers[i].selected=false;
+    		markers[i].setIcon(iconPath+'mapMarker.png');
+    	}
+  	marker.selected=true;
+    marker.setIcon(iconPath+'mapMarker_glow.png'); 
+  	
+  }
+  
   function addMarker(lat, lng, icon, data) 
   {
   
@@ -171,9 +191,21 @@
 			'click', 
 			function() 
 				{
-				    //window.alert(marker.getIcon().url)
-				    //window.alert(marker.data.name);
-					marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker_glow.png');
+				    // //window.alert(marker.getIcon().url)
+				    // //window.alert(marker.data.name);
+				    // if(!marker.selected)
+				    // {
+				    	// marker.selected=true;
+				    	// marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker_glow.png'); 
+// 				    	 
+				    // }
+				    // else
+				    // {
+				    	// marker.selected=false;
+				    	// marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker.png');
+// 				    	
+				    // }
+					setSelectedMarker(marker);
 					StageWebViewBridge.call('onSelection', null, marker.data );
   				}
   		);
@@ -184,6 +216,8 @@
 		map.fitBounds(bounds);
 
 		overlays.push(marker);
+		markers.push(marker);
+		setSelectedMarker(markers[0]); //???
 	}
   }
   
@@ -231,6 +265,7 @@
     		overlays[i].setMap(null);
     	}
     	overlays.length=0;
+    	markers=[];
 	}
   }
   

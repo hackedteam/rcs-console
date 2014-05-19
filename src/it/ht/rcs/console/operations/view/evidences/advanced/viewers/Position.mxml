@@ -10,7 +10,9 @@
 									 backgroundAlpha="1"
 									 creationComplete="init()"
 									 creationPolicy="all"
-									 xmlns:map="it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.*" addedToStage="onAddedToStage(event)" xmlns:maps="it.ht.rcs.console.maps.*">
+									 xmlns:map="it.ht.rcs.console.operations.view.evidences.advanced.viewers.map.*"
+									 addedToStage="onAddedToStage(event)"
+									 xmlns:maps="it.ht.rcs.console.maps.*">
 	<fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
     [Event(name="update", type="flash.events.Event")]
@@ -18,11 +20,11 @@
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-			
+
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
 			import it.ht.rcs.console.evidence.model.EvidenceDataAddress;
-			
+
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 
@@ -176,13 +178,13 @@
 				if (detailPanel.visible)
 					detailPanel.currentState="expanded";
 
-				/* _positions=new Array();
+			/* _positions=new Array();
 
-				var pos:Object={lat: evidence.data.latitude, lng: evidence.data.longitude, range: evidence.data.accuracy, evidence: evidence};
-				_positions.push(pos);
+			var pos:Object={lat: evidence.data.latitude, lng: evidence.data.longitude, range: evidence.data.accuracy, evidence: evidence};
+			_positions.push(pos);
 
 
-				if( mapViewer.ready) mapViewer.positions=_positions; */
+			if( mapViewer.ready) mapViewer.positions=_positions; */
 
 			}
 
@@ -190,34 +192,18 @@
 			{
 				return _evidence;
 			}
-      
-      
-      public function setPositions(positions:Vector.<Object>):void
-      {
-        //trace("POSITION VIEWER SETPOSITIONS CALLED!!!")
-      evidence=positions[0] as Evidence;
-      mapViewer.positions=positions;
-      mapViewer.update()
-      }
 
 
-			public function set evidences(value:Vector.<Object>):void
+			public function setPositions(positions:Vector.<Object>):void
 			{
-        //trace("POSITION VIEWER SET EVIDENCES CALLED!!!")
-				//evidence=value[0] as Evidence;
-
-				_positions=new Array();
-				for (var i:int=0; i < value.length; i++)
-				{
-					var pos:Object={lat: value[i].data.latitude, lng: value[i].data.longitude, range: value[i].data.accuracy, evidence: value[i]};
-					_positions.push(pos);
-				}
-        //mapViewer.po
-        mapViewer.update();
-				/* if (mapViewer.ready)
-					mapViewer.positions=_positions; */
-
+				//trace("POSITION VIEWER SETPOSITIONS CALLED!!!")
+				evidence=positions[0] as Evidence;
+				mapViewer.positions=positions;
+				mapViewer.update()
 			}
+
+
+
 
 			private function lineBreak(s:String):String
 			{
@@ -232,15 +218,15 @@
 
 			private function onMapChange():void
 			{
-			//	evidence=mapViewer.selectedPosition.evidence;
-        
-				//dispatchEvent(new Event("change"));
+				evidence=mapViewer.selectedPosition;
+
+			  dispatchEvent(new Event("change"));
 			}
 
 			private function onMapReady(e:Event):void
 			{
 				//mapViewer.removeEventListener("ready", onMapReady)
-			//	mapViewer.positions=_positions;
+				//	mapViewer.positions=_positions;
 			}
 
 			private function onShowResult(e:ResultEvent):void
@@ -248,7 +234,7 @@
 				isUpdated=true;
 				var updated:Vector.<Object>=new Vector.<Object>()
 				updated.push(e.result as Evidence)
-				evidences=updated;
+				//evidences=updated;
 				dispatchEvent(new Event("update"));
 			}
 
@@ -264,13 +250,12 @@
 				var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 				EvidenceManager.instance.show(id, target, onShowResult, onShowFault)
 			}
-      
-      protected function onAddedToStage(event:Event):void
-      {
-        
-      }
-      
-    ]]>
+
+			protected function onAddedToStage(event:Event):void
+			{
+
+			}
+		]]>
 	</fx:Script>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
@@ -329,7 +314,9 @@
 
 	<s:Group width="100%"
 					 height="100%">
-    <maps:MapViewer width="100%" height="100%" id="mapViewer"/>
+		<maps:MapViewer width="100%"
+										height="100%"
+										id="mapViewer" change="onMapChange()"/>
 		<!--<viewers:MapViewer id="mapViewer"
 											 change="onMapChange()"
 											 ready="onMapReady(event)"/>-->

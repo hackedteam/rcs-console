@@ -3,64 +3,78 @@
 								xmlns:s="library://ns.adobe.com/flex/spark"
 								xmlns:mx="library://ns.adobe.com/flex/mx"
 								creationComplete="init()"
-								resize="onResize(event)" >
+								resize="onResize(event)">
+	<fx:Metadata> 
+    [Event(name="change", type="flash.events.Event")]
+    [Event(name="ready", type="flash.events.Event")]
+  </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import es.xperiments.media.StageWebViewBridge;
-      import es.xperiments.media.StageWebViewDisk;
-      import es.xperiments.media.StageWebviewDiskEvent;
-      
-      import it.ht.rcs.console.evidence.model.Evidence;
-      
-      import mx.events.FlexEvent;
-      import mx.events.ResizeEvent;
+			import es.xperiments.media.StageWebViewBridge;
+			import es.xperiments.media.StageWebViewDisk;
+			import es.xperiments.media.StageWebviewDiskEvent;
+
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
 
 			public var webView:StageWebViewBridge;
-      private var inited:Boolean;
+			private var inited:Boolean;
 			private var frame:Sprite;
-      public var positions:Vector.<Object>
+			public var positions:Vector.<Object>
+			public var selectedPosition:Evidence;
 
 
 			protected function init():void
 			{
-		 		
-			}
-      
-      public function update():void
-      {
-        //trace("MAP VIEWR UPDATE CALLED!!!!")
-       if(stage)
-         onAddedToStage(null)
-       else
-         this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
-      }
-      
-      public function clearOverlays():void
-      {
-        webView.call("clearOverlays", null)
-      }
 
-      
-      public function setCenter(lat:Number, lng:Number):void
-      {
-        webView.call("setCenter", null, lat, lng)
-      }
+			}
+
+			public function update():void
+			{
+				//trace("MAP VIEWR UPDATE CALLED!!!!")
+				if (stage)
+					onAddedToStage(null)
+				else
+					this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage)
+			}
+
+			public function clearOverlays():void
+			{
+				webView.call("clearOverlays", null)
+			}
+
+
+			public function setCenter(lat:Number, lng:Number):void
+			{
+				webView.call("setCenter", null, lat, lng)
+			}
 
 			public function addCircle(center:Object, radius:Number):void
 			{
 				webView.call("addCircle", null, center, radius)
 			}
 
-      
-      public function onSelection(data:String):void
-      {
-          trace(data)
-      }
-      
-      public function onBounds(data:*):void
-      {
-        trace(data)
-      }
+
+			public function onSelection(data:String):void
+			{
+				for (var i:int=0; i < positions.length; i++)
+				{
+					if (positions[i]._id == data)
+					{
+						selectedPosition=positions[i] as Evidence;
+					}
+				}
+
+				dispatchEvent(new Event("change"));
+			}
+
+			public function onBounds(data:*):void
+			{
+				trace(data)
+			}
 
 			public function addMarker(lat:Number, lng:Number, icon:String, data:String):void
 			{
@@ -71,12 +85,12 @@
 
 			protected function onAddedToStage(event:Event):void
 			{
-        if(webView)
-          this.removeChild(webView);
+				if (webView)
+					this.removeChild(webView);
 				StageWebViewDisk.addEventListener(StageWebviewDiskEvent.START_DISK_PARSING, onDiskCacheStart);
 				StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDiskCacheEnd);
 				StageWebViewDisk.initialize(this.stage);
-      
+
 			}
 
 			protected function onDiskCacheStart(e:StageWebviewDiskEvent):void
@@ -87,54 +101,59 @@
 			protected function onDiskCacheEnd(e:StageWebviewDiskEvent):void
 			{
 				trace("SWVD parsing ended");
-        
-  				webView=new StageWebViewBridge(0, 0, this.height, this.height, true, true);
-          
-          webView.addCallback("onSelection", onSelection );
-  				webView.addEventListener(Event.ADDED_TO_STAGE, onWebViewAddedToStage);
-  				this.addChild(webView);
+
+				webView=new StageWebViewBridge(0, 0, this.height, this.height, true, true);
+
+				webView.addCallback("onSelection", onSelection);
+				webView.addEventListener(Event.ADDED_TO_STAGE, onWebViewAddedToStage);
+				this.addChild(webView);
+			}
+
+			protected function setIconPath():void
+			{
+				var dir:File=File.applicationDirectory;
+				dir=dir.resolvePath("maps/icons");
+				webView.call("setIconPath", null, "file:///" + dir.nativePath + "/");
 			}
 
 			protected function onWebViewAddedToStage(e:Event):void
 			{
 				var fPath:String=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
-        webView.addEventListener(Event.COMPLETE, onMapLoaded)
+				webView.addEventListener(Event.COMPLETE, onMapLoaded)
 				webView.loadURL(fPath);
-        onResize(null)
+				onResize(null)
 			}
-      
-      protected function onMapLoaded(e:Event):void
-      {
-      clearOverlays();
-      for(var i:int=0;i<positions.length;i++)
-      {
-        var pos:Evidence=positions[i] as Evidence;
-        addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) 
-        addMarker(pos.data.latitude,pos.data.longitude, "mapMarker.png", pos._id);
-        //setCenter(pos.data.latitude,pos.data.longitude);
-        //addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) // /1000
-      }
-      //loop over positions
-      //addMarker(50,70, "mapMarker.png")
-      }
+
+			protected function onMapLoaded(e:Event):void
+			{
+				setIconPath();
+				clearOverlays();
+				for (var i:int=0; i < positions.length; i++)
+				{
+					var pos:Evidence=positions[i] as Evidence;
+					addCircle({lat: pos.data.latitude, lng: pos.data.longitude}, pos.data.accuracy)
+					addMarker(pos.data.latitude, pos.data.longitude, "mapMarker.png", pos._id);
+						//setCenter(pos.data.latitude,pos.data.longitude);
+						//addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) // /1000
+				}
+				//loop over positions
+				//addMarker(50,70, "mapMarker.png")
+			}
 
 			protected function onResize(event:ResizeEvent):void
 			{
 				var pos:Point=this.localToGlobal(new Point(this.x, this.y));
 
-			 	if (webView)
-        {
-          webView.x=pos.x;
-          webView.y=pos.y;
-          webView.width= this.width;  
-          webView.height= this.height;
-					webView.viewPort=new Rectangle(pos.x,pos.y, this.width, this.height); 
-        }
+				if (webView)
+				{
+					webView.x=pos.x;
+					webView.y=pos.y;
+					webView.width=this.width;
+					webView.height=this.height;
+					webView.viewPort=new Rectangle(pos.x, pos.y, this.width, this.height);
+				}
 			}
-      
-
-
-    ]]>
+		]]>
 	</fx:Script>
 
 </mx:UIComponent>

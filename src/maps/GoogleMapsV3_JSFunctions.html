@@ -11,13 +11,8 @@
   #map_canvas { height: 100%}
 </style>
 
-<script type="text/javascript"
-    src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAmG3O2wuA9Hj2L5an-ofRndUwVSrqElLM&sensor=false&language=en">
-</script>
+ <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAmG3O2wuA9Hj2L5an-ofRndUwVSrqElLM&sensor=false"></script>
 
-<script type="text/javascript"
-    src="StageWebViewBridge.js">
-</script>
 
 <script type="text/javascript">
   var map = null;
@@ -28,6 +23,7 @@
   var markers =[]
   var bounds = null;
   var iconPath="";
+
   // First, make a request using the cool geocoding service to get the latitude and longitude
   function initialize() 
   {
@@ -49,7 +45,10 @@
 	  mapTypeId: google.maps.MapTypeId.ROADMAP
 	};		
 	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);		
-  }
+	geoCoder = new google.maps.Geocoder();
+	//var latlng = new google.maps.LatLng(40.730885,-73.997383);
+	//geoCoder.geocode({'latLng': latlng}, handleResult)   
+  } 
   
   <!-- Handles the result of a geocode -->
   function handleGeocodeResult(results, status) {
@@ -141,30 +140,64 @@
   
   }
   <!-- MUST SHOW COPYRIGHT FOR THE ROUTE!!!! -->
-  function setDirectionsOnMap(_DirectionsRouteObj) {
-	 if(directionsDisplay == null) 
-	 {
-	   directionsDisplay = new google.maps.DirectionsRenderer();
-	   directionsDisplay.setMap(map);	  
-	 }
-	 
-	 directionsDisplay.setDirections(_DirectionsRouteObj);
+ 
+  
+  function test()
+  {
+  	window.alert('test');
+  	
   }
-  
-  
+  function selectByIndex(index)
+  {
+  	for (var i = 0; i < markers.length; i++ ) 
+    	{
+    		if(markers[i].index==index)
+    		{
+    			setSelectedMarker(markers[i]);
+    			map.panTo(markers[i].getPosition());
+    		}
+    		
+    	}
+  	
+  }
   function setSelectedMarker(marker)
   {
   	for (var i = 0; i < markers.length; i++ ) 
     	{
     		markers[i].selected=false;
-    		markers[i].setIcon(iconPath+'mapMarker.png');
+    		
+    		
+    		if(markers[i].color=='red')
+		  	{
+		  		markers[i].setIcon(iconPath+'mapMarker.png');
+		  	}
+		  	else if(markers[i].color=='blu')
+		  	{
+		  		markers[i].setIcon(iconPath+'mapMarkerBlu.png');
+		  	}
+    		
     	}
   	marker.selected=true;
-    marker.setIcon(iconPath+'mapMarker_glow.png'); 
+ 
+ 	if(marker.color=='red')
+  	{
+  		  marker.setIcon(iconPath+'mapMarker_glow.png'); 
+  	}
+  	else if(marker.color=='blu')
+  	{
+  		  marker.setIcon(iconPath+'mapMarkerBlu_glow.png'); 
+  	}
+	marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+    window.onSelection(marker);
   	
   }
   
-  function addMarker(lat, lng, icon, data) 
+  function setStreetView()
+  {
+  	map.setOptions({streetViewControl: false});
+  }
+  
+  function addMarker(lat, lng, icon, color, data, index) 
   {
   
 	if(map != null) {
@@ -185,33 +218,17 @@
 		
 		);
 		marker.data=data;
+		marker.color=color;
+		marker.index=index;
+	
 		google.maps.event.addListener
 		(
 			marker, 
 			'click', 
-			function() 
-				{
-				    // //window.alert(marker.getIcon().url)
-				    // //window.alert(marker.data.name);
-				    // if(!marker.selected)
-				    // {
-				    	// marker.selected=true;
-				    	// marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker_glow.png'); 
-// 				    	 
-				    // }
-				    // else
-				    // {
-				    	// marker.selected=false;
-				    	// marker.setIcon('file:////Users/erosmarcon/Desktop/RCSWorkspace/MapsV3/bin-debug/maps/icons/mapMarker.png');
-// 				    	
-				    // }
-					setSelectedMarker(marker);
-					StageWebViewBridge.call('onSelection', null, marker.data );
-  				}
+			function() {setSelectedMarker(marker);}
   		);
   		
   		bounds.extend(position);
-		//map.getBounds().extend(position);
 		map.setCenter(bounds.getCenter());
 		map.fitBounds(bounds);
 
@@ -251,10 +268,35 @@
   {
 	if(map != null) 
 	{
-		var center = new google.maps.LatLng(lat, lng);
+		var center = new google.maps.LatLng(lat, lng); 
 		map.setCenter(center);
      }
   }
+  
+  function codeLatLng(lat, lng)
+  {
+  
+  		var latlng = new google.maps.LatLng(lat,lng);
+
+  		geoCoder.geocode({'latLng': latlng}, handleResult);  
+  }
+ 
+ 
+ function handleResult(results, status)
+ {
+  			//window.alert(status);
+  			
+  			if (status == google.maps.GeocoderStatus.OK)
+  			{
+  				//geocoding done successfully
+  				if (results[0]) 
+  				{
+  					window.geocodeResult(results);
+  					//window.alert(results[0].formatted_address);
+  				}
+  			}
+
+ }
   
   function clearOverlays()
   {
@@ -272,6 +314,6 @@
 </script>
 </head>
 <body onload="initialize();">
-  <div id="map_canvas" style="width:100%; height:100%"></div>
+  <div id="map_canvas" style="width:100%; height:100%"> </div>
 </body>
 </html>

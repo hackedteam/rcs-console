@@ -7,7 +7,8 @@
 
 	<fx:Metadata>
     [Event(name="update", type="flash.events.Event")]
-    
+    [Event(name="edit", type="flash.events.Event")]
+    [Event(name="popupclose", type="flash.events.Event")]
   </fx:Metadata>
 	<s:Button label="{R.get('EDIT')}"
 						icon="@Embed('/img/NEW/edit.png')"
@@ -40,12 +41,12 @@
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.search.controller.SearchManager;
 			import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-
+			
 			import locale.R;
-
+			
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
@@ -66,8 +67,10 @@
 
 			private function onEditClick():void
 			{
+        dispatchEvent(new Event("edit"))
 				var popup:EntityForm=PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, EntityForm, true) as EntityForm;
 				popup.addEventListener("update", onUpdate)
+        popup.addEventListener("close", onClose)
 				popup.entity=entity;
 				popup.entity.desc=sheet.entity.desc;
 				popup.currentState=EntityForm.EDIT
@@ -97,9 +100,9 @@
 
 			}
 
-			private function onClose():void
+			private function onClose(e:Event):void
 			{
-
+        dispatchEvent(new Event("popupclose"))
 			}
       
       private function exportEntity(event:MouseEvent):void

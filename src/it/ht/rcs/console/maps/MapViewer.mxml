@@ -3,22 +3,28 @@
 								xmlns:s="library://ns.adobe.com/flex/spark"
 								xmlns:mx="library://ns.adobe.com/flex/mx"
 								creationComplete="init()"
-								resize="onResize(event)">
+								resize="onResize(event)"
+                move="onResize(event)" 
+                removedFromStage="onRemovedFromStage(event)">
 	<fx:Metadata> 
     [Event(name="change", type="flash.events.Event")]
     [Event(name="ready", type="flash.events.Event")]
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-			import es.xperiments.media.StageWebViewBridge;
-			import es.xperiments.media.StageWebViewDisk;
-			import es.xperiments.media.StageWebviewDiskEvent;
-
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-
-			import mx.events.FlexEvent;
-			import mx.events.ResizeEvent;
+      import es.xperiments.media.StageWebViewBridge;
+      import es.xperiments.media.StageWebViewBridgeEvent;
+      import es.xperiments.media.StageWebViewDisk;
+      import es.xperiments.media.StageWebviewDiskEvent;
+      
+      import flash.utils.setTimeout;
+      
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      
+      import mx.events.FlexEvent;
+      import mx.events.ResizeEvent;
 
 			public var webView:StageWebViewBridge;
 			private var inited:Boolean;
@@ -71,10 +77,7 @@
 				dispatchEvent(new Event("change"));
 			}
 
-			public function onBounds(data:*):void
-			{
-				trace(data)
-			}
+		
 
 			public function addMarker(lat:Number, lng:Number, icon:String, data:String):void
 			{
@@ -87,6 +90,8 @@
 			{
 				if (webView)
 					this.removeChild(webView);
+        this.stage.addEventListener(Event.RESIZE, onResize);
+        //this.addEventListener(Event.ENTER_FRAME, onResize) // TOO EXPENSIVE
 				StageWebViewDisk.addEventListener(StageWebviewDiskEvent.START_DISK_PARSING, onDiskCacheStart);
 				StageWebViewDisk.addEventListener(StageWebviewDiskEvent.END_DISK_PARSING, onDiskCacheEnd);
 				StageWebViewDisk.initialize(this.stage);
@@ -103,11 +108,19 @@
 				trace("SWVD parsing ended");
 
 				webView=new StageWebViewBridge(0, 0, this.height, this.height, true, true);
-
+        webView.addEventListener( StageWebViewBridgeEvent.ON_GET_SNAPSHOT, onGetSnapShot );
 				webView.addCallback("onSelection", onSelection);
 				webView.addEventListener(Event.ADDED_TO_STAGE, onWebViewAddedToStage);
 				this.addChild(webView);
 			}
+      
+      private function onGetSnapShot( e:StageWebViewBridgeEvent ):void
+      {
+        // remove listener
+       // webView.removeEventListener( StageWebViewBridgeEvent.ON_GET_SNAPSHOT, onGetSnapShot ); ?????
+        // set the bitmapdata visible, hides de stagewebview
+        webView.snapShotVisible = true;
+      }
 
 			protected function setIconPath():void
 			{
@@ -119,20 +132,31 @@
 			protected function onWebViewAddedToStage(e:Event):void
 			{
 				var fPath:String=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
-				webView.addEventListener(Event.COMPLETE, onMapLoaded)
+				webView.addEventListener(Event.COMPLETE, onMapLoaded);
 				webView.loadURL(fPath);
-				onResize(null)
+				onResize(null);
 			}
 
 			protected function onMapLoaded(e:Event):void
 			{
 				setIconPath();
 				clearOverlays();
-				for (var i:int=0; i < positions.length; i++)
+				for (var i:int=0; i < positions.length; i++) //could be evidence or entity
 				{
-					var pos:Evidence=positions[i] as Evidence;
-					addCircle({lat: pos.data.latitude, lng: pos.data.longitude}, pos.data.accuracy)
-					addMarker(pos.data.latitude, pos.data.longitude, "mapMarker.png", pos._id);
+          if(positions[i] is Evidence)
+          {
+            var evidence:Evidence=positions[i] as Evidence;
+            addCircle({lat: evidence.data.latitude, lng: evidence.data.longitude}, evidence.data.accuracy)
+            addMarker(evidence.data.latitude, evidence.data.longitude, "mapMarker.png", evidence._id);
+          }
+          
+          else  if(positions[i] is Entity)
+          {
+            var entity:Entity=positions[i] as Entity;
+            addCircle({lat: Number(entity.position.latitude), lng: Number(entity.position.longitude)}, Number(entity.position_attr.accuracy))
+            addMarker( Number(entity.position.latitude), Number(entity.position.longitude), "mapMarker.png", entity._id);
+          }
+				
 						//setCenter(pos.data.latitude,pos.data.longitude);
 						//addCircle({lat:pos.data.latitude, lng:pos.data.longitude}, pos.data.accuracy) // /1000
 				}
@@ -140,7 +164,7 @@
 				//addMarker(50,70, "mapMarker.png")
 			}
 
-			protected function onResize(event:ResizeEvent):void
+			protected function onResize(event:Event):void
 			{
 				var pos:Point=this.localToGlobal(new Point(this.x, this.y));
 
@@ -151,9 +175,25 @@
 					webView.width=this.width;
 					webView.height=this.height;
 					webView.viewPort=new Rectangle(pos.x, pos.y, this.width, this.height);
-				}
+				} 
+       
 			}
-		]]>
+      
+      
+      public function getSnapshot():void
+      {
+          webView.getSnapShot()
+      }
+      
+    
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+      //this.removeEventListener(Event.ENTER_FRAME, onResize)
+        
+      }
+      
+    ]]>
 	</fx:Script>
 
 </mx:UIComponent>

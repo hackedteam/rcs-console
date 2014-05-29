@@ -89,6 +89,9 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/injector_32.png')]
     public static const injector32:Class;
     
+    [Embed(source='/img/NEW/satellite32.png')]
+    public static const satellite32:Class;
+    
     [Embed(source='/img/NEW/nc.png')]
     public static const nc32:Class;
     

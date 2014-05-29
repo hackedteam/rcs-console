@@ -580,7 +580,7 @@ package es.xperiments.media
 		 */
 		public function getSnapShot() : void
 		{
-			super.bitmapData = new BitmapData( _viewPort.width, _viewPort.height, false, 0x000000 );
+			super.bitmapData = new BitmapData( _view.viewPort.width,  _view.viewPort.height, false, 0x000000 );
 			_view.drawViewPortToBitmapData( super.bitmapData );
 
 			var bridge : StageWebViewBridge = this;

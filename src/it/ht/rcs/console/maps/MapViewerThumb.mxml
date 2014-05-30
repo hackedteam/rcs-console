@@ -30,7 +30,6 @@
         {
   				html=new HTMLLoader();
           html.placeLoadStringContentInApplicationSandbox = false;
-         
           addChild(html);
           fPath=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
           var urlReq:URLRequest=new URLRequest(fPath);
@@ -40,7 +39,6 @@
           html.load(urlReq);
         }
 				
-			
         inited=true;
        
 			}
@@ -103,8 +101,7 @@
 			{
 				var dir:File=File.applicationDirectory;
 				dir=dir.resolvePath("maps/icons");
-				html.window.setIconPath("file:///" + dir.nativePath + "/")
-
+				html.window.setIconPath("file:///" + dir.nativePath + "/");
 			}
       
       public function selectByIndex(index:int):void
@@ -139,20 +136,18 @@
             var entity:Entity=positions[i] as Entity;
             if(!entity.position)
               return;
-            addCircle({lat: Number(entity.position.latitude), lng: Number(entity.position.longitude)}, Number(entity.position_attr.accuracy))
+            addCircle({lat: Number(entity.position.latitude), lng: Number(entity.position.longitude)}, Number(entity.position_attr.accuracy));
             addMarker(Number(entity.position.latitude), Number(entity.position.longitude), "mapMarkerBlu.png", 'blu', entity._id);
           }
           
           else if (positions[i] is Object)
           {
             var place:Object=positions[i] as Object;
-   
             if(!place.position)
               return;
-            
-            addCircle({lat:Number(place.position.getItemAt(1)), lng: Number(place.position.getItemAt(0))}, Number(place.radius))
+            addCircle({lat:Number(place.position.getItemAt(1)), lng: Number(place.position.getItemAt(0))}, Number(place.radius));
             addMarker(Number(place.position.getItemAt(1)), Number(place.position.getItemAt(0)), "mapMarker.png", 'red', null, index);
-            index++
+            index++;
           }
           
           

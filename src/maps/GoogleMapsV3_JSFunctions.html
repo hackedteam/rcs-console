@@ -20,6 +20,7 @@
   var directionService = null;
   var directionsDisplay = null;
   var overlays =[]
+  var circles =[]
   var markers =[]
   var bounds = null;
   var iconPath="";
@@ -34,8 +35,9 @@
 	function setIconPath(path)
 	{
 		iconPath=path;
-		
 	}
+
+	
   function initializeMap(_LatLon) 
   {
 	var myOptions = 
@@ -46,107 +48,10 @@
 	};		
 	map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);		
 	geoCoder = new google.maps.Geocoder();
-	//var latlng = new google.maps.LatLng(40.730885,-73.997383);
-	//geoCoder.geocode({'latLng': latlng}, handleResult)   
+
   } 
   
-  <!-- Handles the result of a geocode -->
-  function handleGeocodeResult(results, status) {
-  
-      if (status == google.maps.GeocoderStatus.OK) {
-		
-			try {
-				// This calls flash with the resuls check your traces
-				window.JSnewGeocodeData(results);
-				// Call this so we get a map going
-				initializeMap( results[0].geometry.location );
-			} catch (err) {
-				// Sink the error that was trying to call an AIR function
-			}
-      } else {
-			try {
-				// Calls a function in AS3 that references the error
-				window.JSgeocodeError(status);
-			} catch (err) {
-				// Sink it
-			}
-      }
-  }
-  
-  <!-- Can call this from AIR using the DOM for geocoding stuff..weeeeee -->
-  function geocodeStringAddress(_stringAddress) {
-	if(geoCoder == null) {
-		geoCoder = new google.maps.Geocoder();
-	}
-	geoCoder.geocode( { 'address': _stringAddress}, handleGeocodeResult );
-  }
-  
-  <!-- Pass in an array of strings in the order you want the directions generated -->
-  function calculateEntireRoute(_RouteStringArr) {
-    if(_RouteStringArr.length > 0) {
-	
-		if(directionService == null) {
-		directionService = new google.maps.DirectionsService();
-		}
-	
-	   var startLoc = String(_RouteStringArr.splice(0,1));
-	   var endLoc = String(_RouteStringArr.splice( (_RouteStringArr.length - 1) ,1));
-	   
-	   // Now create the waypoints between start and end
-	   var _wpArr = new Array();
-	   
-	   for(var i=0; i < _RouteStringArr.length; i++) {
-			_wpArr.push(
-				{ 
-				location:String(_RouteStringArr[i]), 
-				stopover:true
-				}
-			);
-	   }
-	   
-	   
-	   var directionRequest = {
-		  origin:startLoc,
-		  destination:endLoc,
-		  waypoints: _wpArr,
-		  provideRouteAlternatives: false,
-		  travelMode: google.maps.TravelMode.DRIVING,
-		  unitSystem: google.maps.UnitSystem.IMPERIAL
-		};
-		
-		directionService.route(directionRequest,handleAddressResults);
-	}
-  }
-  
-  <!-- Result is a DirectionsRoute http://code.google.com/apis/maps/documentation/javascript/reference.html#DirectionsRoute -->
-  <!-- This thing contains nexted javascript in its object. I think we should decode what we need here and pass it to AS3 because -->
-  <!-- AS has issues with this object. -->
-  function handleAddressResults(_result,_status) {
-	 
-	  if (_status == google.maps.DirectionsStatus.OK) {
-			try {
-				window.JSnewDirectionData(_result, _result.routes[0].copyrights, _result.routes[0].legs[0].distance.text, _result.routes[0].legs[0].duration.text );
-			} catch (err) { 
-				// Sink the error that was trying to call an AIR function
-				window.JSnewDirectionDataError(err);
-			}
-	  } else {
-			try {
-				window.JSnewDirectionDataError(_status);
-			} catch (err) {
-				// Sink the error that was trying to call an AIR function
-			}
-	  }
-  
-  }
-  <!-- MUST SHOW COPYRIGHT FOR THE ROUTE!!!! -->
- 
-  
-  function test()
-  {
-  	window.alert('test');
-  	
-  }
+
   function selectByIndex(index)
   {
   	for (var i = 0; i < markers.length; i++ ) 
@@ -156,10 +61,9 @@
     			setSelectedMarker(markers[i]);
     			map.panTo(markers[i].getPosition());
     		}
-    		
     	}
-  	
   }
+  
   function setSelectedMarker(marker)
   {
   	for (var i = 0; i < markers.length; i++ ) 
@@ -197,7 +101,9 @@
   	map.setOptions({streetViewControl: false});
   }
   
-  function addMarker(lat, lng, icon, color, data, index) 
+  
+
+  function addMarker(lat, lng, icon, color, data, index, draggable) 
   {
   
 	if(map != null) {
@@ -213,7 +119,8 @@
     				origin: new google.maps.Point(0,0),
 					anchor:new google.maps.Point(12, 22)
 				},
-				animation:google.maps.Animation.DROP
+				animation:google.maps.Animation.DROP,
+				draggable:draggable
 			}
 		
 		);
@@ -228,6 +135,23 @@
 			function() {setSelectedMarker(marker);}
   		);
   		
+  		if(draggable)
+  		{
+  			google.maps.event.addListener
+		(
+			marker, 
+			'drag', 
+			function() {onDrag(marker);}
+  		);
+  		
+  		google.maps.event.addListener
+		(
+			marker, 
+			'dragend', 
+			function() {onDragEnd(marker);}
+  		);
+  		};
+  		
   		bounds.extend(position);
 		map.setCenter(bounds.getCenter());
 		map.fitBounds(bounds);
@@ -237,6 +161,17 @@
 		setSelectedMarker(markers[0]); //???
 	}
   }
+  
+  function onDrag(marker)
+  {
+  	window.onDrag(marker);
+  }
+  
+   function onDragEnd(marker)
+  {
+  	window.onDragEnd(marker);
+  }
+  
   
   function addCircle(center, radius) 
   {
@@ -261,6 +196,7 @@
 		map.setCenter(bounds.getCenter());
 		map.fitBounds(bounds);
 		overlays.push(circle);
+		circles.push(circle);
 	}
   }
   
@@ -275,27 +211,39 @@
   
   function codeLatLng(lat, lng)
   {
-  
   		var latlng = new google.maps.LatLng(lat,lng);
-
   		geoCoder.geocode({'latLng': latlng}, handleResult);  
   }
  
+  function codeAddress(address)
+ {
+ 	geoCoder.geocode({'address': address}, handleAddressResult);  
+ 	
+ }
+  
+  
  
  function handleResult(results, status)
  {
-  			//window.alert(status);
-  			
+  			if (status == google.maps.GeocoderStatus.OK)
+  			{
+  				if (results[0]) 
+  				{
+  					window.geocodeResult(results);
+  				}
+  			}
+ }
+ 
+ function handleAddressResult(results, status)
+ {
   			if (status == google.maps.GeocoderStatus.OK)
   			{
   				//geocoding done successfully
   				if (results[0]) 
   				{
-  					window.geocodeResult(results);
-  					//window.alert(results[0].formatted_address);
+  					window.codeAddressResult(results);
   				}
   			}
-
  }
   
   function clearOverlays()
@@ -308,6 +256,7 @@
     	}
     	overlays.length=0;
     	markers=[];
+    	circles=[];
 	}
   }
   

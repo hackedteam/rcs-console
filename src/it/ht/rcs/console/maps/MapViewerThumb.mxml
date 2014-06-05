@@ -6,7 +6,10 @@
                 addedToStage="onAddedToStage()">
 	<fx:Metadata>
     [Event(name="change", type="flash.events.Event")]
+    [Event(name="drag", type="mx.rpc.events.ResultEvent")]
+    [Event(name="dragEnd", type="flash.events.Event")]
     [Event(name="geocodeResult", type="mx.rpc.events.ResultEvent")]
+    [Event(name="codeAddressResult", type="mx.rpc.events.ResultEvent")]
 	</fx:Metadata>
 	<fx:Script>
 		<![CDATA[
@@ -43,12 +46,45 @@
        
 			}
       
+      
+      public function setAccuracy(radius:Number):void
+      {
+        html.window.circles[0].setRadius(radius);
+        
+        html.window.map.fitBounds(html.window.circles[0].getBounds());
+      }
+      
+      public function onDrag(marker:Object):void
+      {
+       html.window.circles[0].setVisible(false); //listen to other events? es. position_change
+       dispatchEvent(new ResultEvent("drag",false,true,{lat:marker.getPosition().lat(), lng:marker.getPosition().lng()}));
+      }
+      
+      public function onDragEnd(marker:Object):void
+      {
+        html.window.circles[0].setCenter(marker.getPosition());
+        html.window.circles[0].setVisible(true);
+        html.window.setCenter(marker.getPosition().lat(), marker.getPosition().lng());
+        dispatchEvent(new Event("dragEnd"));
+      }
+      
       public function geocodeResult(results:Object):void
       {
         dispatchEvent(new ResultEvent("geocodeResult",false,true,results));
       }
       
-      public function onSelection(selectedObject:*):void
+      public function codeAddressResult(results:Object):void
+      {
+        var addresses:Array=new Array()
+          for (var i:int=0;i<results.length;i++)
+          {
+            addresses.push(results[i])
+          }
+        
+        dispatchEvent(new ResultEvent("codeAddressResult",false,true,addresses));
+      }
+      
+      public function onSelection(selectedObject:Object):void
       {
         for (var i:int=0; i < positions.length; i++)
         {
@@ -60,19 +96,17 @@
         selectedIndex=selectedObject.index;
         dispatchEvent(new Event("change"));
       }
-      
-      
 
 			public function addCircle(center:Object, radius:Number):void
 			{
 				html.window.addCircle(center, radius)
 			}
 
-			public function addMarker(lat:Number, lng:Number, icon:String, color:String, data:String, index:int=-1):void
+			public function addMarker(lat:Number, lng:Number, icon:String, color:String, data:String, index:int=-1, draggable:Boolean=false):void
 			{
 				var dir:File=File.applicationDirectory;
 				dir=dir.resolvePath("maps/icons");
-				html.window.addMarker(lat, lng, "file:///" + dir.nativePath + "/" + icon, color, data, index);
+				html.window.addMarker(lat, lng, "file:///" + dir.nativePath + "/" + icon, color, data, index, draggable);
 			}
 
 			public function update():void
@@ -96,6 +130,13 @@
         html.window.geocodeResult = geocodeResult;
         html.window.codeLatLng(lat, lng);
       }
+      
+      
+      public function codeAddress(address:String):void
+      {
+        html.window.codeAddressResult = codeAddressResult;
+        html.window.codeAddress(address);
+      }
 
 			protected function setIconPath():void
 			{
@@ -116,6 +157,8 @@
         
         html.window.geocodeResult = geocodeResult;
         html.window.onSelection = onSelection;
+        html.window.onDrag = onDrag;
+        html.window.onDragEnd = onDragEnd;
         
         
 				setIconPath();
@@ -143,14 +186,14 @@
           else if (positions[i] is Object)
           {
             var place:Object=positions[i] as Object;
+            var draggable:Boolean=place.draggable;
             if(!place.position)
               return;
             addCircle({lat:Number(place.position.getItemAt(1)), lng: Number(place.position.getItemAt(0))}, Number(place.radius));
-            addMarker(Number(place.position.getItemAt(1)), Number(place.position.getItemAt(0)), "mapMarker.png", 'red', null, index);
+            addMarker(Number(place.position.getItemAt(1)), Number(place.position.getItemAt(0)), "mapMarker.png", 'red', null, index, draggable);
             index++;
           }
-          
-          
+
          resize()
         
         }

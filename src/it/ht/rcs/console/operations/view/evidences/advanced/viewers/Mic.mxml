@@ -1,80 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                   xmlns:s="library://ns.adobe.com/flex/spark"
-                   xmlns:mx="library://ns.adobe.com/flex/mx"
-                   xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
-                   height="100%"
-                   width="100%"
-                   borderColor="0xCCCCCC"
-                   backgroundColor="0xFFFFFF"
-                   backgroundAlpha="1">
-  <s:layout>
-    <s:VerticalLayout paddingBottom="10"
-                      paddingLeft="10"
-                      paddingRight="10"
-                      paddingTop="10"
-                      />
-  </s:layout>
-  <fx:Script>
-    <![CDATA[
-      import flashx.textLayout.conversion.TextConverter;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      
-      private var _evidence:Evidence;
-      
-      [Bindable]
-      private var _url:String;
-      
-      [Bindable]
-      public var idVisible:Boolean;
-      
-      public var target:String;
-      
-      [Bindable]
-      public function set evidence(value:Evidence):void
-      {
-        player.reset()
-        _evidence=value;
-        target=EvidenceManager.instance.evidenceFilter.target;
-        _url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
- 
-        if(evidence.type=="mic")
-        {
-          player.sound=_url;
-          player.date=evidence.da
-          urlTxt.text=_url
-        }
-      }
-      
-      public function get evidence():Evidence
-      {
-        return _evidence;
-      }
-      private function init():void
-      {
-        target=EvidenceManager.instance.evidenceFilter.target;
-      }
-      
-      public function reset():void
-      {
-        player.reset();
-      }
+									 xmlns:s="library://ns.adobe.com/flex/spark"
+									 xmlns:mx="library://ns.adobe.com/flex/mx"
+									 xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
+									 height="100%"
+									 width="100%"
+									 borderColor="0xCCCCCC"
+									 backgroundColor="0xFFFFFF"
+									 backgroundAlpha="1">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10"
+											paddingLeft="10"
+											paddingRight="10"
+											paddingTop="10"/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.conversion.TextConverter;
 
-    ]]>
-  </fx:Script>
-  <s:RichText id="idTxt"
-              width="100%"
-              textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-              fontSize="12" visible="{idVisible}" includeInLayout="{idVisible}"/>
-  <s:Line width="100%" visible="{idVisible}" includeInLayout="{idVisible}">
-    <s:stroke>
-      <s:SolidColorStroke color="0xCCCCCC"/>
-    </s:stroke>
-  </s:Line>
-  <s:Label id="urlTxt" fontSize="12" color="0x000000" fontWeight="bold" visible="false" includeInLayout="false"/>
-  <s:Spacer height="30"/>
-<viewers:AudioPlayer id="player"/>
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+
+			private var _evidence:Evidence;
+
+			[Bindable]
+			private var _url:String;
+
+			[Bindable]
+			public var idVisible:Boolean;
+
+			[Bindable]
+			[Embed(source="/img/mediaplayers/recording.swf")]
+			public var RecordingIcon:Class;
+
+			public var target:String;
+
+			[Bindable]
+			public function set evidence(value:Evidence):void
+			{
+				player.reset()
+				_evidence=value;
+				target=EvidenceManager.instance.evidenceFilter.target;
+				_url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
+
+				if (evidence.type == "mic")
+				{
+					player.sound=_url;
+					player.date=evidence.da
+					urlTxt.text=_url
+				}
+
+				recordingBox.visible=false;
+
+				if (evidence.data.status == "recording")
+				{
+					recordingBox.visible=true;
+				}
+
+
+			}
+
+			public function get evidence():Evidence
+			{
+				return _evidence;
+			}
+
+			private function init():void
+			{
+				target=EvidenceManager.instance.evidenceFilter.target;
+			}
+
+			public function reset():void
+			{
+				player.reset();
+			}
+		]]>
+	</fx:Script>
+	<s:RichText id="idTxt"
+							width="100%"
+							textFlow="{TextConverter.importToFlow('&lt;b&gt;Id: &lt;/b&gt;'+evidence._id, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+							fontSize="12"
+							visible="{idVisible}"
+							includeInLayout="{idVisible}"/>
+	<s:Line width="100%"
+					visible="{idVisible}"
+					includeInLayout="{idVisible}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
+
+	<s:Label id="urlTxt"
+					 fontSize="12"
+					 color="0x000000"
+					 fontWeight="bold"
+					 visible="false"
+					 includeInLayout="false"/>
+	<s:Spacer height="30"/>
+	<s:HGroup id="recordingBox"
+						horizontalAlign="right"
+						visible="false">
+		<s:SWFLoader source="{RecordingIcon}"/>
+		<s:Label text="Recording..."/>
+	</s:HGroup>
+	<viewers:AudioPlayer id="player"/>
 </s:BorderContainer>

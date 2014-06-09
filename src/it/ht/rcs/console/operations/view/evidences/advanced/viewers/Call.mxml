@@ -16,12 +16,12 @@
 	</s:layout>
 	<fx:Script>
 		<![CDATA[
-      import flashx.textLayout.conversion.TextConverter;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      import it.ht.rcs.console.utils.TimeUtils;
+			import flashx.textLayout.conversion.TextConverter;
+
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.utils.TimeUtils;
 
 			private var _evidence:Evidence;
 
@@ -35,6 +35,10 @@
 
 			private var from:String;
 			private var to:String;
+
+			[Bindable]
+			[Embed(source="/img/mediaplayers/recording.swf")]
+			public var RecordingIcon:Class;
 
 			[Bindable]
 			public function set evidence(value:Evidence):void
@@ -55,7 +59,7 @@
 				if (evidence.type == "call" && evidence.data._grid != null)
 				{
 					player.sound=_url;
-          player.date=evidence.da
+					player.date=evidence.da
 				}
 
 				//peer
@@ -79,19 +83,27 @@
 				{
 					from=evidence.data.from_display
 				}
-        else if (evidence.data.from != null && evidence.data.from != "")
-        {
-          from=evidence.data.from;
-        }
-        else if (evidence.data.caller != null && evidence.data.caller != "")
-        {
-          from=evidence.data.caller;
-        }
-        else
-        {
-          from="-"
-        }
-        peerTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + from +  " | <b>To: </b>" +to, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				else if (evidence.data.from != null && evidence.data.from != "")
+				{
+					from=evidence.data.from;
+				}
+				else if (evidence.data.caller != null && evidence.data.caller != "")
+				{
+					from=evidence.data.caller;
+				}
+				else
+				{
+					from="-"
+				}
+				peerTxt.textFlow=TextConverter.importToFlow("<b>From: </b>" + from + " | <b>To: </b>" + to, TextConverter.TEXT_FIELD_HTML_FORMAT);
+
+				recordingBox.visible=false;
+
+				if (evidence.data.status == "recording")
+				{
+					recordingBox.visible=true;
+				}
+
 			}
 
 			public function get evidence():Evidence
@@ -133,14 +145,18 @@
 		</s:stroke>
 	</s:Line>
 	<s:RichText id="peerTxt"
-							
 							fontSize="12"/>
 	<s:Line width="100%">
 		<s:stroke>
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-
+	<s:HGroup id="recordingBox"
+						horizontalAlign="right"
+						visible="false">
+		<s:SWFLoader source="{RecordingIcon}"/>
+		<s:Label text="Recording..."/>
+	</s:HGroup>
 	<viewers:AudioPlayer id="player"
 											 visible="{evidence.data._grid!=null}"/>
 </s:BorderContainer>

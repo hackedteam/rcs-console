@@ -123,6 +123,10 @@ package it.ht.rcs.console.history
 						item.config=section.stateManager.selectedConfig
 					}
 				}
+        else
+        {
+        trace("NO SECTION STATE MANAGER!!") //???
+        }
 			}
 			addItem(item)
 			dumpHistory()

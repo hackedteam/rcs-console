@@ -96,22 +96,23 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.events.FilterEvent;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.evidence.model.TypeCount;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.operations.view.OperationsSection;
-			import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.managers.PopUpManager;
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.evidence.model.TypeCount;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.operations.view.evidences.filters.FilterView;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
 
 			private var _selectedObjects:Vector.<Object>=new Vector.<Object>;
 
@@ -441,21 +442,70 @@
 			{
 				dispatchEvent(new Event("export"));
 			}
+      
+      private function updateRelevance(value:int):void
+      {
+        if (selectedObjects != null)
+        {
+          
+          //
+          
+          
+          for (var i:int=0; i < selectedObjects.length; i++)
+          {
+            var evidence:Evidence=selectedObjects[i] as Evidence;
+            evidence.rel=value
+            
+          }
+          tagEditor.tag=value;
+        }
+        
+      }
 
-			private function updateRelevance(value:int):void
+		/* 	private function updateRelevance(value:int):void
 			{
 				if (selectedObjects != null)
 				{
-					for (var i:int=0; i < selectedObjects.length; i++)
-					{
-						var evidence:Evidence=selectedObjects[i] as Evidence;
-						evidence.rel=value
-
-					}
+          var evidence:Evidence;
+          
+          if(selectedObjects.length>1)
+          {
+            trace("num ev: "+selectedObjects.length)
+            var ids:Array=[]
+            for (var i:int=0; i < selectedObjects.length; i++)
+            {
+              evidence=selectedObjects[i] as Evidence;
+              if(!evidence)
+                evidence= EvidenceManager.instance._view.list.getItemAt(i) as Evidence
+    
+              if(!evidence)
+              {
+                trace(i+" - "+"unknown");
+                continue;
+              }
+               
+              trace(i+" - "+evidence._id);
+              var id:String=evidence._id
+              ids.push(id)
+            }
+            
+            EvidenceManager.instance.update_multi(ids, {rel:value}, onMultiUpdate)
+          }
+          else  if(selectedObjects.length==1)
+          {
+              evidence=selectedObjects[0] as Evidence;
+              evidence.rel=value;
+          }
+          
 					tagEditor.tag=value;
-				}
+				} 
 
 			}
+      */
+      private function onMultiUpdate(e:ResultEvent):void
+      {
+        EvidenceManager.instance.refresh()
+      }
 
 			private function updateReport(value:Boolean):void
 			{

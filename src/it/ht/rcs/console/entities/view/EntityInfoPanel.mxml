@@ -4,71 +4,47 @@
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:users="it.ht.rcs.console.accounting.view.users.*"
 				 xmlns:utils="it.ht.rcs.console.utils.*"
+				 xmlns:maps="it.ht.rcs.console.maps.*"
 				 width="325"
 				 height="100%">
 
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.Map;
-      import com.google.maps.MapType;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.ObjectUtils;
-      import it.ht.rcs.console.accounting.controller.SessionManager;
-      import it.ht.rcs.console.agent.model.Agent;
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.target.model.Target;
-      import it.ht.rcs.console.utils.Size;
-      import it.ht.rcs.console.utils.TimeUtils;
-      
-      import locale.R;
-      
-      import mx.events.PropertyChangeEvent;
-      
-      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.accounting.controller.SessionManager;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.utils.TimeUtils;
+			
+			import locale.R;
 
-			private var circleFillColor:uint=0x00CCFF;
-			private var circleFillAlpha:Number=0.2;
-			private var circleBorderTickness:int=0.2;
-			private var circleBorderFillColor:uint=0x00CCFF;
-			private var circleBorderFillAlpha:Number=0.5;
-
-			private var mapPane:IPane;
-			private var scale:Number;
-			private var centre:LatLng;
-			private var circleOverlay:IOverlay;
-			private var mapReady:Boolean;
-			private var overlays:Array=new Array();
+	
 
 			private var _selectedItem:*;
 			private var _selectedItems:Vector.<Object>;
-      
-      [Embed(source="img/stub/mapSmall.png")]
-      [Bindable]
-      public var fakeMap:Class;
+
+			[Embed(source="img/stub/mapSmall.png")]
+			[Bindable]
+			public var fakeMap:Class;
 
 			[Bindable]
 			public function set selectedItem(value:*):void
 			{
-				_selectedItem=value;
-				if (mapReady)
-					drawPosition()
+        _selectedItem=value;
+				if (value)
+				{
+					
+
+					//evidence=positions[0] as Evidence;	
+
+
+					mapViewer.positions=new Vector.<Object>()
+					mapViewer.positions.push(_selectedItem)
+					mapViewer.update()
+
+
+				}
 			}
 
 			public function get selectedItem():*
@@ -79,128 +55,20 @@
 			[Bindable]
 			public function set selectedItems(value:Vector.<Object>):void
 			{
-				_selectedItems=value;
-				if (mapReady)
-					drawPosition()
+        _selectedItems=value;
+        
+				if (value && _selectedItem)
+				{
+					mapViewer.positions=new Vector.<Object>()
+					mapViewer.positions.push(_selectedItem)
+					mapViewer.update()
+				}
+
 			}
 
 			public function get selectedItems():Vector.<Object>
 			{
 				return _selectedItems;
-			}
-
-			private function calculateMapScale():Number
-			{
-				var topLeft:LatLng;
-				var bottomLeft:LatLng;
-				var scale:Number;
-				var distance:Number;
-
-				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
-				bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
-				distance=topLeft.distanceFrom(bottomLeft) / 1000;
-				scale=map.height / distance;
-
-				return scale;
-			}
-
-			private function drawCircle(radiusKm:Number, position:LatLng):LatLngBounds
-			{
-				if (isNaN(radiusKm) || radiusKm <= 0)
-				{
-					//return new LatLngBounds();
-					radiusKm=0.02
-				}
-
-				scale=calculateMapScale();
-				var shape:Shape=new Shape();
-				var overlay:GroundOverlay;
-				var bounds:LatLngBounds;
-				var centrePoint:Point;
-				var topLeft:LatLng;
-				var bottomRight:LatLng;
-				var options:GroundOverlayOptions;
-				var circleWidth:Number=radiusKm * 2 * scale;
-
-				shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
-				shape.graphics.beginFill(circleFillColor, circleFillAlpha);
-				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
-				shape.graphics.endFill();
-				centrePoint=mapPane.fromLatLngToPaneCoords(position);
-				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
-				bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
-				bounds=new LatLngBounds(topLeft, bottomRight);
-				options=new GroundOverlayOptions();
-				options.applyProjection=true;
-				circleOverlay=new GroundOverlay(shape, bounds, options);
-				map.addOverlay(circleOverlay);
-				overlays.push(circleOverlay);
-
-				return bounds
-			}
-
-			private function drawPosition():void
-			{
-				if (LicenseManager.instance.correlation)
-				{
-					for (var i:int=0; i < overlays.length; i++)
-					{
-						map.removeOverlay(overlays[i] as IOverlay);
-					}
-					if (selectedItem && selectedItem is Entity && selectedItem.position)
-					{
-						if (selectedItem.position.latitude && selectedItem.position.longitude)
-						{
-							var coordinates:LatLng=new LatLng(Number(selectedItem.position.latitude), Number(selectedItem.position.longitude));
-							var bounds:LatLngBounds=new LatLngBounds();
-							var centre:LatLng=new LatLng(coordinates.lat(), coordinates.lng());
-							map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-							bounds.extend(coordinates);
-							var circleBounds:LatLngBounds=drawCircle(Number(selectedItem.position_attr.accuracy) / 1000, coordinates);
-							bounds.union(circleBounds)
-							var marker:Marker=new Marker(coordinates, new MarkerOptions({icon: new LastPositionMarker(), hasShadow: false}));
-							map.addOverlay(marker);
-							overlays.push(marker);
-							map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-						}
-						else
-						{
-							map.setCenter(new LatLng(0, 0))
-							map.setZoom(1);
-
-						}
-					}
-					else
-					{
-						map.setCenter(new LatLng(0, 0))
-						map.setZoom(1)
-					}
-
-				}
-			}
-
-			private function onMapReady(event:Event):void
-			{
-				if (LicenseManager.instance.correlation)
-				{
-					mapReady=true;
-
-					map.addControl(new ZoomControl());
-					map.addControl(new PositionControl());
-					map.addControl(new MapTypeControl());
-
-					mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-
-					dispatchEvent(new Event("ready"));
-					if (selectedItem && selectedItem is Entity && selectedItem.position)
-						drawPosition();
-
-				}
-				else
-				{
-					//do something
-					map.setZoom(1)
-				}
 			}
 		]]>
 	</fx:Script>
@@ -269,30 +137,33 @@
 														width="200"/>
 			</s:FormItem>
 			<s:Spacer height="20"/>
-      
-      <s:FormItem label="Stand for"
-                  width="100%" visible="{selectedItem.type=='group'}" includeInLayout="{selectedItem.type=='group'}">
-        <s:RichEditableText editable="false"
-                            text="{selectedItem.stand_for}"
-                            width="200"/>
-      </s:FormItem>
-      <s:Spacer height="20"/>
-      
-      
+
+			<s:FormItem label="Stand for"
+									width="100%"
+									visible="{selectedItem.type=='group'}"
+									includeInLayout="{selectedItem.type=='group'}">
+				<s:RichEditableText editable="false"
+														text="{selectedItem.stand_for}"
+														width="200"/>
+			</s:FormItem>
+			<s:Spacer height="20" visible="{selectedItem.type=='group'}"
+                includeInLayout="{selectedItem.type=='group'}"/>
+
+
 
 			<s:FormItem label="{selectedItem.type=='target'?R.get('LAST_KNOWN_POSITION'): R.get('POSITION')}"
-									includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
-									visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
+									includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}"
+									visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}">
 				<s:Label text="Lat: {selectedItem.position.latitude}"/>
 			</s:FormItem>
 			<s:FormItem label=""
-									includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
-									visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
+									includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}"
+									visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}">
 				<s:Label text="Lng: {selectedItem.position.longitude}"/>
 			</s:FormItem>
 			<s:FormItem label=""
-									includeInLayout="{selectedItem.type=='target'  &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
-									visible="{selectedItem.type=='target' &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
+									includeInLayout="{selectedItem.type=='target'  &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}"
+									visible="{selectedItem.type=='target' &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}">
 				<s:Label text="{'('+TimeUtils.timestampFormatter(selectedItem.position_attr.time * 1000)+')'}"/>
 			</s:FormItem>
 			<!-- map -->
@@ -303,31 +174,28 @@
 												 borderColor="0x666666"
 												 backgroundColor="0xCCCCCC"
 												 backgroundAlpha="0.3"
-												 includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}"
-												 visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.correlation}">
-				<maps:Map xmlns:maps="com.google.maps.*"
-									id="map"
-									mapevent_mapready="onMapReady(event)"
-									width="100%"
-									height="100%"
-									key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
-									url="http://www.hackingteam.it/"
-									sensor="false"
-									accessibilityDescription=""
-									enabled="{LicenseManager.instance.correlation}"/>
+												 id="mapBox"
+												 includeInLayout="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}"
+												 visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}">
+
+				<maps:MapViewer width="100%"
+														 height="100%"
+														 id="mapViewer"/>
+
+			
 				<!-- trick to disbale map -->
 				<s:BorderContainer width="100%"
 													 height="100%"
 													 borderAlpha="0"
 													 backgroundColor="0xFFFFFF"
 													 backgroundAlpha="0.5"
-													 visible="{!LicenseManager.instance.correlation}"
-													 includeInLayout="{!LicenseManager.instance.correlation}"/>
-        <s:BitmapImage source="{fakeMap}"
-                       width="100%"
-                       height="100%"
-                       visible="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"
-                       includeInLayout="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"/>
+													 visible="{!LicenseManager.instance.profiling}"
+													 includeInLayout="{!LicenseManager.instance.profiling}"/>
+				<s:BitmapImage source="{fakeMap}"
+											 width="100%"
+											 height="100%"
+											 visible="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"
+											 includeInLayout="{!SessionManager.instance.hasConnection &amp;&amp; DB.instance.demo}"/>
 			</s:BorderContainer>
 		</s:Form>
 	</s:Group>
@@ -347,7 +215,7 @@
 			</s:FormItem>
 			<s:FormItem label="{R.get('TO')}">
 				<s:RichEditableText editable="false"
-                            text="{selectedItem.versus=='out'? EntityManager.instance.getItem(selectedItem.target).name : EntityManager.instance.getItem(selectedItem.source).name}"
+														text="{selectedItem.versus=='out'? EntityManager.instance.getItem(selectedItem.target).name : EntityManager.instance.getItem(selectedItem.source).name}"
 														width="200"/>
 			</s:FormItem>
 

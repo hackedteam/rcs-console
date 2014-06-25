@@ -1,1199 +1,845 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-					xmlns:s="library://ns.adobe.com/flex/spark"
-					xmlns:mx="library://ns.adobe.com/flex/mx"
-					xmlns:maps="com.google.maps.*"
-					xmlns:components="it.ht.rcs.console.entities.view.components.*"
-					xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
-					xmlns:ravis="org.un.cava.birdeye.ravis.graphLayout.visual.*"
-					xmlns:entities="it.ht.rcs.console.entities.view.*"
-					xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
-					removedFromStage="onRemovedFromStage()"
-					addedToStage="onAddedToStage()"
-					height="100%"
-					width="100%">
-
-	<fx:Script>
-		<![CDATA[
-			import com.google.maps.LatLng;
-			import com.google.maps.LatLngBounds;
-			import com.google.maps.Map;
-			import com.google.maps.MapEvent;
-			import com.google.maps.MapMouseEvent;
-			import com.google.maps.MapType;
-			import com.google.maps.PaneId;
-			import com.google.maps.controls.MapTypeControl;
-			import com.google.maps.controls.PositionControl;
-			import com.google.maps.controls.ZoomControl;
-			import com.google.maps.interfaces.IOverlay;
-			import com.google.maps.interfaces.IPane;
-			import com.google.maps.overlays.GroundOverlay;
-			import com.google.maps.overlays.GroundOverlayOptions;
-			import com.google.maps.overlays.Marker;
-			import com.google.maps.overlays.MarkerOptions;
-			import com.google.maps.overlays.Polyline;
-			import com.google.maps.overlays.PolylineOptions;
-			import com.google.maps.styles.StrokeStyle;
-			import com.greensock.TweenMax;
-
-			import flash.filters.GlowFilter;
-			import flash.utils.setTimeout;
-
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.model.Position;
-			import it.ht.rcs.console.entities.model.Positions;
-			import it.ht.rcs.console.entities.model.PositionsFlow;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
-			import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
-			import it.ht.rcs.console.entities.view.map.CustomMarker;
-			import it.ht.rcs.console.events.FilterEvent;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.search.model.SearchItem;
-			import it.ht.rcs.console.target.model.Target;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.collections.ListCollectionView;
-			import mx.controls.Alert;
-			import mx.core.FlexGlobals;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-
-			import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
-
-			//map stuff
-			private var mapReady:Boolean;
-			private var mapPane:IPane;
-			private var centre:LatLng;
-			private var icons:Dictionary; //pins?
-			private var targetsMarkers:Dictionary; //pins?
-			private var placesMarkers:Dictionary;
-			private var overlays:Array=new Array;
-			private var lines:Array
-			private var links:Dictionary
-			private var markers:Array;
-			private var circles:Array;
-			private var mapScale:Number;
-			private var circleOverlay:IOverlay;
-			private var bounds:LatLngBounds
-
-			//Styling
-			private var circleFillColor:uint=0xFF0000;
-			private var circleFillAlpha:Number=0.2;
-			private var circleBorderTickness:int=0.2;
-			private var circleBorderFillColor:uint=0xFF0000;
-			private var circleBorderFillAlpha:Number=0.5;
-
-			private const ALPHA_RATIO:Number=100 / 60;
-
-			private var relevence0:uint=0x333333;
-			private var relevence1:uint=0x999999;
-			private var relevence2:uint=0x5DE35F;
-			private var relevence3:uint=0xFFDC42;
-			private var relevence4:uint=0xFF4034;
-
-			private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
-
-
-			[Bindable]
-			public var actionbar:EntitiesActionBar
-			[Bindable]
-			public var section:EntitiesSection;
-			[Bindable]
-			public var entities:ListCollectionView; //all entities
-
-			private var startDate:Date;
-
-			private var endDate:Date;
-
-			private var currentDate:Date;
-
-			[Bindable]
-			public var filterCriteria:Object={type: [], relevance: [], time: "time", from: "lastMonth", to: 0
-
-				};
-
-			[Bindable]
-			public var options:Object={links: false, fit: true, places: false};
-
-			private var entitiesToShow:ArrayCollection //only targets and positions
-			private var positions:ArrayCollection; //only positions
-			private var targets:ArrayCollection; //only targets
-
-			//TODO > CHECK MAP IS READY!
-			private function onMapReady(e:MapEvent):void
-			{
-				trace("GEO MAP >>>>>>>>>>>>>>>> MAP READY")
-				mapReady=true;
-				map.removeEventListener(MapEvent.MAP_READY, onMapReady);
-				map.addControl(new ZoomControl());
-				map.addControl(new PositionControl());
-				map.addControl(new MapTypeControl());
-				map.addEventListener(MapMouseEvent.CLICK, onMapClick);
-				mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
-				overlays=new Array()
-				circles=new Array()
-			}
-
-			private function clearMap():void
-			{
-				if (!mapReady || !overlays)
-					return;
-				for (var i:int=0; i < overlays.length; i++)
-				{
-					map.removeOverlay(overlays[i] as IOverlay);
-				}
-				overlays=new Array();
-				circles=new Array();
-				map.clearOverlays();
-				map.enabled=false;
-				map.setZoom(1);
-				map.setCenter(new LatLng(0, 0));
-			}
-
-			private function drawMap():void
-			{
-				if (!map.isLoaded()) //!!! check
-					return;
-				var i:int=0;
-				var entity:Entity;
-				targetsMarkers=new Dictionary()
-				placesMarkers=new Dictionary()
-
-				icons=new Dictionary()
-				//remove all overlays and ckear map
-				for (i=0; i < overlays.length; i++)
-				{
-					map.removeOverlay(overlays[i] as IOverlay);
-				}
-				overlays=new Array
-				map.clearOverlays()
-				map.setZoom(3);
-				map.setCenter(new LatLng(0, 0));
-
-				markers=new Array();
-				circles=new Array();
-				lines=new Array();
-				links=new Dictionary();
-
-				bounds=new LatLngBounds();
-
-				/* 	if (positions.length > 0)
-					{
-						entity=positions.getItemAt(0) as Entity;
-						centre=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-						map.setCenter(centre, 14, MapType.NORMAL_MAP_TYPE);
-						overlays=new Array();
-					} */
-
-				var coordinates:LatLng
-				var customMarker:CustomMarker
-				var marker:Marker;
-				var fillColor:uint;
-				var circleBounds:LatLngBounds;
-
-				//positions
-				for (i=0; i < positions.length; i++)
-				{
-					entity=positions.getItemAt(i) as Entity;
-					coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude));
-					customMarker=new CustomMarker(entity)
-					marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
-					icons[marker]=customMarker;
-					//marker.shadow.visible=true;
-					marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
-					marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
-					marker.foreground.alpha=1;
-					bounds.extend(coordinates);
-					fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
-					//circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
-					//bounds.union(circleBounds)
-					overlays.push(marker);
-					markers.push(marker);
-					map.addOverlay(marker);
-
-					placesMarkers[entity._id]=marker
-					marker.foreground.visible=false
-
-				}
-				//targets
-				for (i=0; i < targets.length; i++)
-				{
-					entity=targets.getItemAt(i) as Entity;
-					if (entity.position)
-					{
-						coordinates=new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)); //last position!!!
-						customMarker=new CustomMarker(entity)
-						marker=new Marker(coordinates, new MarkerOptions({icon: customMarker, hasShadow: false}));
-						icons[marker]=customMarker;
-						//marker.shadow.visible=true;
-						marker.addEventListener(MapMouseEvent.CLICK, onMarkerClick);
-						marker.addEventListener(MapMouseEvent.DOUBLE_CLICK, onMarkerDoubleClick)
-						marker.foreground.alpha=1;
-						bounds.extend(coordinates);
-						fillColor=entity.type == "position" ? 0x0000FF : 0xFF0000;
-						//circleBounds=drawCircle(Number(entity.position_attr.accuracy) / 1000, coordinates, fillColor);
-						//bounds.union(circleBounds)
-						overlays.push(marker);
-						markers.push(marker);
-						map.addOverlay(marker);
-						targetsMarkers[entity._id]=marker;
-						marker.foreground.visible=false;
-					}
-				}
-				if (!map.enabled)
-					map.enabled=true;
-				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-				//map.visible=true;
-			}
-
-			private function onRemovedFromStage():void
-			{
-				tracker.reset();
-				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
-				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-				FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
-
-			}
-
-			private function onOptionsChange(e:Event):void
-			{
-				trace("options change")
-				onDateChange()
-			}
-
-
-			private function onFilterChange(e:FilterEvent):void
-			{
-				trace("GEO MAP FILTER CHANGE")
-				if (filterCriteria.from == "lastMonth")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from == "last3Months")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from == "last6Months")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from && filterCriteria.to)
-				{
-					startDate=new Date(filterCriteria.from * 1000)
-					endDate=new Date(filterCriteria.to * 1000);
-				}
-
-				trace("from: " + startDate)
-				trace("to: " + endDate)
-
-				clearMap()
-				map.visible=false
-				refresh()
-			}
-
-			private function resetFilter(e:FilterEvent):void
-			{
-
-				trace("FILTER RESET")
-
-
-			}
-
-			public function doStop():void
-			{
-				//tracker.doStop()
-			}
-
-
-			private function drawCircle(radiusKm:Number, position:LatLng, color:uint):LatLngBounds
-			{
-				if (isNaN(radiusKm) || radiusKm <= 0)
-				{
-					//return new LatLngBounds();
-					radiusKm=0.02
-				}
-
-				mapScale=calculateMapScale();
-				var shape:Shape=new Shape();
-				var overlay:GroundOverlay;
-				var bounds:LatLngBounds;
-				var centrePoint:Point;
-				var topLeft:LatLng;
-				var bottomRight:LatLng;
-				var options:GroundOverlayOptions;
-				var circleWidth:Number=radiusKm * 2 * mapScale;
-
-				shape.graphics.lineStyle(circleBorderTickness, color, circleBorderFillAlpha);
-				shape.graphics.beginFill(color, circleFillAlpha);
-				shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
-				shape.graphics.endFill();
-				centrePoint=mapPane.fromLatLngToPaneCoords(position);
-				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
-				bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
-				bounds=new LatLngBounds(topLeft, bottomRight);
-				options=new GroundOverlayOptions();
-				options.applyProjection=true;
-				circleOverlay=new GroundOverlay(shape, bounds, options);
-				map.addOverlay(circleOverlay);
-				overlays.push(circleOverlay);
-				circles.push(circleOverlay);
-
-				return bounds;
-			}
-
-
-
-			private function zoomToBounds():void
-			{
-				bounds=new LatLngBounds
-				var i:int
-				var entity:Entity;
-				var coordinates:LatLng
-				var marker:Marker
-
-				//if (positionsCh.selected)
-				if (options.places)
-				{
-					//targets
-					for (var p:* in placesMarkers)
-					{
-						marker=placesMarkers[p] as Marker;
-						if (marker.foreground.visible)
-						{
-							coordinates=marker.getLatLng()
-							bounds.extend(coordinates);
-						}
-					}
-				}
-				//targets
-				for (var m:* in targetsMarkers)
-				{
-					marker=targetsMarkers[m] as Marker;
-					if (marker.foreground.visible)
-					{
-						coordinates=marker.getLatLng()
-						bounds.extend(coordinates);
-					}
-				}
-				map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-				map.setZoom(map.getBoundsZoomLevel(bounds) - 1)
-			}
-
-			private function calculateMapScale():Number
-			{
-				var topLeft:LatLng;
-				var bottomLeft:LatLng;
-				var scale:Number;
-				var distance:Number;
-
-				topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
-				bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
-				distance=topLeft.distanceFrom(bottomLeft) / 1000;
-				scale=map.height / distance;
-
-				return scale;
-			}
-
-
-			public function init():void
-			{
-
-				trace("GEO MAP >>>>>>>>>>>>>>>> INIT")
-
-
-				//FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-
-				//default dates
-
-				endDate=new Date();
-				endDate.hours=23
-				endDate.minutes=59
-				endDate.seconds=59;
-				endDate.milliseconds=0
-
-				startDate=new Date();
-				startDate.date-=30; //30 days
-				startDate.hours=0;
-				startDate.minutes=0;
-				startDate.seconds=0;
-				startDate.milliseconds=0;
-
-
-				//default filters settings
-		/* 		fitCh.selected=true;
-				positionsCh.selected=false;
-				linksCh.selected=false; */
-
-
-				options.fit=true;
-				options.places=false
-				options.links=false;
-
-				overlays=new Array();
-
-				/* 		if (fromDf)
-							fromDf.selectedDate=new Date(startDate.time);
-						if (toDf)
-							toDf.selectedDate=new Date(endDate.time); */
-
-				tracker.visible=false;
-				loadingBox.visible=true;
-				tracker.addEventListener(Timeline.READY, onTrackerReady)
-				//tracker.draw(startDate, endDate) //add hours      
-
-			}
-
-
-			//not used - remove
-			private function onDateRange(e:Event):void
-			{
-				e.stopImmediatePropagation()
-				tracker.reset();
-
-				if (filterCriteria.from && filterCriteria.to)
-				{
-					//TODO CHECK DATES!
-				}
-
-				/* 	if (fromDf.selectedDate > toDf.selectedDate)
-					{
-						fromDf.selectedDate=new Date()
-						fromDf.selectedDate.time=startDate.time
-						toDf.selectedDate=new Date()
-						toDf.selectedDate.time=endDate.time
-						Alert.show("Start date must be before end date")
-						return;
-					}
-					else if (toDf.selectedDate < fromDf.selectedDate)
-					{
-						fromDf.selectedDate=new Date(startDate.time)
-						toDf.selectedDate=new Date(endDate.time)
-						Alert.show("End date must be after start date")
-						return;
-					}
-					else if ((toDf.selectedDate.time - fromDf.selectedDate.time) > (TimelineUtils.DAY * 365))
-					{
-						fromDf.selectedDate=new Date(startDate.time)
-						toDf.selectedDate=new Date(endDate.time)
-						Alert.show("Selected range cannot exceed one year")
-						return;
-					} */
-
-				setTimeout(onDateFilter, 100)
-			}
-
-			//not used - remove
-			private function onDateFilter():void
-			{
-
-				tracker.visible=false;
-				loadingBox.visible=true;
-
-				if (filterCriteria.from > filterCriteria.to)
-				{
-					/*  fromDf.selectedDate=new Date()
-					 fromDf.selectedDate.time=startDate.time
-					 toDf.selectedDate=new Date()
-					 toDf.selectedDate.time=endDate.time */
-					Alert.show("Start date must be before end date")
-					return;
-				}
-
-				else if ((filterCriteria.to - filterCriteria.from) > (TimelineUtils.DAY * 365))
-				{
-					/* fromDf.selectedDate=new Date(startDate.time)
-					toDf.selectedDate=new Date(endDate.time) */
-					Alert.show("Selected range cannot exceed one year")
-					return;
-				}
-
-				/* 		startDate=new Date(fromDf.selectedDate.time);
-						startDate.minutes=0;
-						startDate.seconds=0;
-						startDate.milliseconds=0
-
-						endDate=new Date(toDf.selectedDate.time);
-						endDate.hours=23
-						endDate.minutes=59;
-						endDate.seconds=59;
-						endDate.milliseconds=0; */
-
-				if (filterCriteria.from == "lastMonth")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from == "last3Months")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from == "last6Months")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from && filterCriteria.to)
-				{
-					startDate=new Date(filterCriteria.from * 1000)
-					endDate=new Date(filterCriteria.to * 1000);
-				}
-
-				clearMap()
-				map.visible=false
-				refresh()
-			}
-
-
-
-			private function onTrackerReady(e:Event):void
-			{
-				trace("TRACKER READY")
-				tracker.removeEventListener(Timeline.READY, onTrackerReady)
-				//clearMap()
-				loadingBox.visible=false;
-				tracker.visible=true;
-				setTimeout(getPositionsDetail, 100, targets)
-				//refresh()
-			}
-
-			private function onAddedToStage():void
-			{
-				startDate=new Date();
-				startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-				endDate=new Date();
-
-				filterCriteria={type: [], relevance: [], time: "time", from: "lastMonth", to: 0};
-				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-				FlexGlobals.topLevelApplication.addEventListener("optionsChange", onOptionsChange);
-				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-			}
-
-
-			private function onRefresh(e:RefreshEvent):void
-			{
-				clearMap()
-				refresh();
-			}
-
-			public function refresh():void
-			{
-				clearMap()
-				tracker.reset()
-				loadingBox.visible=true;
-				tracker.visible=false;
-				map.visible=false;
-
-				trace("GEO MAP >>>>>>>>>>>>>>>> REFRESH")
-				trace("TOTAL ENTITIES: " + entities.length)
-
-				//get details about entities
-				info.selectedItem=null;
-				info.selectedItems=null;
-				actionbar.selectedObject=null;
-				actionbar.selectedObjects=null;
-				actionbar.linkEnabled=false;
-
-				entitiesToShow=new ArrayCollection()
-
-				var entity:Entity;
-				var i:int;
-				for (i=0; i < entities.length; i++)
-				{
-					entity=entities.getItemAt(i) as Entity;
-					if (entity.type == "position" || entity.type == "target")
-						entitiesToShow.addItem(entity);
-				}
-
-				positions=new ArrayCollection()
-				targets=new ArrayCollection()
-
-				for (i=0; i < entitiesToShow.length; i++)
-				{
-					entity=entitiesToShow.getItemAt(i) as Entity;
-					if (entity.type == "position")
-					{
-						positions.addItem(entity)
-					}
-					else if (entity.type == "target")
-					{
-						targets.addItem(entity)
-					}
-				}
-
-				drawMap()
-				getPositionsSummary(targets)
-
-			}
-
-
-
-			private function onMapClick(e:MapMouseEvent):void
-			{
-				trace("map clicked");
-				unselectAll();
-				for (var i:int=0; i < lines.length; i++)
-				{
-					var polyline:Polyline=lines[i] as Polyline;
-					polyline.foreground.filters=null;
-				}
-				e.stopImmediatePropagation()
-			}
-
-			private function getPositionsSummary(targets:ArrayCollection):void
-			{
-				var ids:Array=new Array();
-				for (var i:int=0; i < targets.length; i++)
-				{
-					var e:Entity=targets.getItemAt(i) as Entity;
-					ids.push(e._id)
-				}
-				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsSummaryResult, onPositionsFault)
-			}
-
-			private function getPositionsDetail(targets:ArrayCollection):void
-			{
-				var ids:Array=new Array();
-				for (var i:int=0; i < targets.length; i++)
-				{
-					var e:Entity=targets.getItemAt(i) as Entity;
-					ids.push(e._id)
-				}
-				/*   startDate=fromDf.selectedDate
-						endDate=toDf.selectedDate */
-				if (filterCriteria.from == "lastMonth")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from == "last3Months")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from == "last6Months")
-				{
-					startDate=new Date();
-					startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
-					endDate=new Date();
-				}
-
-				else if (filterCriteria.from && filterCriteria.to)
-				{
-					startDate=new Date(filterCriteria.from * 1000)
-					endDate=new Date(filterCriteria.to * 1000);
-				}
-				endDate.hours=23
-				endDate.minutes=59
-				endDate.seconds=59
-				EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), false, onPositionsDetailResult, onPositionsFault)
-			}
-
-			private function onPositionsDetailResult(e:ResultEvent):void
-			{
-				var pos:ArrayCollection=e.result as ArrayCollection;
-				for (var i:int=0; i < pos.length; i++)
-				{
-					var d:Date=new Date()
-					d.time=pos.getItemAt(i).time * 1000;
-					trace(d)
-				}
-				tracker.fillMinutes(pos)
-				//tracker.populateMinutes(pos)
-
-			}
-
-			private function onPositionsSummaryResult(e:ResultEvent):void
-			{
-				var hours:ArrayCollection=e.result as ArrayCollection;
-
-				trace(">>>>>>>>>>>>>>>>>>>>>>>>Position Summary result")
-				tracker.addEventListener("ready", onTrackerReady)
-				setTimeout(tracker.draw, 200, startDate, endDate)
-				setTimeout(tracker.fillHours, 300, hours)
-
-				map.visible=true;
-
-			}
-
-			private function onPositionsFault(e:FaultEvent):void
-			{
-				trace("positions fault")
-			}
-
-			//Entities operations
-			private function onEntityDeleted():void
-			{
-				//TODO
-			}
-
-			private function onEntityCreated():void
-			{
-				//TODO
-			}
-
-			private function onEntityUpdated():void
-			{
-				//TODO
-			}
-
-			private function onLinkAdded():void
-			{
-				//TODO
-			}
-
-			private function onMarkerClick(e:MapMouseEvent):void
-			{
-				for (var l:int=0; l < lines.length; l++)
-				{
-					var polyline:Polyline=lines[l] as Polyline;
-					polyline.foreground.filters=null;
-				}
-
-				e.stopImmediatePropagation()
-				var icon:CustomMarker
-				var i:*;
-				//var customMarker:CustomMarker=e.currentTarget.wrapper.options.icon as CustomMarker;
-				if (e.ctrlKey) //multiple selection
-				{
-					icon=icons[e.currentTarget];
-					icon.selected=!icon.selected;
-					var selectedItems:Vector.<Object>=new <Object>[];
-
-					for (i in icons)
-					{
-						icon=icons[i]
-						if (icon.selected)
-							selectedItems.push(icon.entity);
-					}
-					info.selectedItems=selectedItems;
-					actionbar.selectedObjects=selectedItems;
-					if (selectedItems.length > 0)
-					{
-						info.selectedItem=selectedItems[selectedItems.length - 1]
-						actionbar.selectedObject=selectedItems[selectedItems.length - 1]
-					}
-					else
-					{
-						info.selectedItem=null
-						actionbar.selectedObject=null
-					}
-					if (selectedItems.length == 2 && ((selectedItems[0].type == "position" && selectedItems[1].type == "target") || (selectedItems[0].type == "target" && selectedItems[1].type == "position")))
-					{
-						actionbar.linkEnabled=true;
-					}
-					else
-					{
-						actionbar.linkEnabled=false;
-					}
-				}
-
-				else //single selection
-				{
-					for (i in icons)
-					{
-						icon=icons[i]
-						icon.selected=false;
-					}
-					icon=icons[e.currentTarget];
-					icon.selected=!icon.selected;
-					info.selectedItem=icon.selected ? icon.entity : null;
-					info.selectedItems=new <Object>[info.selectedItem];
-
-					actionbar.selectedObject=icon.selected ? icon.entity : null;
-					actionbar.selectedObjects=new <Object>[info.selectedItem];
-					actionbar.selectedObjects.push(info.selectedItem)
-					actionbar.linkEnabled=false;
-				}
-
-			}
-
-			public function unselectAll():void
-			{
-				var icon:CustomMarker
-				for (var i:* in icons)
-				{
-					icon=icons[i]
-					icon.selected=false;
-				}
-				info.selectedItem=null
-				info.selectedItems=null
-
-				actionbar.selectedObject=null
-				actionbar.selectedObjects=null
-				actionbar.linkEnabled=false;
-			}
-
-			private function onMarkerDoubleClick(e:MapMouseEvent):void
-			{
-				e.stopImmediatePropagation();
-				var icon:CustomMarker;
-				icon=icons[e.currentTarget];
-				var event:SectionEvent=new SectionEvent(SectionEvent.CHANGE_SECTION);
-				event.section=SectionEvent.INTELLIGENCE;
-				event.subsection='entity';
-				event.item=new SearchItem(icon.entity) //SearchManager.instance.getItem(icon.entity._id);
-				FlexGlobals.topLevelApplication.dispatchEvent(event);
-			}
-
-			private function onDateChange():void
-			{
-				var i:int;
-
-				if (lines)
-				{
-					for (i=0; i < lines.length; i++)
-					{
-						map.removeOverlay(lines[i] as IOverlay);
-
-					}
-				}
-				lines=new Array()
-				links=new Dictionary()
-
-				//		trace("Geo Map > Date Change: " + tracker.currentDate)
-				//		currentDate=tracker.currentDate;
-				if (tracker.selectedDate)
-					currentDate=tracker.selectedDate
-
-				var marker:Marker
-				for (var tm:* in targetsMarkers)
-				{
-					marker=targetsMarkers[tm] as Marker;
-					marker.foreground.visible=false;
-				}
-
-				for (var pm:* in placesMarkers)
-				{
-					marker=placesMarkers[pm] as Marker;
-					//if (positionsCh.selected)
-					if (options.places)
-					{
-						marker.foreground.visible=true;
-					}
-					else
-					{
-						marker.foreground.visible=false;
-					}
-				}
-
-
-				if (tracker.currentFlow)
-				{
-					for (i=0; i < tracker.currentFlow.positions.length; i++)
-					{
-						var log:Positions=tracker.currentFlow.positions.getItemAt(i) as Positions;
-						/*  for (i=0; i < h.positions.length; i++)
-						{ */
-						//var log:Positions=h.positions.getItemAt(i) as Positions;
-						var entity:Entity=getTarget(log._id);
-
-						var p:Position=log.position;
-						/* 	trace("name: " + entity.name)
-						trace("lat: " + p.lat)
-						trace("long: " + p.lon)
-						trace("rad: " + p.rad)
-						trace("alpha: " + log.alpha)
-						trace("================") */
-
-						if (targetsMarkers[entity._id])
-						{
-							marker=targetsMarkers[entity._id] as Marker;
-					
-						}
-            marker.foreground.visible=true;
-            marker.setLatLng(new LatLng(p.lat, p.lon)) 
-            marker.foreground.alpha=(log.alpha * ALPHA_RATIO) / 100;
-						//marker.getLatLng().
-						//draw links
-						if (entity.links && options.links) //linksCh.selected)
-						{
-							//draw connections
-							for (var l:int=0; l < entity.links.length; l++)
-							{
-								var link:Link=entity.links.getItemAt(l) as Link;
-								var entity2:Entity=EntityManager.instance.getItem(link.le);
-								// trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
-								if (entity && entity2)
-								{
-									if (entity.type == "target" && entity2.type == "position")
-									{
-										drawLink(marker.getLatLng(), new LatLng(Number(entity2.position.latitude), Number(entity2.position.longitude)), entity, link);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				unselectAll();
-				for (i=0; i < lines.length; i++)
-				{
-					var polyline:Polyline=lines[i] as Polyline;
-					polyline.foreground.filters=null;
-				}
-
-				actionbar.selectedObject=null;
-				actionbar.selectedObjects=null
-				info.selectedItem=null;
-				info.selectedItems=null
-				actionbar.linkEnabled=false;
-				//if (fitCh.selected)
-				if (options.fit)
-					zoomToBounds();
-			}
-
-			private function drawLink(pos1:LatLng, pos2:LatLng, entity:Entity, link:Link):void
-			{
-				//https://developers.google.com/maps/documentation/flash/overlays
-				var polyline:Polyline=new Polyline([pos1, pos2], new PolylineOptions({strokeStyle: new StrokeStyle({color: relevanceColors[link.rel], thickness: 2, alpha: 1})}));
-				polyline.foreground.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void
-				{
-					Mouse.cursor="button"
-				})
-				polyline.foreground.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void
-				{
-					Mouse.cursor="auto"
-				})
-				polyline.foreground.addEventListener(MouseEvent.CLICK, onLinkClick);
-
-				map.addOverlay(polyline);
-				overlays.push(polyline);
-				lines.push(polyline)
-				var str:String="<Edge><data fromID='" + entity._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "'></data></Edge>"
-				links[polyline.foreground]=str
-
-			}
-
-
-			private function getTarget(id:String):Entity
-			{
-				if (!targets)
-					return null
-				for (var i:int=0; i < targets.length; i++)
-				{
-					var entity:Entity=targets.getItemAt(i) as Entity;
-					if (entity._id == id)
-						return entity;
-				}
-				return null;
-			}
-
-			//utils stuff
-			private function formatDate(d:Date):String
-			{
-				return String(int(d.time / 1000));
-			}
-
-			private function doubleDigits(n:Number):String
-			{
-				if (n < 10)
-					return "0" + String(n);
-				return String(n);
-			}
-
-			protected function onLinkClick(e:MouseEvent):void
-			{
-				trace("link clicked")
-				e.preventDefault()
-				e.stopImmediatePropagation()
-
-				for (var i:int=0; i < lines.length; i++)
-				{
-					var polyline:Polyline=lines[i] as Polyline;
-					polyline.foreground.filters=null;
-				}
-				var link:XMLList=XMLList(links[e.currentTarget]);
-
-
-				actionbar.selectedObject=link;
-				actionbar.selectedObjects=new <Object>[link];
-				actionbar.selectedObjects.push(link);
-
-				actionbar.linkEnabled=false;
-
-				info.selectedItem=link;
-				info.selectedItems=new <Object>[link];
-
-				e.currentTarget.filters=[new GlowFilter(0x00CCFF, 1, 10, 10, 2, 1)]
-			}
-
-			public function reset():void
-			{
-				trace("GEO MAP >>>>>>>>>>>>>>>> RESET")
-				//tracker.reset()
-				endDate=new Date();
-				endDate.hours=0
-				endDate.minutes=0
-				endDate.seconds=0;
-				endDate.milliseconds=0
-
-				startDate=new Date();
-				startDate.date-=30 //30 days
-				startDate.hours=0
-				startDate.minutes=0
-				startDate.seconds=0;
-				startDate.milliseconds=0;
-
-				//fromDf.selectedDate=new Date(startDate.time);
-				//toDf.selectedDate=new Date(endDate.time);
-				clearMap()
-			}
-
-			public function addListeners():void
-			{
-				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-				FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
-			}
-
-			public function removeListeners():void
-			{
-				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
-				FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
-			}
-		]]>
-	</fx:Script>
-
-	<s:HGroup width="100%"
-						height="100%"
-						gap="5">
-
-		<s:VGroup width="100%"
-							height="100%">
-			<s:HGroup verticalAlign="middle"
-								horizontalAlign="left"
-								width="100%"
-								paddingTop="6"
-								gap="0">
-<!--				<s:CheckBox id="fitCh"
-										label="Fit bounds"
-										change="onDateChange()"
-										selected="true"/>
-				<s:Spacer width="8"/>
-				<s:CheckBox id="positionsCh"
-										label="Show places"
-										selected="false"
-										change="onDateChange(); unselectAll()"/>
-				<s:Spacer width="8"/>
-				<s:CheckBox id="linksCh"
-										label="Draw links"
-										selected="false"
-										change="onDateChange()"/>
-				<s:Spacer width="8"/>
-				<s:Spacer width="100%"/>-->
-				<!--			<s:Label text="{R.get('FILTER_DATA')} "
-											 fontWeight="bold"/>
-							<s:Label text="{R.get('FROM')}:"
-											 fontWeight="bold"/>
-
-
-							<mx:DateField id="fromDf"
-														formatString="YYYY-MM-DD"
-														change="onDateRange(event)"/>
-
-							<s:Label text="{R.get('TO')}:"
-											 fontWeight="bold"/>
-							<mx:DateField id="toDf"
-														formatString="YYYY-MM-DD"
-														change="onDateRange(event)"/>-->
-
-				<renderers:FilterRenderer label="Options"
-																	filter="{options}"
-																	property="options"
-																	popupFactory="it.ht.rcs.console.entities.view.filters.OptionsPopup"
-																	width="150"/>
-
-				<renderers:FilterRenderer label="Time"
-																	filter="{filterCriteria}"
-																	property="time"
-																	popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
-																	width="150"/>
-
-			</s:HGroup>
-			<s:Line width="100%">
-				<s:stroke>
-					<s:SolidColorStroke color="0xCCCCCC"/>
-				</s:stroke>
-			</s:Line>
-			<s:BorderContainer width="100%"
-												 height="100%"
-												 borderAlpha="1"
-												 borderColor="0xCCCCCC"
-												 backgroundColor="0xCCCCCC"
-												 backgroundAlpha="0.1">
-				<maps:Map xmlns:maps="com.google.maps.*"
-									id="map"
-									width="100%"
-									height="100%"
-									key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
-									url="http://www.hackingteam.it/"
-									sensor="false"
-									accessibilityDescription=""
-									enabled="{LicenseManager.instance.correlation}"
-									mapevent_mapready="onMapReady(event)"/>
-			</s:BorderContainer>
-			<s:Line width="100%">
-				<s:stroke>
-					<s:SolidColorStroke color="0xCCCCCC"/>
-				</s:stroke>
-			</s:Line>
-			<s:Group width="100%">
-				<s:Rect width="100%"
-								height="{6*28}">
-					<s:fill>
-						<s:BitmapFill source="@Embed('img/backgrounds/geomaptimeline.png')"
-													fillMode="repeat"/>
-					</s:fill>
-				</s:Rect>
-				<timeline:Timeline width="100%"
-													 id="tracker"
-													 dateChange="onDateChange()"/>
-				<!--	<timeline:Tracker width="100%"
-															startDate="{startDate}"
-															endDate="{endDate}"
-															dateChange="onDateChange()"
-															ready="onTrackerReady()"
-															id="t"/> -->
-				<s:HGroup verticalAlign="middle"
-									horizontalAlign="center"
-									id="loadingBox"
-									visible="true"
-									width="100%"
-									height="100%">
-					<s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
-					<s:Label text="Loading timeline data. Please wait..."
-									 fontWeight="bold"/>
-				</s:HGroup>
-			</s:Group>
-		</s:VGroup>
-
-		<entities:EntityInfoPanel id="info"/>
-	</s:HGroup>
-
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:maps="it.ht.rcs.console.maps.*"
+          xmlns:components="it.ht.rcs.console.entities.view.components.*"
+          xmlns:timeline="it.ht.rcs.console.entities.view.components.advanced.timeline.*"
+          xmlns:entities="it.ht.rcs.console.entities.view.*"
+          xmlns:renderers="it.ht.rcs.console.entities.view.renderers.*"
+          removedFromStage="onRemovedFromStage()"
+          addedToStage="onAddedToStage()"
+          height="100%"
+          width="100%">
+  
+  <fx:Script>
+    <![CDATA[
+  
+      
+      import flash.filters.GlowFilter;
+      import flash.utils.setTimeout;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.Position;
+      import it.ht.rcs.console.entities.model.Positions;
+      import it.ht.rcs.console.entities.model.PositionsFlow;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.HourRenderer;
+      import it.ht.rcs.console.entities.view.components.advanced.timeline.TimelineUtils;
+      import it.ht.rcs.console.entities.view.map.CustomMarker;
+      import it.ht.rcs.console.events.FilterEvent;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.search.model.SearchItem;
+      import it.ht.rcs.console.target.model.Target;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ListCollectionView;
+      import mx.controls.Alert;
+      import mx.core.FlexGlobals;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import org.un.cava.birdeye.ravis.graphLayout.data.Edge;
+      
+      //map stuff
+      //map stuff
+    
+     
+      private var icons:Dictionary; //pins?
+      private var targetsMarkers:Dictionary; //pins?
+      private var placesMarkers:Dictionary;
+      private var lines:Array;
+      private var links:Dictionary;
+      private var markers:Array;
+      private var circles:Array;
+
+      //Styling
+      private var circleFillColor:uint=0xFF0000;
+      private var circleFillAlpha:Number=0.2;
+      private var circleBorderTickness:int=0.2;
+      private var circleBorderFillColor:uint=0xFF0000;
+      private var circleBorderFillAlpha:Number=0.5;
+      
+      private const ALPHA_RATIO:Number=100 / 60;
+      
+      private var relevence0:uint=0x333333;
+      private var relevence1:uint=0x999999;
+      private var relevence2:uint=0x5DE35F;
+      private var relevence3:uint=0xFFDC42;
+      private var relevence4:uint=0xFF4034;
+      
+      private var relevanceColors:Array=[relevence0, relevence1, relevence2, relevence3, relevence4];
+      
+      
+      [Bindable]
+      public var actionbar:EntitiesActionBar
+      [Bindable]
+      public var section:EntitiesSection;
+      [Bindable]
+      public var entities:ListCollectionView; //all entities
+      
+      private var startDate:Date;
+      
+      private var endDate:Date;
+      
+      private var currentDate:Date;
+      
+      [Bindable]
+      public var filterCriteria:Object={ type: [], relevance: [], time: "time", from: "lastMonth", to: 0 };
+      
+      [Bindable]
+      public var options:Object={links: false, fit: true, places: false};
+      
+      private var entitiesToShow:ArrayCollection //only targets and positions
+      private var positions:ArrayCollection; //only positions
+      private var targets:ArrayCollection; //only targets
+      
+      //TODO > CHECK MAP IS READY!
+      private function onMapReady():void
+      {
+       
+      }
+      
+      private function clearMap():void
+      {
+       
+      }
+      
+      private function drawMap():void
+      {
+          trace("DRAW MAP")
+          mapViewer.setAllowNoSelection(true);
+          mapViewer.clearOverlays();
+          
+          var i:int=0;
+          var entity:Entity;
+          var marker:Object;
+          
+          targetsMarkers=new Dictionary()
+          placesMarkers=new Dictionary()
+          icons=new Dictionary()
+          markers=new Array();
+          circles=new Array();
+          lines=new Array();
+          links=new Dictionary();
+          
+          var items:Vector.<Object>=new Vector.<Object>();
+          
+          //positions
+          for (i=0; i < positions.length; i++)
+          {
+            entity=positions.getItemAt(i) as Entity;
+            items.push(entity)
+            marker=mapViewer.addMarker(Number(entity.position.latitude), Number(entity.position.longitude), "mapMarker_location.png","location",entity._id);
+            
+            markers.push(marker);
+            placesMarkers[entity._id]=marker;
+            marker.setVisible(false);
+    
+          }
+          
+          //targets
+          for (i=0; i < targets.length; i++)
+          {
+            entity=targets.getItemAt(i) as Entity;
+            if (entity.position)
+            {
+              items.push(entity)
+              marker=mapViewer.addMarker(Number(entity.position.latitude), Number(entity.position.longitude), "mapMarker_target.png", "target",entity._id);
+              
+              markers.push(marker);
+              targetsMarkers[entity._id]=marker;
+              marker.setVisible(false);
+         
+            }
+          }
+          mapViewer.positions=items;
+          onDateChange()
+          
+      }
+      
+      private function onRemovedFromStage():void
+      {
+        tracker.reset();
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
+        
+      }
+      
+      private function onOptionsChange(e:Event):void
+      {
+        trace("options change")
+        onDateChange()
+      }
+      
+      
+      private function onFilterChange(e:FilterEvent):void
+      {
+        trace("GEO MAP FILTER CHANGE")
+        if (filterCriteria.from == "lastMonth")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from == "last3Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from == "last6Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from && filterCriteria.to)
+        {
+          startDate=new Date(filterCriteria.from * 1000)
+          endDate=new Date(filterCriteria.to * 1000);
+        }
+        
+        trace("from: " + startDate)
+        trace("to: " + endDate)
+        
+        clearMap()
+        mapViewer.visible=false
+        refresh()
+      }
+      
+      private function resetFilter(e:FilterEvent):void
+      {
+        trace("FILTER RESET")
+      }
+      
+      public function doStop():void
+      {
+        //tracker.doStop()
+      }
+
+      
+    
+   
+      public function init():void
+      {
+        
+        trace("GEO MAP >>>>>>>>>>>>>>>> INIT")
+        
+        
+        //FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+        
+        //default dates
+        
+        endDate=new Date();
+        endDate.hours=23
+        endDate.minutes=59
+        endDate.seconds=59;
+        endDate.milliseconds=0
+        
+        startDate=new Date();
+        startDate.date-=30; //30 days
+        startDate.hours=0;
+        startDate.minutes=0;
+        startDate.seconds=0;
+        startDate.milliseconds=0;
+        
+        
+        //default filters settings
+        /* 		fitCh.selected=true;
+        positionsCh.selected=false;
+        linksCh.selected=false; */
+        
+        
+        options.fit=true;
+        options.places=false
+        options.links=false;
+        
+    
+        
+        tracker.visible=false;
+        loadingBox.visible=true;
+        tracker.addEventListener(Timeline.READY, onTrackerReady)
+        
+      }
+      
+      
+      //not used - remove
+      private function onDateRange(e:Event):void
+      {
+        e.stopImmediatePropagation()
+        tracker.reset();
+        
+        if (filterCriteria.from && filterCriteria.to)
+        {
+          //TODO CHECK DATES!
+        }
+
+        setTimeout(onDateFilter, 100)
+      }
+      
+      //not used - remove
+      private function onDateFilter():void
+      {
+        
+        tracker.visible=false;
+        loadingBox.visible=true;
+        
+        if (filterCriteria.from > filterCriteria.to)
+        {
+          /*  fromDf.selectedDate=new Date()
+          fromDf.selectedDate.time=startDate.time
+          toDf.selectedDate=new Date()
+          toDf.selectedDate.time=endDate.time */
+          Alert.show("Start date must be before end date")
+          return;
+        }
+          
+        else if ((filterCriteria.to - filterCriteria.from) > (TimelineUtils.DAY * 365))
+        {
+          /* fromDf.selectedDate=new Date(startDate.time)
+          toDf.selectedDate=new Date(endDate.time) */
+          Alert.show("Selected range cannot exceed one year")
+          return;
+        }
+        
+        /* 		startDate=new Date(fromDf.selectedDate.time);
+        startDate.minutes=0;
+        startDate.seconds=0;
+        startDate.milliseconds=0
+        
+        endDate=new Date(toDf.selectedDate.time);
+        endDate.hours=23
+        endDate.minutes=59;
+        endDate.seconds=59;
+        endDate.milliseconds=0; */
+        
+        if (filterCriteria.from == "lastMonth")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from == "last3Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from == "last6Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from && filterCriteria.to)
+        {
+          startDate=new Date(filterCriteria.from * 1000)
+          endDate=new Date(filterCriteria.to * 1000);
+        }
+        
+        clearMap()
+        mapViewer.visible=false
+        refresh()
+      }
+      
+      
+      
+      private function onTrackerReady(e:Event):void
+      {
+        trace("TRACKER READY")
+        tracker.removeEventListener(Timeline.READY, onTrackerReady)
+        //clearMap()
+        loadingBox.visible=false;
+        tracker.visible=true;
+        setTimeout(getPositionsDetail, 100, targets)
+        //refresh()
+      }
+      
+      private function onAddedToStage():void
+      {
+        startDate=new Date();
+        startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+        endDate=new Date();
+        
+        filterCriteria={type: [], relevance: [], time: "time", from: "lastMonth", to: 0};
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener("optionsChange", onOptionsChange);
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+      
+      private function onRefresh(e:RefreshEvent):void
+      {
+        clearMap()
+        refresh();
+      }
+      
+      public function refresh():void
+      {
+        clearMap()
+        tracker.reset()
+        loadingBox.visible=true;
+        tracker.visible=false;
+        mapViewer.visible=false;
+        
+        trace("GEO MAP >>>>>>>>>>>>>>>> REFRESH")
+        trace("TOTAL ENTITIES: " + entities.length)
+        
+        //get details about entities
+        info.selectedItem=null;
+        info.selectedItems=null;
+        actionbar.selectedObject=null;
+        actionbar.selectedObjects=null;
+        actionbar.linkEnabled=false;
+        
+        entitiesToShow=new ArrayCollection()
+        
+        var entity:Entity;
+        var i:int;
+        for (i=0; i < entities.length; i++)
+        {
+          entity=entities.getItemAt(i) as Entity;
+          if (entity.type == "position" || entity.type == "target")
+            entitiesToShow.addItem(entity);
+        }
+        
+        positions=new ArrayCollection()
+        targets=new ArrayCollection()
+        
+        for (i=0; i < entitiesToShow.length; i++)
+        {
+          entity=entitiesToShow.getItemAt(i) as Entity;
+          if (entity.type == "position")
+          {
+            positions.addItem(entity)
+          }
+          else if (entity.type == "target")
+          {
+            targets.addItem(entity)
+          }
+        }
+        
+        drawMap()
+        getPositionsSummary(targets)
+        
+      }
+      
+      
+      
+      private function onMapClick():void
+      {
+    
+      }
+      
+      private function getPositionsSummary(targets:ArrayCollection):void
+      {
+        var ids:Array=new Array();
+        for (var i:int=0; i < targets.length; i++)
+        {
+          var e:Entity=targets.getItemAt(i) as Entity;
+          ids.push(e._id)
+        }
+        EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), true, onPositionsSummaryResult, onPositionsFault)
+      }
+      
+      private function getPositionsDetail(targets:ArrayCollection):void
+      {
+        var ids:Array=new Array();
+        for (var i:int=0; i < targets.length; i++)
+        {
+          var e:Entity=targets.getItemAt(i) as Entity;
+          ids.push(e._id)
+        }
+        /*   startDate=fromDf.selectedDate
+        endDate=toDf.selectedDate */
+        if (filterCriteria.from == "lastMonth")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 30);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from == "last3Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 90);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from == "last6Months")
+        {
+          startDate=new Date();
+          startDate.time=startDate.time - (1000 * 60 * 60 * 24 * 180);
+          endDate=new Date();
+        }
+          
+        else if (filterCriteria.from && filterCriteria.to)
+        {
+          startDate=new Date(filterCriteria.from * 1000)
+          endDate=new Date(filterCriteria.to * 1000);
+        }
+        endDate.hours=23
+        endDate.minutes=59
+        endDate.seconds=59
+        EntityManager.instance.positions(ids, formatDate(startDate), formatDate(endDate), false, onPositionsDetailResult, onPositionsFault)
+      }
+      
+      private function onPositionsDetailResult(e:ResultEvent):void
+      {
+        var pos:ArrayCollection=e.result as ArrayCollection;
+        for (var i:int=0; i < pos.length; i++)
+        {
+          var d:Date=new Date()
+          d.time=pos.getItemAt(i).time * 1000;
+          trace(d)
+        }
+        tracker.fillMinutes(pos)
+        //tracker.populateMinutes(pos)
+        
+      }
+      
+      private function onPositionsSummaryResult(e:ResultEvent):void
+      {
+        var hours:ArrayCollection=e.result as ArrayCollection;
+        
+        trace(">>>>>>>>>>>>>>>>>>>>>>>>Position Summary result")
+        tracker.addEventListener("ready", onTrackerReady)
+        setTimeout(tracker.draw, 200, startDate, endDate)
+        setTimeout(tracker.fillHours, 300, hours)
+        
+        mapViewer.visible=true
+        
+      }
+      
+      private function onPositionsFault(e:FaultEvent):void
+      {
+        trace("positions fault")
+      }
+      
+      //Entities operations
+      private function onEntityDeleted():void
+      {
+        //TODO
+      }
+      
+      private function onEntityCreated():void
+      {
+        //TODO
+      }
+      
+      private function onEntityUpdated():void
+      {
+        //TODO
+      }
+      
+      private function onLinkAdded():void
+      {
+        //TODO
+      }
+      
+      private function onMarkerClick():void
+      {
+       
+      }
+      
+      public function unselectAll():void
+      {
+      
+      }
+      
+      private function onMarkerDoubleClick():void
+      {
+     
+      }
+      
+      private function onDateChange():void
+      {
+        var i:int;
+        
+        mapViewer.clearLines();
+        lines=new Array()
+        links=new Dictionary()
+        
+        //		trace("Geo Map > Date Change: " + tracker.currentDate)
+        //		currentDate=tracker.currentDate;
+        if (tracker.selectedDate)
+          currentDate=tracker.selectedDate
+        
+        var marker:Object
+        for (var tm:* in targetsMarkers)
+        {
+          marker=targetsMarkers[tm];
+          marker.setVisible(false)
+        }
+        
+        for (var pm:* in placesMarkers)
+        {
+          marker=placesMarkers[pm] ;
+          //if (positionsCh.selected)
+          if (options.places)
+          {
+            marker.setVisible(true)
+          }
+          else
+          {
+            marker.setVisible(false)
+          }
+        }
+        
+        
+        if (tracker.currentFlow)
+        {
+          for (i=0; i < tracker.currentFlow.positions.length; i++)
+          {
+            var log:Positions=tracker.currentFlow.positions.getItemAt(i) as Positions;
+            var entity:Entity=getTarget(log._id);
+            var p:Position=log.position; 
+            if (targetsMarkers[entity._id])
+            {
+              marker=targetsMarkers[entity._id]
+            }
+            marker.setVisible(true)
+            //marker.setLatLng(new LatLng(p.lat, p.lon)) 
+              marker.setPosition({lat:p.lat,lng:p.lon})
+              marker.setOpacity((log.alpha * ALPHA_RATIO) / 100)
+           
+            //draw links
+            if (entity.links && options.links) //linksCh.selected)
+            {
+              //draw connections
+              for (var l:int=0; l < entity.links.length; l++)
+              {
+                var link:Link=entity.links.getItemAt(l) as Link;
+                var entity2:Entity=EntityManager.instance.getItem(link.le);
+                // trace("Link beetween: "+entity.type+ " and "+EntityManager.instance.getEntityById(link.le).type)
+                if (entity && entity2)
+                {
+                  if (entity.type == "target" && entity2.type == "position")
+                  {
+                    trace("DRAW LINK")
+                    drawLink({lat: marker.getPosition().lat(), lng:marker.getPosition().lng()}, {lat: entity2.position.latitude, lng:entity2.position.longitude}, entity, link);
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        mapViewer.unselectAll();
+        for (i=0; i < lines.length; i++)
+        {
+          //var polyline:Polyline=lines[i] as Polyline;
+         // polyline.foreground.filters=null;
+        }
+        
+        actionbar.selectedObject=null;
+        actionbar.selectedObjects=null;
+        info.selectedItem=null;
+        info.selectedItems=null
+        actionbar.linkEnabled=false;
+        //if (fitCh.selected)
+        if (options.fit)
+          
+         mapViewer.fitBounds()
+      }
+      
+      private function drawLink(pos1:Object, pos2:Object, entity:Entity, link:Link):void
+      {
+        //https://developers.google.com/maps/documentation/flash/overlays
+       /*  var polyline:Polyline=new Polyline([pos1, pos2], new PolylineOptions({strokeStyle: new StrokeStyle({color: relevanceColors[link.rel], thickness: 2, alpha: 1})}));
+        polyline.foreground.addEventListener(MouseEvent.MOUSE_OVER, function(e:MouseEvent):void
+        {
+          Mouse.cursor="button"
+        })
+        polyline.foreground.addEventListener(MouseEvent.MOUSE_OUT, function(e:MouseEvent):void
+        {
+          Mouse.cursor="auto"
+        })
+        polyline.foreground.addEventListener(MouseEvent.CLICK, onLinkClick);
+        
+        
+        
+        map.addOverlay(polyline);
+        overlays.push(polyline);
+        lines.push(polyline)
+        var str:String="<Edge><data fromID='" + entity._id + "' toID='" + link.le + "' rel='" + link.rel + "' type='" + link.type + "'level='" + link.level + "'></data></Edge>"
+        links[polyline.foreground]=str
+         */
+        
+        var line:Object = mapViewer.addLine(pos1, pos2);
+      }
+      
+      
+      private function getTarget(id:String):Entity
+      {
+        if (!targets)
+          return null
+        for (var i:int=0; i < targets.length; i++)
+        {
+          var entity:Entity=targets.getItemAt(i) as Entity;
+          if (entity._id == id)
+            return entity;
+        }
+        return null;
+      }
+      
+      //utils stuff
+      private function formatDate(d:Date):String
+      {
+        return String(int(d.time / 1000));
+      }
+      
+      private function doubleDigits(n:Number):String
+      {
+        if (n < 10)
+          return "0" + String(n);
+        return String(n);
+      }
+      
+      protected function onLinkClick(e:MouseEvent):void
+      {
+     
+      }
+      
+      public function reset():void
+      {
+        trace("GEO MAP >>>>>>>>>>>>>>>> RESET")
+        //tracker.reset()
+        endDate=new Date();
+        endDate.hours=0
+        endDate.minutes=0
+        endDate.seconds=0;
+        endDate.milliseconds=0
+        
+        startDate=new Date();
+        startDate.date-=30 //30 days
+        startDate.hours=0
+        startDate.minutes=0
+        startDate.seconds=0;
+        startDate.milliseconds=0;
+        
+        //fromDf.selectedDate=new Date(startDate.time);
+        //toDf.selectedDate=new Date(endDate.time);
+        clearMap()
+      }
+      
+      public function addListeners():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      
+      public function removeListeners():void
+      {
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      }
+      protected function onMapSelection():void
+      {
+
+        //single selection
+        info.selectedItem=mapViewer.selectedPosition
+        info.selectedItems=new <Object>[info.selectedItem];
+        
+        actionbar.selectedObject=mapViewer.selectedPosition
+        actionbar.selectedObjects=new <Object>[info.selectedItem];
+        actionbar.selectedObjects.push(info.selectedItem)
+        actionbar.linkEnabled=false;
+      }
+      
+    ]]>
+  </fx:Script>
+  
+  <s:HGroup width="100%"
+            height="100%"
+            gap="5">
+    
+    <s:VGroup width="100%"
+              height="100%">
+      <s:HGroup verticalAlign="middle"
+                horizontalAlign="left"
+                width="100%"
+                paddingTop="6"
+                gap="0">
+
+        
+        <renderers:FilterRenderer label="Options"
+                                  filter="{options}"
+                                  property="options"
+                                  popupFactory="it.ht.rcs.console.entities.view.filters.OptionsPopup"
+                                  width="150"/>
+        
+        <renderers:FilterRenderer label="Time"
+                                  filter="{filterCriteria}"
+                                  property="time"
+                                  popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
+                                  width="150"/>
+        
+      </s:HGroup>
+      <s:Line width="100%">
+        <s:stroke>
+          <s:SolidColorStroke color="0xCCCCCC"/>
+        </s:stroke>
+      </s:Line>
+      <s:BorderContainer width="100%"
+                         height="100%"
+                         borderAlpha="1"
+                         borderColor="0xCCCCCC"
+                         backgroundColor="0xCCCCCC"
+                         backgroundAlpha="0.1">
+        
+        
+        
+        <maps:MapViewer id="mapViewer"
+                             change="onMapSelection()"
+                             width="100%"
+                             height="100%"/>
+      </s:BorderContainer>
+      <s:Line width="100%">
+        <s:stroke>
+          <s:SolidColorStroke color="0xCCCCCC"/>
+        </s:stroke>
+      </s:Line>
+      <s:Group width="100%">
+        <s:Rect width="100%"
+                height="{6*28}">
+          <s:fill>
+            <s:BitmapFill source="@Embed('img/backgrounds/geomaptimeline.png')"
+                          fillMode="repeat"/>
+          </s:fill>
+        </s:Rect>
+        <timeline:Timeline width="100%"
+                           id="tracker"
+                           dateChange="onDateChange()"/>
+
+        <s:HGroup verticalAlign="middle"
+                  horizontalAlign="center"
+                  id="loadingBox"
+                  visible="true"
+                  width="100%"
+                  height="100%">
+          <s:SWFLoader source="@Embed('/img/evidence/spinner16.swf')"/>
+          <s:Label text="Loading timeline data. Please wait..."
+                   fontWeight="bold"/>
+        </s:HGroup>
+      </s:Group>
+    </s:VGroup>
+    
+    <entities:EntityInfoPanel id="info"/>
+  </s:HGroup>
+  
 </s:VGroup>

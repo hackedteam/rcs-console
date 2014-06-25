@@ -1,401 +1,427 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-					xmlns:s="library://ns.adobe.com/flex/spark"
-					xmlns:mx="library://ns.adobe.com/flex/mx"
-					width="100%"
-					creationComplete="init()"
-					gap="0"
-					xmlns:timeline="timeline.*">
-
-	<fx:Metadata>
+          xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          width="100%"
+          creationComplete="init()"
+          gap="0"
+          xmlns:timeline="timeline.*">
+  
+  <fx:Metadata>
     [Event(name="dateChange", type="flash.events.Event")]
     [Event(name="ready", type="flash.events.Event")]
   </fx:Metadata>
-	<fx:Script>
-		<![CDATA[
-			import it.ht.rcs.console.entities.model.PositionsFlow;
-			
-			import mx.collections.ArrayCollection;
-			
-			import spark.components.Label;
-			import spark.components.gridClasses.GridColumn;
-			import spark.core.SpriteVisualElement;
-			import spark.events.GridSelectionEvent;
-
-			[Bindable]
-			private var grid:Grid;
-
-			[Bindable]
-			private var rows:ArrayCollection;
-			private var columns:ArrayCollection;
-			private var days:ArrayCollection;
-
-			//public
-			[Bindable]
-			public var selectedDate:Date;
-
-			public var currentFlow:PositionsFlow;
-
-			private var t:Timer
-
-			public static const READY:String="ready"
-
-			private function init():void
-			{
-				selectedDate=new Date();
-				t=new Timer(250);
-			}
-
-			public function draw(startDate:Date, endDate:Date):void
-			{
-				startDate.hours=0;
-				startDate.minutes=0
-				startDate.seconds=0
-				startDate.milliseconds=0
-
-				endDate.hours=0
-				endDate.minutes=0
-				endDate.seconds=0
-				endDate.milliseconds=0
-
-				while (viewport.numElements > 0)
-					viewport.removeElementAt(0)
-
-				grid=new Grid()
-
-				grid.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelection)
-				grid.addEventListener(MouseEvent.CLICK, onSelection)
-				viewport.addElement(grid)
-
-				if (grid.dataProvider)
-				{
-					grid.dataProvider.removeAll();
-					grid.dataProvider=null;
-				}
-
-				days=new ArrayCollection();
-
-				var currentMonth:Number;
-				var daysPerMonth:Array;
-				var daysPerMonthCount:Number;
-				var months:Array=new Array();
-
-
-				currentMonth=startDate.month;
-				daysPerMonth=new Array();
-				daysPerMonthCount=0;
-				months=new Array();
-
-				//Columns
-				for (var d:Date=startDate; d <= endDate; d.date+=1)
-				{
-
-					var currentDate:Date=new Date();
-					currentDate.time=d.time;
-
-					if (currentDate.month != currentMonth)
-					{
-						//add month separator
-						daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count: daysPerMonthCount});
-						daysPerMonthCount=0;
-					}
-					daysPerMonthCount++
-					currentMonth=currentDate.month;
-					days.addItem(currentDate);
-				}
-
-				//last loop
-
-				trace("month separator " + daysPerMonthCount);
-				daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count: daysPerMonthCount});
-				daysPerMonthCount=0;
-
-				rows=new ArrayCollection();
-
-				for (var i:int=0; i < 24; i++)
-				{
-					var item:Object=new Object;
-
-					for (var k:int=0; k < days.length; k++)
-					{
-						var day:Date=days.getItemAt(k) as Date;
-						//trace(day)
-						item[day.time]={date: day.time, hours: i, value: false} //day.time + (TimelineUtils.HOUR * i);
-					}
-					rows.addItem(item);
-				}
-
-				/*
-				Columns Header formatting   //http://forums.adobe.com/message/3819357 !!!!
-				*/
-				// grid.dataProvider.removeAll()
-
-				grid.dataProvider=rows;
-				grid.validateNow()
-				var columns:ArrayCollection=new ArrayCollection()
-				for (var c:int=0; c < grid.columns.length; c++)
-				{
-					var column:GridColumn=new GridColumn(grid.columns.getItemAt(c).dataField)
-					column.width=16;
-					var date:Date=new Date(Number(column.dataField));
-					column.headerText=TimelineUtils.doubleDigits(date.date)
-					columns.addItem(column);
-				}
-				grid.columns.removeAll()
-				grid.columns=columns;
-
-				//draw separators
-				var xPos:Number=0;
-
-				for (var s:int=0; s < daysPerMonth.length - 1; s++)
-				{
-					var w:Number=0 //width
-					xPos+=daysPerMonth[s].count * 16;
-					w=daysPerMonth[s].count * 16;
-					//draw separator at xPos;
-					var separator:SpriteVisualElement=new SpriteVisualElement();
-					separator.graphics.lineStyle(2, 0x333333, 1);
-					separator.graphics.moveTo(0, 0);
-					separator.graphics.lineTo(0, 168);
-					separator.x=xPos + 1;
-					viewport.addElement(separator);
-
-
-					var monthLabel:Label=new Label();
-					monthLabel.text=daysPerMonth[s].name; //looped
-					monthLabel.setStyle("color", 0x333333);
-					monthLabel.setStyle("fontWeight", "bold");
-					monthLabel.setStyle("fontSize", 40);
-					monthLabel.validateNow()
-					monthLabel.alpha=0.13;
-					monthLabel.x=(xPos - (16 * 31))
-					monthLabel.x+=((16 * 31) - (monthLabel.text.length * 20)) * .5
-					monthLabel.y=70;
-
-					//check if there is enough width to display label
-
-					monthLabel.mouseEnabled=false;
-					viewport.addElement(monthLabel)
-
-				}
-
-				// TODO last month
-				xPos+=30 * 16;
-				var lastLabel:Label=new Label();
-				lastLabel.text=daysPerMonth[daysPerMonth.length - 1].name; //looped
-				lastLabel.setStyle("color", 0x333333);
-				lastLabel.setStyle("fontWeight", "bold");
-				lastLabel.setStyle("fontSize", 40);
-				lastLabel.validateNow()
-				lastLabel.alpha=0.13;
-				lastLabel.x=(xPos - (16 * 31))
-				lastLabel.x+=((16 * 31) - (lastLabel.text.length * 20)) * .5
-				lastLabel.y=70;
-
-				//check if there is enough width to display label
-
-				lastLabel.mouseEnabled=false;
-				viewport.addElement(lastLabel)
-
-				labelDisplay.text=""
-
-				setTimeout(ready, 3000)
-				reset()
-			}
-
-			public function reset():void
-			{
-				if (playBtn.label == "pause")
-				{
-					t.stop();
-					t.removeEventListener(TimerEvent.TIMER, doPlay);
-					playBtn.label="play"
-				}
-				if(grid)
+  <fx:Script>
+    <![CDATA[
+      import it.ht.rcs.console.entities.model.PositionsFlow;
+      
+      import mx.collections.ArrayCollection;
+      
+      import spark.components.Label;
+      import spark.components.gridClasses.GridColumn;
+      import spark.core.SpriteVisualElement;
+      import spark.events.GridSelectionEvent;
+      
+      [Embed(source="img/mediaplayers/playMedium.png")]
+      [Bindable]
+      public var playIcon:Class;
+      
+      [Embed(source="img/mediaplayers/pauseMedium.png")]
+      [Bindable]
+      public var pauseIcon:Class;
+      
+      [Embed(source="img/mediaplayers/stopMedium.png")]
+      [Bindable]
+      public var stopIcon:Class;
+      
+      [Bindable]
+      private var grid:Grid;
+      
+      [Bindable]
+      private var rows:ArrayCollection;
+      private var columns:ArrayCollection;
+      private var days:ArrayCollection;
+      
+      //public
+      [Bindable]
+      public var selectedDate:Date;
+      
+      public var currentFlow:PositionsFlow;
+      
+      private var t:Timer
+      
+      public static const READY:String="ready"
+      
+      private function init():void
+      {
+        selectedDate=new Date();
+        t=new Timer(250);
+      }
+      
+      public function draw(startDate:Date, endDate:Date):void
+      {
+        startDate.hours=0;
+        startDate.minutes=0
+        startDate.seconds=0
+        startDate.milliseconds=0
+        
+        endDate.hours=0
+        endDate.minutes=0
+        endDate.seconds=0
+        endDate.milliseconds=0
+        
+        while (viewport.numElements > 0)
+          viewport.removeElementAt(0)
+        
+        grid=new Grid()
+        
+        grid.addEventListener(GridSelectionEvent.SELECTION_CHANGE, onSelection)
+        grid.addEventListener(MouseEvent.CLICK, onSelection)
+        viewport.addElement(grid)
+        
+        if (grid.dataProvider)
+        {
+          grid.dataProvider.removeAll();
+          grid.dataProvider=null;
+        }
+        
+        days=new ArrayCollection();
+        
+        var currentMonth:Number;
+        var daysPerMonth:Array;
+        var daysPerMonthCount:Number;
+        var months:Array=new Array();
+        
+        
+        currentMonth=startDate.month;
+        daysPerMonth=new Array();
+        daysPerMonthCount=0;
+        months=new Array();
+        
+        //Columns
+        for (var d:Date=startDate; d <= endDate; d.date+=1)
+        {
+          
+          var currentDate:Date=new Date();
+          currentDate.time=d.time;
+          
+          if (currentDate.month != currentMonth)
+          {
+            //add month separator
+            daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count: daysPerMonthCount});
+            daysPerMonthCount=0;
+          }
+          daysPerMonthCount++
+            currentMonth=currentDate.month;
+          days.addItem(currentDate);
+        }
+        
+        //last loop
+        
+        trace("month separator " + daysPerMonthCount);
+        daysPerMonth.push({name: TimelineUtils.monthNames[currentMonth], count: daysPerMonthCount});
+        daysPerMonthCount=0;
+        
+        rows=new ArrayCollection();
+        
+        for (var i:int=0; i < 24; i++)
+        {
+          var item:Object=new Object;
+          
+          for (var k:int=0; k < days.length; k++)
+          {
+            var day:Date=days.getItemAt(k) as Date;
+            //trace(day)
+            item[day.time]={date: day.time, hours: i, value: false} //day.time + (TimelineUtils.HOUR * i);
+          }
+          rows.addItem(item);
+        }
+        
+        /*
+        Columns Header formatting   //http://forums.adobe.com/message/3819357 !!!!
+        */
+        // grid.dataProvider.removeAll()
+        
+        grid.dataProvider=rows;
+        grid.validateNow()
+        var columns:ArrayCollection=new ArrayCollection()
+        for (var c:int=0; c < grid.columns.length; c++)
+        {
+          var column:GridColumn=new GridColumn(grid.columns.getItemAt(c).dataField)
+          column.width=16;
+          var date:Date=new Date(Number(column.dataField));
+          column.headerText=TimelineUtils.doubleDigits(date.date)
+          columns.addItem(column);
+        }
+        grid.columns.removeAll()
+        grid.columns=columns;
+        
+        //draw separators
+        var xPos:Number=0;
+        
+        for (var s:int=0; s < daysPerMonth.length - 1; s++)
+        {
+          var w:Number=0 //width
+          xPos+=daysPerMonth[s].count * 16;
+          w=daysPerMonth[s].count * 16;
+          //draw separator at xPos;
+          var separator:SpriteVisualElement=new SpriteVisualElement();
+          separator.graphics.lineStyle(2, 0x333333, 1);
+          separator.graphics.moveTo(0, 0);
+          separator.graphics.lineTo(0, 168);
+          separator.x=xPos + 1;
+          viewport.addElement(separator);
+          
+          
+          var monthLabel:Label=new Label();
+          monthLabel.text=daysPerMonth[s].name; //looped
+          monthLabel.setStyle("color", 0x333333);
+          monthLabel.setStyle("fontWeight", "bold");
+          monthLabel.setStyle("fontSize", 40);
+          monthLabel.validateNow()
+          monthLabel.alpha=0.13;
+          monthLabel.x=(xPos - (16 * 31))
+          monthLabel.x+=((16 * 31) - (monthLabel.text.length * 20)) * .5
+          monthLabel.y=70;
+          
+          //check if there is enough width to display label
+          
+          monthLabel.mouseEnabled=false;
+          viewport.addElement(monthLabel)
+          
+        }
+        
+        // TODO last month
+        xPos+=30 * 16;
+        var lastLabel:Label=new Label();
+        lastLabel.text=daysPerMonth[daysPerMonth.length - 1].name; //looped
+        lastLabel.setStyle("color", 0x333333);
+        lastLabel.setStyle("fontWeight", "bold");
+        lastLabel.setStyle("fontSize", 40);
+        lastLabel.validateNow()
+        lastLabel.alpha=0.13;
+        lastLabel.x=(xPos - (16 * 31))
+        lastLabel.x+=((16 * 31) - (lastLabel.text.length * 20)) * .5
+        lastLabel.y=70;
+        
+        //check if there is enough width to display label
+        
+        lastLabel.mouseEnabled=false;
+        viewport.addElement(lastLabel)
+        
+        labelDisplay.text=""
+        
+        setTimeout(ready, 3000)
+        reset()
+      }
+      
+      public function reset():void
+      {
+        if (playBtn.toolTip == "pause")
+        {
+          t.stop();
+          t.removeEventListener(TimerEvent.TIMER, doPlay);
+          playBtn.toolTip="play"
+          playBtn.setStyle("icon", playIcon)
+        }
+        
+    
+        if(grid)
         {
           grid.setSelectedCell(0, 0)
-          onSelection(new Event("change"))
+         // onSelection(new Event("change"))
         }
-			}
-
-			private function ready():void
-			{
-				dispatchEvent(new Event("ready"))
-			}
-
-			private function onSelection(e:Event):void
-			{
-				e.stopImmediatePropagation()
-				var currentDate:Date=days.getItemAt(grid.selectedCell.columnIndex) as Date //columns are days
-				selectedDate.time=currentDate.time;
-				selectedDate.hours=grid.selectedCell.rowIndex //rows are hours
-				labelDisplay.text=TimelineUtils.doubleDigits(selectedDate.date) + " " + TimelineUtils.months[selectedDate.month] + " " + selectedDate.fullYear + " - " + TimelineUtils.doubleDigits(selectedDate.hours) + ":" + TimelineUtils.doubleDigits(selectedDate.minutes)
-				var hour:Object=grid.dataProvider.getItemAt(selectedDate.hours);
-				var h:Date=new Date()
-				h.time=selectedDate.time
-				h.hours=0
-				h.minutes=0
-				h.seconds=0
-				h.milliseconds=0
-				if (hour[h.time].minutes)
-					currentFlow=hour[h.time].minutes[selectedDate.minutes] as PositionsFlow;
-				else
-					currentFlow=null
-				//get data
-				if (playBtn.label == "pause")
-				{
-					t.removeEventListener(TimerEvent.TIMER, doPlay);
-					t.stop();
-					playBtn.label="play"
-				}
-				dispatchEvent(new Event("dateChange"))
-			}
-
-			private function next():void
-			{
-				var currentRow:Number=grid.selectedCell.rowIndex
-				var currentColumn:Number=grid.selectedCell.columnIndex;
-
-				var nextRow:Number=currentRow + 1
-				var nextColumn:Number=currentColumn
-				if (nextRow > 23)
-				{
-
-					nextRow=0;
-					nextColumn=currentColumn + 1
-				}
-				if (nextRow == 0 && nextColumn == grid.columns.length)
-				{
-					reset();
-					return;
-				}
-				grid.setSelectedCell(nextRow, nextColumn)
-
-			}
-
-			public function fillMinutes(positions:ArrayCollection):void
-			{
-				//trace("FILL MINUTES")
-
-				for (var i:int=0; i < positions.length; i++)
-				{
-					var d:Date=new Date()
-					d.time=positions.getItemAt(i).time * 1000;
-					d.seconds=0
-					d.milliseconds=0
-					var hour:Object=grid.dataProvider.getItemAt(d.hours);
-
-					var h:Date=new Date()
-					h.time=d.time
-					h.hours=0
-					h.minutes=0
-					h.seconds=0
-					h.milliseconds=0
-					if (!hour[h.time].minutes)
-						hour[h.time].minutes={};
-					hour[h.time].minutes[d.minutes]=positions.getItemAt(i) //composite object
-					//trace("minutes:" + h)
-
-				}
-
-			}
-
-			public function fillHours(hours:ArrayCollection):void
-			{
-				//trace("FILL HOURS")
-
-				for (var i:int=0; i < hours.length; i++)
-				{
-					var d:Date=new Date()
-					d.time=hours.getItemAt(i).time * 1000;
-
-					var hour:Object=grid.dataProvider.getItemAt(d.hours);
-					d.hours=0
-					d.minutes=0
-					d.seconds=0
-					d.milliseconds=0
-
-					//trace(d.time + " - " + d);
-
-					if(hour[d.time]) hour[d.time].value=true; //OK
-					//hour[d.time].minutes=new Dictionary()
-					grid.validateNow()
-
-				}
-
-			}
-
-			private function play():void
-			{
-				if (playBtn.label == "play")
-				{
-					t.addEventListener(TimerEvent.TIMER, doPlay);
-					t.start();
-					playBtn.label="pause"
-				}
-				else if (playBtn.label == "pause")
-				{
-					t.removeEventListener(TimerEvent.TIMER, doPlay);
-					t.stop();
-					playBtn.label="play"
-				}
-			}
-
-			private function pause():void
-			{
-
-			}
-
-			private function stop():void
-			{
-
-			}
-
-			private function doPlay(e:TimerEvent):void
-			{
-				selectedDate.minutes++
-				if (selectedDate.minutes == 0)
-					next()
-				labelDisplay.text=TimelineUtils.doubleDigits(selectedDate.date) + " " + TimelineUtils.months[selectedDate.month] + " " + selectedDate.fullYear + " - " + TimelineUtils.doubleDigits(selectedDate.hours) + ":" + TimelineUtils.doubleDigits(selectedDate.minutes)
-				var hour:Object=grid.dataProvider.getItemAt(selectedDate.hours);
-				if (!hour)
-					return;
-				var h:Date=new Date()
-				h.time=selectedDate.time
-				h.hours=0
-				h.minutes=0
-				h.seconds=0
-				h.milliseconds=0
-				if (hour[h.time] && hour[h.time].minutes && hour[h.time].minutes[selectedDate.minutes])
-					currentFlow=hour[h.time].minutes[selectedDate.minutes] as PositionsFlow;
-				else
-					currentFlow=null;
-				//get data
-				dispatchEvent(new Event("dateChange"))
-			}
-		]]>
-	</fx:Script>
-
-	<s:Group id="viewport"
-					 width="100%">
-
-	</s:Group>
-	<s:HScrollBar viewport="{viewport}"
-								width="100%"
-								id="scrollbar"
-								visible="{grid.width>viewport.width}"
-								includeInLayout="{grid.width>viewport.width}"/>
-	<s:Spacer height="4"/>
-	<s:HGroup verticalAlign="middle"
-						gap="0">
-		<s:Spacer width="0"/>
-		<s:Button label="play"
-							id="playBtn"
-							click="play()"/>
-		<s:Spacer width="8"/>
-		<s:Label id="labelDisplay"
-						 fontSize="10"
-						 fontWeight="bold"/>
-	</s:HGroup>
-
+      }
+      
+      private function ready():void
+      {
+        dispatchEvent(new Event("ready"))
+      }
+      
+      private function onSelection(e:Event):void
+      {
+        e.stopImmediatePropagation()
+        
+        var currentDate:Date=days.getItemAt(grid.selectedCell.columnIndex) as Date //columns are days
+        selectedDate.time=currentDate.time;
+        selectedDate.hours=grid.selectedCell.rowIndex //rows are hours
+        labelDisplay.text=TimelineUtils.doubleDigits(selectedDate.date) + " " + TimelineUtils.months[selectedDate.month] + " " + selectedDate.fullYear + " - " + TimelineUtils.doubleDigits(selectedDate.hours) + ":" + TimelineUtils.doubleDigits(selectedDate.minutes)
+        var hour:Object=grid.dataProvider.getItemAt(selectedDate.hours);
+        var h:Date=new Date()
+        h.time=selectedDate.time
+        h.hours=0
+        h.minutes=0
+        h.seconds=0
+        h.milliseconds=0
+        if (hour[h.time].minutes)
+          currentFlow=hour[h.time].minutes[selectedDate.minutes] as PositionsFlow;
+        else
+          currentFlow=null
+        //get data
+        if (playBtn.toolTip == "pause")
+        {
+          t.removeEventListener(TimerEvent.TIMER, doPlay);
+          t.stop();
+          playBtn.toolTip="play";
+          playBtn.setStyle("icon", playIcon)
+        }
+        dispatchEvent(new Event("dateChange"))
+      }
+      
+      private function next():void
+      {
+        var currentRow:Number=grid.selectedCell.rowIndex
+        var currentColumn:Number=grid.selectedCell.columnIndex;
+        
+        var nextRow:Number=currentRow + 1
+        var nextColumn:Number=currentColumn
+        if (nextRow > 23)
+        {
+          
+          nextRow=0;
+          nextColumn=currentColumn + 1
+        }
+        if (nextRow == 0 && nextColumn == grid.columns.length)
+        {
+          reset();
+          return;
+        }
+        grid.setSelectedCell(nextRow, nextColumn)
+        
+      }
+      
+      public function fillMinutes(positions:ArrayCollection):void
+      {
+        //trace("FILL MINUTES")
+        
+        for (var i:int=0; i < positions.length; i++)
+        {
+          var d:Date=new Date()
+          d.time=positions.getItemAt(i).time * 1000;
+          d.seconds=0
+          d.milliseconds=0
+          var hour:Object=grid.dataProvider.getItemAt(d.hours);
+          
+          var h:Date=new Date()
+          h.time=d.time
+          h.hours=0
+          h.minutes=0
+          h.seconds=0
+          h.milliseconds=0
+          if (!hour[h.time].minutes)
+            hour[h.time].minutes={};
+          hour[h.time].minutes[d.minutes]=positions.getItemAt(i) //composite object
+          //trace("minutes:" + h)
+          
+        }
+        
+      }
+      
+      public function fillHours(hours:ArrayCollection):void
+      {
+        //trace("FILL HOURS")
+        
+        for (var i:int=0; i < hours.length; i++)
+        {
+          var d:Date=new Date()
+          d.time=hours.getItemAt(i).time * 1000;
+          
+          var hour:Object=grid.dataProvider.getItemAt(d.hours);
+          d.hours=0
+          d.minutes=0
+          d.seconds=0
+          d.milliseconds=0
+          
+          //trace(d.time + " - " + d);
+          
+          if(hour[d.time]) hour[d.time].value=true; //OK
+          //hour[d.time].minutes=new Dictionary()
+          grid.validateNow()
+          
+        }
+        
+      }
+      
+      private function play():void
+      {
+        if (playBtn.toolTip == "play")
+        {
+          t.addEventListener(TimerEvent.TIMER, doPlay);
+          t.start();
+          playBtn.toolTip="pause"
+          playBtn.setStyle("icon", pauseIcon)
+        }
+        else if (playBtn.toolTip == "pause")
+        {
+          t.removeEventListener(TimerEvent.TIMER, doPlay);
+          t.stop();
+          playBtn.toolTip="play"
+          playBtn.setStyle("icon", playIcon)
+        }
+      }
+      
+      private function pause():void
+      {
+        
+      }
+      
+      private function stop():void
+      {
+        
+      }
+      
+      private function doPlay(e:TimerEvent):void
+      {
+        selectedDate.minutes++
+        if (selectedDate.minutes == 0)
+          next()
+        labelDisplay.text=TimelineUtils.doubleDigits(selectedDate.date) + " " + TimelineUtils.months[selectedDate.month] + " " + selectedDate.fullYear + " - " + TimelineUtils.doubleDigits(selectedDate.hours) + ":" + TimelineUtils.doubleDigits(selectedDate.minutes)
+        var hour:Object=grid.dataProvider.getItemAt(selectedDate.hours);
+        if (!hour)
+          return;
+        var h:Date=new Date()
+        h.time=selectedDate.time
+        h.hours=0
+        h.minutes=0
+        h.seconds=0
+        h.milliseconds=0
+        if (hour[h.time] && hour[h.time].minutes && hour[h.time].minutes[selectedDate.minutes])
+          currentFlow=hour[h.time].minutes[selectedDate.minutes] as PositionsFlow;
+        else
+          currentFlow=null;
+        //get data
+        dispatchEvent(new Event("dateChange"))
+      }
+    ]]>
+  </fx:Script>
+  
+  <s:Group id="viewport"
+           width="100%">
+    
+  </s:Group>
+  <s:HScrollBar viewport="{viewport}"
+                width="100%"
+                id="scrollbar"
+                visible="{grid.width>viewport.width}"
+                includeInLayout="{grid.width>viewport.width}"/>
+  <s:Spacer height="4"/>
+  <s:HGroup verticalAlign="middle"
+            gap="0">
+    <s:Spacer width="0"/>
+    
+    <s:Button label=""
+              click="play()"
+              toolTip="play"
+              id="playBtn"
+              icon="{playIcon}"
+              width="24"
+              height="24"/>
+    
+   
+    <s:Spacer width="8"/>
+    <s:Label id="labelDisplay"
+             fontSize="10"
+             fontWeight="bold"/>
+  </s:HGroup>
+  
 </s:VGroup>

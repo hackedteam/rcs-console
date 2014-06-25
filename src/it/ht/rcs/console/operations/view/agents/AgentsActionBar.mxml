@@ -11,7 +11,7 @@
 
 		<s:Button label="{R.get('NEW_FACTORY')}"
 							click="onNewClick()"
-							enabled="{Console.currentSession.user.is_tech_factories() &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; LicenseManager.instance.archive == false}"
+							enabled="{Console.currentSession.user.is_tech_factories() &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; LicenseManager.instance.archive == 0}"
 							icon="@Embed('/img/NEW/newFactory.png')"
 							visible="{section.currentState == 'singleTarget'}"
 							includeInLayout="{section.currentState == 'singleTarget'}"/>
@@ -39,7 +39,7 @@
               icon="@Embed('/img/NEW/move.png')"
               click="moveAgent(event)"
               enabled="{(Console.currentSession.user.is_tech() &amp;&amp; selectedObject != null &amp;&amp; selectedObject is Agent
-              &amp;&amp; selectedObject.status == 'open' &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; selectedObject._kind=='agent' &amp;&amp; !LicenseManager.instance.archive)
+              &amp;&amp; selectedObject.status == 'open' &amp;&amp; section.stateManager.selectedTarget.status == 'open' &amp;&amp; selectedObject._kind=='agent' &amp;&amp; LicenseManager.instance.archive==0)
               
               }"/>
 
@@ -56,10 +56,11 @@
 							icon="@Embed('/img/NEW/newAlert.png')"
 							click="addToAlert(event)"
 							enabled="{Console.currentSession.user.is_view_alerts() &amp;&amp; selectedObject &amp;&amp; selectedObject is Agent &amp;&amp; selectedObject.status == 'open' }"
-							visible="{LicenseManager.instance.archive == false}"
-							includeInLayout="{LicenseManager.instance.archive == false}"/>
+							visible="{LicenseManager.instance.archive == 0}"
+							includeInLayout="{LicenseManager.instance.archive == 0}"/>
 
-		<actionbar:Separator/>
+		<actionbar:Separator visible="{LicenseManager.instance.archive == 0}"
+                         includeInLayout="{LicenseManager.instance.archive == 0}"/>
 
 		<s:Button label="{R.get('UPDATE_AGENT')}"
 							click="updateAgent(event)"
@@ -68,8 +69,8 @@
                                                              selectedObject &amp;&amp; 
                                                             (selectedObject as Agent)._kind  == 'agent' &amp;&amp; 
                                                             (selectedObject as Agent).status == 'open'}"
-							visible="{LicenseManager.instance.archive == false}"
-							includeInLayout="{LicenseManager.instance.archive == false}"/>
+							visible="{LicenseManager.instance.archive == 0}"
+							includeInLayout="{LicenseManager.instance.archive == 0}"/>
 	</s:HGroup>
 
 
@@ -127,15 +128,15 @@
 							icon="@Embed('/img/NEW/newDashboard.png')"
 							click="addToDashboard(event)"
 							enabled="{Console.currentSession.user.is_view() &amp;&amp; section.stateManager.selectedAgent.status=='open'}"
-							visible="{LicenseManager.instance.archive == false}"
-							includeInLayout="{LicenseManager.instance.archive == false}"/>
+							visible="{LicenseManager.instance.archive == 0}"
+							includeInLayout="{LicenseManager.instance.archive == 0}"/>
 
 		<s:Button label="{R.get('ADD_TO_ALERT')}"
 							icon="@Embed('/img/NEW/alert.png')"
 							click="addToAlert(event)"
 							enabled="{Console.currentSession.user.is_view_alerts() &amp;&amp; section.stateManager.selectedAgent.status=='open'}"
-							visible="{LicenseManager.instance.archive == false}"
-							includeInLayout="{LicenseManager.instance.archive == false}"/>
+							visible="{LicenseManager.instance.archive == 0}"
+							includeInLayout="{LicenseManager.instance.archive == 0}"/>
 
 		<!--	<s:Button label="{R.get('GHOST_ACTIVATE')}"
 								click="activateGhost(event)"

@@ -39,6 +39,9 @@
       {
         entitySheet.entity.name=actionBar.entity.name;
         entitySheet.entity.desc=actionBar.entity.desc;
+        entitySheet.entity.position=actionBar.entity.position;
+        entitySheet.entity.position_attr=actionBar.entity.position_attr;
+        entitySheet.drawPosition()
       }
       
       public function changeSection(event:SectionEvent):void
@@ -59,6 +62,18 @@
           eventToManage = event;
       }
 
+      protected function onEdit():void
+      {
+        entitySheet.onEdit()
+        
+      }
+      
+      protected function onPopupClose():void
+      {
+        entitySheet.onPopupClose()
+        
+      }
+      
     ]]>
   </fx:Script>
   <main:states>
@@ -77,7 +92,7 @@
   <view:Breadcrumb section="{this}"/>
   <operations:OperationsEntityView includeIn="allOperations" section="{this}"/>
   <view:EntitiesView includeIn="singleOperation, allEntities" section="{this}" id="view"/>
-  <view:EntityActionBar includeIn="singleEntity" entity="{stateManager.selectedEntity}" sheet="{entitySheet}" update="onUpdate()" id="actionBar" section="{this}"/>
+  <view:EntityActionBar includeIn="singleEntity" entity="{stateManager.selectedEntity}" sheet="{entitySheet}" update="onUpdate()" id="actionBar" section="{this}" edit="onEdit()" popupclose="onPopupClose()"/>
   <view:EntitySheet includeIn="singleEntity" entity="{stateManager.selectedEntity}" id="entitySheet" update="onUpdate()" section="{this}"/>
  <!--<view:LinkView includeIn="links" entities="{stateManager.selectedEntities}" section="{this}"/>
   <view:GeoMapView includeIn="map" entities="{stateManager.selectedEntities}" section="{this}"/>-->

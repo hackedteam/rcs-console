@@ -76,6 +76,9 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     
     [Embed(source='/img/evidence/social/namecoin_16.png')]
     public static const namecoin:Class;
+    
+    [Embed(source='/img/evidence/social/telegram_16.png')]
+    public static const telegram:Class;
 
 
   }

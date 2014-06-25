@@ -31,6 +31,7 @@ package it.ht.rcs.console.utils.itemfield
 		private var _dataProvider:ListCollectionView;
 
 		private var _kinds:Array;
+    private var _types:Array;
 		private var _path:ArrayCollection;
 
 		private var _selectedItem:SearchItem;
@@ -126,6 +127,23 @@ package it.ht.rcs.console.utils.itemfield
 		{
 			return _kinds;
 		}
+    
+    [Bindable]
+    public function set types(value:Array):void
+    {
+      _types=[];
+      for each (var k:* in value)
+      _types.push(k);
+      
+      if (_dataProvider != null)
+        _dataProvider.refresh();
+    }
+    
+    public function get types():Array
+    {
+      return _types;
+    }
+
 
 		public function set path(item:Object):void
 		{
@@ -142,8 +160,11 @@ package it.ht.rcs.console.utils.itemfield
 			if (item.status == "closed")
 				return false;
 
-			if (!isVisibleType(item._kind))
+			if (!isVisibleKind(item._kind))
 				return false;
+      
+      if (!isVisibleType(item.type))
+        return false;
 
 			if (_path && _path.length > 0)
 			{
@@ -170,17 +191,29 @@ package it.ht.rcs.console.utils.itemfield
 			return toMatch.indexOf(text.toLowerCase()) >= 0;
 		}
 
-		private function isVisibleType(type:String):Boolean
+		private function isVisibleKind(kind:String):Boolean
 		{
 			if (_kinds == null || _kinds.length == 0)
 				return true;
 
-			for each (var t:String in _kinds)
-				if (type == t)
+			for each (var k:String in _kinds)
+				if (kind == k)
 					return true;
 
 			return false;
 		}
+    
+    private function isVisibleType(type:String):Boolean
+    {
+      if (_types == null || _types.length == 0)
+        return true;
+      
+      for each (var t:String in _types)
+      if (type == t)
+        return true;
+      
+      return false;
+    }
 
 		private function onDoubleClick(event:MouseEvent):void
 		{

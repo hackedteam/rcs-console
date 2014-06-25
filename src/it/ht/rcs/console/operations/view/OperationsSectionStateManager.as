@@ -475,7 +475,7 @@ package it.ht.rcs.console.operations.view
 				{
 					list.addItemAt({name: R.get('COMMANDS'), customType: 'commands', order: 4}, 0);
 				}
-				list.addItemAt({name: R.get('IP_ADDRESS'), customType: 'ipaddresses', order: 5}, 0);
+				list.addItemAt({name: R.get('SYNC_HISTORY'), customType: 'ipaddresses', order: 5}, 0);
 				if (Console.currentSession.user.is_tech())
 				{
 					list.addItemAt({name: R.get('CONFIG'), customType: 'configlist', order: 2}, 0);

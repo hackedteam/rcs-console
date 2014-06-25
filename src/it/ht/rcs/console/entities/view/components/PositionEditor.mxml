@@ -2,61 +2,37 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
 					xmlns:s="library://ns.adobe.com/flex/spark"
 					xmlns:mx="library://ns.adobe.com/flex/mx"
+          xmlns:maps="it.ht.rcs.console.maps.*"
 					width="440"
 					horizontalAlign="center"
-					addedToStage="reset()">
+					addedToStage="reset()"
+          >
 	<fx:Declarations>
 		<s:RadioButtonGroup id="mode"
 												itemClick="onModeChange()"/>
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-      import com.google.maps.LatLng;
-      import com.google.maps.LatLngBounds;
-      import com.google.maps.MapEvent;
-      import com.google.maps.MapMouseEvent;
-      import com.google.maps.MapZoomEvent;
-      import com.google.maps.PaneId;
-      import com.google.maps.controls.MapTypeControl;
-      import com.google.maps.controls.PositionControl;
-      import com.google.maps.controls.ZoomControl;
-      import com.google.maps.interfaces.IOverlay;
-      import com.google.maps.interfaces.IPane;
-      import com.google.maps.overlays.GroundOverlay;
-      import com.google.maps.overlays.GroundOverlayOptions;
-      import com.google.maps.overlays.Marker;
-      import com.google.maps.overlays.MarkerOptions;
-      import com.google.maps.services.ClientGeocoder;
-      import com.google.maps.services.GeocodingEvent;
-      import com.google.maps.services.Placemark;
-      
       import it.ht.rcs.console.entities.model.Entity;
       
       import locale.R;
       
       import mx.collections.ArrayCollection;
       import mx.controls.Alert;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			private var inputMode:String;
       
       public var position:Object={latitude:0, longitude:0, accuracy:100}
       
-      private var defaultAccuracy:Number=0.1;
-      private var marker:Marker;
-      private var circleOverlay:GroundOverlay;
-      private var mapPane:IPane;
+      private var defaultAccuracy:Number=100;
+   
 
 			private const ADDRESS:String="address";
 			private const COORDINATES:String="coordinates";
       
-      //Styling
-      private var circleFillColor:uint=0xFF0000;
-      private var circleFillAlpha:Number=0.2;
-      private var circleBorderTickness:int=0.2;
-      private var circleBorderFillColor:uint=0xFF0000;
-      private var circleBorderFillAlpha:Number=0.5;
-
+      
 			public function reset():void
 			{
         defaultAccuracy=0.1
@@ -75,26 +51,27 @@
 					longTxt.text="0";
 				if (accuracyTxt)
 					accuracyTxt.text=String(defaultAccuracy*1000);
-        if(map) 
+        
+        
+        if(mapViewer)
         {
-          if(map.initialized)
-          {
-            map.clearOverlays() 
-            map.setCenter(new LatLng(0,0))
-            map.setZoom(1)
-            marker=new Marker(new LatLng(0,0));
-  
-            marker.setOptions(new MarkerOptions({draggable: true}))
-            marker.addEventListener(MapMouseEvent.DRAG_STEP, onDrag)
-            marker.addEventListener(MapMouseEvent.DRAG_END, onDragEnd) 
-            map.addOverlay(marker);
-            drawAccuracy()
-            position.latitude=0;
-            position.longitude=0;
-            position.accuracy=defaultAccuracy;
-            positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
-          }
+          var marker:Object=new Object()
+          marker.position=new ArrayCollection();
+          marker.position.addItem(0); //long
+          marker.position.addItem(0); //lat
+          marker.radius=defaultAccuracy;
+          marker.draggable=true;
+          mapViewer.positions=new Vector.<Object>();
+          mapViewer.positions.push(marker);
+          mapViewer.update();
+          
+          position.latitude=0;
+          position.longitude=0;
+          position.accuracy=defaultAccuracy;
+          positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
         }
+      
+     
 			}
       
       public function set(entity:Entity):void
@@ -115,78 +92,42 @@
           longTxt.text=String(entity.position.longitude);
         if (accuracyTxt)
           accuracyTxt.text=String(defaultAccuracy);
-        if(map) 
+        
+        
+        if(mapViewer)
         {
-          if(map.initialized)
-          {
-            map.clearOverlays() 
-            map.setCenter(new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)))
-            map.setZoom(1)
-            marker=new Marker(new LatLng(Number(entity.position.latitude), Number(entity.position.longitude)))
-            
-            marker.setOptions(new MarkerOptions({draggable: true}))
-            marker.addEventListener(MapMouseEvent.DRAG_STEP, onDrag)
-            marker.addEventListener(MapMouseEvent.DRAG_END, onDragEnd) 
-            map.addOverlay(marker);
-            drawAccuracy()
-            position.latitude=entity.position.latitude;
-            position.longitude=entity.position.longitude;
-            position.accuracy=defaultAccuracy;
-            positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
-            map.setZoom(15);
-          }
+          var marker:Object=new Object();
+          marker.position=new ArrayCollection();
+          marker.position.addItem(entity.position.longitude); //long
+          marker.position.addItem(entity.position.latitude); //lat
+          marker.radius=entity.position_attr.accuracy; //???
+          marker.draggable=true;
+          
+          mapViewer.positions=new Vector.<Object>();
+          mapViewer.positions.push(marker);
+          mapViewer.update();
+        
+          position.latitude=entity.position.latitude;
+          position.longitude=entity.position.longitude;
+          position.accuracy=defaultAccuracy;
+          positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
         }
+          
+    
       }
       
       private function drawAccuracy():void
       {
         if(accuracyTxt)
-          defaultAccuracy=Number(accuracyTxt.text)/1000;
+        defaultAccuracy=Number(accuracyTxt.text);
         position.accuracy=defaultAccuracy;
-        positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
-        if(circleOverlay)
+        positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
+          
+        if(mapViewer)
         {
-          map.removeOverlay(circleOverlay)
+          mapViewer.setAccuracy(Number(accuracyTxt.text))
+            
         }
-        var scale:Number=calculateMapScale()
-        var shape:Shape=new Shape();
-        var overlay:GroundOverlay;
-        var bounds:LatLngBounds;
-        var centrePoint:Point;
-        var topLeft:LatLng;
-        var bottomRight:LatLng;
-        var options:GroundOverlayOptions;
-        var circleWidth:Number=defaultAccuracy * 2 * scale;
-        
-        shape.graphics.lineStyle(circleBorderTickness, circleBorderFillColor, circleBorderFillAlpha);
-        shape.graphics.beginFill(circleFillColor, circleFillAlpha);
-        shape.graphics.drawCircle(circleWidth * .5, circleWidth * .5, circleWidth);
-        shape.graphics.endFill();
-        centrePoint=mapPane.fromLatLngToPaneCoords(marker.getLatLng());
-        topLeft=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x - circleWidth * .5, centrePoint.y - circleWidth * .5));
-        bottomRight=mapPane.fromPaneCoordsToLatLng(new Point(centrePoint.x + circleWidth * .5, centrePoint.y + circleWidth * .5));
-        bounds=new LatLngBounds(topLeft, bottomRight);
-        options=new GroundOverlayOptions();
-        options.applyProjection=true;
-        circleOverlay=new GroundOverlay(shape, bounds, options);
-        map.addOverlay(circleOverlay);
-       // map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-        
-      }
-      
-      private function calculateMapScale():Number
-      {
-        var topLeft:LatLng;
-        var bottomLeft:LatLng;
-        var scale:Number;
-        var distance:Number;
-        
-        topLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, 0));
-        bottomLeft=mapPane.fromPaneCoordsToLatLng(new Point(0, map.height));
-        distance=topLeft.distanceFrom(bottomLeft) / 1000;
-        scale=map.height / distance;
-        
-        return scale;
       }
 
 			private function onModeChange():void
@@ -194,15 +135,25 @@
         defaultAccuracy=0.1;
 				inputMode=String(mode.selectedValue)
           
-				map.clearOverlays()
-        map.setCenter(new LatLng(0,0))
-				map.setZoom(1)
-        marker=new Marker(new LatLng(0,0));
-        marker.addEventListener(MapMouseEvent.DRAG_STEP, onDrag)
-        marker.addEventListener(MapMouseEvent.DRAG_END, onDragEnd) 
-        marker.setOptions(new MarkerOptions({draggable: true}))
-        map.addOverlay(marker);
-        drawAccuracy()
+        if(mapViewer)
+        {
+          var marker:Object=new Object()
+          marker.position=new ArrayCollection();
+          marker.position.addItem(0); //long
+          marker.position.addItem(0); //lat
+          marker.radius=100;
+          marker.draggable=true;
+          mapViewer.positions=new Vector.<Object>();
+          mapViewer.positions.push(marker);
+          mapViewer.update();
+          
+          position.latitude=0;
+          position.longitude=0;
+          position.accuracy=defaultAccuracy;
+          positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
+        }
+          
+		
 
 				if (inputMode == COORDINATES)
 				{
@@ -232,20 +183,18 @@
         position.latitude=0;
         position.longitude=0;
         position.accuracy=defaultAccuracy;
-        positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
+        positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
         //redraw circle
 			}
 
 
 			private function resolveByAddress():void
 			{
-				//https://developers.google.com/maps/documentation/flash/services#Geocoding_Object
 				if (addressTxt.text.length > 0)
 				{
-					var geocoder:ClientGeocoder=new ClientGeocoder();
-					geocoder.addEventListener(GeocodingEvent.GEOCODING_SUCCESS, handleGeocodingSuccess);
-					geocoder.addEventListener(GeocodingEvent.GEOCODING_FAILURE, handleGeocodingFailure);
-					geocoder.geocode(addressTxt.text);
+          mapViewer.codeAddress(addressTxt.text);
+          
+		
 				}
 			}
       
@@ -268,106 +217,103 @@
             return;
           }
           
-          var coordinates:LatLng=new LatLng(latitude, longitude);
-          marker.setLatLng(coordinates)
-          map.setCenter(coordinates);
-         //remove listeners!!
-          //map.addOverlay(marker);
-          map.setZoom(16)
-          drawAccuracy()
-          position.latitude=coordinates.lat();
-          position.longitude=coordinates.lng();
-          position.accuracy=defaultAccuracy;
-          positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
+          
+          if(mapViewer)
+          {
+            var marker:Object=new Object();
+            marker.position=new ArrayCollection();
+            marker.position.addItem(longitude); //long
+            marker.position.addItem(latitude); //lat
+            marker.radius=50; //???
+            marker.draggable=true;
+            
+            mapViewer.positions=new Vector.<Object>();
+            mapViewer.positions.push(marker);
+            mapViewer.update();
+            
+            position.latitude=latitude;
+            position.longitude=longitude;
+            position.accuracy=defaultAccuracy; //????
+            positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
+          }
+
         }
       }
       
-      private function onDrag(e:MapMouseEvent):void
-      {
-      
-        latTxt.text=String(int(marker.getLatLng().lat()*1000)/1000)
-        longTxt.text=String(int(marker.getLatLng().lng()*1000)/1000)
-        position.latitude=marker.getLatLng().lat()
-        position.longitude=marker.getLatLng().lng()
-        position.accuracy=defaultAccuracy;
-        positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
-        drawAccuracy();
-      
-      }
-      
-      private function onDragEnd(e:MapMouseEvent):void
-      {
-        position.latitude=marker.getLatLng().lat()
-        position.longitude=marker.getLatLng().lng()
-        position.accuracy=defaultAccuracy;
-        positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
-        map.panTo(marker.getLatLng())
-      }
-
-
-			private function handleGeocodingSuccess(e:GeocodingEvent):void
-			{
-				trace("solved")
-
-				var placemarks:Array=e.response.placemarks;
-				if (placemarks.length < 1)
-				{
-					trace("no result, search again")
-				}
-				else if (placemarks.length == 1)
-				{
-					trace("only 1 result, show directly on map")
-          placemarksList.dataProvider=new ArrayCollection(placemarks)
-          placemarksList.selectedIndex=0;
-          selectPlacemark()
-				}
-				else if (placemarks.length > 1)
-				{
-					resultBox.visible=true;
-					placemarksList.dataProvider=new ArrayCollection(placemarks)
-				}
-			}
-
-			private function handleGeocodingFailure(e:GeocodingEvent):void
-			{
-				trace("unsolved")
-			}
-
+   
 			private function selectPlacemark():void
 			{
 				if (placemarksList.selectedItem != null)
 				{
 					resultBox.visible=false;
-					var p:Placemark=placemarksList.selectedItem as Placemark
-					map.setCenter(p.point);
-          marker.setLatLng(p.point)
-         
-					//var marker:Marker=new Marker(p.point);
-					map.setZoom(16)
-          drawAccuracy()
-          position.latitude=p.point.lat();
-          position.longitude=p.point.lng();
-          position.accuracy=defaultAccuracy;
-          positionTxt.text="Latitude: "+int(position.latitude*1000)/1000+", Longitude: "+int(position.longitude*1000)/1000+", Accuracy: "+position.accuracy*1000
+					var p:Object=placemarksList.selectedItem;
+          trace(p.geometry.location.lat());
+          trace(p.geometry.location.lng());
+          
+          
+          if(mapViewer)
+          {
+            var marker:Object=new Object();
+            marker.position=new ArrayCollection();
+            marker.position.addItem(p.geometry.location.lng()); //long
+            marker.position.addItem(p.geometry.location.lat()); //lat
+            marker.radius=50; //???
+            marker.draggable=true; 
+            
+            mapViewer.positions=new Vector.<Object>();
+            mapViewer.positions.push(marker);
+            mapViewer.update();
+            
+            position.latitude=p.geometry.location.lat();
+            position.longitude=p.geometry.location.lng();
+            position.accuracy=defaultAccuracy; //????
+            positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy;
+          }
+          
+				
+          positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy;
 				}
 
-			}
-
-			private function onMapReady():void
-			{
-				map.addControl(new ZoomControl());
-				map.addControl(new PositionControl());
-				map.addControl(new MapTypeControl())
-        map.addEventListener(MapZoomEvent.ZOOM_CHANGED, onMapZoomed);
-        mapPane=map.getPaneManager().getPaneAt(PaneId.PANE_MAP);
- 
-			}
+			} 
       
-      private function onMapZoomed(event:MapEvent):void
+      private function onMarkerDrag(e:ResultEvent):void
       {
-        drawAccuracy();
+      
+        
+        latTxt.text=String(e.result.lat)
+        longTxt.text=String(e.result.lng)
+        position.latitude=e.result.lat
+        position.longitude=e.result.lng
+        position.accuracy=defaultAccuracy;
+        positionTxt.text="Latitude: "+int(position.latitude*10000)/10000+", Longitude: "+int(position.longitude*10000)/10000+", Accuracy: "+position.accuracy
+        //drawAccuracy();
       }
-		]]>
+      
+      protected function onAddressResult(event:ResultEvent):void
+      {
+        trace("solved")
+        
+        var placemarks:Array=event.result as Array;
+        if (placemarks.length < 1)
+        {
+          trace("no result, search again")
+        }
+        else if (placemarks.length == 1)
+        {
+          trace("only 1 result, show directly on map")
+          resultBox.visible=false;
+          placemarksList.dataProvider=new ArrayCollection(placemarks)
+          placemarksList.selectedIndex=0;
+          selectPlacemark()
+        }
+        else if (placemarks.length > 1)
+        {
+          resultBox.visible=true;
+          placemarksList.dataProvider=new ArrayCollection(placemarks)
+        }
+      }
+      
+    ]]>
 	</fx:Script>
 	<s:HGroup width="100%"
 						paddingLeft="20"
@@ -389,15 +335,15 @@
 										 borderColor="0x666666"
 										 backgroundColor="0xCCCCCC"
 										 backgroundAlpha="0.3">
-		<maps:Map xmlns:maps="com.google.maps.*"
-							id="map"
-							width="100%"
-							height="100%"
-							key="ABQIAAAA8fmTpYQsyimBWFWKgeE9PBRhMg83CBLwD9y4vh6Mu8HzQS3H_RRayLm54B1SF17x6N9sYwYVwJV_FQ"
-							url="http://www.hackingteam.it/"
-							sensor="false"
-							accessibilityDescription=""
-							mapevent_mapready="onMapReady()"/>
+    
+    <maps:MapViewer width="100%"
+                         height="100%"
+                         id="mapViewer"
+                         drag="onMarkerDrag(event)"
+                         codeAddressResult="onAddressResult(event)"/>
+    
+    
+
 
 		<s:BorderContainer id="resultBox"
 											 width="100%"
@@ -421,7 +367,7 @@
 								height="100%"
 								id="placemarksList"
 								alpha="1"
-								labelField="address"
+								labelField="formatted_address"
 								doubleClickEnabled="true"
 								doubleClick="selectPlacemark()"/>
 				<s:Button label="OK"

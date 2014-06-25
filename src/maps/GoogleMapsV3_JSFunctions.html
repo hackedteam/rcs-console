@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<!-- THIS FILE IS LOADED INTO THE APPLICATION AND THEN RENDERED BY THE ADOBE AIR -->
+<!-- HTMLLOADER IN ORDER TO PROVIDE ACCESS TO THE GOOGLE MAPS JAVASCRIPT V3 LIB -->
+<!-- THE FLASH API WAS DEPRECIATED, SO THIS METHOD MUST BE USED -->
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<style type="text/css">
+			html {
+				height: 100%
+			}
+			body {
+				height: 100%;
+				margin: 0;
+				padding: 0
+			}
+			#map_canvas {
+				height: 100%
+			}
+		</style>
+
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAmG3O2wuA9Hj2L5an-ofRndUwVSrqElLM&sensor=false"></script>
+
+		<script type="text/javascript">
+			var map = null;
+			var geoCoder = null;
+			var directionService = null;
+			var directionsDisplay = null;
+			var overlays = [];
+			var circles = [];
+			var markers = [];
+			var lines = [];
+			var bounds = null;
+			var iconPath = "";
+			var ctrlDown = false;
+			var allowNoSelection=false;
+
+			// First, make a request using the cool geocoding service to get the latitude and longitude
+			function initialize() {
+				initializeMap(new google.maps.LatLng(0, 0));
+				bounds = new google.maps.LatLngBounds();
+
+			}
+
+			function setIconPath(path) {
+				iconPath = path;
+			}
+
+			function initializeMap(_LatLon) {
+				window.addEventListener('keydown', keydown, false);
+				window.addEventListener('keyup', keyup, false);
+
+				var myOptions = {
+					zoom : 8,
+					center : _LatLon,
+					mapTypeId : google.maps.MapTypeId.ROADMAP
+				};
+
+				map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+				
+				 google.maps.event.addListener
+				 (
+				 map,
+				 'click',
+				 function(e)
+				 {
+				 	if(allowNoSelection)
+				 	{
+				 		unselectAll();
+				 		window.onSelection(null);
+				 	}
+				
+				 }
+				 );
+				
+				geoCoder = new google.maps.Geocoder();
+
+				//callback (map is ready)
+				//window.onMapReady()
+			}
+
+			function keydown(e) {
+				if (e.keyCode == 17) {
+					ctrlDown = true;
+				}
+			}
+
+			function keyup(e) {
+				if (e.keyCode == 17) {
+					ctrlDown = false;
+				}
+			}
+
+			function selectByIndex(index) {
+				for (var i = 0; i < markers.length; i++) {
+					if (markers[i].index == index) {
+						setSelectedMarker(markers[i]);
+						map.panTo(markers[i].getPosition());
+					}
+				}
+			}
+
+			function setSelectedMarkers(marker) {
+				window.alert('MULTI SELECTION');
+			}
+
+			function setSelectedMarker(marker) {
+
+				unselectAll();
+
+				marker.selected = true;
+
+				if (marker.color == 'red') {
+					marker.setIcon(iconPath + 'mapMarker_glow.png');
+				} else if (marker.color == 'blu') {
+					marker.setIcon(iconPath + 'mapMarkerBlu_glow.png');
+				} else if (marker.color == 'target') {
+					marker.setIcon(iconPath + 'mapMarker_target_glow.png');
+				} else if (marker.color == 'location') {
+					marker.setIcon(iconPath + 'mapMarker_location_glow.png');
+				}
+				marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+				window.onSelection(marker);
+
+			}
+
+			function setStreetView() {
+				map.setOptions({
+					streetViewControl : false
+				});
+			}
+
+			function addLine(pos1, pos2) {
+				if (map != null) {
+					var line = new google.maps.Polyline({
+						path : [new google.maps.LatLng(pos1.lat, pos1.lng), new google.maps.LatLng(pos2.lat, pos2.lng)],
+						geodesic : true,
+						map : map,
+						strokeColor : '#FF0000',
+						strokeOpacity : 1.0,
+						strokeWeight : 2
+					});
+					overlays.push(line);
+					lines.push(line);
+					return line;
+				}
+
+			}
+
+			function addMarker(lat, lng, icon, color, data, index, draggable) {
+
+				if (map != null) {
+					var position = new google.maps.LatLng(lat, lng);
+					var marker = new google.maps.Marker({
+						position : position,
+						map : map,
+						icon : {
+							url : icon,
+							size : new google.maps.Size(24, 24),
+							origin : new google.maps.Point(0, 0),
+							anchor : new google.maps.Point(12, 22)
+						},
+						animation : google.maps.Animation.DROP,
+						draggable : draggable
+					});
+					marker.data = data;
+					marker.color = color;
+					marker.index = index;
+
+					google.maps.event.addListener(marker, 'click', function(e) {
+						setSelectedMarker(marker);
+					});
+
+					if (draggable) {
+						google.maps.event.addListener(marker, 'drag', function() {
+							onDrag(marker);
+						});
+
+						google.maps.event.addListener(marker, 'dragend', function() {
+							onDragEnd(marker);
+						});
+					};
+
+					bounds.extend(position);
+					map.setCenter(bounds.getCenter());
+					map.fitBounds(bounds);
+
+					overlays.push(marker);
+					markers.push(marker);
+					setSelectedMarker(markers[0]);
+	
+					return marker;
+				}
+
+			}
+
+			function fitBounds() {
+				map.fitBounds(bounds);
+			}
+
+			function onDrag(marker) {
+				window.onDrag(marker);
+			}
+
+			function onDragEnd(marker) {
+				window.onDragEnd(marker);
+			}
+
+			function addCircle(center, radius) {
+				if (map != null) {
+					var center = new google.maps.LatLng(center.lat, center.lng);
+					var options = {
+						strokeColor : '#FF0000',
+						strokeOpacity : 0.8,
+						strokeWeight : 1,
+						fillColor : '#FF0000',
+						fillOpacity : 0.35,
+						map : map,
+						center : center,
+						radius : radius
+					};
+					var circle = new google.maps.Circle(options);
+
+					bounds.union(circle.getBounds());
+
+					map.setCenter(bounds.getCenter());
+					map.fitBounds(bounds);
+					overlays.push(circle);
+					circles.push(circle);
+				}
+			} 
+
+			function unselectAll() {
+				for (var i = 0; i < markers.length; i++) {
+					markers[i].selected = false;
+
+					if (markers[i].color == 'red') {
+						markers[i].setIcon(iconPath + 'mapMarker.png');
+					} else if (markers[i].color == 'blu') {
+						markers[i].setIcon(iconPath + 'mapMarkerBlu.png');
+					} else if (markers[i].color == 'target') {
+						markers[i].setIcon(iconPath + 'mapMarker_target.png');
+					} else if (markers[i].color == 'location') {
+						markers[i].setIcon(iconPath + 'mapMarker_location.png');
+					}
+
+				}
+
+			}
+
+			function setCenter(lat, lng) {
+				if (map != null) {
+					var center = new google.maps.LatLng(lat, lng);
+					map.setCenter(center);
+				}
+			}
+
+			function codeLatLng(lat, lng) {
+				var latlng = new google.maps.LatLng(lat, lng);
+				geoCoder.geocode({
+					'latLng' : latlng
+				}, handleResult);
+			}
+
+			function codeAddress(address) {
+				geoCoder.geocode({
+					'address' : address
+				}, handleAddressResult);
+
+			}
+
+			function handleResult(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					if (results[0]) {
+						window.geocodeResult(results);
+					}
+				}
+			}
+
+			function handleAddressResult(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+					//geocoding done successfully
+					if (results[0]) {
+						window.codeAddressResult(results);
+					}
+				}
+			}
+
+			function clearOverlays() {
+				if (overlays) {
+					for (var i = 0; i < overlays.length; i++) {
+						overlays[i].setMap(null);
+					}
+					overlays.length = 0;
+					markers = [];
+					circles = [];
+				}
+			}
+
+			function clearLines() {
+				if (lines) {
+					for (var i = 0; i < lines.length; i++) {
+						lines[i].setMap(null);
+					}
+
+					lines = [];
+				}
+			}
+
+		</script>
+	</head>
+	<body onload="initialize();">
+		<div id="map_canvas" style="width:100%; height:100%"></div>
+	</body>
+</html>

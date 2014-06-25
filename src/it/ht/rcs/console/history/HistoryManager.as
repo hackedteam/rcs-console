@@ -91,6 +91,8 @@ package it.ht.rcs.console.history
 			if (e.section == "Operations")
 			{
 				var section:OperationsSection=sections.Operations
+          if(!section)
+            return;
 				item.state="allOperations"
 				if (section.stateManager)
 				{
@@ -121,6 +123,10 @@ package it.ht.rcs.console.history
 						item.config=section.stateManager.selectedConfig
 					}
 				}
+        else
+        {
+        trace("NO SECTION STATE MANAGER!!") //???
+        }
 			}
 			addItem(item)
 			dumpHistory()

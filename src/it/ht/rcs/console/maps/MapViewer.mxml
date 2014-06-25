@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:UIComponent xmlns:fx="http://ns.adobe.com/mxml/2009"
+								xmlns:s="library://ns.adobe.com/flex/spark"
+								xmlns:mx="library://ns.adobe.com/flex/mx"
+								creationComplete="init()" 
+                addedToStage="onAddedToStage()">
+	<fx:Metadata>
+    [Event(name="change", type="flash.events.Event")]
+    [Event(name="drag", type="mx.rpc.events.ResultEvent")]
+    [Event(name="dragEnd", type="flash.events.Event")]
+    [Event(name="geocodeResult", type="mx.rpc.events.ResultEvent")]
+    [Event(name="codeAddressResult", type="mx.rpc.events.ResultEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      
+      import mx.rpc.events.ResultEvent;
+
+			private var html:HTMLLoader;
+      private var fPath:String;
+      private var urlReq:URLRequest; 
+			//ready???
+      private var inited:Boolean
+			public var positions:Vector.<Object>=new Vector.<Object>();
+      public var selectedPosition:Object//evidence or entity;
+      public var selectedIndex:int=-1;
+
+			protected function init():void
+			{
+        if(!html)
+        {
+  				html=new HTMLLoader();
+          html.placeLoadStringContentInApplicationSandbox = false;
+          addChild(html);
+          fPath=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
+          var urlReq:URLRequest=new URLRequest(fPath);
+          html.width=this.width;
+          html.height=this.height;
+          html.addEventListener(Event.COMPLETE, onMapReady, false, 0, true);
+          html.load(urlReq);
+        }
+				
+        inited=true;
+       
+			}
+      
+      public function setAllowNoSelection(value:Boolean):void
+      {
+        html.window.allowNoSelection=value;
+      }
+      
+      public function unselectAll():void
+      {
+        html.window.unselectAll();
+      }
+      
+      public function setAccuracy(radius:Number):void
+      {
+        html.window.circles[0].setRadius(radius);
+        html.window.map.fitBounds(html.window.circles[0].getBounds());
+      }
+      
+      public function onDrag(marker:Object):void
+      {
+       html.window.circles[0].setVisible(false); //listen to other events? es. position_change
+       dispatchEvent(new ResultEvent("drag",false,true,{lat:marker.getPosition().lat(), lng:marker.getPosition().lng()}));
+      }
+      
+      public function onDragEnd(marker:Object):void
+      {
+        html.window.circles[0].setCenter(marker.getPosition());
+        html.window.circles[0].setVisible(true);
+        html.window.setCenter(marker.getPosition().lat(), marker.getPosition().lng());
+        dispatchEvent(new Event("dragEnd"));
+      }
+      
+      public function geocodeResult(results:Object):void
+      {
+        dispatchEvent(new ResultEvent("geocodeResult",false,true,results));
+      }
+      
+      public function codeAddressResult(results:Object):void
+      {
+          var addresses:Array=new Array();
+          for (var i:int=0;i<results.length;i++)
+          {
+            addresses.push(results[i]);
+          }
+        
+        dispatchEvent(new ResultEvent("codeAddressResult",false,true,addresses));
+      }
+      
+      public function onSelection(selectedObject:Object):void
+      {
+        if(!selectedObject)
+        {
+          selectedPosition=null
+          dispatchEvent(new Event("change"));
+          return;
+        }
+        
+        for (var i:int=0; i < positions.length; i++)
+        {
+          if (positions[i].hasOwnProperty("_id") &&  positions[i]._id== selectedObject.data)
+          {
+            selectedPosition=positions[i] //as Evidence;
+          }
+        }
+        selectedIndex=selectedObject.index;
+        dispatchEvent(new Event("change"));
+      }
+
+			public function addCircle(center:Object, radius:Number):void
+			{
+				html.window.addCircle(center, radius)
+			}
+
+			public function addMarker(lat:Number, lng:Number, icon:String, color:String, data:String, index:int=-1, draggable:Boolean=false):Object
+			{
+				var dir:File=File.applicationDirectory;
+				dir=dir.resolvePath("maps/icons");
+				return html.window.addMarker(lat, lng, "file:///" + dir.nativePath + "/" + icon, color, data, index, draggable);
+			}
+      
+      public function addLine(pos1:Object, pos2:Object):Object
+      {
+        return html.window.addLine(pos1, pos2);
+      }
+
+			public function update():void
+			{
+        if(!inited)
+          init();
+        fPath=new File(new File("app:/maps/GoogleMapsV3_JSFunctions.html").nativePath).url;
+        urlReq=new URLRequest(fPath);
+        html.addEventListener(Event.COMPLETE, onMapReady, false, 0, true);
+        html.load(urlReq);
+
+			}
+
+			public function clearOverlays():void
+			{
+				html.window.clearOverlays();
+			}
+      
+      public function clearLines():void
+      {
+        html.window.clearLines();
+      }
+      
+      
+      public function fitBounds():void
+      {
+        html.window.fitBounds();
+      }
+      
+      
+      public function codeLatLng(lat:Number, lng:Number):void
+      {
+        html.window.geocodeResult = geocodeResult;
+        html.window.codeLatLng(lat, lng);
+      }
+      
+      
+      public function codeAddress(address:String):void
+      {
+        html.window.codeAddressResult = codeAddressResult;
+        html.window.codeAddress(address);
+      }
+
+			protected function setIconPath():void
+			{
+				var dir:File=File.applicationDirectory;
+				dir=dir.resolvePath("maps/icons");
+				html.window.setIconPath("file:///" + dir.nativePath + "/");
+			}
+      
+      public function selectByIndex(index:int):void
+      {
+        html.window.selectByIndex(index);
+      }
+
+			private function onMapReady(e:Event):void
+			{
+        trace("MAP IS READY (LOADED)");
+        var index:int=0;
+				html.removeEventListener(Event.COMPLETE, onMapReady);
+        
+        html.window.geocodeResult = geocodeResult;
+        html.window.onSelection = onSelection;
+        html.window.onDrag = onDrag;
+        html.window.onDragEnd = onDragEnd;
+ 
+        
+				setIconPath();
+        clearOverlays();
+        //html.window.setStreetView()
+        for (var i:int=0; i < positions.length; i++) //could be evidence or entity
+        {
+          if (positions[i] is Evidence)
+          {
+            var evidence:Evidence=positions[i] as Evidence;
+            
+            addCircle({lat: evidence.data.latitude, lng: evidence.data.longitude}, evidence.data.accuracy);
+            addMarker(evidence.data.latitude, evidence.data.longitude, "mapMarker.png", 'red', evidence._id);
+          }
+            
+          else if (positions[i] is Entity)
+          {
+            var entity:Entity=positions[i] as Entity;
+            if(!entity.position)
+              return;
+            addCircle({lat: Number(entity.position.latitude), lng: Number(entity.position.longitude)}, Number(entity.position_attr.accuracy));
+            addMarker(Number(entity.position.latitude), Number(entity.position.longitude), "mapMarkerBlu.png", 'blu', entity._id);
+          }
+          
+          else if (positions[i] is Object)
+          {
+            var place:Object=positions[i] as Object;
+            var draggable:Boolean=place.draggable;
+            if(!place.position)
+              return;
+            addCircle({lat:Number(place.position.getItemAt(1)), lng: Number(place.position.getItemAt(0))}, Number(place.radius));
+            addMarker(Number(place.position.getItemAt(1)), Number(place.position.getItemAt(0)), "mapMarker.png", 'red', null, index, draggable);
+            index++;
+          }
+
+         resize()
+        
+        }
+			}
+      
+      protected function onAddedToStage():void
+      {
+        this.addEventListener(Event.RESIZE, resize)
+      }
+      
+      protected function resize(e:Event=null):void
+      {
+        if(html)
+        {
+          this.html.width=this.width;
+          this.html.height=this.height;
+        }
+      }
+      
+    ]]>
+	</fx:Script>
+
+</mx:UIComponent>

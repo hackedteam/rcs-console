@@ -71,7 +71,7 @@ package it.ht.rcs.console.utils
                             if (event.detail == AlertPopUp.YES) {
                               update(update_version);
                             }
-                          } );
+                          },null,0x4,null,true );
         }
        
       });

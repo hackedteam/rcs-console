@@ -70,16 +70,17 @@
 
 			private function onEntityPush(e:PushEvent):void
 			{
-				if (LicenseManager.instance.intelligence && views.selectedIndex == 0)
-					return;
-				onChangeView();
+				if (LicenseManager.instance.intelligence )//&& views.selectedIndex == 0)
+					//return;
+        EntityManager.instance.refresh();
+				//onChangeView();
 			}
 
 			private function onRefresh(e:RefreshEvent):void
 			{
 				// if(LicenseManager.instance.intelligence  && views.selectedIndex == 0) 
 				//return;
-				onChangeView();
+				//onChangeView();
 			}
 
 			private function onKeyUp(event:KeyboardEvent):void
@@ -91,10 +92,11 @@
 			{
 				trace("Entities View Added to Stage");
 
-				/* FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
 				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush);
+        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
 				EntityManager.instance.refresh();
- */
+
 			/* 	if (linkMap)
 					linkMap.inited=false;
 				onChangeView(); */
@@ -105,9 +107,10 @@
 			{
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 				PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush);
+        EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
 			}
 
-			public function onChangeView():void
+			public function onChangeView(e:Event=null):void
 			{
 				trace("Entities >> CHANGE VIEW")
 				if (geoMap)
@@ -122,8 +125,6 @@
 
 				if (!LicenseManager.instance.intelligence)
 				{
-         
-            
 					if (views.selectedIndex == 0) //list
 					{
 						actionbar.currentState=LIST;
@@ -157,7 +158,7 @@
 						section.stateManager.view.refresh();
 						section.stateManager.tableView.refresh();
 						actionbar.currentState=LINKMAP;
-						if (linkMap)
+						if (linkMap) //redundant TODO!!!!
 						{
 							linkMap.addListeners();
 							linkMap.entities=section.stateManager.tableView;

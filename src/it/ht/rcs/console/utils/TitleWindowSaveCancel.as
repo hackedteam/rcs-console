@@ -62,7 +62,7 @@ package it.ht.rcs.console.utils
     
     protected function close(event:Event=null):void
     {
-     
+      dispatchEvent(new Event("close"))
       PopUpManager.removePopUp(this);
     }
     

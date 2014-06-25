@@ -147,7 +147,7 @@ package com.WindowsBitmap
 			var notFound:Boolean = true;
 			var clrStr:String = clr.toString();
 			
-			// image pixels are notourious for high correlation with neighbors.
+			// image pixels are notourious for high profiling with neighbors.
 			// try the last value first !
 			if(startIndex != -1)	{	
 				if(keys[startIndex].color == clr.toString())

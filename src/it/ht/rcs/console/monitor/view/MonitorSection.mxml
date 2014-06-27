@@ -18,19 +18,23 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.monitor.controller.MonitorManager;
-
-			import mx.collections.ListCollectionView;
-			import mx.collections.Sort;
-			import mx.collections.SortField;
-			import mx.core.ScrollPolicy;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.monitor.controller.MonitorManager;
+      
+      import mx.collections.ListCollectionView;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
+      import mx.core.ScrollPolicy;
 
 			[Bindable]
 			private var view:ListCollectionView;
 
 
-
+			private function onLicenseShow():void
+			{
+        parentApplication.dispatchEvent(new RefreshEvent(RefreshEvent.REFRESH))
+			}
 
 			private function init():void
 			{
@@ -65,29 +69,29 @@
 				}
 				return true;
 			}
-      
-      private function onStateChange():void
-      {
-        currentState=actionBar.currentState
-      }
+
+			private function onStateChange():void
+			{
+				currentState=actionBar.currentState
+			}
 		]]>
 	</fx:Script>
-  
-  <fx:Declarations>
-    <mx:Sequence id="expand" >
-      <mx:AnimateProperty 
-        property="height" 
-        fromValue="0" 
-        toValue="300"/>
- 
-    </mx:Sequence>
-    
 
-  </fx:Declarations>
+	<fx:Declarations>
+		<mx:Sequence id="expand">
+			<mx:AnimateProperty property="height"
+													fromValue="0"
+													toValue="300"/>
+
+		</mx:Sequence>
+
+
+	</fx:Declarations>
 
 	<monitor:MonitorActionBar id="actionBar"
 														selectedObject="{grid.selectedItem}"
-														view="{view}"  stateChangeComplete="onStateChange()"/>
+														view="{view}"
+														stateChangeComplete="onStateChange()"/>
 
 	<monitor:StatusGrid id="grid"
 											dataProvider="{view}"
@@ -97,12 +101,15 @@
 	<s:Spacer height="10"/>
 
 
-	<s:Scroller verticalScrollPolicy="off" id="scroller"
+	<s:Scroller verticalScrollPolicy="off"
+							id="scroller"
 							width="100%"
 							visible.collapsed="false"
 							includeInLayout.collapsed="false"
 							visible.expanded="true"
-							includeInLayout.expanded="true"  showEffect="{expand}">
+							includeInLayout.expanded="true"
+							showEffect="{expand}"
+							show="onLicenseShow()">
 		<s:Group width="100%">
 			<s:HGroup id="licenseAndVersion"
 								horizontalAlign="center"

@@ -7,6 +7,8 @@
       <![CDATA[
         import it.ht.rcs.console.agent.model.Agent;
         import it.ht.rcs.console.monitor.controller.LicenseManager;
+        import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
+        import it.ht.rcs.console.utils.AlertPopUp;
         
         import locale.R;
 
@@ -18,6 +20,9 @@
         private var isWindows:Boolean;
         
         private var scout:Boolean
+        
+        [Bindable]
+        public var configView:ConfigurationView;
         
         
         public function set platforms(platforms:Array):void 
@@ -85,12 +90,26 @@
             scoutCh.selected=scout;
         }
         
+        private function checkConfigurationMode():void
+        {
+          scout=scoutCh.selected;
+          if(scout && configView.currentState=="advanced" && isWindows)
+          {
+            AlertPopUp.show(R.get('CONFIG_SCOUT_ADVANCED_WARNING'));
+          }
+            else
+          {
+            create();
+          }
+           
+        }
+        
       ]]>
     </fx:Script>
    <!-- <s:Label id="platformTxt" text="windows" visible="{isWindows}"/>-->
     <s:CheckBox id="scoutCh" left="10" label="{R.get('SCOUT')}" fontWeight="bold" visible="{!LicenseManager.instance.scout &amp;&amp; isWindows}" enabled="{!LicenseManager.instance.scout &amp;&amp; isWindows}" selected="true" change="onScoutSelection()"/>
     <s:Spacer width="100%"/>
     <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" change="onDemoSelection()"/>
-    <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="create()" />    
+    <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="checkConfigurationMode()" />    
   
 </s:HGroup>

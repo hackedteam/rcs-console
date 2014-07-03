@@ -23,6 +23,35 @@
       {
         var path:String;
         numItemsToProcess=items.length;
+        for(var i:int=0;i<items.length;i++)
+        {
+          if (items[i].attr == FileSystemView.SUBROOT)//-1
+            path = '/';
+          else {
+           path=items[i].path
+          }
+          
+          var aid:String = items[i].aid;
+          items[i].pending=true;
+          AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
+            numItemsToProcess--;
+            if(numItemsToProcess==0)
+            {
+              AlertPopUp.show('Items scheduled for retrieval');
+              dispatchEvent(new Event("close"))
+              close();
+              
+            }
+          });
+          
+          
+        }
+      }
+      
+/*       private function save():void
+      {
+        var path:String;
+        numItemsToProcess=items.length;
        for(var i:int=0;i<items.length;i++)
          {
            if (items[i].attr == FileSystemView.SUBROOT)//-1
@@ -60,7 +89,7 @@
            
            
          }
-      }
+      } */
       
       private function buildPath():String
       {

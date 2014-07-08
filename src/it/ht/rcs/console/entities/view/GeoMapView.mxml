@@ -168,7 +168,7 @@
       {
         tracker.reset();
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
         FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
         
       }
@@ -234,8 +234,7 @@
       public function init():void
       {
         
-        trace("GEO MAP >>>>>>>>>>>>>>>> INIT")
-        
+   
         
         //FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
         
@@ -654,7 +653,7 @@
         //if (fitCh.selected)
         if (options.fit)
           
-         mapViewer.fitBounds()
+         mapViewer.fitBounds(options.places)
       }
       
       private function drawLink(pos1:Object, pos2:Object, entity:Entity, link:Link):void
@@ -747,6 +746,9 @@
       {
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
       }
       protected function onMapSelection():void
       {

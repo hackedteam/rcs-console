@@ -78,8 +78,7 @@
       [Bindable]
       public var ungroupEnabled:Boolean;
 
-			public var linkToHighLight:Object;
-			public var nodeToHighLight:Object;
+	
 
 			private var sort:Sort;
 			private var xmlData:XML;
@@ -150,7 +149,9 @@
             entitiesToShow.addItem(entity)
         }
         graph.draw(entitiesToShow, filterCriteria)
-        graph.visible=true; //event listener?
+          
+         
+          graph.visible=true; //event listener?
         
        // trace("Drawing Graph > Entities to show: "+entitiesToShow.length)
         
@@ -422,6 +423,17 @@
         flows=e.result as ArrayCollection;
         timeline.highlight(flows);
         graph.visible=true;
+        if(section.linkToHighLight)
+        {
+          graph.highlightLink(section.linkToHighLight.from, section.linkToHighLight.to)
+         
+        }
+        
+        if(section.nodeToHighLight)
+        {
+          graph.highlightNode(section.nodeToHighLight.id)
+          
+        }
       }
       
       private function onFlowFault(e:FaultEvent):void

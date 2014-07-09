@@ -167,7 +167,7 @@
       private function onRemovedFromStage():void
       {
         tracker.reset();
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange);
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
         FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
         
@@ -375,7 +375,7 @@
         endDate=new Date();
         
         filterCriteria={type: [], relevance: [], time: "time", from: "lastMonth", to: 0};
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.addEventListener("optionsChange", onOptionsChange);
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
       }
@@ -738,16 +738,15 @@
       
       public function addListeners():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
       }
       
       public function removeListeners():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      
         FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
       }
       protected function onMapSelection():void

@@ -10,36 +10,45 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.agent.controller.AgentManager;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.dashboard.view.renderer.Icons;
-			import it.ht.rcs.console.events.RefreshEvent;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.operations.view.OperationsSection;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.ArrayList;
-			import mx.collections.HierarchicalCollectionView;
-			import mx.collections.HierarchicalData;
-			import mx.collections.ListCollectionView;
-			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
-			import mx.core.FlexGlobals;
-			import mx.events.AdvancedDataGridEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.ListEvent;
-			import mx.rpc.events.ResultEvent;
-			import mx.utils.ObjectUtil;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.dashboard.view.renderer.Icons;
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.push.PushEvent;
+      import it.ht.rcs.console.target.model.Target;
+      import it.ht.rcs.console.utils.Size;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.collections.ArrayList;
+      import mx.collections.HierarchicalCollectionView;
+      import mx.collections.HierarchicalData;
+      import mx.collections.IHierarchicalCollectionView;
+      import mx.collections.IViewCursor;
+      import mx.collections.ListCollectionView;
+      import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+      import mx.core.FlexGlobals;
+      import mx.events.AdvancedDataGridEvent;
+      import mx.events.CollectionEvent;
+      import mx.events.ListEvent;
+      import mx.rpc.events.ResultEvent;
+      import mx.utils.ObjectUtil;
 
 			[Bindable]
 			public var section:OperationsSection;
 
 			[Bindable]
 			private var hcv:HierarchicalData;
+      
+      
+      private var lastTarget:Target;
+      private var lastAgent:Agent;
 
 
 			private var vScroll:int=0;
@@ -82,7 +91,7 @@
 					subroot.attr=SUBROOT;
 					subroot.name=agents.getItemAt(i).name;
 					subroot.agent=agents.getItemAt(i) as Agent;
-          subroot.aid=subroot.agent._id;
+					subroot.aid=subroot.agent._id;
 					subroot.parent=root;
 					root.children.push(subroot);
 				}
@@ -104,10 +113,15 @@
 			private function onItemOpen(e:AdvancedDataGridEvent):void
 			{
 				vScroll=grid.verticalScrollPosition;
+
+
 				//currentSelection=grid.selectedItems;
 
 				trace("index: " + vScroll)
 				var item:FileSystemItem=e.item as FileSystemItem;
+        
+        item.updated=false;
+        item.pending=false;
 
 				grid.selectedItems=[item];
 				actionBar.selectedObject=grid.selectedItems[0];
@@ -130,37 +144,39 @@
 			}
 
 
-			/*     private function onItemOpen(e:AdvancedDataGridEvent):void
+			private function onPush(e:PushEvent):void
+			{
+				var path:String=e.data.path;
+				var dp:IHierarchicalCollectionView=grid.hierarchicalCollectionView;
+				var cursor:IViewCursor=dp.createCursor();
+
+				while (!cursor.afterLast)
+				{
+
+					if (path == cursor.current["path"])
 					{
-						 vScroll=grid.verticalScrollPosition;
-						//currentSelection=grid.selectedItems;
+						cursor.current["updated"]=true;
+						cursor.current["pending"]=false;
+            cursor.current["children"]=[{name: "retrieving data...", scanning: true}]
+            grid.expandItem(cursor.current,false)
 
-						trace("index: "+ vScroll)
-						//var item:FileSystemItem=e.item as FileSystemItem;  //cast to filesystem item!!!!!!!!!!!!!!!!!!!!!!
-						var item:* = e.item
-
-						grid.selectedItems=[item]
-						actionBar.selectedObject=grid.selectedItems[0];
-						actionBar.selectedObjects=grid.selectedItems;
-
-						if(item.attr!=-1 && item.attr!=-2) //?? no root or subroot
-							return;
-						item.addEventListener("updated", onItemUpdated)
-						trace(e.item.name)
-						if(e.item.attr!=ROOT)
-						{
-							if(item.attr==SUBROOT)
-							{
-								EvidenceManager.instance.filesystem2(section.stateManager.selectedTarget._id, item.agent._id , null, item.update);
-							}
-							else
-							{
-								EvidenceManager.instance.filesystem2(section.stateManager.selectedTarget._id, item.aid, item.path, item.update);
-
-							}
-						}
 					}
-					 */
+          if (cursor.current["attr"] == SUBROOT && cursor.current["aid"] == e.data.aid)
+          {
+            cursor.current["updated"]=true;
+            cursor.current["pending"]=false;
+            if(cursor.current["children"].length==0 || !cursor.current["children"])
+            {
+              cursor.current["children"]=[{name: "retrieving data...", scanning: true}];
+              grid.expandItem(cursor.current,false)
+            }
+             
+          }
+					cursor.moveNext();
+				}
+			}
+
+
 			private function onItemUpdated(e:Event):void
 			{
 				e.currentTarget.removeEventListener("updated", onItemUpdated)
@@ -341,7 +357,7 @@
 				try
 				{
 					var value:Number=Number(item[column.dataField]);
-				
+
 					return value && item.attr == FILE ? Size.toHumanBytes(value) : '';
 				}
 				catch (e:Error)
@@ -396,15 +412,32 @@
 
 			private function onAddedToStage():void
 			{
+        
+        var currentTarget:Target =section.stateManager.selectedTarget
+        var currentAgent:Agent=section.stateManager.selectedAgent;
+        
+        
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, showTree);
-				if (grid)
-					showTree();
+        
+        if(lastTarget!=currentTarget || lastAgent!= currentAgent)
+        {
+          grid.dataProvider=null;
+          lastTarget=currentTarget
+          lastAgent=currentAgent
+          if (grid)
+            showTree();
+        }
+			
+
+				PushController.instance.addEventListener(PushEvent.FILESYSTEM, onPush);
 			}
 
 			private function onRemovedFromStage():void
 			{
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, showTree);
-				grid.dataProvider=null;
+				
+
+				PushController.instance.removeEventListener(PushEvent.ENTITY, onPush);
 			}
 
 			private function onSelectionChange():void
@@ -449,6 +482,19 @@
 				var selectedRow:Object=event.currentTarget.selectedItem;
 				grid.expandItem(selectedRow, !event.target.isItemOpen(selectedRow));
 			}
+
+			protected function setColumnStyle(data:Object, column:AdvancedDataGridColumn):Object
+			{
+				if (data.pending)
+				{
+					return {color: 0xCC0000}
+				}
+				else if (data.updated)
+				{
+					return {color: 0x006633}
+				}
+				return {color: 0x000000}
+			}
 		]]>
 	</fx:Script>
 
@@ -471,26 +517,38 @@
 											 doubleClickEnabled="true"
 											 itemDoubleClick="openItem(event)">
 		<mx:columns>
+
 			<mx:AdvancedDataGridColumn dataField="name"
 																 width="400"
 																 headerText="{R.get('PATH')}"
 																 showDataTips="true"
-																 sortable="false"/>
+																 sortable="false"
+																 styleFunction="setColumnStyle"
+                                 />
+			<mx:AdvancedDataGridColumn dataField="pending"
+																 headerText="..."
+																 itemRenderer="it.ht.rcs.console.operations.view.filesystem.renderers.PendingItemRenderer"
+																 width="20"
+																 showDataTips="true"
+																 sortable="false"
+																 styleFunction="setColumnStyle"/>
 
 			<mx:AdvancedDataGridColumn dataField="date"
 																 labelFunction="dateFunction"
 																 width="160"
 																 headerText="{R.get('DATE')}"
 																 showDataTips="true"
-																 sortable="false"/>
+																 sortable="false"
+																 styleFunction="setColumnStyle"/>
 			<mx:AdvancedDataGridColumn dataField="size"
 																 labelFunction="sizeFunction"
 																 width="100"
 																 headerText="{R.get('SIZE')}"
 																 showDataTips="true"
-																 sortable="false"/>
-			<!-- mx:AdvancedDataGridColumn dataField="attr" width="100"
-	 <mx:AdvancedDataGridColumn dataField="pending" headerText="..." itemRenderer="it.ht.rcs.console.operations.view.filesystem.renderers.PendingItemRenderer" width="20"  showDataTips="true"  sortable="false"/>-->
+																 sortable="false"
+																 styleFunction="setColumnStyle"/>
+			<!-- mx:AdvancedDataGridColumn dataField="attr" width="100"-->
+
 		</mx:columns>
 	</mx:AdvancedDataGrid>
 

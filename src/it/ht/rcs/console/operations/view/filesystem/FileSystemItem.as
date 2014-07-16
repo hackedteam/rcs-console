@@ -20,11 +20,16 @@ package it.ht.rcs.console.operations.view.filesystem
 		public var path:String;
 		public var size:Number;
 		public var date:int;
+    public var created_at:int;
+    public var sent_at:int;
 		public var aid:String;
 		public var evidence:Evidence;
-    public var incomplete:Boolean
+    public var incomplete:Boolean;
+    
 		[Bindable]
 		public var pending:Boolean;
+    [Bindable]
+    public var updated:Boolean; //got push
 
 		private function getName(path:String):String
 		{
@@ -46,6 +51,9 @@ package it.ht.rcs.console.operations.view.filesystem
 			item.path=o.path;
 			item.size=o.size;
 			item.incomplete=o.incomplete;
+      item.pending=o.pending;
+      item.created_at=o.created_at;
+      item.sent_at=o.sent_at;
       
 			//recursive loop on children //check if folder and not empty !
   		if(item.attr==1 && item.incomplete)
@@ -78,35 +86,7 @@ package it.ht.rcs.console.operations.view.filesystem
 			dispatchEvent(new Event("updated"));
 		}
 
-		public function update2(event:ResultEvent):void
-		{
-			var o:Object=JSON.parse(String(event.result))
-			children=o as Array //event.result as Array;   //cast to filesystem item!!!!!!!!!!!!!!!!!!!!!!
-			dispatchEvent(new Event("updated"));
-		/*children=new Array();
-		var result:ArrayCollection=event.result as ArrayCollection;
-
-		for (var i:int=0; i < event.result.length; i++)
-		{
-			var evidence:Evidence=event.result.getItemAt(i);
-
-			var child:FileSystemItem=new FileSystemItem();
-			//check if is a Folder
-			child.name=getName(evidence.data.path) //+" ("+evidence.data.attr+")";
-			child.path=evidence.data.path;
-			child.attr=evidence.data.attr;
-			child.size=evidence.data.size;
-			child.date=evidence.da;
-			child.parent=this;
-			child.evidence=evidence;
-			child.agent=this.agent;
-			if (child.attr != 0 && child.attr != 3)
-				child.children=[{name: "retrieving data...", scanning: true}]
-			children.push(child);
-
-		}
-		*/
-		}
+	
 
 		public function onPendingResult(e:ResultEvent):void
 		{

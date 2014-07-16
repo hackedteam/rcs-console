@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="500" height="400" 
+         xmlns:mx="library://ns.adobe.com/flex/mx" width="700" height="400" 
          close="closeMe(event)" title="{R.get('PENDING_REQUESTS')}"
          creationComplete="init()"
          xmlns:view="it.ht.rcs.console.utils.*">
@@ -12,6 +12,7 @@
       import it.ht.rcs.console.events.SessionEvent;
       import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.TimeUtils;
       
       import locale.R;
       
@@ -93,6 +94,19 @@
         deletedItems.push(filesystemsDg.selectedItems[currentIndex]);
       }
       
+      private function dateFunction(item:Object, column:GridColumn):String
+      {
+        try
+        {
+          var value:Number=item[column.dataField];
+          return value ?  TimeUtils.timestampFormatter(value * 1000) : 'not yet';
+        }
+        catch (e:Error)
+        {
+        }
+        return '';
+      }
+      
     ]]>
   </fx:Script>
 
@@ -109,7 +123,8 @@
           
           <s:GridColumn dataField="path" headerText="{R.get('PATH')}"/>
           <s:GridColumn dataField="depth" headerText="{R.get('DEPTH')}" width="50"/>
-          
+          <s:GridColumn dataField="created_at" headerText="{R.get('CREATED_AT')}" width="130" labelFunction="dateFunction"/>
+          <s:GridColumn dataField="sent_at" headerText="{R.get('SENT_AT')}" width="130" labelFunction="dateFunction"/>
         </s:ArrayList>
       </s:columns>
     </s:DataGrid>

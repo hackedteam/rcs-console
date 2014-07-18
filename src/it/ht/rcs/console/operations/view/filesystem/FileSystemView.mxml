@@ -135,9 +135,9 @@
 					{
 						EvidenceManager.instance.filesystem2(section.stateManager.selectedTarget._id, item.agent._id, null, item.update);
 					}
-					else
+					else   //only if incomplete == true
 					{
-						EvidenceManager.instance.filesystem2(section.stateManager.selectedTarget._id, item.aid, item.path, item.update);
+						if(item.incomplete) EvidenceManager.instance.filesystem2(section.stateManager.selectedTarget._id, item.aid, item.path, item.update);
 
 					}
 				}
@@ -191,7 +191,7 @@
 				actionBar.selectedObjects=grid.selectedItems;
 
 				//ask for pending items
-				e.currentTarget.addEventListener("pendingResult", onPendingResult)
+				e.currentTarget.addEventListener("pendingResult", onPendingResult);
 				//AgentManager.instance.getFilesystems(e.currentTarget.agent,e.currentTarget.onPendingResult)
 
 			}

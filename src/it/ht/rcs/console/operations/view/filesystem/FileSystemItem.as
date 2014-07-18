@@ -56,11 +56,11 @@ package it.ht.rcs.console.operations.view.filesystem
       item.sent_at=o.sent_at;
       
 			//recursive loop on children //check if folder and not empty !
-  		if(item.attr==1 && item.incomplete)
+  		if(item.attr==FileSystemView.FULL_FOLDER && item.incomplete)
       {
           item.children=[{name: "retrieving data...", scanning: true}]
       }
-      else if (o.attr!=2 && o.attr != 0)
+      else if (o.attr!=FileSystemView.EMPTY_FOLDER && o.attr != FileSystemView.FILE)
 			{
         item.children=new Array();
 				for (var i:int=0; i < o.children.length; i++)

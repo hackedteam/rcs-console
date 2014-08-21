@@ -132,12 +132,15 @@ package it.ht.rcs.console.entities.view
 			{
 				case 'operation':
 					return OperationManager.instance.getItem(item._id);
+          break;
 
 				case 'target':
 					return EntityManager.instance.getEntityByTarget(item._id);
+          break;
 
 				case 'entity':
 					return EntityManager.instance.getItem(item._id);
+          break;
 
 				default:
 					return null;

@@ -93,6 +93,7 @@
 				trace("Entities View Added to Stage");
 
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+       EntityManager.instance.listenPush()
 				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush);
         EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
 				EntityManager.instance.refresh();
@@ -106,6 +107,7 @@
 			protected function onRemovedFromStage():void
 			{
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+        EntityManager.instance.unlistenPush()
 				PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush);
         EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
           

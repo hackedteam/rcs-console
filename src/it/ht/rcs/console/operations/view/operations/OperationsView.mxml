@@ -4,10 +4,13 @@
           xmlns:mx="library://ns.adobe.com/flex/mx"
           xmlns:operations="it.ht.rcs.console.operations.view.operations.*"
           xmlns:view="it.ht.rcs.console.operations.view.*"
-          width="100%" height="100%">
+          width="100%" height="100%" 
+          addedToStage="onAddeToStage(event)" 
+          removedFromStage="onRemovedFromStage(event)">
 
   <fx:Script>
     <![CDATA[
+      import it.ht.rcs.console.operation.controller.OperationManager
       import it.ht.rcs.console.operations.view.OperationsSection;
       
       import locale.R;
@@ -28,6 +31,18 @@
           if (item) section.stateManager.manageItemSelection(item);
         }
       }
+      
+      protected function onAddeToStage(event:Event):void
+      {
+        OperationManager.instance.listenPush();
+        
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        OperationManager.instance.unlistenPush();
+      }
+      
     ]]>
   </fx:Script>
   

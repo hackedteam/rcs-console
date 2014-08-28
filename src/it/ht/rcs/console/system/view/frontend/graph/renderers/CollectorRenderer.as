@@ -147,15 +147,15 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
 
 		private function getStatusIcon():Class
 		{
-			if (collector.type == 'remote' && !collector.enabled)
-				return unknownIcon;
+		/*	if (collector.type == 'remote' && !collector.enabled)
+				return unknownIcon;*/
 
 			var address:String=(collector.type == 'local') ? collector.internal_address : collector.address;
 
 			var status:Status=MonitorManager.instance.getStatusByAddress(address);
 
 			if (status == null)
-				return errorIcon;
+				return unknownIcon;
 
 			switch (status.status)
 			{

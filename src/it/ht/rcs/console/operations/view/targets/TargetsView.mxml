@@ -6,17 +6,19 @@
 					xmlns:view="it.ht.rcs.console.operations.view.*"
 					width="100%"
 					height="100%"
-					addedToStage="onAddedToStage()"
-					show="onShow()">
+          addedToStage="onAddeToStage(event)" 
+          removedFromStage="onRemovedFromStage(event)"
+				>
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.operations.view.OperationsSection;
-			import it.ht.rcs.console.target.controller.TargetManager;
-
-			import locale.R;
-
-			import mx.events.FlexEvent;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.target.controller.TargetManager;
+      
+      import locale.R;
+      
+      import mx.events.FlexEvent;
 
 			[Bindable]
 			public var section:OperationsSection;
@@ -38,17 +40,20 @@
 				}
 			}
 
-			protected function onAddedToStage():void
-			{
-				//TargetManager.instance.refresh()
+      protected function onAddeToStage(event:Event):void
+      {
+        TargetManager.instance.listenPush();
+        AgentManager.instance.listenFactoryPush()
+        
+      }
+      
+      protected function onRemovedFromStage(event:Event):void
+      {
+        TargetManager.instance.unlistenPush();
+        AgentManager.instance.unlistenFactoryPush()
+      }
 
-			}
-
-			protected function onShow():void
-			{
-				//TargetManager.instance.refresh()
-
-			}
+			
 		]]>
 	</fx:Script>
 

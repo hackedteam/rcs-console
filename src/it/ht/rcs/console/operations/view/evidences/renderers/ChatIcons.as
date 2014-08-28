@@ -9,7 +9,7 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     public static const skype:Class;
     
     [Embed(source='/img/evidence/social/yahoo_16.png')]
-    public static const yim:Class;
+    public static const yahoo:Class;
     
     [Embed(source='/img/evidence/social/messenger_16.gif')]
     public static const msn:Class;

@@ -42,20 +42,22 @@
 				sort.fields=[new SortField('status', true, true, true), new SortField('_id', true)];
 				view=MonitorManager.instance.getView(sort, searchFilterFunction);
 				currentState="collapsed"
-			}
+			} 
 
 			private function onAddedToStage():void
 			{
 				LicenseManager.instance.listenRefresh();
 				MonitorManager.instance.listenRefresh();
-				MonitorManager.instance.startAutorefresh();
+        MonitorManager.instance.listenPush()
+				//MonitorManager.instance.startAutorefresh();
 			}
 
 			private function onRemovedFromStage():void
 			{
 				LicenseManager.instance.unlistenRefresh();
 				MonitorManager.instance.unlistenRefresh();
-				MonitorManager.instance.stopAutorefresh();
+        MonitorManager.instance.unlistenPush()
+				//MonitorManager.instance.stopAutorefresh();
 			}
 
 			private function searchFilterFunction(item:Object):Boolean

@@ -15,16 +15,17 @@ package it.ht.rcs.console.utils
   import flash.utils.Timer;
   
   import it.ht.rcs.console.DB;
+  import it.ht.rcs.console.accounting.controller.SessionManager;
   import it.ht.rcs.console.events.SessionEvent;
   import it.ht.rcs.console.update.model.UpdateVersions;
   
   import locale.R;
   
+  import mx.controls.Alert;
   import mx.core.FlexGlobals;
   import mx.events.CloseEvent;
   import mx.managers.PopUpManager;
   import mx.rpc.events.ResultEvent;
-  import mx.controls.Alert;
 
   public class UpdateManager
   {
@@ -125,9 +126,11 @@ package it.ht.rcs.console.utils
                                    fileStream.close(); 
                                    
                                    trace("UpdateCheck -- updating to version " + version_air);
-                                   
+                                   /*logout before updating to prevent user session still active at next login*/
+                                   SessionManager.instance.logout()
                                    /* update the application */
                                    updater.update(file, version_air);
+                                   
                                  }); 
 
       trace("UpdateCheck -- downloading version " + version);

@@ -142,6 +142,11 @@ package it.ht.rcs.console.system.view.frontend.graph.renderers
 				addElement(textLabel);
 
 			}
+      
+      if (collector.type == 'remote' && !collector.enabled)
+        this.alpha=.5;
+      else
+        this.alpha=1;
 
 		}
 

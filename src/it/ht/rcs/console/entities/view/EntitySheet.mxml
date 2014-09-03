@@ -41,6 +41,8 @@
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.push.PushEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.Clock;
@@ -250,11 +252,14 @@
 
 			protected function onAddedToStage():void
 			{
+        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush)
 				init()
 			}
 
 			protected function onRemovedFromStage():void
 			{
+       
+        PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush)
 				//photoViewer.currentPhoto="";
 				//entity=null;
 				lastPosCh.selected=true;
@@ -262,6 +267,51 @@
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 
 			}
+      
+      private function onEntityPush(e:PushEvent):void
+      {
+      trace("entity push")
+      
+      if(e.data.action==PushEvent.MODIFY && entity._id==e.data.id)
+      {
+        for(var property:String in e.data.changes)
+        {
+          entity[property]= e.data.changes[property];
+        }
+      }
+      /* var entity:Entity;
+      switch (e.data.action)
+      {
+        case PushEvent.CREATE:
+          trace("entity creation");
+          var position_attr:Position_attr=new Position_attr(e.data.changes.position_attr)
+          e.data.changes.position_attr=position_attr;
+          entity=new Entity(e.data.changes);
+          addItem(entity);
+          break;
+        
+        
+        case PushEvent.MODIFY:
+          trace("entity update");
+          entity = getItem(e.data.id)
+          _items.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
+          for(var property:String in e.data.changes)
+          {
+            
+            entity[property]= e.data.changes[property];
+          }
+          _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
+          break;
+        
+        
+        case PushEvent.DESTROY:
+          trace("entity deletion");
+          _items.removeEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
+          removeItem(getItem(e.data.id))
+          _items.addEventListener(CollectionEvent.COLLECTION_CHANGE, onItemsChange);
+          break;
+      } */
+      }
 
 			private function onContactResult(e:ResultEvent):void
 			{

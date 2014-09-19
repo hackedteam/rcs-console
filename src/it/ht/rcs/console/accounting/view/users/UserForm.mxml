@@ -21,7 +21,9 @@
 			import locale.R;
 
 			import mx.collections.ArrayCollection;
+			import mx.collections.ListCollectionView;
 			import mx.managers.PopUpManager;
+
 
 			[Bindable]
 			public var user:User;
@@ -69,8 +71,8 @@
 
 			private function init():void
 			{
-      
-        
+
+
 				formName.setFocus();
 
 				if (currentState == 'create')
@@ -153,19 +155,36 @@
 
 			private function save():void
 			{
-        if (formName.text == '')
-        {
-          AlertPopUp.show(R.get('USER_NO_NAME'), R.get('ERROR'));
-          return;
-        }
-        
+				if (formName.text == '')
+				{
+					AlertPopUp.show(R.get('USER_NO_NAME'), R.get('ERROR'));
+					return;
+				}
+
 				if (user.pass == '')
 				{
 					AlertPopUp.show(R.get('USER_NO_PASS'), R.get('ERROR'));
 					return;
 				}
 
+
+
+
 				/* keep the name the first to be modified */
+				if (currentState == 'edit')
+				{
+					var v:ListCollectionView=UserManager.instance.getView();
+					for (var i:int=0; i < v.length; i++)
+					{
+						var u:User=v.getItemAt(i) as User;
+						if (u.name == formName.text)
+						{
+							AlertPopUp.show(R.get('USER_ALREADY_EXISTS'),'ERROR');
+							return;
+						}
+					}
+
+				}
 				user.name=formName.text;
 				user.enabled=formEnabled.selected;
 				user.desc=formDescription.text;
@@ -392,7 +411,7 @@
 											width="100"
 											dataProvider="{Console.locales}"
 											requireSelection="true"
-											selectedIndex="{Console.locales.getItemIndex(user.locale)}" />
+											selectedIndex="{Console.locales.getItemIndex(user.locale)}"/>
 		</s:FormItem>
 		<s:FormItem label="{R.get('CONSOLE_TIMEZONE')}">
 			<s:DropDownList id="formConsoletime"

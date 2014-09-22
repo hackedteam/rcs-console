@@ -21,7 +21,7 @@
       public var configView:ConfigurationView;
       
       public function set platform(value:*):void {
-        if (value == 'blackberry' || value == 'winmo' || value == 'ios')
+        if (value == 'blackberry' || value == 'ios')
           currentState = value;
         else
           currentState = 'all';
@@ -38,9 +38,7 @@
           params = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, melt: {}, 'package': {type: 'local'} };
         } else if (currentState == 'ios') {
           params = {platform: parentDocument.platform, binary: {demo: createBtn.demo.selected}, melt: {}, 'package': {type: 'local'} };
-        } else {
-          params = {platform: 'card', generate: {platforms: ['winmo'], binary: {demo: createBtn.demo.selected} } };
-        }
+        } 
         
         params['factory'] = {_id: parentDocument.factory._id};
         
@@ -67,7 +65,6 @@
     <s:State name='all'/>
     <s:State name='blackberry'/>
     <s:State name='ios'/>
-    <s:State name='winmo'/>
   </s:states>
   
   <s:TextArea includeIn="blackberry" left="10" top="20" right="0" height="83" borderVisible="false"
@@ -76,9 +73,6 @@
   <s:TextArea includeIn="ios" left="10" top="20" right="0" height="83" borderVisible="false"
               contentBackgroundAlpha="0.0" editable="false" text="{R.get('LOCAL_IOS')}"/>
   
-  <s:TextArea includeIn="winmo" left="10" top="20" right="0" height="83" borderVisible="false"
-              contentBackgroundAlpha="0.0" editable="false" text="{R.get('LOCAL_WINMO')}"/>
-
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}" configView="{configView}"/>
   
 </s:Group>

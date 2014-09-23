@@ -93,7 +93,7 @@
 					//collector 
 					toCheck[currentNode]=true;
 					//loop connected nodes
-					while (currentNode && currentNode.next[0] != null)
+					while (currentNode && currentNode.next && currentNode.next[0] != null)
 					{
 						currentNode=getCollectorById(currentNode.next[0], anonymizers);
 						var safe:Boolean= currentNode==null? false: checkConnection(currentNode)
@@ -105,6 +105,13 @@
 				{
 					for (i=0; i < anonymizers.length; i++)
 					{
+            if(anonymizers[i].next==null)
+              anonymizers[i].next=new ArrayCollection([null]);
+            
+            if(anonymizers[i].prev==null)
+              anonymizers[i].prev=new ArrayCollection([null]);
+            
+            
 						var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
             var prevNode:Collector=getCollectorById(anonymizers[i].prev[0], anonymizers)
               

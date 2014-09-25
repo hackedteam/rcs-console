@@ -10,15 +10,16 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.accounting.controller.UserManager;
-			import it.ht.rcs.console.accounting.model.User;
-			import it.ht.rcs.console.events.SectionEvent;
-			import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
-
-			import locale.R;
-
-			import mx.core.FlexGlobals;
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.accounting.controller.UserManager;
+      import it.ht.rcs.console.accounting.model.User;
+      import it.ht.rcs.console.events.SectionEvent;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      import it.ht.rcs.console.utils.itemfield.ItemFieldEvent;
+      
+      import locale.R;
+      
+      import mx.core.FlexGlobals;
 
 			[Bindable]
 			private var enable_items:Boolean;
@@ -68,7 +69,7 @@
 					event.section='Intelligence';
 				else
 					event.section='Operations';
-				event.item=e.selectedItem;
+				event.item=SearchManager.instance.getItem(e.selectedItem._id);
 				FlexGlobals.topLevelApplication.dispatchEvent(event);
 			}
 

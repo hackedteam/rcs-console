@@ -31,7 +31,7 @@
 	<s:Button label="{R.get('UPGRADE')}"
 						click="upgradeAnon(event)"
 						icon="@Embed('/img/NEW/update.png')"
-						enabled="{selectedObject != null &amp;&amp; (selectedObject as Collector).poll &amp;&amp; Console.currentSession.user.is_sys_frontend()}"/>
+						enabled="{selectedObject != null &amp;&amp; (selectedObject as Collector).enabled &amp;&amp; (selectedObject as Collector).isUpdatable &amp;&amp; selectedObject.type == 'remote' &amp;&amp; Console.currentSession.user.is_sys_frontend()}"/>
 
 	<actionbar:Separator width="40"/>
 	<!--<s:Button label="{R.get('SAVE')}"
@@ -41,7 +41,7 @@
 	<s:Button label="{R.get('HEALTH_CHECK')}"
 						click="healthCheck()"
 						icon="@Embed('/img/NEW/check.png')"
-						enabled="{Console.currentSession.user.is_sys_frontend() }" visible="false" includeInLayout="false"/>
+						enabled="{Console.currentSession.user.is_sys_frontend() }"/>
 	<s:Button label="{R.get('APPLY_TOPOLOGY')}"
 						click="saveTopology()"
 						icon="@Embed('/img/NEW/confirm.png')"
@@ -92,6 +92,7 @@
 				popup.collector=selectedObject as Collector;
 				PopUpManager.centerPopUp(popup);
 			}
+    
       
       private function update():void
       {
@@ -140,6 +141,8 @@
 
 			private function healthCheck():void
 			{
+        DownloadManager.instance.createTask("topologycheck", null, {});
+        /*
 				var nodes:ArrayCollection=new ArrayCollection();
 				for each (var c:CollectorRenderer in(parent as Frontend).graph.db.collectors)
 				{
@@ -151,6 +154,7 @@
 				var popup:HealthCheckWindow=PopUpManager.createPopUp(this.parentDocument as DisplayObject, HealthCheckWindow, true) as HealthCheckWindow;
 				popup.nodes=nodes;
 				PopUpManager.centerPopUp(popup);
+        */
 			}
 
 			private function applyTopology():void
@@ -161,7 +165,7 @@
 			private function downloadInstaller():void
 			{
 				var params:Object={platform: 'anon', binary: {demo: false}, melt: {port: (selectedObject as Collector).port, id: (selectedObject as Collector)._id}}
-				var filename:String='anon_install.zip'
+				var filename:String=(selectedObject as Collector).name+'_anon_install.zip'
 				DownloadManager.instance.createTask("build", filename, params, null, null);
 			}
 

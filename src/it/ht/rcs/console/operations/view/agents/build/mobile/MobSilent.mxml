@@ -8,19 +8,23 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.build.controller.BuildManager;
-			import it.ht.rcs.console.build.model.SymbianConf;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
-			import it.ht.rcs.console.task.controller.DownloadManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-			
-			import locale.R;
-			
-			import mx.core.UIComponent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.build.controller.BuildManager;
+      import it.ht.rcs.console.build.model.SymbianConf;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
+      import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      [Bindable]
+      public var configView:ConfigurationView;
 
 			public function set platform(value:*):void
 			{
@@ -207,7 +211,6 @@
     <s:State name='blackberry'/>
     <s:State name='ios'/>
 		<s:State name='symbian'/>
-    <s:State name='winmo'/>
     <s:State name='winphone'/>
 	</s:states>
 
@@ -310,6 +313,6 @@
 															bottom="0"
 															right="10"
 															create="{create}"
-															visible="{currentState=='all' || currentState=='android' || currentState=='ios' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}" />
+															visible="{currentState=='all' || currentState=='android' || currentState=='ios' || currentState=='blackberry' || (currentState=='symbian' &amp;&amp; BuildManager.instance.symbianConf.uids.length==6)}" configView="{configView}"/>
 
 </s:Group>

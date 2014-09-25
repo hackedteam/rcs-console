@@ -8,21 +8,25 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.task.controller.DownloadManager;
-			import it.ht.rcs.console.utils.AlertPopUp;
-
-			import locale.R;
-
-			import mx.core.UIComponent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
+      import it.ht.rcs.console.task.controller.DownloadManager;
+      import it.ht.rcs.console.utils.AlertPopUp;
+      
+      import locale.R;
+      
+      import mx.core.UIComponent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
 
 			private var dumpMask:String;
       
       [Bindable]
       private var _platform:String;
+      
+      [Bindable]
+      public var configView:ConfigurationView;
 
 			protected function create():void
 			{
@@ -31,7 +35,7 @@
 
 				if (iso.selected)
 				{
-					params={platform: 'iso', generate: {platforms: ['windows', 'osx'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected}, dump_mask: dumpMask}};
+					params={platform: 'iso', generate: {platforms: ['windows', 'osx', 'linux'], demo: createBtn.demo.selected, binary: {demo: createBtn.demo.selected}, dump_mask: dumpMask}};
 					filename=parentDocument.factory.name + '_offline.iso'
 				}
 				else
@@ -114,7 +118,7 @@
 	</s:VGroup>
 	<s:Label left="150"
 					 top="15"
-					 text="Windows and OSX"/>
+					 text="Windows, OSX and Linux"/>
 	<s:Label left="150"
 					 top="40"
 					 text="Windows only"/>
@@ -161,6 +165,6 @@
 															left="10"
 															bottom="0"
 															right="10"
-															create="{create}" />
+															create="{create}" configView="{configView}"/>
 
 </s:Group>

@@ -167,8 +167,8 @@
       private function onRemovedFromStage():void
       {
         tracker.reset();
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange);
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange);
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
         FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
         
       }
@@ -234,8 +234,7 @@
       public function init():void
       {
         
-        trace("GEO MAP >>>>>>>>>>>>>>>> INIT")
-        
+   
         
         //FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
         
@@ -376,7 +375,7 @@
         endDate=new Date();
         
         filterCriteria={type: [], relevance: [], time: "time", from: "lastMonth", to: 0};
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.addEventListener("optionsChange", onOptionsChange);
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
       }
@@ -489,7 +488,7 @@
           
         else if (filterCriteria.from && filterCriteria.to)
         {
-          startDate=new Date(filterCriteria.from * 1000)
+          startDate=new Date(filterCriteria.from * 1000);
           endDate=new Date(filterCriteria.to * 1000);
         }
         endDate.hours=23
@@ -654,7 +653,7 @@
         //if (fitCh.selected)
         if (options.fit)
           
-         mapViewer.fitBounds()
+         mapViewer.fitBounds(options.places)
       }
       
       private function drawLink(pos1:Object, pos2:Object, entity:Entity, link:Link):void
@@ -739,14 +738,16 @@
       
       public function addListeners():void
       {
-        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.addEventListener(FilterEvent.RESET_FILTER, resetFilter);
       }
       
       public function removeListeners():void
       {
-        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.FILTER_CHANGED, onFilterChange)
+        FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.ENTITIES_FILTER_CHANGED, onFilterChange)
         FlexGlobals.topLevelApplication.removeEventListener(FilterEvent.RESET_FILTER, resetFilter);
+      
+        FlexGlobals.topLevelApplication.removeEventListener("optionsChange", onOptionsChange);
       }
       protected function onMapSelection():void
       {
@@ -777,13 +778,13 @@
                 gap="0">
 
         
-        <renderers:FilterRenderer label="Options"
+        <renderers:FilterRenderer label="{R.get('OPTIONS')}"
                                   filter="{options}"
                                   property="options"
                                   popupFactory="it.ht.rcs.console.entities.view.filters.OptionsPopup"
                                   width="150"/>
         
-        <renderers:FilterRenderer label="Time"
+        <renderers:FilterRenderer label="{R.get('TIMEFRAME')}"
                                   filter="{filterCriteria}"
                                   property="time"
                                   popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"

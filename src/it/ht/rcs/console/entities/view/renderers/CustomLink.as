@@ -69,6 +69,18 @@ package it.ht.rcs.console.entities.view.renderers
 
     }
     
+    public function highlight():void
+    {
+      this.filters=[filter]
+      this.isSelected=true;
+    }
+    
+    public function unHighlight():void
+    {
+      this.filters=null
+      this.isSelected=false;
+    }
+    
     
     public function flow():void    
     {

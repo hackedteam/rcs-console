@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<main:Section xmlns:fx="http://ns.adobe.com/mxml/2009"
+							xmlns:s="library://ns.adobe.com/flex/spark"
+							xmlns:mx="library://ns.adobe.com/flex/mx"
+							xmlns:main="it.ht.rcs.console.main.*"
+							xmlns:monitor="it.ht.rcs.console.monitor.view.*"
+							addedToStage="onAddedToStage()"
+							creationComplete="init()"
+							removedFromStage="onRemovedFromStage()">
+
+	<main:layout>
+		<s:VerticalLayout horizontalAlign="center"
+											paddingBottom="5"
+											paddingLeft="5"
+											paddingRight="5"
+											paddingTop="5"/>
+	</main:layout>
+
+	<fx:Script>
+		<![CDATA[
+      import it.ht.rcs.console.events.RefreshEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.monitor.controller.MonitorManager;
+      
+      import mx.collections.ListCollectionView;
+      import mx.collections.Sort;
+      import mx.collections.SortField;
+      import mx.core.ScrollPolicy;
+
+
+      private var html:HTMLLoader;
+      private var fPath:String;
+		
+
+			private function init():void
+			{
+        if(!html)
+        {
+          html=new HTMLLoader();
+          html.placeLoadStringContentInApplicationSandbox = false;
+          container.addChild(html);
+          fPath=new File(new File("app:/help/Default.htm").nativePath).url;
+          var urlReq:URLRequest=new URLRequest(fPath);
+          html.width=container.width;
+          html.height=container.height;
+         
+          //html.load(urlReq);
+        }
+			}
+
+			private function onAddedToStage():void
+			{
+        this.addEventListener(Event.RESIZE, resize)
+			}
+
+			private function onRemovedFromStage():void
+			{
+        this.removeEventListener(Event.RESIZE, resize)
+			}
+      protected function resize(e:Event=null):void
+      {
+        if(html)
+        {
+          this.html.width=container.width;
+          this.html.height=container.height;
+        }
+      }
+	
+		]]>
+	</fx:Script>
+
+  <mx:UIComponent id="container" width="100%" height="100%"/>
+</main:Section>

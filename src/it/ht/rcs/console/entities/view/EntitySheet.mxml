@@ -41,6 +41,8 @@
       import it.ht.rcs.console.events.RefreshEvent;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.push.PushEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
       import it.ht.rcs.console.utils.AlertPopUp;
       import it.ht.rcs.console.utils.Clock;
@@ -250,11 +252,14 @@
 
 			protected function onAddedToStage():void
 			{
+        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush)
 				init()
 			}
 
 			protected function onRemovedFromStage():void
 			{
+       
+        PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush)
 				//photoViewer.currentPhoto="";
 				//entity=null;
 				lastPosCh.selected=true;
@@ -262,6 +267,20 @@
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 
 			}
+      
+      private function onEntityPush(e:PushEvent):void
+      {
+      trace("entity push")
+      
+      if(e.data.action==PushEvent.MODIFY && entity._id==e.data.id)
+      {
+        for(var property:String in e.data.changes)
+        {
+          entity[property]= e.data.changes[property];
+        }
+      }
+    
+      }
 
 			private function onContactResult(e:ResultEvent):void
 			{
@@ -342,9 +361,9 @@
 							mapViewer.positions.push(entity);
 							//text
 							if (entity.type == 'target')
-								lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " (" + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + "): \n- Latitude: " + entity.position.latitude + "- Longitude: " + entity.position.longitude + " - Accuracy: " + entity.position_attr.accuracy + " mt";
+								lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " (" + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + "): \n- "+R.get('LATITUDE')+": " + entity.position.latitude +  " - "+R.get('LONGITUDE')+": " + entity.position.longitude + " - "+R.get('ACCURACY')+": "  + entity.position_attr.accuracy + " mt";
 							else if (entity.type == 'position')
-								lastPositionTxt.text="Latitude: " + entity.position.latitude + " - Longitude: " + entity.position.longitude + " - Accuracy: " + entity.position_attr.accuracy + " mt";
+								lastPositionTxt.text=R.get('LATITUDE')+": " + entity.position.latitude + " - "+R.get('LONGITUDE')+": " + entity.position.longitude + " - "+R.get('ACCURACY')+": " + entity.position_attr.accuracy + " mt";
 							else
 								lastPositionTxt.text="";
 						}
@@ -359,7 +378,7 @@
 					else
 					{
 						if (entity && entity.type == 'target')
-							lastPositionTxt.text="Last position unkown";
+							lastPositionTxt.text=R.get('LAST_POSITION_UNKNOWN');
 						else
 							lastPositionTxt.text="";
 							//map.setZoom(1)
@@ -378,7 +397,7 @@
 
 				else
 				{
-					lastPositionTxt.text="Last known Position  \n(Feature not included in current License)"
+					lastPositionTxt.text=R.get('LAST_KNOWN_POSITION')+"\n(Feature not included in current License)"
 				}
 
 				mapViewer.update()
@@ -935,13 +954,13 @@
 										includeInLayout="{entity.type=='target'}">
            
             <s:Image source="{bluMarker}"/>
-						<s:CheckBox label="Last Known Position"
+						<s:CheckBox label="{R.get('LAST_KNOWN_POSITION')}"
 												id="lastPosCh"
 												selected="true"
 												change="drawPosition()" enabled="{LicenseManager.instance.profiling}"/>
 						<s:Spacer width="50"/>
             <s:Image source="{redMarker}"/>
-						<s:CheckBox label="Most Visited Places"
+						<s:CheckBox label="{R.get('MOST_VISITED_PLACES')}"
 												id="mostVisitedCh"
 												selected="true" enabled="{LicenseManager.instance.profiling}"
 												change="drawPosition()"/>

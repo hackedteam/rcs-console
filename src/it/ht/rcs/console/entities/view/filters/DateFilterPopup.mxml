@@ -4,13 +4,16 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
-                             creationComplete="init()" show="show()">
+                             creationComplete="init()"
+                             show="show()">
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.utils.Clock;
       import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
       
       import mx.core.FlexGlobals;
       
@@ -62,7 +65,7 @@
         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.REBUILD));
         
         if (fireEvent)
-          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.FILTER_CHANGED));
+          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.ENTITIES_FILTER_CHANGED));
       }
       
       override public function reset(fireEvent:Boolean=true):void
@@ -110,11 +113,11 @@
   
   <s:VGroup gap="10" styleName="evidenceFilter">
     
-    <s:RadioButton id="lastMonth"     label="Last Month"        group="{group}"/>
-    <s:RadioButton id="last3Months"   label="Last 3 Months"     group="{group}"/>
-    <s:RadioButton id="last6Months"   label="Last 6 Months"     group="{group}"/>
-    <!--s:RadioButton id="all"        label="All"               group="{group}"/-->
-    <s:RadioButton id="fromTo"        label="From / To"         group="{group}"/>
+    <s:RadioButton id="lastMonth"     label="{R.get('LAST_MONTH')}"             group="{group}"/>
+    <s:RadioButton id="last3Months"   label="{R.get('LAST_3_MONTHS')}"          group="{group}"/>
+    <s:RadioButton id="last6Months"   label="{R.get('LAST_6_MONTHS')}"          group="{group}"/>
+    <!--s:RadioButton id="all"        label="{R.get('ALL')}"                    group="{group}"/-->
+    <s:RadioButton id="fromTo"        label="{R.get('FROM')+'/'+R.get('TO')}"   group="{group}"/>
     
     <s:VGroup visible="{fromTo.selected}" includeInLayout="{fromTo.selected}">
       

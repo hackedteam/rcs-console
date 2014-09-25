@@ -31,14 +31,17 @@
 			var markers = [];
 			var lines = [];
 			var bounds = null;
+			var targetBounds = null;
 			var iconPath = "";
 			var ctrlDown = false;
 			var allowNoSelection=false;
 
 			// First, make a request using the cool geocoding service to get the latitude and longitude
-			function initialize() {
+			function initialize() 
+			{
 				initializeMap(new google.maps.LatLng(0, 0));
 				bounds = new google.maps.LatLngBounds();
+				targetBounds =new  google.maps.LatLngBounds();
 
 			}
 
@@ -183,6 +186,10 @@
 					};
 
 					bounds.extend(position);
+					if(marker.color == 'target')
+					{
+						targetBounds.extend(position);
+					}
 					map.setCenter(bounds.getCenter());
 					map.fitBounds(bounds);
 
@@ -194,9 +201,36 @@
 				}
 
 			}
+			
+			
+		
 
-			function fitBounds() {
-				map.fitBounds(bounds);
+			function fitBounds(showPlaces) {
+				
+				
+				//calculate target bounds
+				targetBounds=new  google.maps.LatLngBounds();
+				bounds=new  google.maps.LatLngBounds();
+				
+				for (var i = 0; i < markers.length; i++) 
+				{
+					bounds.extend(markers[i].position);
+					if(markers[i].color == 'target' && markers[i].visible)
+					{
+						targetBounds.extend(markers[i].position);
+					}
+				}
+				
+				if(showPlaces)
+				{
+					map.setCenter(bounds.getCenter());
+					map.fitBounds(bounds);
+				}
+				else
+				{
+					map.setCenter(targetBounds.getCenter());
+					map.fitBounds(targetBounds);
+				}
 			}
 
 			function onDrag(marker) {

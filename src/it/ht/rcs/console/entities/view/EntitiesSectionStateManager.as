@@ -132,12 +132,15 @@ package it.ht.rcs.console.entities.view
 			{
 				case 'operation':
 					return OperationManager.instance.getItem(item._id);
+          break;
 
 				case 'target':
 					return EntityManager.instance.getEntityByTarget(item._id);
+          break;
 
 				case 'entity':
 					return EntityManager.instance.getItem(item._id);
+          break;
 
 				default:
 					return null;
@@ -193,12 +196,16 @@ package it.ht.rcs.console.entities.view
 		{
 			selectedOperation=null;
 			selectedEntity=null;
+      section.linkToHighLight={from:'', to:''}
+      section.nodeToHighLight={id:''}
 		}
     [Bindable]
 		public var currentState:String;
 
 		public function setState(state:String, data:*=null, bookmark:Boolean=true):void
 		{
+      
+        
 			if (!state)
 				return;
       previousState=currentState;
@@ -254,24 +261,20 @@ package it.ht.rcs.console.entities.view
 					CurrentManager=EntityManager;
 					section.currentState='links';
 					currentFilter=singleOperationFilterFunction;
-
+          if(data)
+          {
+            if(data.length==1)
+            {
+              section.linkToHighLight={from:'', to:''}
+              section.nodeToHighLight={id:data[0]} //single entity: highlight node
+            }
+            else if (data.length==2)
+            {
+              section.nodeToHighLight={id:''};
+              section.linkToHighLight={from:data[0], to:data[1]} // two entities: highlight link
+            }
+          }
 					update();
-					//link view
-
-					/* if(data)
-					 {
-						 if(data.length==1)
-						 {
-							 section.view.linkMap.nodeToHighLight={id:data[0]} //single entity: highlight node
-						 }
-						 else if (data.length==2)
-						 {
-							 section.view.linkMap.linkToHighLight={from:data[0], to:data[1]} // two entities: highlight link
-						 }
-					 }*/
-
-					// section.view.views.selectedIndex=0;
-					// section.view.onChangeView()
 					break;
 				case 'map':
 					section.currentState='map';

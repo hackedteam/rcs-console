@@ -1,50 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          verticalAlign="middle">
-  
-  <fx:Script>
-    <![CDATA[
-      
-      public function set time(t:String):void
-      {
-        try {
-          var chunks:Array = t.split(':');
-          hours.text   = chunks[0];
-          minutes.text = chunks[1];
-          seconds.text = chunks[2];
-        } catch (e:Error) {
-          hours.text   = '00';
-          minutes.text = '00';
-          seconds.text = '00';
-        }
-      }
-      
-      public function get time():String
-      {
-        return TimeUtils.zeroPad(parseInt(hours.text),   2) + ':' + 
-               TimeUtils.zeroPad(parseInt(minutes.text), 2) + ':' + 
-               TimeUtils.zeroPad(parseInt(seconds.text), 2);
-      }
-      
-      private function sanitize(ti:TextInput, max:int):void
-      {
-        if (ti.text.length == 0) ti.text = '00';
-        
-        var input:int = parseInt(ti.text);
-        ti.text = input > max ? TimeUtils.zeroPad(max, 2) : TimeUtils.zeroPad(input, 2);
-      }
-    ]]>
-  </fx:Script>
-  
-  <s:TextInput id="hours" focusOut="sanitize(hours, 23)" maxChars="2" restrict="0-9" text="00"
-               textAlign="center" widthInChars="2"/>
-  <s:Label text=":"/>
-  <s:TextInput id="minutes" focusOut="sanitize(minutes, 59)" maxChars="2" restrict="0-9" text="00"
-               textAlign="center" widthInChars="2"/>
-  <s:Label text=":"/>
-  <s:TextInput id="seconds" focusOut="sanitize(seconds, 59)" maxChars="2" restrict="0-9" text="00"
-               textAlign="center" widthInChars="2"/>
-  
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					verticalAlign="middle">
+
+  <fx:Metadata>
+    [Event(name="change", type="flash.events.Event")]
+  </fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import spark.events.TextOperationEvent;
+
+		
+
+			public function set time(t:String):void
+			{
+				try
+				{
+					var chunks:Array=t.split(':');
+					hours.text=chunks[0];
+					minutes.text=chunks[1];
+					seconds.text=chunks[2];
+				}
+				catch (e:Error)
+				{
+					hours.text='00';
+					minutes.text='00';
+					seconds.text='00';
+				}
+			}
+
+			public function get time():String
+			{
+				return TimeUtils.zeroPad(parseInt(hours.text), 2) + ':' + TimeUtils.zeroPad(parseInt(minutes.text), 2) + ':' + TimeUtils.zeroPad(parseInt(seconds.text), 2);
+			}
+
+			private function sanitize(ti:TextInput, max:int):void
+			{
+				if (ti.text.length == 0)
+					ti.text='00';
+
+				var input:int=parseInt(ti.text);
+				ti.text=input > max ? TimeUtils.zeroPad(max, 2) : TimeUtils.zeroPad(input, 2);
+			}
+
+			protected function onChange(event:Event):void
+			{
+			  dispatchEvent(new Event("change"))
+			}
+		]]>
+	</fx:Script>
+
+	<s:TextInput id="hours"
+							 focusOut="sanitize(hours, 23)"
+							 maxChars="2"
+							 restrict="0-9"
+							 text="00"
+							 textAlign="center"
+							 widthInChars="2"
+							 change="onChange(event)"/>
+	<s:Label text=":"/>
+	<s:TextInput id="minutes"
+							 focusOut="sanitize(minutes, 59)"
+							 maxChars="2"
+							 restrict="0-9"
+							 text="00"
+							 textAlign="center"
+							 widthInChars="2"
+							 change="onChange(event)"/>
+	<s:Label text=":"/>
+	<s:TextInput id="seconds"
+							 focusOut="sanitize(seconds, 59)"
+							 maxChars="2"
+							 restrict="0-9"
+							 text="00"
+							 textAlign="center"
+							 widthInChars="2"
+							 change="onChange(event)"/>
+
 </s:HGroup>

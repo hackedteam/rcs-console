@@ -14,7 +14,7 @@
 	<fx:Script>
 		<![CDATA[
 			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-			
+
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.view.EntitiesSection;
@@ -23,9 +23,9 @@
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.push.PushController;
 			import it.ht.rcs.console.push.PushEvent;
-			
+
 			import locale.R;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.collections.ListCollectionView;
 			import mx.core.FlexGlobals;
@@ -39,12 +39,12 @@
 
 			[Bindable]
 			public var entities:ArrayCollection=new ArrayCollection();
-      
-      //states
-      private const LIST:String     =      "list";
-      private const TABLE:String    =     "table";
-      private const LINKMAP:String  =   "linkmap";
-      private const GEOMAP:String   =    "geomap";
+
+			//states
+			private const LIST:String="list";
+			private const TABLE:String="table";
+			private const LINKMAP:String="linkmap";
+			private const GEOMAP:String="geomap";
 
 			private function onDoubleClick(event:MouseEvent):void
 			{
@@ -64,15 +64,15 @@
 					}
 
 				}
-			  FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
-				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush); 
+				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				//PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush); 
 			}
 
 			private function onEntityPush(e:PushEvent):void
 			{
-				if (LicenseManager.instance.intelligence )//&& views.selectedIndex == 0)
+				if (LicenseManager.instance.intelligence) //&& views.selectedIndex == 0)
 					//return;
-        EntityManager.instance.refresh();
+					EntityManager.instance.refresh();
 				//onChangeView();
 			}
 
@@ -93,21 +93,29 @@
 				trace("Entities View Added to Stage");
 
 				FlexGlobals.topLevelApplication.addEventListener(RefreshEvent.REFRESH, onRefresh);
+				EntityManager.instance.listenPush()
 				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush);
-        EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
+				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
 				EntityManager.instance.refresh();
 
-			/* 	if (linkMap)
-					linkMap.inited=false;
-				onChangeView(); */
-        onChangeView()
+				/* 	if (linkMap)
+						linkMap.inited=false;
+					onChangeView(); */
+				onChangeView()
 			}
 
 			protected function onRemovedFromStage():void
 			{
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
+				EntityManager.instance.unlistenPush()
 				PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush);
-        EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
+				EntityManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onChangeView)
+
+				if (linkMap)
+					linkMap.removeListeners();
+				if (geoMap)
+					geoMap.removeListeners();
+
 			}
 
 			public function onChangeView(e:Event=null):void
@@ -142,13 +150,13 @@
 
 				else //License has intelligence
 				{
-          if(section.stateManager.currentState=="allEntities" && (views.selectedIndex==0 || views.selectedIndex==1))
-          {
-            
-            views.selectedIndex=2;
-            
-          }
-         
+					if (section.stateManager.currentState == "allEntities" && (views.selectedIndex == 0 || views.selectedIndex == 1))
+					{
+
+						views.selectedIndex=2;
+
+					}
+
 					if (views.selectedIndex == 0) //links
 					{
 						if (geoMap)
@@ -173,7 +181,7 @@
 						section.stateManager.view.refresh();
 						section.stateManager.tableView.refresh();
 						actionbar.currentState=GEOMAP;
-					
+
 						if (linkMap)
 							linkMap.removeListeners();
 						if (geoMap)
@@ -247,12 +255,12 @@
 				EntityManager.instance.refresh()
 				EntityManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onDataLoaded)
 			}
-      
-      protected function onGroupCreated(e:Event):void
-      {
-       trace("GROUP CREATED")
-       //linkMap.graph.vis.selection=null
-      }
+
+			protected function onGroupCreated(e:Event):void
+			{
+				trace("GROUP CREATED")
+				//linkMap.graph.vis.selection=null
+			}
 
 			protected function onEntityMerged():void
 			{
@@ -291,10 +299,9 @@
 
 			protected function onUnGroup():void
 			{
-				linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection)
-        
-				EntityManager.instance.removeItem(actionbar.selectedObject)
-        linkMap.onSelectionChange()
+				linkMap.graph.vis.unGroupElements(linkMap.graph.vis.selection);
+				EntityManager.instance.removeItem(actionbar.selectedObject);
+				linkMap.onSelectionChange();
 
 			}
 

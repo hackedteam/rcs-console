@@ -42,7 +42,9 @@
 			{
 				MonitorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, onMonitorRefresh);
 				CollectorManager.instance.addEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
+        CollectorManager.instance.refresh()
 				CollectorManager.instance.listenRefresh();
+        CollectorManager.instance.listenPush()
 			}
 
 			private function onRemovedFromStage(event:Event):void
@@ -50,6 +52,7 @@
 				MonitorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, onMonitorRefresh);
 				CollectorManager.instance.removeEventListener(DataLoadedEvent.DATA_LOADED, refreshView);
 				CollectorManager.instance.unlistenRefresh();
+        CollectorManager.instance.unlistenPush()
 			}
 
 			private function onMonitorRefresh(e:DataLoadedEvent):void
@@ -90,7 +93,7 @@
 					//collector 
 					toCheck[currentNode]=true;
 					//loop connected nodes
-					while (currentNode && currentNode.next[0] != null)
+					while (currentNode && currentNode.next && currentNode.next[0] != null)
 					{
 						currentNode=getCollectorById(currentNode.next[0], anonymizers);
 						var safe:Boolean= currentNode==null? false: checkConnection(currentNode)
@@ -102,6 +105,13 @@
 				{
 					for (i=0; i < anonymizers.length; i++)
 					{
+            if(anonymizers[i].next==null)
+              anonymizers[i].next=new ArrayCollection([null]);
+            
+            if(anonymizers[i].prev==null)
+              anonymizers[i].prev=new ArrayCollection([null]);
+            
+            
 						var nextNode:Collector=getCollectorById(anonymizers[i].next[0], anonymizers)
             var prevNode:Collector=getCollectorById(anonymizers[i].prev[0], anonymizers)
               
@@ -174,9 +184,12 @@
 
 				var db:DBRenderer=new DBRenderer();
 				db.collectors=renderers;
-				graph.db=db;
-        graph.dirty=true;
-				graph.rebuildGraph();
+        if(graph)
+        {
+  				graph.db=db;
+          graph.dirty=true;
+  				graph.rebuildGraph();
+        }
 			}
 
 			private function getRendererById(_id:String, list:Vector.<CollectorRenderer>):CollectorRenderer

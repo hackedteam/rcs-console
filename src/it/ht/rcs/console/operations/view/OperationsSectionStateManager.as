@@ -2,7 +2,7 @@ package it.ht.rcs.console.operations.view
 {
 	import flash.events.Event;
 	import flash.utils.Dictionary;
-
+	
 	import it.ht.rcs.console.accounting.controller.UserManager;
 	import it.ht.rcs.console.agent.controller.AgentManager;
 	import it.ht.rcs.console.agent.model.Agent;
@@ -19,14 +19,14 @@ package it.ht.rcs.console.operations.view
 	import it.ht.rcs.console.search.model.SearchItem;
 	import it.ht.rcs.console.target.controller.TargetManager;
 	import it.ht.rcs.console.target.model.Target;
-
+	
 	import locale.R;
-
+	
 	import mx.collections.ArrayList;
 	import mx.collections.ListCollectionView;
 	import mx.core.FlexGlobals;
 	import mx.managers.CursorManager;
-
+	
 	import spark.collections.Sort;
 	import spark.collections.SortField;
 	import spark.components.TextInput;
@@ -78,8 +78,21 @@ package it.ht.rcs.console.operations.view
 			tableSort.compareFunction=customTypeCompareFunction;
 
 			HistoryManager.instance.addEventListener("change", onHistory)
+      TargetManager.instance.addEventListener("dataPush", onTargetPush)
+      AgentManager.instance.addEventListener("dataPush", onAgentPush)
 		}
 
+    
+    private function onTargetPush(e:Event):void
+    {
+      update()
+    }
+    
+    private function onAgentPush(e:Event):void
+    {
+      update()   
+    }
+    
 		private function getItemFromEvent(event:SectionEvent):*
 		{
 			var item:SearchItem=event ? event.item : null;

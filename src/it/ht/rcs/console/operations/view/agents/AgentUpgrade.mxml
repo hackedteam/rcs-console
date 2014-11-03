@@ -9,18 +9,19 @@
 							 creationComplete="init(event)">
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.agent.controller.AgentManager;
-			import it.ht.rcs.console.agent.model.Agent;
-			import it.ht.rcs.console.events.SessionEvent;
-			import it.ht.rcs.console.update.controller.CoreManager;
-
-			import locale.R;
-
-			import mx.collections.ListCollectionView;
-			import mx.core.FlexGlobals;
-			import mx.events.CloseEvent;
-			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
+      import it.ht.rcs.console.agent.controller.AgentManager;
+      import it.ht.rcs.console.agent.model.Agent;
+      import it.ht.rcs.console.events.SessionEvent;
+      import it.ht.rcs.console.update.controller.CoreManager;
+      
+      import locale.R;
+      
+      import mx.collections.ListCollectionView;
+      import mx.core.FlexGlobals;
+      import mx.events.CloseEvent;
+      import mx.events.FlexEvent;
+      import mx.managers.PopUpManager;
+      import mx.rpc.events.ResultEvent;
 
 			[Bindable]
 			public var agent:Agent;
@@ -116,9 +117,10 @@
           msg.visible=msg.includeInLayout=true;
         }
         
-        else if (agent.level=="soldier" && level == "\"soldier\"") //UPDATE_AGENT_DESC_SOLDIER
+        if (agent.level=="soldier" && level == "\"soldier\"") //UPDATE_AGENT_DESC_SOLDIER
 				{
 					upgradeTxt.text="Soldier";
+          AgentManager.instance.soldier_version(agent, onSoldierVersionResult)
 					msg.visible=msg.includeInLayout=true;
 				}
 				else if (level == "\"elite\"")
@@ -127,6 +129,11 @@
 				}
 
 			}
+      
+      private function onSoldierVersionResult(e:ResultEvent):void
+      {
+        upgradeTxt.text="Soldier ("+JSON.parse(String(e.result))+")";
+      } 
 
 			protected function upgradeAgent(event:MouseEvent):void
 			{

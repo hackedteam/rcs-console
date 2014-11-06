@@ -25,62 +25,23 @@
       [Bindable]
       public var configView:ConfigurationView;
       
-      private function browse():void
-      {
-        fileReference = new FileReference();
-        fileReference.addEventListener(Event.SELECT, fileSelection);
-        fileReference.browse();
-      }
-      
-      private function fileSelection(event:Event):void
-      {
-        currentState = 'fileSelected';
-        fileName.text = event.target.name;
-      }
-      
+     
       private var uploadPopup:UploadPopup;
       private function create():void
       {
         
-        if (currentState != 'fileSelected') {
-          AlertPopUp.show(R.get('SELECT_FILE'));
-          return;
-        }
-        
-        fileReference.addEventListener(HTTPStatusEvent.HTTP_STATUS, onUploadError);
-        fileReference.addEventListener(IOErrorEvent.IO_ERROR, onUploadError);
-        fileReference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onUploadError);
-        fileReference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onUploadComplete);
-        
-        uploadPopup = PopUpManager.createPopUp(this.parentDocument as DisplayObject, UploadPopup, true) as UploadPopup;
-        uploadPopup.fileReference = fileReference;
-        PopUpManager.centerPopUp(uploadPopup);
-      }
-      
-      
-      private function onUploadError(event:Event):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        AlertPopUp.show(event.type);
-      }
-      
-      private function onUploadComplete(event:DataEvent):void
-      {
-        PopUpManager.removePopUp(uploadPopup);
-        
         var params:Object = {platform: 'uefi', generate: {platforms: [parentDocument.platform], 
-                                                          input: event.data, 
-                                                          binary: {demo: createBtn.demo.selected}, 
-                                                          melt: {scout: true} } 
-                            };
+            binary: {demo: createBtn.demo.selected}, 
+            melt: {scout: true} } 
+        };
         
         params['factory'] = {_id: parentDocument.factory._id};
         
         var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_persistent.zip'
         
-        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);        
       }
-      
+            
       private function onSuccess(e:ResultEvent):void
       {
         PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
@@ -103,17 +64,6 @@
     ]]>
   </fx:Script>
   
-  <s:states>
-    <s:State name="normal"/>
-    <s:State name="fileSelected"/>
-  </s:states>
-    
-  <s:HGroup left="10" top="70" height="25" verticalAlign="middle">
-    <s:Label text="{R.get('UEFI_FIRMWARE')}:" fontWeight="bold"/>
-    <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
-    <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"
-             maxDisplayedLines="1" width="140" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"/>    
-  </s:HGroup>
   
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}" configView="{configView}"/>
   

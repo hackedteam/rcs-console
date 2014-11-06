@@ -11,14 +11,22 @@
     <![CDATA[
       import it.ht.rcs.console.events.FilterEvent;
       
-      import mx.core.FlexGlobals;
       import locale.R;
+      
+      import mx.core.FlexGlobals;
       
       private var checks:Array;
       
       private function init():void
       {
         checks = [target, person, position, virtual];
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_RESET, onReset)
+      }
+      
+      private function onReset(e:FilterEvent):void
+      {
+        reset()
+      
       }
       
       override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void

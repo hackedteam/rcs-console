@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filters:AbstractFilterPopup xmlns:fx="http://ns.adobe.com/mxml/2009"
+														 xmlns:s="library://ns.adobe.com/flex/spark"
+														 xmlns:mx="library://ns.adobe.com/flex/mx"
+														 xmlns:xt="library://ns.tink.ws/flex/mx"
+														 xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
+														 creationComplete="init()"
+														 show="show()">
+
+
+	<fx:Script>
+		<![CDATA[
+			import it.ht.rcs.console.events.FilterEvent;
+
+			import mx.core.FlexGlobals;
+			import locale.R;
+
+			private var checks:Array;
+
+			private function init():void
+			{
+				checks=[adium, bbm, facebook, gmail, gtalk, line, mail, money, msn, phone, skype, telegram, twitter,viber,wechat, whatsapp, yahoo];
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_RESET, onReset)
+      }
+      
+      private function onReset(e:FilterEvent):void
+      {
+        reset()
+        
+      }
+
+			override public function commit(fireEvent:Boolean=true, setProperty:Boolean=true):void
+			{
+				var values:Array=getValues();
+				hasFilter=values.length > 0;
+				hasFilter ? filter[property]=values : delete(filter[property]);
+				visible=false;
+				if (fireEvent)
+					FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.ENTITIES_FILTER_CHANGED));
+			}
+
+			private function getValues():Array
+			{
+				var toReturn:Array=[];
+
+				checks.forEach(function(item:CheckBox, index:int, array:Array):void
+				{
+					if (item.selected)
+						toReturn.push(item.id);
+				});
+
+				return toReturn;
+			}
+
+			override public function reset(fireEvent:Boolean=true):void
+			{
+				deselectAll();
+				commit(fireEvent);
+			}
+
+			private function deselectAll():void
+			{
+				checks.forEach(function(item:CheckBox, index:int, array:Array):void
+				{
+					item.selected=false;
+				});
+			}
+
+			private function show():void
+			{
+				if (!filter.hasOwnProperty(property))
+					return;
+				checks.forEach(function(item:CheckBox, index:int, array:Array):void
+				{
+					item.selected=filter[property].indexOf(item.id) != -1;
+				});
+			}
+
+			private function applyAll(val:Boolean):void
+			{
+				checks.forEach(function(item:CheckBox, index:int, array:Array):void
+				{
+					item.selected=val;
+				});
+			}
+
+			override public function rebuild(e:Event=null):void
+			{
+				hasFilter=filter.hasOwnProperty(property);
+				deselectAll();
+				if (hasFilter && filter[property] is Array)
+					filter[property].forEach(function(item:String, index:int, array:Array):void
+					{
+						this[item].selected=true;
+					}, this);
+			}
+		]]>
+	</fx:Script>
+
+
+	<fx:Declarations>
+		<s:Parallel id="fadeIn"
+								duration="200">
+			<s:Fade alphaFrom="0"
+							alphaTo="1"/>
+			<s:Move yFrom="{y - 20}"
+							yTo="{y}"/>
+		</s:Parallel>
+		<s:Parallel id="fadeOut"
+								duration="200">
+			<s:Fade alphaFrom="1"
+							alphaTo="0"/>
+			<s:Move yFrom="{y}"
+							yTo="{y - 20}"/>
+		</s:Parallel>
+	</fx:Declarations>
+
+	<s:VGroup paddingBottom="10"
+						paddingLeft="10"
+						paddingRight="10"
+						paddingTop="10">
+
+		<s:CheckBox id="all"
+								label="{R.get('ALL')}"
+								color="#FFFFFF"
+								change="{applyAll(all.selected)}"/>
+
+		<s:Spacer height="2"/>
+
+		<s:CheckBox id="adium"
+								label="adium"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+		<s:CheckBox id="bbm"
+								label="bbm"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+    
+    <s:CheckBox id="facebook"
+                label="facebook"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+		<s:CheckBox id="gmail"
+								label="gmail"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+
+		<s:CheckBox id="gtalk"
+								label="gtalk"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+
+		<s:CheckBox id="line"
+								label="line"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+		<s:CheckBox id="mail"
+								label="mail"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+		<s:CheckBox id="money"
+								label="money"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+		<s:CheckBox id="msn"
+								label="msn"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+
+		<s:CheckBox id="phone"
+								label="phone"
+								color="0x00CCFF"
+								change="{all.selected=false}"/>
+    
+    <s:CheckBox id="skype"
+                label="skype"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+    <s:CheckBox id="telegram"
+                label="telegram"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+    <s:CheckBox id="twitter"
+                label="twitter"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+    <s:CheckBox id="viber"
+                label="viber"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+    <s:CheckBox id="wechat"
+                label="wechat"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+    <s:CheckBox id="whatsapp"
+                label="whatsapp"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+    
+    <s:CheckBox id="yahoo"
+                label="yahoo"
+                color="0x00CCFF"
+                change="{all.selected=false}"/>
+
+
+	</s:VGroup>
+</filters:AbstractFilterPopup>

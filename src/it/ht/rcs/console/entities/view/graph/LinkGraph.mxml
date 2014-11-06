@@ -25,7 +25,7 @@
 			import fr.kapit.visualizer.base.uicomponent.GenericSprite;
 			import fr.kapit.visualizer.events.VisualizerEvent;
 			import fr.kapit.visualizer.styles.LinkStyle;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
@@ -34,10 +34,10 @@
 			import it.ht.rcs.console.entities.view.renderers.CustomLink;
 			import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
 			import it.ht.rcs.console.search.controller.SearchManager;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.ResizeEvent;
-
+			
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
@@ -355,6 +355,8 @@
 								continue;
 							if (filterCriteria.relevance && filterCriteria.relevance.length > 0 && filterCriteria.relevance.indexOf(link.rel) == -1)
 								continue;
+              if (filterCriteria.programs && filterCriteria.programs.length > 0 && !matchPrograms(link)) //check programs
+                continue;
 							source=vis.nodesMap[entity._id];
 							target=vis.nodesMap[link.le];
 							vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target);
@@ -366,6 +368,18 @@
 				//vis.reLayout();
 
 			}
+      
+      private function matchPrograms(link:Link):Boolean
+      {
+        for(var i:int=0;i<filterCriteria.programs.length;i++)
+        {
+          var program:String=filterCriteria.programs[i];
+          if(link.info[program]!=null)
+            return true
+        }
+        return false;
+      }
+      
 
 			public function highlightLink(from:String, to:String):void
 			{

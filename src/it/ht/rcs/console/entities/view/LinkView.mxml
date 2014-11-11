@@ -137,7 +137,8 @@
 			{ 
 			
         graph.visible=false;
-       
+        graph.zoom(1)
+        zoomSlider.value=1
         if(!entitiesToShow) 
           entitiesToShow=new ArrayCollection()
         entitiesToShow.removeAll()
@@ -153,7 +154,8 @@
           
          
           graph.visible=true; //event listener?
-        
+          
+            
        // trace("Drawing Graph > Entities to show: "+entitiesToShow.length)
         
         getFlows(entitiesToShow) //TODO 
@@ -186,6 +188,7 @@
         programs:[]
        }
          FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.ENTITIES_FILTER_RESET))
+          
       }
       
       protected function onRemovedFromStage(event:Event):void
@@ -500,6 +503,11 @@
           }
         }
       }
+      
+      private function onZoom(e:Event):void
+      {
+        graph.zoom(e.currentTarget.value)
+      }
 
     ]]>
 	</fx:Script>
@@ -538,8 +546,13 @@
 
 				<s:Spacer width="100%"/>
         
-        
-       
+        <s:Label text="zoom: " fontWeight="bold"/>
+        <s:Spacer width="10"/>
+        <s:HSlider  id="zoomSlider"
+                    maximum="10" minimum="0.1"
+                    showDataTip="false"
+                    value="1"
+                    stepSize="0.1" change="onZoom(event)"/>
 			
 			</s:HGroup>
 			<s:Line width="100%">

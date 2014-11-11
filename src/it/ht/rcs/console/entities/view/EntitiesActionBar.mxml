@@ -247,6 +247,8 @@
 		<![CDATA[
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.LinkInfo;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.search.controller.SearchManager;
@@ -436,12 +438,23 @@
 				popup.ids=ids;
 				PopUpManager.centerPopUp(popup);
 			}
+      
+      
+      private function getInfo(li:LinkInfo):void
+      {
+      
+      
+      }
 
 			public function jumpToEvidence():void
 			{
 				var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
 				var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
 
+        
+        var li:LinkInfo=selectedObject.info as LinkInfo;
+        getInfo(li)
+        
 				var temp:Array=selectedObject.info.toString().split(",");
         var info:Array=[]
 				if (entity1.type == "position" || entity2.type == "position")

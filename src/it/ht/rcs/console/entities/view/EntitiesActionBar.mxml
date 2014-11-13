@@ -449,11 +449,11 @@
 
         
         var li:LinkInfo=selectedObject.info as LinkInfo;
-        li.getPlainList();
+       
         
         //getInfo(li)
         
-				var temp:Array=selectedObject.info.toString().split(",");
+				var temp:Array= li.getPlainList();//selectedObject.info.toString().split(",");
         var info:Array=[]
 				if (entity1.type == "position" || entity2.type == "position")
 				{
@@ -461,7 +461,7 @@
 					info.push("lon:" + position.position.longitude + ",lat:" + position.position.latitude + ",r:500")
 				}
 				else
-				{
+				{ //really needed???
 					for (var i:int=0; i <temp.length; i++)
 					{
 						info.push(temp[i]);
@@ -515,7 +515,7 @@
 				event.section=SectionEvent.OPERATIONS;
 				event.subsection='evidence';
 				event.item=SearchManager.instance.getItem(targetId);
-				event.evidenceTypes=["call", "chat", "message"];
+        event.evidenceTypes=["call", "chat", "message", "money"];
 				event.info=e.currentTarget.info;
 				//event.from=getFromTimestamp();
 				//event.to=getToTimestamp();

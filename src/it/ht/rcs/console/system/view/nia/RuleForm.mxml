@@ -76,8 +76,19 @@
           
           if (rule.action == 'REPLACE' || rule.action == 'INJECT-HTML-FILE') {
             
-            currentState = 'fileSelected';
-            fileName.text = rule.action_param_name;
+            if(mode=='edit')
+            {
+              currentState = 'fileSelected';
+              fileName.text = rule.action_param_name;
+            }
+            
+            if(mode=='duplicate')
+            {
+              currentState = 'normal';
+              fileChanged = false
+            }
+            
+           
             
           } else {
             
@@ -89,7 +100,7 @@
             }
             
           }
-        
+        //end edit/duplicate
         }
     /*     else if()
         {
@@ -134,7 +145,7 @@
           resource.errorString ='Please fill resource pattern'
           hasError = true;
         }
-        if (action.selectedItem == 'REPLACE' && mode=="create" && !fileChanged) {
+        if (action.selectedItem == 'REPLACE' && (mode=="create" || mode=="duplicate") && !fileChanged) {
           browseBtn.errorString = 'Please select a file';
           hasError = true;
         }

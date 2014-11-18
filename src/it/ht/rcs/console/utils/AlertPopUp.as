@@ -34,16 +34,21 @@ package it.ht.rcs.console.utils
                                 iconClass:Class = null, 
                                 defaultButtonFlag:uint = 0x4 /* Alert.OK */,
                                 moduleFactory:IFlexModuleFactory = null,
-                                mandatory:Boolean=false):Alert
+                                mandatory:Boolean=false, data:Object=null):Alert
     {
       alert=Alert.show(text, title, flags, parent, closeHandler, iconClass, defaultButtonFlag, moduleFactory);
-      
+      alert.data=data
       if(mandatory)
       {
         alert.addEventListener(KeyboardEvent.KEY_DOWN, onKeyUp,true);
         alert.addEventListener(Event.REMOVED_FROM_STAGE, onRemovedFromStage)
       }
       return alert;
+    }
+    
+    public static function getData():Object
+    {
+      return alert.data;
     }
     
     protected static function onRemovedFromStage(e:Event):void

@@ -39,7 +39,7 @@
 			public function set selectedItem(value:*):void
 			{
 				_selectedItem=value;
-				if (value)
+				if (!value is Entity)
 				{
         
          programs=new ArrayCollection()
@@ -272,9 +272,9 @@
 															text="{selectedItem.data.@versus}" width="200"/>
 				</s:FormItem>-->
 
-			<s:FormItem label="{R.get('PROGRAM')}">
+			<s:FormItem label="{R.get('PROGRAM')}" visible=" {!this.selectedItem.name &amp;&amp; programs.length>0}">
         <s:List id="programsList" width="200" minWidth="0" height="260" borderVisible="false" 
-                dataProvider="{programs}" visible=" {!this.selectedItem.name}" 
+                dataProvider="{programs}" visible=" {!this.selectedItem.name}" enabled="false"
                 textAlign="left"/>
 				
 			</s:FormItem>

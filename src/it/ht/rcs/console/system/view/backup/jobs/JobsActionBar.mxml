@@ -9,7 +9,7 @@
   
   <s:Button label="{R.get('EDIT')}" click="onEditClick()" enabled="{selectedObject != null &amp;&amp; selectedObject.status!='RUNNING' &amp;&amp; selectedObject.status!='RESTORING' }" icon="@Embed('/img/NEW/edit.png')"/>
   
-  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null &amp;&amp; selectedObject.status!='RUNNING' &amp;&amp; selectedObject.status!='RESTORING'}" icon="@Embed('/img/NEW/delete_32.png')" />
+  <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')" />
 
   <actionbar:Separator width="40"/>
   
@@ -30,6 +30,7 @@
       
       import locale.R;
       
+      import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
       
       
@@ -39,7 +40,6 @@
         popup.currentState = 'create';
         PopUpManager.centerPopUp(popup);
       }
-      
       
       private function onEditClick():void
       {
@@ -51,8 +51,17 @@
       
       private function onDeleteClick():void
       {
-		    BackupJobManager.instance.removeItem(selectedObject);
+        var message:String=selectedObject.status=='RUNNING' || selectedObject.status=='RESTORING'? R.get('CONFIRM_RUNNING_BACKUPJOB_DELETION',[selectedObject.name]):R.get('CONFIRM_BACKUPJOB_DELETION',[selectedObject.name]);
+        AlertPopUp.show(message, R.get('CONFIRM'),
+          AlertPopUp.YES|AlertPopUp.NO, null,
+          function(e:CloseEvent):void {
+            if (e.detail == AlertPopUp.YES)
+              BackupJobManager.instance.removeItem(AlertPopUp.getData());
+          }, null, AlertPopUp.NO,null,false,selectedObject);
+      
       }
+      
+    
       
       private function manageBackups():void
       {
@@ -62,7 +71,7 @@
       
       private function onRunClick():void
       {
-        BackupJobManager.instance.runJob(selectedObject as BackupJob, function (j:BackupJob):void {
+          BackupJobManager.instance.runJob(selectedObject as BackupJob, function (j:BackupJob):void {
           BackupJobManager.instance.refresh();
           BackupArchiveManager.instance.refresh();
         });

@@ -5,13 +5,14 @@
                      xmlns:actionbar="it.ht.rcs.console.main.actionbar.*">
   
   
-  <s:Button label="{R.get('RESTORE')}" click="onRestoreClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/restoreBackup.png')"/>
+  <s:Button label="{R.get('RESTORE')}" click="onRestoreClick()" enabled="{selectedObject != null &amp;&amp; !BackupJobManager.instance.running &amp;&amp; selectedObject.what.toLowerCase()!='unknown'}" icon="@Embed('/img/NEW/restoreBackup.png')"/>
  
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.backup.controller.BackupArchiveManager;
+      import it.ht.rcs.console.backup.controller.BackupJobManager;
       import it.ht.rcs.console.backup.model.BackupArchive;
       import it.ht.rcs.console.network.model.Collector;
       import it.ht.rcs.console.task.controller.DownloadManager;

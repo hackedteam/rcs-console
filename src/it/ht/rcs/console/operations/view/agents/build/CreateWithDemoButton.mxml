@@ -15,32 +15,31 @@
         public var create:Function;
         
         public var enableDemo:Boolean = true;
+        public var enableElite:Boolean = false;
         
         [Bindable]
         private var isWindows:Boolean;
-        
-        private var scout:Boolean
-        
+           
         [Bindable]
         public var configView:ConfigurationView;
         
         
         public function set platforms(platforms:Array):void 
         {
-          scoutCh.selected=true;
-          scout=true;
-          isWindows=false;
+          isWindows = false;
           // reset the status
           createBtn.enabled = false;
           demo.enabled = false;
+          demo.visible = false;
           demo.selected = false;
           
           // we need at least build or demo to create an agent
           platforms.forEach(function (element:*, index:int, arr:Array):void {
-           if(platforms.length==1 && element=="windows") 
-              isWindows=true;
-            if (LicenseManager.instance.canBuild(element as String) || LicenseManager.instance.haveDemo(element as String))
-              createBtn.enabled = true;
+           if(platforms.length == 1 && element == "windows") 
+              isWindows = true;
+            if (LicenseManager.instance.canBuild(element as String) || LicenseManager.instance.haveDemo(element as String)) {
+              createBtn.enabled = true; 
+            }
           });
 
           // none can build
@@ -52,6 +51,7 @@
           
           if (!build) {
             demo.selected = true;
+            demo.visible = true;
           }
 
           // both demo and build
@@ -66,48 +66,51 @@
             
           if (one_build && one_demo) {
             demo.enabled = true;
+            demo.visible = true;
           }
           
           if (!enableDemo) {
             demo.enabled = false;
             demo.selected = false;       
-            scoutCh.enabled = false;
+          }
+
+          if (!enableElite) {
+            elite.enabled = false;
+            elite.selected = false;
+            elite.visible = false;
           }
           
         }
-        private function onScoutSelection():void
+        private function onEliteSelection():void
         {
-          scout=scoutCh.selected;
-        if(scoutCh.selected && demo.selected)
-          demo.selected=false;
         }
         
         private function onDemoSelection():void
         {
-          if(demo.selected)
-            scoutCh.selected=false;
-          if(!demo.selected)
-            scoutCh.selected=scout;
         }
         
         private function checkConfigurationMode():void
         {
-          scout=scoutCh.selected;
-          if(scout && configView.currentState=="advanced" && isWindows)
+          if(!elite.selected && configView.currentState=="advanced" && isWindows)
           {
             AlertPopUp.show(R.get('CONFIG_SCOUT_ADVANCED_WARNING'));
+          } 
+          
+          else if(!elite.selected && isWindows && !LicenseManager.instance.agent_windows && LicenseManager.instance.agent_windows_demo && configView.basic.screenshot.selected)
+          {
+            //check if screenshot is enabled and license is demo 
+              AlertPopUp.show(R.get('CONFIG_DEMO_WARNING'));
           }
-            else
+          
+          else 
           {
             create();
           }
-           
         }
         
       ]]>
     </fx:Script>
-   <!-- <s:Label id="platformTxt" text="windows" visible="{isWindows}"/>-->
-    <s:CheckBox id="scoutCh" left="10" label="{R.get('SCOUT')}" fontWeight="bold" visible="{!LicenseManager.instance.scout &amp;&amp; isWindows}" enabled="{!LicenseManager.instance.scout &amp;&amp; isWindows}" selected="true" change="onScoutSelection()"/>
+    <s:CheckBox id="elite" left="10" label="Elite" fontWeight="bold" visible="{LicenseManager.instance.elite &amp;&amp; isWindows}" enabled="{LicenseManager.instance.elite &amp;&amp; isWindows}" selected="false" change="onEliteSelection()"/>
     <s:Spacer width="100%"/>
     <s:CheckBox id="demo" left="10" label="{R.get('DEMO_MODE')}" fontWeight="bold" change="onDemoSelection()"/>
     <s:Button id="createBtn" right="10" label="{R.get('CREATE')}..." click="checkConfigurationMode()" />    

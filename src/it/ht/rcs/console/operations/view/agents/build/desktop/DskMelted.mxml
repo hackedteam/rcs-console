@@ -70,7 +70,7 @@
         
         var params:Object = {platform: parentDocument.platform, 
                              binary: {demo: createBtn.demo.selected, admin: admin.selected}, 
-                             melt: {admin: admin.selected, input: event.data, codec: codec.selected, bit64: bit64.selected, scout:createBtn.scoutCh.selected},
+                             melt: {admin: admin.selected, input: event.data, codec: codec.selected, bit64: bit64.selected, scout: true},
                              sign: {}};
         
         params['factory'] = {_id: parentDocument.factory._id};
@@ -106,14 +106,18 @@
     <s:State name="normal"/>
     <s:State name="fileSelected"/>
   </s:states>
-    
-  <s:CheckBox id="admin" left="10" top="10" label="{R.get('REQUIRE_ADMIN')}"
+  
+  <s:TextArea left="10" top="5" width="100%" height="65" borderVisible="false"
+              contentBackgroundAlpha="0.0" editable="false" color="#ff0000"
+              text="{R.get('BUILD_MELTED_WARNING')}" />
+  
+  <s:CheckBox id="admin" left="10" top="70" label="{R.get('REQUIRE_ADMIN')}"
               fontWeight="bold" selected="false" visible="{_platform == 'osx'}"/>
-  <s:TextArea left="25" top="25" width="280" height="55" borderVisible="false"
+  <s:TextArea left="25" top="85" width="280" height="55" borderVisible="false"
               contentBackgroundAlpha="0.0" editable="false"
               text="{R.get('REQUIRE_ADMIN_DESC')}" visible="{_platform == 'osx'}" />
 
-  <s:HGroup left="10" top="70" height="25" verticalAlign="middle">
+  <s:HGroup left="10" top="135" height="25" verticalAlign="middle">
     <s:Label text="{R.get('APPLICATION_DROPPER')}:" fontWeight="bold"/>
     <s:Button excludeFrom="fileSelected" width="100" label="{R.get('BROWSE')}..." click="browse()"/>
     <s:Label id="fileName" includeIn="fileSelected" buttonMode="true" click="browse()"

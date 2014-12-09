@@ -187,6 +187,10 @@ package it.ht.rcs.console.operations.view.evidences
           exportText(evidence);
           break;
         
+        case "sync":
+          exportText(evidence);
+          break;
+        
         default:
          next();
       }
@@ -600,7 +604,20 @@ package it.ht.rcs.console.operations.view.evidences
           info+="Address: "+address+"\n";
           break;
         
+        case "sync":
+          info="Sync: "+"\n\n";
+          info+="Sync start: "+TimeUtils.timestampFormatter(evidence.da * 1000)+"\n";
+          info+="Sync end: "+TimeUtils.timestampFormatter(evidence.data.end)+"\n";
+          info+="Ip: "+evidence.data.ip+"\n";
+          info+="Evidence: "+String(evidence.data.count)+"/"+String(evidence.data.total)+"\n";
+          info+="Size: "+Size.toHumanBytes(evidence.data.size)+"\n";
+          info+="Speed: "+Size.toHumanBytes(evidence.data.speed)+"/s"+"\n";   
+          info+="Timeout: "+evidence.data.timeout+"\n";
+          break;
+        
       }
+      
+      
       return info;
     }
   }

@@ -10,16 +10,20 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.accounting.controller.SessionManager;
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.utils.TimeUtils;
-			
-			import locale.R;
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.accounting.controller.SessionManager;
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.LinkInfo;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.utils.TimeUtils;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
 
-	
+
 
 			private var _selectedItem:*;
 			private var _selectedItems:Vector.<Object>;
@@ -27,14 +31,40 @@
 			[Embed(source="img/stub/mapSmall.png")]
 			[Bindable]
 			public var fakeMap:Class;
+      
+      [Bindable]
+      public var programs:ArrayCollection;
 
 			[Bindable]
 			public function set selectedItem(value:*):void
 			{
-        _selectedItem=value;
-				if (value)
+				_selectedItem=value;
+				if (!value is Entity)
 				{
-					
+        
+         programs=new ArrayCollection()
+         if(value.info)
+         {
+            var info:LinkInfo=value.info as LinkInfo;
+            if(info.adium) programs.addItem("adium");
+            if(info.bbm) programs.addItem("bbm");
+            if(info.facebook) programs.addItem("facebook");
+            if(info.gmail) programs.addItem("gmail");
+            if(info.gtalk) programs.addItem("gtalk");
+            if(info.line) programs.addItem("line");
+            if(info.mail) programs.addItem("mail");
+            if(info.money) programs.addItem("money");
+            if(info.msn) programs.addItem("msn");
+            if(info.phone) programs.addItem("phone");
+            if(info.skype) programs.addItem("skype");
+            if(info.telegram) programs.addItem("telegram");
+            if(info.twitter) programs.addItem("twitter");
+            if(info.url) programs.addItem("url");
+            if(info.viber) programs.addItem("viber");
+            if(info.wechat) programs.addItem("wechat");
+            if(info.whatsapp) programs.addItem("whatsapp");
+            if(info.yahoo) programs.addItem("yahoo");
+         }
 
 					//evidence=positions[0] as Evidence;	
 
@@ -55,8 +85,8 @@
 			[Bindable]
 			public function set selectedItems(value:Vector.<Object>):void
 			{
-        _selectedItems=value;
-        
+				_selectedItems=value;
+
 				if (value && _selectedItem)
 				{
 					mapViewer.positions=new Vector.<Object>()
@@ -70,6 +100,7 @@
 			{
 				return _selectedItems;
 			}
+
 		]]>
 	</fx:Script>
 
@@ -146,8 +177,9 @@
 														text="{selectedItem.stand_for}"
 														width="200"/>
 			</s:FormItem>
-			<s:Spacer height="20" visible="{selectedItem.type=='group'}"
-                includeInLayout="{selectedItem.type=='group'}"/>
+			<s:Spacer height="20"
+								visible="{selectedItem.type=='group'}"
+								includeInLayout="{selectedItem.type=='group'}"/>
 
 
 
@@ -179,10 +211,10 @@
 												 visible="{(selectedItem.type=='target' || selectedItem.type=='position') &amp;&amp; selectedItem.position &amp;&amp; LicenseManager.instance.profiling}">
 
 				<maps:MapViewer width="100%"
-														 height="100%"
-														 id="mapViewer"/>
+												height="100%"
+												id="mapViewer"/>
 
-			
+
 				<!-- trick to disbale map -->
 				<s:BorderContainer width="100%"
 													 height="100%"
@@ -239,6 +271,13 @@
 					<s:RichEditableText editable="false"
 															text="{selectedItem.data.@versus}" width="200"/>
 				</s:FormItem>-->
+
+			<s:FormItem label="{R.get('PROGRAM')}" visible=" {!this.selectedItem.name &amp;&amp; programs.length>0}">
+        <s:List id="programsList" width="200" minWidth="0" height="260" borderVisible="false" 
+                dataProvider="{programs}" visible=" {!this.selectedItem.name}" enabled="false"
+                textAlign="left"/>
+				
+			</s:FormItem>
 
 		</s:Form>
 

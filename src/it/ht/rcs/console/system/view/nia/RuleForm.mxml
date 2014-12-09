@@ -46,7 +46,6 @@
             
           ident.selectedItem = rule.ident;
           action.selectedItem = rule.action;
-          scoutCh.selected=rule.scout;
           
           if(ident.selectedItem=="TACTICAL")
           {
@@ -58,7 +57,7 @@
           }
           if(action.selectedItem=="INJECT-HTML-FLASH" )
           {
-            resource.text="*.youtube.com/watch*"
+            resource.text="supported video sites"
             resource.enabled=false;
           }
           else{
@@ -77,8 +76,19 @@
           
           if (rule.action == 'REPLACE' || rule.action == 'INJECT-HTML-FILE') {
             
-            currentState = 'fileSelected';
-            fileName.text = rule.action_param_name;
+            if(mode=='edit')
+            {
+              currentState = 'fileSelected';
+              fileName.text = rule.action_param_name;
+            }
+            
+            if(mode=='duplicate')
+            {
+              currentState = 'normal';
+              fileChanged = false
+            }
+            
+           
             
           } else {
             
@@ -90,7 +100,7 @@
             }
             
           }
-        
+        //end edit/duplicate
         }
     /*     else if()
         {
@@ -135,7 +145,7 @@
           resource.errorString ='Please fill resource pattern'
           hasError = true;
         }
-        if (action.selectedItem == 'REPLACE' && mode=="create" && !fileChanged) {
+        if (action.selectedItem == 'REPLACE' && (mode=="create" || mode=="duplicate") && !fileChanged) {
           browseBtn.errorString = 'Please select a file';
           hasError = true;
         }
@@ -153,7 +163,6 @@
         rule.ident_param = ident_param.text;
         rule.resource = resource.text;
         rule.action = action.selectedItem;
-        rule.scout = scoutCh.selected;
         
         if (mode == 'create' || target.selectedItem._id != rule.target_id[0])
           rule.target_id = [target.selectedItem._id];
@@ -214,6 +223,9 @@
       
       private function fileSelection(event:Event):void
       {
+     
+        browseBtn.errorString=''
+        browseBtn.validateNow()
         currentState = 'fileSelected';
         fileName.text = event.target.name;
         fileChanged = true;
@@ -248,7 +260,7 @@
         currentState="normal";
         if(action.selectedItem=="INJECT-HTML-FLASH")
         {
-          resource.text="*.youtube.com/watch*"
+          resource.text="supported video sites"
           resource.enabled=false;
         }
         else{
@@ -335,6 +347,15 @@
          </s:dataProvider>
        </s:DropDownList>
     </s:FormItem>
+    <s:Spacer height="10" visible="{action.selectedIndex==0}"
+              includeInLayout="{action.selectedIndex==0}"/>
+    <s:TextArea left="10" top="10" width="100%" height="65" right="10" borderVisible="false"
+                contentBackgroundAlpha="0.0" editable="false" color="#ff0000"
+                text="{R.get('BUILD_MELTED_WARNING')}"
+                visible="{action.selectedIndex==0}"
+                includeInLayout="{action.selectedIndex==0}"
+                />
+    
     
     <s:FormItem label="{R.get('RESOURCE_PATTERN')}">
       <s:TextInput id="resource" width="200" text="{rule.resource}"/>
@@ -352,11 +373,7 @@
       <s:Label id="fileName" includeIn="fileSelected" width="200" buttonMode="true" click="browse()"
                maxDisplayedLines="1" paddingTop="8" toolTip="{R.get('CLICK_TO_CHANGE_FILE')}"
                verticalAlign="middle"/>
-    </s:FormItem>
-    <s:FormItem  label="{R.get('SCOUT')}" visible="{!LicenseManager.instance.scout &amp;&amp; action.selectedItem != 'REPLACE' &amp;&amp; action.selectedItem != 'INJECT-HTML-FILE'}" includeInLayout="{!LicenseManager.instance.scout}" enabled="{!LicenseManager.instance.scout}">
-      <s:CheckBox id="scoutCh" visible="{!LicenseManager.instance.scout}" includeInLayout="{!LicenseManager.instance.scout}" enabled="{!LicenseManager.instance.scout}" selected="true"/>
-    </s:FormItem>
-    
+    </s:FormItem>    
   </s:Form>
 
 </utils:TitleWindowSaveCancel>

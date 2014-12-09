@@ -38,22 +38,15 @@
 				currentState=mobile ? 'mobile' : 'desktop';
 
 				var entryPoints:ListCollectionView;
-				if (!currentAgent.good)
-				{
+        
+				if (!currentAgent.good)	{
 					trace("Show only non-good anon");
-					entryPoints=CollectorManager.instance.getNonGoodAnon()
-          if(entryPoints.length<=0 && !LicenseManager.instance.scout)
-            //if no anon show available collectors
-            entryPoints=CollectorManager.instance.getNonGoodCollectors();
-				}
-				else
-				{
+					entryPoints = CollectorManager.instance.getNonGoodAnon()
+				}	else {
 					trace("Show only good anon");
-					entryPoints=CollectorManager.instance.getGoodAnon()
-            if(entryPoints.length<=0 && !LicenseManager.instance.scout)
-              //if no anon show available collectors
-              entryPoints=CollectorManager.instance.getGoodCollectors()
+					entryPoints = CollectorManager.instance.getGoodAnon()
 				}
+        
 				host.dataProvider=entryPoints;
 				setEntryPoint(entryPoints);
 				bandwidth.text=String(action.bandwidth / 1000);

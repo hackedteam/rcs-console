@@ -19,8 +19,6 @@
 		<![CDATA[
       import fr.kapit.layouts.model.Edge;
       
-      import locale.R;
-      
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
       import it.ht.rcs.console.entities.model.Flow;
@@ -29,6 +27,8 @@
       import it.ht.rcs.console.entities.view.renderers.CustomLink;
       import it.ht.rcs.console.events.FilterEvent;
       import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import locale.R;
       
       import mx.collections.ArrayCollection;
       import mx.collections.ListCollectionView;
@@ -115,7 +115,8 @@
           relevance:[], 
           time:"time", 
           from:"lastMonth", 
-          to:0
+          to:0,
+          programs:[]
         };
       
       
@@ -136,7 +137,8 @@
 			{ 
 			
         graph.visible=false;
-       
+        graph.zoom(1)
+        zoomSlider.value=1
         if(!entitiesToShow) 
           entitiesToShow=new ArrayCollection()
         entitiesToShow.removeAll()
@@ -152,7 +154,8 @@
           
          
           graph.visible=true; //event listener?
-        
+          
+            
        // trace("Drawing Graph > Entities to show: "+entitiesToShow.length)
         
         getFlows(entitiesToShow) //TODO 
@@ -177,6 +180,15 @@
       protected function onAddedToStage(event:Event):void
       {
        // trace("LINK MAP: ADDED TO STAGE")
+       filterCriteria={ type:[], 
+        relevance:[], 
+        time:"time", 
+        from:"lastMonth", 
+        to:0,
+        programs:[]
+       }
+         FlexGlobals.topLevelApplication.dispatchEvent(new FilterEvent(FilterEvent.ENTITIES_FILTER_RESET))
+          
       }
       
       protected function onRemovedFromStage(event:Event):void
@@ -384,7 +396,7 @@
           edge=graph.vis.graph.edges[i] as Edge
           renderer=edge.visualEdge as CustomLink
           if ((renderer.data.source == source && renderer.data.target == target) || (renderer.data.source == target && renderer.data.target == source))
-            return true
+            return true;
         }
         
         return false;
@@ -491,6 +503,11 @@
           }
         }
       }
+      
+      private function onZoom(e:Event):void
+      {
+        graph.zoom(e.currentTarget.value)
+      }
 
     ]]>
 	</fx:Script>
@@ -513,9 +530,15 @@
           <renderers:FilterRenderer label="{R.get('TIMEFRAME')}" filter="{filterCriteria}" property="time"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.DateFilterPopup"
                                     width="150" />
-          <renderers:FilterRenderer label="{R.get('TYPE')}"  filter="{filterCriteria}" property="type"
+        
+          <renderers:FilterRenderer label="{R.get('TYPE_ENTITY')}"  filter="{filterCriteria}" property="type"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.TypeFilterPopup"
                                     width="150"/>
+        
+          <renderers:FilterRenderer label="{R.get('TYPE_LINK')}" property="programs" filter="{filterCriteria}"
+                                    popupFactory="it.ht.rcs.console.entities.view.filters.LinkTypeFilterPopup"
+                                    width="150"/>
+        
           <renderers:FilterRenderer label="{R.get('RELEVANCE')}" property="relevance" filter="{filterCriteria}"
                                     popupFactory="it.ht.rcs.console.entities.view.filters.TagFilterPopup"
                                     width="150"/>
@@ -523,8 +546,13 @@
 
 				<s:Spacer width="100%"/>
         
-        
-       
+        <s:Label text="zoom: " fontWeight="bold"/>
+        <s:Spacer width="10"/>
+        <s:HSlider  id="zoomSlider"
+                    maximum="10" minimum="0.1"
+                    showDataTip="false"
+                    value="1"
+                    stepSize="0.1" change="onZoom(event)"/>
 			
 			</s:HGroup>
 			<s:Line width="100%">

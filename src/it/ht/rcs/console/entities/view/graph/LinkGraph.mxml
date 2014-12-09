@@ -25,7 +25,7 @@
 			import fr.kapit.visualizer.base.uicomponent.GenericSprite;
 			import fr.kapit.visualizer.events.VisualizerEvent;
 			import fr.kapit.visualizer.styles.LinkStyle;
-
+			
 			import it.ht.rcs.console.entities.controller.EntityManager;
 			import it.ht.rcs.console.entities.model.Entity;
 			import it.ht.rcs.console.entities.model.Link;
@@ -34,10 +34,10 @@
 			import it.ht.rcs.console.entities.view.renderers.CustomLink;
 			import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
 			import it.ht.rcs.console.search.controller.SearchManager;
-
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.ResizeEvent;
-
+			
 			import spark.collections.Sort;
 			import spark.collections.SortField;
 
@@ -195,7 +195,7 @@
 				//vis.setFocus()
 				vis.invalidateDisplayList()
 
-				//setTimeout(collapseAll, 10)
+				setTimeout(collapseAll, 10)
 			}
 
 			private function addEntities():void
@@ -304,12 +304,15 @@
 					group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
 					/* if(point)
 						group.setPosition(point.x,point.y) */
-					group.includeInGraphLayout=includeInGraphLayout;
-					hasPermission=SearchManager.instance.getItem(entity.stand_for)
-					if (!hasPermission && entity.stand_for)
+					if (group)
 					{
-						group.isGroupExpanded=false;
-						group.forceNoExpandGroupButton=true;
+						group.includeInGraphLayout=includeInGraphLayout;
+						hasPermission=SearchManager.instance.getItem(entity.stand_for);
+						if (!hasPermission && entity.stand_for)
+						{
+							group.isGroupExpanded=false;
+							group.forceNoExpandGroupButton=true;
+						}
 					}
 				}
 
@@ -352,6 +355,8 @@
 								continue;
 							if (filterCriteria.relevance && filterCriteria.relevance.length > 0 && filterCriteria.relevance.indexOf(link.rel) == -1)
 								continue;
+              if (filterCriteria.programs && filterCriteria.programs.length > 0 && !matchPrograms(link)) //check programs
+                continue;
 							source=vis.nodesMap[entity._id];
 							target=vis.nodesMap[link.le];
 							vis.addLinkElement({type: link.type, rel: link.rel, level: link.level, versus: link.versus, info: link.info, source: entity._id, target: link.le}, source, target);
@@ -363,6 +368,18 @@
 				//vis.reLayout();
 
 			}
+      
+      private function matchPrograms(link:Link):Boolean
+      {
+        for(var i:int=0;i<filterCriteria.programs.length;i++)
+        {
+          var program:String=filterCriteria.programs[i];
+          if(link.info[program]!=null)
+            return true
+        }
+        return false;
+      }
+      
 
 			public function highlightLink(from:String, to:String):void
 			{
@@ -388,15 +405,15 @@
 				for (var k:int=0; k < vis.graph.nodes.length; k++)
 				{
 					var vn:DiagramSprite=vis.graph.nodes[k].visualNode as DiagramSprite;
-					if(!vn)
-            continue;
-            vn.isSelected=false;
+					if (!vn)
+						continue;
+					vn.isSelected=false;
 
 					if (vis.graph.nodes[k].uid == id)
 					{
 						vn.isSelected=true;
-            selection=[vn]
-            dispatchEvent(new Event("selectionChange"))
+						selection=[vn]
+						dispatchEvent(new Event("selectionChange"))
 					}
 
 				}
@@ -421,8 +438,15 @@
 					}
 				}
 			}
+      
+      public function zoom(value:Number):void
+      {
+       vis.zoomContent(value,null,false,false);
+      }
 		]]>
 	</fx:Script>
+  
+
 
 	<diagrammer:Diagrammer width="100%"
 												 height="100%"
@@ -434,6 +458,7 @@
 												 nodeRendererFunction="{nodeRendererFunction}"
 												 enableAnimation="false"
 												 enableAutofitOnLayout="true"
+                         enableZoomOnMouseWheel="false"
 												 groupRendererClass="{CustomGroupRenderer}"
 												 elementsDragging="onDrag(event)"
 												 showNodeExpandCollapseButton="false"

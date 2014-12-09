@@ -131,10 +131,10 @@
             function(e:CloseEvent):void {
               if (e.detail == AlertPopUp.YES)
               {
-                TargetManager.instance.removeItem(selectedObject);
+                TargetManager.instance.removeItem(AlertPopUp.getData());
                 section.stateManager.setState("singleOperation")
               }
-            }, null, AlertPopUp.NO);
+            }, null, AlertPopUp.NO,null,false,selectedObject);
         
         }
         else if( selectedObject is Agent)
@@ -143,9 +143,9 @@
             AlertPopUp.YES|AlertPopUp.NO, null,
             function(e:CloseEvent):void {
               if (e.detail == AlertPopUp.YES)
-                AgentManager.instance.delFactory(selectedObject, event.shiftKey);
+                AgentManager.instance.delFactory(AlertPopUp.getData(), event.shiftKey);
                 section.stateManager.setState("singleOperation")
-            }, null, AlertPopUp.NO);
+            }, null, AlertPopUp.NO,null,false,selectedObject);
         }
       }
       
@@ -158,10 +158,10 @@
           function(e:CloseEvent):void {
             if (e.detail == AlertPopUp.YES)
             {
-              TargetManager.instance.closeTarget(selectedObject._id);
+              TargetManager.instance.closeTarget(AlertPopUp.getData()._id);
               section.stateManager.setState("singleOperation")
             }
-          }, null, AlertPopUp.NO);
+          }, null, AlertPopUp.NO,null,false,selectedObject);
         }
         else if( selectedObject is Agent)
         {
@@ -170,8 +170,8 @@
             AlertPopUp.YES|AlertPopUp.NO, null,
             function(e:CloseEvent):void {
               if (e.detail == AlertPopUp.YES)
-                selectedObject.status = 'closed';
-            }, null, AlertPopUp.NO);
+                AlertPopUp.getData().status = 'closed';
+            }, null, AlertPopUp.NO,null,false,selectedObject);
         }
       }
       

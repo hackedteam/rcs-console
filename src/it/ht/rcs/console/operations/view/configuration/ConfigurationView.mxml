@@ -37,6 +37,12 @@
 
 			[Bindable]
 			private var isScout:Boolean;
+      
+      [Bindable]
+      private var isSoldier:Boolean;
+      
+      [Bindable]
+      private var isDemo:Boolean;
 
       [Bindable]
       private var currentAgent:Agent;
@@ -77,12 +83,11 @@
 					if (section.stateManager.selectedAgent == null)
 						return;   
           
-          if(currentAgent.level=="soldier")
-          {
-          trace("it's a soldier: hide advanced view!")
-
-          }
+         
           isScout=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.level=="scout";
+          isSoldier=section.stateManager.selectedAgent.type=="desktop" && section.stateManager.selectedAgent.level=="soldier";
+          isDemo=section.stateManager.selectedAgent.demo;
+          
 					configAsObject=JSON.parse(configAsConfig.config);
 					cleanUnsupportedModules(section.stateManager.selectedAgent.platform, configAsObject);
 					addAgentMissingModules(section.stateManager.selectedAgent.platform, configAsObject);
@@ -152,7 +157,7 @@
         
         var agent:Agent=section.stateManager.selectedAgent;
         
-        if(agent && agent.level=="soldier" && configAsObject.globals.advanced) // a soldier with advanced configuration convert to basic
+        if(agent && (agent.level=="soldier" || agent.level=="scout") && configAsObject.globals.advanced) // a scout or soldier with advanced configuration converts to basic
         {
           currentState="basic"
         

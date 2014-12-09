@@ -17,8 +17,6 @@
       import it.ht.rcs.console.target.controller.TargetManager;
       
       import locale.R;
-      
-      import mx.events.FlexEvent;
 
 			[Bindable]
 			public var section:OperationsSection;
@@ -43,15 +41,21 @@
       protected function onAddeToStage(event:Event):void
       {
         TargetManager.instance.listenPush();
-        AgentManager.instance.listenFactoryPush()
         TargetManager.instance.refresh()
-        AgentManager.instance.refresh()
+          if(Console.currentSession.user.is_tech() || Console.currentSession.user.is_view())
+          {
+            AgentManager.instance.listenFactoryPush()
+            AgentManager.instance.listenAgentPush()
+
+            //AgentManager.instance.refresh()
+          }
         
       }
       
       protected function onRemovedFromStage(event:Event):void
       {
         TargetManager.instance.unlistenPush();
+        AgentManager.instance.unlistenAgentPush()
         AgentManager.instance.unlistenFactoryPush()
       }
 

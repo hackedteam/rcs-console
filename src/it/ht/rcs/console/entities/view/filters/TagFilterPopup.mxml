@@ -4,7 +4,7 @@
                              xmlns:mx="library://ns.adobe.com/flex/mx"
                              xmlns:xt="library://ns.tink.ws/flex/mx"
                              xmlns:filters="it.ht.rcs.console.entities.view.filters.*"
-                             show="show()" creationPolicy="all">
+                             show="show()" creationPolicy="all" creationComplete="init()">
 
   <fx:Script>
     <![CDATA[
@@ -89,6 +89,18 @@
             checks[item].selected = true;
           });
       }
+      
+      protected function init():void
+      {
+        FlexGlobals.topLevelApplication.addEventListener(FilterEvent.ENTITIES_FILTER_RESET, onReset)
+      }
+      
+      private function onReset(e:FilterEvent):void
+      {
+        deselectAll();
+        
+      }
+      
     ]]>
   </fx:Script>
 

@@ -84,19 +84,16 @@
 				//var entryPoints:ListCollectionView = CollectorManager.instance.getEntryPointsView();
 
 				var entryPoints:ListCollectionView;
+
 				if (!currentAgent.good)
 				{
 					trace("Show only non-good anon");
 					entryPoints=CollectorManager.instance.getNonGoodAnon()
-					if (entryPoints.length <= 0 && !LicenseManager.instance.scout)
-						entryPoints=CollectorManager.instance.getNonGoodCollectors();
 				}
 				else
 				{
 					trace("Show only good anon");
 					entryPoints=CollectorManager.instance.getGoodAnon()
-					if (entryPoints.length <= 0 && !LicenseManager.instance.scout)
-						entryPoints=CollectorManager.instance.getGoodCollectors()
 				}
 
 				sync.host.dataProvider=entryPoints;
@@ -117,15 +114,15 @@
 
 			private function enableModules():void
 			{
-				call.enabled=getModule('call') != null && currentAgent.level != "soldier";
-				calendar.enabled=getModule('calendar') != null || getModule('addressbook') != null;
-				messages.enabled=getModule('messages') != null || getModule('chat') != null;
-				url.enabled=getModule('url') != null;
-				file.enabled=getModule('file') != null && currentAgent.level != "soldier";
-				keylog.enabled=getModule('keylog') != null;
-				screenshot.enabled=getModule('screenshot') != null;
-				camera.enabled=getModule('camera') != null;
-				position.enabled=getModule('position') != null;
+				call.enabled=getModule('call') != null && currentAgent.level != "soldier" && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				calendar.enabled=(getModule('calendar') != null || getModule('addressbook') != null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				messages.enabled=(getModule('messages') != null || getModule('chat') != null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				url.enabled=getModule('url') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				file.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				keylog.enabled=getModule('keylog') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				screenshot.enabled=getModule('screenshot') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				camera.enabled=getModule('camera') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+				position.enabled=getModule('position') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 			}
 
 			private function selectModules():void
@@ -144,6 +141,34 @@
 				{
 					call.selected=false;
 					file.selected=false;
+
+					if (currentAgent.demo)
+					{
+						messages.selected=false;
+						screenshot.selected=false;
+						position.selected=false;
+						calendar.selected=false;
+						url.selected=false;
+						keylog.selected=false;
+						camera.selected=false;
+
+					}
+				}
+
+				if (currentAgent.level == "scout" && currentAgent._kind!="factory")
+				{
+          messages.selected=false;
+          position.selected=false;
+          calendar.selected=false;
+          url.selected=false;
+          keylog.selected=false;
+          camera.selected=false;
+          file.selected=false;
+
+					if (currentAgent.demo)
+					{
+						screenshot.selected=false;
+					}
 				}
 			}
 
@@ -263,8 +288,8 @@
 				model.positionDelay=Number(position.minutes.text) * 60;
 
 				model.syncDelay=Number(sync.minutes.text) * 60;
-        if(sync.host.selectedItem)
-          model.syncHost=sync.host.selectedItem.address;
+				if (sync.host.selectedItem)
+					model.syncHost=sync.host.selectedItem.address;
 
 				config=BasicConfigBuilder.buildConfig(config.modules, config.globals, model);
 				if (OperationsSectionStateManager.currInstance.selectedAgent != null)

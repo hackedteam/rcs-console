@@ -247,6 +247,8 @@
 		<![CDATA[
       import it.ht.rcs.console.entities.controller.EntityManager;
       import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.model.LinkInfo;
       import it.ht.rcs.console.events.SectionEvent;
       import it.ht.rcs.console.monitor.controller.LicenseManager;
       import it.ht.rcs.console.search.controller.SearchManager;
@@ -436,13 +438,22 @@
 				popup.ids=ids;
 				PopUpManager.centerPopUp(popup);
 			}
+      
+      
+    
 
 			public function jumpToEvidence():void
 			{
 				var entity1:Entity=EntityManager.instance.getItem(selectedObject.source);
 				var entity2:Entity=EntityManager.instance.getItem(selectedObject.target);
 
-				var temp:Array=selectedObject.info.toString().split(",");
+        
+        var li:LinkInfo=selectedObject.info as LinkInfo;
+       
+        
+        //getInfo(li)
+        
+				var temp:Array= li.getPlainList();//selectedObject.info.toString().split(",");
         var info:Array=[]
 				if (entity1.type == "position" || entity2.type == "position")
 				{
@@ -450,7 +461,7 @@
 					info.push("lon:" + position.position.longitude + ",lat:" + position.position.latitude + ",r:500")
 				}
 				else
-				{
+				{ //really needed???
 					for (var i:int=0; i <temp.length; i++)
 					{
 						info.push(temp[i]);
@@ -464,7 +475,7 @@
 					popup.entity1=entity1;
 					popup.entity2=entity2;
 					popup.info=info;
-					popup.addEventListener("targetSelected", onTargetSelection)
+					popup.addEventListener("targetSelected", onTargetSelection);
 					PopUpManager.centerPopUp(popup);
 					return;
 				}
@@ -504,7 +515,7 @@
 				event.section=SectionEvent.OPERATIONS;
 				event.subsection='evidence';
 				event.item=SearchManager.instance.getItem(targetId);
-				event.evidenceTypes=["call", "chat", "message"];
+        event.evidenceTypes=["call", "chat", "message", "money"];
 				event.info=e.currentTarget.info;
 				//event.from=getFromTimestamp();
 				//event.to=getToTimestamp();

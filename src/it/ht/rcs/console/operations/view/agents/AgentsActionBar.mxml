@@ -240,8 +240,9 @@
 				AlertPopUp.show(message, R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 				{
 					if (e.detail == AlertPopUp.YES)
-						selectedObject.status='closed';
-				}, null, AlertPopUp.NO);
+            AlertPopUp.getData().status='closed';
+						//selectedObject.status='closed';
+				}, null, AlertPopUp.NO,null,false,selectedObject);
 			}
 
 			private function onDeleteClick(event:MouseEvent):void
@@ -251,16 +252,16 @@
 					AlertPopUp.show(R.get('CONFIRM_FACTORY_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 					{
 						if (e.detail == AlertPopUp.YES)
-							AgentManager.instance.delFactory(selectedObject, event.shiftKey);
-					}, null, AlertPopUp.NO);
+							AgentManager.instance.delFactory( AlertPopUp.getData(), event.shiftKey);
+					}, null, AlertPopUp.NO,null,false,selectedObject);
 				}
 				else
 				{
 					AlertPopUp.show(R.get('CONFIRM_AGENT_DELETION', [selectedObject.name]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
 					{
 						if (e.detail == AlertPopUp.YES)
-							AgentManager.instance.delAgent(selectedObject, event.shiftKey);
-					}, null, AlertPopUp.NO);
+							AgentManager.instance.delAgent(AlertPopUp.getData(), event.shiftKey);
+					}, null, AlertPopUp.NO,null,false,selectedObject);
 
 				}
 

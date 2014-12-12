@@ -60,6 +60,8 @@
       
       private function editJob(b:BackupJob):void
       {
+        if(b.status=='RESTORING' || b.status=='RUNNING')
+          return;
         var popup:BackupJobForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, BackupJobForm, true) as BackupJobForm;
         popup.currentState = 'edit';
         popup.job = b;

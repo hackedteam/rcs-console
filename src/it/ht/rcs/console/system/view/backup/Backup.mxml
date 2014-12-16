@@ -31,6 +31,8 @@
       {
         BackupJobManager.instance.listenRefresh();
         BackupJobManager.instance.refresh();
+        BackupJobManager.instance.listenPush()
+        
      
         _backup_job_view = BackupJobManager.instance.getView(); 
       
@@ -40,6 +42,7 @@
       private function onRemovedFromStage(event:Event):void
       {
         BackupJobManager.instance.unlistenRefresh();
+        BackupJobManager.instance.unlistenPush();
         _backup_job_view = null;
         FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
       }
@@ -57,6 +60,8 @@
       
       private function editJob(b:BackupJob):void
       {
+        if(b.status=='RESTORING' || b.status=='RUNNING')
+          return;
         var popup:BackupJobForm = PopUpManager.createPopUp(this.parentDocument as DisplayObject, BackupJobForm, true) as BackupJobForm;
         popup.currentState = 'edit';
         popup.job = b;

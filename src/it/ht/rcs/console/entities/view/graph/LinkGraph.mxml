@@ -15,31 +15,32 @@
 
 	<fx:Script>
 		<![CDATA[
-			import fr.kapit.diagrammer.base.uicomponent.DiagramSprite;
-			import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
-			import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
-			import fr.kapit.layouts.constants.RootSelectionType;
-			import fr.kapit.layouts.model.Edge;
-			import fr.kapit.visualizer.base.ISprite;
-			import fr.kapit.visualizer.base.uicomponent.GenericGroup;
-			import fr.kapit.visualizer.base.uicomponent.GenericSprite;
-			import fr.kapit.visualizer.events.VisualizerEvent;
-			import fr.kapit.visualizer.styles.LinkStyle;
-			
-			import it.ht.rcs.console.entities.controller.EntityManager;
-			import it.ht.rcs.console.entities.model.Entity;
-			import it.ht.rcs.console.entities.model.Link;
-			import it.ht.rcs.console.entities.view.graph.utils.GraphUtils;
-			import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
-			import it.ht.rcs.console.entities.view.renderers.CustomLink;
-			import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
-			import it.ht.rcs.console.search.controller.SearchManager;
-			
-			import mx.collections.ArrayCollection;
-			import mx.events.ResizeEvent;
-			
-			import spark.collections.Sort;
-			import spark.collections.SortField;
+      import fr.kapit.diagrammer.base.uicomponent.DiagramSprite;
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayout;
+      import fr.kapit.layouts.algorithms.balloon.BalloonLayoutParams;
+      import fr.kapit.layouts.algorithms.basic.params.LayoutParams;
+      import fr.kapit.layouts.constants.RootSelectionType;
+      import fr.kapit.layouts.model.Edge;
+      import fr.kapit.visualizer.base.ISprite;
+      import fr.kapit.visualizer.base.uicomponent.GenericGroup;
+      import fr.kapit.visualizer.base.uicomponent.GenericSprite;
+      import fr.kapit.visualizer.events.VisualizerEvent;
+      import fr.kapit.visualizer.styles.LinkStyle;
+      
+      import it.ht.rcs.console.entities.controller.EntityManager;
+      import it.ht.rcs.console.entities.model.Entity;
+      import it.ht.rcs.console.entities.model.Link;
+      import it.ht.rcs.console.entities.view.graph.utils.GraphUtils;
+      import it.ht.rcs.console.entities.view.renderers.CustomGroupRenderer;
+      import it.ht.rcs.console.entities.view.renderers.CustomLink;
+      import it.ht.rcs.console.entities.view.renderers.CustomNodeRenderer;
+      import it.ht.rcs.console.search.controller.SearchManager;
+      
+      import mx.collections.ArrayCollection;
+      import mx.events.ResizeEvent;
+      
+      import spark.collections.Sort;
+      import spark.collections.SortField;
 
 			private var sort:Sort;
 			private var entities:ArrayCollection;
@@ -82,6 +83,7 @@
 				params.rootAngularSector=180;
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
 				params.overlappingAvoidMethod=0;
+        params.packingPolicy=50;
 				params.packingSpacing=50;
 
 				vis.balloonLayout.params=params;
@@ -184,7 +186,7 @@
 					vis.visible=false;
 					return;
 				}
-				trace("Drawing Inside Graph > Entities to show: " + entities.length)
+				trace("Drawing Graph > Entities to show: " + entities.length)
 
 				addEntities()
 				addGroups()
@@ -302,6 +304,7 @@
 					}
 
 					group=vis.groupElements(entity, elements, null, entity._id) as GenericGroup
+          
 					/* if(point)
 						group.setPosition(point.x,point.y) */
 					if (group)
@@ -321,15 +324,15 @@
 			}
 
 
-			private function collapseAll():void
-			{
-				for each (var node:Object in vis.nodesMap)
-				{
-					if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
-						GenericGroup(node).isGroupExpanded=false
-				}
-				//vis.reLayout();
-			}
+      private function collapseAll():void
+      {
+        for each (var node:Object in vis.nodesMap)
+        {
+          if (node is GenericGroup && GenericGroup(node).isGroupExpanded && !GenericGroup(node).forceNoExpandGroupButton)
+            GenericGroup(node).isGroupExpanded=false
+        }
+        //vis.reLayout();
+      }
 
 
 			private function addLinks():void

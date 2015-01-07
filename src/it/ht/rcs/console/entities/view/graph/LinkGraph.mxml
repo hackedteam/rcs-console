@@ -82,9 +82,9 @@
 				params.useEvenAngles=false;
 				params.rootAngularSector=180;
 				params.rootSelectionPolicy=RootSelectionType.MOST_CLOSED_ROOT_SELECTION; //avoid overlap in a pile
-				params.overlappingAvoidMethod=0;
-        params.packingPolicy=50;
-				params.packingSpacing=50;
+				//params.overlappingAvoidMethod=0;
+       // params.packingPolicy=50;
+				//params.packingSpacing=50;
 
 				vis.balloonLayout.params=params;
 
@@ -163,7 +163,7 @@
 			{
 
 				positions_so=SharedObject.getLocal("entityPositions");
-				//positions_so.clear() // uncomment to clean SO for dev/debug purposes
+				positions_so.clear() // uncomment to clean SO for dev/debug purposes
 
 				if (positions_so.data.positions == null)
 				{
@@ -195,7 +195,7 @@
 
 				dispatchEvent(new Event("selectionChange"))
 				//vis.setFocus()
-				vis.invalidateDisplayList()
+				//vis.invalidateDisplayList()
 
 				setTimeout(collapseAll, 10)
 			}
@@ -218,19 +218,21 @@
 
 					if (entity.type != "group")
 					{
-						if (positions_so.data.positions[entity._id])
+            includeInGraphLayout=true
+						/* if (positions_so.data.positions[entity._id].x && positions_so.data.positions[entity._id].y)
 						{
 							point=new Point()
 							point.x=positions_so.data.positions[entity._id].x
 							point.y=positions_so.data.positions[entity._id].y
-							includeInGraphLayout=false;
+							//includeInGraphLayout=false;
+              includeInGraphLayout=true;
 
 						}
 						else
 						{
 							point=null
 							includeInGraphLayout=true;
-						}
+						} */
 
 						node=vis.addNodeElement(entity, null, null, point, entity._id) as GenericSprite
 						node.includeInGraphLayout=includeInGraphLayout
@@ -253,6 +255,22 @@
 							if (child)
 							{
 
+             /*    if (positions_so.data.positions[_id].x && positions_so.data.positions[_id].y)
+                {
+                  point=new Point()
+                  point.x=positions_so.data.positions[_id].x
+                  point.y=positions_so.data.positions[_id].y
+                  includeInGraphLayout=false;
+                  includeInGraphLayout=true;
+                  
+                }
+                else
+                {
+                  point=null
+                  includeInGraphLayout=true;
+                } */
+
+                includeInGraphLayout=true
 								node=vis.addNodeElement(child, null, null, null, child._id) as GenericSprite
 								node.includeInGraphLayout=includeInGraphLayout;
 								entities.addItem(child)
@@ -294,7 +312,8 @@
 						point=new Point()
 						point.x=positions_so.data.positions[entity._id].x
 						point.y=positions_so.data.positions[entity._id].y
-						includeInGraphLayout=false;
+						//includeInGraphLayout=false;
+            includeInGraphLayout=true;
 
 					}
 					else
@@ -309,7 +328,13 @@
 						group.setPosition(point.x,point.y) */
 					if (group)
 					{
-						group.includeInGraphLayout=includeInGraphLayout;
+            if(point)
+            {
+              group.x=point.x;
+              group.y=point.y;
+            }
+            group.includeInGraphLayout=true;
+						//group.includeInGraphLayout=includeInGraphLayout;
 						hasPermission=SearchManager.instance.getItem(entity.stand_for);
 						if (!hasPermission && entity.stand_for)
 						{
@@ -431,23 +456,35 @@
 
 			private function onDrag(e:VisualizerEvent):void
 			{
-				for each (var node:Object in vis.nodesMap)
-				{
-					if (node is GenericGroup || node is GenericSprite)
-					{
-						positions_so.data.positions[node.data._id]=new Point(node.x, node.y);
-					}
-				}
+        
 			}
       
       public function zoom(value:Number):void
       {
        vis.zoomContent(value,null,false,false);
       }
-		]]>
+      
+      protected function onDragEnd(event:VisualizerEvent):void
+      {
+        savePositions()
+      }
+      
+      private function savePositions():void
+      {
+        trace("=================================");
+        for each (var node:Object in vis.nodesMap)
+        {
+          if (node is GenericGroup || node is GenericSprite)
+          {
+            trace("Entity name: "+node.data.name+"(x: "+node.x+", y: "+node.y+")");
+            //positions_so.data.positions[node.data._id]=new Point(node.x, node.y);
+          }
+        }
+      
+      }
+      
+    ]]>
 	</fx:Script>
-  
-
 
 	<diagrammer:Diagrammer width="100%"
 												 height="100%"
@@ -461,7 +498,7 @@
 												 enableAutofitOnLayout="true"
                          enableZoomOnMouseWheel="false"
 												 groupRendererClass="{CustomGroupRenderer}"
-												 elementsDragging="onDrag(event)"
+                         elementsDragFinished="onDragEnd(event)"
 												 showNodeExpandCollapseButton="false"
 												 elementsSelectionChanged="onSelectionChange(event)"
 												 elementDoubleClicked="onElementDoubleClick(event)"/>

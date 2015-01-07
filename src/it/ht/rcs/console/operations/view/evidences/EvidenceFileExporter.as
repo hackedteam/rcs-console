@@ -170,7 +170,8 @@ package it.ht.rcs.console.operations.view.evidences
 					break;
 
 				case "position":
-					exportMap(evidence);
+					//exportMap(evidence);
+          exportText(evidence);
 					break;
 
 				case "print":

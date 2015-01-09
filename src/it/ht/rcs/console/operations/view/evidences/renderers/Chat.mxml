@@ -1,29 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                                xmlns:s="library://ns.adobe.com/flex/spark"
-                                xmlns:mx="library://ns.adobe.com/flex/mx"
-                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="100%" height="100%" addedToStage="init()">
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																width="100%"
+																height="100%"
+																addedToStage="init()">
 
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="350"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="350"/>
+	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
-			import spark.components.DataGrid;
+
 			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
-      
+			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+			import it.ht.rcs.console.utils.BMPDecoder;
+
 			import locale.R;
 
 			import mx.collections.ArrayCollection;
-      import mx.rpc.events.ResultEvent;
-      import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import spark.components.DataGrid;
 
 			private var content:String
 			private var mainView:EvidencesView;
+
+			private static const MAGIC_NUMBER:String="BM";
 
 			[Bindable]
 			private var renderMode:String;
@@ -39,6 +56,21 @@
 
 			[Bindable]
 			private var translatedContent:String="";
+
+			private var imgLoader:URLLoader=new URLLoader();
+
+			[Bindable]
+			[Embed(source="/img/evidence/spinner30.swf")]
+			public var SpinnerAnimation:Class;
+
+			[Bindable]
+			[Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+			public var BrokenImage:Class;
+
+			[Bindable]
+			private var frameWidth:Number=4;
+			[Bindable]
+			private var url:String;
 
 			[Bindable]
 			override public function set data(value:*):void
@@ -73,13 +105,13 @@
 				{
 					fromTxt.visible=true;
 					fromTxt.includeInLayout=true;
-					fromTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('FROM')+": </b>" + data.data.from_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					fromTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('FROM') + ": </b>" + data.data.from_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				}
 				else if (data.data.from != "" && data.data.from != null)
 				{
 					fromTxt.visible=true;
 					fromTxt.includeInLayout=true;
-					fromTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('FROM')+": </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					fromTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('FROM') + ": </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
 				}
 				else
 				{
@@ -100,53 +132,82 @@
 				//new format
 				if (data.data.rcpt_display != null && data.data.rcpt_display != "")
 				{
-					toTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('TO')+": </b>"+ data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
-          toTxt.visible=toTxt.includeInLayout=true;
+					toTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('TO') + ": </b>" + data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					toTxt.visible=toTxt.includeInLayout=true;
 				}
 				else if (data.data.rcpt != null && data.data.rcpt != "")
 				{
-					toTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('TO')+": </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
-          toTxt.visible=toTxt.includeInLayout=true;
+					toTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('TO') + ": </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					toTxt.visible=toTxt.includeInLayout=true;
 				}
 
 				//old format
 				else if (data.data.peer != null && data.data.peer != "")
 				{
-					toTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('TO')+": </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-          toTxt.visible=toTxt.includeInLayout=true;
+					toTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('TO') + ": </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					toTxt.visible=toTxt.includeInLayout=true;
+				}
+
+				else
+				{
+					toTxt.visible=toTxt.includeInLayout=false;
+
+				}
+				switch (translatedContent)
+				{
+
+					case 'TRANS_QUEUED':
+						translatedContent='(' + R.get('TRANS_QUEUED') + ')';
+						break;
+					case 'TRANS_IN_PROGRESS':
+						translatedContent='(' + R.get('TRANS_IN_PROGRESS') + ')';
+						break;
+					case 'TRANS_ERROR':
+						translatedContent='(' + R.get('TRANS_ERROR') + ')';
+						break;
+					case null:
+						translatedContent='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
+						break;
+					default:
+						translatedContent=translatedContent;
 				}
         
+        if (data.data._grid)
+        { 
+          loadImage()
+        }
         else
         {
-          toTxt.visible=toTxt.includeInLayout=false;
-        
-        }
-        switch (translatedContent)
-        {
-          
-          case 'TRANS_QUEUED':
-            translatedContent='(' + R.get('TRANS_QUEUED') + ')';
-            break;
-          case 'TRANS_IN_PROGRESS':
-            translatedContent='(' + R.get('TRANS_IN_PROGRESS') + ')';
-            break;
-          case 'TRANS_ERROR':
-            translatedContent='(' + R.get('TRANS_ERROR') + ')';
-            break;
-          case null:
-            translatedContent='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
-            break;
-          default:
-            translatedContent=translatedContent;
+          contentTxt.visible=contentTxt.includeInLayout=true;
+          frame.visible=frame.includeInLayout=false;
         }
 
-				contentTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('CONTENT')+": </b>" + originalContent, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        translationTxt.setStyle("color", 0x666666);
-				translationTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('CONTENT')+": </b><i>" + translatedContent+"</i>", TextConverter.TEXT_FIELD_HTML_FORMAT);
-				programTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('PROGRAM')+": </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				incomingTxt.textFlow=TextConverter.importToFlow("<b>Incoming: </b>" + data.data.incoming, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				contentTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('CONTENT') + ": </b>" + originalContent, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				translationTxt.setStyle("color", 0x666666);
+				translationTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('CONTENT') + ": </b><i>" + translatedContent + "</i>", TextConverter.TEXT_FIELD_HTML_FORMAT);
+				programTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('PROGRAM') + ": </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+				incomingTxt.textFlow=TextConverter.importToFlow("<b>Incoming: </b>" + data.data.incoming, TextConverter.TEXT_FIELD_HTML_FORMAT)
+				
 				onTranslate(null);
 			}
+      
+      
+      private function loadImage():void
+      {
+        DB.instance.demo? url="grid/" + data.data._grid: url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+        
+        imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
+        imgLoader.load(new URLRequest(url))
+          
+        contentTxt.visible=contentTxt.includeInLayout=false;
+        translationTxt.visible=translationTxt.includeInLayout=false
+        frame.visible=frame.includeInLayout=true;
+        img.smooth=true;
+      
+      }
 
 			private function init():void
 			{
@@ -159,43 +220,82 @@
 				translateLink.addEventListener(TextEvent.LINK, doTranslate);
 				translateLink.htmlText="<u><b><a href='event:doTranslate'>" + R.get('TRANSLATE_NOW') + "</a></b></u>"
 				onTranslate(null)
+
+
 			}
+
+			private function onImageLoading(e:ProgressEvent):void
+			{
+				img.visible=false;
+				spinner.visible=true;
+			}
+
+			private function onImageError(e:IOErrorEvent):void
+			{
+				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				spinner.visible=false;
+				img.source=new BrokenImage()
+				img.visible=true;
+				fadeIn.play([img]);
+			}
+
+			private function onImageLoaded(e:Event):void
+			{
+				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
+				{
+					img.source=new BMPDecoder().decode(e.target.data as ByteArray)
+					return;
+				}
+				else
+				{
+					img.source=e.target.data
+				}
+				spinner.visible=false;
+				img.visible=true;
+				fadeIn.play([img]);
+			}
+
 
 			private function doTranslate(e:TextEvent):void
 			{
-        if(LicenseManager.instance.translation)
-        {
-    			var id:String=encodeURIComponent(data._id);
-    			var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-    			EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
-        }
+				if (LicenseManager.instance.translation && !data.data._grid)
+				{
+					var id:String=encodeURIComponent(data._id);
+					var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+					EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
+				}
 			}
-      
-      private function onTranslateResult(e:ResultEvent):void
-      {
-        data=e.result;
-        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
-        {
-          var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
-          if (evidence)
-          {
-            if (evidence._id == e.result._id)
-            {
-              evidence.data.tr=e.result.data.tr;
-            }
-          }
-        }
-      }
-      
-      private function onTranslateFault(e:FaultEvent):void
-      {
-        trace("translation fault");
-      }
+
+			private function onTranslateResult(e:ResultEvent):void
+			{
+				data=e.result;
+				for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+				{
+					var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+					if (evidence)
+					{
+						if (evidence._id == e.result._id)
+						{
+							evidence.data.tr=e.result.data.tr;
+						}
+					}
+				}
+			}
+
+			private function onTranslateFault(e:FaultEvent):void
+			{
+				trace("translation fault");
+			}
 
 
 			private function onTranslate(e:Event):void
 			{
-				if (data)
+				if (data && !data.data._grid)
 				{
 					if (!mainView.translation)
 					{
@@ -205,30 +305,38 @@
 					}
 					else
 					{
-  					if(LicenseManager.instance.translation)
-            {
-              contentTxt.visible=contentTxt.includeInLayout=false;
-              translationTxt.visible=translationTxt.includeInLayout=true;
-              
-              if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
-                translateLink.visible=translateLink.includeInLayout=true;
-              else
-                translateLink.visible=translateLink.includeInLayout=false;
-            }
+						if (LicenseManager.instance.translation)
+						{
+							contentTxt.visible=contentTxt.includeInLayout=false;
+							translationTxt.visible=translationTxt.includeInLayout=true;
+
+							if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+								translateLink.visible=translateLink.includeInLayout=true;
+							else
+								translateLink.visible=translateLink.includeInLayout=false;
+						}
 					}
 				}
 
 			}
 		]]>
 	</fx:Script>
-	<s:HGroup width="100%" height="100%" verticalAlign="top">
+	<s:HGroup width="100%"
+						height="100%"
+						verticalAlign="top">
 
-		<s:VGroup width="50%" verticalAlign="middle">
-			<s:RichText id="fromTxt" width="100%"/>
-			<s:RichText id="toTxt" width="100%"/>
+		<s:VGroup width="50%"
+							verticalAlign="middle">
+			<s:RichText id="fromTxt"
+									width="100%"/>
+			<s:RichText id="toTxt"
+									width="100%"/>
 			<s:HGroup verticalAlign="middle">
-				<s:BitmapImage width="16" height="16" source="{ImageClass}"/>
-				<s:RichText id="programTxt" width="100%"/>
+				<s:BitmapImage width="16"
+											 height="16"
+											 source="{ImageClass}"/>
+				<s:RichText id="programTxt"
+										width="100%"/>
 			</s:HGroup>
 		</s:VGroup>
 
@@ -238,11 +346,45 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<s:VGroup width="50%" verticalAlign="middle">
-			<s:RichText id="incomingTxt" visible="false" width="100%" includeInLayout="false"/>
-			<s:RichText id="contentTxt" width="100%"/>
-			<s:RichText id="translationTxt" width="100%"/>
-			<mx:Text id="translateLink" visible="false" includeInLayout="false"/>
+		<s:VGroup width="50%"
+							verticalAlign="middle">
+			<s:RichText id="incomingTxt"
+									visible="false"
+									width="100%"
+									includeInLayout="false"/>
+			<s:RichText id="contentTxt"
+									width="100%"
+									visible="{data.data._grid==null}"
+									includeInLayout="{data.data._grid==null}"/>
+			<s:RichText id="translationTxt"
+									width="100%"
+									visible="{data.data._grid==null}"
+									includeInLayout="{data.data._grid==null}"/>
+			<s:BorderContainer id="frame"
+												 visible="{data.data._grid!=null}"
+												 includeInLayout="{data.data._grid!=null}"
+												 width="{img.width+(frameWidth*2)}"
+												 height="{img.height+(frameWidth*2)}"
+												 backgroundColor="0xFFFFFF"
+												 borderColor="0xCCCCCC">
+				<s:SWFLoader id="spinner"
+										 width="30"
+										 height="30"
+										 x="27"
+										 y="27"
+										 source="{SpinnerAnimation}"/>
+				<s:BitmapImage id="img"
+											 width="80"
+											 height="80"
+											 scaleMode="zoom"
+											 x="{frameWidth-1}"
+											 y="{frameWidth-1}"
+											 visible="false">
+				</s:BitmapImage>
+			</s:BorderContainer>
+			<mx:Text id="translateLink"
+							 visible="false"
+							 includeInLayout="false"/>
 		</s:VGroup>
 	</s:HGroup>
 

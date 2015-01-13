@@ -33,11 +33,15 @@
       override public function set dataProvider(value:IList):void
       {
         super.dataProvider=value;
-        callLater(scrollDown)
+        scrollDown()
+        
+       
       }
       public function scrollDown():void
       {
-        this.ensureCellIsVisible(this.dataProvider.length-1,0);
+        
+        this.grid.validateNow();
+        this.grid.verticalScrollPosition=this.grid.contentHeight+this.grid.height;
       }
       
       

@@ -42,19 +42,23 @@
 								width="100%">
 				<fx:Script>
 					<![CDATA[
-						import flashx.textLayout.conversion.TextConverter;
-
-						import it.ht.rcs.console.DB;
-						import it.ht.rcs.console.evidence.controller.EvidenceManager;
-						import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-						import it.ht.rcs.console.utils.BMPDecoder;
-						import it.ht.rcs.console.utils.StringUtils;
-						import it.ht.rcs.console.utils.TimeUtils;
-
-						import locale.R;
-
-						import mx.rpc.events.FaultEvent;
-						import mx.rpc.events.ResultEvent;
+            import flashx.textLayout.conversion.TextConverter;
+            
+            import it.ht.rcs.console.DB;
+            import it.ht.rcs.console.evidence.controller.EvidenceManager;
+            import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+            import it.ht.rcs.console.utils.BMPDecoder;
+            import it.ht.rcs.console.utils.ExifUtils;
+            import it.ht.rcs.console.utils.StringUtils;
+            import it.ht.rcs.console.utils.TimeUtils;
+            
+            import jp.shichiseki.exif.ExifInfo;
+            import jp.shichiseki.exif.ExifLoader;
+            
+            import locale.R;
+            
+            import mx.rpc.events.FaultEvent;
+            import mx.rpc.events.ResultEvent;
 
 						[Bindable]
 						private var isPeer:Boolean;
@@ -431,40 +435,85 @@
 							imgLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onImageLoaded);
 							imgLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
 
-							var loaderInfo:LoaderInfo=LoaderInfo(e.target);
-							var bitmapData:BitmapData=new BitmapData(loaderInfo.width, loaderInfo.height, false, 0xFFFFFF);
-							bitmapData.draw(loaderInfo.loader);
-
-							var ratio:Number;
-							if (bitmapData.width > bitmapData.height)
-							{
-								ratio=imgWidth / bitmapData.width
-								//landscape
-								img.width=imgWidth
-								img.height=bitmapData.height * ratio
-
-
-							}
-							else
-							{
-								//portrait
-								ratio=imgHeight / bitmapData.height
-								//landscape
-								img.height=imgHeight
-								img.width=bitmapData.width * ratio
-							}
-
-							img.source=bitmapData
-							img.validateNow()
-							frame.width=img.width + (frameWidth * 2)
-							frame.height=img.height + (frameWidth * 2)
-
-							spinner.visible=false;
-							img.smooth=true;
-							img.visible=true;
-							//fadeIn.play([img]);
+						
+              var el:ExifLoader=new ExifLoader()
+              el.addEventListener(Event.COMPLETE, onExifLoaded );
+              el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
+              el.load( new URLRequest(url) );
+              
+            
 
 						}
+            
+            private function drawImage(bitmapData:BitmapData):void
+            {
+              
+              var ratio:Number;
+              if (bitmapData.width > bitmapData.height)
+              {
+              ratio=imgWidth / bitmapData.width
+              //landscape
+              img.width=imgWidth
+              img.height=bitmapData.height * ratio
+              
+              
+              }
+              else
+              {
+              //portrait
+              ratio=imgHeight / bitmapData.height
+              //landscape
+              img.height=imgHeight
+              img.width=bitmapData.width * ratio
+              }
+              
+              img.source=bitmapData
+              img.validateNow()
+              frame.width=img.width + (frameWidth * 2)
+              frame.height=img.height + (frameWidth * 2)
+              
+              spinner.visible=false;
+              img.smooth=true;
+              img.visible=true;
+              //fadeIn.play([img]);
+              
+          
+
+            }
+            
+            private function onExifError(e:IOErrorEvent):void
+            {
+              e.currentTarget.removeEventListener(Event.COMPLETE, onExifLoaded );
+              e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onExifError);
+              var loaderInfo:LoaderInfo=LoaderInfo(imgLoader);
+              var bitmapData:BitmapData=new BitmapData(loaderInfo.width, loaderInfo.height, false, 0xFFFFFF);
+              bitmapData.draw(loaderInfo.loader);
+              drawImage(bitmapData)
+            }
+            
+            private function onExifLoaded(e:Event):void
+            {
+              var exif:ExifInfo = e.target.exif;
+              if(exif.ifds) 
+                var rotation:int = ExifUtils.getEyeOrientedAngle( exif.ifds );
+              
+              var loaderInfo:LoaderInfo=LoaderInfo(imgLoader.contentLoaderInfo);
+              var bitmapData:BitmapData=new BitmapData(loaderInfo.width, loaderInfo.height, false, 0xFFFFFF);
+              bitmapData.draw(loaderInfo.loader);
+              var bitmap:Bitmap=new Bitmap(bitmapData);
+              
+              if(bitmap.bitmapData && exif.ifds)
+              {
+                bitmap.smoothing=true;
+                bitmap=ExifUtils.getEyeOrientedBitmap(bitmap, exif.ifds)
+                drawImage(bitmap.bitmapData)
+              }
+              else
+              {
+                drawImage(bitmapData)
+              }
+             
+            }
 
 						private function onTranslateResult(e:ResultEvent):void
 						{

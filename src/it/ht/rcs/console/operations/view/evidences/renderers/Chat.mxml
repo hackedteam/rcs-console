@@ -19,23 +19,27 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-			import it.ht.rcs.console.utils.BMPDecoder;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-
-			import spark.components.DataGrid;
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      import it.ht.rcs.console.utils.BMPDecoder;
+      import it.ht.rcs.console.utils.ExifUtils;
+      
+      import jp.shichiseki.exif.ExifInfo;
+      import jp.shichiseki.exif.ExifLoader;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.components.DataGrid;
 
 			private var content:String
 			private var mainView:EvidencesView;
@@ -173,7 +177,8 @@
 				}
         
         if (data.data._grid)
-        { 
+        {    
+          DB.instance.demo? url="grid/" + data.data._grid: url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
           loadImage()
         }
         else
@@ -194,18 +199,19 @@
       
       private function loadImage():void
       {
-        DB.instance.demo? url="grid/" + data.data._grid: url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-        
-        imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
-        imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
-        imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-        imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
-        imgLoader.load(new URLRequest(url))
-          
-        contentTxt.visible=contentTxt.includeInLayout=false;
-        translationTxt.visible=translationTxt.includeInLayout=false
-        frame.visible=frame.includeInLayout=true;
-        img.smooth=true;
+      
+
+          imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+          imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
+          imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+          imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
+          imgLoader.load(new URLRequest(url))
+            
+          contentTxt.visible=contentTxt.includeInLayout=false;
+          translationTxt.visible=translationTxt.includeInLayout=false
+          frame.visible=frame.includeInLayout=true;
+          img.smooth=true;
+  
       
       }
 
@@ -249,16 +255,62 @@
 				if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
 				{
 					img.source=new BMPDecoder().decode(e.target.data as ByteArray)
+          spinner.visible=false;
+          img.visible=true;
+          fadeIn.play([img]);
 					return;
 				}
 				else
 				{
+          var el:ExifLoader=new ExifLoader()
+          el.addEventListener(Event.COMPLETE, onExifLoaded );
+          el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
+          el.load( new URLRequest(url) );
 					img.source=e.target.data
 				}
-				spinner.visible=false;
-				img.visible=true;
-				fadeIn.play([img]);
+        img.visible=true;
+        fadeIn.play([img]);
+				
 			}
+      
+      private function onExifError(e:IOErrorEvent):void
+      {
+        e.currentTarget.removeEventListener(Event.COMPLETE, onExifLoaded );
+        e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onExifError);
+        spinner.visible=false;
+        img.source=imgLoader.data
+        img.visible=true;
+        fadeIn.play([img]);
+      }
+      
+      private function onExifLoaded(e:Event):void
+      {
+        var exif:ExifInfo = e.target.exif;
+        if(exif.ifds) 
+          var rotation:int = ExifUtils.getEyeOrientedAngle( exif.ifds );
+        var bitmap:Bitmap=new Bitmap(img.bitmapData);
+       
+        if(bitmap.bitmapData && exif.ifds)
+        {
+          bitmap.smoothing=true;
+          bitmap=ExifUtils.getEyeOrientedBitmap(bitmap, exif.ifds)
+          img.source=bitmap
+        }
+        else
+        {
+          img.source=imgLoader.data
+        }
+        spinner.visible=false;
+        img.visible=true;
+        fadeIn.play([img]);
+      }
+      
+      private function getExifBytes(input:IDataInput):ByteArray
+      {
+        var eb:ByteArray = new ByteArray();
+        input.readBytes(eb, 0, 64*1024);
+        return eb;
+      }
 
 
 			private function doTranslate(e:TextEvent):void

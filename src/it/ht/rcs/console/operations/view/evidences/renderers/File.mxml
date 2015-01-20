@@ -113,21 +113,36 @@
 
 			private function openFile():void
 			{
-				if (hasSandbox())
-				{
-          Alert.show("OPEN WITH SANDBOXIE")
-				}
-				else
-				{
-					file.openWithDefaultApplication()
-				}
+        file.openWithDefaultApplication()
+      /*   var os:String=Capabilities.os.toLowerCase();
+        trace(NativeProcess.isSupported)
+        if(os.indexOf("windows")!=-1)
+        {
+          var sandboxie:flash.filesystem.File=new flash.filesystem.File();
+          sandboxie.nativePath="C:/Program Files/Sandboxie/Start.exe"
+          if (sandboxie.exists)
+          {
+            var nativeProcessStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+            nativeProcessStartupInfo.executable = sandboxie; 
+            var params:Vector.<String> = new Vector["<String>"](); 
+            params.push(file.nativePath); 
+            nativeProcessStartupInfo.arguments= params; 
+            var process:NativeProcess = new NativeProcess(); 
+            process.start(nativeProcessStartupInfo); 
+          }
+          else
+          {
+            file.openWithDefaultApplication()
+          }
+        }
+        else
+        {
+          file.openWithDefaultApplication()
+        }
+       */
 			}
 
-			private function hasSandbox():Boolean
-			{
-        var sandboxie:flash.filesystem.File=new flash.filesystem.File("C:\Program Files\Sandboxie\start.exe");
-        return sandboxie.exists;
-			}
+	
 
 			private function onSelect(e:Event):void
 			{

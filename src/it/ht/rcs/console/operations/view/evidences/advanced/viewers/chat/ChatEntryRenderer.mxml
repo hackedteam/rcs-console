@@ -6,8 +6,6 @@
 										width="100%">
 
 
-
-
 	<fx:Declarations>
 		<s:Fade id="fadeIn"
 						alphaFrom="0"
@@ -84,9 +82,16 @@
 						[Bindable]
 						[Embed(source="/img/evidence/broken-link-image-gif.jpg")]
 						public var BrokenImage:Class;
+            
+            [Bindable]
+            [Embed(source="/img/evidence/attachment64.png")]
+            public var AttachmentIcon:Class;
 
 						[Bindable]
 						private var frameWidth:Number=4;
+            
+            [Bindable]
+            private var image:*;
 
 						[Bindable]
 						private var url:String;
@@ -390,7 +395,10 @@
 									var lastURL:String=url;
 									DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 									if (url != lastURL)
-										loadImage()
+                  {
+                    (String(data.data.type).toLowerCase().indexOf("image") != -1)? image=url: image=new AttachmentIcon();
+                  }
+								
 
 								}
 							}
@@ -532,27 +540,26 @@
 
 						private function onDownload():void
 						{
-							var target:String=EvidenceManager.instance.evidenceFilter.target;
-							var path:String
-
-							DB.instance.demo ? path="grid/" + data.data._grid : path=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
-							var fileName:String
-							if (data.data.path)
-							{
-								extension=StringUtils.getExtension(data.data.path)
-								fileName=data.data._grid + encodeURIComponent(target) + "." + extension;
-							}
-							else
-							{
-								extension=""
-								fileName=data.data._grid + encodeURIComponent(target);
-							}
-							request=new URLRequest(url);
-							stream=new URLStream();
-							file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
-							file.browseForSave("Download " + fileName);
-							file.addEventListener(Event.SELECT, onSelect);
-
+              var target:String=EvidenceManager.instance.evidenceFilter.target;
+              var path:String
+              
+              DB.instance.demo ? path="grid/" + data.data._grid : path=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+              var fileName:String
+              if (data.data.name)
+              {
+                
+                fileName=data.data._grid + encodeURIComponent(target) + "_" + data.data.name;
+              }
+              else
+              {
+                
+                fileName=data.data._grid + encodeURIComponent(target);
+              }
+              request=new URLRequest(url);
+              stream=new URLStream();
+              file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+              file.browseForSave("Download " + fileName);
+              file.addEventListener(Event.SELECT, onSelect);
 						}
 
 						private function onSelect(e:Event):void
@@ -632,8 +639,9 @@
 					<s:SWFLoader id="spinner"
 											 width="30"
 											 height="30"
-											 x="27"
-											 y="27"
+											 x="85"
+											 y="85"
+                       visible="false"
 											 source="{SpinnerAnimation}"/>
 
 					<s:BitmapImage id="img"
@@ -641,7 +649,10 @@
 												 height="200"
 												 x="{frameWidth-1}"
 												 y="{frameWidth-1}"
-												 visible="false">
+                         scaleMode="letterbox"
+                         smooth="true"
+                         source="{image}"
+                         >
             
 					</s:BitmapImage>
           <s:Label text="Click to download"

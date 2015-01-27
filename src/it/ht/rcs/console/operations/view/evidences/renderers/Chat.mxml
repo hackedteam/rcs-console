@@ -19,22 +19,26 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
-			import it.ht.rcs.console.evidence.model.Evidence;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
-			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-
-			import spark.components.DataGrid;
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      import it.ht.rcs.console.utils.ExifUtils;
+      
+      import jp.shichiseki.exif.ExifInfo;
+      import jp.shichiseki.exif.ExifLoader;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
+      import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.components.DataGrid;
 
 			private var mainView:EvidencesView;
       
@@ -284,17 +288,7 @@
 
 
 
-			private function loadImage():void
-			{
 
-				imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
-				imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
-				imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
-				imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
-				imgLoader.load(new URLRequest(url))
-
-
-			}
 
 			private function onImageLoading(e:ProgressEvent):void
 			{
@@ -313,20 +307,39 @@
 
 			private function onImageLoaded(e:Event):void
 			{
-				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				/* imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
 				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
-				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
-
-
-				/*    var el:ExifLoader=new ExifLoader()
-					 el.addEventListener(Event.COMPLETE, onExifLoaded );
-					 el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
-					 el.load( new URLRequest(url) ); */
-
-				image=e.target.data;
-
-
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError); */
+        if (getAttachmentType() == "image")
+        {
+          this.validateDisplayList()
+          DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          
+          var el:ExifLoader=new ExifLoader()
+          el.addEventListener(Event.COMPLETE, onExifLoaded );
+          el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
+          el.load( new URLRequest(url) ); 
+        }
 			}
+      
+      private function onExifError(e:IOErrorEvent):void
+      {
+        e.currentTarget.removeEventListener(Event.COMPLETE, onExifLoaded );
+        e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onExifError);
+      
+      }
+      
+      private function onExifLoaded(e:Event):void
+      {
+        var exif:ExifInfo = e.target.exif;
+
+        if(img.bitmapData && exif.ifds)
+        {
+          var bitmap:Bitmap=new Bitmap(img.bitmapData)
+          bitmap=ExifUtils.getEyeOrientedBitmap(bitmap, exif.ifds)
+          img.source=bitmap
+        }
+      }
 
 
 
@@ -463,7 +476,7 @@
 											 y="{frameSize-1}"
 											 source="{url}"
                        visible="{attachment}"
-                       includeInLayout="{attachment}">
+                       includeInLayout="{attachment}" complete="onImageLoaded(event)">
         </s:BitmapImage>
         <s:SWFLoader id="spinner"
                      width="30"

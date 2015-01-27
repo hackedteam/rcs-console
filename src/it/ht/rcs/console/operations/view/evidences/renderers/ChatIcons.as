@@ -82,6 +82,9 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     
     [Embed(source='/img/evidence/social/imessage_16.png')]
     public static const messages:Class;
+    
+    [Embed(source='/img/evidence/social/contacts_16.png')]
+    public static const contacts:Class;
 
 
   }

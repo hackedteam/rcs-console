@@ -437,91 +437,45 @@
 							//fadeIn.play([img]);
 						}
 
-						private function onImageLoaded(e:Event):void
-						{
-							imgLoader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
-							imgLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onImageLoaded);
-							imgLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
-
 						
-              var el:ExifLoader=new ExifLoader()
-              el.addEventListener(Event.COMPLETE, onExifLoaded );
-              el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
-              el.load( new URLRequest(url) );
-              
             
-
-						}
-            
-            private function drawImage(bitmapData:BitmapData):void
+            private function onImageLoaded():void
             {
-              
-              var ratio:Number;
-              if (bitmapData.width > bitmapData.height)
+              /* imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+              imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+              imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError); */
+              if ((String(data.data.type).toLowerCase().indexOf("image") != -1))
               {
-              ratio=imgWidth / bitmapData.width
-              //landscape
-              img.width=imgWidth
-              img.height=bitmapData.height * ratio
-              
-              
+                this.validateDisplayList()
+                DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+                
+                var el:ExifLoader=new ExifLoader()
+                el.addEventListener(Event.COMPLETE, onExifLoaded );
+                el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
+                el.load( new URLRequest(url) ); 
               }
-              else
-              {
-              //portrait
-              ratio=imgHeight / bitmapData.height
-              //landscape
-              img.height=imgHeight
-              img.width=bitmapData.width * ratio
-              }
-              
-              img.source=bitmapData
-              img.validateNow()
-              frame.width=img.width + (frameWidth * 2)
-              frame.height=img.height + (frameWidth * 2)
-              
-              spinner.visible=false;
-              img.smooth=true;
-              img.visible=true;
-              //fadeIn.play([img]);
-              
-          
-
             }
             
             private function onExifError(e:IOErrorEvent):void
             {
               e.currentTarget.removeEventListener(Event.COMPLETE, onExifLoaded );
               e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onExifError);
-              var loaderInfo:LoaderInfo=LoaderInfo(imgLoader);
-              var bitmapData:BitmapData=new BitmapData(loaderInfo.width, loaderInfo.height, false, 0xFFFFFF);
-              bitmapData.draw(loaderInfo.loader);
-              drawImage(bitmapData)
+              
             }
             
             private function onExifLoaded(e:Event):void
             {
               var exif:ExifInfo = e.target.exif;
-              if(exif.ifds) 
-                var rotation:int = ExifUtils.getEyeOrientedAngle( exif.ifds );
               
-              var loaderInfo:LoaderInfo=LoaderInfo(imgLoader.contentLoaderInfo);
-              var bitmapData:BitmapData=new BitmapData(loaderInfo.width, loaderInfo.height, false, 0xFFFFFF);
-              bitmapData.draw(loaderInfo.loader);
-              var bitmap:Bitmap=new Bitmap(bitmapData);
-              
-              if(bitmap.bitmapData && exif.ifds)
+              if(img.bitmapData && exif.ifds)
               {
-                bitmap.smoothing=true;
+                var bitmap:Bitmap=new Bitmap(img.bitmapData)
                 bitmap=ExifUtils.getEyeOrientedBitmap(bitmap, exif.ifds)
-                drawImage(bitmap.bitmapData)
+                img.source=bitmap
               }
-              else
-              {
-                drawImage(bitmapData)
-              }
-             
             }
+            
+            
 
 						private function onTranslateResult(e:ResultEvent):void
 						{
@@ -651,7 +605,7 @@
 												 y="{frameWidth-1}"
                          scaleMode="letterbox"
                          smooth="true"
-                         source="{image}"
+                         source="{image}" complete="onImageLoaded()"
                          >
             
 					</s:BitmapImage>

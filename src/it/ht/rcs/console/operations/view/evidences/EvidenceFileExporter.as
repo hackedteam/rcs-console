@@ -96,6 +96,10 @@ package it.ht.rcs.console.operations.view.evidences
 				case "screenshot":
 					exportImage(evidence);
 					break;
+        
+        case "photo":
+          exportImage(evidence);
+          break;
 
 				case "mouse":
 					exportImage(evidence);

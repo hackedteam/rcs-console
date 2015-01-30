@@ -59,5 +59,8 @@ package it.ht.rcs.console.operations.view.evidences.renderers
     [Embed(source='/img/modules/money.png')]
     public static const money:Class;
     
+    [Embed(source='/img/modules/photo.png')]
+    public static const photo:Class;
+    
   }
 }

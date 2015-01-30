@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                                xmlns:s="library://ns.adobe.com/flex/spark"
+                                xmlns:mx="library://ns.adobe.com/flex/mx"
+                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+                                width="100%" height="100%" creationComplete="init()" show="init()"
+                                >
+  <fx:Declarations>
+    <s:Fade id="fadeIn" alphaFrom="0" alphaTo="1" duration="350"/>
+    <s:Fade id="fadeOut" alphaFrom="1" alphaTo="0" duration="350"/>
+  </fx:Declarations>
+	<fx:Script>
+    
+		<![CDATA[
+      import flashx.textLayout.conversion.TextConverter;
+      
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.utils.BMPDecoder;
+      import it.ht.rcs.console.utils.ImageCache;
+      
+      import mx.utils.Base64Decoder;
+      import locale.R;
+      
+  		private var _loader:Loader=new Loader();
+      private var _maxWidth:Number=80;
+      private var _maxHeight:Number=80;
+      
+      private static const MAGIC_NUMBER:String="BM";
+      
+      private var imgLoader:URLLoader=new URLLoader();
+      
+      [Bindable]
+      [Embed(source="/img/evidence/spinner30.swf")]
+      public var SpinnerAnimation:Class;
+      
+      [Bindable]
+      [Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+      public var BrokenImage:Class;
+      
+      [Bindable]
+      private var frameWidth:Number=4;
+      [Bindable]
+      private var url:String;
+      
+      
+      private var decoder:Base64Decoder=new Base64Decoder();
+      
+      [Bindable]
+      override public function set data(value:*):void
+      {
+       super.data=value;
+       init();
+  		}
+      
+      private function init():void
+      {
+        draw();       
+      }
+      
+      private function draw():void
+      {
+        img.smooth=true;
+        
+        //img.contentLoader=ImageCache.getInstance().cache;
+        imgLoader.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.addEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        if(data)
+        {
+         if(data.data.thumb)
+         {
+           decoder.decode(data.data.thumb)
+           var ba:ByteArray=decoder.toByteArray()
+           img.source=ba;
+           spinner.visible=false;
+           img.visible=true;
+           fadeIn.play([img]);
+             
+         }
+         
+         else
+         {//no thumb
+           if(data.data._grid!=null && data.type=="photo")
+           {
+             if(DB.instance.demo)
+             {
+               url="grid/"+ data.data._grid;
+             }
+             else
+             {
+               url=DB.hostAutocomplete(Console.currentSession.server) + "grid/"+ data.data._grid +"?target_id="+encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+             }
+             
+             imgLoader.dataFormat=URLLoaderDataFormat.BINARY;
+             imgLoader.load(new URLRequest(url))
+           }
+         
+         }
+        
+        }
+      }
+
+  		private function onImageLoading(e:ProgressEvent):void
+  		{
+        img.visible=false;
+        spinner.visible=true;
+  		}
+      
+      private function onImageError(e:IOErrorEvent):void
+      {
+        imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        spinner.visible=false;
+        img.source=new BrokenImage() 
+        img.visible=true;
+        fadeIn.play([img]);
+      }
+  		
+  		private function onImageLoaded(e:Event):void
+  		{
+        imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+        imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+        imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+        if (e.target.data.readUTFBytes(2) == MAGIC_NUMBER)
+        {
+          img.source=new BMPDecoder().decode(e.target.data as ByteArray)
+          return;
+        }
+        else
+        {
+          img.source=e.target.data
+        }
+        spinner.visible=false;
+        img.visible=true;
+        fadeIn.play([img]);
+  		}
+      
+      
+      
+		]]>
+	</fx:Script>
+  
+	    <s:HGroup verticalAlign="middle" width="100%">
+  			<s:VGroup>
+          <s:BorderContainer id="frame" 
+                             width="{img.width+(frameWidth*2)}"
+                             height="{img.height+(frameWidth*2)}"
+                             backgroundColor="0xFFFFFF"
+                             borderColor="0xCCCCCC">
+              <s:SWFLoader id="spinner" width="30" height="30"  x="27" y="27" source="{SpinnerAnimation}"/>
+              <s:BitmapImage id="img" width="80" height="80" scaleMode="zoom" x="{frameWidth-1}" y="{frameWidth-1}" visible="false">
+              </s:BitmapImage>
+           </s:BorderContainer>
+        </s:VGroup>
+     
+  
+		  </s:HGroup>
+</renderers:EvidenceDataRenderer>

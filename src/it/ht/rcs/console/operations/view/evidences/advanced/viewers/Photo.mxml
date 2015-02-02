@@ -3,12 +3,19 @@
 									 xmlns:s="library://ns.adobe.com/flex/spark"
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
 									 xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
+									 xmlns:maps="it.ht.rcs.console.maps.*"
 									 height="100%"
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
 									 creationComplete="init()">
+  
+  <s:states>
+    <s:State name="image"/>
+    <s:State name="position"/>
+  </s:states>
+  
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
 											paddingLeft="10"
@@ -45,6 +52,14 @@
 
 			[Bindable]
 			public var idVisible:Boolean;
+      
+      [Embed(source="/img/NEW/eyeIcon.png")]
+      [Bindable]
+      public var eyeIcon:Class;
+      
+      [Embed(source="/img/NEW/positionIcon.png")]
+      [Bindable]
+      public var positionIcon:Class;
 
 			[Bindable]
 			public function set evidence(value:Evidence):void
@@ -75,10 +90,39 @@
 
 			private function init():void
 			{
+        currentState="image"
 				target=EvidenceManager.instance.evidenceFilter.target;
 				imageViewer.url=_url;
+				
 
 			}
+      
+      private function switchView():void
+      {
+        if(currentState=="image")
+        {
+          currentState="position"
+     
+          if (evidence.data.longitude && evidence.data.latitude)
+          {
+            mapViewer.visible=mapViewer.includeInLayout=true;
+            mapViewer.positions=new Vector.<Object>
+            mapViewer.positions.push(evidence)
+            mapViewer.update()
+          }
+          else
+          {
+            if(mapViewer)
+              mapViewer.visible=mapViewer.includeInLayout=false;
+          }
+         
+        }
+        else
+        {
+          currentState="image"
+        
+        }
+      }
 
 			public function reset():void
 			{
@@ -99,10 +143,28 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	
-
+	<s:HGroup width="100%"
+						verticalAlign="middle"
+						visible="{evidence.data.latitude &amp;&amp; evidence.data.longitude}"
+						includeInLayout="{evidence.data.latitude &amp;&amp; evidence.data.longitude}">
+		<s:Spacer width="100%"/>
+		<s:Image source="{currentState=='image'? positionIcon:eyeIcon}"
+						 toolTip="{currentState=='image'?'Position':'Image'}"
+						 click="switchView()"
+						 id="switchBtn"
+						 useHandCursor="true"
+						 buttonMode="true"/>
+	</s:HGroup>
+	<s:Line width="100%"
+					visible="{evidence.data.latitude &amp;&amp; evidence.data.longitude}"
+					includeInLayout="{evidence.data.latitude &amp;&amp; evidence.data.longitude}">
+		<s:stroke>
+			<s:SolidColorStroke color="0xCCCCCC"/>
+		</s:stroke>
+	</s:Line>
 	<viewers:ImageViewer id="imageViewer"
-											 url="{_url}"
-											 />
-
+											 url="{_url}" includeIn="image"/>
+	<maps:MapViewer width="100%"
+									height="100%"
+									id="mapViewer" includeIn="position"/>
 </s:BorderContainer>

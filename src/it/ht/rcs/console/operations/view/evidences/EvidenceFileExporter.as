@@ -624,7 +624,7 @@ package it.ht.rcs.console.operations.view.evidences
 				case "sync":
 					info="Sync: " + "\n\n";
 					info+="Sync start: " + TimeUtils.timestampFormatter(evidence.da * 1000) + "\n";
-					info+="Sync end: " + TimeUtils.timestampFormatter(evidence.data.end) + "\n";
+					info+="Sync end: " + TimeUtils.timestampFormatter(evidence.data.end*1000) + "\n";
 					info+="Ip: " + evidence.data.ip + "\n";
 					info+="Evidence: " + String(evidence.data.count) + "/" + String(evidence.data.total) + "\n";
 					info+="Size: " + Size.toHumanBytes(evidence.data.size) + "\n";

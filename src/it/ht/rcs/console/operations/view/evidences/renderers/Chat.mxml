@@ -179,11 +179,13 @@
 
 				if (getAttachmentType() == "image")
 				{
+          imgW=imgH=80
           this.validateDisplayList()
           DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 				}
 				else
 				{
+          imgW=imgH=30
           url=new AttachmentIcon()
 					this.validateDisplayList()
 
@@ -370,7 +372,7 @@
         
           fileName=data.data._grid + encodeURIComponent(target);
         }
-        request=new URLRequest(url);
+        request=new URLRequest(path);
         stream=new URLStream();
         file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
         file.browseForSave("Download " + fileName);
@@ -397,7 +399,7 @@
       
       private function onDownloadError(e:*):void
       {
-        
+        trace("error")
       }
       
       private function onFileDownloaded(e:Event):void

@@ -95,9 +95,12 @@
 
 						[Bindable]
 						private var url:String;
-
-						private var imgWidth:Number=200
-						private var imgHeight:Number=200
+            
+            [Bindable]
+						private var imgWidth:Number=200;
+            
+            [Bindable]
+						private var imgHeight:Number=200;
 
 
 						private var file:flash.filesystem.File;
@@ -396,6 +399,7 @@
 									DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
 									if (url != lastURL)
                   {
+                    (String(data.data.type).toLowerCase().indexOf("image") != -1)? imgWidth=imgHeight=200:imgWidth=imgHeight=50;
                     (String(data.data.type).toLowerCase().indexOf("image") != -1)? image=url: image=new AttachmentIcon();
                   }
 								
@@ -599,8 +603,8 @@
 											 source="{SpinnerAnimation}"/>
 
 					<s:BitmapImage id="img"
-												 width="200"
-												 height="200"
+												 width="{imgWidth}"
+												 height="{imgHeight}"
 												 x="{frameWidth-1}"
 												 y="{frameWidth-1}"
                          scaleMode="letterbox"
@@ -614,7 +618,7 @@
                    visible="false"
                    width="{img.width}"
                    y="{img.height*.5}"
-                   fontWeight="bold"
+                   fontSize="8"
                    textAlign="center"
                    color="0x000000"/>
 				</s:BorderContainer>

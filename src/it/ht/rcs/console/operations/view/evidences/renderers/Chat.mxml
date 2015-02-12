@@ -171,7 +171,7 @@
 				attachment=data.data._grid != null;
 				translationTxt.visible=translationTxt.includeInLayout=!attachment
 
-				content=attachment ? StringUtils.getFilename(data.data.name) : "<b>" + R.get('CONTENT') + ": </b>" + data.data.content;
+				content=attachment ? StringUtils.getFilename(data.data.path) : "<b>" + R.get('CONTENT') + ": </b>" + data.data.content;
 
 
 			
@@ -289,13 +289,8 @@
 				trace("translation fault");
 			}
 
-
-
-
-
 			private function onImageLoading(e:ProgressEvent):void
 			{
-
 				spinner.visible=true;
 			}
 
@@ -363,10 +358,10 @@
         
         DB.instance.demo ? path="grid/" + data.data._grid : path=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
         var fileName:String
-        if (data.data.name)
+        if (data.data.path)
         {
      
-          fileName=data.data._grid + encodeURIComponent(target) + "_" + data.data.name;
+          fileName=data.data._grid + encodeURIComponent(target) + "_" + StringUtils.getFilename(data.data.path);
         }
         else
         {

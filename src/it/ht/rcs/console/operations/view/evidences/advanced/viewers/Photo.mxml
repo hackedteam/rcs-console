@@ -4,18 +4,20 @@
 									 xmlns:mx="library://ns.adobe.com/flex/mx"
 									 xmlns:viewers="it.ht.rcs.console.operations.view.evidences.advanced.viewers.*"
 									 xmlns:maps="it.ht.rcs.console.maps.*"
+									 xmlns:tags="it.ht.rcs.console.operations.view.evidences.advanced.viewers.tags.*"
 									 height="100%"
 									 width="100%"
 									 borderColor="0xCCCCCC"
 									 backgroundColor="0xFFFFFF"
 									 backgroundAlpha="1"
+                   creationPolicy="all"
 									 creationComplete="init()">
-  
-  <s:states>
-    <s:State name="image"/>
-    <s:State name="position"/>
-  </s:states>
-  
+
+	<s:states>
+		<s:State name="image"/>
+		<s:State name="position"/>
+	</s:states>
+
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
 											paddingLeft="10"
@@ -31,35 +33,38 @@
 			import it.ht.rcs.console.DB;
 			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.evidence.model.Evidence;
+			import it.ht.rcs.console.evidence.model.Tag;
 			import it.ht.rcs.console.monitor.controller.LicenseManager;
 			import it.ht.rcs.console.operations.view.evidences.EvidenceAdvancedViewer;
 			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-			import it.ht.rcs.console.monitor.controller.LicenseManager;
 
 			import locale.R;
 
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+      
+      public var target:String;
 
 			private var _evidence:Evidence;
-
+      
 			private var loader:URLLoader=new URLLoader();
+
+			[Embed(source="/img/NEW/eyeIcon.png")]
+			[Bindable]
+			public var eyeIcon:Class;
+
+			[Embed(source="/img/NEW/positionIcon.png")]
+			[Bindable]
+			public var positionIcon:Class;
 
 			[Bindable]
 			private var _url:String;
 
-			public var target:String;
+			[Bindable]
+			private var tags:String;
 
 			[Bindable]
 			public var idVisible:Boolean;
-      
-      [Embed(source="/img/NEW/eyeIcon.png")]
-      [Bindable]
-      public var eyeIcon:Class;
-      
-      [Embed(source="/img/NEW/positionIcon.png")]
-      [Bindable]
-      public var positionIcon:Class;
 
 			[Bindable]
 			public function set evidence(value:Evidence):void
@@ -77,10 +82,24 @@
 					{
 						_url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + evidence.data._grid + "?target_id=" + encodeURIComponent(target);
 					}
-
 					init()
 				}
 
+				tags="";
+				if (evidence.data.tags.length)
+				{
+					for (var i:int=0; i < evidence.data.tags.length; i++)
+					{
+						var tag:Tag=evidence.data.tags.getItemAt(i) as Tag
+            tags+=tag.type+": "+tag.name+" ("+tag.handle+")"+ "<BR>"
+					}
+				}
+        tagsPanel.visible=evidence.data.tags.length>0
+        if (tagsPanel.visible)
+        {
+          tagsPanel.currentState="expanded";
+          tagsPanel.details=tags;
+        }
 			}
 
 			public function get evidence():Evidence
@@ -90,39 +109,37 @@
 
 			private function init():void
 			{
-        currentState="image"
+				currentState="image" 
 				target=EvidenceManager.instance.evidenceFilter.target;
 				imageViewer.url=_url;
-				
-
 			}
-      
-      private function switchView():void
-      {
-        if(currentState=="image")
-        {
-          currentState="position"
-     
-          if (evidence.data.longitude && evidence.data.latitude)
-          {
-            mapViewer.visible=mapViewer.includeInLayout=true;
-            mapViewer.positions=new Vector.<Object>
-            mapViewer.positions.push(evidence)
-            mapViewer.update()
-          }
-          else
-          {
-            if(mapViewer)
-              mapViewer.visible=mapViewer.includeInLayout=false;
-          }
-         
-        }
-        else
-        {
-          currentState="image"
-        
-        }
-      }
+
+			private function switchView():void
+			{
+				if (currentState == "image")
+				{
+					currentState="position"
+
+					if (evidence.data.longitude && evidence.data.latitude)
+					{
+						mapViewer.visible=mapViewer.includeInLayout=true;
+						mapViewer.positions=new Vector.<Object>
+						mapViewer.positions.push(evidence)
+						mapViewer.update()
+					}
+					else
+					{
+						if (mapViewer)
+							mapViewer.visible=mapViewer.includeInLayout=false;
+					}
+
+				}
+				else
+				{
+					currentState="image"
+
+				}
+			}
 
 			public function reset():void
 			{
@@ -162,9 +179,18 @@
 			<s:SolidColorStroke color="0xCCCCCC"/>
 		</s:stroke>
 	</s:Line>
-	<viewers:ImageViewer id="imageViewer"
-											 url="{_url}" includeIn="image"/>
-	<maps:MapViewer width="100%"
-									height="100%"
-									id="mapViewer" includeIn="position"/>
+	<s:Group width="100%"
+					 height="100%">
+		<viewers:ImageViewer id="imageViewer"
+												 url="{_url}"
+												 includeIn="image"/>
+		<maps:MapViewer width="100%"
+										height="100%"
+										id="mapViewer"
+										includeIn="position"/>
+		<tags:TagsPanel id="tagsPanel"
+										details="{tags}"
+										visible="{evidence.data.tags.length>0}"
+										includeInLayout="{evidence.data.tags.length>0}"/>
+	</s:Group>
 </s:BorderContainer>

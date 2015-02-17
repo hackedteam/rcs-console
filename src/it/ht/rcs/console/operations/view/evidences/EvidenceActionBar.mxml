@@ -270,15 +270,21 @@
 				{
 					if (e.detail == AlertPopUp.YES)
           {
-            var itemsToDelete:Vector.<Object>=selectedObjects.concat();
-						for (var i:int=0; i < itemsToDelete.length; i++)
-						{
-							EvidenceManager.instance.removeItem(itemsToDelete[i]);
-						}
-					dispatchEvent(new Event("delete"));
+            deleteItems()
           }
 				}, null, AlertPopUp.NO);
 			}
+      
+      private function deleteItems():void
+      {
+        var itemsToDelete:Vector.<Object>=selectedObjects.concat();
+        var len:int=itemsToDelete.length;
+        for (var i:int=0; i < len; i++)
+        {
+          EvidenceManager.instance.removeItem(itemsToDelete[i]);
+        }
+        dispatchEvent(new Event("delete"));
+      }
 
 			private function init():void
 			{

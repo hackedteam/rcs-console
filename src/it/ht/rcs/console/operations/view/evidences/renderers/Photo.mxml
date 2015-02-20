@@ -104,7 +104,17 @@
 							imgLoader.load(new URLRequest(url))
 						}
 					}
-
+					if (data.data.desc)
+					{
+						descTxt.textFlow=TextConverter.importToFlow('<b>' + R.get('DESCRIPTION') + ': </b>' + data.data.desc, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					}
+          if(data.data.tags)
+            tagsTxt.textFlow=TextConverter.importToFlow('<b>' + "Tags" + ': </b>' + data.data.tags.length, TextConverter.TEXT_FIELD_HTML_FORMAT)
+              
+          if (data.data.address && data.data.address.text)
+          {
+            addressTxt.textFlow=TextConverter.importToFlow('<b>' + R.get('ADDRESS') + ': </b>' + data.data.address.text, TextConverter.TEXT_FIELD_HTML_FORMAT)
+          }
 				}
 			}
 
@@ -170,19 +180,25 @@
 				</s:BitmapImage>
 			</s:BorderContainer>
 		</s:VGroup>
-    <s:VGroup width="100%">
-    <s:RichText id="descTxt"
-                width="100%"
-                textFlow="{TextConverter.importToFlow('&lt;b&gt;'+R.get('DESCRIPTION')+': &lt;/b&gt;'+data.data.desc, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-                visible="{data.data.desc!=null}"
-                includeInLayout="{data.data.desc!=null}"
-                fontSize="12"/>
-    <s:RichText id="tagsTxt"
-                width="100%"
-                textFlow="{TextConverter.importToFlow('&lt;b&gt;'+'Tags'+': &lt;/b&gt;'+data.data.tags.length, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-                visible="{data.data.tags.length>0}"
-                includeInLayout="{data.data.tags.length>0}"
-                fontSize="12"/>
-      </s:VGroup>
+		<s:VGroup width="100%">
+      <s:RichText id="tagsTxt"
+                  width="100%"
+                  textFlow="{TextConverter.importToFlow('&lt;b&gt;'+R.get('ADDRESS')+': &lt;/b&gt;'+data.data.address.text, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+                  visible="{data.data.address.text!=null}"
+                  includeInLayout="{data.data.address.text!=null}"
+                  fontSize="12"/>
+			<s:RichText id="descTxt"
+									width="100%"
+									textFlow="{TextConverter.importToFlow('&lt;b&gt;'+R.get('DESCRIPTION')+': &lt;/b&gt;'+data.data.desc, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									visible="{data.data.desc!=null}"
+									includeInLayout="{data.data.desc!=null}"
+									fontSize="12"/>
+			<s:RichText id="addressTxt"
+									width="100%"
+									textFlow="{TextConverter.importToFlow('&lt;b&gt;'+'Tags'+': &lt;/b&gt;'+data.data.address.text, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									visible="{data.data.address.text!=''}"
+									includeInLayout="{data.data.address.text!=''}"
+									fontSize="12"/>
+		</s:VGroup>
 	</s:HGroup>
 </renderers:EvidenceDataRenderer>

@@ -213,7 +213,11 @@
         
         if(graph.vis.selection[graph.vis.selection.length - 1] is CustomLink)
         {
-          if (graph.vis.selection[graph.vis.selection.length - 1].data.info.length>0 && graph.vis.selection[graph.vis.selection.length - 1].data.level=="automatic")
+          
+          var entity1:Entity=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data.source) as Entity
+          var entity2:Entity=EntityManager.instance.getItem(graph.vis.selection[graph.vis.selection.length - 1].data.target) as Entity
+            
+          if (graph.vis.selection[graph.vis.selection.length - 1].data.info && graph.vis.selection[graph.vis.selection.length - 1].data.level=="automatic" && (entity1.type=="target" || entity2.type=="target"))
             actionbar.jumpToEvidence()
           return;
         }
@@ -268,9 +272,14 @@
           actionbar.selectedObject=info.selectedItem;
           actionbar.selectedObjects=new <Object>[actionbar.selectedObject];
           actionbar.selectedObjects.push(actionbar.selectedObject)
+            
+            var entity1:Entity=EntityManager.instance.getItem(graph.selection[0].data.source) as Entity
+            var entity2:Entity=EntityManager.instance.getItem(graph.selection[0].data.target) as Entity
           
-          if (graph.selection[0].data.info && (graph.selection[0].data.type == "peer" || graph.selection[0].data.type == "know" || graph.selection[0].data.type == "position") && graph.selection[0].data.level == "automatic")//TODO!!!!!!!!!!!
+          if (graph.selection[0].data.info && (graph.selection[0].data.type == "peer" || graph.selection[0].data.type == "know" || graph.selection[0].data.type == "position") && graph.selection[0].data.level == "automatic" && (entity1.type=="target" || entity2.type=="target"))//TODO!!!!!!!!!!!
+        
             jumpEnabled=actionbar.jumpEnabled=true;
+
         }
           //merging enabled?
         else if (graph.selection.length == 2)

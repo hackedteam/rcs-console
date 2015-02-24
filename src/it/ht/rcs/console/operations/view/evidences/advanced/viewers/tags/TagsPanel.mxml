@@ -12,12 +12,15 @@
 		<![CDATA[
 			import flashx.textLayout.conversion.TextConverter;
 
+			import mx.collections.ArrayCollection;
+
 			[Bindable]
 			[Embed(source="/img/NEW/openarrow.png")]
 			public var arrow:Class;
 
+
 			[Bindable]
-			public var details:String;
+			public var tags:ArrayCollection;
 
 			private function changeState():void
 			{
@@ -35,12 +38,19 @@
 	</fx:Script>
 
 	<s:transitions>
-		<!--To: check-mark -->
+
 		<s:Transition toState="collapsed"
 									autoReverse="true">
-			<s:Resize targets="{ [ this ] }"
+			<s:Resize targets="{ [ tagsList, this ] }"
 								duration="300"/>
 		</s:Transition>
+    
+
+    <s:Transition toState="expanded"
+                  autoReverse="true">
+      <s:Resize targets="{ [ tagsList, this ] }"
+                duration="300"/>
+    </s:Transition>
 
 
 	</s:transitions>
@@ -71,20 +81,33 @@
 						 toolTip.collapsed="expand Tags panel"
 						 toolTip.expanded="collapse Tags panel"/>
 	</s:HGroup>
-	<s:RichEditableText id="detailsTxt"
-											editable="false"
-											fontSize="10"
-											paddingBottom="6"
-											paddingLeft="6"
-											paddingRight="6"
-											paddingTop="6"
-											selectable="false"
-											textFlow="{TextConverter.importToFlow(details, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
-											color="0xFFFFFF"
-											visible.collapsed="false"
-											includeInLayout.collapsed="false"
-											visible="true"
-											includeInLayout="true"
-											visible.expanded="true"
-											includeInLayout.expanded="true"/>
+	<s:List 
+					itemRenderer="it.ht.rcs.console.entities.view.renderers.HandleListRenderer"
+					dataProvider="{tags}"
+					id="tagsList"
+					visible.collapsed="false"
+					includeInLayout.collapsed="false"
+          includeInLayout.expanded="true"
+          visible.expanded="true"
+          height.collapsed="0"
+          width.collapsed="0"
+          width.expanded="340"
+          height.expanded="200"
+          />
+	<!--	<s:RichEditableText id="detailsTxt"
+												editable="false"
+												fontSize="10"
+												paddingBottom="6"
+												paddingLeft="6"
+												paddingRight="6"
+												paddingTop="6"
+												selectable="false"
+												textFlow="{TextConverter.importToFlow(details, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+												color="0xFFFFFF"
+												visible.collapsed="false"
+												includeInLayout.collapsed="false"
+												visible="true"
+												includeInLayout="true"
+												visible.expanded="true"
+												includeInLayout.expanded="true"/>-->
 </s:BorderContainer>

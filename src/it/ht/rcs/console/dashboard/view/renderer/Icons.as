@@ -156,5 +156,20 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/evidence/spinner16.swf')]
     public static const scanningIcon:Class;
     
+    [Embed(source='/img/NEW/cloud_16.png')]
+    public static const cloud:Class;
+    
+    [Embed(source='/img/NEW/googledrive_16.png')]
+    public static const gdrive:Class;
+    
+    [Embed(source='/img/NEW/icloud_16.png')]
+    public static const icloud:Class;
+    
+    [Embed(source='/img/NEW/onedrive_16.png')]
+    public static const onedrive:Class;
+    
+    [Embed(source='/img/NEW/dropbox_16.png')]
+    public static const dropbox:Class;
+    
   }
 }

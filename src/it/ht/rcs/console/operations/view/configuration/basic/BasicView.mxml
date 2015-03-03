@@ -51,12 +51,12 @@
 				var fileModule:Object=getModule('file');
 				if (file.selected)
 				{
-					file.documents.selected=(fileModule.accept as Array).indexOf('*.doc') != -1 && !(currentAgent.level=="soldier" && currentAgent._kind!="factory");
+					file.documents.selected=(fileModule.accept as Array).indexOf('*.doc') != -1;
 					file.images.selected=(fileModule.accept as Array).indexOf('*.jpg') != -1 && !(currentAgent.level=="soldier" && currentAgent._kind!="factory");
 				}
 				else
 				{
-					file.documents.selected=(currentAgent.level=="soldier" && currentAgent._kind!="factory") ? false:true; // Default value
+					file.documents.selected=true//(currentAgent.level=="soldier" && currentAgent._kind!="factory") ? false:true; // Default value
 					file.images.selected=false;
 				}
 
@@ -123,7 +123,7 @@
 				//file.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
         
         file.enabled=(getModule('file') != null || getModule('photo')!= null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory");
-        file.documents.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+        file.documents.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory")  && !(currentAgent.level == "scout" && currentAgent.demo);
         file.images.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
         
         file.pictures.enabled=getModule('photo') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory")  && !( currentAgent.level == "scout" && currentAgent.demo);

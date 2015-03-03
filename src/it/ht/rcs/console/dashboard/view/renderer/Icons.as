@@ -113,7 +113,6 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/money.png')]
     public static const money32:Class;
     
-
     [Embed(source='/img/NEW/device/mobile_android.png')]
     public static const mobile_android:Class;
     
@@ -147,7 +146,7 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/device/factory_mobile.png')]
     public static const factory_mobile:Class;
     
-    [Embed(source='/img/NEW/device/agent_desktop.png')]
+    [Embed(source='/img/NEW/device/agent_desktop.png')] 
     public static const agent_desktop:Class;
     
     [Embed(source='/img/NEW/device/agent_mobile.png')]

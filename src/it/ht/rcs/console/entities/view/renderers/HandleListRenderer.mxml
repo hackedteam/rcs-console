@@ -16,10 +16,13 @@
 				if (data)
 				{
 					var domain:String=""
-					var atIndex:int=String(data.handle).search("@")
-					if (atIndex != -1)
+					if (data.handle)
 					{
-						domain=String(data.handle).substring(atIndex + 1, data.handle.length);
+						var atIndex:int=String(data.handle).search("@")
+						if (atIndex != -1)
+						{
+							domain=String(data.handle).substring(atIndex + 1, data.handle.length);
+						}
 					}
 
 					if (data.type == "mail")
@@ -29,9 +32,9 @@
 							case "hotmail.com":
 								ImageClass=ChatIcons['outlook']
 								break;
-              case "live.com":
-                ImageClass=ChatIcons['outlook']
-                break;
+							case "live.com":
+								ImageClass=ChatIcons['outlook']
+								break;
 							case "gmail.com":
 								ImageClass=ChatIcons['gmail']
 								break;
@@ -43,7 +46,10 @@
 
 					else
 					{
-						ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon
+            if(data.type)
+						ImageClass=ChatIcons[data.type.toLowerCase()] || ChatIcons.defaultIcon;
+            else
+              ImageClass= ChatIcons.defaultIcon;
 					}
 				}
 			}
@@ -62,7 +68,8 @@
 			<s:Image source="{ImageClass}"
 							 width="16"
 							 height="16"
-							 smooth="true" toolTip="{data.type}"/>
+							 smooth="true"
+							 toolTip="{data.type}"/>
 			<s:Label text="{data.name? data.name+ ' ('+data.handle+')':data.handle}"/>
 		</s:HGroup>
 		<s:Line width="100%">

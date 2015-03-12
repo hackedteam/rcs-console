@@ -266,14 +266,17 @@
 					return;
 				}
 
-				AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
-				{
-					if (e.detail == AlertPopUp.YES)
-          {
-            deleteItems()
-          }
-				}, null, AlertPopUp.NO);
+				AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, onDeletionConfirm, null, AlertPopUp.NO);
 			}
+      
+      
+      private function onDeletionConfirm(e:CloseEvent):void
+      {
+        if (e.detail == AlertPopUp.YES)
+        {
+          deleteItems()
+        }
+      }
       
       private function deleteItems():void
       {

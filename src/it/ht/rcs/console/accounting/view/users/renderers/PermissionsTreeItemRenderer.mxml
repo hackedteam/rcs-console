@@ -7,6 +7,7 @@
       import it.ht.rcs.console.accounting.view.users.PrivsPreferencePanel;
       import it.ht.rcs.console.accounting.view.users.PrivsTree;
       import it.ht.rcs.console.events.TreeEvent;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
       
       
       private function init():void
@@ -16,6 +17,10 @@
          if(data.@id=="ADMIN_USERS")
          {
            selectedCh.enabled=(this.owner as PrivsTree).user._id!=Console.currentSession.user._id;
+         }
+         if(data.@id=="VIEW_DELETE")
+         {
+           selectedCh.enabled=LicenseManager.instance.deletion;
          }
        }
       }

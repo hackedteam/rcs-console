@@ -2,10 +2,10 @@ package it.ht.rcs.console.operations.view.filesystem
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	
+
 	import it.ht.rcs.console.agent.model.Agent;
 	import it.ht.rcs.console.evidence.model.Evidence;
-	
+
 	import mx.collections.ArrayCollection;
 	import mx.rpc.events.ResultEvent;
 
@@ -20,16 +20,16 @@ package it.ht.rcs.console.operations.view.filesystem
 		public var path:String;
 		public var size:Number;
 		public var date:int;
-    public var created_at:int;
-    public var sent_at:int;
+		public var created_at:int;
+		public var sent_at:int;
 		public var aid:String;
 		public var evidence:Evidence;
-    public var incomplete:Boolean;
-    
+		public var incomplete:Boolean;
+
 		[Bindable]
 		public var pending:Boolean;
-    [Bindable]
-    public var updated:Boolean; //got push
+		[Bindable]
+		public var updated:Boolean; //got push
 
 		private function getName(path:String):String
 		{
@@ -38,6 +38,13 @@ package it.ht.rcs.console.operations.view.filesystem
 			var tokens:Array=path.split(separator);
 			var name:String=tokens[tokens.length - 1]
 			return name;
+		}
+
+		public function isCloud():Boolean
+		{
+			if (this.path.substr(0, 6) == "cloud:")
+				return true;
+			return false;
 		}
 
 
@@ -51,18 +58,18 @@ package it.ht.rcs.console.operations.view.filesystem
 			item.path=o.path;
 			item.size=o.size;
 			item.incomplete=o.incomplete;
-      item.pending=o.pending;
-      item.created_at=o.created_at;
-      item.sent_at=o.sent_at;
-      
+			item.pending=o.pending;
+			item.created_at=o.created_at;
+			item.sent_at=o.sent_at;
+
 			//recursive loop on children //check if folder and not empty !
-  		if(item.attr==FileSystemView.FULL_FOLDER && item.incomplete)
-      {
-          item.children=[{name: "retrieving data...", scanning: true}]
-      }
-      else if (o.attr!=FileSystemView.EMPTY_FOLDER && o.attr != FileSystemView.FILE)
+			if (item.attr == FileSystemView.FULL_FOLDER && item.incomplete)
 			{
-        item.children=new Array();
+				item.children=[{name: "retrieving data...", scanning: true}]
+			}
+			else if (o.attr != FileSystemView.EMPTY_FOLDER && o.attr != FileSystemView.FILE)
+			{
+				item.children=new Array();
 				for (var i:int=0; i < o.children.length; i++)
 				{
 					var c:FileSystemItem=dumpItem(o.children[i]);
@@ -77,7 +84,7 @@ package it.ht.rcs.console.operations.view.filesystem
 		{
 			var o:Object=JSON.parse(String(event.result))
 			var a:Array=o as Array;
-      children=new Array();
+			children=new Array();
 			for (var i:int=0; i < a.length; i++)
 			{
 				var item:FileSystemItem=dumpItem(a[i]);
@@ -86,7 +93,7 @@ package it.ht.rcs.console.operations.view.filesystem
 			dispatchEvent(new Event("updated"));
 		}
 
-	
+
 
 		public function onPendingResult(e:ResultEvent):void
 		{

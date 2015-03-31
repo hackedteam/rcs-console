@@ -75,6 +75,8 @@ package it.ht.rcs.console.operations.view.configuration.advanced.renderers
     [Embed(source='/img/modules/money.png')]
     public static const money:Class;
     
+    [Embed(source='/img/modules/photo.png')]
+    public static const photo:Class;
 
     [Embed(source='/img/events/ac.png')]
     public static const ac:Class;

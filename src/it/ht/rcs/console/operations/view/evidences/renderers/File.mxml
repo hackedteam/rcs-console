@@ -9,18 +9,19 @@
 
 	<fx:Script>
 		<![CDATA[
-			import it.ht.rcs.console.DB;
 			import flashx.textLayout.conversion.TextConverter;
-			import it.ht.rcs.console.utils.Size;
-			import it.ht.rcs.console.evidence.controller.EvidenceManager;
+			
 			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.utils.StringUtils;
+			import it.ht.rcs.console.agent.controller.AgentManager;
+			import it.ht.rcs.console.evidence.controller.EvidenceManager;
 			import it.ht.rcs.console.utils.FileUtils;
-			import it.ht.rcs.console.agent.controller.AgentManager
-			import mx.rpc.events.ResultEvent;
-			import mx.controls.Alert;
-
+			import it.ht.rcs.console.utils.Size;
+			import it.ht.rcs.console.utils.StringUtils;
+			
 			import locale.R;
+			
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
 
 			private var file:flash.filesystem.File;
 			private var stream:URLStream;
@@ -44,23 +45,23 @@
 				{
 					if (data.data.type == "open")
 					{
-						programTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('PROGRAM')+": </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
+						programTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('PROGRAM') + ": </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
 						programTxt.visible=programTxt.includeInLayout=true;
 					}
 					else
 					{
-						programTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('PROGRAM')+": </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
+						programTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('PROGRAM') + ": </b>" + "", TextConverter.TEXT_FIELD_HTML_FORMAT);
 						programTxt.visible=programTxt.includeInLayout=false;
 					}
 
-					pathTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('PATH')+": </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
+					pathTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('PATH') + ": </b>" + data.data.path, TextConverter.TEXT_FIELD_HTML_FORMAT);
 					if (isNaN(data.data.size))
 					{
-						sizeTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('SIZE')+": </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
+						sizeTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('SIZE') + ": </b>" + "(unknown)", TextConverter.TEXT_FIELD_HTML_FORMAT);
 					}
 					else
 					{
-						sizeTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('SIZE')+": </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
+						sizeTxt.textFlow=TextConverter.importToFlow("<b>" + R.get('SIZE') + ": </b>" + Size.toHumanBytes(data.data.size), TextConverter.TEXT_FIELD_HTML_FORMAT);
 					}
 					accessTxt.textFlow=TextConverter.importToFlow("<b>Access Mask: </b>" + FileUtils.getAccessMask(data.data.access), TextConverter.TEXT_FIELD_HTML_FORMAT);
 				}
@@ -100,7 +101,7 @@
 				{
 					try
 					{
-						file.openWithDefaultApplication()
+						openFile()
 					}
 					catch (e:Error)
 					{
@@ -110,10 +111,43 @@
 				}
 			}
 
+			private function openFile():void
+			{
+        file.openWithDefaultApplication()
+      /*   var os:String=Capabilities.os.toLowerCase();
+        trace(NativeProcess.isSupported)
+        if(os.indexOf("windows")!=-1)
+        {
+          var sandboxie:flash.filesystem.File=new flash.filesystem.File();
+          sandboxie.nativePath="C:/Program Files/Sandboxie/Start.exe"
+          if (sandboxie.exists)
+          {
+            var nativeProcessStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+            nativeProcessStartupInfo.executable = sandboxie; 
+            var params:Vector.<String> = new Vector["<String>"](); 
+            params.push(file.nativePath); 
+            nativeProcessStartupInfo.arguments= params; 
+            var process:NativeProcess = new NativeProcess(); 
+            process.start(nativeProcessStartupInfo); 
+          }
+          else
+          {
+            file.openWithDefaultApplication()
+          }
+        }
+        else
+        {
+          file.openWithDefaultApplication()
+        }
+       */
+			}
+
+	
+
 			private function onSelect(e:Event):void
 			{
 				downloadBtn.enabled=false;
-			
+
 				stream.addEventListener(Event.COMPLETE, onFileDownloaded);
 				stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
 				stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);

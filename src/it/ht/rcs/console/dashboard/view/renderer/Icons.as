@@ -113,7 +113,6 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/money.png')]
     public static const money32:Class;
     
-
     [Embed(source='/img/NEW/device/mobile_android.png')]
     public static const mobile_android:Class;
     
@@ -147,7 +146,7 @@ package it.ht.rcs.console.dashboard.view.renderer
     [Embed(source='/img/NEW/device/factory_mobile.png')]
     public static const factory_mobile:Class;
     
-    [Embed(source='/img/NEW/device/agent_desktop.png')]
+    [Embed(source='/img/NEW/device/agent_desktop.png')] 
     public static const agent_desktop:Class;
     
     [Embed(source='/img/NEW/device/agent_mobile.png')]
@@ -155,6 +154,21 @@ package it.ht.rcs.console.dashboard.view.renderer
     
     [Embed(source='/img/evidence/spinner16.swf')]
     public static const scanningIcon:Class;
+    
+    [Embed(source='/img/NEW/cloud_16.png')]
+    public static const cloud:Class;
+    
+    [Embed(source='/img/NEW/googledrive_16.png')]
+    public static const gdrive:Class;
+    
+    [Embed(source='/img/NEW/icloud_16.png')]
+    public static const icloud:Class;
+    
+    [Embed(source='/img/NEW/onedrive_16.png')]
+    public static const onedrive:Class;
+    
+    [Embed(source='/img/NEW/dropbox_16.png')]
+    public static const dropbox:Class;
     
   }
 }

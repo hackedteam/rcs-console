@@ -266,18 +266,28 @@
 					return;
 				}
 
-				AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, function(e:CloseEvent):void
-				{
-					if (e.detail == AlertPopUp.YES)
-          {
-						for (var i:int=0; i < selectedObjects.length; i++)
-						{
-							EvidenceManager.instance.removeItem(selectedObjects[i]);
-						}
-					dispatchEvent(new Event("delete"));
-          }
-				}, null, AlertPopUp.NO);
+				AlertPopUp.show(R.get('CONFIRM_EVIDENCE_DELETION', [selectedObjects.length]), R.get('CONFIRM'), AlertPopUp.YES | AlertPopUp.NO, null, onDeletionConfirm, null, AlertPopUp.NO);
 			}
+      
+      
+      private function onDeletionConfirm(e:CloseEvent):void
+      {
+        if (e.detail == AlertPopUp.YES)
+        {
+          deleteItems()
+        }
+      }
+      
+      private function deleteItems():void
+      {
+        var itemsToDelete:Vector.<Object>=selectedObjects.concat();
+        var len:int=itemsToDelete.length;
+        for (var i:int=0; i < len; i++)
+        {
+          EvidenceManager.instance.removeItem(itemsToDelete[i]);
+        }
+        dispatchEvent(new Event("delete"));
+      }
 
 			private function init():void
 			{

@@ -28,37 +28,37 @@
   </fx:Metadata>
 	<fx:Script>
 		<![CDATA[
-      import it.ht.rcs.console.DB;
-      import it.ht.rcs.console.accounting.controller.SessionManager;
-      import it.ht.rcs.console.controller.Sort;
-      import it.ht.rcs.console.entities.controller.EntityManager;
-      import it.ht.rcs.console.entities.model.Contact;
-      import it.ht.rcs.console.entities.model.Entity;
-      import it.ht.rcs.console.entities.model.Place;
-      import it.ht.rcs.console.entities.model.Visit;
-      import it.ht.rcs.console.entities.view.map.LastPositionMarker;
-      import it.ht.rcs.console.entities.view.map.PlaceMarker;
-      import it.ht.rcs.console.events.RefreshEvent;
-      import it.ht.rcs.console.events.SectionEvent;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.push.PushController;
-      import it.ht.rcs.console.push.PushEvent;
-      import it.ht.rcs.console.search.controller.SearchManager;
-      import it.ht.rcs.console.utils.AlertPopUp;
-      import it.ht.rcs.console.utils.Clock;
-      import it.ht.rcs.console.utils.TimeUtils;
-      
-      import locale.R;
-      
-      import mx.collections.ArrayCollection;
-      import mx.core.FlexGlobals;
-      import mx.events.CloseEvent;
-      import mx.managers.PopUpManager;
-      import mx.rpc.events.FaultEvent;
-      import mx.rpc.events.ResultEvent;
-      
-      import spark.collections.SortField;
-      import spark.events.IndexChangeEvent;
+			import it.ht.rcs.console.DB;
+			import it.ht.rcs.console.accounting.controller.SessionManager;
+			import it.ht.rcs.console.controller.Sort;
+			import it.ht.rcs.console.entities.controller.EntityManager;
+			import it.ht.rcs.console.entities.model.Contact;
+			import it.ht.rcs.console.entities.model.Entity;
+			import it.ht.rcs.console.entities.model.Place;
+			import it.ht.rcs.console.entities.model.Visit;
+			import it.ht.rcs.console.entities.view.map.LastPositionMarker;
+			import it.ht.rcs.console.entities.view.map.PlaceMarker;
+			import it.ht.rcs.console.events.RefreshEvent;
+			import it.ht.rcs.console.events.SectionEvent;
+			import it.ht.rcs.console.monitor.controller.LicenseManager;
+			import it.ht.rcs.console.push.PushController;
+			import it.ht.rcs.console.push.PushEvent;
+			import it.ht.rcs.console.search.controller.SearchManager;
+			import it.ht.rcs.console.utils.AlertPopUp;
+			import it.ht.rcs.console.utils.Clock;
+			import it.ht.rcs.console.utils.TimeUtils;
+
+			import locale.R;
+
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			import spark.collections.SortField;
+			import spark.events.IndexChangeEvent;
 
 			[Bindable]
 			private var accounts:ArrayCollection;
@@ -81,7 +81,7 @@
 			private var placeIndex:int=0;
 			private var numPlaces:int=0;
 
-		
+
 
 
 
@@ -92,14 +92,14 @@
 			[Embed(source="img/stub/map.png")]
 			[Bindable]
 			public var fakeMap:Class;
-      
-      [Embed(source="img/evidence/mapMarker.png")]
-      [Bindable]
-      public var redMarker:Class;
-      
-      [Embed(source="img/evidence/mapMarkerBlu.png")]
-      [Bindable]
-      public var bluMarker:Class;
+
+			[Embed(source="img/evidence/mapMarker.png")]
+			[Bindable]
+			public var redMarker:Class;
+
+			[Embed(source="img/evidence/mapMarkerBlu.png")]
+			[Bindable]
+			public var bluMarker:Class;
 
 			public var fileReference:FileReference;
 
@@ -252,14 +252,14 @@
 
 			protected function onAddedToStage():void
 			{
-        PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush)
+				PushController.instance.addEventListener(PushEvent.ENTITY, onEntityPush)
 				init()
 			}
 
 			protected function onRemovedFromStage():void
 			{
-       
-        PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush)
+
+				PushController.instance.removeEventListener(PushEvent.ENTITY, onEntityPush)
 				//photoViewer.currentPhoto="";
 				//entity=null;
 				lastPosCh.selected=true;
@@ -267,20 +267,20 @@
 				FlexGlobals.topLevelApplication.removeEventListener(RefreshEvent.REFRESH, onRefresh);
 
 			}
-      
-      private function onEntityPush(e:PushEvent):void
-      {
-      trace("entity push")
-      
-      if(e.data.action==PushEvent.MODIFY && entity._id==e.data.id)
-      {
-        for(var property:String in e.data.changes)
-        {
-          entity[property]= e.data.changes[property];
-        }
-      }
-    
-      }
+
+			private function onEntityPush(e:PushEvent):void
+			{
+				trace("entity push")
+
+				if (e.data.action == PushEvent.MODIFY && entity._id == e.data.id)
+				{
+					for (var property:String in e.data.changes)
+					{
+						entity[property]=e.data.changes[property];
+					}
+				}
+
+			}
 
 			private function onContactResult(e:ResultEvent):void
 			{
@@ -313,16 +313,16 @@
 			private function onUrlsResult(e:ResultEvent):void
 			{
 
-				
+
 				mostVisitedUrls=e.result as ArrayCollection;
 
 				if (loadingBox2)
 					loadingBox2.visible=loadingBox2.includeInLayout=false;
 				if (visitedList)
-        {
+				{
 					visitedList.dataProvider=mostVisitedUrls;
-          visitedList.addEventListener("entityAdd", addURLAsEntity);
-        }
+					visitedList.addEventListener("entityAdd", addURLAsEntity);
+				}
 			}
 
 			private function onPlacesResult(e:ResultEvent):void
@@ -349,7 +349,8 @@
 
 			public function drawPosition():void
 			{
-
+				if (!mapViewer)
+					return;
 				if (LicenseManager.instance.profiling)
 				{
 					mapViewer.positions=new Vector.<Object>();
@@ -361,9 +362,9 @@
 							mapViewer.positions.push(entity);
 							//text
 							if (entity.type == 'target')
-								lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " (" + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + "): \n- "+R.get('LATITUDE')+": " + entity.position.latitude +  " - "+R.get('LONGITUDE')+": " + entity.position.longitude + " - "+R.get('ACCURACY')+": "  + entity.position_attr.accuracy + " mt";
+								lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + " (" + TimeUtils.timestampFormatter(entity.position_attr.time * 1000) + "): \n- " + R.get('LATITUDE') + ": " + entity.position.latitude + " - " + R.get('LONGITUDE') + ": " + entity.position.longitude + " - " + R.get('ACCURACY') + ": " + entity.position_attr.accuracy + " mt";
 							else if (entity.type == 'position')
-								lastPositionTxt.text=R.get('LATITUDE')+": " + entity.position.latitude + " - "+R.get('LONGITUDE')+": " + entity.position.longitude + " - "+R.get('ACCURACY')+": " + entity.position_attr.accuracy + " mt";
+								lastPositionTxt.text=R.get('LATITUDE') + ": " + entity.position.latitude + " - " + R.get('LONGITUDE') + ": " + entity.position.longitude + " - " + R.get('ACCURACY') + ": " + entity.position_attr.accuracy + " mt";
 							else
 								lastPositionTxt.text="";
 						}
@@ -397,7 +398,7 @@
 
 				else
 				{
-					lastPositionTxt.text=R.get('LAST_KNOWN_POSITION')+"\n(Feature not included in current License)"
+					lastPositionTxt.text=R.get('LAST_KNOWN_POSITION') + "\n(Feature not included in current License)"
 				}
 
 				mapViewer.update()
@@ -587,7 +588,7 @@
 
 
 				mostVisitedPlaces.getItemAt(placeIndex).address=event.result[0].formatted_address
-				locations.addItem({name: event.result[0].formatted_address, index:placeIndex})
+				locations.addItem({name: event.result[0].formatted_address, index: placeIndex})
 				if (placeIndex < numPlaces - 1)
 				{
 					placeIndex++
@@ -604,23 +605,22 @@
 				mostVisitedList.dataProvider=locations;
 
 			}
-      
-      protected function onPlaceSelection():void
-      {
-        trace(mostVisitedList.selectedItem.index)
-        mapViewer.selectByIndex(mostVisitedList.selectedItem.index)
-        
-      }
-      
-      private function onMapChange():void
-      {
-        trace(mapViewer.selectedIndex);
-        mostVisitedList.selectedIndex=mapViewer.selectedIndex;
-        mostVisitedList.ensureIndexIsVisible(mostVisitedList.selectedIndex)
-      
-      }
-      
-    ]]>
+
+			protected function onPlaceSelection():void
+			{
+				trace(mostVisitedList.selectedItem.index)
+				mapViewer.selectByIndex(mostVisitedList.selectedItem.index)
+
+			}
+
+			private function onMapChange():void
+			{
+				trace(mapViewer.selectedIndex);
+				mostVisitedList.selectedIndex=mapViewer.selectedIndex;
+				mostVisitedList.ensureIndexIsVisible(mostVisitedList.selectedIndex)
+
+			}
+		]]>
 	</fx:Script>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10"
@@ -911,7 +911,7 @@
 									gap="0"
 									width="100%"
 									height="100%">
-          
+
 					<s:BorderContainer width="100%"
 														 height="100%"
 														 borderAlpha="1"
@@ -919,11 +919,12 @@
 														 backgroundColor="0xCCCCCC"
 														 backgroundAlpha="0.3">
 
-					
-						<maps:MapViewer id="mapViewer" change="onMapChange()"
-																 geocodeResult="onGeoCodeResult(event)"
-																 width="100%"
-																 height="100%"/>
+
+						<maps:MapViewer id="mapViewer"
+														change="onMapChange()"
+														geocodeResult="onGeoCodeResult(event)"
+														width="100%"
+														height="100%"/>
 						<!-- trick to disbale map -->
 						<s:BorderContainer width="100%"
 															 height="100%"
@@ -946,23 +947,26 @@
 									includeInLayout="{mostVisitedCh.selected &amp;&amp; entity.type=='target' &amp;&amp; locations.length>0}"
 									height="30%"
 									dataProvider="{locations}"
-									itemRenderer="it.ht.rcs.console.entities.view.renderers.AddressListRenderer" change="onPlaceSelection()"/>
+									itemRenderer="it.ht.rcs.console.entities.view.renderers.AddressListRenderer"
+									change="onPlaceSelection()"/>
 					<s:Spacer height="6"/>
 					<s:HGroup width="100%"
 										verticalAlign="middle"
 										visible="{entity.type=='target'}"
 										includeInLayout="{entity.type=='target'}">
-           
-            <s:Image source="{bluMarker}"/>
+
+						<s:Image source="{bluMarker}"/>
 						<s:CheckBox label="{R.get('LAST_KNOWN_POSITION')}"
 												id="lastPosCh"
 												selected="true"
-												change="drawPosition()" enabled="{LicenseManager.instance.profiling}"/>
+												change="drawPosition()"
+												enabled="{LicenseManager.instance.profiling}"/>
 						<s:Spacer width="50"/>
-            <s:Image source="{redMarker}"/>
+						<s:Image source="{redMarker}"/>
 						<s:CheckBox label="{R.get('MOST_VISITED_PLACES')}"
 												id="mostVisitedCh"
-												selected="true" enabled="{LicenseManager.instance.profiling}"
+												selected="true"
+												enabled="{LicenseManager.instance.profiling}"
 												change="drawPosition()"/>
 					</s:HGroup>
 

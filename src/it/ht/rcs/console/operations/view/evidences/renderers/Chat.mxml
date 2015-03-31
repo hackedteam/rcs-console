@@ -1,151 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
 <renderers:EvidenceDataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
-                                xmlns:s="library://ns.adobe.com/flex/spark"
-                                xmlns:mx="library://ns.adobe.com/flex/mx"
-                                xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
-                                width="100%" height="100%" addedToStage="init()">
+																xmlns:s="library://ns.adobe.com/flex/spark"
+																xmlns:mx="library://ns.adobe.com/flex/mx"
+																xmlns:renderers="it.ht.rcs.console.operations.view.evidences.renderers.*"
+																width="100%"
+																height="100%"
+																addedToStage="init()">
 
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="350"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="350"/>
+	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
-			import flashx.textLayout.conversion.TextConverter;
-			import spark.components.DataGrid;
-			import it.ht.rcs.console.DB;
-			import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-			import it.ht.rcs.console.operations.view.evidences.EvidencesView;
-      import it.ht.rcs.console.evidence.controller.EvidenceManager;
-      import it.ht.rcs.console.monitor.controller.LicenseManager;
-      import it.ht.rcs.console.evidence.model.Evidence;
+      import flashx.textLayout.conversion.TextConverter;
       
-			import locale.R;
-
-			import mx.collections.ArrayCollection;
-      import mx.rpc.events.ResultEvent;
+      import it.ht.rcs.console.DB;
+      import it.ht.rcs.console.evidence.controller.EvidenceManager;
+      import it.ht.rcs.console.evidence.model.Evidence;
+      import it.ht.rcs.console.monitor.controller.LicenseManager;
+      import it.ht.rcs.console.operations.view.evidences.EvidencesView;
+      import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+      import it.ht.rcs.console.utils.ExifUtils;
+      import it.ht.rcs.console.utils.StringUtils;
+      
+      import jp.shichiseki.exif.ExifInfo;
+      import jp.shichiseki.exif.ExifLoader;
+      
+      import locale.R;
+      
+      import mx.collections.ArrayCollection;
       import mx.rpc.events.FaultEvent;
+      import mx.rpc.events.ResultEvent;
+      
+      import spark.components.DataGrid;
 
-			private var content:String
 			private var mainView:EvidencesView;
+      
+      private var file:flash.filesystem.File;
+      private var stream:URLStream;
+      private var request:URLRequest
+      private var extension:String="";
 
-			[Bindable]
-			private var renderMode:String;
-
-			[Bindable]
-			private var ImageClass:Class;
 
 			[Bindable]
 			private var translation:Boolean;
 
 			[Bindable]
-			private var originalContent:String="";
+			private var from:String;
 
 			[Bindable]
-			private var translatedContent:String="";
+			private var rcpt:String;
+
+			[Bindable]
+			private var program:String;
+
+			[Bindable]
+			private var content:String
+
+			[Bindable]
+			private var originalContent:String;
+
+			[Bindable]
+			private var translatedContent:String;
+
+			[Bindable]
+			private var attachment:Boolean
+
+			[Bindable]
+			private var image:*;
+
+			[Bindable]
+			private var imgW:Number=80;
+
+			[Bindable]
+			private var imgH:Number=80;
+
+			[Bindable]
+			private var frameSize:Number=4;
+
+			[Bindable]
+			private var url:*;
+
+			[Bindable]
+			private var IconClass:Class;
+
+			private var imgLoader:URLLoader=new URLLoader();
+
+			[Bindable]
+			[Embed(source="/img/evidence/spinner30.swf")]
+			public var SpinnerAnimation:Class;
+
+			[Bindable]
+			[Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+			public var BrokenImage:Class;
+
+			[Bindable]
+			[Embed(source="/img/evidence/attachment64.png")]
+			public var AttachmentIcon:Class;
+
 
 			[Bindable]
 			override public function set data(value:*):void
 			{
+				if (value == null || value == data)
+					return;
 				super.data=value;
-
-				originalContent=data.data.content;
-				translatedContent=data.data.tr;
 
 				if (data.data.program.toLowerCase() == "" || data.data.program.toLowerCase() == null)
 				{
-					ImageClass=ChatIcons["chat"]
+					IconClass=ChatIcons["chat"]
 				}
 
 				else if (data.data.program.toLowerCase() == "google talk")
 				{
-					ImageClass=ChatIcons["gtalk"]
+					IconClass=ChatIcons["gtalk"]
 				}
 
 				else if (data.data.program.toLowerCase() == "messenger")
 				{
-					ImageClass=ChatIcons["bbm"]
+					IconClass=ChatIcons["bbm"]
 				}
 				else
 				{
-					ImageClass=ChatIcons[data.data.program.toLowerCase()]
+					IconClass=ChatIcons[data.data.program.toLowerCase()]
 				}
 
-				// topic, peer, content, program
 
 				if (data.data.from_display != "" && data.data.from_display != null)
 				{
-					fromTxt.visible=true;
-					fromTxt.includeInLayout=true;
-					fromTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('FROM')+": </b>" + data.data.from_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					from="<b>" + R.get('FROM') + ": </b>" + data.data.from_display;
 				}
 				else if (data.data.from != "" && data.data.from != null)
 				{
-					fromTxt.visible=true;
-					fromTxt.includeInLayout=true;
-					fromTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('FROM')+": </b>" + data.data.from, TextConverter.TEXT_FIELD_HTML_FORMAT)
+					from="<b>" + R.get('FROM') + ": </b>" + data.data.from;
 				}
 				else
 				{
-					fromTxt.visible=false;
-					fromTxt.includeInLayout=false;
+					from="";
 				}
-				if (data.data.program == "Facebook")
-				{
-					renderMode=TextConverter.TEXT_FIELD_HTML_FORMAT;
-				}
-				else
-				{
-					renderMode=TextConverter.PLAIN_TEXT_FORMAT
-				}
-
-				content=data.data.content;
-
 				//new format
 				if (data.data.rcpt_display != null && data.data.rcpt_display != "")
 				{
-					toTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('TO')+": </b>"+ data.data.rcpt_display, TextConverter.TEXT_FIELD_HTML_FORMAT)
-          toTxt.visible=toTxt.includeInLayout=true;
+					rcpt="<b>" + R.get('TO') + ": </b>" + data.data.rcpt_display;
 				}
 				else if (data.data.rcpt != null && data.data.rcpt != "")
 				{
-					toTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('TO')+": </b>" + data.data.rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)
-          toTxt.visible=toTxt.includeInLayout=true;
+					rcpt="<b>" + R.get('TO') + ": </b>" + rcpt;
 				}
 
 				//old format
 				else if (data.data.peer != null && data.data.peer != "")
 				{
-					toTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('TO')+": </b>" + data.data.peer, TextConverter.TEXT_FIELD_HTML_FORMAT)
-          toTxt.visible=toTxt.includeInLayout=true;
+					rcpt="<b>" + R.get('TO') + ": </b>" + data.data.peer;
 				}
-        
-        else
-        {
-          toTxt.visible=toTxt.includeInLayout=false;
-        
-        }
-        switch (translatedContent)
-        {
-          
-          case 'TRANS_QUEUED':
-            translatedContent='(' + R.get('TRANS_QUEUED') + ')';
-            break;
-          case 'TRANS_IN_PROGRESS':
-            translatedContent='(' + R.get('TRANS_IN_PROGRESS') + ')';
-            break;
-          case 'TRANS_ERROR':
-            translatedContent='(' + R.get('TRANS_ERROR') + ')';
-            break;
-          case null:
-            translatedContent='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
-            break;
-          default:
-            translatedContent=translatedContent;
-        }
 
-				contentTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('CONTENT')+": </b>" + originalContent, TextConverter.TEXT_FIELD_HTML_FORMAT);
-        translationTxt.setStyle("color", 0x666666);
-				translationTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('CONTENT')+": </b><i>" + translatedContent+"</i>", TextConverter.TEXT_FIELD_HTML_FORMAT);
-				programTxt.textFlow=TextConverter.importToFlow("<b>"+R.get('PROGRAM')+": </b>" + data.data.program, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				incomingTxt.textFlow=TextConverter.importToFlow("<b>Incoming: </b>" + data.data.incoming, TextConverter.TEXT_FIELD_HTML_FORMAT);
-				onTranslate(null);
+				else
+				{
+					rcpt=""
+				}
+
+				program="<b>" + R.get('PROGRAM') + ": </b>" + data.data.program
+
+				attachment=data.data._grid != null;
+				translationTxt.visible=translationTxt.includeInLayout=!attachment
+
+				content=attachment ? StringUtils.getFilename(data.data.path) : "<b>" + R.get('CONTENT') + ": </b>" + data.data.content;
+
+
+			
+
+				image=null
+
+				if (getAttachmentType() == "image")
+				{
+          imgW=imgH=80
+          this.validateDisplayList()
+          DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+				}
+				else
+				{
+          imgW=imgH=30
+          url=new AttachmentIcon()
+					this.validateDisplayList()
+
+				}
+
+				switch (translatedContent)
+				{
+
+					case 'TRANS_QUEUED':
+						translatedContent='(' + R.get('TRANS_QUEUED') + ')';
+						break;
+					case 'TRANS_IN_PROGRESS':
+						translatedContent='(' + R.get('TRANS_IN_PROGRESS') + ')';
+						break;
+					case 'TRANS_ERROR':
+						translatedContent='(' + R.get('TRANS_ERROR') + ')';
+						break;
+					case null:
+						translatedContent='(' + R.get('TRANSLATION_UNAVAILABLE') + ')';
+						break;
+					default:
+						translatedContent=translatedContent;
+				}
+				var renderer:EvidenceRenderer=this.owner as EvidenceRenderer;
+				var grid:DataGrid=renderer.owner as DataGrid;
+				grid.validateDisplayList();
+
 			}
 
 			private function init():void
@@ -159,43 +227,13 @@
 				translateLink.addEventListener(TextEvent.LINK, doTranslate);
 				translateLink.htmlText="<u><b><a href='event:doTranslate'>" + R.get('TRANSLATE_NOW') + "</a></b></u>"
 				onTranslate(null)
-			}
 
-			private function doTranslate(e:TextEvent):void
-			{
-        if(LicenseManager.instance.translation)
-        {
-    			var id:String=encodeURIComponent(data._id);
-    			var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
-    			EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault); 
-        }
-			}
-      
-      private function onTranslateResult(e:ResultEvent):void
-      {
-        data=e.result;
-        for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
-        {
-          var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
-          if (evidence)
-          {
-            if (evidence._id == e.result._id)
-            {
-              evidence.data.tr=e.result.data.tr;
-            }
-          }
-        }
-      }
-      
-      private function onTranslateFault(e:FaultEvent):void
-      {
-        trace("translation fault");
-      }
 
+			}
 
 			private function onTranslate(e:Event):void
 			{
-				if (data)
+				if (data && !data.data._grid)
 				{
 					if (!mainView.translation)
 					{
@@ -205,30 +243,193 @@
 					}
 					else
 					{
-  					if(LicenseManager.instance.translation)
-            {
-              contentTxt.visible=contentTxt.includeInLayout=false;
-              translationTxt.visible=translationTxt.includeInLayout=true;
-              
-              if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
-                translateLink.visible=translateLink.includeInLayout=true;
-              else
-                translateLink.visible=translateLink.includeInLayout=false;
-            }
+						if (LicenseManager.instance.translation)
+						{
+							contentTxt.visible=contentTxt.includeInLayout=false;
+							translationTxt.visible=translationTxt.includeInLayout=true;
+
+							if (translatedContent == '(' + R.get('TRANSLATION_UNAVAILABLE') + ')')
+								translateLink.visible=translateLink.includeInLayout=true;
+							else
+								translateLink.visible=translateLink.includeInLayout=false;
+						}
 					}
 				}
 
 			}
+
+			private function doTranslate(e:TextEvent):void
+			{
+				if (LicenseManager.instance.translation && !data.data._grid)
+				{
+					var id:String=encodeURIComponent(data._id);
+					var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+					EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
+				}
+			}
+
+			private function onTranslateResult(e:ResultEvent):void
+			{
+				data=e.result;
+				for (var i:int=0; i < EvidenceManager.instance._view.length; i++)
+				{
+					var evidence:Evidence=EvidenceManager.instance._view.getItemAt(i) as Evidence;
+					if (evidence)
+					{
+						if (evidence._id == e.result._id)
+						{
+							evidence.data.tr=e.result.data.tr;
+						}
+					}
+				}
+			}
+
+			private function onTranslateFault(e:FaultEvent):void
+			{
+				trace("translation fault");
+			}
+
+			private function onImageLoading(e:ProgressEvent):void
+			{
+				spinner.visible=true;
+			}
+
+			private function onImageError(e:IOErrorEvent):void
+			{
+				imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+				spinner.visible=false;
+				image=new BrokenImage()
+			}
+
+			private function onImageLoaded(e:Event):void
+			{
+				/* imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+				imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+				imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError); */
+        if (getAttachmentType() == "image")
+        {
+          this.validateDisplayList()
+          DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+          
+          var el:ExifLoader=new ExifLoader()
+          el.addEventListener(Event.COMPLETE, onExifLoaded );
+          el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
+          el.load( new URLRequest(url) ); 
+        }
+			}
+      
+      private function onExifError(e:IOErrorEvent):void
+      {
+        e.currentTarget.removeEventListener(Event.COMPLETE, onExifLoaded );
+        e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onExifError);
+      
+      }
+      
+      private function onExifLoaded(e:Event):void
+      {
+        var exif:ExifInfo = e.target.exif;
+
+        if(img.bitmapData && exif.ifds)
+        {
+          var bitmap:Bitmap=new Bitmap(img.bitmapData)
+          bitmap=ExifUtils.getEyeOrientedBitmap(bitmap, exif.ifds)
+          img.source=bitmap
+        }
+      }
+
+
+
+			private function getAttachmentType():String
+			{
+				if (String(data.data.type).toLowerCase().indexOf("image") != -1)
+					return "image";
+				if (String(data.data.type).toLowerCase().indexOf("audio") != -1)
+					return "audio";
+				return "other";
+
+			}
+      
+      private function onDownload():void
+      {
+        var target:String=EvidenceManager.instance.evidenceFilter.target;
+        var path:String
+        
+        DB.instance.demo ? path="grid/" + data.data._grid : path=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+        var fileName:String
+        if (data.data.path)
+        {
+     
+          fileName=data.data._grid + encodeURIComponent(target) + "_" + StringUtils.getFilename(data.data.path);
+        }
+        else
+        {
+        
+          fileName=data.data._grid + encodeURIComponent(target);
+        }
+        request=new URLRequest(path);
+        stream=new URLStream();
+        file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+        file.browseForSave("Download " + fileName);
+        file.addEventListener(Event.SELECT, onSelect);
+        
+      }
+      
+      private function onSelect(e:Event):void
+      {
+        
+       
+        stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+        stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+        stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);
+        stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onDownloadError)
+        stream.load(request);
+      }
+      
+      private function onDownloadProgress(e:ProgressEvent):void
+      {
+        var perc:int=int((e.bytesLoaded / e.bytesTotal) * 100)
+        
+      }
+      
+      private function onDownloadError(e:*):void
+      {
+        trace("error")
+      }
+      
+      private function onFileDownloaded(e:Event):void
+      {
+        
+        var fileData:ByteArray=new ByteArray();
+        stream.readBytes(fileData, 0, stream.bytesAvailable);
+        var fileStream:FileStream=new FileStream();
+        fileStream.open(file, FileMode.WRITE);
+        fileStream.writeBytes(fileData, 0, fileData.length);
+        fileStream.close();
+      }
+
 		]]>
 	</fx:Script>
-	<s:HGroup width="100%" height="100%" verticalAlign="top">
+	<s:HGroup width="100%"
+						height="100%"
+						verticalAlign="top">
 
-		<s:VGroup width="50%" verticalAlign="middle">
-			<s:RichText id="fromTxt" width="100%"/>
-			<s:RichText id="toTxt" width="100%"/>
+		<s:VGroup width="50%"
+							verticalAlign="middle">
+			<s:RichText id="fromTxt"
+									width="100%"
+									textFlow="{TextConverter.importToFlow(from, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+			<s:RichText id="toTxt"
+									width="100%"
+									textFlow="{TextConverter.importToFlow(rcpt, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
 			<s:HGroup verticalAlign="middle">
-				<s:BitmapImage width="16" height="16" source="{ImageClass}"/>
-				<s:RichText id="programTxt" width="100%"/>
+				<s:BitmapImage width="16"
+											 height="16"
+											 source="{IconClass}"/>
+				<s:RichText id="programTxt"
+										width="100%"
+										textFlow="{TextConverter.importToFlow(program, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
 			</s:HGroup>
 		</s:VGroup>
 
@@ -238,11 +439,53 @@
 				<s:SolidColorStroke color="0xCCCCCC"/>
 			</s:stroke>
 		</s:Line>
-		<s:VGroup width="50%" verticalAlign="middle">
-			<s:RichText id="incomingTxt" visible="false" width="100%" includeInLayout="false"/>
-			<s:RichText id="contentTxt" width="100%"/>
-			<s:RichText id="translationTxt" width="100%"/>
-			<mx:Text id="translateLink" visible="false" includeInLayout="false"/>
+		<s:VGroup width="50%"
+							verticalAlign="middle">
+			<s:RichText id="incomingTxt"
+									visible="false"
+									width="100%"
+									includeInLayout="false"/>
+			<s:RichText id="contentTxt"
+									width="100%"
+									textFlow="{TextConverter.importToFlow(content, TextConverter.TEXT_FIELD_HTML_FORMAT)}"/>
+
+			<s:RichText id="translationTxt"
+									textFlow="{TextConverter.importToFlow(translatedContent, TextConverter.TEXT_FIELD_HTML_FORMAT)}"
+									width="100%"
+									visible="{data.data._grid==null}"
+									includeInLayout="{data.data._grid==null}"/>
+
+			<s:BorderContainer id="frame"
+												 visible="{attachment}"
+												 includeInLayout="{attachment}"
+												 width="{img.width+(frameSize*2)}"
+												 height="{img.height+(frameSize*2)}"
+												 backgroundColor="0xFFFFFF"
+												 borderColor="0xCCCCCC"
+												 buttonMode="true"
+												 useHandCursor="true" click="onDownload()">
+		
+				<s:BitmapImage id="img"
+											 smooth="true"
+											 width="{imgW}"
+											 height="{imgH}"
+											 scaleMode="zoom"
+											 x="{frameSize-1}"
+											 y="{frameSize-1}"
+											 source="{url}"
+                       visible="{attachment}"
+                       includeInLayout="{attachment}" complete="onImageLoaded(event)">
+        </s:BitmapImage>
+        <s:SWFLoader id="spinner"
+                     width="30"
+                     height="30"
+                     x="27"
+                     y="27"
+                     />
+			</s:BorderContainer>
+			<mx:Text id="translateLink"
+							 visible="false"
+							 includeInLayout="false"/>
 		</s:VGroup>
 	</s:HGroup>
 

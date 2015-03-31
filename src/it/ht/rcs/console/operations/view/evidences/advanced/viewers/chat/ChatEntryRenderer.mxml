@@ -5,6 +5,19 @@
 										clipAndEnableScrolling="true"
 										width="100%">
 
+
+	<fx:Declarations>
+		<s:Fade id="fadeIn"
+						alphaFrom="0"
+						alphaTo="1"
+						duration="350"/>
+		<s:Fade id="fadeOut"
+						alphaFrom="1"
+						alphaTo="0"
+						duration="350"/>
+	</fx:Declarations>
+
+
 	<s:VGroup paddingBottom="4"
 						paddingLeft="4"
 						paddingRight="4"
@@ -27,16 +40,23 @@
 								width="100%">
 				<fx:Script>
 					<![CDATA[
-						import flashx.textLayout.conversion.TextConverter;
-						
-						import it.ht.rcs.console.evidence.controller.EvidenceManager;
-						import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
-						import it.ht.rcs.console.utils.TimeUtils;
-						
-						import mx.rpc.events.FaultEvent;
-						import mx.rpc.events.ResultEvent;
+            import flashx.textLayout.conversion.TextConverter;
+            
+            import it.ht.rcs.console.DB;
+            import it.ht.rcs.console.evidence.controller.EvidenceManager;
+            import it.ht.rcs.console.operations.view.evidences.renderers.ChatIcons;
+            import it.ht.rcs.console.utils.BMPDecoder;
+            import it.ht.rcs.console.utils.ExifUtils;
+            import it.ht.rcs.console.utils.StringUtils;
+            import it.ht.rcs.console.utils.TimeUtils;
+            
+            import jp.shichiseki.exif.ExifInfo;
+            import jp.shichiseki.exif.ExifLoader;
             
             import locale.R;
+            
+            import mx.rpc.events.FaultEvent;
+            import mx.rpc.events.ResultEvent;
 
 						[Bindable]
 						private var isPeer:Boolean;
@@ -52,6 +72,41 @@
 
 						[Bindable]
 						private var ImageClass:Class;
+
+						private var imgLoader:Loader=new Loader();
+
+						[Bindable]
+						[Embed(source="/img/evidence/spinner30.swf")]
+						public var SpinnerAnimation:Class;
+
+						[Bindable]
+						[Embed(source="/img/evidence/broken-link-image-gif.jpg")]
+						public var BrokenImage:Class;
+            
+            [Bindable]
+            [Embed(source="/img/evidence/attachment64.png")]
+            public var AttachmentIcon:Class;
+
+						[Bindable]
+						private var frameWidth:Number=4;
+            
+            [Bindable]
+            private var image:*;
+
+						[Bindable]
+						private var url:String;
+            
+            [Bindable]
+						private var imgWidth:Number=200;
+            
+            [Bindable]
+						private var imgHeight:Number=200;
+
+
+						private var file:flash.filesystem.File;
+						private var stream:URLStream;
+						private var request:URLRequest
+						private var extension:String="";
 
 						private function formatDate(value:Number):String
 						{
@@ -86,14 +141,14 @@
 										nickname=splitted[0];
 										message=content.substring(nickname.length + 1, content.length);
 									} */
-									
-										//no nickname
-										nickname="";
-										if (data.data.from != null && data.data.from != "")
-										{
-											nickname=data.data.from_display || data.data.from;
-										}
-										message=content;
+
+									//no nickname
+									nickname="";
+									if (data.data.from != null && data.data.from != "")
+									{
+										nickname=data.data.from_display || data.data.from;
+									}
+									message=content;
 								}
 								else
 								{
@@ -102,36 +157,36 @@
 								}
 								if (data.data.content != null && this.column.dataField == "data.tr")
 								{
-                  messageTxt.setStyle("color",0x666666)
-                  switch (data.data.tr)
-                  {
-                    
-                    case 'TRANS_QUEUED':
-                      message='<i>(' + R.get('TRANS_QUEUED') + ')</i>';
-                      break;
-                    case 'TRANS_IN_PROGRESS':
-                      message='<i>(' + R.get('TRANS_IN_PROGRESS') + ')</i>';
-                      break;
-                    case 'TRANS_ERROR':
-                      message='<i>(' + R.get('TRANS_ERROR') + ')</i>';
-                      break;
-                    case null:
-                      message='<i>(' + R.get('TRANSLATION_UNAVAILABLE') + ')</i>';
-                      break;
-                    default:
-                      message='<i>'+data.data.tr+'</i>';
-                  }
+									messageTxt.setStyle("color", 0x666666)
+									switch (data.data.tr)
+									{
 
-                    var id:String=encodeURIComponent(data._id);
-                    var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);  
-                    //EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
-              
+										case 'TRANS_QUEUED':
+											message='<i>(' + R.get('TRANS_QUEUED') + ')</i>';
+											break;
+										case 'TRANS_IN_PROGRESS':
+											message='<i>(' + R.get('TRANS_IN_PROGRESS') + ')</i>';
+											break;
+										case 'TRANS_ERROR':
+											message='<i>(' + R.get('TRANS_ERROR') + ')</i>';
+											break;
+										case null:
+											message='<i>(' + R.get('TRANSLATION_UNAVAILABLE') + ')</i>';
+											break;
+										default:
+											message='<i>' + data.data.tr + '</i>';
+									}
+
+									var id:String=encodeURIComponent(data._id);
+									var target:String=encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+										//EvidenceManager.instance.translate(id, target, onTranslateResult, onTranslateFault);
+
 								}
-                else
-                {
-                  messageTxt.setStyle("color",0x000000)
-                
-                }
+								else
+								{
+									messageTxt.setStyle("color", 0x000000)
+
+								}
 								var peers:Array
 								if (data.data.rcpt != null && data.data.rcpt != "")
 								{
@@ -139,50 +194,52 @@
 								}
 								else
 								{
-									if(data.data.peer) peers=data.data.peer.split(" ");
-                  else peers=[];
+									if (data.data.peer)
+										peers=data.data.peer.split(" ");
+									else
+										peers=[];
 								}
-                //SKYPE
+								//SKYPE
 								if (data.data.program.toLowerCase() == "skype")
-								{ 
-                  if(data.data.incoming!=null )
-                  {
-                    isPeer=data.data.incoming
-                  }
-                  else
-                  {
-									  isPeer=(peers.indexOf(nickname)!=-1);
-                  }
+								{
+									if (data.data.incoming != null)
+									{
+										isPeer=data.data.incoming
+									}
+									else
+									{
+										isPeer=(peers.indexOf(nickname) != -1);
+									}
 									targetColor=0xCCCCCC;
 								}
-                //VIBER
-                if (data.data.program.toLowerCase() == "viber")
-                { 
-                  if(data.data.incoming!=null )
-                  {
-                    isPeer=data.data.incoming
-                  }
-                  else
-                  {
-                    isPeer=(peers.indexOf(nickname)!=-1);
-                  }
-                  targetColor=0xCCCCCC;
-                }
-                //FACEBOOK
+								//VIBER
+								if (data.data.program.toLowerCase() == "viber")
+								{
+									if (data.data.incoming != null)
+									{
+										isPeer=data.data.incoming
+									}
+									else
+									{
+										isPeer=(peers.indexOf(nickname) != -1);
+									}
+									targetColor=0xCCCCCC;
+								}
+								//FACEBOOK
 								else if (data.data.program.toLowerCase() == "facebook")
 								{
-                  if(data.data.incoming!=null && data.data.rcpt!=null)
-                  {
-                    isPeer=data.data.incoming
-                  }
-                  else
-                  {
-                    isPeer=data.data.peer == nickname;
-                  }
-									
+									if (data.data.incoming != null && data.data.rcpt != null)
+									{
+										isPeer=data.data.incoming
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+
 									targetColor=0xCCCCCC;
 								}
-                //TWITTER
+								//TWITTER
 								else if (data.data.program.toLowerCase() == "twitter")
 								{
 									if (data.data.rcpt != null && data.data.rcpt != "")
@@ -195,7 +252,7 @@
 									}
 									targetColor=0x99FFFF;
 								}
-                //WHATSAPP
+								//WHATSAPP
 								else if (data.data.program.toLowerCase() == "whatsapp")
 								{
 									if (data.data.rcpt != null && data.data.rcpt != "")
@@ -209,105 +266,119 @@
 									}
 									targetColor=0x99FFFF;
 								}
+
+								//TELEGRAM
+								else if (data.data.program.toLowerCase() == "telegram")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+
+								//WECHAT
+								else if (data.data.program.toLowerCase() == "wechat")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+
+								//LINE
+								else if (data.data.program.toLowerCase() == "line")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+
+								else if (data.data.program.toLowerCase() == "google talk")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+
+								else if (data.data.program.toLowerCase() == "gmail")
+								{
+									if (data.data.rcpt != null && data.data.rcpt != "")
+									{
+										//isPeer=data.data.rcpt==nickname;
+										isPeer=data.data.incoming;
+
+									}
+									else
+									{
+										isPeer=data.data.peer == nickname;
+									}
+									targetColor=0x99FFFF;
+								}
+
+								//MESSENGER
+								if (data.data.program.toLowerCase() == "messenger")
+								{
+									if (data.data.incoming != null)
+									{
+										isPeer=data.data.incoming
+									}
+									else
+									{
+										isPeer=(peers.indexOf(nickname) != -1);
+									}
+									targetColor=0xCCCCCC;
+								}
+								//BBM
+								if (data.data.program.toLowerCase() == "bbm")
+								{
+									if (data.data.incoming != null)
+									{
+										isPeer=data.data.incoming
+									}
+									else
+									{
+										isPeer=(peers.indexOf(nickname) != -1);
+									}
+									targetColor=0xCCCCCC;
+								}
                 
-                  //TELEGRAM
-                else if (data.data.program.toLowerCase() == "telegram")
+                //MESSAGES
+                if (data.data.program.toLowerCase() == "messages")
                 {
-                  if (data.data.rcpt != null && data.data.rcpt != "")
-                  {
-                    //isPeer=data.data.rcpt==nickname;
-                    isPeer=data.data.incoming;
-                  }
-                  else
-                  {
-                    isPeer=data.data.peer == nickname;
-                  }
-                  targetColor=0x99FFFF;
-                }
-                
-                  //WECHAT
-                else if (data.data.program.toLowerCase() == "wechat")
-                {
-                  if (data.data.rcpt != null && data.data.rcpt != "")
-                  {
-                    //isPeer=data.data.rcpt==nickname;
-                    isPeer=data.data.incoming;
-                  }
-                  else
-                  {
-                    isPeer=data.data.peer == nickname;
-                  }
-                  targetColor=0x99FFFF;
-                }
-                
-                  //LINE
-                else if (data.data.program.toLowerCase() == "line")
-                {
-                  if (data.data.rcpt != null && data.data.rcpt != "")
-                  {
-                    //isPeer=data.data.rcpt==nickname;
-                    isPeer=data.data.incoming;
-                  }
-                  else
-                  {
-                    isPeer=data.data.peer == nickname;
-                  }
-                  targetColor=0x99FFFF;
-                }
-                
-                else if (data.data.program.toLowerCase() == "google talk")
-                {
-                  if (data.data.rcpt != null && data.data.rcpt != "")
-                  {
-                    //isPeer=data.data.rcpt==nickname;
-                    isPeer=data.data.incoming;
-                   
-                  }
-                  else
-                  {
-                    isPeer=data.data.peer == nickname;
-                  }
-                  targetColor=0x99FFFF;
-                }
-                
-                else if (data.data.program.toLowerCase() == "gmail")
-                {
-                  if (data.data.rcpt != null && data.data.rcpt != "")
-                  {
-                    //isPeer=data.data.rcpt==nickname;
-                    isPeer=data.data.incoming;
-                    
-                  }
-                  else
-                  {
-                    isPeer=data.data.peer == nickname;
-                  }
-                  targetColor=0x99FFFF;
-                }
-                
-                //MESSENGER
-                if (data.data.program.toLowerCase() == "messenger")
-                { 
-                  if(data.data.incoming!=null )
+                  if (data.data.incoming != null)
                   {
                     isPeer=data.data.incoming
                   }
                   else
                   {
-                    isPeer=(peers.indexOf(nickname)!=-1);
-                  }
-                  targetColor=0xCCCCCC;
-                }
-                //BBM
-                if (data.data.program.toLowerCase() == "bbm")
-                { 
-                  if(data.data.incoming!=null )
-                  {
-                    isPeer=data.data.incoming
-                  }
-                  else
-                  {
-                    isPeer=(peers.indexOf(nickname)!=-1);
+                    isPeer=(peers.indexOf(nickname) != -1);
                   }
                   targetColor=0xCCCCCC;
                 }
@@ -320,29 +391,188 @@
 								else
 									messageTxt.textFlow=TextConverter.importToFlow(message, TextConverter.TEXT_FIELD_HTML_FORMAT);
 
+
+								if (data.data._grid)
+								{
+									data.data.from_display ? messageTxt.textFlow=TextConverter.importToFlow('<b>' + data.data.from_display + ":</b> "+StringUtils.getFilename(data.data.path) , TextConverter.TEXT_FIELD_HTML_FORMAT) : TextConverter.importToFlow('<b>' + data.data.from + ":</b> ", TextConverter.TEXT_FIELD_HTML_FORMAT);
+									var lastURL:String=url;
+									DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+									if (url != lastURL)
+                  {
+                    (String(data.data.type).toLowerCase().indexOf("image") != -1)? imgWidth=imgHeight=200:imgWidth=imgHeight=50;
+                    (String(data.data.type).toLowerCase().indexOf("image") != -1)? image=url: image=new AttachmentIcon();
+                  }
+					
+
+								}
 							}
 						}
-            
-            private function onTranslateResult(e:ResultEvent):void
-            {
-              trace("translation result");
-              
-              //data=e.result;
-              //this.prepare(false);
-              //evidence.data.tr=e.result.data.tr;
-             
-            }
-            
-            private function onTranslateFault(e:FaultEvent):void
-            {
-              trace("translation fault");      
-            }
 
+						private function loadImage():void
+						{
+
+							DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+							frame.visible=frame.includeInLayout=true;
+							img.width=200
+							img.height=200
+
+							imgLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onImageLoading);
+							imgLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onImageLoaded);
+							imgLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onImageError);
+
+
+							imgLoader.load(new URLRequest(url))
+						}
+
+						private function onImageLoading(e:ProgressEvent):void
+						{
+							img.visible=false;
+							spinner.visible=true;
+						}
+
+						private function onImageError(e:IOErrorEvent):void
+						{
+							imgLoader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+							imgLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onImageLoaded);
+							imgLoader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onImageError);
+							spinner.visible=false;
+							img.source=new BrokenImage()
+							img.visible=true;
+							//fadeIn.play([img]);
+						}
+
+						
+            
+            private function onImageLoaded():void
+            {
+              /* imgLoader.removeEventListener(ProgressEvent.PROGRESS, onImageLoading);
+              imgLoader.removeEventListener(Event.COMPLETE, onImageLoaded);
+              imgLoader.removeEventListener(IOErrorEvent.IO_ERROR, onImageError); */
+              if ((String(data.data.type).toLowerCase().indexOf("image") != -1))
+              {
+                this.validateDisplayList()
+                DB.instance.demo ? url="grid/" + data.data._grid : url=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(EvidenceManager.instance.evidenceFilter.target);
+                
+                var el:ExifLoader=new ExifLoader()
+                el.addEventListener(Event.COMPLETE, onExifLoaded );
+                el.addEventListener(IOErrorEvent.IO_ERROR, onExifError);
+                el.load( new URLRequest(url) ); 
+              }
+            }
+            
+            private function onExifError(e:IOErrorEvent):void
+            {
+              e.currentTarget.removeEventListener(Event.COMPLETE, onExifLoaded );
+              e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, onExifError);
+              
+            }
+            
+            private function onExifLoaded(e:Event):void
+            {
+              var exif:ExifInfo = e.target.exif;
+              
+              if(img.bitmapData && exif.ifds)
+              {
+                var bitmap:Bitmap=new Bitmap(img.bitmapData)
+                bitmap=ExifUtils.getEyeOrientedBitmap(bitmap, exif.ifds)
+                img.source=bitmap
+              }
+            }
+            
+            
+
+						private function onTranslateResult(e:ResultEvent):void
+						{
+							trace("translation result");
+
+							//data=e.result;
+							//this.prepare(false);
+							//evidence.data.tr=e.result.data.tr;
+
+						}
+
+						private function onTranslateFault(e:FaultEvent):void
+						{
+							trace("translation fault");
+						}
+
+						private function onDownload():void
+						{
+              var target:String=EvidenceManager.instance.evidenceFilter.target;
+              var path:String
+              
+              DB.instance.demo ? path="grid/" + data.data._grid : path=DB.hostAutocomplete(Console.currentSession.server) + "grid/" + data.data._grid + "?target_id=" + encodeURIComponent(target);
+              var fileName:String
+              if (data.data.path)
+              {
+                
+                fileName=data.data._grid + encodeURIComponent(target) + "_" + StringUtils.getFilename(data.data.path);
+              }
+              else
+              {
+                
+                fileName=data.data._grid + encodeURIComponent(target);
+              }
+              request=new URLRequest(url);
+              stream=new URLStream();
+              file=flash.filesystem.File.documentsDirectory.resolvePath(fileName);
+              file.browseForSave("Download " + fileName);
+              file.addEventListener(Event.SELECT, onSelect);
+						}
+
+						private function onSelect(e:Event):void
+						{
+
+							if (file.extension != extension)
+							{
+								file=new flash.filesystem.File(file.nativePath);
+							}
+							stream.addEventListener(Event.COMPLETE, onFileDownloaded);
+							stream.addEventListener(ProgressEvent.PROGRESS, onDownloadProgress);
+							stream.addEventListener(IOErrorEvent.IO_ERROR, onDownloadError);
+							stream.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onDownloadError)
+							stream.load(request);
+						}
+
+						private function onDownloadProgress(e:ProgressEvent):void
+						{
+							var perc:int=int((e.bytesLoaded / e.bytesTotal) * 100)
+
+						}
+
+						private function onDownloadError(e:*):void
+						{
+
+						}
+
+						private function onFileDownloaded(e:Event):void
+						{
+
+							var fileData:ByteArray=new ByteArray();
+							stream.readBytes(fileData, 0, stream.bytesAvailable);
+							var fileStream:FileStream=new FileStream();
+							fileStream.open(file, FileMode.WRITE);
+							fileStream.writeBytes(fileData, 0, fileData.length);
+							fileStream.close();
+						}
+
+						private function onMouseOver():void
+						{
+							img.alpha=0.7;
+							downloadLabel.visible=true;
+            
+						}
+
+						private function onMouseOut():void
+						{
+							img.alpha=1;
+							downloadLabel.visible=false;
+						}
 					]]>
 				</fx:Script>
 				<s:HGroup width="100%">
 					<s:BitmapImage width="16"
-												 height="16" 
+												 height="16"
 												 source="{ImageClass}"/>
 					<s:Label textAlign="right"
 									 id="dateTxt"
@@ -351,6 +581,47 @@
 				</s:HGroup>
 				<s:RichText id="messageTxt"
 										width="100%"/>
+				<s:BorderContainer id="frame"
+													 buttonMode="true"
+													 useHandCursor="true"
+													 click="onDownload()"
+													 mouseOver="onMouseOver()"
+													 mouseOut="onMouseOut()"
+													 visible="{data.data._grid!=null}"
+													 includeInLayout="{data.data._grid!=null}"
+													 width="{img.width+(frameWidth*2)}"
+													 height="{img.height+(frameWidth*2)}"
+													 backgroundColor="0xFFFFFF"
+													 borderColor="0xCCCCCC">
+         
+					<s:SWFLoader id="spinner"
+											 width="30"
+											 height="30"
+											 x="85"
+											 y="85"
+                       visible="false"
+											 source="{SpinnerAnimation}"/>
+
+					<s:BitmapImage id="img"
+												 width="{imgWidth}"
+												 height="{imgHeight}"
+												 x="{frameWidth-1}"
+												 y="{frameWidth-1}"
+                         scaleMode="letterbox"
+                         smooth="true"
+                         source="{image}" complete="onImageLoaded()"
+                         >
+            
+					</s:BitmapImage>
+          <s:Label text="Click to download"
+                   id="downloadLabel"
+                   visible="false"
+                   width="{img.width}"
+                   y="{img.height*.5}"
+                   fontSize="8"
+                   textAlign="center"
+                   color="0x000000"/>
+				</s:BorderContainer>
 			</s:VGroup>
 		</s:BorderContainer>
 	</s:VGroup>

